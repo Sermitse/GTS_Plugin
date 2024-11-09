@@ -320,7 +320,7 @@ void GtsManager::Update() {
 				CollisionDamage.DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), Radius_Default_Idle, 0, 0.0, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleL, false, false, false, false);
 				CollisionDamage.DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), Radius_Default_Idle, 0, 0.0, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleR, true, false, false, false);
 				
-				ClothManager::GetSingleton().CheckRip();
+				ClothManager::GetSingleton().CheckClothingRip(actor);
 				TinyCalamity_SeekActors(actor);
 				SpawnActionIcon(actor);
 

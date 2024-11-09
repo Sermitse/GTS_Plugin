@@ -1,4 +1,5 @@
 #include "hooks/PreventAnimations.hpp"
+#include "hooks/ActorEquipManager.hpp"
 #include "hooks/hkbBehaviorGraph.hpp"
 #include "hooks/playerCharacter.hpp"
 #include "hooks/actorRotation.hpp"
@@ -64,6 +65,7 @@ namespace Hooks
 		Hook_hkbBehaviorGraph::Hook();
 		Hook_PlayerCharacter::Hook();
 		Hook_Actor::Hook(trampoline);
+		Hook_ActorEquipManager::Hook(trampoline);
 		Hook_Character::Hook();
 		Hook_Sinking::Hook(trampoline);
 		Hook_Jumping::Hook(trampoline);

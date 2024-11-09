@@ -11,34 +11,41 @@
 #include "timer.hpp"
 #include "timer.hpp"
 #include "managers/Rumble.hpp"
+#include "managers/animation/Utils/AnimationUtils.hpp"
 
 using namespace RE;
 using namespace Gts;
 
 namespace Gts {
 
-#define RANDOM_OFFSET (0.05 * ((rand() % 5) + 1.0))
-
+    #define RANDOM_OFFSET RandomFloat(0.01, rip_randomOffsetMax - 0.01)
+	static bool RipClothManagerActive;
 
 	// List of keywords (Editor ID's) we want to ignore when stripping
 	static const std::vector<string> KeywordBlackList = {
-		"SOS_Genitals" //Fix Slot 52 Genitals while still keeping the ability to unequip slot 52 underwear
+		"SOS_Genitals", //Fix Slot 52 Genitals while still keeping the ability to unequip slot 52 underwear
+		"ArmorJewelry",
+		"VendorItemJewelry"
+		"ClothingRing",
+		"ClothingNecklace",
+		"SexLabNoStrip", //This is the keyword 3BA uses for the SMP addons?, it doesnt even originate from SL.
+		"GTSDontStrip"
 	};
 
 	//List of slots we want to check
 	static const std::vector<BGSBipedObjectForm::BipedObjectSlot> VallidSlots = {
 		BGSBipedObjectForm::BipedObjectSlot::kHead,                 // 30
-		// BGSBipedObjectForm::BipedObjectSlot::kHair,				// 31
+		// BGSBipedObjectForm::BipedObjectSlot::kHair,					// 31
 		BGSBipedObjectForm::BipedObjectSlot::kBody,                 // 32
 		BGSBipedObjectForm::BipedObjectSlot::kHands,                // 33
 		BGSBipedObjectForm::BipedObjectSlot::kForearms,             // 34
-		// BGSBipedObjectForm::BipedObjectSlot::kAmulet,			// 35
-		// BGSBipedObjectForm::BipedObjectSlot::kRing,				// 36
+		// BGSBipedObjectForm::BipedObjectSlot::kAmulet,					// 35
+		// BGSBipedObjectForm::BipedObjectSlot::kRing,					// 36
 		BGSBipedObjectForm::BipedObjectSlot::kFeet,                 // 37
 		BGSBipedObjectForm::BipedObjectSlot::kCalves,               // 38
-		// BGSBipedObjectForm::BipedObjectSlot::kShield,			// 39
-		// BGSBipedObjectForm::BipedObjectSlot::kTail,				// 40
-		// BGSBipedObjectForm::BipedObjectSlot::kLongHair,			// 41
+		// BGSBipedObjectForm::BipedObjectSlot::kShield,					// 39
+		// BGSBipedObjectForm::BipedObjectSlot::kTail,					// 40
+		// BGSBipedObjectForm::BipedObjectSlot::kLongHair,				// 41
 		BGSBipedObjectForm::BipedObjectSlot::kCirclet,              // 42
 		BGSBipedObjectForm::BipedObjectSlot::kEars,                 // 43
 		BGSBipedObjectForm::BipedObjectSlot::kModMouth,             // 44
@@ -47,18 +54,18 @@ namespace Gts {
 		BGSBipedObjectForm::BipedObjectSlot::kModBack,              // 47
 		BGSBipedObjectForm::BipedObjectSlot::kModMisc1,             // 48
 		BGSBipedObjectForm::BipedObjectSlot::kModPelvisPrimary,     // 49
-		// BGSBipedObjectForm::BipedObjectSlot::kDecapitateHead,	// 50
-		// BGSBipedObjectForm::BipedObjectSlot::kDecapitate,		// 51
+		// BGSBipedObjectForm::BipedObjectSlot::kDecapitateHead,			// 50
+		// BGSBipedObjectForm::BipedObjectSlot::kDecapitate,				// 51
 		BGSBipedObjectForm::BipedObjectSlot::kModPelvisSecondary,   // 52
-		// BGSBipedObjectForm::BipedObjectSlot::kModLegRight,		// 53
+		BGSBipedObjectForm::BipedObjectSlot::kModLegRight,			// 53
 		BGSBipedObjectForm::BipedObjectSlot::kModLegLeft,           // 54
-		// BGSBipedObjectForm::BipedObjectSlot::kModFaceJewelry,	// 55
+		BGSBipedObjectForm::BipedObjectSlot::kModFaceJewelry,		// 55
 		BGSBipedObjectForm::BipedObjectSlot::kModChestSecondary,    // 56
 		BGSBipedObjectForm::BipedObjectSlot::kModShoulder,          // 57
-		// BGSBipedObjectForm::BipedObjectSlot::kModArmLeft,		// 58
+		BGSBipedObjectForm::BipedObjectSlot::kModArmLeft,			// 58
 		BGSBipedObjectForm::BipedObjectSlot::kModArmRight,          // 59
-		// BGSBipedObjectForm::BipedObjectSlot::kModMisc2,			// 60
-		// BGSBipedObjectForm::BipedObjectSlot::kFX01,				// 61
+		// BGSBipedObjectForm::BipedObjectSlot::kModMisc2,				// 60
+		// BGSBipedObjectForm::BipedObjectSlot::kFX01,					// 61
 	};
 
 	ClothManager& ClothManager::GetSingleton() noexcept {
@@ -69,121 +76,247 @@ namespace Gts {
 	std::string ClothManager::DebugName() {
 		return "ClothManager";
 	}
+	//Add A check bool to transient to decect npc_reequips
 
-	//Get All Whitelisted Armors from an Actor
-	std::vector<TESObjectARMO*> ParseArmors(RE::Actor *Act) {
-		std::vector<TESObjectARMO *> ArmorList;
+	//I don't like this. Ideally we should call the same update func that the game does when the npc changes cells for example.
+	//But alas i have no idea how to do that :(
+	//This will equip all armor in the inventory
+	void ReEquipClothing(Actor* a_actor) {
+		//log::info("ReEquip: {}", a_actor->GetName());
+		const auto inv = a_actor->GetInventory();
+		for (const auto& [item, invData] : inv) {
+			const auto& [count, entry] = invData;
+			if (count > 0) {
+				if (item->As<RE::TESObjectARMO>()) {
+					for (const auto& xList : *entry->extraLists) {
+						RE::ActorEquipManager::GetSingleton()->EquipObject(a_actor, item, xList, 1, nullptr, false, false, false);
+					}
+				}
+			}
+		}
+	}
+
+	float ClothManager::ReConstructOffset(Actor* a_actor, float scale) {
+
+		if (!a_actor) {
+			return 0.0;
+		}
+		float offset = 0.0;
+
+		if (scale < 0.0) return -1.0;
+
+		if (scale >= rip_tooBig) {
+			offset = rip_tooBig - rip_threshold + rip_randomOffsetMax;
+		}
+		else if (scale >= rip_threshold) {
+			offset = scale - rip_threshold + rip_randomOffsetMax;
+		}
+		else {
+			offset = 0.0;
+		}
+
+		//log::info("ReConstructOffset on: {} with offset {}", a_actor->formID, offset);
+		return offset;
+	}
+
+	//Have We Shrinked Since The Last Update?
+	bool IsShrinking(Actor* a_actor, float Scale) {
+
+		if (!a_actor) return false;
+
+		auto transient = Transient::GetSingleton().GetActorData(a_actor);
+		if (!transient) return false;
+		// If Current Scale is Equal or Larger, we either growed or stayed the same so no shriking happened
+		bool Shrinking = !(Scale >= transient->rip_lastScale);
+		transient->rip_lastScale = Scale;
+		//log::info("Shrinking: {}", Shrinking);
+		return Shrinking;
+	}
+
+	void RipRandomClothing(RE::Actor* a_actor) {
+
+		if(!a_actor) {
+			return;
+		}
+
+		std::vector<TESObjectARMO*> ArmorList;
 		for (auto Slot : VallidSlots) {
 
-			auto Armor = Act->GetWornArmor(Slot);
+			auto Armor = a_actor->GetWornArmor(Slot);
 			// If armor is null skip
 			if (!Armor) {
 				continue;
 			}
 
-			for (const auto &BKwd : KeywordBlackList) {
+			for (const auto& BKwd : KeywordBlackList) {
 				if (Armor->HasKeywordString(BKwd)) {
-					continue;    //If blacklisted keyword is found skip
+					goto BKwd_Skip; //If blacklisted keyword is found skip
 				}
-				ArmorList.push_back(Armor);                                             //Else Add it to the vector
+				                                  
 			}
-		}
-		return ArmorList;
-	}
 
-	//Have We Shrinked Since The Last Call?
-	int IsShrinking(float Scale) {
-		static float LastScale;
-		// If Current Scale is Equal or Larger, we either growed or stayed the same so no shriking happened
-		bool Shrinking = !(Scale >= LastScale);
-		LastScale = Scale;
-		//log::info("Shrinking: {}", Shrinking);
-		return Shrinking;
-	}
+			//Else Add it to the vector
+			ArmorList.push_back(Armor);
 
-	void DoRip(RE::Actor* Act, RE::TESObjectARMO* Slot) {
-
-		if(Slot == nullptr) {
-			return;
+			//Funny label
+		BKwd_Skip:
+			continue;
 		}
 
-		PlayMoanSound(Act, 1.0);
-		auto manager = RE::ActorEquipManager::GetSingleton();
-		// log::info("Rip");
-		manager->UnequipObject(Act, Slot);
-		Runtime::PlaySound("ClothTearSound", Act, 1.0, 1.0);
-		Rumbling::Once("ClothManager", Act, Rumble_Misc_TearClothes, 0.075);
-	}
-
-	void ClothManager::CheckRip() {
-		if (Runtime::GetFloat("AllowClothTearing") == 0.0) {
-			return; // Abort doing anything if not set to 1
-
-		}
-		static Timer timer = Timer(1.2);
-
-		if (!timer.ShouldRunFrame()) {
-			return;
-		}
-
-		//log::info("CheckRip Run");
-		auto PlayerPtr = PlayerCharacter::GetSingleton();
-		if (!PlayerPtr) {
-			return;
-		}
-		float CurrentScale = get_visual_scale(PlayerPtr);
-
-		if (CurrentScale <= TearThreshold) {
-			// log::info("Too Small {} should be {}", CurrentScale, TearThreshold);
-			AddedThreshold = 0;
-			return;  // Less than tear threshold? Dont Run and initialize / reset AddedThreshold incase of game load
-		}
-
-		//Player is Shrinking, Don't Run
-		if (IsShrinking(CurrentScale)) {
-			//log::info("Currently Shrinking {}", CurrentScale);
-			//if shrinking recalculated the needed threshold so its always slightly above the current scale,
-			//this prevents ripping after we stop shrinking
-			AddedThreshold = CurrentScale - TearThreshold + RANDOM_OFFSET;
-			return;
-		}
-
-		std::vector<TESObjectARMO *> Armors = ParseArmors(PlayerPtr);
-
-		auto ArmorCount = Armors.size();
+		int ArmorCount = ArmorList.size();
 		if (ArmorCount == 0) {
 			return; //No Vallid Armors Found
-
 		}
+
 		// Select Random Armor To Possibly Remove
-		auto RandomSlot = rand() % ArmorCount;
-		//log::info("Selected Index for armor: {}", RandomSlot);
-		auto ArmorSlot = Armors[RandomSlot];
+		int idx = RandomInt(0, ArmorCount - 1);
 
-		// If True it means we just loaded in and are larger than TearThreshold but not too big
-		// If we Arent too big
-		// Set AddedThreshold To be just above Current Scale so ripping doesnt happen on game load
-		if (AddedThreshold == -1.0 && !(CurrentScale > TooBig)) {
-			AddedThreshold = CurrentScale - TearThreshold + RANDOM_OFFSET;
-			// log::info("OnGameLoad Added Threshold: {}", AddedThreshold);
+		TESObjectARMO* tesarmo = ArmorList[idx];
+		if (!tesarmo) return;
+
+
+		auto manager = RE::ActorEquipManager::GetSingleton();
+		manager->UnequipObject(a_actor, tesarmo, nullptr, 1, nullptr, true, false, false);
+
+		PlayMoanSound(a_actor, 0.7);
+		Task_FacialEmotionTask_Moan(a_actor, 1.0, "RipCloth");
+		Runtime::PlaySound("ClothTearSound", a_actor, 0.7, 1.0);
+		Rumbling::Once("ClothManager", a_actor, Rumble_Misc_TearClothes, 0.075);
+	}
+
+	void RipAllClothing(RE::Actor* a_actor) {
+
+		if (!a_actor) {
 			return;
 		}
 
-		// Rip Imediatly if too big
-		if (CurrentScale > TooBig) {
-			// log::info("Too Big: {}", CurrentScale);
-			AddedThreshold = 0;
-			DoRip(PlayerPtr, ArmorSlot);
+		auto manager = RE::ActorEquipManager::GetSingleton();
+		bool Ripped = false;
+
+		for (auto Slot : VallidSlots) {
+
+			TESObjectARMO* Armor = a_actor->GetWornArmor(Slot);
+			// If armor is null skip
+			if (!Armor) {
+				continue;
+			}
+
+			for (const auto& BKwd : KeywordBlackList) {
+				if (Armor->HasKeywordString(BKwd)) {
+					//Simplest way to break the parent loop
+					goto BKwd_Skip;
+				}
+			}
+			
+			manager->UnequipObject(a_actor, Armor, nullptr, 1, nullptr, true, false, false);
+			Ripped = true;
+
+			//Funny label
+			BKwd_Skip:
+			     continue;
+		}
+
+		if (Ripped) {
+			PlayMoanSound(a_actor, 1.0);
+			Task_FacialEmotionTask_Moan(a_actor, 1.0, "RipCloth");
+			Runtime::PlaySound("ClothTearSound", a_actor, 1.0, 1.0);
+			Rumbling::Once("ClothManager", a_actor, Rumble_Misc_TearAllClothes, 0.095);
+		}
+	}
+
+	void ClothManager::CheckClothingRip(Actor* a_actor) {
+
+		if (!a_actor) return;
+
+		RipClothManagerActive = (Runtime::GetFloat("AllowClothTearing") > 0.0f);
+		if (!RipClothManagerActive || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return;
+
+		static Timer timer = Timer(1.2);
+		if (!timer.ShouldRunFrame()) return;
+
+		auto actordata = Transient::GetSingleton().GetActorData(a_actor);
+		if (!actordata) return;
+
+		float CurrentScale = get_visual_scale(a_actor);
+
+		if (actordata->rip_lastScale < 0 || actordata->rip_offset < 0) {
+			log::info("CheckClothingRip: Values were invallid, Resetting...");
+			actordata->rip_lastScale = CurrentScale;
+			actordata->rip_offset = ReConstructOffset(a_actor, CurrentScale);
 			return;
 		}
 
+		if (CurrentScale < rip_threshold) {
+			//If Smaller than rip_Threshold but offset was > 0 means we shrunk back down, so reset the offset
+			if (actordata->rip_offset > 0.0f) {
+				actordata->rip_offset = 0.0f;
+
+				//ReEquip Ripped Clothing On Follower NPC's
+				if (a_actor->formID != 0x14 && IsTeammate(a_actor)) {
+					ReEquipClothing(a_actor);
+				}
+			}
+			return;
+		}
+
+		//Rip Immediatly if too big.
+		//Its a bit wastefull but allows us to imediatly unequip if the player equips something again
+		if (CurrentScale > rip_tooBig) {
+			RipAllClothing(a_actor);
+			return;
+		}
+
+		//Actor is shrinking don't rip
+		if (IsShrinking(a_actor,CurrentScale)) {
+			actordata->rip_offset = CurrentScale - rip_threshold + RANDOM_OFFSET;
+			//log::info("OffsetAfterShrink {}", actordata->rip_offset);
+			return;
+		}
+
+		float Offs = RANDOM_OFFSET;
 		//if we meet scale conditions
-		if (CurrentScale >= (TearThreshold + AddedThreshold)) {
-			AddedThreshold += RANDOM_OFFSET;
-			DoRip(PlayerPtr, ArmorSlot);
+		//log::info("Offset Before Rip {}", actordata->rip_offset);
+		if (CurrentScale >= (rip_threshold + actordata->rip_offset + Offs)) {
+			actordata->rip_offset = CurrentScale - rip_threshold + Offs;
+			//log::info("Offset After Rip {}", actordata->rip_offset);
+			RipRandomClothing(a_actor);
 			return;
 		}
+	}
 
-		//log::info("No Condition Ran! Threshold: {} Added: {} Current {}", TearThreshold, AddedThreshold, CurrentScale);
+
+	bool ClothManager::ShouldPreventReEquip(Actor* a_actor, RE::TESBoundObject* a_object) {
+		//If anthing is invallid let the native code handle it.
+		if (!a_actor || !a_object) return false;
+
+		//Cached offset instead of getting the variable directly. 
+		//The Check can get spammed by the Equip hook when a lot of actors are around.
+		//If clothing rip is disabled or is not a follower, allow re-equip
+		if (!RipClothManagerActive || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return false;
+
+		//if smaller than rip_threhsold or target actor is the player allow re-equip
+		if (get_visual_scale(a_actor) < rip_threshold || a_actor->formID == 0x14) {
+			return false;
+		}
+
+		auto tesarmo = static_cast<TESObjectARMO*>(a_object);
+
+		//if the item is not an armor, allow it
+		if (!tesarmo) return false;
+		for (auto Slot : VallidSlots) {
+			//For each vallid slot check if the to be equiped slot cotains said slot
+			if (tesarmo->bipedModelData.bipedObjectSlots.any(Slot)) {
+
+				//if it does, check the keywords as a last resort
+				for (const auto& BKwd : KeywordBlackList) {
+					if (tesarmo->HasKeywordString(BKwd)) {
+						return false; //If blacklisted keyword is found do not strip
+					}
+				}
+				return true;
+			}
+		}
+		//if not within a vallid slot, allow.
+		return false;
 	}
 }

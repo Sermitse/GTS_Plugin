@@ -312,6 +312,7 @@ namespace Gts {
     const float Rumble_Misc_ShrinkOutburst = 6.25f; // when performing shrink outburst
     const float Rumble_Misc_MightOfDragons = 2.85f; // when growing after gaining dragon soul
     const float Rumble_Misc_TearClothes = 3.5f;
+    const float Rumble_Misc_TearAllClothes = 5.5f;
 
     const float Rumble_Misc_EnableTinyProtection = 3.8f;
     const float Rumble_Misc_FailTinyProtection = 6.2f;

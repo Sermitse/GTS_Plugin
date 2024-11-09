@@ -13,11 +13,14 @@ namespace Gts {
 			[[nodiscard]] static ClothManager& GetSingleton() noexcept;
 			virtual std::string DebugName() override;
 
-			void CheckRip();
+			void CheckClothingRip(Actor* a_actor);
+			bool ShouldPreventReEquip(Actor* a_actor, RE::TESBoundObject* a_object);
+			float ReConstructOffset(Actor* a_actor, float scale);
+			float ReConstructLastScale(Actor* a_actor);
 
-			float LastPlayerScale = 0.0;
-			float AddedThreshold = -1.0;                        //If This Value is -1 We Know We just started
-			const float TearThreshold = 1.5;
-			const float TooBig = 2.5;
+			const float rip_threshold = 1.5;                //Threshold Singular Clothes get unequiped
+			const float rip_tooBig = 2.5;                       //Threshold All Clothes get unequiped
+			const float rip_randomOffsetMax = 0.10;
+
 	};
 }
