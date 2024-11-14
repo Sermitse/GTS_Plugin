@@ -18,13 +18,11 @@ Still WIP
 - [Ninja](https://ninja-build.org/) which can be installed with `winget install --id=Ninja-build.Ninja -e`
 
 ## Building
-Launch "x64 Native Tools Command Promt For VS 2022" from the start menu first
+Launch `x64 Native Tools Command Promt For VS 2022` from the start menu first
 ```
 git clone https://github.com/sermitse/GTS_Plugin/
 cd GTS_Plugin
-git submodule init
-git submodule update
-
+git submodule update --init --recursive
 cmake --preset AE_SE_Release
 cmake --build build --config RelWithDebInfo
 ```
