@@ -10,6 +10,9 @@ Very complex parts (98% of DLL code) done by Andy.
 
 Still WIP
 
+## Extern Requirements
+- [CommonlibSSE-NG](https://github.com/alandtse/CommonLibVR/tree/ng)
+
 ## Building Requirements
 - [git](https://gitforwindows.org/) and add git to `PATH`
 - [cmake](https://cmake.org/download/) and add cmake to `PATH`
