@@ -1,15 +1,33 @@
-[![CI](https://github.com/QuantumEntangledAndy/GTS_Plugin/actions/workflows/build.yml/badge.svg)](https://github.com/QuantumEntangledAndy/GTS_Plugin/actions/workflows/build.yml)
+
+[![CI](https://github.com/Sermitse/GTS_Plugin/actions/workflows/build.yml/badge.svg)](https://github.com/Sermitse/GTS_Plugin/actions/workflows/build.yml)
 
 # Size Matters SKSE64 Plugin
 
-This is the source for the Gianttess mod Size matters SKSE plugin.
+This is the source for the [Gianttess Mod - Size matters NG](https://www.nexusmods.com/skyrimspecialedition/mods/37823?tab=description) SKSE plugin.
 
 Monke coding with new features/expansions by Sermit.
 Very complex parts (98% of DLL code) done by Andy.
 
 Still WIP
 
----
+## Building Requirements
+- [git](https://gitforwindows.org/) and add git to `PATH`
+- [cmake](https://cmake.org/download/) and add cmake to `PATH`
+- [vcpkg](https://github.com/microsoft/vcpkg) with the `VCPKG_ROOT` enviorment variable set to the vcpkg folder
+- [Visual studio 2022](https://visualstudio.microsoft.com/vs/) with Desktop development for C++
+- [Ninja](https://ninja-build.org/) which can be installed with `winget install --id=Ninja-build.Ninja -e`
+
+## Building
+Launch "x64 Native Tools Command Promt For VS 2022" from the start menu first
+```
+git clone https://github.com/sermitse/GTS_Plugin/
+cd GTS_Plugin
+git submodule init
+git submodule update
+
+cmake --preset AE_SE_Release
+cmake --build build --config RelWithDebInfo
+```
 
 ## Feature Wish List
 
@@ -44,7 +62,7 @@ Still WIP
   - [X] Get height in meters of any actor
   - [X] Get volume of any actor
 - [x] Mechanics  
-  - [x] Apply size effects to near by actor
+  - [x] Apply size effects to nearby actor
   - [x] Move away from favor active
   - [x] Animation speed adjustment
 - [X] Walk/Jump events
