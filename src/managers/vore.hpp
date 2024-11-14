@@ -33,8 +33,7 @@ namespace Gts
 			// Release all vories (shall fall into mouth with animation)
 			void ReleaseAll();
 
-			bool GetMoanTimer();
-			bool GetRumbleTimer();
+			bool GetTimer();
 
 			// Get a list of all actors currently being vored
 			std::vector<Actor*> GetVories();
@@ -53,7 +52,6 @@ namespace Gts
 			bool killZoneEnabled = false;
 
 			inline static Timer moantimer = Timer(6.0);
-			inline static Timer rumbletimer = Timer(1.8);
 
 			// True if in grabbed state
 			bool allGrabbed = false;

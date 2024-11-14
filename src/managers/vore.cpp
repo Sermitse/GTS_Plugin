@@ -121,86 +121,6 @@ namespace {
 		}
 	}
 
-	void DevourmentGrowth(Actor* a_giant, Actor* a_tiny, bool digested) {
-		//https://www.desmos.com/calculator/gvgvuw1kcv
-		float g = get_visual_scale(a_giant);
-		float t = get_visual_scale(a_tiny);
-		float skill = GetGtsSkillLevel(a_giant);
-		//if growth is not enough feel free to increase it
-		float efficiency = 0.20f;
-
-		if (Runtime::HasPerkTeam(a_giant, "Gluttony")) {
-			efficiency += 0.2f;
-		}
-
-		if (Runtime::HasPerkTeam(a_giant, "AdditionalGrowth")) {
-			efficiency *= 1.25f; // 25% stronger growth
-		}
-
-		float a = 250.f / (skill / 2.0f) * efficiency; // up to 25% eff from skill
-		float formula = t / (sqrt(2 * a * sqrt(g * g)));
-		float result = digested ? formula * 0.75f : formula * 0.25f; //25% efficiency on kill //75% efficiency on digested
-
-		auto gianthandle = a_giant->GetHandle();
-		double start_time = Time::WorldTimeElapsed();
-		
-		//todo add perk for faster growth
-		float Duration = 6.0f;
-
-		std::string name = std::format("Vore_Buff_{}_{}_{}", a_giant->formID, a_tiny->formID, digested);
-		TaskManager::Run(name, [=](auto& progressData) {
-			if (!gianthandle) {
-				return false;
-			}
-			auto giantref = gianthandle.get().get();
-			double timepassed = Time::WorldTimeElapsed() - start_time;
-			float sizeToApply = result * Time::WorldTimeDelta() / Duration;
-
-			if (Vore::GetSingleton().GetVoreData(a_giant).GetRumbleTimer()) {
-				float Volume = std::clamp(get_visual_scale(giantref) / 8.0f, 0.20f, 1.0f);
-				Runtime::PlaySoundAtNode("growthSound", giantref, Volume, 1.0f, "NPC Pelvis [Pelv]");
-				Runtime::PlaySoundAtNode_FallOff("xlRumble", giantref, Volume, 1.0f, "NPC Pelvis [Pelv]", Volume * 0.11f);
-			}
-
-			if (Vore::GetSingleton().GetVoreData(a_giant).GetMoanTimer() == true) {
-				float MoanVolume = std::clamp(get_visual_scale(giantref) / 8.0f, 0.25f, 1.0f);
-				Task_FacialEmotionTask_Moan(a_giant, 2.0f, "Vore");
-				PlayMoanSound(giantref, MoanVolume);
-
-			}
-
-			if (get_target_scale(giantref) < get_max_scale(giantref)) {
-				update_target_scale(giantref, sizeToApply * TimeScale(), SizeEffectType::kGrow);
-				AddStolenAttributes(giantref, sizeToApply * TimeScale());
-			}
-
-			if (timepassed >= Duration) {
-				//log::info("Total Size Added {}", TotalSizeApplied);
-				return false;
-			}
-
-			return true;
-		});
-
-		//@ sermit. i don't know the correct values for these. do whatever you want here
-		GainWeight(a_giant, 2.0f * result);
-		ModSizeExperience(a_giant, result * 0.2f);
-		AdjustSizeReserve(a_giant, result * 0.2f);
-		BuffAttributes(a_giant, result * 0.2f);
-
-		if (digested) {
-			VoreMessage_Absorbed(a_giant, a_tiny->GetDisplayFullName());
-		}
-
-		Cprint("{} grew by {:.2f}m ({:.2f}) from {} {}", a_giant->GetDisplayFullName(), result * 1.82f, result, digested ? "digesting" : "killing", a_tiny->GetDisplayFullName());
-
-		if (a_giant->formID == 0x14) {
-			AdjustSizeLimit(0.0260f * result, a_giant);
-			AdjustMassLimit(0.0106f * result, a_giant);
-			SurvivalMode_AdjustHunger(a_giant, result * 0.20f, !digested, true);
-		}
-	}
-
 	void Vore_AdvanceQuest(Actor* pred, Actor* tiny, bool WasDragon, bool WasGiant) {
 		if (pred->formID == 0x14 && WasDragon) {
 			CompleteDragonQuest(tiny, ParticleType::Blue, false);
@@ -248,7 +168,7 @@ namespace {
 					SurvivalMode_AdjustHunger(giant, tinySize * natural_scale * multiplier, WasLiving, true);
 				}
 				Rumbling::Once("GrowthRumble", giant, 1.75f, 0.30f);
-				if (Vore::GetSingleton().GetVoreData(giant).GetMoanTimer() == true) {
+				if (Vore::GetSingleton().GetVoreData(giant).GetTimer() == true) {
 					PlayMoanSound(giant, 1.0f); // play timed sound. Timer is a must else we moan 10 times at once for example.
 					Task_FacialEmotionTask_Moan(giant, 2.0f, "Vore");
 				}
@@ -306,6 +226,7 @@ namespace {
 	}
 
 	void DevourmentBonuses(Actor* Pred, Actor* Prey, bool Digested, float mult) {
+		VoreInformation VoreInfo = GetVoreInfo(Pred, Prey, mult);
 
 		if (Digested) {
 			Vore_AdvanceQuest(Pred, Prey, IsDragon(Prey), IsGiant(Prey)); // Progress quest
@@ -313,7 +234,8 @@ namespace {
 				shake_camera(Pred, 0.50f, 0.75f);
 			}
 		}
-		DevourmentGrowth(Pred, Prey, Digested);
+
+		Task_Vore_FinishVoreBuff(VoreInfo, 1, true);
 	}
 }
 
@@ -353,7 +275,6 @@ namespace Gts {
 			VoreMessage_SwallowedAbsorbing(giant, tiny);
 		}
 	}
-	
 	void VoreData::KillAll() {
 		if (!AllowDevourment()) {
 			for (auto& [key, tinyref]: this->tinies) {
@@ -410,12 +331,8 @@ namespace Gts {
 		}
 	}
 
-	bool VoreData::GetMoanTimer() {
+	bool VoreData::GetTimer() {
 		return this->moantimer.ShouldRun();
-	}
-
-	bool VoreData::GetRumbleTimer() {
-		return this->rumbletimer.ShouldRun();
 	}
 
 	void VoreData::GrabAll() {
@@ -439,7 +356,7 @@ namespace Gts {
 		auto profiler = Profilers::Profile("Vore: Update");
 		if (this->giant) {
 			auto giant = this->giant.get().get();
-			//float giantScale = get_visual_scale(giant);
+			float giantScale = get_visual_scale(giant);
 			// Stick them to the AnimObjectA
 			for (auto& [key, tinyref]: this->tinies) {
 				auto tiny = tinyref.get().get();
@@ -692,6 +609,7 @@ namespace Gts {
 		return preys;
 	}
 
+
 	bool Vore::CanVore(Actor* pred, Actor* prey) {
 		if (pred == prey) {
 			return false;
@@ -882,13 +800,12 @@ namespace Gts {
 					bool& Devoured = Data->Devourment_Devoured;
 					bool& Eaten = Data->Devourment_Eaten;
 					if (Digested && !Devoured) { // Actors was completely absorbed (stage 2)
+						Notify("{} was devoured by {}", Prey->GetDisplayFullName(), Pred->GetDisplayFullName());
+						Cprint("{} was devoured by {}", Prey->GetDisplayFullName(), Pred->GetDisplayFullName());
 						DevourmentBonuses(Pred, Prey, true, 1.0f);
 						Devoured = true;
 					} else if (!Eaten) { // health bar was absorbed (stage 1)
 						DevourmentBonuses(Pred, Prey, false, 1.0f);
-						//Complete absobsion already has a message in DevourmentGrowth
-						Notify("{} was devoured by {}", Prey->GetDisplayFullName(), Pred->GetDisplayFullName());
-						Cprint("{} was devoured by {}", Prey->GetDisplayFullName(), Pred->GetDisplayFullName());
 						log::info("Adding to Eaten faction");
 						Eaten = true;
 					}

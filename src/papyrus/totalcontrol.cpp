@@ -7,6 +7,7 @@
 #include "managers/Rumble.hpp"
 #include "data/runtime.hpp"
 #include "magic/effects/common.hpp"
+#include "utils/actorUtils.hpp"
 #include "ActionSettings.hpp"
 
 
