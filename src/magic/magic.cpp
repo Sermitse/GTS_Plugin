@@ -222,11 +222,13 @@ namespace Gts {
 		RegisterMagic<MaxSizePotion>("EffectSizePotionNormal");
 		RegisterMagic<MaxSizePotion>("EffectSizePotionStrong");
 		RegisterMagic<MaxSizePotion>("EffectSizePotionExtreme");
+		RegisterMagic<MaxSizePotion>("AlchEffectSize");
 
 		RegisterMagic<MightPotion>("EffectMightPotionWeak");
 		RegisterMagic<MightPotion>("EffectMightPotionNormal");
 		RegisterMagic<MightPotion>("EffectMightPotionStrong");
 		RegisterMagic<MightPotion>("EffectMightPotionExtreme");
+		RegisterMagic<MightPotion>("AlchEffectMight");
 
 		RegisterMagic<ExperiencePotion>("SizeMasteryPotionBasic");
 
@@ -234,16 +236,19 @@ namespace Gts {
 		RegisterMagic<EssencePotion>("EffectEssencePotionNormal");
 		RegisterMagic<EssencePotion>("EffectEssencePotionStrong");
 		RegisterMagic<EssencePotion>("EffectEssencePotionExtreme");
+		RegisterMagic<EssencePotion>("AlchEffectEssence");
 
 		RegisterMagic<ShrinkResistPotion>("ResistShrinkPotionWeak");
 		RegisterMagic<ShrinkResistPotion>("ResistShrinkPotionNormal");
 		RegisterMagic<ShrinkResistPotion>("ResistShrinkPotionStrong");
 		RegisterMagic<ShrinkResistPotion>("ResistShrinkPotionExtreme");
+		RegisterMagic<ShrinkResistPotion>("AlchResistShrink");
 
 		RegisterMagic<GrowthPotion>("EffectGrowthPotionWeak");
 		RegisterMagic<GrowthPotion>("EffectGrowthPotionNormal");
 		RegisterMagic<GrowthPotion>("EffectGrowthPotionStrong");
 		RegisterMagic<GrowthPotion>("EffectGrowthPotionExtreme");
+		RegisterMagic<GrowthPotion>("AlchEffectGrowth");
 
 		RegisterMagic<ShrinkPotion>("SizeDrainPotion");
 		RegisterMagic<Shrink_Poison>("ShrinkPoison");

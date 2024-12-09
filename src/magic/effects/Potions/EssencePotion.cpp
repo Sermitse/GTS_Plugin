@@ -42,7 +42,10 @@ namespace Gts {
 			this->power = 0.06f;
 		} else if (base_spell == Runtime::GetMagicEffect("EffectEssencePotionExtreme")) {
 			this->power = 0.08f; 
-		} 
+		} else if (base_spell == Runtime::GetMagicEffect("AlchEffectEssence")) {
+			auto active_effect = GetActiveEffect();
+			this->power = active_effect->magnitude > 0 ? active_effect->magnitude / 100.0f : 0.08f;
+		}
 	}
 
 	void EssencePotion::OnStart() {
@@ -59,8 +62,8 @@ namespace Gts {
 					BonusSize->value += this->power/1.82f; // convert to m
 				}
 
-				SpawnCustomParticle(caster, ParticleType::Red, NiPoint3(), "NPC COM [COM ]", scale * (this->power * 25)); // Just some nice visuals
-				shake_screen_do_moan(caster, this->power);
+				SpawnCustomParticle(caster, ParticleType::Red, NiPoint3(), "NPC COM [COM ]", scale * ((this->power < 0.10 ? this->power : 0.08f) * 25)); // Just some nice visuals
+				shake_screen_do_moan(caster, (this->power < 0.10 ? this->power : 0.08f));
 			}
 			Potion_Penalty(caster);
         }
