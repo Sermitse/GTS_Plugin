@@ -46,7 +46,8 @@ namespace GTS {
 
 	void Potion_SetUnderGrowth(Actor* actor, bool set);
 	bool Potion_IsUnderGrowthPotion(Actor* actor);
-	
+
+	bool CalculateThrowDirection(RE::Actor* a_ActorGiant, RE::Actor* a_ActorTiny, RE::NiPoint3& a_From, RE::NiPoint3& a_To, float a_HorizontalAngleOffset = 0.0f, float a_VerticalAngleOffset = 0.0f);
 	bool IsInsect(Actor* actor, bool performcheck);
 	bool IsFemale(Actor* a_Actor, bool AllowOverride = false);
 	bool IsDragon(Actor* actor);

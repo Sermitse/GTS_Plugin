@@ -191,6 +191,10 @@ namespace GTS {
             LoadRes &= LoadStructFromTOML(TomlData, GtsUI);
             LoadRes &= LoadStructFromTOML(TomlData, Hidden);
 
+            if (Hidden.IKnowWhatImDoing) {
+                LoadRes &= LoadStructFromTOML(TomlData, Advanced);
+            }
+
             if (!LoadRes) {
                 logger::error("One or more structs could not be deserialized with the fallback init failing too...");
                 //This is where we halt and catch fire as this is a litteral imposibility

@@ -15,7 +15,7 @@ namespace GTS {
 
 		// ----- Animation Check
 
-		ImUtil_Unique {
+		ImUtil_Unique{
 
 			const char* T0 = "The automatic check can sometimes be unreliable.\n"
 							 "By pressing this you can forcefully try to play an animation.\n"
@@ -69,37 +69,53 @@ namespace GTS {
 
 		//------ Protect Actors
 
-	    ImUtil_Unique {
+		ImUtil_Unique{
 
-	        const char* T0 = "Protect essential NPCs from being crushed, eaten, or affected by size-related spells/actions.";
-	        const char* T1 = "Protect followers from being crushed, eaten, or affected by size-related spells/actions.";
+			const char* T0 = "Protect essential NPCs from being crushed, eaten, or affected by size-related spells/actions.";
+			const char* T1 = "Protect followers from being crushed, eaten, or affected by size-related spells/actions.";
 
-	        if (ImGui::CollapsingHeader("Protect Actors", ImUtil::HeaderFlagsDefaultOpen)) {
-	            ImUtil::CheckBox("Protect Essential NPCs",&Settings.bProtectEssentials, T0);
+			if (ImGui::CollapsingHeader("Protect Actors", ImUtil::HeaderFlagsDefaultOpen)) {
+				ImUtil::CheckBox("Protect Essential NPCs",&Settings.bProtectEssentials, T0);
 				ImGui::SameLine();
-	            ImUtil::CheckBox("Protect Followers",&Settings.bProtectFollowers, T1);
-	            ImGui::Spacing();
-	        }
-	    }
+				ImUtil::CheckBox("Protect Followers",&Settings.bProtectFollowers, T1);
+				ImGui::Spacing();
+			}
+	}
 
 		//------ Compatibility
 
-	    ImUtil_Unique {
+		ImUtil_Unique{
 
-	        const char* T0 = "Enable or disable experimental compatibility with the Devourment mod.\n"
+			const char* T0 = "Enable or disable experimental compatibility with the Devourment mod.\n"
 							 "This compatibility toggle may lead to issues such as actors being swallowed with delay (because Papyrus lags) or other bugs\n\n"
 							 "If enabled, when this mod's vore actions are completed, the NPC will be delegated to the Devourment mod.";
 
-	        const char* T1 = "Enable or disable compatibility with the Alternate Conversation Camera mod.\n"
-	                         "If enabled, this mod's camera offsets during dialogue will be disabled.";
+			const char* T1 = "Enable or disable compatibility with the Alternate Conversation Camera mod.\n"
+							 "If enabled, this mod's camera offsets during dialogue will be disabled.";
 
-	        if (ImGui::CollapsingHeader("Compatibility", ImUtil::HeaderFlagsDefaultOpen)) {
-	            ImUtil::CheckBox("Devourment Compatibility",&Settings.bDevourmentCompat, T0);
-	            ImUtil::CheckBox("Alt Conversation Cam. Compatibility",&Settings.bConversationCamCompat, T1);
-	            ImGui::Spacing();
+			if (ImGui::CollapsingHeader("Compatibility", ImUtil::HeaderFlagsDefaultOpen)) {
+				ImUtil::CheckBox("Devourment Compatibility",&Settings.bDevourmentCompat, T0);
+				ImUtil::CheckBox("Alt Conversation Cam. Compatibility",&Settings.bConversationCamCompat, T1);
+				ImGui::Spacing();
 
-	        }
-	    }
+			}
+	}
+
+
+		//------ Settings Storage
+
+		ImUtil_Unique{
+
+			const char* T0 = "Should the mod settings be saved globaly or on a per save basis like older versions of the mod?\n"
+			"Effectively this mimicks the behavior you'd experience when using a MCM menu.\n";
+
+			if (ImGui::CollapsingHeader("Settings Storage", ImUtil::HeaderFlagsDefaultOpen)) {
+				ImUtil::CheckBox("Save Specific Settings", &Persistent::GetSingleton().LocalSettingsEnable.value, T0);
+				ImGui::Spacing();
+			}
+
+		}
+
 
 		//------ Experimental
 

@@ -26,6 +26,7 @@ using namespace GTS;
 using namespace std;
 
 namespace Grab_Fixes {
+
 	void GTSGrab_QueueSmashReset(Actor* giant) {
 		auto gianthandle = giant->CreateRefHandle();
 		std::string name = std::format("SmashReset_{}", giant->formID);
@@ -42,74 +43,64 @@ namespace Grab_Fixes {
 			return true; // Else continue to wait for it
 		});
 	}
-	void GTSGrab_KickTiny(Actor* giant) {
-		auto otherActor = Grab::GetHeldActor(giant);
 
-		Grab::DetachActorTask(giant);
-		Grab::Release(giant);
+	void GTSGrab_KickTiny(Actor* a_giant) {
+		auto otherActor = Grab::GetHeldActor(a_giant);
 
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-		giant->SetGraphVariableInt("GTS_Grab_State", 0);
+		Grab::DetachActorTask(a_giant);
+		Grab::Release(a_giant);
+
+		a_giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
+		a_giant->SetGraphVariableInt("GTS_Grab_State", 0);
 
 		if (otherActor) {
 
-			auto charcont = otherActor->GetCharController();
-			if (charcont) {
-				charcont->SetLinearVelocityImpl((0.0f, 0.0f, 0.0f, 0.0f)); // Needed so Actors won't fall down.
+			if (auto charcont = otherActor->GetCharController()) {
+				charcont->SetLinearVelocityImpl(0.0f); // Needed so Actors won't fall down.
 			}
 
-			auto bone = find_node(giant, "NPC R Finger22 [RF22]"); 
-			if (bone) {
+			if (const auto bone = find_node(a_giant, "NPC R Finger22 [RF22]")) {
+
 				NiPoint3 startCoords = bone->world.translate;
 
-				ActorHandle gianthandle = giant->CreateRefHandle();
+				ActorHandle gianthandle = a_giant->CreateRefHandle();
 				ActorHandle tinyhandle = otherActor->CreateRefHandle();
 
-				std::string name = std::format("Throw_{}_{}", giant->formID, otherActor->formID);
-				std::string pass_name = std::format("ThrowOther_{}_{}", giant->formID, otherActor->formID);
+				const std::string name = std::format("Throw_{}_{}", a_giant->formID, otherActor->formID);
+				const std::string pass_name = std::format("ThrowOther_{}_{}", a_giant->formID, otherActor->formID);
+
 				// Run task that will actually launch the Tiny
 				TaskManager::Run(name, [=](auto& update){
-				if (!gianthandle) {
+
+					if (!gianthandle || !tinyhandle) {
+						return false;
+					}
+
+					Actor* giant = gianthandle.get().get();
+					Actor* tiny = tinyhandle.get().get();
+					
+					// Wait for 3D to be ready
+					if (!giant->Is3DLoaded()   || 
+						!giant->GetCurrent3D() || 
+						!tiny->Is3DLoaded()    || 
+						!tiny->GetCurrent3D()) {
+						return true;
+					}
+
+					NiPoint3 endCoords = bone->world.translate;
+
+					Anims_FixAnimationDesync(giant, tiny, true);
+
+					SetBeingHeld(tiny, false);
+					EnableCollisions(tiny);
+
+					PushActorAway(giant, tiny, 1.0f);
+
+					const float Flick_Power = HasSMT(giant) ? 2.0f : 6.0f;
+
+					Animation_GrabThrow::Throw_Actor(gianthandle, tinyhandle, startCoords, endCoords, pass_name, Flick_Power);
+					
 					return false;
-				}
-				if (!tinyhandle) {
-					return false;
-				}
-				Actor* giant = gianthandle.get().get();
-				Actor* tiny = tinyhandle.get().get();
-				
-				// Wait for 3D to be ready
-				if (!giant->Is3DLoaded()) {
-					return true;
-				}
-				if (!giant->GetCurrent3D()) {
-					return true;
-				}
-				if (!tiny->Is3DLoaded()) {
-					return true;
-				}
-				if (!tiny->GetCurrent3D()) {
-					return true;
-				}
-
-				NiPoint3 endCoords = bone->world.translate;
-
-				Anims_FixAnimationDesync(giant, tiny, true);
-
-				SetBeingHeld(tiny, false);
-				EnableCollisions(tiny);
-
-				PushActorAway(giant, tiny, 1.0f);
-
-				auto charcont = tiny->GetCharController();
-				if (charcont) {
-					charcont->SetLinearVelocityImpl((0.0f, 0.0f, 0.0f, 0.0f)); // Stop actor moving in space, just in case
-				}
-				float Kick_Power = HasSMT(giant) ? 9.0f : 3.0f;
-
-				Animation_GrabThrow::Throw_Actor(gianthandle, tinyhandle, startCoords, endCoords, pass_name, Kick_Power);
-				
-				return false;
 				});
 			}
 		}
@@ -132,6 +123,7 @@ namespace Grab_Fixes {
 			VoreData.AddTiny(otherActor);
 		}
 	}
+
 	void GTSGrab_SetBeingEaten(Actor* giant, bool shrink = true) {
 		
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
@@ -143,6 +135,7 @@ namespace Grab_Fixes {
 			SetBeingEaten(otherActor, true);
 		}
 	}
+
 	void GTSGrab_SwallowTiny(Actor* giant) {
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
 		auto otherActor = Grab::GetHeldActor(giant);
@@ -159,6 +152,7 @@ namespace Grab_Fixes {
 			}
 		}
 	}
+
 	void GTSGrab_FullyEatTiny(Actor* giant) {
 		auto otherActor = Grab::GetHeldActor(giant);
 		if (otherActor) {
@@ -179,6 +173,7 @@ namespace Grab_Fixes {
 		}
 
 	}
+
 	void GTSGrab_Do_Damage(Actor* giant, float base_damage) {
 		auto& sizemanager = SizeManager::GetSingleton();
 		float bonus = HasSMT(giant) ? 1.65f : 1.0f;
@@ -223,12 +218,14 @@ namespace {
 	void GTS_HS_SmileOn(AnimationEventData& data) {
 		Task_FacialEmotionTask_SlightSmile(&data.giant, RandomFloat(0.6f, 0.8f), "Grab_Smile", 0.125f);
 	}
+
 	void GTS_HS_SmileOff(AnimationEventData& data) {} // unused
 	
 	// [ C A M E R A ]
 	void GTS_HS_CamOn(AnimationEventData& data) {
 		ManageCamera(&data.giant, true, CameraTracking::ObjectL);
 	}
+
 	void GTS_HS_CamOff(AnimationEventData& data) {
 		ManageCamera(&data.giant, false, CameraTracking::ObjectL);
 	}
@@ -237,6 +234,7 @@ namespace {
 	void GTS_HS_TossTiny(AnimationEventData& data) {
 		Rumbling::Once("TossTiny", &data.giant, 1.25f, 0.05f, "NPC L Hand [LHnd]", true);
 	}
+
 	void GTS_HS_TinyLand(AnimationEventData& data) {
 		Rumbling::Once("TossTiny", &data.giant, 1.65f, 0.05f, "NPC L Hand [LHnd]", true);
 		Grab_Fixes::GTSGrab_SpawnHeartsAtHead(&data.giant, 5, 0.25f);
@@ -247,10 +245,12 @@ namespace {
 	void GTS_HS_Poke_WindUp(AnimationEventData& data) {
 		Rumbling::Once("PokeTiny", &data.giant, 1.0f, 0.05f, "NPC L Hand [LHnd]", true);
 	}
+
 	void GTS_HS_Poke_Contact(AnimationEventData& data) {
 		Rumbling::Once("PokeTiny_C", &data.giant, 1.75f, 0.05f, "NPC L Hand [LHnd]", true);
 		Grab_Fixes::GTSGrab_SpawnHeartsAtHead(&data.giant, 5, 0.35f);
 	}
+
 	void GTS_HS_Poke_TinyLand(AnimationEventData& data) {
 		Rumbling::Once("PokeTiny_L", &data.giant, 1.25f, 0.05f, "NPC L Hand [LHnd]", true);
 	}
@@ -261,12 +261,12 @@ namespace {
 		Rumbling::Once("FlichTiny_Launch", &data.giant, 0.75f, 0.05f, "NPC L Hand [LHnd]", true);
 		Grab_Fixes::GTSGrab_SpawnHeartsAtHead(&data.giant, 5, 0.25f);
 	}
+
 	void GTS_HS_Flick_Ragdoll(AnimationEventData& data) {
 		Rumbling::Once("FlichTiny_Land", &data.giant, 2.1f, 0.05f, "NPC L Hand [LHnd]", true);
 		Runtime::PlaySoundAtNode("GTSSoundSwingImpact", &data.giant, 0.75f, 1.0f, "NPC L Hand [LHnd]"); // play swing impact sound
 		Task_QueueGrabAbortTask(&data.giant, "FlickRagdoll");
 		Grab_Fixes::GTSGrab_KickTiny(&data.giant);
-		
 	}
 
 	// [ L I G H T  C R U S H ]
@@ -276,7 +276,6 @@ namespace {
 	void GTS_HS_Sand_Hit(AnimationEventData& data) {
 		Grab_Fixes::GTSGrab_Do_Damage(&data.giant, Damage_Grab_Play_Light);
 		Rumbling::Once("SmashTiny_L", &data.giant, 1.65f, 0.05f, "NPC L Hand [LHnd]", true);
-		
 	}
 	void GTS_HS_Sand_Release(AnimationEventData& data) {}
 
@@ -284,10 +283,12 @@ namespace {
 
 	void GTS_HS_Fist_WindUp(AnimationEventData& data) {}
 	void GTS_HS_Fist_Lower(AnimationEventData& data) {}
+
 	void GTS_HS_Fist_Hit(AnimationEventData& data) {
 		Grab_Fixes::GTSGrab_Do_Damage(&data.giant, Damage_Grab_Play_Heavy);
 		Rumbling::Once("SmashTiny_H", &data.giant, 2.25f, 0.05f, "NPC L Hand [LHnd]", true);
 	}
+
 	void GTS_HS_Fist_Release(AnimationEventData& data) {}
 
 	void GTS_HS_Exit_NoTiny(AnimationEventData& data) { // If tiny has died at the end - cancel grab state
@@ -306,6 +307,7 @@ namespace {
 		Rumbling::Once("KissTiny", &data.giant, 2.25f, 0.05f, "NPC Head [Head]", true);
 		Grab_Fixes::GTSGrab_SpawnHeartsAtHead(&data.giant, 5, 0.45f);
 	}
+
 	void GTS_HS_Kiss_Stop(AnimationEventData& data) {}
 	void GTS_HS_KissSound_Play(AnimationEventData& data) {}
 	void GTS_HS_KissSound_Stop(AnimationEventData& data) {} // Unused
@@ -319,21 +321,25 @@ namespace {
 
 		ManageCamera(&data.giant, true, CameraTracking::ObjectB);
 	}
+
 	void GTS_HS_K_Vore_CloseMouth(AnimationEventData& data) {
 		Grab_Fixes::GTSGrab_SetBeingEaten(&data.giant, false);
 	}
+
 	void GTS_HS_K_Vore_TinyYell(AnimationEventData& data) {}
 	void GTS_HS_K_Vore_TinyMuffle(AnimationEventData& data) {}
+
 	void GTS_HS_K_Vore_SlurpTiny(AnimationEventData& data) {
 		Grab_Fixes::GTSGrab_SwallowTiny(&data.giant);
 	}
+
 	void GTS_HS_K_Vore_SlurpTiny_End(AnimationEventData& data) {
 		Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, 1.0f, "NPC Head [Head]"); // Play sound
 	}
+
 	void GTS_HS_K_Vore_TinyInMouth(AnimationEventData& data) {}
 	void GTS_HS_K_Vore_SwallowTiny(AnimationEventData& data) {
 		Grab_Fixes::GTSGrab_FullyEatTiny(&data.giant);
-
 		//Grab::FailSafeReset(&data.giant);
 	}
 
@@ -342,14 +348,15 @@ namespace {
 		Task_FacialEmotionTask_OpenMouth(&data.giant, 0.8f, "GrabVoreOpenMouth", 0.1f);
 		Grab_Fixes::GTSGrab_AddToVoreData(&data.giant);
 	}
+
 	void GTS_HS_Vore_CloseMouth(AnimationEventData& data) {}
 	void GTS_HS_Vore_TinyInMouth(AnimationEventData& data) {
 		Grab_Fixes::GTSGrab_SwallowTiny(&data.giant);
 	}
+
 	void GTS_HS_Vore_SwallowTiny(AnimationEventData& data) {
 		Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, 1.0f, "NPC Head [Head]"); // Play sound
 		Grab_Fixes::GTSGrab_FullyEatTiny(&data.giant);
-
 		//Grab::FailSafeReset(&data.giant);
 	}
 }

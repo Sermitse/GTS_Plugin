@@ -1,3 +1,5 @@
+#include <numbers>
+
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab_Throw.hpp"
@@ -219,113 +221,90 @@ namespace {
 		StopLHandRumble("GrabThrowL", data.giant);
 	}
 
+	NiMatrix3 CreatePitchMatrix(float angleDeg) {
+		float a = angleDeg * (std::numbers::pi_v<float> / 180.0f);
+		float c = std::cos(a);
+		float s = std::sin(a);
+		NiMatrix3 m;
+
+		m.entry[0][0] = 1.f;   m.entry[0][1] = 0.f;  m.entry[0][2] = 0.f;
+		m.entry[1][0] = 0.f;   m.entry[1][1] = c;    m.entry[1][2] = s;
+		m.entry[2][0] = 0.f;   m.entry[2][1] = -s;   m.entry[2][2] = c;
+
+		return m;
+	}
+
+	NiMatrix3 CreateRotationMatrixY(float angleDegrees) {
+		float angleRadians = angleDegrees * (std::numbers::pi_v<float> / 180.0f);
+		NiMatrix3 m;
+		float c = std::cos(angleRadians);
+		float s = std::sin(angleRadians);
+		m.entry[0][0] = c;         m.entry[0][1] = 0.f;      m.entry[0][2] = s;
+		m.entry[1][0] = 0.f;       m.entry[1][1] = 1.f;      m.entry[1][2] = 0.f;
+		m.entry[2][0] = -s;        m.entry[2][1] = 0.f;      m.entry[2][2] = c;
+		return m;
+	}
+
 }
 
 namespace GTS {
-	void Animation_GrabThrow::Throw_Actor(const ActorHandle& giantHandle, const ActorHandle& tinyHandle, NiPoint3 startCoords, NiPoint3 endCoords, std::string_view TaskName, float speedmult) {
-		double startTime = Time::WorldTimeElapsed();
 
-		TaskManager::Run(TaskName, [=](auto& update){
-			if (!giantHandle) {
+	void Animation_GrabThrow::Throw_Actor(const ActorHandle& giantHandle, const ActorHandle& tinyHandle, NiPoint3 startCoords, NiPoint3 endCoords, std::string_view TaskName, float speedmult, float upDownAngle, float leftRightAngle) {
+		const double startTime = Time::WorldTimeElapsed();
+		TaskManager::Run(TaskName, [=](auto& update) {
+			// Check if actors exist
+			if (!giantHandle || !tinyHandle) {
 				return false;
 			}
-			if (!tinyHandle) {
-				return false;
-			}
+
 			Actor* giant = giantHandle.get().get();
 			Actor* tiny = tinyHandle.get().get();
-			
-			// Wait for 3D to be ready
-			if (!giant->Is3DLoaded()) {
-				return true;
-			}
-			if (!giant->GetCurrent3D()) {
-				return true;
-			}
-			if (!tiny->Is3DLoaded()) {
-				return true;
-			}
-			if (!tiny->GetCurrent3D()) {
+			// Make sure 3D models are loaded
+			if (!giant->Is3DLoaded() || !giant->GetCurrent3D() ||
+				!tiny->Is3DLoaded() || !tiny->GetCurrent3D()) {
 				return true;
 			}
 
+			// Wait for minimum time to pass
 			double endTime = Time::WorldTimeElapsed();
+			if ((endTime - startTime) <= 0.05) {
+				return true;
+			}
 
-			if ((endTime - startTime) > 0.05) { // Enough Time has elapsed
-				
-				// Calculate power of throw
+			// Calculate throw direction and power
+			NiPoint3 vector = endCoords - startCoords;
+			float distanceTravelled = vector.Length();
+			double timeTaken = endTime - startTime;
 
-				NiPoint3 direction = NiPoint3();
-				NiPoint3 vector = endCoords - startCoords;
+			// Base speed calculation
+			float speed = static_cast<float>((distanceTravelled / timeTaken) * 10);
 
-				float distanceTravelled = vector.Length();
-				double timeTaken = endTime - startTime;
-				float speed = static_cast<float>((distanceTravelled / timeTaken) * 10); // Standing throw default power
+			NiMatrix3 giantRot = giant->GetCurrent3D()->world.rotate;
+			NiMatrix3 pitchRot = CreatePitchMatrix(-upDownAngle + 90.0f);  // Pitch (up/down)
+			NiMatrix3 yawRot = CreateRotationMatrixY(leftRightAngle); // Yaw (left/right)
 
-				if (!giant->IsSneaking()) { // Goal is to fix standing throw direction
+			// Apply rotations in sequence: first pitch, then yaw
+			NiPoint3 forward = NiPoint3(0.0f, 0.0f, 1.0f);
+			NiPoint3 localDir = yawRot * (pitchRot * forward);
 
-					float angle_x = 10;
-					float angle_y = 0;
-					float angle_z = 0;
+			// Apply giant's orientation and normalize
+			NiPoint3 direction = giantRot * localDir;
+			float len = direction.Length();
+			if (len > 0.0f) {
+				direction.x /= len;
+				direction.y /= len;
+				direction.z /= len;
+			}
 
-					speed *= 1.35f;
+			float timeMultiplier = 1.0f / Time::GetTimeMultiplier();
 
-					// Conversion to radians
-					constexpr float PI = 3.141592653589793f;
-					float angle_x_rad = angle_x * 180.0f / PI;
-					float angle_y_rad = angle_y * 180.0f / PI;
-					float angle_z_rad = angle_z * 180.0f / PI;
-
-					// Work out direction from angles and an initial (forward) vector;
-					//
-					// If all angles are zero then it goes forward
-					// angle_x is pitch
-					// angle_y is yaw
-					// angle_z is roll
-					//
-					// The order of operation is pitch > yaw > roll
-					NiMatrix3 customRot = NiMatrix3(angle_x_rad, angle_y_rad, angle_z_rad);
-					NiPoint3 forward = NiPoint3(0.0f, 0.0f, 1.0f);
-					NiPoint3 customDirection = customRot * forward;
-
-					NiMatrix3 giantRot = giant->GetCurrent3D()->world.rotate;
-					direction = giantRot * (customDirection / customDirection.Length());
-				}
-				else {
-				    if (IsCrawling(giant)) { // Strongest throw, needs custom throw direction again
-						speed *= 0.20f; // Hand travels fast so it's a good idea to decrease its power
-
-						float angle_x = 0; 
-						float angle_y = 0.008f; 
-						float angle_z = 0.0f; // 0
-
-						// Conversion to radians
-						constexpr float PI = 3.141592653589793f;
-						float angle_x_rad = angle_x * 180.0f / PI;
-						float angle_y_rad = angle_y * 180.0f / PI;
-						float angle_z_rad = angle_z * 180.0f / PI;
-
-						NiMatrix3 customRot = NiMatrix3(angle_x_rad, angle_y_rad, angle_z_rad);
-						NiPoint3 forward = NiPoint3(0.0f, 0.0f, 1.0f);
-						NiPoint3 customDirection = customRot * forward;
-
-						NiMatrix3 giantRot = giant->GetCurrent3D()->world.rotate;
-						direction = giantRot * (customDirection / customDirection.Length());
-					} else { // Else perform Slight Sneak Throw calc
-						direction = vector / vector.Length();
-						speed *= 0.10f; // Hand also travels fast and we don't want this anim to feel strong
-					}
-				}
-
-				float Time = (1.0f / Time::GetTimeMultiplier()); // read SGTM value and / speed by it, so tinies still fly far even with sgtm 0.15
-				log::info("Time Mult: {}", Time);
-
-				ApplyManualHavokImpulse(tiny, direction.x, direction.y, direction.z, speed * speedmult * Time);
-				return false;
-			} 
-			return true;
+			// Apply physics impulse to tiny
+			ApplyManualHavokImpulse(tiny, direction.x, direction.y, direction.z, speed * speedmult * timeMultiplier);
+			return false;  // Task complete
 		});
 	}
+
+
     void Animation_GrabThrow::RegisterEvents() {
         AnimationManager::RegisterEvent("GTSGrab_Throw_MoveStart", "Grabbing", GTSGrab_Throw_MoveStart);
 		AnimationManager::RegisterEvent("GTSGrab_Throw_FS_R", "Grabbing", GTSGrab_Throw_FS_R);

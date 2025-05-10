@@ -16,6 +16,7 @@
 using namespace GTS;
 
 namespace Triggers {
+
 	void PassAnimation(std::string anim_gts, std::string anim_tiny) {
 		Actor* Player = GetPlayerOrControlled();
 		Actor* Tiny = Grab::GetHeldActor(Player);
@@ -24,45 +25,58 @@ namespace Triggers {
 			AnimationManager::StartAnim(anim_tiny, Tiny);
 		}
 	}
+
 	void GrabPlay_StartEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_Enter", "GrabPlay_Enter_T");
 	}
+
 	void GrabPlay_ExitEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_Exit", "GrabPlay_Exit_T");
 	}
+
 	void GrabPlay_CrushHeavyEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_CrushH", "GrabPlay_CrushH_T");
 	}
+
 	void GrabPlay_VoreEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_Vore", "GrabPlay_Vore_T");
 	}
+
 	void GrabPlay_KissEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_Kiss", "GrabPlay_Kiss_T");
 	}
+
 	void GrabPlay_KissVoreEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_KissVore", "GrabPlay_KissVore_T");
 	}
+
 	void GrabPlay_PokeEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_Poke", "GrabPlay_Poke_T");
 	}
+
 	void GrabPlay_FlickEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_Flick", "GrabPlay_Flick_T");
 	}
+
 	void GrabPlay_SandwichEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_Sandwich", "GrabPlay_Sandwich_T");
 	}
+
 	void GrabPlay_GrindStartEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_GrindStart", "GrabPlay_GrindStart_T");
 	}
+
 	void GrabPlay_GrindStopEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_GrindStop", "GrabPlay_GrindStop_T");
 	}
+
 	void GrabPlay_ToBoobsEvent(const ManagedInputEvent& data) {
 		PassAnimation("GrabPlay_ToBoobs", "GrabPlay_ToBoobs_T");
 	}
 }
 
 namespace GTS {
+
 	void Animation_GrabPlay::RegisterTriggers() {
 		AnimationManager::RegisterTrigger("GrabPlay_Enter", "GrabPlay", "GTSBEH_Hand_Enter");
 		AnimationManager::RegisterTrigger("GrabPlay_Enter_T", "GrabPlay", "GTSBEH_T_Hand_Enter");

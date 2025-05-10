@@ -34,6 +34,7 @@ using namespace GTS;
 namespace {
 
 	constexpr float EPS = 1e-4f;
+	constexpr float DegToRadConst = 0.017453292f;
 
 	constexpr SoftPotential getspeed {
 		// https://www.desmos.com/calculator/vyofjrqmrn
@@ -185,6 +186,84 @@ namespace {
 //RE::ExtraDataList::~ExtraDataList() = default;
 
 namespace GTS {
+
+	//Function that creates a fake throw vector using Actor3D instead of bones
+	bool CalculateThrowDirection(RE::Actor* a_ActorGiant, RE::Actor* a_ActorTiny, RE::NiPoint3& a_From, RE::NiPoint3& a_To, float a_HorizontalAngleOffset, float a_VerticalAngleOffset) {
+
+		//auto* nodeg = find_node(a_ActorGiant, "NPC Root [Root]");
+		//auto* nodet = find_node(a_ActorTiny, "NPC Root [Root]");
+
+		NiPoint3& t = a_ActorTiny->GetCurrent3D()->world.translate;
+		NiMatrix3& m = a_ActorGiant->GetCurrent3D()->world.rotate;
+		a_From = { t.x, t.y, t.z };
+
+		// Get the original forward direction
+		a_To = {
+			m.entry[0][1],
+			m.entry[1][1],
+			m.entry[2][1]
+		};
+
+		// Store the original z component before normalizing the 2D vector
+		float originalZ = a_To.z;
+
+		// Normalize the horizontal (XY) component
+		a_To.z = 0.0f;
+		const float len2d = std::sqrt(a_To.x * a_To.x + a_To.y * a_To.y);
+		if (len2d > 0.0f) {
+			a_To.x /= len2d;
+			a_To.y /= len2d;
+		}
+
+		// Apply horizontal angle offset (rotate around Z axis)
+		if (a_HorizontalAngleOffset != 0.0f) {
+			
+			float radians = a_HorizontalAngleOffset * DegToRadConst; // Convert degrees to radians
+			float cosTheta = std::cos(radians);
+			float sinTheta = std::sin(radians);
+
+			float originalX = a_To.x;
+			float originalY = a_To.y;
+
+			// Rotate the XY vector
+			a_To.x = originalX * cosTheta - originalY * sinTheta;
+			a_To.y = originalX * sinTheta + originalY * cosTheta;
+		}
+
+		// Apply vertical angle offset (adjust Z component)
+		if (a_VerticalAngleOffset != 0.0f) {
+			float radians = a_VerticalAngleOffset * DegToRadConst; // Convert degrees to radians
+			float verticalComponent = std::sin(radians);
+
+			// The length of the horizontal component needs to be reduced to maintain a unit vector
+			float horizontalScale = std::cos(radians);
+			a_To.x *= horizontalScale;
+			a_To.y *= horizontalScale;
+
+			// Set the Z component based on the vertical angle
+			a_To.z = verticalComponent;
+		}
+		else {
+			// If no vertical offset is specified, restore the original Z component
+			// This preserves any natural vertical aiming that might have been in the original direction
+			a_To.z = originalZ;
+		}
+
+		// Debug visualization
+		if (Config::GetAdvanced().bShowOverlay) {
+			glm::vec3 fromGLM{ a_From.x, a_From.y, a_From.z };
+			glm::vec3 directionGLM{ a_To.x, a_To.y, a_To.z };
+			glm::vec3 toGLM = fromGLM + directionGLM * 500.f;
+			constexpr int lifetimeMS = 5000;
+			glm::vec4 color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+			float lineThickness = 2.0f;
+			DebugAPI::DrawLineForMS(fromGLM, toGLM, lifetimeMS, color, lineThickness);
+		}
+
+		return true;
+	}
+
+
 
 	RE::NiPoint3 RotateAngleAxis(const RE::NiPoint3& vec, const float angle, const RE::NiPoint3& axis) {
 		float S = sin(angle);

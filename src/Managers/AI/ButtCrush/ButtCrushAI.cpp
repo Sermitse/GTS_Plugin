@@ -14,7 +14,7 @@ namespace {
 	constexpr float MINIMUM_BUTTCRUSH_DISTANCE = 95.0f;
 	constexpr float BUTTCRUSH_ANGLE = 70;
 	constexpr float PI = std::numbers::pi_v<float>;
-	constexpr float ALLOW_DEAD = false;
+	constexpr bool ALLOW_DEAD = false;
 
 	bool CanButtCrush(Actor* a_Performer, Actor* a_Prey) {
 
