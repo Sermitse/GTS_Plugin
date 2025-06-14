@@ -167,6 +167,21 @@ namespace GTS {
 
                 ImGui::Spacing();
             }
+            
+        }
+
+        ImUtil_Unique{
+
+            if (ImGui::CollapsingHeader("Grab-Play: Kiss Vore Offsets", ImUtil::HeaderFlagsDefaultOpen)) {
+
+                const char* T1 = "Modify the placement of actors during Kiss Vore.\n"
+                "Offset is affected by size difference.";
+
+                ImUtil::SliderF("Up/Down", &SGameplay.ActionSettings.fGrabPlayVoreOffset_Z, -15.0f, 15.0f, T1, "%.2f");
+
+                ImGui::Spacing();
+            }
+            
         }
 	}
 }

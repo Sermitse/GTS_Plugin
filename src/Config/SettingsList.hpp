@@ -136,6 +136,7 @@ struct GameplayActionSettings {
 
     // Cleavage offset for forward/back and up/down adjustments
     std::array<float, 2> f2CleavageOffset = { 0.0f, 0.0f };
+    float fGrabPlayVoreOffset_Z = 0.0f;
 
 };
 TOML_SERIALIZABLE(GameplayActionSettings);

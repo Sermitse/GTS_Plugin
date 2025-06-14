@@ -72,7 +72,7 @@ namespace GTS {
 	            ImUtil::CheckBox("Footstep Sounds",&Settings.bFootstepSounds,T0);
 	            ImUtil::CheckBox("Moans On Slow Growth",&Settings.bSlowGrowMoans, T1);
 				ImUtil::CheckBox("Moan/Laugh Size Variance", &Settings.bMoanLaughSizeVariants, T2);
-				ImUtil::CheckBox("Use Different High Heel Size Sounds", &Settings.bUseOtherHighHeelSet, T3);
+				ImUtil::CheckBox("Alternative High Heel Size Sounds", &Settings.bUseOtherHighHeelSet, T3);
 	            ImGui::Spacing();
 	        }
 	    }

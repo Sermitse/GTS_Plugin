@@ -162,13 +162,18 @@ namespace GTS {
     bool Config::LoadSettingsFromString() {
 
         auto& Settings = Persistent::GetSingleton().ModSettings;
+        if (Settings.value.empty()) {
+            logger::info("LoadSettingsFromString(): no TOML payload, skipping load.");
+            return false;
+        }
 
+        toml::basic_value<toml::ordered_type_config> tempTable;
         try {
-            TomlData = toml::parse_str<toml::ordered_type_config>(Settings.value);
+           tempTable = toml::parse_str<toml::ordered_type_config>(Settings.value);
         }
         catch (const toml::exception& e) {
             //Set TomlData to a clean table. So any loaded settings can still be saved propperly if needed.
-            TomlData = toml::ordered_table();
+            tempTable = toml::ordered_table();
             Settings.value.clear();
             logger::error("Could not Parse Persistent Mod Settings: {}", e.what());
             return false;
@@ -179,9 +184,15 @@ namespace GTS {
             return false;
         }
 
+        if (tempTable.is_empty()) {
+            logger::warn("Parsed TOML is empty, skipping load.");
+            return false;
+        }
+
+        TomlData = std::move(tempTable);
+
         try {
             bool LoadRes = true;
-            //LoadRes &= LoadStructFromTOML(TomlData, Save); The global config denotes whether we should use persistent saves
             LoadRes &= LoadStructFromTOML(TomlData, General);
             LoadRes &= LoadStructFromTOML(TomlData, Gameplay);
             LoadRes &= LoadStructFromTOML(TomlData, Balance);

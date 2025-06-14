@@ -381,8 +381,8 @@ namespace GTS {
             },
             {
                 .Event = "ButtCrushAttack",
-                .Keys = {"RMB"},
-                .Duration = 0.25f,
+                .Keys = {"LMB"},
+                .Duration = 0.0f,
             },
 
             //========================================================

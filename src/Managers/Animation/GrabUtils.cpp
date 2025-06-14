@@ -61,17 +61,20 @@ namespace {
 
         if (Object) {
             NiPoint3 coords = Object->world.translate;
-            FaceSame(giantref, tinyref);
+            
+            if (tinyref->formID != 0x14) {
+                FaceSame(giantref, tinyref);
+            }
 
             if (Transient) {
                 if (Transient->KissVoring) {
-                    coords.z += 1.5f * get_visual_scale(giantref);
-                    log::info("Applying kiss vore fix");
+                    const auto Offset = Config::GetGameplay().ActionSettings.fGrabPlayVoreOffset_Z;
+                    float offset = (0.6f + Offset) * get_visual_scale(giantref);
+                    coords.z += offset;
                 }
             }
 
             if (!AttachTo(giantref, tinyref, coords)) {
-                log::info("Trying to cancel Grab Play state");
                 Grab::CancelGrab(giantref, tinyref);
                 //AnimationManager::StartAnim("GTS_HS_Exit_NoTiny", giantref); Doesn;t work
                 return false;

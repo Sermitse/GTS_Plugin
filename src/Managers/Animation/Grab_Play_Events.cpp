@@ -188,7 +188,6 @@ namespace Grab_Fixes {
 			Grab::DetachActorTask(giant);
 			Grab::Release(giant);
 		}
-
 	}
 
 	void GTSGrab_Do_Damage(Actor* giant, float base_damage) {

@@ -255,6 +255,8 @@ namespace GTS {
 
     BSISoundDescriptor* GetHHSound_NormalAlt(const int scale) {
         switch (scale) {
+            case 1:
+                return Runtime::GetSound("GTSSoundFootstepHighHeels_1_5x_Alt");
             case 2: 
                 return Runtime::GetSound("GTSSoundFootstepHighHeels_2x_Alt");
             case 4:

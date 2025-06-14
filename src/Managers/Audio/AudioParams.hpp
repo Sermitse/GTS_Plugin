@@ -17,7 +17,8 @@ namespace GTS {
 
 	constexpr VolumeParams xlRumble_Params = {.a = 12.0f, .k = 0.50f, .n = 0.5f, .s = 1.0f};
 
-	constexpr VolumeParams Footstep_2_Params = {.a = 1.35f, .k = 1.0f, .n = 0.75f, .s = 1.0f};    // https://www.desmos.com/calculator/6yzmmrg3oi
+	constexpr VolumeParams Footstep_1_5_Params = {.a = 1.2f, .k = 1.0f, .n = 0.9f, .s = 3.35f};    // https://www.desmos.com/calculator/6yzmmrg3oi
+	constexpr VolumeParams Footstep_2_Params = {.a = 1.65f, .k = 1.0f, .n = 0.75f, .s = 1.0f};    // https://www.desmos.com/calculator/6yzmmrg3oi
 	constexpr VolumeParams Footstep_4_Params = {.a = 3.0f, .k = 1.0f, .n = 1.15f, .s = 1.0f};     // https://www.desmos.com/calculator/ighurmlanl
 	constexpr VolumeParams Footstep_8_Params = {.a = 6.0f, .k = 0.26f, .n = 1.94f, .s = 1.0f};    // https://www.desmos.com/calculator/d3gsgj6ocs
 	constexpr VolumeParams Footstep_12_Params = {.a = 12.0f, .k = 0.27f, .n = 1.9f, .s = 1.0f};   // https://www.desmos.com/calculator/akoyl4cxch
@@ -28,6 +29,7 @@ namespace GTS {
 	// Params end
 
 	constexpr float limitless = 0.0f;
+	constexpr float limit_x2 = 2.0f;
 	constexpr float limit_x4 = 4.0f;
 	constexpr float limit_x8 = 8.0f;
 	constexpr float limit_x14 = 14.0f;
