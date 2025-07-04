@@ -102,10 +102,10 @@ namespace {
 	void UpdateFalling() {
 		Actor* player = PlayerCharacter::GetSingleton(); 
 		if (player && player->IsInMidair()) {
+			auto transient = Transient::GetSingleton().GetData(player);
 			if (Runtime::HasPerkTeam(player, "GTSPerkCruelFall")) {
 				auto charCont = player->GetCharController();
 				if (charCont) {
-					auto transient = Transient::GetSingleton().GetData(player);
 					if (transient) {
 						float scale = std::clamp(get_visual_scale(player), 0.06f, 2.0f);
 						float CalcFall = 1.0f + (charCont->fallTime * (4.0f / scale) - 4.0f);
@@ -113,6 +113,8 @@ namespace {
 						transient->FallTimer = FallTime;
 					}
 				}
+			} else {
+				transient->FallTimer = 1.0f;
 			}
 		}
 	}
@@ -185,12 +187,12 @@ namespace {
 		}
 
 		if (!trans_actor_data) {
-			log::info("!Upate_height: Trans Data not found for {}", actor->GetDisplayFullName());
+			//log::info("!Upate_height: Trans Data not found for {}", actor->GetDisplayFullName());
 			return;
 		}
 
 		if (!persi_actor_data) {
-			log::info("!Upate_height: Pers Data not found for {}", actor->GetDisplayFullName());
+			//log::info("!Upate_height: Pers Data not found for {}", actor->GetDisplayFullName());
 			return;
 		}
 
@@ -204,18 +206,7 @@ namespace {
 		
 
 		float ScaleMult = 1.0f;
-		if (Persistent::GetSingleton().UnlockMaxSizeSliders.value) {
-			bool Unlocked = Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth") && actor->formID != 0x14;
-			if (Unlocked) {
-				const float NPCLimit = Config::GetBalance().fMaxOtherSize;
-				const float FollowerLimit = Config::GetBalance().fMaxFollowerSize;
-				if (IsTeammate(actor)) {
-					ScaleMult = std::clamp(FollowerLimit, 0.1f, 1.0f);
-				} else {
-					ScaleMult = std::clamp(NPCLimit, 0.1f, 1.0f);
-				}
-			}
-		}
+		VisualScale_CheckForSizeAdjustment(actor, ScaleMult); // Updates ScaleMult value based on Actor Type (Player/Follower/Others)
 	
 		// Smooth target_scale towards max_scale if target_scale > max_scale
 		if (target_scale > max_scale && get_target_scale(actor) > get_natural_scale(actor, true) * ScaleMult) {

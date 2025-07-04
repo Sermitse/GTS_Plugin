@@ -264,16 +264,16 @@ namespace GTS {
         ImUtil_Unique{
 
             const char* T0 = "Changes the amount of damage size-related actions do.";
-            const char* T1 = "Changes the amount of damage increase regular melee atacks gain.";
-            const char* T2 = "Adjust the speed at which you gain size experience.";
+            const char* T1 = "Changes the amount of damage increase regular melee and magic atacks gain.";
+            const char* T2 = "Adjust the speed at which you gain size-related experience.";
             const char* T3 = "Change the ammount of carry weight capacity gained based on your size.";
 
             if (ImUtil::ConditionalHeader("Multipiers", "Balance Mode Active", !Settings.bBalanceMode)) {
 
-                ImUtil::SliderF("Size Damage Multiplier", &Settings.fSizeDamageMult, 0.1f, 2.0f, T0, "%.2fx");
-                ImUtil::SliderF("Damage Multiplier", &Settings.fStatBonusDamageMult, 0.1f, 2.0f, T1, "%.2fx");
-                ImUtil::SliderF("Carry Weight Multiplier", &Settings.fStatBonusCarryWeightMult, 0.1f, 2.0f, T3, "%.2fx");
-                ImUtil::SliderF("Experience Multiplier", &Settings.fExpMult, 0.1f, 5.0f, T2, "%.2fx");
+                ImUtil::SliderF("Size Damage Multiplier", &Settings.fSizeDamageMult, 0.02f, 2.0f, T0, "%.2fx");
+                ImUtil::SliderF("Damage Multiplier", &Settings.fStatBonusDamageMult, 0.02f, 2.0f, T1, "%.2fx");
+                ImUtil::SliderF("Carry Weight Multiplier", &Settings.fStatBonusCarryWeightMult, 0.02f, 2.0f, T3, "%.2fx");
+                ImUtil::SliderF("Experience Multiplier", &Settings.fExpMult, 0.02f, 5.0f, T2, "%.2fx");
             }
         }
     }

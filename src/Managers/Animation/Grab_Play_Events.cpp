@@ -417,14 +417,15 @@ namespace {
 	void GTS_HS_K_Vore_TinyMuffle(AnimationEventData& data) {}
 
 	void GTS_HS_K_Vore_SlurpTiny(AnimationEventData& data) {
-		Grab_Fixes::GTSGrab_SwallowTiny(&data.giant);
 	}
 
 	void GTS_HS_K_Vore_SlurpTiny_End(AnimationEventData& data) {
 		Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, 1.0f, "NPC Head [Head]"); // Play sound
 	}
 
-	void GTS_HS_K_Vore_TinyInMouth(AnimationEventData& data) {}
+	void GTS_HS_K_Vore_TinyInMouth(AnimationEventData& data) {
+		Grab_Fixes::GTSGrab_SwallowTiny(&data.giant);
+	}
 	void GTS_HS_K_Vore_SwallowTiny(AnimationEventData& data) {
 		Grab_Fixes::FixKissVoreTinyOffset(&data.giant, false);
 		Grab_Fixes::GTSGrab_DelayedSmile(&data.giant, 1.2f);

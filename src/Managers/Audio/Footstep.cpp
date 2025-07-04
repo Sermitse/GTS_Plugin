@@ -11,7 +11,59 @@
 
 using namespace GTS;
 
+namespace {
+
+	static inline const VolumeParams& choose_params(const VolumeParams& normal, const VolumeParams& blended, bool blend) {
+		return blend ? blended : normal;
+	}
+
+	static inline const float& choose_param(const float if_blend, const float no_blend, bool blend) {
+		return blend ? if_blend : no_blend; // By default, non-blend sounds are very quiet (since they start from 0.01 and such)
+		//so we have to manually add volume on top through this function
+	}
+
+	using StepArray_TimKroyer = std::array<StepSoundData, 9>;
+	using StepArray_PeculiarMGTS = std::array<StepSoundData, 8>;
+
+	// Difference between the two: (Tim/Pecu):
+	// Tim's set was created with adding x1.5 audio into the system, so Footsteps appear earlier and slowly transition into x2.0 footsteps
+	// Pecu's set has NO x1.5 footstep sounds so we have to replace these with alternative x2
+
+	static StepArray_TimKroyer BuildSteps_TimKroyer(bool blend) {
+		return { {
+			{ limit_x2,   1,  Footstep_1_5_Params,   BL_Footstep_2_Params,   "x1.5 Footstep",   0.4f,  blend, 0.0f },
+			{ limit_x4,   2,  choose_params(Footstep_2_Params,   BL_Footstep_2_Params,   blend), choose_params(Footstep_4_Params,   BL_Footstep_4_Params,   blend), "x2 Footstep",   0.85f,  blend, choose_param(0.0f, 0.45f, blend) },
+			{ limit_x8,   4,  choose_params(Footstep_4_Params,   BL_Footstep_4_Params,   blend), choose_params(Footstep_8_Params,   BL_Footstep_8_Params,   blend), "x4 Footstep",   0.9f,  blend, choose_param(0.0f, 1.15f, blend) },
+			{ limit_x14,  8,  choose_params(Footstep_8_Params,   BL_Footstep_8_Params,   blend), choose_params(Footstep_12_Params,  BL_Footstep_12_Params,  blend), "x8 Footstep",   1.4f,  blend, choose_param(0.0f, 1.6f, blend) },
+			{ limit_x24,  12, choose_params(Footstep_12_Params,  BL_Footstep_12_Params,  blend), choose_params(Footstep_24_Params,  BL_Footstep_24_Params,  blend), "x12 Footstep",  1.75f,  blend, choose_param(0.0f, 1.4f, blend) },
+			{ limit_x48,  24, choose_params(Footstep_24_Params,  BL_Footstep_24_Params,  blend), choose_params(Footstep_48_Params,  BL_Footstep_48_Params,  blend), "x24 Footstep",  5.0f,  blend, choose_param(0.0f, 1.8f, blend) },
+			{ limit_x96,  48, choose_params(Footstep_48_Params,  BL_Footstep_48_Params,  blend), choose_params(Footstep_96_Params,  BL_Footstep_96_Params,  blend), "x48 Footstep",  12.0f,  blend, choose_param(0.0f, 2.0f, blend) },
+			{ limit_mega, 96, choose_params(Footstep_96_Params,  BL_Footstep_96_Params,  blend), choose_params(Footstep_128_Params, BL_Footstep_128_Params, blend), "x96 Footstep",  18.0f, blend, choose_param(0.0f, 2.2f, blend) },
+			{ limitless,  128,choose_params(Footstep_128_Params, BL_Footstep_128_Params, blend), Params_Empty,                                                      "Mega Footstep", 24.0f, false, choose_param(0.0f, 2.8f, blend) }
+		} };
+	}
+
+	static StepArray_PeculiarMGTS BuildSteps_PeculiarMGTS(bool blend) {
+		return { {
+			{ limit_x4,   2,  choose_params(Footstep_2a_Params,  Footstep_2a_Params,   blend), choose_params(Footstep_4_Params,   BL_Footstep_4_Params,   blend), "x2 Footstep_a",   0.85f,  blend, 0.0f },
+			{ limit_x8,   4,  choose_params(Footstep_4_Params,   BL_Footstep_4_Params,   blend), choose_params(Footstep_8_Params,   BL_Footstep_8_Params,   blend), "x4 Footstep",   0.9f,  blend, choose_param(0.0f, 1.15f, blend) },
+			{ limit_x14,  8,  choose_params(Footstep_8_Params,   BL_Footstep_8_Params,   blend), choose_params(Footstep_12_Params,  BL_Footstep_12_Params,  blend), "x8 Footstep",   1.4f,  blend, choose_param(0.0f, 1.6f, blend) },
+			{ limit_x24,  12, choose_params(Footstep_12_Params,  BL_Footstep_12_Params,  blend), choose_params(Footstep_24_Params,  BL_Footstep_24_Params,  blend), "x12 Footstep",  1.75f,  blend, choose_param(0.0f, 1.4f, blend) },
+			{ limit_x48,  24, choose_params(Footstep_24_Params,  BL_Footstep_24_Params,  blend), choose_params(Footstep_48_Params,  BL_Footstep_48_Params,  blend), "x24 Footstep",  5.0f,  blend, choose_param(0.0f, 1.8f, blend) },
+			{ limit_x96,  48, choose_params(Footstep_48_Params,  BL_Footstep_48_Params,  blend), choose_params(Footstep_96_Params,  BL_Footstep_96_Params,  blend), "x48 Footstep",  12.0f,  blend, choose_param(0.0f, 2.0f, blend) },
+			{ limit_mega, 96, choose_params(Footstep_96_Params,  BL_Footstep_96_Params,  blend), choose_params(Footstep_128_Params, BL_Footstep_128_Params, blend), "x96 Footstep",  18.0f, blend, choose_param(0.0f, 2.2f, blend) },
+			{ limitless,  128,choose_params(Footstep_128_Params, BL_Footstep_128_Params, blend), Params_Empty,                                                      "Mega Footstep", 24.0f, false, choose_param(0.0f, 2.8f, blend) }
+		} };
+	}
+
+	static const StepArray_PeculiarMGTS Steps_PeculiarMGTS_Blend = BuildSteps_PeculiarMGTS(true);
+	static const StepArray_PeculiarMGTS Steps_PeculiarMGTS_NoBlend = BuildSteps_PeculiarMGTS(false);
+	static const StepArray_TimKroyer Steps_TimKroyer_Blend = BuildSteps_TimKroyer(true);
+	static const StepArray_TimKroyer Steps_TimKroyer_NoBlend = BuildSteps_TimKroyer(false);
+}
+
 namespace PlayFootSound {
+
 	void PlayFootstepSound(BSSoundHandle FootstepSound) {
 		if (FootstepSound.soundID != BSSoundHandle::kInvalidID) { 
 			// 271EF4: Sound\fx\GTS\Foot\Effects  (Stone sounds)
@@ -31,49 +83,45 @@ namespace PlayFootSound {
 		}
 	}
 
-	void BuildSounds_HighHeels_Alt(float modifier, NiAVObject* foot, FootEvent foot_kind, float scale) {
-		BSSoundHandle Footstep_1_5  = get_sound(modifier, foot, scale, limit_x2, get_footstep_highheel(foot_kind, 1, true), Footstep_1_5_Params, Footstep_2_Params, "x1.5 Footstep", 1.0f, true);
-		// Stomps at x2
-		BSSoundHandle Footstep_2   = get_sound(modifier, foot, scale, limit_x4, get_footstep_highheel(foot_kind, 2, true), Footstep_2_Params, Footstep_4_Params, "x2 Footstep", 1.0f, true);
-		// Stops at x4
-		BSSoundHandle Footstep_4  = get_sound(modifier, foot, scale, limit_x8, get_footstep_highheel(foot_kind, 4, true), Footstep_4_Params, Footstep_8_Params, "x4 Footstep", 1.0f, true);
-		// ^ Stops at ~x12
-		BSSoundHandle Footstep_8  = get_sound(modifier, foot, scale, limit_x14, get_footstep_highheel(foot_kind, 8, true), Footstep_8_Params, Footstep_12_Params, "x8 Footstep", 1.33f, true);
-		// ^ Stops at ~x14
-		BSSoundHandle Footstep_12 = get_sound(modifier, foot, scale, limit_x24, get_footstep_highheel(foot_kind, 12, true), Footstep_12_Params, Footstep_24_Params, "x12 Footstep", 2.0f, true);
-		// ^ Stops at ~x24
-		BSSoundHandle Footstep_24 = get_sound(modifier, foot, scale, limit_x48, get_footstep_highheel(foot_kind, 24, true), Footstep_24_Params, Footstep_48_Params, "x24 Footstep", 5.0f, true);
-		// ^ Stops at ~x44
-		BSSoundHandle Footstep_48 = get_sound(modifier, foot, scale, limit_x96, get_footstep_highheel(foot_kind, 48, true), Footstep_48_Params, Footstep_96_Params, "x48 Footstep", 8.0f, true);
-		// ^ Stops at ~x88
-		BSSoundHandle Footstep_96 = get_sound(modifier, foot, scale, limit_mega, get_footstep_highheel(foot_kind, 96, true), Footstep_96_Params, Footstep_128_Params, "x96 Footstep", 12.0f, true);
-		// ^ Stops at X126
-		BSSoundHandle Footstep_128 = get_sound(modifier, foot, scale, limitless, get_footstep_highheel(foot_kind, 128, true), Footstep_128_Params, Params_Empty, "Mega Footstep", 18.0f, false);
+	static void BuildSounds_HighHeels_NormalOrAlt(float a_modifier, NiAVObject* a_foot, FootEvent a_footKind, float a_scale, bool a_otherset) {
+		const bool blend = Config::GetAudio().bBlendBetweenFootsteps;
 
-		for (auto Sound: {Footstep_1_5, Footstep_2, Footstep_4, Footstep_8, Footstep_12, Footstep_24, Footstep_48, Footstep_96, Footstep_128}) {
-			PlayFootstepSound(Sound);
+		if (a_otherset) {
+			const auto& steps = blend ? Steps_TimKroyer_Blend : Steps_TimKroyer_NoBlend;
+			for (const auto& step : steps) {
+				auto sound = get_sound(
+					a_modifier, a_foot, a_scale, step.limit,
+					get_footstep_highheel(a_footKind, step.soundLevel, a_otherset),
+					step.paramsStart, step.paramsEnd, step.label, step.volume, step.blend, step.extra_volume
+				);
+				PlayFootSound::PlayFootstepSound(sound);
+			}
+		} else {
+			const auto& steps = blend ? Steps_PeculiarMGTS_Blend : Steps_PeculiarMGTS_NoBlend;
+			for (const auto& step : steps) {
+				auto sound = get_sound(
+					a_modifier, a_foot, a_scale, step.limit,
+					get_footstep_highheel(a_footKind, step.soundLevel, a_otherset),
+					step.paramsStart, step.paramsEnd, step.label, step.volume, step.blend, step.extra_volume
+				);
+				PlayFootSound::PlayFootstepSound(sound);
+			}
 		}
 	}
 
-	void BuildSounds_HighHeels_Normal(float modifier, NiAVObject* foot, FootEvent foot_kind, float scale) {
-		BSSoundHandle Footstep_2   = get_sound(modifier, foot, scale, limit_x4, get_footstep_highheel(foot_kind, 2, false), Footstep_2_Params, Footstep_4_Params, "x2 Footstep", 1.0f, true);
-		// Stops at x4
-		BSSoundHandle Footstep_4  = get_sound(modifier, foot, scale, limit_x8, get_footstep_highheel(foot_kind, 4, false), Footstep_4_Params, Footstep_8_Params, "x4 Footstep", 1.0f, true);
-		// ^ Stops at ~x12
-		BSSoundHandle Footstep_8  = get_sound(modifier, foot, scale, limit_x14, get_footstep_highheel(foot_kind, 8, false), Footstep_8_Params, Footstep_12_Params, "x8 Footstep", 1.33f, true);
-		// ^ Stops at ~x14
-		BSSoundHandle Footstep_12 = get_sound(modifier, foot, scale, limit_x24, get_footstep_highheel(foot_kind, 12, false), Footstep_12_Params, Footstep_24_Params, "x12 Footstep", 2.0f, true);
-		// ^ Stops at ~x24
-		BSSoundHandle Footstep_24 = get_sound(modifier, foot, scale, limit_x48, get_footstep_highheel(foot_kind, 24, false), Footstep_24_Params, Footstep_48_Params, "x24 Footstep", 5.0f, true);
-		// ^ Stops at ~x44
-		BSSoundHandle Footstep_48 = get_sound(modifier, foot, scale, limit_x96, get_footstep_highheel(foot_kind, 48, false), Footstep_48_Params, Footstep_96_Params, "x48 Footstep", 8.0f, true);
-		// ^ Stops at ~x88
-		BSSoundHandle Footstep_96 = get_sound(modifier, foot, scale, limit_mega, get_footstep_highheel(foot_kind, 96, false), Footstep_96_Params, Footstep_128_Params, "x96 Footstep", 12.0f, true);
-		// ^ Stops at X126
-		BSSoundHandle Footstep_128 = get_sound(modifier, foot, scale, limitless, get_footstep_highheel(foot_kind, 128, false), Footstep_128_Params, Params_Empty, "Mega Footstep", 18.0f, false);
+	static void BuildAndPlayStompSounds(Actor* giant, float a_modifier, NiAVObject* a_foot, FootEvent a_footKind, float a_scale, bool Strong) {
+		//https://www.desmos.com/calculator/wh0vwgljfl
+		auto profiler = Profilers::Profile("StompManager: PlayHighHeelSounds");
+		const bool blend = Config::GetAudio().bBlendBetweenFootsteps;
 
-		for (auto Sound: {Footstep_2, Footstep_4, Footstep_8, Footstep_12, Footstep_24, Footstep_48, Footstep_96, Footstep_128}) {
-			PlayFootstepSound(Sound);
+		const auto& steps = blend ? Steps_PeculiarMGTS_Blend : Steps_PeculiarMGTS_NoBlend;
+		for (const auto& step : steps) {
+			auto sound = get_sound(
+				a_modifier, a_foot, a_scale, step.limit,
+				get_footstep_stomp(a_footKind, step.soundLevel, Strong),
+				step.paramsStart, step.paramsEnd, step.label, step.volume, step.blend, step.extra_volume
+			);
+			PlayFootSound::PlayFootstepSound(sound);
 		}
 	}
 }
@@ -148,39 +196,26 @@ namespace GTS {
 	void FootStepManager::PlayHighHeelSounds_Walk(float modifier, NiAVObject* foot, FootEvent foot_kind, float scale, bool UseOtherHeelSet) {
 		//https://www.desmos.com/calculator/wh0vwgljfl
 		auto profiler = Profilers::Profile("FootStepManager: PlayHighHeelSounds");
-
-		if (!UseOtherHeelSet) {
-			PlayFootSound::BuildSounds_HighHeels_Normal(modifier, foot, foot_kind, scale); // PeculiarMGTS sounds
-		} else {
-			PlayFootSound::BuildSounds_HighHeels_Alt(modifier, foot, foot_kind, scale); // TimKroyer Sounds
-		}
-
+		PlayFootSound::BuildSounds_HighHeels_NormalOrAlt(modifier, foot, foot_kind, scale, UseOtherHeelSet); // PeculiarMGTS/TimKroyer sounds
 		PlayFootSound::BuildSounds_RocksAndMisc(modifier, foot, foot_kind, scale);
 	}
 
+	//Uses same sound array as walk
 	void FootStepManager::PlayHighHeelSounds_Jump(float modifier, NiAVObject* foot, FootEvent foot_kind, float scale, bool UseOtherHeelSet) {
-		//https://www.desmos.com/calculator/wh0vwgljfl
 		auto profiler = Profilers::Profile("FootStepManager: PlayHighHeelSounds");
-		BSSoundHandle JumpLand_x2   = get_sound(modifier, foot, scale, limit_x4, GetJumpLandSounds(2, UseOtherHeelSet), Footstep_2_Params, Footstep_4_Params, "x2 Footstep", 1.0f, true);
-		// Stops at x4
-		BSSoundHandle JumpLand_x4  = get_sound(modifier, foot, scale, limit_x8,GetJumpLandSounds(4, UseOtherHeelSet), Footstep_4_Params, Footstep_8_Params, "x4 Footstep", 1.0f, true);
-		// ^ Stops at ~x12
-		BSSoundHandle JumpLand_x8  = get_sound(modifier, foot, scale, limit_x14, GetJumpLandSounds(8, UseOtherHeelSet), Footstep_8_Params, Footstep_12_Params, "x8 Footstep", 1.33f, true);
-		// ^ Stops at ~x14
-		BSSoundHandle JumpLand_x12 = get_sound(modifier, foot, scale, limit_x24, GetJumpLandSounds(12, UseOtherHeelSet), Footstep_12_Params, Footstep_24_Params, "x12 Footstep", 2.0f, true);
-		// ^ Stops at ~x24
-		BSSoundHandle JumpLand_x24 = get_sound(modifier, foot, scale, limit_x48, GetJumpLandSounds(24, UseOtherHeelSet), Footstep_24_Params, Footstep_48_Params, "x24 Footstep", 5.0f, true);
-		// ^ Stops at ~x44
-		BSSoundHandle JumpLand_x48 = get_sound(modifier, foot, scale, limit_x96, GetJumpLandSounds(48, UseOtherHeelSet), Footstep_48_Params, Footstep_96_Params, "x48 Footstep", 8.0f, true);
-		// ^ Stops at ~x88
-		BSSoundHandle JumpLand_x96 = get_sound(modifier, foot, scale, limit_mega, GetJumpLandSounds(96, UseOtherHeelSet), Footstep_96_Params, Footstep_128_Params, "x96 Footstep", 12.0f, true);
-		// ^ Stops at X126
-		BSSoundHandle JumpLand_x128 = get_sound(modifier, foot, scale, limitless, GetJumpLandSounds(128, UseOtherHeelSet), Footstep_128_Params, Params_Empty, "Mega Footstep", 18.0f, false);
 
-		//=================================== Custom Commissioned Sounds =========================================
+		const bool blend = Config::GetAudio().bBlendBetweenFootsteps;
 
-		for (auto Sound: {JumpLand_x2, JumpLand_x4, JumpLand_x8, JumpLand_x12, JumpLand_x24, JumpLand_x48, JumpLand_x96, JumpLand_x128}) {
-			PlayFootSound::PlayFootstepSound(Sound);
+		// Reuse static walk param lookup table
+		const auto& steps = blend ? Steps_PeculiarMGTS_Blend : Steps_PeculiarMGTS_NoBlend;
+
+		for (const auto& step : steps) {
+			auto sound = get_sound(
+				modifier, foot, scale, step.limit,
+				GetJumpLandSounds(step.soundLevel, UseOtherHeelSet),
+				step.paramsStart, step.paramsEnd, step.label, step.volume, step.blend, step.extra_volume
+			);
+			PlayFootSound::PlayFootstepSound(sound);
 		}
 	}
 
@@ -226,7 +261,9 @@ namespace GTS {
 
 		BGSImpactManager::GetSingleton()->ProcessEvent(&foot_event, eventSource); // Make the game play vanilla footstep sound
 	}
-
+	void FootStepManager::DoStompSounds(Actor* giant, float modifier, NiAVObject* foot, FootEvent foot_kind, float scale, bool Strong) {
+		PlayFootSound::BuildAndPlayStompSounds(giant, modifier, foot, foot_kind, scale, Strong);
+	}
 	void FootStepManager::DoStrongSounds(Actor* giant, float animspeed, std::string_view feet) {
 		const bool UseOtherHeelSet = Config::GetAudio().bUseOtherHighHeelSet;
 		if (!UseOtherHeelSet) {

@@ -705,13 +705,15 @@ namespace GTS {
 
 	bool IsHeadtracking(Actor* giant) { // Used to report True when we lock onto something, should be Player Exclusive.
 		//Currently used to fix TDM mesh issues when we lock on someone.
-		bool tracking = false;
+		/*bool tracking = false;
 		if (giant->formID == 0x14) {
 			giant->GetGraphVariableBool("TDM_TargetLock", tracking); // get HT value, requires newest versions of TDM to work properly
-		} //else {
-			//giant->GetGraphVariableBool("bHeadtracking", headtracking);
-		//}
-		return tracking;
+		}
+		*/ // Old TDM Method, a bad idea since some still run old version for some reason.
+		if (giant->formID == 0x14) {
+			return HasHeadTrackingTarget(giant);
+		}
+		return false;
 	}
 
 	bool AnimationsInstalled(Actor* giant) {
@@ -2617,6 +2619,7 @@ namespace GTS {
 		}
 		bool DarkArts1 = Runtime::HasPerk(giant, "GTSPerkDarkArtsAug1");
 		bool DarkArts2 = Runtime::HasPerk(giant, "GTSPerkDarkArtsAug2");
+		bool DarkArts_Legendary = Runtime::HasPerk(giant, "GTSPerkDarkArtsLegendary");
 
 		float shrinkpower = (shrink * 0.35f) * (1.0f + (GetGtsSkillLevel(giant) * 0.005f)) * CalcEffeciency(giant, tiny);
 
@@ -2639,6 +2642,9 @@ namespace GTS {
 
 		if (get_target_scale(tiny) <= MinScale) {
 			set_target_scale(tiny, MinScale);
+			if (DarkArts_Legendary && ShrinkToNothing(giant, tiny, true, 0.01f, 0.75f)) {
+				return;
+			}
 		}
 		if (!IsBetweenBreasts(tiny)) {
 			if (sizedifference >= 0.9f) { // Stagger or Push
@@ -2656,28 +2662,39 @@ namespace GTS {
 		if (!node) {
 			return;
 		}
+		bool DarkArts_Legendary = Runtime::HasPerk(giant, "GTSPerkDarkArtsLegendary");
+		bool DarkArts1 = Runtime::HasPerk(giant, "GTSPerkDarkArtsAug1");
+		
 		NiPoint3 NodePosition = node->world.translate;
 
+		float gigantism = std::clamp(1.0f + Ench_Aspect_GetPower(giant), 1.0f, 2.5f); // Capped for Balance reasons, don't want to Annihilate entire map if hacking
 		float giantScale = get_visual_scale(giant);
-		float gigantism = 1.0f + Ench_Aspect_GetPower(giant);
+		
+		float radius_mult = 1.0f;
+		float explosion = 0.5f;
 		float shrink = 0.38f;
 		float radius = 1.0f;
 
-		float explosion = 0.75f;
-		bool DarkArts1 = Runtime::HasPerk(giant, "GTSPerkDarkArtsAug1");
 		if (WasHit) {
-			radius *= 1.4f;
-			shrink += 0.20f;
-			explosion += 0.95f;
+			radius_mult += 0.25f;
+			shrink += 0.22f;
 		}
 		if (DarkArts1) {
-			radius *= 1.33f;
-			shrink *= 1.33f;
-			explosion += 0.30f;
+			radius_mult += 0.30f;
+			shrink *= 1.3f;
 		}
 
+		if (DarkArts_Legendary) {
+			radius_mult += 0.15f;
+			shrink *= 1.30f;
+		}
+		
+		explosion *= radius_mult;
+		radius *= radius_mult;
+		
+
 		const float BASE_DISTANCE = 84.0f;
-		float CheckDistance = BASE_DISTANCE*giantScale*gigantism*radius;
+		float CheckDistance = BASE_DISTANCE*giantScale*radius;
 
 		Runtime::PlaySoundAtNode("GTSSoundShrinkOutburst", giant, explosion, 1.0f, "NPC Pelvis [Pelv]");
 		Rumbling::For("ShrinkOutburst", giant, Rumble_Misc_ShrinkOutburst, 0.15f, "NPC COM [COM ]", 0.60f, 0.0f);

@@ -187,13 +187,13 @@ namespace {
 			}
 			auto giant = gianthandle.get().get();
 			double timepassed = Time::WorldTimeElapsed() - Start;
-
+			float ClampedJump = std::clamp(fallmod, 1.0f, 2.0f);
 			if (timepassed >= 0.15) {
-				DoDamageEffect(giant, Damage_Jump_Default * damage, Radius_Jump_Default * fallmod, 20, 0.25f, FootEvent::Left, 1.0f, DamageSource::CrushedLeft, true);
-				DoDamageEffect(giant, Damage_Jump_Default * damage, Radius_Jump_Default * fallmod, 20, 0.25f, FootEvent::Right, 1.0f, DamageSource::CrushedRight, true);
+				DoDamageEffect(giant, Damage_Jump_Default * damage, Radius_Jump_Default, 20, 0.25f, FootEvent::Left, 1.0f, DamageSource::CrushedLeft, true);
+				DoDamageEffect(giant, Damage_Jump_Default * damage, Radius_Jump_Default, 20, 0.25f, FootEvent::Right, 1.0f, DamageSource::CrushedRight, true);
 
-				DoLaunch(giant, 1.20f * perk * fallmod, 1.75f * fallmod, FootEvent::Left);
-				DoLaunch(giant, 1.20f * perk * fallmod, 1.75f * fallmod, FootEvent::Right);
+				DoLaunch(giant, 1.20f * perk * ClampedJump, 1.75f * fallmod, FootEvent::Left);
+				DoLaunch(giant, 1.20f * perk * ClampedJump, 1.75f * fallmod, FootEvent::Right);
 				return false;
 			}
 			return true;

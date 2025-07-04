@@ -348,6 +348,7 @@ struct SettingsAudio {
 
     bool bMoanLaughSizeVariants = false;
     bool bUseOtherHighHeelSet = true;
+    bool bBlendBetweenFootsteps = false;
     
     float fMaxVoiceFrequency = 1.0f;
 

@@ -38,6 +38,9 @@ namespace GTS {
 		float BreastSizeBuff = 0.0f;
 		float FurnitureScale = 1.0f;
 
+		float OverkillSizeBonus = 1.0f;
+		float Overkills = 0.0f;
+
 		int PerkLifeForceStacks = 0;
 		int CrushedTinies = 0;
 

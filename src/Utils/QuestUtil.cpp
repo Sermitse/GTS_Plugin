@@ -25,6 +25,7 @@ namespace {
 		"GTSPerkDarkArtsAug2",
 		"GTSPerkDarkArtsAug3",
 		"GTSPerkDarkArtsAug4",
+		"GTSPerkDarkArtsLegendary",
 		"GTSPerkDestructionBasics",
 		"GTSPerkSprintDamageMult2",
 		"GTSPerkDisastrousTremmor",
@@ -78,7 +79,9 @@ namespace {
 		"GTSPerkTinyCalamityRage",
 		"GTSPerkSizeManipulation1",
 		"GTSPerkSizeManipulation2",
-		"GTSPerkBreastsStrangle"
+		"GTSPerkBreastsStrangle",
+		"GTSPerkOverindulgence",
+		"GTSPerkRuinousStride"
 	};
 
 	const std::vector<std::string> AllSpells {

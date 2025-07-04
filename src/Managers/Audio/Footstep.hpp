@@ -18,6 +18,7 @@ namespace GTS {
 			static float Volume_Multiply_Function(Actor* actor, FootEvent Kind);
 
 			static void PlayVanillaFootstepSounds(Actor* giant, bool right);
+			static void DoStompSounds(Actor* giant, float modifier, NiAVObject* foot, FootEvent foot_kind, float scale, bool Strong);
 			static void DoStrongSounds(Actor* giant, float animspeed, std::string_view feet);
 	};
 }

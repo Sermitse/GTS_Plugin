@@ -174,6 +174,7 @@ namespace GTS {
 		BlockDamage,
 		HitSteal,
 		EraseFromExistence,
+		Shockwave,
 	};
 
 	enum class GrowthAnimation {

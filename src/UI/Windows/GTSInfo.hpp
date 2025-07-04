@@ -23,7 +23,7 @@ namespace GTS {
         kStolenMagicka = (1 << 17),
         kSizeReserve = (1 << 18),
         kHeelsBonusDamage = (1 << 19),
-        kKillCounter = (1 << 20),
+        kOverkillCounter = (1 << 20),
     };
 
 

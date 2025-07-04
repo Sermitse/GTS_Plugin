@@ -3,6 +3,8 @@
 namespace GTS {
 
 	//-----------------------------------------Misc
+    constexpr float Overkills_Obliteration_Diff_Requirement = 60.0f; // Can obliterate past 60x size difference
+    constexpr float Overkills_BonusSizePerKill = 0.0006f; // 100 * 0.0006f = 6% for example, 100 = kills
     constexpr float MassMode_ElixirPowerMultiplier = 0.50f;
 	constexpr float Collision_Distance_Override = 5.75f;
 	constexpr float Characters_AssumedCharSize = 1.82f; // We assume that default humanoid height is 1.82m, used in some calculations
@@ -164,7 +166,7 @@ namespace GTS {
 	constexpr float Radius_Default_Idle = 5.6f;
 
 	constexpr float Radius_Walk_Default = 6.2f;
-	constexpr float Radius_Jump_Default = 20.0f;
+	constexpr float Radius_Jump_Default = 10.0f;
 
 	constexpr float Radius_Stomp = 6.0f;
 	constexpr float Radius_Stomp_Strong = 6.25f;

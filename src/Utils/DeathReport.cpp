@@ -17,6 +17,20 @@ namespace {
 	constexpr std::string_view booty = "NPC Spine [Spn0]";
 	constexpr std::string_view none = "None";
 
+	void ShockwaveMessage(std::string_view GiantName, std::string_view TinyName, int random) {
+		switch (random) {
+			case 0: Cprint("{} exploded into pieces from the pressure of {}'s stride", TinyName, GiantName);				break;
+			case 1: Cprint("{} has been obliterated by the blast wave radiating from {}'s step", TinyName, GiantName);		break;
+			case 2: Cprint("{} evaporated under the devastating force ripple of {}'s stomp", TinyName, GiantName);			break;
+			case 3: Cprint("{} was shredded to pieces by the concussive blast from {}", TinyName, GiantName);				break;
+			case 4: Cprint("{} brought down a quake with a single tread - {} was erased", GiantName, TinyName);				break;
+			case 5: Cprint("{} met their end in the aftermath of {}'s motion", TinyName, GiantName);						break;
+			case 6: Cprint("{} ceased to exist as {}'s pressure wave ruptured the atmosphere", TinyName, GiantName);		break;
+			case 7: Cprint("{} faced annihilation in the wake of {}'s expanding shockfront", TinyName, GiantName);			break;
+			case 8: Cprint("{} got pulverized by sheer proximity to {}", TinyName, GiantName); 								break;
+		}
+	}
+
 	void VoreMessage_SwallowedAbsorbing(Actor* pred, Actor* prey) {
 		if (pred) {
 			int random = RandomInt(0, 3);
@@ -493,6 +507,10 @@ namespace GTS {
 		std::string_view TinyName = tiny->GetDisplayFullName();
 		std::string_view GiantName = giant->GetDisplayFullName();
 		switch (cause) {
+			case DamageSource::Shockwave:
+			if (!tiny->IsDead()) {IncrementKillCount(giant, SizeKillType::kOtherSources); }
+				ShockwaveMessage(GiantName, TinyName, random);
+			break;
 			case DamageSource::CrushedLeft:
 			case DamageSource::CrushedRight:
 			case DamageSource::FootIdleR:

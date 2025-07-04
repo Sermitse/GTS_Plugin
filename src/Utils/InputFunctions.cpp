@@ -475,6 +475,7 @@ namespace {
 
 		bool DarkArts2 = Runtime::HasPerk(player, "GTSPerkDarkArtsAug2");
 		bool DarkArts3 = Runtime::HasPerk(player, "GTSPerkDarkArtsAug3");
+		bool DarkArts_Legendary = Runtime::HasPerk(player, "GTSPerkDarkArtsLegendary");
 
 		float gigantism = 1.0f + Ench_Aspect_GetPower(player);
 
@@ -489,6 +490,9 @@ namespace {
 		}
 		if (DarkArts3) {
 			damagehp -= 10; // even less hp drain
+		}
+		if (DarkArts_Legendary) {
+			damagehp -= 12; // even more hp decrease
 		}
 
 		damagehp *= multi;

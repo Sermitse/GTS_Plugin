@@ -60,6 +60,12 @@ namespace GTS {
 			const char* T3 = "Replaces custom High Heel Size Sounds past x2 size with different sound sets\n"
 			                 "When not wearing High Heels - plays old sounds.\n"
 							 "Requires High Heels: 'Enable Height Adjustment' to be ON to work";
+			const char* T4 = "If True:\n"
+							 "- audio of footsteps will attempt to smoothly swap between each other"
+			                 "- It can result in footsteps being quieter than without blending\n"
+							 "- Because of blending, it can even play 2 sounds at once\n"
+							 "If False: \n"
+							 "- Audio of footsteps changes as soon as you pass size threshold";
 
 			const char* THelp = "Note: Moan/Laugh sounds are not included in the mod.\n"
 			"You can add sounds by adding your own .wav files in the following folder:\n"
@@ -73,6 +79,7 @@ namespace GTS {
 	            ImUtil::CheckBox("Moans On Slow Growth",&Settings.bSlowGrowMoans, T1);
 				ImUtil::CheckBox("Moan/Laugh Size Variance", &Settings.bMoanLaughSizeVariants, T2);
 				ImUtil::CheckBox("Alternative High Heel Size Sounds", &Settings.bUseOtherHighHeelSet, T3);
+				ImUtil::CheckBox("Smoothly Blend between Footstep Sounds", &Settings.bBlendBetweenFootsteps, T4);
 	            ImGui::Spacing();
 	        }
 	    }

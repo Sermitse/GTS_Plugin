@@ -8,6 +8,13 @@ namespace {
 
     constexpr float DEFAULT_MAX = 1000000.0f;
 
+	void RecordOverkillSize_Transient(TempActorData* Data, float value, float kills) {
+		if (Data) {
+			Data->OverkillSizeBonus = value;
+			Data->Overkills = kills;
+		}
+	}
+
     //Ported From Papyrus
 	float GetSizeFromPerks(RE::Actor* a_Actor) {
 		float BonusSize = 0.0f;
@@ -142,6 +149,8 @@ namespace GTS {
 			return 1.0f;
 		}
 
+		auto Transient = Transient::GetSingleton().GetActorData(a_Actor);
+
 		//Each stage after 20 adds 0.04f in steps of 10 stages
 		//Base value + Current Stage - 20 / 10
 		float QuestMult = 0.10f + static_cast<float>(Stage - 20) / 10.f * 0.04f;
@@ -149,10 +158,16 @@ namespace GTS {
 
 		if (Runtime::HasPerk(a_Actor,"GTSPerkColossalGrowth")) { //Total Size Control Perk
 			auto Persistent = Persistent::GetSingleton().GetKillCountData(a_Actor);
+			Colossal_lvl = 1.15f;
+
 			if (Persistent) {
 				Colossal_kills = static_cast<float>(Persistent->iTotalKills) * (0.02f / Characters_AssumedCharSize);
+				if (Runtime::HasPerk(a_Actor, "GTSPerkOverindulgence")) {
+					Colossal_lvl += static_cast<float>(Persistent->iTotalKills * Overkills_BonusSizePerKill);
+				}
 			}
-			Colossal_lvl = 1.15f;
+
+			RecordOverkillSize_Transient(Transient, Colossal_lvl, Colossal_kills);
 			
 			if (!Config::GetBalance().bBalanceMode && Persistent::GetSingleton().UnlockMaxSizeSliders.value) {
 				const float SizeOverride = Config::GetBalance().fMaxPlayerSizeOverride;
@@ -162,6 +177,8 @@ namespace GTS {
 					return SizeOverride;
 				}
 			}
+		} else {
+			RecordOverkillSize_Transient(Transient, 1.0f, 0.0f);
 		}
 
 		const float MaxAllowedSize = 1.0f + (QuestMult + GetSizeFromPerks(a_Actor)) * LevelBonus;
@@ -172,6 +189,24 @@ namespace GTS {
 	void UpdateGlobalSizeLimit() {
 		if (const auto Player = PlayerCharacter::GetSingleton()) {
 			Persistent::GetSingleton().GlobalSizeLimit.value = GetExpectedMaxSize(Player);
+		}
+	}
+
+	void VisualScale_CheckForSizeAdjustment(Actor* actor, float& ScaleMult) {
+		if (Persistent::GetSingleton().UnlockMaxSizeSliders.value) {
+			const bool Unlocked = Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth");
+			if (Unlocked) {
+				const float PCLimit = Config::GetBalance().fMaxPlayerSizeOverride;
+				const float NPCLimit = Config::GetBalance().fMaxOtherSize;
+				const float FollowerLimit = Config::GetBalance().fMaxFollowerSize;
+				if (IsTeammate(actor)) {
+					ScaleMult = std::clamp(FollowerLimit, 0.1f, 1.0f);
+				} else if (actor->formID == 0x14) {
+					ScaleMult = std::clamp(PCLimit, 0.1f, 1.0f);
+				} else {
+					ScaleMult = std::clamp(NPCLimit, 0.1f, 1.0f);
+				}
+			}
 		}
 	}
 }

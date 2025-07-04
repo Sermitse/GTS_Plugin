@@ -191,10 +191,12 @@ namespace GTS {
         const float BonusSize_EssenceAndDragons = SizeEssense;
         const float BonusSize_TempPotionBoost = BonusSize * 100.0f;
         const float BonusSize_AspectOfGiantess = AspectOfGTS;
+        const float BonusSize_Overkills = ActorTransient->Overkills;
+        const float BonusSize_Overkills_Multiplier = ActorTransient->OverkillSizeBonus;
 
-        std::string KillsMade = fmt::format(
+        std::string OverkillsMade = fmt::format(
             fmt::runtime(
-                "- Dead actors do not count\n"
+                "- Dead victims do not count\n"
                 "Erased From Existence: {:d}\n"
                 "Shrunk To Nothing: {:d}\n"
                 "Breast Suffocated: {:d}\n"
@@ -216,10 +218,9 @@ namespace GTS {
                 "---\n"
                 "Eaten: {:d}\n\n"
                 "Other Sources: {:d}\n"
-                "- Other Sources are: Tiny Calamity Collision\n"
+                "- Other Sources are: Shockwaves, Tiny Calamity Collision\n"
                 "- Using Tiny as Shield when grabbing tiny\n"
                 "- Overkill Weapon Damage when large\n"
-                
             ),
             GetKillCount(a_Actor, SizeKillType::kErasedFromExistence),
             GetKillCount(a_Actor, SizeKillType::kShrunkToNothing),
@@ -241,23 +242,27 @@ namespace GTS {
         );
 
         std::string TotalSizeBonusCalculation = fmt::format(
-            fmt::runtime("Size Essence + Absorbed Dragons: +{:.2f}x\n"
+            fmt::runtime("Size Essence + Absorbed Dragons: +{:.2f}\n"
+            "Colossal Growth: +{:.2f}\n"
             "Potion Of Heights: +{:.0f}%%\n"
-            "Aspect Of Giantess: +{:.0f}%%\n\n"
+            "Aspect Of Giantess: +{:.0f}%%\n"
+            "Overkills&C.Growth: x{:.2f}\n\n"
             "- Size Essence Increases your maximum achievable size when the size limit cap is set to \"Skill Based\"\n"
             "- If Size Gain mode is in \"Mass Mode\", then Essence Bonus is reduced by {:.0f}%% \n" 
             "- You can gain Essence by killing and absorbing dragons when you have the correct perk\n"
             "- Or by consuming specific potions found all around the world."
             ),
             MassMode ? BonusSize_EssenceAndDragons * MassMode_ElixirPowerMultiplier : BonusSize_EssenceAndDragons * 1.0f,
+            BonusSize_Overkills,
             BonusSize_TempPotionBoost,
             BonusSize_AspectOfGiantess,
+            BonusSize_Overkills_Multiplier,
             (1.0f - MassMode_ElixirPowerMultiplier) * 100.0f
         );
 
         //------- Tooltip Descriptions
         
-        const char* TKillsMade = KillsMade.c_str();
+        const char* TOverkillsMade = OverkillsMade.c_str();
 
         const char* TBonusSize = TotalSizeBonusCalculation.c_str();
 
@@ -318,8 +323,9 @@ namespace GTS {
                 ImUtil::TextShadow("Bonus Size:");
                 ImUtil::Tooltip(TBonusSize, true);
                 ImGui::TableSetColumnIndex(1);
-                ImUtil::TextShadow("%.0f%% + %.2Fx", (BonusSize * 100.0f) + AspectOfGTS, 
-                    MassMode ? SizeEssense * MassMode_ElixirPowerMultiplier : SizeEssense * 1.0f
+                ImUtil::TextShadow("%.0f%% + %.2F + %.2Fx", (BonusSize * 100.0f) + AspectOfGTS, 
+                    MassMode ? (SizeEssense * MassMode_ElixirPowerMultiplier) + BonusSize_Overkills : (SizeEssense * 1.0f) + BonusSize_Overkills,
+                    std::clamp(BonusSize_Overkills_Multiplier, 1.0f, 999999.0f)
                 );
             }
 
@@ -458,11 +464,11 @@ namespace GTS {
             }
 
             // Kills Made
-            if (hasFlag(a_featureFlags, GTSInfoFeatures::kKillCounter)) {
+            if (hasFlag(a_featureFlags, GTSInfoFeatures::kOverkillCounter)) {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                ImUtil::TextShadow("Kills Made:");
-                ImUtil::Tooltip(TKillsMade, true);
+                ImUtil::TextShadow("Overkills Made:");
+                ImUtil::Tooltip(TOverkillsMade, true);
                 ImGui::TableSetColumnIndex(1);
                 ImUtil::TextShadow("%u", GetKillCount(a_Actor, SizeKillType::kTotalKills));
             }

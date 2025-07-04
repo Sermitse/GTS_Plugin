@@ -98,11 +98,15 @@ namespace {
     float Calculate_ShrinkOutbirstTimer(Actor* actor) {
         bool DarkArts3 = Runtime::HasPerk(actor, "GTSPerkDarkArtsAug3");
         bool HealthRegen = Runtime::HasPerk(actor, "GTSPerkGrowthAug2");
+        bool DarkArts_Legendary = Runtime::HasPerk(actor, "GTSPerkDarkArtsLegendary");
         float reduction = 1.0f;
         if (DarkArts3) {
             reduction = 0.7f;
         }
         if (HealthRegen && IsGrowthSpurtActive(actor)) {
+            reduction *= 0.75f;
+        }
+        if (DarkArts_Legendary) {
             reduction *= 0.75f;
         }
         return SHRINK_OUTBURST_COOLDOWN * reduction;

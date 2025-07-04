@@ -1,4 +1,7 @@
 #include "Managers/Damage/LaunchActor.hpp"
+#include "Utils/DeathReport.hpp"
+
+#include "Managers/CrushManager.hpp"
 
 #include "Managers/HighHeel.hpp"
 #include "Managers/Damage/LaunchObject.hpp"
@@ -15,6 +18,18 @@ namespace {
 	constexpr float LAUNCH_DAMAGE = 2.4f;
 	constexpr float LAUNCH_KNOCKBACK = 0.02f;
 	constexpr float BASE_CHECK_DISTANCE = 20.0f;
+
+	bool ObliterateCheck(Actor* giant, Actor* tiny, float sizeRatio, float damage) {
+		if (sizeRatio >= Overkills_Obliteration_Diff_Requirement && GetAV(tiny, ActorValue::kHealth) < damage * 0.5f) {
+			if (CrushManager::GetSingleton().CanCrush(giant, tiny)) {
+				ReportDeath(giant, tiny, DamageSource::Shockwave, false);
+				CrushManager::Crush(giant, tiny);
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
 
 	float GetLaunchThreshold(Actor* giant) {
 		float threshold = 8.0f;
@@ -82,7 +97,7 @@ namespace GTS {
 			return; // Disallow to launch if we're grinding an actor
 		}
 
-		float DamageMult = 0.5f;
+		float DamageMult = 0.5f * GetDamageSetting();
 		float giantSize = get_visual_scale(giant);
 		float tinySize = std::clamp(get_visual_scale(tiny), 0.5f, 1000000.0f); // clamp else they will fly into the sky
 		float highheel = GetHighHeelsBonusDamage(tiny, true);
@@ -104,7 +119,7 @@ namespace GTS {
 		}
 		float Adjustment = GetSizeFromBoundingBox(tiny);
 		
-		float sizeRatio = giantSize/tinySize;
+		float sizeRatio = giantSize/(tinySize * Adjustment);
 
 		bool IsLaunching = IsActionOnCooldown(tiny, CooldownSource::Damage_Launch);
 		if (!IsLaunching) {
@@ -112,7 +127,8 @@ namespace GTS {
 				if (force >= 0.10f) {
 					float power = (1.0f * launch_power) / Adjustment;
 					if (Runtime::HasPerkTeam(giant, "GTSPerkDisastrousTremmor")) {
-						DamageMult *= 2.0f;
+						float might = 1.0f + Potion_GetMightBonus(giant);
+						DamageMult *= 2.0f * might;
 						OwnsPerk = true;
 						power *= 1.5f;
 					}
@@ -121,7 +137,6 @@ namespace GTS {
 
 					if (Runtime::HasPerkTeam(giant, "GTSPerkDeadlyRumble") && CanDoDamage(giant, tiny, true)) {
 						float damage = LAUNCH_DAMAGE * sizeRatio * force * DamageMult * highheel;
-						InflictSizeDamage(giant, tiny, damage);
 						if (OwnsPerk) { // Apply only when we have DisastrousTremor perk
 							update_target_scale(tiny, -(damage / 1500) * GetDamageSetting(), SizeEffectType::kShrink);
 
@@ -129,10 +144,19 @@ namespace GTS {
 								set_target_scale(tiny, 0.12f/Adjustment);
 							}
 						}
+
+						if (Runtime::HasPerkTeam(giant, "GTSPerkRuinousStride")) {
+							if (ObliterateCheck(giant, tiny, sizeRatio, damage * 1.5f)) {
+								return;
+							}
+							damage *= 1.5f;
+						}
+						
+						InflictSizeDamage(giant, tiny, damage);
 					}
 
-					PushActorAway(giant, tiny, 1.0f);
 					NiPoint3 Push = NiPoint3(0, 0, startpower * GetLaunchPower(giant, sizeRatio) * force * power);
+					PushActorAway(giant, tiny, 1.0f);
 
 					std::string name = std::format("LaunchOther_{}_{}", giant->formID, tiny->formID);
 					ActorHandle tinyHandle = tiny->CreateRefHandle();

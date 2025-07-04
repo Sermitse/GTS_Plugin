@@ -18,6 +18,65 @@ namespace GTS {
         return soft_core(scale, 0.01f, 1.0f, 1.0f, a, 0.0f) * 0.5f + 0.5f;
     }
 
+    BSISoundDescriptor* GetStompSound_Light(const int scale) {
+        switch (scale) {
+            case 2: 
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x2");
+            case 4:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x4");
+            case 8:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x8");
+            case 12:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x12");
+            case 24:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x24");
+            case 48:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x48");
+            case 96:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x96");
+            case 128:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_Mega");
+            break;
+        }
+        return nullptr;
+    }
+
+	BSISoundDescriptor* GetStompSound_Strong(const int scale) {
+        switch (scale) {
+            case 2: 
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x2");
+            case 4:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x4");
+            case 8:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x8");
+            case 12:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x12");
+            case 24:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x24");
+            case 48:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x48");
+            case 96:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x96");
+            case 128:
+                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_Mega");
+            break;
+        }
+        return nullptr;
+    }
+
+	BSISoundDescriptor* get_footstep_stomp(const FootEvent& foot_kind, const int scale, const bool strong) {
+        switch (foot_kind) {
+            case FootEvent::Left:
+            case FootEvent::Front:
+            case FootEvent::Right:
+            case FootEvent::Back:
+                return strong ? GetStompSound_Strong(scale) : GetStompSound_Light(scale);
+            case FootEvent::JumpLand:
+                return GetHHSound_Jump(scale);
+        }
+        return nullptr;
+    }
+
 	// Function that builds the string based on the given index and a random suffix.
     std::string ObtainSLMoanSound(uint8_t index) {
 
@@ -367,12 +426,18 @@ namespace GTS {
         return nullptr;
     }
 
-	BSSoundHandle get_sound(float movement_mod, NiAVObject* foot, const float& scale, const float& scale_limit, BSISoundDescriptor* sound_descriptor, const VolumeParams& params, const VolumeParams& blend_with, std::string_view tag, float mult, bool blend) {
+	BSSoundHandle get_sound(float movement_mod, NiAVObject* foot, const float& scale, const float& scale_limit, BSISoundDescriptor* sound_descriptor, const VolumeParams& params, const VolumeParams& blend_with, std::string_view tag, float mult, bool blend, float extra_volume) {
 		BSSoundHandle result = BSSoundHandle::BSSoundHandle();
 		auto audio_manager = BSAudioManager::GetSingleton();
 		if (foot) {
 			if (sound_descriptor && audio_manager) {
+                
 				float volume = volume_function(scale, params);
+
+                if (scale >= params.a && extra_volume >= 0.01f) {
+                    volume += extra_volume; 
+                }
+
 				float frequency = frequency_function(scale, params);
 				float falloff = Sound_GetFallOff(foot, mult);
 				float intensity = volume * falloff * movement_mod;
@@ -391,7 +456,7 @@ namespace GTS {
 
 				if (intensity > 0.05f) {
 
-					// log::trace("  - Playing {} with volume: {}, falloff: {}, intensity: {}", tag, volume, falloff, intensity);
+					log::info("  - Playing {} with volume: {}, falloff: {}, intensity: {}", tag, volume, falloff, intensity);
 					audio_manager->BuildSoundDataFromDescriptor(result, sound_descriptor);
 					result.SetVolume(intensity);
 					result.SetFrequency(frequency);
