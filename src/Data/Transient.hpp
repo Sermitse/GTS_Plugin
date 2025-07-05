@@ -73,7 +73,19 @@ namespace GTS {
 		bool ReattachingTiny = false;
 		bool KissVoring = false;
 
+		float FootVelocity_R = 0.0f;
+		float FootVelocity_L = 0.0f;
+		float HandVelocity_R = 0.0f;
+		float HandVelocity_L = 0.0f;
+		
+
 		NiPoint3 BoundingBoxCache = { 0.0f, 0.0f, 0.0f };
+		
+		NiPoint3 POSCurrentLegL = { 0.0f, 0.0f, 0.0f };
+		NiPoint3 POSCurrentLegR = { 0.0f, 0.0f, 0.0f };
+		NiPoint3 POSCurrentHandL = { 0.0f, 0.0f, 0.0f };
+		NiPoint3 POSCurrentHandR = { 0.0f, 0.0f, 0.0f };
+
 		NiPoint3 POSLastLegL = { 0.0f, 0.0f, 0.0f };
 		NiPoint3 POSLastLegR = { 0.0f, 0.0f, 0.0f };
 		NiPoint3 POSLastHandL = { 0.0f, 0.0f, 0.0f };

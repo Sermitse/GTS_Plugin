@@ -7,6 +7,8 @@
 
 #include "Magic/Effects/Common.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -19,7 +21,7 @@ namespace {
 			p_1 = 0.0f;
 			p_2 = 0.0f;
 		} if (rng <= 1) {
-			PlayMoanSound(actor, 1.0f);
+			Sound_PlayMoans(actor, 1.0f, 0.14f, EmotionTriggerSource::Vore);
 		}
 		AdjustFacialExpression(actor, 0, p_1, CharEmotionType::Modifier); // blink L
 		AdjustFacialExpression(actor, 1, p_1, CharEmotionType::Modifier); // blink R

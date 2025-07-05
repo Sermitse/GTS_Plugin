@@ -131,6 +131,9 @@ namespace GTS {
 			const char* T3 = "Enable/Disable actors making death sounds/screams when killed through Wrathful Calamity.";
 			const char* T4 = "Enable/Disable actors making death sounds/screams when killed through being Hug Crushed.";
 			const char* T5 = "Enable/Disable actors making death sounds/screams when killed through vore.";
+
+			const char* T6 = "FallOff Rande Multiplier for Moans and Laughs. Large values = can be heard from further dist";
+			const char* T7 = "Moan and Laugh volume multiplier";
 			
 			if (ImGui::CollapsingHeader("Voice",ImUtil::HeaderFlagsDefaultOpen)) {
 				ImUtil::CheckBox("Enable Voice Override",&Settings.bEnableVoiceOverride, T0);
@@ -140,7 +143,10 @@ namespace GTS {
 				ImUtil::CheckBox("Wrathful Calamity: Mute Death Sound", &Settings.bMuteFingerSnapDeathScreams,T3);
 				ImUtil::CheckBox("Hug Crush: Mute Death Sound", &Settings.bMuteHugCrushDeathScreams,T4);
 				ImUtil::CheckBox("Vore: Mute Death Sound", &Settings.bMuteVoreDeathScreams,T5);
-				
+
+				ImUtil::SliderF("Moan/Laugh Falloff", &Settings.fFallOffMultiplier, 0.02f, 200.0f, T6, "%.2fx");
+				ImUtil::SliderF("Moan/Laugh Volume", &Settings.fVoiceVolumeMult, 0.02f, 1.0f, T7, "%.2fx");
+
 				ImGui::Spacing();
 			}
 		}

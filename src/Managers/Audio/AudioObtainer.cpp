@@ -456,7 +456,7 @@ namespace GTS {
 
 				if (intensity > 0.05f) {
 
-					log::info("  - Playing {} with volume: {}, falloff: {}, intensity: {}", tag, volume, falloff, intensity);
+					//log::info("  - Playing {} with volume: {}, falloff: {}, intensity: {}", tag, volume, falloff, intensity);
 					audio_manager->BuildSoundDataFromDescriptor(result, sound_descriptor);
 					result.SetVolume(intensity);
 					result.SetFrequency(frequency);

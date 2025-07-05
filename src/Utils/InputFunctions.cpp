@@ -15,6 +15,8 @@
 
 #include "UI/UIManager.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 
 using namespace GTS;
 
@@ -428,7 +430,7 @@ namespace {
 								if (timergrowth.ShouldRunFrame()) {
 									Runtime::PlaySoundAtNode("GTSSoundGrowth", player, Cache->SizeReserve/50 * duration, 1.0f, "NPC Pelvis [Pelv]");
 									Task_FacialEmotionTask_Moan(player, 2.0f, "SizeReserve");
-									PlayMoanSound(player, Volume);
+									Sound_PlayMoans(player, 0.8f, 0.14f, EmotionTriggerSource::Growth);
 								}
 
 								float shake_power = std::clamp(Cache->SizeReserve/15 * duration, 0.0f, 2.0f);

@@ -15,6 +15,8 @@
 #include "Utils/AttachPoint.hpp"
 #include "Utils/KillDataUtils.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -263,8 +265,8 @@ namespace {
 	void GTS_LC_FingerSnap(AnimationEventData& data) { 
 		Task_FacialEmotionTask_SlightSmile(&data.giant, 1.525f + RandomFloat(0.35f, 0.75f), "SnapSmile", 0.25f);
 		int laugh_rng = RandomInt(1, 4);
-		if (laugh_rng >= 3) {
-			PlayLaughSound(&data.giant, 1.0f, 1);
+		if (laugh_rng >= 1) {
+			Sound_PlayLaughs(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
 		}
 		
 		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_FingerSnap", &data.giant, 1.0f, 1.0f, "NPC R Hand [RHnd]");

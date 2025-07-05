@@ -5,6 +5,8 @@
 
 #include "UI/DebugAPI.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -40,12 +42,12 @@ namespace {
 		});
 	}
 
-	void MoanOr(Actor* giant) {
+	void LaughOr(Actor* giant) {
 		int MoanRNG = RandomInt(0, 3);
 		if (MoanRNG >= 2 && IsActionOnCooldown(giant, CooldownSource::Emotion_Moan)) {
 			ApplyActionCooldown(giant, CooldownSource::Emotion_Moan);
-			Task_FacialEmotionTask_Moan(giant, 2.0f, "CalamityMoan");
-			PlayMoanSound(giant, 1.0f);
+			Task_FacialEmotionTask_Smile(giant, 2.0f, "CalamityMoan",0.0f, 0.35f);
+			Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
 		}
 	}
 
@@ -128,7 +130,7 @@ namespace {
 
 											if (data->ShrinkTicksCalamity >= stare_threshold_s) {
 												Laugh_Chance(giant, 1.25f, "CalamityShrink");
-												if (!ShrinkToNothing(giant, otherActor, true, 1.50f, 1.20f)) {
+												if (!ShrinkToNothing(giant, otherActor, true, 1.50f, 1.20f, true)) {
 													ShrinkTheTargetOr(giant, otherActor, stare_threshold_s, tiny_size, difference, data);
 													AdjustMassLimit(tiny_size * 0.00025f, giant);
 												} else {
@@ -138,7 +140,7 @@ namespace {
 														ApplyActionCooldown(otherActor, CooldownSource::Misc_ShrinkParticle_Gaze);
 													}
 													data->MovementSlowdown = 1.0f;
-													MoanOr(giant);
+													LaughOr(giant);
 												}
 											}
 											return;

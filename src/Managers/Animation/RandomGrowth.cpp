@@ -7,6 +7,8 @@
 
 #include "Magic/Effects/Common.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -129,7 +131,7 @@ namespace {
 	void GTS_RandomGrowth_Peak(AnimationEventData& data) {
 		Actor* giant = &data.giant;
 
-		PlayMoanSound(giant, 1.0f);
+		Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 		Task_FacialEmotionTask_Moan(giant, 1.75f, "RandomGrow");
 
 		if (Runtime::HasPerkTeam(giant, "GTSPerkRandomGrowthTerror")) {

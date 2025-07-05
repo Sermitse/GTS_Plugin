@@ -24,9 +24,11 @@
 #include "Managers/HighHeel.hpp"
 
 #include "Managers/Audio/AudioObtainer.hpp"
+#include "Managers/Audio/MoansLaughs.hpp"
 
 #include "Config/Config.hpp"
 #include "UI/DebugAPI.hpp"
+
 
 
 using namespace GTS;
@@ -408,49 +410,6 @@ namespace GTS {
 			return false; // stop task, we reset the actor
 		});
 	}
-
-	void PlayMoanSound(Actor* actor, float volume) {
-
-		if (IsHuman(actor) && IsFemale(actor)) {
-
-			std::string MoanSoundToPlay;
-			const float FallOff = 0.125f * get_visual_scale(actor);
-			const auto ActorData = Persistent::GetSingleton().GetData(actor);
-			uint8_t CustomSoundIndex = 0;
-
-			if (Runtime::IsSexlabInstalled() && ActorData) {
-				CustomSoundIndex = ActorData->MoanSoundDescriptorIndex;
-			}
-
-			//0 Refer's to the built in one effectively disabling the feature
-			if (CustomSoundIndex == 0) {
-				MoanSoundToPlay = ObtainGTSMoanLaughSound(get_visual_scale(actor), "GTSSoundMoan");
-			}
-			else {
-				MoanSoundToPlay = ObtainSLMoanSound(CustomSoundIndex);
-			}
-
-			if (!MoanSoundToPlay.empty()) {
-				Runtime::PlaySoundAtNode_FallOff(MoanSoundToPlay, actor, volume, 1.0f, "NPC Head [Head]", FallOff);
-			}
-
-		}
-
-	}
-
-	void PlayLaughSound(Actor* actor, float volume, int type) {
-		float falloff = 0.125f * get_visual_scale(actor);
-		if (IsFemale(actor) && IsHuman(actor)) {
-			if (type == 2) {
-				std::string Laugh2SoundFinder = ObtainGTSMoanLaughSound(get_visual_scale(actor), "GTSSoundLaugh2");
-				Runtime::PlaySoundAtNode_FallOff(Laugh2SoundFinder, actor, volume, 1.0f, "NPC Head [Head]", falloff);
-			} else {
-				std::string Laugh1SoundFinder = ObtainGTSMoanLaughSound(get_visual_scale(actor), "GTSSoundLaugh1");
-				Runtime::PlaySoundAtNode_FallOff(Laugh1SoundFinder, actor, volume, 1.0f, "NPC Head [Head]", falloff);
-			}
-		}
-	}
-
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//                                 G T S   ST A T E S  B O O L S                                                                      //
@@ -2642,7 +2601,7 @@ namespace GTS {
 
 		if (get_target_scale(tiny) <= MinScale) {
 			set_target_scale(tiny, MinScale);
-			if (DarkArts_Legendary && ShrinkToNothing(giant, tiny, true, 0.01f, 0.75f)) {
+			if (DarkArts_Legendary && ShrinkToNothing(giant, tiny, true, 0.01f, 0.75f, false, true)) {
 				return;
 			}
 		}
@@ -3072,7 +3031,7 @@ namespace GTS {
 		BonusSize.value += size_increase * size_boost;
 
 		if (rng <= 1) {
-			PlayMoanSound(player, 1.0f);
+			Sound_PlayMoans(player, 1.0f, 0.14f, EmotionTriggerSource::Absorption);
 			Task_FacialEmotionTask_Moan(player, 1.6f, "DragonVored");
 			shake_camera(player, 0.5f, 0.33f);
 		}
@@ -3551,7 +3510,6 @@ namespace GTS {
 				return;
 			}
 			const char* particle_path = "None";
-			log::info("Spawning particle");
 			switch (Type) {
 				case ParticleType::Red: 
 					particle_path = "GTS/Magic/Life_Drain.nif";
@@ -3579,9 +3537,6 @@ namespace GTS {
 			} else {
 				pos = node->world.translate;
 			}
-			log::info("Spawn Pos: {}", Vector2Str(pos));
-			log::info("Particle Scale: {}", scale_mult);
-			log::info("Actor: {}", actor->GetDisplayFullName());
 
 			SpawnParticle(actor, 4.60f, particle_path, NiMatrix3(), pos, scale, 7, nullptr);
 		}

@@ -6,6 +6,8 @@
 
 #include "Magic/Effects/Common.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -38,7 +40,7 @@ namespace {
 				double timepassed = Time::WorldTimeElapsed() - Start;
 				if (timepassed >= 0.15f / AnimationManager::GetAnimSpeed(giant)) {
 					Task_FacialEmotionTask_Moan(giant, 1.25f, "GrowthMoan", 0.15f);
-					PlayMoanSound(giant, 1.0f);
+					Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 					return false;
 				}
 				return true;

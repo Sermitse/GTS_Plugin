@@ -6,6 +6,8 @@
 #include "Magic/Effects/Common.hpp"
 #include "Utils/ButtCrushUtils.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 /*
@@ -299,7 +301,7 @@ namespace {
 		float gigantism = 1.0f + (Ench_Aspect_GetPower(giant) / 5);
 		float bonus = 0.24f * gigantism * (GetGrowthCount(giant) + 1.0f);
 
-		PlayMoanSound(giant, 1.0f);
+		Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 		ModGrowthCount(giant, 1.0f, false);
 		SetButtCrushSize(giant, bonus, false);
 		SpringGrow(giant, bonus, 0.3f / GetAnimationSlowdown(giant), "BreastCrushGrowth", false);

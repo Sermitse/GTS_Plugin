@@ -21,6 +21,8 @@
 
 #include "Utils/KillDataUtils.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -270,7 +272,7 @@ namespace {
         Rumbling::Once("BreastShake_R", &data.giant, 0.3f, 0.0f, "R Breast02", 0.0f);
 
         if (!IsActionOnCooldown(&data.giant, CooldownSource::Emotion_Laugh)) {
-            Task_FacialEmotionTask_Smile(&data.giant, 6.0f, "ShakeSmile");
+            Task_FacialEmotionTask_Smile(&data.giant, 6.0f, "ShakeSmile", 0.35f);
             ApplyActionCooldown(&data.giant, CooldownSource::Emotion_Laugh);
         }
     }
@@ -343,7 +345,7 @@ namespace {
     ///=================================================================== Absorb
 
     void GTS_BS_AbsorbStart(const AnimationEventData& data) {
-        Task_FacialEmotionTask_Smile(&data.giant, 3.2f, "AbsorbStart");
+        Task_FacialEmotionTask_Smile(&data.giant, 3.2f, "AbsorbStart", 0.3f);
         Task_ApplyAbsorbCooldown(&data.giant);
 
         auto tiny = Grab::GetHeldActor(&data.giant);
@@ -369,8 +371,8 @@ namespace {
             bool Blocked = IsActionOnCooldown(giant, CooldownSource::Emotion_Laugh);
             if (!Blocked) {
                 ApplyActionCooldown(giant, CooldownSource::Emotion_Laugh);
-                Task_FacialEmotionTask_Smile(giant, 0.9f, "AbsorbSmile", 0.12f);
-                PlayLaughSound(giant, 0.6f, 1);
+                Task_FacialEmotionTask_Smile(giant, 0.9f, "AbsorbSmile", 0.12f, 0.25f);
+                Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Struggle);
             }
 
             ShrinkTinyWithCleavage(giant, 0.010f, 0.66f, 45.0f, true, true);
@@ -386,13 +388,12 @@ namespace {
         auto tiny = Grab::GetHeldActor(giant);
         float growth = 1.05f;
 
-        if (RandomBool(50.0f)) {
+        if (RandomBool(15.0f)) {
             Task_FacialEmotionTask_SlightSmile(giant, 1.75f, "AbsorbSmile", 0.05f);
-            PlayLaughSound(giant, 0.8f, 1);
-        }
-        else {
+            Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
+        } else {
             Task_FacialEmotionTask_Moan(giant, 1.1f, "AbsorbMoan");
-            PlayMoanSound(giant, 0.8f);
+            Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Absorption);
         }
 
         if (tiny) {
@@ -514,11 +515,11 @@ namespace {
             Task_RunSuffocateTask(&data.giant, tiny);
             SpawnHearts(&data.giant, tiny, 35, 0.35f, false);
         }
-        Task_FacialEmotionTask_Smile(&data.giant, 1.8f, "SufoStart", RandomFloat(0.0f, 0.75f));
+        Task_FacialEmotionTask_Smile(&data.giant, 1.8f, "SufoStart", RandomFloat(0.0f, 0.75f), 0.2f);
 
         int rng = RandomInt(0, 3);
         if (rng >= 2) {
-            PlayLaughSound(&data.giant, 1.0f, 1);
+            Sound_PlayLaughs(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Struggle);
         }
     }
     void GTS_BS_SufoStop(const AnimationEventData& data) {}
@@ -536,12 +537,13 @@ namespace {
             SpawnHearts(&data.giant, tiny, 35, 0.50f, false);
         }
         Task_FacialEmotionTask_Smile(&data.giant, 1.2f, "SufoPress");
+        Sound_PlayLaughs(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Struggle);
     }
     
     void GTS_BS_PullTiny(const AnimationEventData& data) {
         auto tiny = Grab::GetHeldActor(&data.giant);
         if (tiny) {
-            Task_FacialEmotionTask_Smile(&data.giant, 1.6f, "SufoPullOut");
+            Task_FacialEmotionTask_Smile(&data.giant, 1.6f, "SufoPullOut", 0.25f);
             Rumbling::Once("PullOut_R", &data.giant, 0.75f, 0.0f, "L Breast02", 0.0f);
             Rumbling::Once("PullOut_L", &data.giant, 0.75f, 0.0f, "R Breast02", 0.0f);
 
@@ -551,7 +553,7 @@ namespace {
             ManageCamera(&data.giant, true, CameraTracking::ObjectB);
             SpawnHearts(&data.giant, tiny, 35, 0.50f, false);
 
-            PlayLaughSound(&data.giant, 1.0f, 2);
+            Sound_PlayLaughs(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
         }
     }
 

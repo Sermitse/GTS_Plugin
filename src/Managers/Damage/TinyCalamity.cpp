@@ -16,6 +16,7 @@
 #include "UI/DebugAPI.hpp"
 
 #include "Utils/DeathReport.hpp"
+#include "Managers/Audio/MoansLaughs.hpp"
 
 using namespace GTS;
 
@@ -239,7 +240,8 @@ namespace GTS {
 
         int Random = RandomInt(1, 4);
 		if (Random >= 4 && !IsActionOnCooldown(giant, CooldownSource::Emotion_Moan_Crush) && Runtime::HasPerk(giant, "GTSPerkGrowthDesire")) {
-			PlayMoanSound(giant, 1.0f);
+            Task_FacialEmotionTask_Smile(giant, 1.25f, "CollideSmile", RandomFloat(0.0f, 0.7f), 0.5f);
+			Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Overkill);
 		}
 
         shake_camera(giant, 1.7f, 0.8f);

@@ -42,6 +42,8 @@ namespace {
 	constexpr float SHRINK_PARTICLE_COOLDOWN_ANIM = 1.5f;
 	constexpr float SHRINK_TINYCALAMITY_RAGE = 60.0f;
 
+    constexpr float EMOTION_COOLDOWN = 1.5f;
+
     float Calculate_BreastActionCooldown(Actor* giant, int type) {
         float Cooldown = 1.0;
         float mastery = 0.0;
@@ -110,6 +112,16 @@ namespace {
             reduction *= 0.75f;
         }
         return SHRINK_OUTBURST_COOLDOWN * reduction;
+    }
+
+    float Calculate_EmotionCooldown(Actor* actor) {
+        return EMOTION_COOLDOWN * AnimationManager::GetAnimSpeed(actor);
+    }
+    float Calculate_LaughCooldown(Actor* actor) {
+        return LAUGH_COOLDOWN * AnimationManager::GetAnimSpeed(actor);
+    }
+    float Calculate_MoanCooldown(Actor* actor) {
+        return MOAN_COOLDOWN * AnimationManager::GetAnimSpeed(actor);
     }
 }
 
@@ -223,6 +235,9 @@ namespace GTS {
             case CooldownSource::Footstep_JumpLand:
                 data.lastJumplandTime = Time::WorldTimeElapsed();
                 break;
+            case CooldownSource::Emotion_Voice:
+                data.lastEmotionTime = Time::WorldTimeElapsed();
+                break;
         }
     }
 
@@ -256,9 +271,9 @@ namespace GTS {
             case CooldownSource::Action_Breasts_Absorb:
                 return (data.lastBreastAbsorbTime + Calculate_BreastActionCooldown(giant, 2)) - time;
             case CooldownSource::Emotion_Laugh:   
-                return (data.lastLaughTime + LAUGH_COOLDOWN) - time;
+                return (data.lastLaughTime + Calculate_LaughCooldown(giant)) - time;
             case CooldownSource::Emotion_Moan: 
-                return (data.lastMoanTime + MOAN_COOLDOWN) - time;
+                return (data.lastMoanTime + Calculate_MoanCooldown(giant)) - time;
             case CooldownSource::Emotion_Moan_Crush:
                 return (data.lastMoanCrushTime + MOAN_CRUSH_COOLDOWN) - time;
             case CooldownSource::Misc_RevertSound: 
@@ -287,6 +302,8 @@ namespace GTS {
                 return (data.lastFootstepTime_L + Calculate_FootstepTimer(giant)) - time; 
             case CooldownSource::Footstep_JumpLand:
                 return (data.lastJumplandTime + Calculate_FootstepTimer(giant)) - time;
+            case CooldownSource::Emotion_Voice:
+                return (data.lastEmotionTime + Calculate_EmotionCooldown(giant)) - time;
             }
         return 0.0;
     }
@@ -358,6 +375,8 @@ namespace GTS {
                 return time <= (data.lastFootstepTime_L + Calculate_FootstepTimer(giant));  
             case CooldownSource::Footstep_JumpLand:
                 return time <= (data.lastJumplandTime + Calculate_FootstepTimer(giant));
+            case CooldownSource::Emotion_Voice:
+                return time <= (data.lastEmotionTime + Calculate_EmotionCooldown(giant));
             }
         return false; 
     }

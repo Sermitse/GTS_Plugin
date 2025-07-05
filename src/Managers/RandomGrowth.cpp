@@ -2,6 +2,7 @@
 
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
+#include "Managers/Audio/MoansLaughs.hpp"
 #include "Managers/GtsSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
@@ -116,7 +117,7 @@ namespace GTS {
 										float Volume = std::clamp(scale/4, 0.20f, 1.0f);
 
 										if (TotalPower >= 1.45f) {
-											PlayMoanSound(actor, 1.0f);
+											Sound_PlayMoans(actor, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 											Task_FacialEmotionTask_Moan(actor, 0.8f, "RandomGrow");
 										}
 										Runtime::PlaySoundAtNode("GTSSoundRumble", actor, base_power, 1.0f, "NPC COM [COM ]");

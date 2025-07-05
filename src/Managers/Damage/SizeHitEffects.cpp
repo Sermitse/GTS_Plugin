@@ -12,6 +12,7 @@
 #include "Magic/Effects/Common.hpp"
 
 #include "Utils/DeathReport.hpp"
+#include "Managers/Audio/MoansLaughs.hpp"
 
 using namespace GTS;
 
@@ -89,6 +90,13 @@ namespace {
 					}
 				}
 				CrushManager::Crush(receiver, grabbedActor);
+
+				if (!IsActionOnCooldown(receiver, CooldownSource::Emotion_Moan_Crush)) {
+					ApplyActionCooldown(receiver, CooldownSource::Emotion_Moan_Crush);
+					Sound_PlayLaughs(receiver, 1.0f, 0.14f, EmotionTriggerSource::Overkill);
+					Task_FacialEmotionTask_Smile(receiver, 1.25f, "CrushSmile", RandomFloat(0.0f, 0.7f), 0.4f);
+				}
+
 				if (!LessGore()) {
 					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, 1.0f, "NPC L Hand [LHnd]");
 					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, 1.0f, "NPC L Hand [LHnd]");
@@ -157,9 +165,9 @@ namespace {
 		if (ShrinkChance >= 2) {
 			if (get_target_scale(attacker) >= 0.06f/Adjustment) {
 				if (SizeDifference >= 2.5f && LaughChance >= 5 && !LaughBlocked) {
-					Task_FacialEmotionTask_Smile(receiver, 1.4f, "HitGrowthSmile");
+					Task_FacialEmotionTask_Smile(receiver, 1.4f, "HitGrowthSmile", 0.25f);
 					ApplyActionCooldown(receiver, CooldownSource::Emotion_Laugh);
-					PlayLaughSound(receiver, 1.0f, 1);
+					Sound_PlayLaughs(receiver, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
 					particlescale = 2.2f;
 					shrinkmult = 6.0f;
 				}

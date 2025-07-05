@@ -15,6 +15,8 @@
 #include "Utils/AttachPoint.hpp"
 #include "Utils/InputConditions.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -154,7 +156,7 @@ namespace {
 
 	void GTS_Hug_Moan(AnimationEventData& data) {
 		Task_FacialEmotionTask_Moan(&data.giant, 1.15f, "HugMoan", RandomFloat(0.0f, 0.45f));
-		PlayMoanSound(&data.giant, 1.0f);
+		Sound_PlayMoans(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 	}
 
 	void GTS_Hug_Moan_End(AnimationEventData& data) {
@@ -171,7 +173,7 @@ namespace {
 	void GTS_Hug_PullBack(AnimationEventData& data) { // When we pull actor back to chest, used to play laugh
 		int Random = RandomInt(0, 5);
 		if (Random >= 4) {
-			PlayLaughSound(&data.giant, 1.0f, 1);
+			Sound_PlayLaughs(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Struggle);
 			Task_FacialEmotionTask_Smile(&data.giant, 2.25f, "HugSmile");
 		}
 	}

@@ -4,6 +4,8 @@
 #include "Managers/GtsSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -192,7 +194,7 @@ namespace {
 			update_target_scale(a_Actor, GrowthPower, SizeEffectType::kGrow);
 
 			if (((DoStrongGrowth && Random >= 15) || (DoStrongGrowth && DoMegaGrowth)) && Config::GetAudio().bSlowGrowMoans) {
-				PlayMoanSound(a_Actor, a_CurrentTargetScale / 4);
+				Sound_PlayMoans(a_Actor, a_CurrentTargetScale / 4, 0.14f, EmotionTriggerSource::Growth);
 				Task_FacialEmotionTask_Moan(a_Actor, 2.0f, "GameMode");
 			}
 		}
@@ -253,7 +255,7 @@ namespace {
 			}
 
 			if (RandomBool(12.0f)) {
-				PlayMoanSound(a_Actor, a_CurrentTargetScale / 4);
+				Sound_PlayMoans(a_Actor, a_CurrentTargetScale / 4, 0.14f, EmotionTriggerSource::Growth);
 				Task_FacialEmotionTask_Moan(a_Actor, 2.0f, "CurseOfTheGiantess");
 			}
 

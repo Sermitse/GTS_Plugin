@@ -12,6 +12,8 @@
 #include "Utils/ButtCrushUtils.hpp"
 #include "Utils/InputConditions.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -162,7 +164,7 @@ namespace {
 
 		bool Blocked = IsActionOnCooldown(giant, CooldownSource::Emotion_Moan);
 		if (!Blocked) {
-			PlayMoanSound(giant, 1.0f);
+			Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 			ApplyActionCooldown(giant, CooldownSource::Emotion_Moan);
 			Task_FacialEmotionTask_Moan(giant, 1.2f, "ButtCrush_Growth");
 		}

@@ -14,6 +14,7 @@
 #include "AI/AIFunctions.hpp"
 
 #include "Animation/Utils/AnimationUtils.hpp"
+#include "Utils/MovementForce.hpp"
 
 #include "Config/Config.hpp"
 
@@ -406,6 +407,7 @@ void GtsManager::Update() {
 				GameModeManager::GameMode(actor); // Handle Game Modes
 
 				Foot_PerformIdleEffects_Main(actor); // Just idle zones for pushing away/dealing minimal damage
+				UpdatePlayerMovement(); // Records movement force of Player Legs/Hands
 				TinyCalamity_SeekActors(actor); // Active only on Player
 				SpawnActionIcon(actor); // Icons for interactions with others, Player only
 				ScareActors(actor);

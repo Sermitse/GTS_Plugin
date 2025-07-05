@@ -8,6 +8,8 @@
 #include "Utils/DeathReport.hpp"
 #include "Utils/KillDataUtils.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -151,7 +153,7 @@ namespace GTS {
             }
             if (VoreController::GetSingleton().GetVoreData(giant).GetTimer() == true) {
 				Task_FacialEmotionTask_Moan(giant, 1.0f, "Vore", RandomFloat(0.0f, 0.35f));
-                PlayMoanSound(giant, 1.0f); // play timed sound.
+                Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Vore);
             }
 
             Rumbling::Once("GrowthRumble", giant, 1.75f, 0.30f);

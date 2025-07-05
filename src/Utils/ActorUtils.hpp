@@ -31,8 +31,6 @@ namespace GTS {
 	float GetLaunchPower(Actor* giant, float sizeRatio);
 
 	void StartResetTask(Actor* tiny);
-	void PlayMoanSound(Actor* actor, float volume);
-	void PlayLaughSound(Actor* actor, float volume, int type);
 
 	// GTS State Bools
 	void Potion_SetMightBonus(Actor* giant, float value, bool add);

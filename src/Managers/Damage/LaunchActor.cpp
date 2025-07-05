@@ -9,7 +9,11 @@
 #include "Managers/Animation//Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 #include "UI/DebugAPI.hpp"
+
+
 
 using namespace GTS;
 
@@ -22,6 +26,12 @@ namespace {
 	bool ObliterateCheck(Actor* giant, Actor* tiny, float sizeRatio, float damage) {
 		if (sizeRatio >= Overkills_Obliteration_Diff_Requirement && GetAV(tiny, ActorValue::kHealth) < damage * 0.5f) {
 			if (CrushManager::GetSingleton().CanCrush(giant, tiny)) {
+				bool OnCooldown = IsActionOnCooldown(giant, CooldownSource::Emotion_Moan_Crush);
+				if (!OnCooldown) {
+					Task_FacialEmotionTask_Smile(giant, 1.25f, "ObliterateSmile", RandomFloat(0.0f, 0.7f));
+					Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Overkill);
+					ApplyActionCooldown(giant, CooldownSource::Emotion_Moan_Crush);
+				}
 				ReportDeath(giant, tiny, DamageSource::Shockwave, false);
 				CrushManager::Crush(giant, tiny);
 				return true;

@@ -31,6 +31,7 @@ namespace GTS {
         Footstep_Right,
         Footstep_Left,
         Footstep_JumpLand,
+        Emotion_Voice,
     };
 
     struct CooldownData {
@@ -67,6 +68,8 @@ namespace GTS {
         double lastFootstepTime_R = -1.0e8f;
         double lastFootstepTime_L = -1.0e8f;
         double lastJumplandTime = -1.0e8f;
+
+        double lastEmotionTime = -1.0e8f;
     };
 
     void ApplyActionCooldown(Actor* giant, CooldownSource source);

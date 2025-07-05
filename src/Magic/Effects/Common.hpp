@@ -6,6 +6,8 @@
 
 #include "Managers/ShrinkToNothingManager.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
+#include "Managers/Animation/Utils/AnimationUtils.hpp"
+#include "Managers/Audio/MoansLaughs.hpp"
 
 #include "Utils/DeathReport.hpp"
 
@@ -436,7 +438,7 @@ namespace GTS {
 		return true;
 	}
 
-	inline bool ShrinkToNothing(Actor* caster, Actor* target, bool check_ticks, float time_mult, float mass_mult = 1.0f) {
+	inline bool ShrinkToNothing(Actor* caster, Actor* target, bool check_ticks, float time_mult, float mass_mult = 1.0f, bool Calamity_PlayLaugh = false, bool ShrinkOutburst_Absorb = false) {
 		if (!caster) {
 			return false;
 		}
@@ -474,6 +476,9 @@ namespace GTS {
 			AdjustSizeReserve(caster, target_scale * bbscale/25);
 			ReportDeath(caster, target, DamageSource::ShrinkToNothing);
 			ShrinkToNothingManager::Shrink(caster, target);
+
+			ApplyKillEmotions(caster, Calamity_PlayLaugh, ShrinkOutburst_Absorb);
+
 			return true;
 		}
 		return false;

@@ -32,6 +32,8 @@
 #include "Utils/DeathReport.hpp"
 #include "Utils/Looting.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -1408,7 +1410,7 @@ namespace GTS {
 			if (MoanTimer.ShouldRunFrame()) {
 				ApplyShakeAtNode(giantref, 6.0f, "NPC COM [COM ]");
 				ModSizeExperience(giantref, 0.14f);
-				PlayMoanSound(giantref, 1.0f);
+				Sound_PlayMoans(giantref, 1.0f, 0.14f, EmotionTriggerSource::Absorption);
 
 				Grow(giantref, 0, 0.016f * (1 + random));
 
@@ -1538,7 +1540,7 @@ namespace GTS {
 		});
 	}
 
-	void Task_FacialEmotionTask_Smile(Actor* giant, float duration, std::string_view naming, float duration_add) {
+	void Task_FacialEmotionTask_Smile(Actor* giant, float duration, std::string_view naming, float duration_add, float open_mouth) {
 		ActorHandle giantHandle = giant->CreateRefHandle();
 
 		double start = Time::WorldTimeElapsed();
@@ -1549,7 +1551,7 @@ namespace GTS {
 		AdjustFacialExpression(giant, 0, 0.40f, CharEmotionType::Modifier); // blink L
 		AdjustFacialExpression(giant, 1, 0.40f, CharEmotionType::Modifier); // blink R
 
-		float random = (RandomInt(5, 25)) * 0.01f;
+		float random = open_mouth > 0 ? (random = open_mouth): (random = (RandomInt(5, 25)) * 0.01f);
 
 		AdjustFacialExpression(giant, 3, random, CharEmotionType::Phenome); // Slightly open mouth
 		AdjustFacialExpression(giant, 5, 0.5f, CharEmotionType::Phenome); // Actual smile but leads to opening mouth 
@@ -1591,6 +1593,7 @@ namespace GTS {
 			return true;
 		});
 	}
+	
 
 	void Task_FacialEmotionTask_SlightSmile(Actor* giant, float duration, std::string_view naming, float duration_add) {
 		ActorHandle giantHandle = giant->CreateRefHandle();
@@ -1751,7 +1754,7 @@ namespace GTS {
 				ApplyActionCooldown(giant, CooldownSource::Emotion_Laugh);
 				
 				if (!otherActor->IsDead()) {
-					PlayLaughSound(giant, 1.0f, 1);
+					Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
 					Task_FacialEmotionTask_Smile(giant, duration, name);
 				}
 			}
@@ -1766,7 +1769,7 @@ namespace GTS {
 				float duration = 1.5f + ((RandomInt(1, 100)) * 0.01f);
 				duration *= multiply;
 
-				PlayLaughSound(giant, 1.0f, 1);
+				Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
 				Task_FacialEmotionTask_Smile(giant, duration, name);
 				ApplyActionCooldown(giant, CooldownSource::Emotion_Laugh);
 			}

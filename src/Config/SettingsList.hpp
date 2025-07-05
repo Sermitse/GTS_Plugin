@@ -346,11 +346,14 @@ struct SettingsAudio {
     bool bMuteFingerSnapDeathScreams = true;
     bool bMuteBreastAbsorptionDeathScreams = true;
 
-    bool bMoanLaughSizeVariants = false;
+    bool bMoanLaughSizeVariants = true;
     bool bUseOtherHighHeelSet = true;
     bool bBlendBetweenFootsteps = false;
     
     float fMaxVoiceFrequency = 1.0f;
+
+    float fFallOffMultiplier = 1.0f;
+    float fVoiceVolumeMult = 1.0f;
 
 };
 TOML_SERIALIZABLE(SettingsAudio);

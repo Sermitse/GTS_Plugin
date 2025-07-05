@@ -5,6 +5,8 @@
 #include "Managers/Rumble.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
+#include "Managers/Audio/MoansLaughs.hpp"
+
 namespace GTS {
 
     #define RANDOM_OFFSET RandomFloat(0.01f, rip_randomOffsetMax - 0.01f)
@@ -173,10 +175,12 @@ namespace GTS {
 		auto manager = RE::ActorEquipManager::GetSingleton();
 		manager->UnequipObject(a_actor, tesarmo, nullptr, 1, nullptr, true, false, false);
 
-		PlayMoanSound(a_actor, 0.7f);
-		Task_FacialEmotionTask_Moan(a_actor, 1.0f, "RipCloth");
-		Runtime::PlaySound("GTSSoundRipClothes", a_actor, 0.7f, 1.0f);
 		Rumbling::Once("ClothManager", a_actor, Rumble_Misc_TearClothes, 0.075f);
+		Sound_PlayMoans(a_actor, 0.7f, 0.14f, EmotionTriggerSource::RipCloth);
+		Runtime::PlaySound("GTSSoundRipClothes", a_actor, 0.7f, 1.0f);
+		Task_FacialEmotionTask_Moan(a_actor, 1.0f, "RipCloth");
+		
+		
 	}
 
 	static void RipAllClothing(RE::Actor* a_actor) {
@@ -212,10 +216,10 @@ namespace GTS {
 		}
 
 		if (Ripped) {
-			PlayMoanSound(a_actor, 1.0f);
-			Task_FacialEmotionTask_Moan(a_actor, 1.0f, "RipCloth");
-			Runtime::PlaySound("GTSSoundRipClothes", a_actor, 1.0f, 1.0f);
 			Rumbling::Once("ClothManager", a_actor, Rumble_Misc_TearAllClothes, 0.095f);
+			Sound_PlayMoans(a_actor, 1.0f, 0.14f, EmotionTriggerSource::RipCloth);
+			Runtime::PlaySound("GTSSoundRipClothes", a_actor, 1.0f, 1.0f);
+			Task_FacialEmotionTask_Moan(a_actor, 1.0f, "RipCloth");
 		}
 	}
 

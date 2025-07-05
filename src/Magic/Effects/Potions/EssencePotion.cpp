@@ -1,6 +1,7 @@
 #include "Magic/Effects/Potions/EssencePotion.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
+#include "Managers/Audio/MoansLaughs.hpp"
 
 using namespace GTS;
 
@@ -10,7 +11,7 @@ namespace {
 		if (power >= 0.07f) {
 			bool Blocked = IsActionOnCooldown(giant, CooldownSource::Emotion_Moan);
 			if (!Blocked) {
-				PlayMoanSound(giant, 1.0f);
+				Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 				ApplyActionCooldown(giant, CooldownSource::Emotion_Moan);
 			}
 		}

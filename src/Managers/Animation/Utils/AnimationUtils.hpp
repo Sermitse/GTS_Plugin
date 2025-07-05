@@ -67,7 +67,7 @@ namespace GTS {
 	void Task_FacialEmotionTask_OpenMouth(Actor* giant, float duration, std::string_view naming, float duration_add = 0.0f, float speed_mult = 1.0f);
 	void Task_FacialEmotionTask_Moan(Actor* giant, float duration, std::string_view naming, float duration_add = 0.0f);
 	void Task_FacialEmotionTask_SlightSmile(Actor* giant, float duration, std::string_view naming, float duration_add);
-	void Task_FacialEmotionTask_Smile(Actor* giant, float duration, std::string_view naming, float duration_add = 0.0f);
+	void Task_FacialEmotionTask_Smile(Actor* giant, float duration, std::string_view naming, float duration_add = 0.0f, float open_mouth = 0.0f);
 	void Task_FacialEmotionTask_Anger(Actor* giant, float duration, std::string_view naming, float duration_add);
 	void Task_FacialEmotionTask_Kiss(Actor* giant, float duration, std::string_view naming, float duration_add = 0.0f);
 

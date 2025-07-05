@@ -1,6 +1,7 @@
 #include "Magic/Effects/Potions/GrowthPotion.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Managers/Rumble.hpp"
+#include "Managers/Audio/MoansLaughs.hpp"
 
 using namespace GTS;
 
@@ -53,7 +54,7 @@ namespace GTS {
 		if (this->power >= 2.0f) {
 			bool Blocked = IsActionOnCooldown(caster, CooldownSource::Emotion_Moan);
 			if (!Blocked) {
-				PlayMoanSound(caster, 1.0f);
+				Sound_PlayMoans(caster, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 				ApplyActionCooldown(caster, CooldownSource::Emotion_Moan);
 			}
 			if (caster->formID == 0x14) {
