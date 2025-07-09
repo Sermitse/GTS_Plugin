@@ -39,7 +39,7 @@ jobs:
         uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
         with:
             arch: x64
-            toolset: 14.43
+            toolset: 14.44
 
       - name: Compile
         run: |
