@@ -85,9 +85,6 @@ namespace GTS {
 				Data->POSLastLegL = Data->POSCurrentLegL;
 				Data->POSLastLegR = Data->POSCurrentLegR;
 			}
-
-			log::info("Velocity Hand L and R: {} ; {}", Data->HandVelocity_L, Data->HandVelocity_R);
-			log::info("Velocity Foot L and R: {} ; {}", Data->FootVelocity_L, Data->FootVelocity_R);
 		}
 	}
 
