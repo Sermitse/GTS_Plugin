@@ -127,6 +127,8 @@ namespace GTS {
 			static bool HHDisabled(Actor& actor);
 			static bool HHDisabled(Actor* actor);
 
+			static void UpdateGravity(Actor* actor);
+
 		protected:
 			std::unordered_map<Actor*, std::unordered_map<std::string, AnimationEventData> > data;
 			std::unordered_map<std::string, AnimationEvent> eventCallbacks;

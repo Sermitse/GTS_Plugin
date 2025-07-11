@@ -19,6 +19,7 @@
 #include "Config/Config.hpp"
 
 #include "Hooks/Skyrim/Settings.hpp"
+#include "UI/DebugAPI.hpp"
 
 using namespace GTS;
 
@@ -64,11 +65,13 @@ namespace {
 
 	void Foot_PerformIdleEffects_Main(Actor* actor) {
 		if (actor) {
-			if (GetBusyFoot(actor) != BusyFoot::RightFoot) { // These are needed to get rid of annoying pushing away during stomps
-				CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleR, true, false, false, false);
+			if (GetBusyFoot(actor) != BusyFoot::RightFoot) { // These are needed to get rid of annoying pushing away during stomps, Does Right Leg Idle Damage Over Time
+				float FootDamage = std::clamp(Get_Bone_Movement_Speed(actor, NodeMovementType::Movement_RightLeg), 0.0f, 1.0f);
+				CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * FootDamage * TimeScale(), Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleR, true, false, false, false);
 			} 
-			if (GetBusyFoot(actor) != BusyFoot::LeftFoot) {
-				CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleL, false, false, false, false);
+			if (GetBusyFoot(actor) != BusyFoot::LeftFoot) { // Does Left Leg Idle Damage Over Time
+				float FootDamage = std::clamp(Get_Bone_Movement_Speed(actor, NodeMovementType::Movement_LeftLeg), 0.0f, 1.0f);
+				CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * FootDamage * TimeScale(), Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleL, false, false, false, false);
 			}
 		}
 	}

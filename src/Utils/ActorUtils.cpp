@@ -14,6 +14,7 @@
 #include "Managers/Animation/HugShrink.hpp"
 #include "Managers/Gamemode/GameModeManager.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
+#include "Managers/Damage/LaunchPower.hpp"
 #include "Managers/Damage/LaunchActor.hpp"
 #include "Managers/AI/AIfunctions.hpp"
 #include "Managers/Audio/Footstep.hpp"
@@ -364,29 +365,6 @@ namespace GTS {
 
 			return true;
 		});
-	}
-
-	float GetLaunchPower(Actor* giant, float sizeRatio) {
-		// https://www.desmos.com/calculator/wh0vwgljfl
-		SoftPotential launch {
-			.k = 1.42f,
-			.n = 0.78f,
-			.s = 0.6f,
-			.a = 0.8f,
-		};
-		float power = soft_power(sizeRatio, launch);
-
-		if (!giant) {
-			return 1.0f;
-		}
-
-		float limit = (14.0f * get_visual_scale(giant));
-
-		if (power > limit) {
-			return limit;
-		}
-		
-		return power;
 	}
 
 	void StartResetTask(Actor* tiny) {
@@ -1025,16 +1003,14 @@ namespace GTS {
 							NiPoint3 actorLocation = otherActor->GetPosition();
 							if ((actorLocation - NodePosition).Length() < CheckDistance) {
 								int nodeCollisions = 0;
-								float force = 0.0f;
 
 								auto model = otherActor->GetCurrent3D();
 
 								if (model) {
-									VisitNodes(model, [&nodeCollisions, &force, NodePosition, CheckDistance](NiAVObject& a_obj) {
+									VisitNodes(model, [&nodeCollisions, NodePosition, CheckDistance](NiAVObject& a_obj) {
 										float distance = (NodePosition - a_obj.world.translate).Length();
 										if (distance < CheckDistance) {
 											nodeCollisions += 1;
-											force = 1.0f - distance / CheckDistance;
 											return false;
 										}
 										return true;
@@ -2546,14 +2522,12 @@ namespace GTS {
 				NiPoint3 actorLocation = otherActor->GetPosition();
 				if ((actorLocation-giantLocation).Length() < (maxDistance*giantScale * 3.0f)) {
 					int nodeCollisions = 0;
-					float force = 0.0f;
 					auto model = otherActor->GetCurrent3D();
 					if (model) {
-						VisitNodes(model, [&nodeCollisions, &force, NodePosition, totaldistance](NiAVObject& a_obj) {
+						VisitNodes(model, [&nodeCollisions, NodePosition, totaldistance](NiAVObject& a_obj) {
 							float distance = (NodePosition - a_obj.world.translate).Length();
 							if (distance < totaldistance) {
 								nodeCollisions += 1;
-								force = 1.0f - distance / totaldistance;
 								return false;
 							}
 							return true;
@@ -2564,7 +2538,7 @@ namespace GTS {
 						if (sizedifference <= 1.6f) {
 							StaggerActor(giant, otherActor, 0.75f);
 						} else {
-							PushActorAway(giant, otherActor, 1.0f * GetLaunchPower(giant, sizedifference));
+							PushActorAway(giant, otherActor, 1.0f * GetLaunchPowerFor(giant, sizedifference, LaunchType::Actor_Launch));
 						}
 					}
 				}
@@ -2670,16 +2644,14 @@ namespace GTS {
 				NiPoint3 actorLocation = otherActor->GetPosition();
 				if ((actorLocation - giantLocation).Length() < BASE_DISTANCE*giantScale*radius*3) {
 					int nodeCollisions = 0;
-					float force = 0.0f;
 
 					auto model = otherActor->GetCurrent3D();
 
 					if (model) {
-						VisitNodes(model, [&nodeCollisions, &force, NodePosition, CheckDistance](NiAVObject& a_obj) {
+						VisitNodes(model, [&nodeCollisions, NodePosition, CheckDistance](NiAVObject& a_obj) {
 							float distance = (NodePosition - a_obj.world.translate).Length();
 							if (distance < CheckDistance) {
 								nodeCollisions += 1;
-								force = 1.0f - distance / CheckDistance;
 								return false;
 							}
 							return true;
@@ -2943,16 +2915,14 @@ namespace GTS {
 				NiPoint3 actorLocation = otherActor->GetPosition();
 				if ((actorLocation - giantLocation).Length() < CheckDistance*3) {
 					int nodeCollisions = 0;
-					float force = 0.0f;
 
 					auto model = otherActor->GetCurrent3D();
 
 					if (model) {
-						VisitNodes(model, [&nodeCollisions, &force, NodePosition, CheckDistance](NiAVObject& a_obj) {
+						VisitNodes(model, [&nodeCollisions, NodePosition, CheckDistance](NiAVObject& a_obj) {
 							float distance = (NodePosition - a_obj.world.translate).Length();
 							if (distance < CheckDistance) {
 								nodeCollisions += 1;
-								force = 1.0f - distance / CheckDistance;
 								return false;
 							}
 							return true;

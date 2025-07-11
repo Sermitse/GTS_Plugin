@@ -17,6 +17,7 @@
 #include "Managers/Perks/PerkHandler.hpp"
 
 #include "Managers/Damage/CollisionDamage.hpp"
+#include "Managers/Damage/LaunchPower.hpp"
 #include "Managers/Damage/LaunchActor.hpp"
 
 #include "Managers/AI/AIFunctions.hpp"
@@ -874,18 +875,16 @@ namespace GTS {
 							if ((actorLocation - giantLocation).Length() < BASE_CHECK_DISTANCE * giantScale) {
 								// Check the tiny's nodes against the giant's foot points
 								int nodeCollisions = 0;
-								float force = 0.0f;
 
 								auto model = otherActor->GetCurrent3D();
 
 								if (model) {
 									for (auto& point : CoordsToCheck) {
-										VisitNodes(model, [&nodeCollisions, &force, point, maxFootDistance](NiAVObject& a_obj) {
+										VisitNodes(model, [&nodeCollisions, point, maxFootDistance](NiAVObject& a_obj) {
 											float distance = (point - a_obj.world.translate).Length() - Collision_Distance_Override;
 
 											if (distance <= maxFootDistance) {
 												nodeCollisions += 1;
-												force = 1.0f - distance / maxFootDistance;//force += 1.0 - distance / maxFootDistance;
 												return false;
 											}
 											return true;
@@ -893,7 +892,6 @@ namespace GTS {
 									}
 								}
 								if (nodeCollisions > 0) {
-									float aveForce = std::clamp(force, 0.00f, 0.70f);
 									ActorHandle giantHandle = actor->CreateRefHandle();
 									ActorHandle tinyHandle = otherActor->CreateRefHandle();
 
@@ -915,7 +913,7 @@ namespace GTS {
 
 										if (Finish - Start > 0.02) {
 											if (CanDoDamage(giant, tiny, false)) {
-												if (aveForce >= 0.00f && !tiny->IsDead() && GetAV(tiny, ActorValue::kHealth) > 0.0f) {
+												if (!tiny->IsDead() && GetAV(tiny, ActorValue::kHealth) > 0.0f) {
 													SetBeingGrinded(tiny, true);
 													std::string_view action;
 													switch (Type) {
@@ -997,7 +995,7 @@ namespace GTS {
 								float distance = (NodePosition - a_obj.world.translate).Length() - Collision_Distance_Override;
 								if (distance <= maxDistance) {
 									nodeCollisions += 1;
-									force = 1.0f - distance / maxDistance;
+									force = GetForceFromDistance(distance, maxDistance);
 									return false;
 								}
 								return true;
@@ -1123,7 +1121,7 @@ namespace GTS {
 											float distance = (point - a_obj.world.translate).Length() - Collision_Distance_Override;
 											if (distance <= maxFootDistance) {
 												nodeCollisions += 1;
-												force = 1.0f - distance / maxFootDistance;//force += 1.0 - distance / maxFootDistance;
+												force = GetForceFromDistance(distance, maxFootDistance);
 												return false;
 											}
 											return true;

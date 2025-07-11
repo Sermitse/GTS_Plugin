@@ -28,8 +28,6 @@ namespace GTS {
 
 	void Task_AdjustHalfLifeTask(Actor* tiny, float halflife, double revert_after);
 
-	float GetLaunchPower(Actor* giant, float sizeRatio);
-
 	void StartResetTask(Actor* tiny);
 
 	// GTS State Bools

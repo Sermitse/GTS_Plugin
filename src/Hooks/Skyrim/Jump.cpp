@@ -10,14 +10,6 @@ namespace {
 	constexpr float launch_up_radius = 24.0f;
 	constexpr float default_gravity = 1.0f;
 
-	void UpdateGravity(Actor* actor, const float size) {
-		auto Controller = actor->GetCharController();
-		if (Controller) {
-			log::info("Gravity is {}", Controller->gravity);
-			Controller->gravity = default_gravity * size;
-		}
-	}
-
 	void Jump_ApplyExtraJumpEffects(Actor* actor, float size, float Might) {
 		if (!actor->IsInMidair()) {
 			NiPoint3 pos = actor->GetPosition(); 
@@ -88,11 +80,17 @@ namespace Hooks {
 							const float CRITICALHEIGHT = 9.70f;
 							const float ACTORHEIGHT = Characters_AssumedCharSize*70.0f;
 							const float FACTOR = 0.20f;
-							float scale = get_giantess_scale(actor);
-							float newCriticalHeight = ACTORHEIGHT*scale*FACTOR;
 
+							float gravity = 1.0f;
+
+							if (auto controller = actor->GetCharController()) { // Fixes Jump Land anim threshold when altering gravity
+								gravity = controller->gravity;
+							}
+
+							float scale = get_giantess_scale(actor);
+							float newCriticalHeight = ACTORHEIGHT*scale*(FACTOR*gravity);
 							float jump_factor = pow(CRITICALHEIGHT/newCriticalHeight,0.5f);
-							
+
 							a_in *= jump_factor;
 						}
 					}
@@ -110,7 +108,6 @@ namespace Hooks {
 				if (actor) {
 					if (actor->formID == 0x14) {
 						float size = get_giantess_scale(actor);
-						//UpdateGravity(actor, size);
 
 						float might = 1.0f + Potion_GetMightBonus(actor);
 						float modifier = size * might; // Compensate it, since SetScale() already boosts jump height by default

@@ -392,6 +392,9 @@ struct SettingsGeneral {
 
     bool bPlayerLootpiles = true;
     bool bFollowerLootpiles = true;
+
+    bool bAlterPlayerGravity = false;
+    bool bAdditionalJumpDelay = false;
 };
 TOML_SERIALIZABLE(SettingsGeneral);
 
@@ -429,6 +432,7 @@ TOML_SERIALIZABLE(SettingsGameplay);
 struct SettingsCamera {
     // Shake and crawl multipliers
     float fCameraShakePlayer = 1.0f;
+    float fCameraShakePlayerFP = 0.2f;
     float fCameraShakeOther = 1.0f;
     float fFPCrawlHeightMult = 0.40f;
     float fTPCrawlHeightMult = 0.40f;

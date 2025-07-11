@@ -4,6 +4,7 @@
 
 #include "Managers/Damage/CollisionDamage.hpp"
 #include "Managers/Damage/LaunchActor.hpp"
+#include "Managers/Damage/LaunchPower.hpp"
 #include "Managers/Audio/Footstep.hpp"
 #include "Managers/Rumble.hpp"
 
@@ -143,16 +144,14 @@ namespace GTS {
 					if ((actorLocation-giantLocation).Length() <= CheckDistance) {
 						
 						int nodeCollisions = 0;
-						float force = 0.0f;
 
 						auto model = otherActor->GetCurrent3D();
 
 						if (model) {
-							VisitNodes(model, [&nodeCollisions, &force, NodePosition, maxDistance](NiAVObject& a_obj) {
+							VisitNodes(model, [&nodeCollisions, NodePosition, maxDistance](NiAVObject& a_obj) {
 								float distance = (NodePosition - a_obj.world.translate).Length() - Collision_Distance_Override;
 								if (distance <= maxDistance) {
 									nodeCollisions += 1;
-									force = 1.0f - distance / maxDistance;
 									return false;
 								}
 								return true;

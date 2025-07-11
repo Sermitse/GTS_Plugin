@@ -106,7 +106,6 @@ namespace {
 			giant->GetGraphVariableBool("Collision_Installed", Collision_Installed);
 			if (Collision_Installed == true) {
 				giant->GetGraphVariableFloat("Collision_PitchMult", Collision_PitchMult); // If true, obtain value to apply it
-				//giant->SetGraphVariableFloat("Collision_PitchMult", 0.0f);
 				//log::info("Collision Pitch Mult: {}", Collision_PitchMult);
 			}
 

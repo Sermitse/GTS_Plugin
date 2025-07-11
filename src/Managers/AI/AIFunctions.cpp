@@ -18,7 +18,6 @@ namespace {
 			actor->AsActorState()->actorState1.lifeState = ACTOR_LIFE_STATE::kDead;
 			auto data = actor->GetActorBase()->As<TESActorBaseData>();
 			if (data) {
-				log::info("ActorData exists");
 				data->actorData.actorBaseFlags.reset(ACTOR_BASE_DATA::Flag::kEssential);
 				data->actorData.actorBaseFlags.reset(ACTOR_BASE_DATA::Flag::kProtected);
 			}

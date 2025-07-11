@@ -1,4 +1,5 @@
 #include "Managers/Damage/LaunchActor.hpp"
+#include "Managers/Damage/LaunchPower.hpp"
 #include "Utils/DeathReport.hpp"
 
 #include "Managers/CrushManager.hpp"
@@ -77,7 +78,7 @@ namespace {
 			return;
 		}
 		if (AllowStagger(giant, otherActor)) {
-			float force = 1.0f - distance / maxDistance;
+			float force = GetForceFromDistance(distance, maxDistance);
 			LaunchActor::GetSingleton().ApplyLaunchTo(giant, otherActor, force, power);
 		}
 	}
@@ -165,7 +166,7 @@ namespace GTS {
 						InflictSizeDamage(giant, tiny, damage);
 					}
 
-					NiPoint3 Push = NiPoint3(0, 0, startpower * GetLaunchPower(giant, sizeRatio) * force * power);
+					NiPoint3 Push = NiPoint3(0, 0, startpower * GetLaunchPowerFor(giant, sizeRatio, LaunchType::Actor_Launch) * force * power);
 					PushActorAway(giant, tiny, 1.0f);
 
 					std::string name = std::format("LaunchOther_{}_{}", giant->formID, tiny->formID);
@@ -311,7 +312,7 @@ namespace GTS {
 							float distance = (point - actorLocation).Length();
 							if (distance <= maxFootDistance) {
 								if (AllowStagger(giant, otherActor)) {
-									float force = 1.0f - distance / maxFootDistance;//force += 1.0 - distance / maxFootDistance;
+									float force = GetForceFromDistance(distance, maxFootDistance);
 									ApplyLaunchTo(giant, otherActor, force, power);
 								}
 							}

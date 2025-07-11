@@ -4,6 +4,45 @@
 using namespace RE;
 
 namespace {
+	void UpdateNodeWorldTransform(RE::NiAVObject* node) {
+    	if (!node) {
+			return;
+		}
+
+		if (node->parent) {
+			node->world.rotate = node->local.rotate * node->parent->world.rotate;
+			node->world.scale = node->local.scale * node->parent->world.scale;
+			node->world.translate = node->parent->world.rotate * (node->local.translate * node->parent->world.scale) + node->parent->world.translate;
+		} else {
+			node->world = node->local;
+		}
+	}
+	void UpdateTreeTransforms(RE::NiAVObject* node) {
+		if (!node) {
+			return;
+		}
+
+		UpdateNodeWorldTransform(node);
+
+		if (auto niNode = node->AsNode()) {
+			for (auto& child : niNode->GetChildren()) {
+				if (child) {
+					UpdateTreeTransforms(child.get());
+				}
+			}
+		}
+	}
+
+	void AttachChildAndUpdate(RE::NiNode* parent, RE::NiAVObject* child) {
+		if (!parent || !child) {
+			return;
+		}
+
+		parent->AttachChild(child, true);
+
+		UpdateNodeWorldTransform(child);
+		UpdateTreeTransforms(child);
+	}
 
 	void loop_message(NiAVObject* root, std::string_view message) {
 		auto owner_data = root->GetUserData();
@@ -29,6 +68,52 @@ namespace {
 namespace GTS {
 
 	constexpr int loop_threshold = 256;
+
+	void Node_CreateNewNode(Actor* giant, std::string_view name, std::string_view connect_to) {
+		if (find_node(giant, name)) {
+			return; // Don't re-create it
+		}
+		NiNode* newNode = NiNode::Create(1);
+
+		// Give it a name
+		newNode->name = BSFixedString(name);
+
+		// New Coordinates and such
+		newNode->local.translate = NiPoint3(0.0f, 0.0f, 0.0f);
+		newNode->local.scale = 1.0f;
+		newNode->local.rotate = RE::NiMatrix3();
+
+		// Attach to parent
+		NiAVObject* parent = find_node(giant, connect_to);
+		if (auto* parentNode = parent->AsNode()) {
+			// Note: new node seems to inherit parent rotation
+			newNode->local.rotate = parentNode->world.Invert().rotate; // So we compensate rotation, x/y/z adjustment should happen in world coordinates now
+
+			AttachChildAndUpdate(parentNode, newNode);
+		}
+	}
+
+	NiPoint3 Node_WorldToLocal(NiAVObject* node, const NiPoint3& world_pos) { // Wasn't tested, may not work properly
+		if (!node) {
+			return NiPoint3();
+		}
+
+		const NiMatrix3& rot = node->world.rotate;
+		const NiPoint3& trans = node->world.translate;
+
+		return rot.Transpose() * (world_pos - trans);
+	}
+
+	NiPoint3 Node_LocalToWorld(NiAVObject* node, const NiPoint3& local_pos) { // Wasn't tested, may not work properly
+		if (!node) {
+			return NiPoint3();
+		}
+
+		const NiMatrix3& rot = node->world.rotate;
+		const NiPoint3& trans = node->world.translate;
+
+		return rot * local_pos + trans;
+	}
 
 	std::vector<NiAVObject*> GetAllNodes(Actor* actor) {
 		if (!actor->Is3DLoaded()) {

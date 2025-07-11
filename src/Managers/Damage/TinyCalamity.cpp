@@ -321,16 +321,14 @@ namespace GTS {
                         NiPoint3 actorLocation = otherActor->GetPosition();
                         if ((actorLocation - giantLocation).Length() < BASE_DISTANCE*giantScale*3) {
                             int nodeCollisions = 0;
-                            float force = 0.0f;
 
                             auto model = otherActor->GetCurrent3D();
 
                             if (model) {
-                                VisitNodes(model, [&nodeCollisions, &force, NodePosition, CheckDistance](NiAVObject& a_obj) {
+                                VisitNodes(model, [&nodeCollisions, NodePosition, CheckDistance](NiAVObject& a_obj) {
                                     float distance = (NodePosition - a_obj.world.translate).Length();
                                     if (distance < CheckDistance) {
                                         nodeCollisions += 1;
-                                        force = 1.0f - distance / CheckDistance;
                                         return false;
                                     }
                                     return true;

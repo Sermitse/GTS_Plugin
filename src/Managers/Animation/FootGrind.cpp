@@ -43,7 +43,6 @@ namespace {
 		// The issue: Sonder's anim has a bit wrong timing of _Exit event so Tiny stays attached to the foot when it's not needed (for ~ 1 sec)
 		// This function fixes the issue
 		if (!IsUsingAlternativeStomp(&data.giant) && !IsUnderGrinding(&data.giant)) {
-			log::info("Trigger count: {}", data.stage);
 			if (data.stage >= 7) {
 				CancelGrindTasks(&data.giant);
 				data.stage = 0; // reset stage

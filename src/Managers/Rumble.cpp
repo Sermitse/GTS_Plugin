@@ -226,7 +226,7 @@ namespace GTS {
 						sourcesize += 0.2f; // Fix SMT having no shake at x1.0 scale
 					}
 					if (IsFirstPerson() || HasFirstPersonBody()) {
-						tremor_scale *= 0.5f; // Less annoying FP screen shake
+						tremor_scale *= Config::GetCamera().fCameraShakePlayerFP; // Less annoying FP screen shake
 					}
 
 					scale_bonus = 0.1f;

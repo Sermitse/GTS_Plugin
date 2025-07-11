@@ -81,7 +81,6 @@ namespace GTS {
 				ImGui::Spacing();
 			}
 	}
-
 		//------ Compatibility
 
 		ImUtil_Unique{
@@ -132,11 +131,21 @@ namespace GTS {
 			
 			const char* T2 = "Enable or disable dynamic alteration of fActivatePickLength and fActivatePickRadius ini\n"
 			                 "It will be altered from 180 and 18 (default) to 180 and 18 * Player Scale";
+			const char* T3 = "Enables or Disables gravity acceleration based on size \n"
+							"- If enabled, gravity will slightly increase as the player grows: 1.0 * sqrt(size)\n"
+							"  (This means large player falls faster, but not too fast)\n"
+							"- If disabled, gravity stays constant at 1.0\n"
+							"- This option is player exclusive.";
+			const char* T4 = "Enables or Disables extra effect delay when jump landing\n"
+							"It may be needed because with increased gravity player falls down faster\n"
+							"Which can lead to effects playing a lot earlier than intended";
 
 	        if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
 	            ImUtil::CheckBox("Allow Male Actors", &Settings.bEnableMales, T0);
 				ImUtil::CheckBox("Apply Size Effects to all Actors", &Settings.bAllActorSizeEffects, T1);
 				ImUtil::CheckBox("Override Item/NPC Interaction Range", &Settings.bOverrideInteractionDist, T2);
+				ImUtil::CheckBox("Affect Player Gravity", &Settings.bAlterPlayerGravity, T3);
+				ImUtil::CheckBox("Delay Jump Land Effects", &Settings.bAdditionalJumpDelay, T4, !Settings.bAlterPlayerGravity);
 
 	        	ImGui::Spacing();
 	        }

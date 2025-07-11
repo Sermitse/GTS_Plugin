@@ -6,6 +6,8 @@
 #include "Managers/GtsSizeManager.hpp"
 #include "Managers/ModEvent.hpp"
 
+#include "Config/Config.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -176,6 +178,13 @@ namespace {
 		float fallmod = GetFallModifier(actor);
 		
 		float damage = sizemanager.GetSizeAttribute(actor, SizeAttribute::JumpFall) * fallmod; // get jump damage boost
+		bool EffectDelay = Config::GetGeneral().bAdditionalJumpDelay;
+		float gravity = 1.0f;
+		if (auto charcont = actor->GetCharController()) {
+			if (EffectDelay) { // Apply extra delay only when this bool is true
+				gravity = std::clamp(charcont->gravity, 1.0f, 999999.0f);
+			}
+		}
 
 		std::string name = std::format("JumpLandT_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();
@@ -188,7 +197,10 @@ namespace {
 			auto giant = gianthandle.get().get();
 			double timepassed = Time::WorldTimeElapsed() - Start;
 			float ClampedJump = std::clamp(fallmod, 1.0f, 2.0f);
-			if (timepassed >= 0.15) {
+			
+			if (timepassed >= 0.15 + (0.15 * (gravity - 1.0))) {
+				DoExplosionAndSound(giant, FootEvent::JumpLand);
+
 				DoDamageEffect(giant, Damage_Jump_Default * damage, Radius_Jump_Default, 20, 0.25f, FootEvent::Left, 1.0f, DamageSource::CrushedLeft, true);
 				DoDamageEffect(giant, Damage_Jump_Default * damage, Radius_Jump_Default, 20, 0.25f, FootEvent::Right, 1.0f, DamageSource::CrushedRight, true);
 
@@ -202,8 +214,9 @@ namespace {
 
 	void DoDamageAndLaunch(Actor* actor, FootEvent kind, float launch, float radius) {
 		if (kind != FootEvent::JumpLand) { // If just walking
+			DoExplosionAndSound(actor, kind);
 			DoDamageEffect(actor, Damage_Walk_Defaut, Radius_Walk_Default * radius, 25, 0.25f, kind, 1.25f, EventToSource(kind), true);
-			DoLaunch(actor, 1.05f * launch, 1.10f * radius, kind);
+			DoLaunch(actor, 1.05f * launch, 2.6f * radius, kind);
 		} else { // If jump landing
 			DoJumpLandEffects(actor);
 		}
@@ -234,9 +247,8 @@ namespace GTS {
 					float launch = 1.0f;
 					float radius = 1.0f;
 					
-					DoExplosionAndSound(actor, kind);
 					ApplyPerkBonuses(actor, launch, radius);
-					DoDamageAndLaunch(actor, kind, launch, radius);
+					DoDamageAndLaunch(actor, kind, launch, radius); // Applies sounds as well
 				}	
 			}
 		}

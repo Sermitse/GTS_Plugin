@@ -73,11 +73,13 @@ namespace GTS {
 	    ImUtil_Unique {
 
 	        const char* T0 = "Change the intensity of camera shakes when performing actions as a player.";
-	        const char* T1 = "Change the intensity of camera shakes for NPCs.";
+			const char* T1 = "Change the intensity of first-person camera shakes caused by your own size or size actions";
+			const char* T2 = "Change the intensity of camera shakes for NPCs.";
 
 	        if (ImGui::CollapsingHeader("Camera Shake", ImUtil::HeaderFlagsDefaultOpen)) {
-	            ImUtil::SliderF("Player Total Shake Power", &Settings.fCameraShakePlayer, 0.1f, 3.0f, T0, "%.1fx");
-	            ImUtil::SliderF("NPC Total Shake Power", &Settings.fCameraShakeOther, 0.1f, 3.0f, T1, "%.1fx");
+	            ImUtil::SliderF("Player Total Shake Power", &Settings.fCameraShakePlayer, 0.1f, 3.0f, T0, "%.2fx");
+				ImUtil::SliderF("Player FP Shake Power", &Settings.fCameraShakePlayerFP, 0.0f, 1.0f, T1, "%.2fx");
+	            ImUtil::SliderF("NPC Total Shake Power", &Settings.fCameraShakeOther, 0.1f, 3.0f, T2, "%.2fx");
 
 	            ImGui::Spacing();
 	        }

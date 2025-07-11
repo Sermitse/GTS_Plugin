@@ -180,11 +180,14 @@ namespace GTS {
 	void AnimationManager::Update() {
 		auto player = PlayerCharacter::GetSingleton();
 		if (player) {
-			// Update fall behavor of player
+			// Updates fall Gravity of Player
 			auto charCont = player->GetCharController();
-			if (charCont) {
-				player->SetGraphVariableFloat("GiantessVelocity", (charCont->outVelocity.quad.m128_f32[2] * 100)/get_giantess_scale(player));
-			}
+			UpdateGravity(player);
+			/*if (charCont) {
+				float Velocity = (charCont->outVelocity.quad.m128_f32[2] * 100.0f) / get_giantess_scale(player);
+
+				player->SetGraphVariableFloat("GiantessVelocity", Velocity);
+			}*/
 		}
 	}
 
@@ -507,6 +510,20 @@ namespace GTS {
 		}
 		else {
 			return false;
+		}
+	}
+
+	void AnimationManager::UpdateGravity(Actor* actor) {
+		static Timer GravityTimer = Timer(0.33);
+		if (GravityTimer.ShouldRunFrame()) {
+			auto Controller = actor->GetCharController();
+			if (Controller) {
+				bool Enabled = Config::GetGeneral().bAlterPlayerGravity;
+				float size = get_visual_scale(actor);
+
+				float new_gravity = Enabled ? 1.0f * std::sqrt(size) : 1.0f; 
+				Controller->gravity = new_gravity;
+			}
 		}
 	}
 }

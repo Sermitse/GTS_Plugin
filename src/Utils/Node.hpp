@@ -1,6 +1,9 @@
 #pragma once
 
 namespace GTS {
+	void Node_CreateNewNode(Actor* giant, std::string_view name, std::string_view connect_to);
+	NiPoint3 Node_WorldToLocal(NiAVObject* node, const NiPoint3& world_pos);
+	NiPoint3 Node_LocalToWorld(NiAVObject* node, const NiPoint3& local_pos);
 
 	std::vector<NiAVObject*> GetAllNodes(Actor* actor);
 	void walk_nodes(Actor* actor);

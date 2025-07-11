@@ -1,4 +1,5 @@
 #include "Managers/Damage/LaunchObject.hpp"
+#include "Managers/Damage/LaunchPower.hpp"
 
 #include "Config/Config.hpp"
 
@@ -51,7 +52,7 @@ namespace {
 	}
 
     void ApplyPhysicsToObject_Towards(Actor* giant, TESObjectREFR* object, NiPoint3 push, float force, float scale) {
-		force *= GetLaunchPower_Object(scale, false); // Do not take perk into account here
+		force *= GetLaunchPowerFor(giant, scale, LaunchType::Object_Towards); 
 
 		NiAVObject* Node = object->Get3D1(false);
 		if (Node) {
@@ -71,27 +72,6 @@ namespace {
 
 
 namespace GTS {
-    float GetLaunchPower_Object(float sizeRatio, bool Launch) {
-		// https://www.desmos.com/calculator/wh0vwgljfl
-		if (Launch) {
-			SoftPotential launch {
-				.k = 1.6f,//1.42
-				.n = 0.70f,//0.78
-				.s = 0.6f,
-				.a = 0.0f,
-			};
-			return soft_power(sizeRatio, launch);
-		} else {
-			SoftPotential kick {
-			.k = 1.6f,//1.42f
-			.n = 0.62f,//0.78
-			.s = 0.6f,
-			.a = 0.0f,
-			};
-			return soft_power(sizeRatio, kick);
-		}
-	}
-
     void PushObjectsUpwards(Actor* giant, const std::vector<NiPoint3>& footPoints, float maxFootDistance, float power, bool IsFoot) {
 		auto profiler = Profilers::Profile("LaunchObject: PushObjectsUpwards");
 
@@ -149,8 +129,8 @@ namespace GTS {
 							}
 							float distance = (point - objectlocation).Length();
 							if (distance <= maxFootDistance) {
-								float force = 1.0f - distance / maxFootDistance;
-								float push = start_power * GetLaunchPower_Object(giantScale, true) * force * power;
+								float force = GetForceFromDistance(distance, maxFootDistance);
+								float push = start_power * GetLaunchPowerFor(giant, giantScale, LaunchType::Object_Launch) * force * power;
 								auto Object1 = objectref->Get3D1(false);
 
 								if (distance <= maxFootDistance / 3.0f) { // Apply only if too close

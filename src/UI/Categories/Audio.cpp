@@ -67,8 +67,8 @@ namespace GTS {
 							 "If False: \n"
 							 "- Audio of footsteps changes as soon as you pass size threshold";
 
-			const char* THelp = "Note: Moan/Laugh sounds are not included in the mod.\n"
-			"You can add sounds by adding your own .wav files in the following folder:\n"
+			const char* THelp = "Note: Moan/Laugh sounds are included in the mod if you chose to install them.\n"
+			"You can also add sounds by adding your own .wav files in the following folder:\n"
 	    	"(Your Skyrim Folder)\\Data\\Sound\\fx\\GTS\\Moans_Laughs";
 	        
 	        if(ImGui::CollapsingHeader("Sounds",ImUtil::HeaderFlagsDefaultOpen)){

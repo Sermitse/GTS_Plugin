@@ -20,10 +20,8 @@ namespace GTS {
 	}
 	void StompManager::PlayNewOrOldStomps(Actor* giant, float modifier, FootEvent foot_kind, std::string_view find_foot, bool Strong) {
 		const bool UseOtherHeelSet = Config::GetAudio().bUseOtherHighHeelSet;
-		log::info("Trying to do stomps");
 
 		if (UseOtherHeelSet && HighHeelManager::IsWearingHH(giant)) {
-			log::info("Other Heel Set True");
 			PlayStompSounds(giant, modifier, find_foot, foot_kind, get_visual_scale(giant), Strong); // Play stomp sounds made by TimKroyer
 		} else {
 			DoFootstepSound(giant, modifier, foot_kind, find_foot); // Just treat it like footsteps

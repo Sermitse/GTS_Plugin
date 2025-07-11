@@ -80,7 +80,7 @@ namespace {
 				StompManager::PlayNewOrOldStomps(GiantRef, 1.0f, Event, Node, false);
 
 				FootGrindCheck(GiantRef, Radius_Trample, right, FootActionType::Trample_NormalOrUnder);
-				DelayedLaunch(GiantRef, 0.65f * perk, 1.15f * perk, Event);
+				DelayedLaunch(GiantRef, 0.65f * perk, 3.0f * perk, Event);
 
 				FootStepManager::PlayVanillaFootstepSounds(GiantRef, right);
 
@@ -106,7 +106,7 @@ namespace {
 		DoDamageEffect(giant, Damage_Trample_Repeat * perk, Radius_Trample_Repeat, 1, 0.12f, Event, 1.10f, Source);
 		StompManager::PlayNewOrOldStomps(giant, 1.0f, Event, Node, false);
 		DoDustExplosion(giant, dust * smt, Event, Node);
-		DoLaunch(giant, 0.85f * perk, 1.85f * perk, Event);
+		DoLaunch(giant, 0.85f * perk, 3.8f * perk, Event);
 		DeplenishStamina(giant, 30.0f);
 
 		FootStepManager::PlayVanillaFootstepSounds(giant, right);
@@ -126,7 +126,7 @@ namespace {
 
 		Rumbling::Once(rumble, giant, shake_power, 0.0f, Node, 1.2f);
 		DoDamageEffect(giant, Damage_Trample_Finisher * perk, Radius_Trample_Finisher, 1, 0.25f, Event, 0.85f, Source);
-		DoLaunch(giant, 1.25f * perk, 4.20f * perk, Event);
+		DoLaunch(giant, 1.25f * perk, 5.0f * perk, Event);
 		StompManager::PlayNewOrOldStomps(giant, 1.15f, Event, Node, true);
 		DoDustExplosion(giant, dust * smt, Event, Node);
 
