@@ -136,16 +136,22 @@ namespace GTS {
 							"  (This means large player falls faster, but not too fast)\n"
 							"- If disabled, gravity stays constant at 1.0\n"
 							"- This option is player exclusive.";
-			const char* T4 = "Enables or Disables extra effect delay when jump landing\n"
-							"It may be needed because with increased gravity player falls down faster\n"
-							"Which can lead to effects playing a lot earlier than intended";
+			const char* T4 = "Some animations have bad event timings during jump lands\n"
+							"- If anim timings are bad = then damage zones may spawn in air, not hitting anyone\n"
+							"- Use this slider to adjust delay, 0 = no delay, 1 = 1sec delay on jump land";
+			const char* T5 = "Adjusts extra jump land delay when 'Affect Player Gravity' is on\n"
+							"- it may be needed because animation may not have enough time to do foot events on ground\n"
+							"- Which will lead to not dealing any damage to enemies on the ground\n"
+							"- Acts as additional value on top of original jump land delay\n\n"
+							"- This value is is further multiplied by Gravity Power.";
 
 	        if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
 	            ImUtil::CheckBox("Allow Male Actors", &Settings.bEnableMales, T0);
 				ImUtil::CheckBox("Apply Size Effects to all Actors", &Settings.bAllActorSizeEffects, T1);
 				ImUtil::CheckBox("Override Item/NPC Interaction Range", &Settings.bOverrideInteractionDist, T2);
 				ImUtil::CheckBox("Affect Player Gravity", &Settings.bAlterPlayerGravity, T3);
-				ImUtil::CheckBox("Delay Jump Land Effects", &Settings.bAdditionalJumpDelay, T4, !Settings.bAlterPlayerGravity);
+				ImUtil::SliderF("Jump Effect Delay", &Settings.fAdditionalJumpEffectDelay, 0.0f, 1.0f, T4, "%.2fs");
+				ImUtil::SliderF("Jump Effect Delay - Gravity", &Settings.fAdditionalJumpEffectDelay_Gravity, 0.0f, 1.0f, T5, "%.2fs", !Settings.bAlterPlayerGravity);
 
 	        	ImGui::Spacing();
 	        }

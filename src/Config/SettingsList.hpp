@@ -394,7 +394,8 @@ struct SettingsGeneral {
     bool bFollowerLootpiles = true;
 
     bool bAlterPlayerGravity = false;
-    bool bAdditionalJumpDelay = false;
+    float fAdditionalJumpEffectDelay = 0.15f;
+    float fAdditionalJumpEffectDelay_Gravity = 0.0f;
 };
 TOML_SERIALIZABLE(SettingsGeneral);
 

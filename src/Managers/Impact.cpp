@@ -178,14 +178,16 @@ namespace {
 		float fallmod = GetFallModifier(actor);
 		
 		float damage = sizemanager.GetSizeAttribute(actor, SizeAttribute::JumpFall) * fallmod; // get jump damage boost
-		bool EffectDelay = Config::GetGeneral().bAdditionalJumpDelay;
-		float gravity = 1.0f;
-		if (auto charcont = actor->GetCharController()) {
-			if (EffectDelay) { // Apply extra delay only when this bool is true
-				gravity = std::clamp(charcont->gravity, 1.0f, 999999.0f);
-			}
+		bool EffectDelay = Config::GetGeneral().bAlterPlayerGravity;
+		double gravity = 1.0;
+		
+		if (EffectDelay && actor->GetCharController()) {
+			gravity = std::clamp(actor->GetCharController()->gravity, 1.0f, 999999.0f);
 		}
 
+		const double EffectDelay_Gravity= static_cast<double>(EffectDelay ? Config::GetGeneral().fAdditionalJumpEffectDelay_Gravity : 0.0f);
+		const double EffectDelay_Normal = static_cast<double>(Config::GetGeneral().fAdditionalJumpEffectDelay);
+		
 		std::string name = std::format("JumpLandT_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();
 		double Start = Time::WorldTimeElapsed();
@@ -198,7 +200,7 @@ namespace {
 			double timepassed = Time::WorldTimeElapsed() - Start;
 			float ClampedJump = std::clamp(fallmod, 1.0f, 2.0f);
 			
-			if (timepassed >= 0.15 + (0.15 * (gravity - 1.0))) {
+			if (timepassed >= EffectDelay_Normal + (EffectDelay_Gravity * (gravity - 1.0))) {
 				DoExplosionAndSound(giant, FootEvent::JumpLand);
 
 				DoDamageEffect(giant, Damage_Jump_Default * damage, Radius_Jump_Default, 20, 0.25f, FootEvent::Left, 1.0f, DamageSource::CrushedLeft, true);
