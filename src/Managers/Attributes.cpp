@@ -22,6 +22,21 @@ namespace {
 		}
 	}
 
+	float GetMovementSpeedFormula_Alternative(Actor* actor, float gts_speed, float Bonus, float MS_mult) {
+		// In short: 1.0 * (size * animation slowdown) * SMT run speed
+		float power = 1.0f * (gts_speed * (Bonus/2.0f + 1.0f) * MS_mult);
+		return power;
+	}
+	float GetMovementSpeedFormula_Normal(Actor* actor, float gts_speed, float Slowdown, float Bonus, float MS_mult, float MS_mult_limit, float Multy, float bonusspeed) {
+		// In short: 1.0 / Animation Slowdown * SMT run speed
+		float power = 1.0f * Slowdown * (Bonus/2.0f + 1.0f)/MS_mult/MS_mult_limit/Multy/bonusspeed;
+		if (gts_speed > 1.0f) {
+			return power;
+		} else {
+			return gts_speed * Slowdown * (Bonus/2.0f + 1.0f);
+		}
+	}
+
 	float GetMovementSlowdown(Actor* tiny) {
 		auto transient = Transient::GetSingleton().GetData(tiny);
 		if (transient) {
@@ -207,14 +222,12 @@ namespace GTS {
 				if (actorData) {
 					Bonus = actorData->smt_run_speed;
 				}
-
-				float power = 1.0f * Slowdown * (Bonus/2.0f + 1.0f)/MS_mult/MS_mult_limit/Multy/bonusspeed;
-				if (gts_speed > 1.0f) {
-					return power;
-				}
-				else {
-					return gts_speed * Slowdown * (Bonus/2.0f + 1.0f);
-				}
+				bool AlternativeSpeed = Config::GetGeneral().bAlternativeSpeedFormula;
+				float MovementSpeed = AlternativeSpeed ? 
+				GetMovementSpeedFormula_Alternative(actor, gts_speed, Bonus, MS_mult) 
+				:
+				GetMovementSpeedFormula_Normal(actor, gts_speed, Slowdown, Bonus, MS_mult, MS_mult_limit, Multy, bonusspeed);
+				return MovementSpeed;
 			}
 
 			case ActorValue::kAttackDamageMult: {
