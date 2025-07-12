@@ -148,7 +148,7 @@ namespace GTS {
 							"- it may be needed because animation may not have enough time to do foot events on ground\n"
 							"- Which will lead to not dealing any damage to enemies on the ground\n"
 							"- Acts as additional value on top of original jump land delay\n\n"
-							"- This value is is further multiplied by Gravity Power.";
+							"- This value is further multiplied by Gravity Power.";
 
 	        if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
 	            ImUtil::CheckBox("Allow Male Actors", &Settings.bEnableMales, T0);

@@ -56,13 +56,13 @@ namespace GTS {
 
         ImUtil_Unique {
 
-            const char* T0 = "Immediately return from DamageAV Calls for the player.";
-            const char* T1 = "Bypass action cooldowns.";
+            const char* T0 = "Immediately return from DamageAV Calls (such as damage HP/Stamina) for the player.";
+            const char* T1 = "Bypasses action cooldowns if enabled.";
             const char* T2 = "Multiply the resulting GetAnimationSlowdown Value";
 
             if (ImGui::CollapsingHeader("Cheats",ImUtil::HeaderFlagsDefaultOpen)) {
-                ImUtil::CheckBox("ActorValue Damage",&Settings.bDamageAV, T0);
-                ImUtil::CheckBox("Action Cooldowns",&Settings.bCooldowns, T1);
+                ImUtil::CheckBox("Ignore ActorValue Damage",&Settings.bDamageAV, T0);
+                ImUtil::CheckBox("Ignore Size-Action Cooldowns",&Settings.bCooldowns, T1);
                 ImUtil::SliderF("Animspeed Player", &Settings.fAnimSpeedAdjMultPlayer, 0.2f, 1.0f, T2);
                 ImUtil::SliderF("Animspeed Teammate", &Settings.fAnimSpeedAdjMultTeammate, 0.2f, 1.0f, T2);
 
@@ -75,7 +75,7 @@ namespace GTS {
 
         ImUtil_Unique {
 
-	        const char* T0 = "When performing Breast Absorption, visually enlarge breasts";
+	        const char* T0 = "When performing Breast Absorption, visually enlarge breasts. Not Guaranteed to Work.";
 	        const char* T1 = "Count Player as NPC, which makes Player perform random animations";
 	        const char* T2 = "Enable the experimental support for devourment using AI manager. Meant to partially replace DV's own PseudoAI";
 	        const char* T3 = "Set the probabilty for a DV action to be started.";
