@@ -12,6 +12,9 @@ using namespace GTS;
 
 namespace {
 
+	const SoftPotential speed_adjustment_walk { .k = 0.265f,.n = 1.11f,.s = 2.0f,.o = 1.0f,.a = 0.0f,};
+	const SoftPotential MS_adjustment{ .k = 0.132f,.n = 0.86f, .s = 1.12f, .o = 1.0f,.a = 0.0f,};
+
 	void SetINIFloat(std::string_view name, float value) {
 		auto ini_conf = GameSettingCollection::GetSingleton();
 		std::string s_name(name);
@@ -22,18 +25,28 @@ namespace {
 		}
 	}
 
-	float GetMovementSpeedFormula_Alternative(Actor* actor, float gts_speed, float Bonus, float MS_mult) {
+	float GetMovementSpeedFormula_Alternative(Actor* actor, float smt_speed, float MovementDebuff) {
 		// In short: 1.0 * (size * animation slowdown) * SMT run speed
-		float power = 1.0f * (gts_speed * (Bonus/2.0f + 1.0f) * MS_mult);
-		return power;
+		float gts_speed = get_giantess_scale(actor);
+		float MS_mult = soft_core(gts_speed, MS_adjustment);
+		
+		float power = 1.0f * (gts_speed * (smt_speed/2.0f + 1.0f) * MS_mult);
+		return power * MovementDebuff;
 	}
-	float GetMovementSpeedFormula_Normal(Actor* actor, float gts_speed, float Slowdown, float Bonus, float MS_mult, float MS_mult_limit, float Multy, float bonusspeed) {
-		// In short: 1.0 / Animation Slowdown * SMT run speed
-		float power = 1.0f * Slowdown * (Bonus/2.0f + 1.0f)/MS_mult/MS_mult_limit/Multy/bonusspeed;
+	float GetMovementSpeedFormula_Normal(Actor* actor, float smt_speed, float MovementDebuff) {
+		// In short: (1.0 / Animation slowdown) * SMT run speed
+		float gts_speed = get_giantess_scale(actor);
+		float MS_mult = soft_core(gts_speed, MS_adjustment);
+		float MS_mult_limit = std::clamp(MS_mult, 0.750f, 1.0f);
+		float Multy = std::clamp(MS_mult, 0.70f, 1.0f);
+		float speed_mult_walk = soft_core(gts_speed, speed_adjustment_walk);
+		float bonusspeed = std::clamp(speed_mult_walk, 0.90f, 1.0f);
+
+		float power = 1.0f * MovementDebuff * (smt_speed/2.0f + 1.0f)/MS_mult/MS_mult_limit/Multy/bonusspeed;
 		if (gts_speed > 1.0f) {
 			return power;
 		} else {
-			return gts_speed * Slowdown * (Bonus/2.0f + 1.0f);
+			return gts_speed * MovementDebuff * (smt_speed/2.0f + 1.0f);
 		}
 	}
 
@@ -197,36 +210,19 @@ namespace GTS {
 			}
 
 			case ActorValue::kSpeedMult: {
-
-				constexpr SoftPotential MS_adjustment{ 
-					.k = 0.132f, //0.132
-					.n = 0.86f,  //0.86
-					.s = 1.12f,  //1.12
-					.o = 1.0f,
-					.a = 0.0f, //Default is 0
-				};
-
-				float gts_speed = get_giantess_scale(actor);
-
-				float MS_mult = soft_core(gts_speed, MS_adjustment);
-				float MS_mult_limit = std::clamp(MS_mult, 0.750f, 1.0f);
-				float Multy = std::clamp(MS_mult, 0.70f, 1.0f);
-				float speed_mult_walk = soft_core(gts_speed, this->speed_adjustment_walk);
-				float bonusspeed = std::clamp(speed_mult_walk, 0.90f, 1.0f);
-				
 				auto actorData = Persistent::GetSingleton().GetData(actor);
-				float Bonus = 1.0f;
-
-				float Slowdown = GetMovementSlowdown(actor);
+				float MovementDebuff = GetMovementSlowdown(actor);
+				float smt_speed = 1.0f;
 
 				if (actorData) {
-					Bonus = actorData->smt_run_speed;
+					smt_speed = actorData->smt_run_speed;
 				}
 				bool AlternativeSpeed = Config::GetGeneral().bAlternativeSpeedFormula;
 				float MovementSpeed = AlternativeSpeed ? 
-				GetMovementSpeedFormula_Alternative(actor, gts_speed, Bonus, MS_mult) 
+				GetMovementSpeedFormula_Alternative(actor, smt_speed, MovementDebuff)
 				:
-				GetMovementSpeedFormula_Normal(actor, gts_speed, Slowdown, Bonus, MS_mult, MS_mult_limit, Multy, bonusspeed);
+				GetMovementSpeedFormula_Normal(actor, smt_speed, MovementDebuff);
+
 				return MovementSpeed;
 			}
 
