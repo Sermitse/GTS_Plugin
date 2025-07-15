@@ -63,14 +63,14 @@ namespace GTS {
 
             ImGui::Spacing();
             ImGui::Text("Basic Game Modes");
-            ImUtil::SliderF("Growth Rate", &a_Settings->fGrowthRate, 0.001f, 0.2f, T1, "%.3fx");
-            ImUtil::SliderF("Shrink Rate", &a_Settings->fShrinkRate, 0.001f, 0.2f, T2, "%.3fx");
+            ImUtil::SliderF("Growth Rate", &a_Settings->fGrowthRate, 0.0001f, 0.2f, T1, "%.3fx");
+            ImUtil::SliderF("Shrink Rate", &a_Settings->fShrinkRate, 0.0001f, 0.2f, T2, "%.3fx");
 
             ImUtil::CheckBox("Multiply Rates", &a_Settings->bMultiplyGrowthrate, T4);
 
             ImGui::Spacing();
             ImGui::Text("Curse Game Modes");
-            ImUtil::SliderF("Curse Update Interval", &a_Settings->fGameModeUpdateInterval, 2.0f, 10.0f, T6, "Every %.2f Seconds");
+            ImUtil::SliderF("Curse Update Interval", &a_Settings->fGameModeUpdateInterval, 2.0f, 60.0f, T6, "Every %.2f Seconds");
             ImUtil::SliderF("Curse of Growth Limit", &a_Settings->fCurseGrowthSizeLimit, 1.1f, 50.0f, T3, "%.2fx");
         	ImUtil::SliderF("Target Scale", &a_Settings->fCurseTargetScale, 1.1f, 4.0f, T5, "%.2fx");
 

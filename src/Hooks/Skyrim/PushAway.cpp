@@ -6,6 +6,9 @@ namespace Hooks {
 
         log::info("Hook Papyrus PushAway");
 
+        // Stagger is prevented inside:
+        // SizeHitEffects -> prevent_Stagger
+
         static FunctionHook<void(uintptr_t* param_1, uintptr_t param_2, Actor* actor_1, Actor* actor_2, uintptr_t param_5)>ObjectRef_PushActorAway(
             // 996340 = 55682 (SE)
             // 9BF370 = 56213 (AE)

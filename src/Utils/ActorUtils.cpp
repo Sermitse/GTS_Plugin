@@ -3391,9 +3391,11 @@ namespace GTS {
 						Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::HandCrush)), 3.0f);
 					break;
 					case QuestStage::Vore:					// Stage 5: Vore 6 enemies
-						Persistent.VoreCount.value += value;
-						SpawnCustomParticle(tiny, ParticleType::Blue, NiPoint3(), "NPC Root [Root]", 1.0f);
-						Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::Vore)), 6.0f);
+						if (queststage == 60) {
+							Persistent.VoreCount.value += value;
+							SpawnCustomParticle(tiny, ParticleType::Blue, NiPoint3(), "NPC Root [Root]", 1.0f);
+							Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::Vore)), 6.0f);
+						}
 					break;
 					case QuestStage::Giant:					// Stage 6: Vore/crush/shrink a Giant
 						Persistent.GiantCount.value += value;
