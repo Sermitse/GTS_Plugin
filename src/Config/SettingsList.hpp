@@ -347,6 +347,7 @@ struct SettingsAudio {
     bool bMuteBreastAbsorptionDeathScreams = true;
 
     bool bMoanLaughSizeVariants = true;
+    bool bMoanLaughPCExclusive = false;
     bool bUseOtherHighHeelSet = true;
     bool bBlendBetweenFootsteps = false;
     

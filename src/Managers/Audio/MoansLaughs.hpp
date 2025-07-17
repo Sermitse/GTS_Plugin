@@ -8,6 +8,7 @@ namespace GTS {
     const std::string Moan_Vore = "GTSSoundMoan_Vore";
     const std::string Moan_Growth = "GTSSoundMoan_Growth";
     const std::string Moan_RipCloth = "GTSSoundMoan_RipCloth";
+    const std::string Moan_HugDrain = "GTSSoundMoan_HugDrain";
 
     const std::string Laugh_Crush = "GTSSoundLaugh_Crush";
     const std::string Laugh_Struggle = "GTSSoundLaugh_Struggle";
@@ -23,6 +24,7 @@ namespace GTS {
         Growth,             // WHen GTS Grows in size
         Overkill,           // When killing through Shrink Outburst/Tiny dies in hands through hostile damage
         RipCloth,           // When Gts tears cloth apart during growth
+        HugDrain,           // When stealing size through hugs
 	};
     enum class GTS_ResponseType {
         Moan,

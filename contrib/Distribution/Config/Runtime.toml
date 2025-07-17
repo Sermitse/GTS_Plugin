@@ -190,6 +190,15 @@ GTSSoundMoan_RipCloth_x24 = "GTS.esp|8F8BB1"
 GTSSoundMoan_RipCloth_x48 = "GTS.esp|8F8BB2"
 GTSSoundMoan_RipCloth_x96 = "GTS.esp|8F8BB3"
 
+GTSSoundMoan_HugDrain = "GTS.esp|8FDCB4"
+GTSSoundMoan_HugDrain_x2 = "GTS.esp|8FDCB5"
+GTSSoundMoan_HugDrain_x4 = "GTS.esp|8FDCB6"
+GTSSoundMoan_HugDrain_x8 = "GTS.esp|8FDCB7"
+GTSSoundMoan_HugDrain_x12 = "GTS.esp|8FDCB8"
+GTSSoundMoan_HugDrain_x24 = "GTS.esp|8FDCB9"
+GTSSoundMoan_HugDrain_x48 = "GTS.esp|8FDCBA"
+GTSSoundMoan_HugDrain_x96 = "GTS.esp|8FDCBB"
+
 
 GTSSoundRipClothes = "GTS.esp|30EE54"
 GTSSoundSoftHandAttack = "GTS.esp|5E2E60"

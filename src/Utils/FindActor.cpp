@@ -11,62 +11,57 @@ namespace GTS {
 		unordered_set<FormID> previousActors;
 	};
 
-	/*vector<Actor*> find_actors() {
-	        auto profiler = Profilers::Profile("FindActor: Find Actors");
-	        vector<Actor*> result;
+	std::vector<Actor*> ActorListA;
+	std::vector<Actor*> ActorListB;
+	std::atomic<std::vector<Actor*>*> CurrentActorList = &ActorListA;
 
-	        auto high_actors = find_actors_high();
-	        result.insert(result.end(), high_actors.begin(), high_actors.end());
+	//Called Only Once At the start of the main loop
+	void cache_actorList() {
 
-	        auto middle_high_actors = find_actors_middle_high();
-	        result.insert(result.end(), middle_high_actors.begin(), middle_high_actors.end());
+		//GTS_PROFILE_SCOPE("FindActor: CacheActorList");
 
-	        auto middle_low_actors = find_actors_high();
-	        result.insert(result.end(), middle_low_actors.begin(), middle_low_actors.end());
+		// Choose the inactive buffer
+		auto* newList = (CurrentActorList.load(std::memory_order_acquire) == &ActorListA)
+			? &ActorListB
+			: &ActorListA;
 
-	        auto low_actors = find_actors_high();
-	        result.insert(result.end(), low_actors.begin(), low_actors.end());
+		// Build list into the new buffer
+		*newList = find_actors_high();
+		ranges::sort(*newList);
 
-	        std::sort( result.begin(), result.end() );
-	        result.erase( std::unique( result.begin(), result.end() ), result.end() );
-	        return result;
-	   }*///Backup
+		// Atomically swap to new list
+		CurrentActorList.store(newList, std::memory_order_release);
+	}
 
-
-	vector<Actor*> find_actors() { // Backup above ^
-		auto profiler = Profilers::Profile("FindActor: FindActors");
-		vector<Actor*> result;
-		auto high_actors = find_actors_high();
-
-		result.insert(result.end(), high_actors.begin(), high_actors.end());
-
-		ranges::sort(result);
-		return result;
+	const std::vector<Actor*>& find_actors() {
+		//GTS_PROFILE_SCOPE("FindActor: FindActors");
+		return *CurrentActorList.load(std::memory_order_acquire);
 	}
 
 	vector<Actor*> find_actors_high() {
-		vector<Actor*> result;
 
 		auto process_list = ProcessLists::GetSingleton();
-		for (const ActorHandle& actor_handle: process_list->highActorHandles){
-			if (!actor_handle) {
-				continue;
-			}
+
+		vector<Actor*> result;
+		result.reserve(process_list->highActorHandles.size() + 1);
+
+		for (const auto& actor_handle : process_list->highActorHandles) {
+			if (!actor_handle) continue;
+
 			auto actor_smartptr = actor_handle.get();
-			if (!actor_smartptr) {
-				continue;
-			}
+			if (!actor_smartptr) continue;
 
 			Actor* actor = actor_smartptr.get();
-			// auto actor = actor_handle.get().get();
-			if (actor && actor->Is3DLoaded()) {
+			if (actor->Is3DLoaded()) {
 				result.push_back(actor);
 			}
 		}
-		auto player = PlayerCharacter::GetSingleton();
+
+		auto* player = PlayerCharacter::GetSingleton();
 		if (player && player->Is3DLoaded()) {
 			result.push_back(player);
 		}
+
 		return result;
 	}
 
@@ -140,6 +135,7 @@ namespace GTS {
 	}
 
 	vector<Actor*> FindSomeActors(std::string_view tag, uint32_t howMany) {
+
 		static unordered_map<string, FindActorData> allData;
 		allData.try_emplace(string(tag));
 		auto& data = allData.at(string(tag));
@@ -184,22 +180,32 @@ namespace GTS {
 	}
 
 	vector<Actor*> FindTeammates() {
+
 		vector<Actor*> finalActors;
-		for (auto actor: find_actors()) {
+		const auto actors = find_actors();
+		finalActors.reserve(actors.size());
+
+		for (auto actor: actors) {
 			if (IsTeammate(actor)) {
 				finalActors.push_back(actor);
 			}
 		}
+
 		return finalActors;
 	}
 
 	vector<Actor*> FindFemaleTeammates() {
+
 		vector<Actor*> finalActors;
-		for (auto actor : find_actors()) {
+		const auto actors = find_actors();
+		finalActors.reserve(actors.size());
+
+		for (auto actor : actors) {
 			if (IsTeammate(actor) && IsFemale(actor)) {
 				finalActors.push_back(actor);
 			}
 		}
+
 		return finalActors;
 	}
 }

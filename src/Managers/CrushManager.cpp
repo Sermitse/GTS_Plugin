@@ -154,9 +154,6 @@ namespace GTS {
 						TriggerScreenBlood(50);
 					}
 				}
-				std::random_device rd;
-				std::mt19937 gen(rd());
-				std::uniform_real_distribution<float> dis(-0.2f, 0.2f);
 
 				AddSMTDuration(giant, 5.0f);
 				ScareChance(giant);

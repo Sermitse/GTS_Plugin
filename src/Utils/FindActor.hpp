@@ -2,11 +2,12 @@
 
 namespace GTS {
 
-	vector<Actor*> find_actors();
+	const vector<Actor*>& find_actors();
 	vector<Actor*> find_actors_high();
 	vector<Actor*> find_actors_middle_high();
 	vector<Actor*> find_actors_middle_low();
 	vector<Actor*> find_actors_low();
+	void cache_actorList();
 
 	// This will find up to howMany actors in the scene
 	// (not including player and teammate which are ALWAYS returned
@@ -22,6 +23,5 @@ namespace GTS {
 	//
 	// But not the player themselves
 	vector<Actor*> FindTeammates();
-
 	vector<Actor*> FindFemaleTeammates();
 }

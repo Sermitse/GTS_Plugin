@@ -57,10 +57,11 @@ namespace GTS {
 							 "- If you have no custom Moan/Laugh sounds, it does nothing.\n"
 							 "- Sounds location: Data\\Sound\\fx\\GTS\\Moans_Laughs. Folders are empty by default.\n"
 							 "- Possible usage: put edited variants of sounds with reverb/echo/etc in matching size folders";
-			const char* T3 = "Replaces custom High Heel Size Sounds past x2 size with different sound sets\n"
+			const char* T3 = "If true, only Player Character will be able to moan/laugh";
+			const char* T4 = "Replaces custom High Heel Size Sounds past x2 size with different sound sets\n"
 			                 "When not wearing High Heels - plays old sounds.\n"
 							 "Requires High Heels: 'Enable Height Adjustment' to be ON to work";
-			const char* T4 = "If True:\n"
+			const char* T5 = "If True:\n"
 							 "- audio of footsteps will attempt to smoothly swap between each other"
 			                 "- It can result in footsteps being quieter than without blending\n"
 							 "- Because of blending, it can even play 2 sounds at once\n"
@@ -77,9 +78,10 @@ namespace GTS {
 
 	            ImUtil::CheckBox("Footstep Sounds",&Settings.bFootstepSounds,T0);
 	            ImUtil::CheckBox("Moans On Slow Growth",&Settings.bSlowGrowMoans, T1);
-				ImUtil::CheckBox("Moan/Laugh Size Variance", &Settings.bMoanLaughSizeVariants, T2);
-				ImUtil::CheckBox("Alternative High Heel Size Sounds", &Settings.bUseOtherHighHeelSet, T3);
-				ImUtil::CheckBox("Smoothly Blend between Footstep Sounds", &Settings.bBlendBetweenFootsteps, T4);
+				ImUtil::CheckBox("Moans and Laughs: Size Variance", &Settings.bMoanLaughSizeVariants, T2);
+				ImUtil::CheckBox("Moans and Laughs: Player Exclusive", &Settings.bMoanLaughPCExclusive, T3);
+				ImUtil::CheckBox("Alternative High Heel Size Sounds", &Settings.bUseOtherHighHeelSet, T4);
+				ImUtil::CheckBox("Smoothly Blend between Footstep Sounds", &Settings.bBlendBetweenFootsteps, T5);
 	            ImGui::Spacing();
 	        }
 	    }

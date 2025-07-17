@@ -12,7 +12,7 @@ namespace GTS {
 	};
 
 	//Increment the dll's version Here vvvvv
-	constexpr DLLVersion PluginVersion { 3, 0, 3, 0 };
+	constexpr DLLVersion PluginVersion { 3, 0, 4, 0 };
 }
 
 template <>

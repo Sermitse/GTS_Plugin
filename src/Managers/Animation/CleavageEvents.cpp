@@ -344,21 +344,24 @@ namespace {
 
     ///=================================================================== Absorb
 
-    void GTS_BS_AbsorbStart(const AnimationEventData& data) {
+    void GTS_BS_AbsorbStart(AnimationEventData& data) {
         Task_FacialEmotionTask_Smile(&data.giant, 3.2f, "AbsorbStart", 0.3f);
         Task_ApplyAbsorbCooldown(&data.giant);
 
+
+        data.stage = 0;
         auto tiny = Grab::GetHeldActor(&data.giant);
 		if (tiny) {
             VoreController::RecordOriginalScale(tiny);
         }
     }
 
-    void GTS_BS_AbsorbPulse(const AnimationEventData& data) {
+    void GTS_BS_AbsorbPulse(AnimationEventData& data) {
         auto giant = &data.giant;
 		auto tiny = Grab::GetHeldActor(&data.giant);
 
         float growth = 0.0650f;
+        data.stage += 1;
 
 		if (tiny) {
             Rumbling::Once("AbsorbPulse_R", giant, 0.8f, 0.05f, "L Breast02", 0.0f, true);
@@ -369,7 +372,7 @@ namespace {
             Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, volume, 1.0f, "NPC Root [Root]");
 
             bool Blocked = IsActionOnCooldown(giant, CooldownSource::Emotion_Laugh);
-            if (!Blocked) {
+            if (!Blocked && data.stage < 8) { // We don't want Laugh to happen at the end of absorption
                 ApplyActionCooldown(giant, CooldownSource::Emotion_Laugh);
                 Task_FacialEmotionTask_Smile(giant, 0.9f, "AbsorbSmile", 0.12f, 0.25f);
                 Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Struggle);

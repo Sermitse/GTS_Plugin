@@ -42,7 +42,6 @@ namespace GTS {
         // If Distance = 365 and MaxDistance = 320 then it will be > than 1.0, don't do that.
         float safeMax = std::max(maxDistance, 0.001f);
         float ratio = std::clamp(distance / safeMax, 0.0f, 1.0f);
-        log::info("Force: {}", ratio);
         return 1.0f - ratio;
     }
 }

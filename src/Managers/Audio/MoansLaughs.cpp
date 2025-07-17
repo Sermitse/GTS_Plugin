@@ -35,6 +35,9 @@ namespace GTS {
         }
     }
     void Sound_PlayLaughs(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source) {
+        if (actor->formID != 0x14 && Config::GetAudio().bMoanLaughPCExclusive) {
+            return;
+        }
         if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CooldownSource::Emotion_Voice)) {
             ApplyActionCooldown(actor, CooldownSource::Emotion_Voice);
             float Scale = get_visual_scale(actor);
@@ -55,12 +58,15 @@ namespace GTS {
             }
             if (!SoundToPlay.empty()) {
                 Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, 1.0f, "NPC Head [Head]", FallOff);
-                log::info("Playing {} with {} volume", SoundToPlay, volume);
+                //log::info("Playing {} with {} volume", SoundToPlay, volume);
             }
         }
     }
 
     void Sound_PlayMoans(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source) {
+        if (actor->formID != 0x14 && Config::GetAudio().bMoanLaughPCExclusive) {
+            return;
+        }
         if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CooldownSource::Emotion_Voice)) {
             ApplyActionCooldown(actor, CooldownSource::Emotion_Voice);
             float Scale = get_visual_scale(actor);
@@ -71,20 +77,22 @@ namespace GTS {
             
             switch (Source) {
                 case EmotionTriggerSource::Absorption:
-                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_Absorption);                break;
+                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_Absorption);                  break;
                 case EmotionTriggerSource::Crushing:
-                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_Crush);                     break;
+                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_Crush);                       break;
                 case EmotionTriggerSource::Vore:
-                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_Vore);                      break;
+                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_Vore);                        break;
                 case EmotionTriggerSource::Growth:
-                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_Growth);                    break;
+                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_Growth);                      break;
                 case EmotionTriggerSource::RipCloth:
-                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_RipCloth);                  break;
+                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_RipCloth);                    break;
+                case EmotionTriggerSource::HugDrain:
+                    SoundToPlay = ObtainGTSMoanLaughSound(Scale, Moan_HugDrain);                    break;
             }
             if (!PlaySexLabMoans(actor, volume, FallOff)) { // If it returns true = we play Sexlab moans instead
                 if (!SoundToPlay.empty()) {
                     Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, 1.0f, "NPC Head [Head]", FallOff);
-                    log::info("Playing {} with {} volume", SoundToPlay, volume);
+                    //log::info("Playing {} with {} volume", SoundToPlay, volume);
                 }
             }
         }
