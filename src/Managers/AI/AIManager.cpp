@@ -114,7 +114,7 @@ namespace {
 	}
 
 	// Check if an actor is a valid action victim
-	inline bool ValidPrey(Actor* a_Prey, const bool a_AllowPlayer, const bool a_AllowTeamMates, const bool a_AllowEssential) {
+	inline bool ValidPrey(Actor* a_Performer, Actor* a_Prey, const bool a_AllowPlayer, const bool a_AllowTeamMates, const bool a_AllowEssential, const bool HostileOnly) {
 
 		if (!a_Prey) {
 			return false;
@@ -132,7 +132,11 @@ namespace {
 			return false;
 		}
 
+		const bool Hostile = IsHostile(a_Prey, a_Performer) || IsHostile(a_Performer, a_Prey);
 
+		if (HostileOnly && !Hostile) {
+			return false;
+		}
 
 		if (!IsGtsBusy(a_Prey) && IsVisible(a_Prey)) {
 
@@ -207,13 +211,14 @@ namespace {
 		const bool AllowPlayer = AISettings.bAllowPlayer;
 		const bool AllowFollowers = AISettings.bAllowFollowers;
 		const bool AllowEssential = !GeneralSettings.bProtectEssentials;
+		const bool HostileOnly = AISettings.bHostileOnly;
 
 		//Get a list of valid perfomer actors, aka actors that are elidgible to start an action.
 		for (auto Target : find_actors()) {
 			//Skip Nullptr actors and the performer
 			if (!Target || a_Performer == Target) continue;
 
-			if (ValidPrey(Target, AllowPlayer, AllowFollowers, AllowEssential)) {
+			if (ValidPrey(a_Performer, Target, AllowPlayer, AllowFollowers, AllowEssential, HostileOnly)) {
 				ValidVictims.push_back(Target);
 			}
 

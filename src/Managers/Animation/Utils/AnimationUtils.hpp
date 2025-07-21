@@ -35,8 +35,8 @@ namespace GTS {
 
 	void LaunchTask(Actor* actor, float radius, float power, FootEvent kind);
 
-	void DoLaunch(Actor* giant, float radius, float damage, FootEvent kind);
-	void DoLaunch(Actor* giant, float radius, float damage, NiAVObject* node);
+	void DoLaunch(Actor* giant, float radius, float power, FootEvent kind);
+	void DoLaunch(Actor* giant, float radius, float power, NiAVObject* node);
 
 	void GrabStaminaDrain(Actor* giant, Actor* tiny, float sizedifference);
 	void DrainStamina(Actor* giant, std::string_view TaskName, std::string_view perk, bool enable, float power);

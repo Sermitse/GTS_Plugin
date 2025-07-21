@@ -537,6 +537,7 @@ struct SettingsAI {
     bool bCombatOnly = true;
     bool bAllowPlayer = true;
     bool bAllowFollowers = true;
+    bool bHostileOnly = true;
     bool bDisableAttacks = true;
     bool bSlowMovementDown = true;
     bool bSlowRotationDown = true;

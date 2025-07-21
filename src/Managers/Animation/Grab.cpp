@@ -185,17 +185,17 @@ namespace {
 	}
 
 	void GTSGrab_Catch_Actor(AnimationEventData& data) {
-		auto giant = &data.giant;
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 1);
-		auto grabbedActor = Grab::GetHeldActor(&data.giant);
-		if (grabbedActor) {
-			if (Config::GetGameplay().ActionSettings.bGrabStartIsHostile && !IsTeammate(grabbedActor)) {
-				Attacked(grabbedActor, giant);
+		data.giant.SetGraphVariableInt("GTS_GrabbedTiny", 1);
+
+		if (auto grabbed = Grab::GetHeldActor(&data.giant)) {
+			if (Config::GetGameplay().ActionSettings.bGrabStartIsHostile && !IsTeammate(grabbed)) {
+				Attacked(grabbed, &data.giant);
 			}
-			Grab::AttachActorTask(giant, grabbedActor);
-			DisableCollisions(grabbedActor, &data.giant); // Just to be sure
+			Grab::AttachActorTask(&data.giant, grabbed);
+			DisableCollisions(grabbed, &data.giant); // Do it once more just in case
 		}
-		Rumbling::Once("GrabCatch", giant, 2.0f, 0.15f);
+
+		Rumbling::Once("GrabCatch", &data.giant, 2.0f, 0.15f);
 	}
 
 	void GTSGrab_Catch_End(AnimationEventData& data) {

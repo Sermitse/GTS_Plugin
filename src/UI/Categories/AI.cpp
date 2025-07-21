@@ -19,8 +19,9 @@ namespace GTS {
 
             const char* T2 = "Allow the AI to target the player.";
             const char* T3 = "Allow the AI to target other followers.";
-            const char* T4 = "Only allow the action AI to be active when the follower is in combat.";
-            const char* T5 = "Prevent Followers from using regular attacks when they're large. The chance to not attack increases with size.";
+            const char* T4 = "Allow AI to perform actions only if NPC is hostile to performer.";
+            const char* T5 = "Only allow the action AI to be active when the follower is in combat.";
+            const char* T6 = "Prevent Followers from using regular attacks when they're large. The chance to not attack increases with size.";
 
            
 
@@ -50,9 +51,11 @@ namespace GTS {
                     ImUtil::CheckBox("Target Player", &Settings.bAllowPlayer, T2);
                     ImGui::SameLine();
                     ImUtil::CheckBox("Target Other Followers", &Settings.bAllowFollowers, T3);
+                    ImGui::SameLine();
+                    ImUtil::CheckBox("Target Only Hostiles", &Settings.bHostileOnly, T4);
 
-                    ImUtil::CheckBox("Enable AI Only During Combat",&Settings.bCombatOnly, T4);
-                    ImUtil::CheckBox("Disable Regular Attacks When Large", &Settings.bDisableAttacks, T5);
+                    ImUtil::CheckBox("Enable AI Only During Combat",&Settings.bCombatOnly, T5);
+                    ImUtil::CheckBox("Disable Regular Attacks When Large", &Settings.bDisableAttacks, T6);
 
                     ImGui::EndDisabled();
                 }

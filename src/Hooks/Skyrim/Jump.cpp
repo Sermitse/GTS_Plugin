@@ -48,15 +48,16 @@ namespace Hooks {
 	void Hook_Jumping::Hook(Trampoline& trampoline) {
 
 
-		static FunctionHook<float(bhkCharacterController* a_this)> GetFallDistance (
+		static FunctionHook<float(bhkCharacterController* a_this)> GetFallDistance ( // This hook reduces received fall damage based on size
             REL::RelocationID(76430, 78269),
             [](auto* a_this){
             float result = GetFallDistance(a_this);
             auto actor = GetCharContActor(a_this);
             if (actor) {
                 float scale = std::clamp(get_giantess_scale(actor), 1.0f, 99999.0f);
+				constexpr float fall_damage_exponent = 0.3f;
                 if (scale > 1e-4) {
-                    result /= scale;
+                    result /= std::pow(scale, fall_damage_exponent);
                 }
             }
 			return result;
