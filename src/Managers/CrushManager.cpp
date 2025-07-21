@@ -157,9 +157,10 @@ namespace GTS {
 
 				AddSMTDuration(giant, 5.0f);
 				ScareChance(giant);
-
+				
+				const bool silent = Config::GetAudio().bMuteCrushDeathScreams;
 				// Do crush
-				KillActor(giant, tiny);
+				KillActor(giant, tiny, silent);
 				DecreaseShoutCooldown(giant);
 				PerkHandler::UpdatePerkValues(giant, PerkUpdate::Perk_LifeForceAbsorption);
 

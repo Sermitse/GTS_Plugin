@@ -130,6 +130,9 @@ struct GameplayActionSettings {
     //Kick Settings
     bool bEnablePlayerPushBack = true;
 
+    //Grab Settings
+    bool bGrabStartIsHostile = true;
+
     //Hug Settings
     bool bNonLethalHugsHostile = true;
     bool bHugsStopAtFullHP = true;
@@ -345,6 +348,9 @@ struct SettingsAudio {
     bool bMuteHugCrushDeathScreams = true;
     bool bMuteFingerSnapDeathScreams = true;
     bool bMuteBreastAbsorptionDeathScreams = true;
+    bool bMuteShrinkToNothingDeathScreams = false;
+    bool bMuteCrushDeathScreams = false;
+    
 
     bool bMoanLaughSizeVariants = true;
     bool bMoanLaughPCExclusive = false;

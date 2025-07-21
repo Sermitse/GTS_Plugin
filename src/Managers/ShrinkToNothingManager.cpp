@@ -53,9 +53,11 @@ namespace GTS {
 					CompleteDragonQuest(tiny, ParticleType::Red, tiny->IsDead());
 				}
 
+				const bool silent = Config::GetAudio().bMuteShrinkToNothingDeathScreams;
+
 				ShrinkToNothingManager::SpawnDeathEffects(tiny);
 				DecreaseShoutCooldown(giant);
-				KillActor(giant, tiny);
+				KillActor(giant, tiny, silent);
 
 				PerkHandler::UpdatePerkValues(giant, PerkUpdate::Perk_LifeForceAbsorption);
 

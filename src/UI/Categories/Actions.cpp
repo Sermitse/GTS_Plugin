@@ -140,17 +140,24 @@ namespace GTS {
         }
 
         ImUtil_Unique{
-
-			const char* T1 = "Toggle whether non lethal hug actions\n"
+            const char* T1 = "Toggle whether initial grab is hostile\n"
+        					 "- true = it will start combat on grab\n"
+                             "- false = npc won't start combat";
+			const char* T2 = "Toggle whether non lethal hug actions\n"
         					 "like Hug-Heal or Hug-Shrink should start combat.";
 
-			const char* T2 = "Toggle whether after hug healing to full HP\n"
+			const char* T3 = "Toggle whether after hug healing to full HP\n"
         					 "The held actor should be let go.";
+            if (ImGui::CollapsingHeader("Grab Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
+                ImUtil::CheckBox("Initial Grab is hostile", &SGameplay.ActionSettings.bGrabStartIsHostile, T1);
+
+            	ImGui::Spacing();
+            }
             if (ImGui::CollapsingHeader("Hug Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                ImUtil::CheckBox("Non Lethal Hugs Are Hostile", &SGameplay.ActionSettings.bNonLethalHugsHostile, T1);
-                ImUtil::CheckBox("Hug Heal Stops At Full HP (Player & Followers)", &SGameplay.ActionSettings.bHugsStopAtFullHP, T2);
+                ImUtil::CheckBox("Non Lethal Hugs Are Hostile", &SGameplay.ActionSettings.bNonLethalHugsHostile, T2);
+                ImUtil::CheckBox("Hug Heal Stops At Full HP (Player & Followers)", &SGameplay.ActionSettings.bHugsStopAtFullHP, T3);
 
             	ImGui::Spacing();
             }

@@ -189,11 +189,11 @@ namespace {
 		giant->SetGraphVariableInt("GTS_GrabbedTiny", 1);
 		auto grabbedActor = Grab::GetHeldActor(&data.giant);
 		if (grabbedActor) {
-			Grab::AttachActorTask(giant, grabbedActor);
-			DisableCollisions(grabbedActor, &data.giant); // Just to be sure
-			if (!IsTeammate(grabbedActor)) {
+			if (Config::GetGameplay().ActionSettings.bGrabStartIsHostile && !IsTeammate(grabbedActor)) {
 				Attacked(grabbedActor, giant);
 			}
+			Grab::AttachActorTask(giant, grabbedActor);
+			DisableCollisions(grabbedActor, &data.giant); // Just to be sure
 		}
 		Rumbling::Once("GrabCatch", giant, 2.0f, 0.15f);
 	}
