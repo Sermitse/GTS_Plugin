@@ -1,26 +1,36 @@
 cmake_minimum_required(VERSION 3.21)
-message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
+cmake_policy(VERSION 3.21...3.31)
 
-########################################################################################################################
-## Define project
-########################################################################################################################
+# #######################################################################################################################
+# # Project Defenition
+# #######################################################################################################################
+
 project(
-	GtsPlugin
-	VERSION 3.0.0
-	DESCRIPTION "Size Matters Plugin."
+	GTSPlugin
+	VERSION 3.0.3.1
+	DESCRIPTION "The main SKSE plugin of the Size Matters mod"
 	LANGUAGES CXX
 )
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+
+# Not Explosed By Cmake, Manually Set Here for version.rc.in
+set(PROJECT_COPYRIGHT "Apache License 2.0")
+set(PROJECT_DESCRIPTION "${PROJECT_DESCRIPTION}")
+set(PROJECT_NAME "${PROJECT_NAME}")
+set(PROJECT_FRIENDLY_NAME "${PROJECT_NAME}")
+
+# Options
+option(GTS_STRICT_COMPILE "Enable strict compilation flags (treat warnings as errors)" OFF)
+option(GTS_DEPLOY_TO_FOLDER "Copy The Built DLL and PDB to the EnvVar Defined Target location" ON)
+option(GTS_BUILD_DISTRIBUTION "Construct a distribution folder after each build" ON)
+
+# #######################################################################################################################
+# # Flags
+# #######################################################################################################################
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Export compile_commands.json")
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
-
-add_compile_definitions(_DISABLE_EXTENDED_ALIGNED_STORAGE)
-add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
-
-include(GNUInstallDirs)
-
+add_compile_definitions(_ENABLE_EXTENDED_ALIGNED_STORAGE)
 
 # Check if MSVC is the compiler
 if(MSVC)
@@ -33,75 +43,114 @@ if(MSVC)
         message(FATAL_ERROR "MSVC version 14.39 or higher is required. Detected version: ${MSVC_VERSION_STRING}")
     endif()
 else()
-    message(FATAL_ERROR "This project requires MSVC")
+    message(FATAL_ERROR "This project currently only supports MSVC as the compiler.")
 endif()
 
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in
-	${CMAKE_CURRENT_BINARY_DIR}/version.rc
-	@ONLY
-)
+# #######################################################################################################################
+# # Project modules
+# #######################################################################################################################
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(xSEPlugin)
 
-file(GLOB sources
-	src/*.cpp
-	src/*/*.cpp
-	src/*/*/*.cpp
-	src/*/*/*/*.cpp
-	${CMAKE_CURRENT_BINARY_DIR}/version.rc
-)
+# #######################################################################################################################
+# # Find dependencies - VCPKG Ports
+# #######################################################################################################################
 
-source_group(
-	TREE ${CMAKE_CURRENT_SOURCE_DIR}
-	FILES
-	${headers}
-	${sources}
-)
+find_path(CLIB_UTIL_INCLUDE_DIRS "ClibUtil/Utils.hpp")
 
-########################################################################################################################
-## Configure target DLL
-########################################################################################################################
-
-find_package(Boost REQUIRED)
-find_package(CommonLibSSE CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
-find_package(toml11 CONFIG REQUIRED)
-find_package(nlohmann_json 3.2.0 REQUIRED)
-find_package(lz4 CONFIG REQUIRED)
-find_path(GLUINO_INCLUDE_DIRS "gluino/gluino.h")
-find_path(CLIBUTIL_INCLUDE_DIRS "CLibUtil/string.hpp")
+# #######################################################################################################################
+# # Find dependencies - Git
+# #######################################################################################################################
 
 include(FetchContent)
 
-FetchContent_Declare(cmake_git_version_tracking                   
-  GIT_REPOSITORY https://github.com/andrew-hardin/cmake-git-version-tracking.git
-  GIT_TAG 6c0cb87edd029ddfb403a8e24577c144a03605a6
+# Git Version Tracking
+FetchContent_Declare(
+	cmake_git_version_tracking                   
+    GIT_REPOSITORY https://github.com/andrew-hardin/cmake-git-version-tracking.git
+    GIT_TAG 6c0cb87edd029ddfb403a8e24577c144a03605a6
+    GIT_SHALLOW ON
 )
 FetchContent_MakeAvailable(cmake_git_version_tracking)
 
+# Boost Reflect
 FetchContent_Declare(
-  boost_ext_reflect
-  GIT_REPOSITORY https://github.com/qlibs/reflect
-  GIT_SHALLOW ON  # Download the branch without its history
-  GIT_TAG        v1.2.5
+    boost_ext_reflect
+    GIT_REPOSITORY https://github.com/qlibs/reflect
+    GIT_SHALLOW ON
+    GIT_TAG v1.2.6
 )
 FetchContent_MakeAvailable(boost_ext_reflect)
 
-add_commonlibsse_plugin(${PROJECT_NAME} DECLARATIVE SOURCES ${headers} ${sources})
-add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
-
-target_include_directories(${PROJECT_NAME}
-	PRIVATE
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>
-	$<INSTALL_INTERFACE:src>
-	${GLM_INCLUDE_DIRS}
-	${GLUINO_INCLUDE_DIRS}
-	${CLIBUTIL_INCLUDE_DIRS}
-	${boost_ext_reflect_SOURCE_DIR}
+FetchContent_Declare(
+    cpp-i18n
+    GIT_REPOSITORY   https://github.com/Sinan-Karakaya/cpp-i18n.git
+    GIT_SHALLOW ON
+    GIT_TAG v0.2.2
 )
 
-target_link_libraries(${PROJECT_NAME}
+FetchContent_MakeAvailable(cpp-i18n)
+
+# #######################################################################################################################
+# # Find dependencies - VCPKG
+# #######################################################################################################################
+
+find_package(Boost REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(lz4 CONFIG REQUIRED)
+find_package(xbyak CONFIG REQUIRED)
+find_package(toml11 CONFIG REQUIRED)
+find_package(nlohmann_json 3.12.0 REQUIRED)
+
+# #######################################################################################################################
+# # VSCode Exclude Clib from search
+# #######################################################################################################################
+
+if(DEFINED ENV{TERM_PROGRAM} AND "$ENV{TERM_PROGRAM}" STREQUAL "vscode")
+    message(STATUS "Detected build inside VS Code (TERM_PROGRAM=vscode)")
+    set(BUILD_INSIDE_VSCODE TRUE CACHE INTERNAL "")
+elseif(DEFINED ENV{VSCODE_PID})
+    message(STATUS "Detected build inside VS Code (VSCODE_PID set)")
+    set(BUILD_INSIDE_VSCODE TRUE CACHE INTERNAL "")
+else()
+    set(BUILD_INSIDE_VSCODE FALSE CACHE INTERNAL "")
+endif()
+
+if(BUILD_INSIDE_VSCODE)
+    file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/.vscode")
+    set(VSCODE_SETTINGS_FILE "${CMAKE_SOURCE_DIR}/.vscode/settings.json")
+
+    if(NOT EXISTS "${VSCODE_SETTINGS_FILE}")
+        file(WRITE "${VSCODE_SETTINGS_FILE}" 
+[[
+{
+  "search.exclude": {
+    "**/extern/CommonLibNG": true
+  }
+}
+]])
+    endif()
+endif()
+
+# #######################################################################################################################
+# # Non-CLib Includes
+# #######################################################################################################################
+
+target_include_directories(
+	${PROJECT_NAME}
 	PRIVATE
+	${CLIB_UTIL_INCLUDE_DIRS}
+	${GLM_INCLUDE_DIRS}
+	${CLIBUTIL_INCLUDE_DIRS}
+	${boost_ext_reflect_SOURCE_DIR}
+    ${cpp-i18n_SOURCE_DIR}/include
+)
+
+target_link_libraries(
+	${PROJECT_NAME}
+	PRIVATE
+    cpp-i18n
+	xbyak::xbyak
 	Boost::headers
 	toml11::toml11
 	lz4::lz4
@@ -109,90 +158,24 @@ target_link_libraries(${PROJECT_NAME}
 	cmake_git_version_tracking
 )
 
-target_precompile_headers(${PROJECT_NAME}
-	PRIVATE
-	src/PCH.hpp
-)
-
 # #######################################################################################################################
-# # Automatic deployment
+# # Packagging
 # #######################################################################################################################
+include(Package)
 
-# Use the new cache variable if it is defined.
-if(DEFINED GTS_BUILDPRESET)
-  set(BUILD_NAME "${GTS_BUILDPRESET}")
-else()
-  # Extract the last component of the binary directory (assumed to be like "build-debug", "build-release", etc.)
-  get_filename_component(BUILD_FOLDER "${CMAKE_BINARY_DIR}" NAME)
+# ----- debug
+message(STATUS "CMAKE_CXX_FLAGS:                        ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMAKE_CXX_FLAGS_DEBUG:                  ${CMAKE_CXX_FLAGS_DEBUG}")
+message(STATUS "CMAKE_CXX_FLAGS_RELEASE:                ${CMAKE_CXX_FLAGS_RELEASE}")
+message(STATUS "CMAKE_CXX_FLAGS_RELWITHDEBINFO:         ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+message(STATUS "CMAKE_EXE_LINKER_FLAGS:                 ${CMAKE_EXE_LINKER_FLAGS}")
+message(STATUS "CMAKE_EXE_LINKER_FLAGS_DEBUG:           ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+message(STATUS "CMAKE_EXE_LINKER_FLAGS_RELEASE:         ${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
+message(STATUS "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:  ${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
 
-  # Use a regex to extract the suffix after the hyphen.
-  # For example, if BUILD_FOLDER is "build-debug", then BUILD_NAME becomes "Debug"
-  string(REGEX MATCH "[-]([A-Za-z0-9_]+)$" _match "${BUILD_FOLDER}")
-  if(_match)
-    # Remove the hyphen to get a clean build name (e.g. "Debug")
-    string(REGEX REPLACE "[-]" "" BUILD_NAME "${_match}")
-  else()
-    # Fallback in case the regex doesn't match.
-    set(BUILD_NAME "${CMAKE_BUILD_TYPE}")
-  endif()
-endif()
+get_target_property(compile_flags GTSPlugin COMPILE_OPTIONS)
+message(STATUS "GTSPlugin COMPILE_OPTIONS:      ${compile_flags}")
 
-message(STATUS "Automatic deployment build name: ${BUILD_NAME}")
+get_target_property(link_flags GTSPlugin LINK_OPTIONS)
+message(STATUS "GTSPlugin LINK_OPTIONS:         ${link_flags}")
 
-# Create the target deployment folder.
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E make_directory
-          "${CMAKE_CURRENT_SOURCE_DIR}/contrib/Distribution/Plugin-${BUILD_NAME}/")
-
-# Copy the main DLL.
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy
-          $<TARGET_FILE:${PROJECT_NAME}>
-          "${CMAKE_CURRENT_SOURCE_DIR}/contrib/Distribution/Plugin-${BUILD_NAME}/")
-
-# Copy the PDB if available for Debug or RelWithDebInfo configurations.
-if(CMAKE_BUILD_TYPE MATCHES "Debug|RelWithDebInfo")
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-            $<TARGET_PDB_FILE:${PROJECT_NAME}>
-            "${CMAKE_CURRENT_SOURCE_DIR}/contrib/Distribution/Plugin-${BUILD_NAME}/")
-endif()
-
-# Copy the Fonts folder into a new "GTSPlugin" subfolder in the deployment folder.
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-          "${CMAKE_CURRENT_SOURCE_DIR}/contrib/Distribution/Fonts"
-          "${CMAKE_CURRENT_SOURCE_DIR}/contrib/Distribution/Plugin-${BUILD_NAME}/GTSPlugin/Fonts")
-
-# Copy the contents from the config folder.
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-          "${CMAKE_CURRENT_SOURCE_DIR}/contrib/Distribution/Config"
-          "${CMAKE_CURRENT_SOURCE_DIR}/contrib/Distribution/Plugin-${BUILD_NAME}/GTSPlugin")
-
-file(GLOB_RECURSE OUTPUT_DLLS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/Distribution/**/*.dll")
-file(GLOB_RECURSE OUTPUT_PDBS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/Distribution/**/*.pdb")
-
-set_property(TARGET ${PROJECT_NAME}
-  APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${OUTPUT_DLLS}")
-set_property(TARGET ${PROJECT_NAME}
-  APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${OUTPUT_PDBS}")
-
-# Also copy the PDB and DLL to the directory defined by the GTSPLUGIN_COPY_DIR environment variable,
-# if it is defined.
-if(DEFINED ENV{GTSPLUGIN_COPY_DIR})
-  if(CMAKE_BUILD_TYPE MATCHES "Debug|RelWithDebInfo|Release")
-	if(CMAKE_BUILD_TYPE MATCHES "Debug|RelWithDebInfo")
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		  COMMAND ${CMAKE_COMMAND} -E copy
-				  $<TARGET_PDB_FILE:${PROJECT_NAME}>
-				  "$ENV{GTSPLUGIN_COPY_DIR}/")
-	endif()
-
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-              $<TARGET_FILE:${PROJECT_NAME}>
-              "$ENV{GTSPLUGIN_COPY_DIR}/")
-
-  endif()
-endif()

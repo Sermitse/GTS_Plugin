@@ -1,99 +1,118 @@
-name: CI
-
-on: [push, pull_request]
-
+name: Build Plugin
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'cmake/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'vcpkg.json'
+      - '.github/workflows/build.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'cmake/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'vcpkg.json'
+      - '.github/workflows/build.yml'
+  workflow_dispatch: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  pre_job:
-    # continue-on-error: true # Uncomment once integration is finished
-    runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@v5
-        with:
-          # All of these options are optional, so you can remove them if you are happy with the defaults
-          concurrent_skipping: 'same_content_newer'
-          skip_after_successful_duplicate: 'false'
-
-  native:
-    name: build
-    needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true'
+  build:
     runs-on: windows-2025
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: 'x64'
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: vcpkg
+          key: windows-vcpkg-${{ steps.vcpkg-version.outputs.hash }}-v1
+          restore-keys: |
+            windows-vcpkg-${{ steps.vcpkg-version.outputs.hash }}-
+            windows-vcpkg-
+
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          path: build/Release
+          key: windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-${{ steps.vcpkg-version.outputs.hash }}-${{ steps.submodule-hashes.outputs.hash }}-v1
+          restore-keys: |
+            windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-${{ steps.vcpkg-version.outputs.hash }}-${{ steps.submodule-hashes.outputs.hash }}-
+            windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-${{ steps.vcpkg-version.outputs.hash }}-
+            windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11.5
+        with:
+          vcpkgJsonGlob: vcpkg.json
+
+      - name: Build
+        uses: lukka/run-cmake@v10
+        with:
+            configurePreset: config-release
+            buildPreset: build-release
+
+      - name: Upload Distribution Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-package
+          path: distribution/Package-*
+
+  release:
+    needs: build
+    runs-on: windows-2025
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 0
-
-      - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: "~3.31.5"
-          ninjaVersion: "~1.12.1"
-
-      - name: Set Env
-        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
-        with:
-            arch: x64
-            toolset: 14.44
-
-      - name: Compile
-        run: |
-           cmake --preset build-release
-           cmake --build --preset preset-release
-            
-      - name: Copy Plugin
+        uses: actions/checkout@v3
+      - name: Check for CMake project VERSION bump
+        id: check_version
         shell: bash
         run: |
-          # Create the unified destination folder for plugin files.
-          mkdir -p contrib/Distribution/Plugin || exit 1
-          shopt -s nullglob
-
-            # Find any folder starting with "Plugin-" in contrib/Distribution.
-          root_folder=""
-          for folder in contrib/Distribution/Plugin-*; do
-            if [ -d "$folder" ]; then
-              root_folder="$folder"
-              break
-            fi
-          done
-
-          if [ -n "$root_folder" ]; then
-            echo "Found build preset folder: $root_folder"
-            # Copy all DLL and PDB files from the found folder into the unified Plugin folder.
-            cp "$root_folder"/*.dll contrib/Distribution/Plugin/ 2>/dev/null
-            cp "$root_folder"/*.pdb contrib/Distribution/Plugin/ 2>/dev/null
-
-            # List the folder contents for debugging purposes.
-            ls -la "$root_folder"/
-            ls -la "$root_folder"/*.pdb 2>/dev/null
+          echo "=== Checking version bump ==="
+          git fetch --depth=2 origin ${{ github.ref }}
+          PREV_TAG=$(git describe --tags --abbrev=0 ${{ github.sha }}^)
+          echo "Previous tag: $PREV_TAG"
+          git diff $PREV_TAG ${{ github.sha }} -- CMakeLists.txt > diff.patch
+          echo "Diff of CMakeLists.txt:"; cat diff.patch
+          if grep -E '^\+.*VERSION' diff.patch; then
+            echo "bumped=true" >> $GITHUB_OUTPUT
           else
-            echo "No Plugin-* folder found."
-            exit 1
+            echo "bumped=false" >> $GITHUB_OUTPUT
           fi
-
-          # Remove the source build preset folder after copying.
-          rm -rf "$root_folder"
-          shopt -u nullglob
-
-      - uses: actions/upload-artifact@v4
-        name: Upload package
+      - name: Abort if no version bump
+        if: steps.check_version.outputs.bumped == 'false'
+        run: |
+          echo "No CMake project VERSION change detected; skipping release."
+          exit 0
+      - name: Download Distribution
+        uses: actions/download-artifact@v4
         with:
-          name: GTSPlugin
-          path: "contrib/Distribution/*"
-
-      - uses: actions/upload-artifact@v4
-        name: Upload debug info
+          name: distribution-package
+          path: distribution
+      - name: Create Release ZIP
+        shell: pwsh
+        run: |
+          Write-Host "=== Creating Release ZIP ==="
+          $pkg = Get-ChildItem -Directory distribution\Package-* | Select-Object -First 1
+          $zipName = "$($pkg.Name).zip"
+          Compress-Archive -Path "$($pkg.FullName)\*" -DestinationPath $zipName
+          Write-Host "Created release zip: $zipName"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: GTSPluginDebugInfo
-          path: "contrib/Distribution/Plugin/*.pdb"
-
-      - uses: actions/upload-artifact@v4
-        name: Update compile_commands.json
-        with:
-          name: "Compiled File Data"
-          path: "compile_commands.json"
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          files: "*.zip"

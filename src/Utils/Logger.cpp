@@ -1,7 +1,5 @@
 #include "Logger.hpp"
-
 #include "Config/Config.hpp"
-
 #include "Utils/Text.hpp"
 
 namespace {
@@ -30,7 +28,7 @@ namespace SKSE::log {
 
 	void Initialize() {
 
-		auto path = log_directory();
+		auto path = GTS::log_directory_fixed();
 
 		if (!path) {
 			GTS::ReportAndExit("Could not find a valid log directory. The game will now close");

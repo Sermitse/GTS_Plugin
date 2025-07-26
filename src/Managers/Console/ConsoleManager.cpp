@@ -75,7 +75,7 @@ namespace GTS {
 
 	void ConsoleManager::CMD_Version() {
 		Cprint("--- Giantess Mod: Size Matters ---");
-		Cprint("Version: {}", PluginVersion);
+		Cprint("Version: {}", GTSPlugin::ModVersion.string());
 		Cprint("Dll Build Date: {} {}", __DATE__, __TIME__);
 		Cprint("Git Commit Date: {}", git_CommitDate());
 	}

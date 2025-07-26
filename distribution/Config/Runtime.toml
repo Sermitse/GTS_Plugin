@@ -1,0 +1,565 @@
+## Runtime.toml
+## This file contains references to plugin ID's that are used by the dll.
+## Do not modify this file unless you know what you are doing.
+
+# Sound Descriptors ---------------------------------------------------------
+[SNDR]
+GTSSoundBreastImpact = "GTS.esp|5E2E5F"
+GTSSoundSwingImpact = "GTS.esp|68F0AD"
+GTSSoundThighSandwichImpact = "GTS.esp|582B49"
+
+GTSSoundCrunchImpact = "GTS.esp|5D8C5C"
+GTSSoundCrunchKill = "GTS.esp|5D8C5D"
+
+GTSSoundCrushDefault = "GTS.esp|01102F"
+GTSSoundCrushFootMulti3x8x = "GTS.esp|82E332"
+GTSSoundCrushFootSingle8x = "GTS.esp|833433"
+
+GTSSoundFail = "GTS.esp|851A37"
+
+
+# Stomps ----------
+GTSSoundFootstep_Stomp_Light_x2 = "GTS.esp|8DA56D"
+GTSSoundFootstep_Stomp_Light_x4 = "GTS.esp|8DA56E"
+GTSSoundFootstep_Stomp_Light_x8 = "GTS.esp|8DA56F"
+GTSSoundFootstep_Stomp_Light_x12 = "GTS.esp|8DA570"
+GTSSoundFootstep_Stomp_Light_x24 = "GTS.esp|8DA571"
+GTSSoundFootstep_Stomp_Light_x48 = "GTS.esp|8DA572"
+GTSSoundFootstep_Stomp_Light_x96 = "GTS.esp|8DA573"
+GTSSoundFootstep_Stomp_Light_Mega = "GTS.esp|8DA574"
+
+
+GTSSoundFootstep_Stomp_Strong_x2  = "GTS.esp|8DA578"
+GTSSoundFootstep_Stomp_Strong_x4  = "GTS.esp|8DA57D"
+GTSSoundFootstep_Stomp_Strong_x8  = "GTS.esp|8DA57A"
+GTSSoundFootstep_Stomp_Strong_x12  = "GTS.esp|8DA577"
+GTSSoundFootstep_Stomp_Strong_x24  = "GTS.esp|8DA579"
+GTSSoundFootstep_Stomp_Strong_x48  = "GTS.esp|8DA57B"
+GTSSoundFootstep_Stomp_Strong_x96  = "GTS.esp|8DA57C"
+GTSSoundFootstep_Stomp_Strong_Mega  = "GTS.esp|8DA576"
+#
+
+GTSSoundFootstepNormal_2x = "GTS.esp|61587E"
+GTSSoundFootstepNormal_4x = "GTS.esp|61587F"
+GTSSoundFootstepNormal_8x = "GTS.esp|615880"
+GTSSoundFootstepNormal_12x = "GTS.esp|615881"
+GTSSoundFootstepNormal_24x = "GTS.esp|615882"
+GTSSoundFootstepNormal_48x = "GTS.esp|615883"
+GTSSoundFootstepNormal_96x = "GTS.esp|615884"
+GTSSoundFootstepNormal_Mega = "GTS.esp|615885"
+
+GTSSoundFootstepLandNormal_2x = "GTS.esp|615886"
+GTSSoundFootstepLandNormal_4x = "GTS.esp|615887"
+GTSSoundFootstepLandNormal_8x = "GTS.esp|615888"
+GTSSoundFootstepLandNormal_12x = "GTS.esp|615889"
+GTSSoundFootstepLandNormal_24x = "GTS.esp|61588A"
+GTSSoundFootstepLandNormal_48x = "GTS.esp|61588B"
+GTSSoundFootstepLandNormal_96x = "GTS.esp|61588C"
+GTSSoundFootstepLandNormal_Mega = "GTS.esp|61588D"
+
+GTSSoundFootstepHighHeels_2x = "GTS.esp|615875"
+GTSSoundFootstepHighHeels_4x = "GTS.esp|615877"
+GTSSoundFootstepHighHeels_8x = "GTS.esp|615878"
+GTSSoundFootstepHighHeels_12x = "GTS.esp|615879"
+GTSSoundFootstepHighHeels_24x = "GTS.esp|61587A"
+GTSSoundFootstepHighHeels_48x = "GTS.esp|61587B"
+GTSSoundFootstepHighHeels_96x = "GTS.esp|61587C"
+GTSSoundFootstepHighHeels_Mega = "GTS.esp|61587D"
+
+GTSSoundFootstepHighHeels_1_5x_Alt = "GTS.esp|8EE97F"
+GTSSoundFootstepHighHeels_2x_Alt = "GTS.esp|8D5467"
+GTSSoundFootstepHighHeels_4x_Alt = "GTS.esp|8D5469"
+GTSSoundFootstepHighHeels_8x_Alt = "GTS.esp|8D546A"
+GTSSoundFootstepHighHeels_12x_Alt = "GTS.esp|8D5465"
+GTSSoundFootstepHighHeels_24x_Alt = "GTS.esp|8D5466"
+GTSSoundFootstepHighHeels_48x_Alt = "GTS.esp|8D5468"
+GTSSoundFootstepHighHeels_96x_Alt = "GTS.esp|8D546B"
+GTSSoundFootstepHighHeels_Mega_Alt = "GTS.esp|8D546C"
+
+GTSSoundFootstepLandHighHeels_2x = "GTS.esp|61588E"
+GTSSoundFootstepLandHighHeels_4x = "GTS.esp|61588F"
+GTSSoundFootstepLandHighHeels_8x = "GTS.esp|615890"
+GTSSoundFootstepLandHighHeels_12x = "GTS.esp|615891"
+GTSSoundFootstepLandHighHeels_24x = "GTS.esp|615892"
+GTSSoundFootstepLandHighHeels_48x = "GTS.esp|615893"
+GTSSoundFootstepLandHighHeels_96x = "GTS.esp|615894"
+GTSSoundFootstepLandHighHeels_Mega = "GTS.esp|615895"
+
+GTSSoundFootstep_S = "GTS.esp|1C5C73"
+GTSSoundFootstep_L = "GTS.esp|1E93AB"
+GTSSoundFootstep_XL = "GTS.esp|271EF4"
+GTSSoundFootstep_XXL = "GTS.esp|16FB25"
+GTSSoundFootstep_Sprint = "GTS.esp|319060"
+GTSSoundFootstepLand_L = "GTS.esp|183F43"
+
+GTSSoundKissing = "GTS.esp|8DF67E"
+
+GTSSoundRumble = "GTS.esp|36A06D"
+GTSSoundWalkAirRumble = "GTS.esp|50423E"
+
+GTSSoundGraybeardRumble = "GTS.esp|1CAD96"
+GTSSoundHeavyStomp = "GTS.esp|596F4E"
+
+GTSSoundGrowth = "GTS.esp|271EF6"
+GTSSoundShrink = "GTS.esp|364F6A"
+GTSSoundShrinkOutburst = "GTS.esp|6524A3"
+GTSSoundShrinkToNothing = "GTS.esp|5BA659"
+GTSSoundTriggerHG = "GTS.esp|578948"
+
+GTSSoundMagicBreak = "GTS.esp|777ED6"
+GTSSoundMagicProctectTinies = "GTS.esp|772DD4"
+
+GTSSoundLaugh_Crush = "GTS.esp|09B0A9"
+GTSSoundLaugh_Crush_x2 = "GTS.esp|8D0357"
+GTSSoundLaugh_Crush_x4 = "GTS.esp|8D0358"
+GTSSoundLaugh_Crush_x8 = "GTS.esp|8D0359"
+GTSSoundLaugh_Crush_x12 = "GTS.esp|8D035A"
+GTSSoundLaugh_Crush_x24 = "GTS.esp|8D035B"
+GTSSoundLaugh_Crush_x48 = "GTS.esp|8D035C"
+GTSSoundLaugh_Crush_x96 = "GTS.esp|8D035D"
+
+GTSSoundLaugh_Struggle = "GTS.esp|5D3B5B"
+GTSSoundLaugh_Struggle_x2 = "GTS.esp|8D035E"
+GTSSoundLaugh_Struggle_x4 = "GTS.esp|8D035F"
+GTSSoundLaugh_Struggle_x8 = "GTS.esp|8D0360"
+GTSSoundLaugh_Struggle_x12 = "GTS.esp|8D0361"
+GTSSoundLaugh_Struggle_x24 = "GTS.esp|8D0362"
+GTSSoundLaugh_Struggle_x48 = "GTS.esp|8D0363"
+GTSSoundLaugh_Struggle_x96 = "GTS.esp|8D0364"
+
+GTSSoundLaugh_Overkill = "GTS.esp|8F8B9C"
+GTSSoundLaugh_Overkill_x2 = "GTS.esp|8F8B9D"
+GTSSoundLaugh_Overkill_x4 = "GTS.esp|8F8B9E"
+GTSSoundLaugh_Overkill_x8 = "GTS.esp|8F8B9F"
+GTSSoundLaugh_Overkill_x12 = "GTS.esp|8F8BA0"
+GTSSoundLaugh_Overkill_x24 = "GTS.esp|8F8BA1"
+GTSSoundLaugh_Overkill_x48 = "GTS.esp|8F8BA2"
+GTSSoundLaugh_Overkill_x96 = "GTS.esp|8F8BA1"
+
+GTSSoundLaugh_Superiority = "GTS.esp|8F8BA4"
+GTSSoundLaugh_Superiority_x2 = "GTS.esp|8F8BA5"
+GTSSoundLaugh_Superiority_x4 = "GTS.esp|8F8BA6"
+GTSSoundLaugh_Superiority_x8 = "GTS.esp|8F8BA7"
+GTSSoundLaugh_Superiority_x12 = "GTS.esp|8F8BA8"
+GTSSoundLaugh_Superiority_x24 = "GTS.esp|8F8BA9"
+GTSSoundLaugh_Superiority_x48 = "GTS.esp|8F8BAA"
+GTSSoundLaugh_Superiority_x96 = "GTS.esp|8F8BAB"
+
+GTSSoundMoan_Absorption = "GTS.esp|09B0AC"
+GTSSoundMoan_Absorption_x2 = "GTS.esp|8D0350"
+GTSSoundMoan_Absorption_x4 = "GTS.esp|8D0351"
+GTSSoundMoan_Absorption_x8 = "GTS.esp|8D0352"
+GTSSoundMoan_Absorption_x12 = "GTS.esp|8D0353"
+GTSSoundMoan_Absorption_x24 = "GTS.esp|8D0354"
+GTSSoundMoan_Absorption_x48 = "GTS.esp|8D0355"
+GTSSoundMoan_Absorption_x96 = "GTS.esp|8D0356"
+
+GTSSoundMoan_Crush = "GTS.esp|8F8B84"
+GTSSoundMoan_Crush_x2 = "GTS.esp|8F8B85"
+GTSSoundMoan_Crush_x4 = "GTS.esp|8F8B86"
+GTSSoundMoan_Crush_x8 = "GTS.esp|8F8B87"
+GTSSoundMoan_Crush_x12 = "GTS.esp|8F8B88"
+GTSSoundMoan_Crush_x24 = "GTS.esp|8F8B89"
+GTSSoundMoan_Crush_x48 = "GTS.esp|8F8B8A"
+GTSSoundMoan_Crush_x96 = "GTS.esp|8F8B8B"
+
+GTSSoundMoan_Vore = "GTS.esp|8F8B94"
+GTSSoundMoan_Vore_x2 = "GTS.esp|8F8B95"
+GTSSoundMoan_Vore_x4 = "GTS.esp|8F8B96"
+GTSSoundMoan_Vore_x8 = "GTS.esp|8F8B97"
+GTSSoundMoan_Vore_x12 = "GTS.esp|8F8B98"
+GTSSoundMoan_Vore_x24 = "GTS.esp|8F8B99"
+GTSSoundMoan_Vore_x48 = "GTS.esp|8F8B9A"
+GTSSoundMoan_Vore_x96 = "GTS.esp|8F8B9B"
+
+GTSSoundMoan_Growth = "GTS.esp|8F8B8C"
+GTSSoundMoan_Growth_x2 = "GTS.esp|8F8B8D"
+GTSSoundMoan_Growth_x4 = "GTS.esp|8F8B8E"
+GTSSoundMoan_Growth_x8 = "GTS.esp|8F8B8F"
+GTSSoundMoan_Growth_x12 = "GTS.esp|8F8B90"
+GTSSoundMoan_Growth_x24 = "GTS.esp|8F8B91"
+GTSSoundMoan_Growth_x48 = "GTS.esp|8F8B92"
+GTSSoundMoan_Growth_x96 = "GTS.esp|8F8B93"
+
+GTSSoundMoan_RipCloth = "GTS.esp|8F8BAC"
+GTSSoundMoan_RipCloth_x2 = "GTS.esp|8F8BAD"
+GTSSoundMoan_RipCloth_x4 = "GTS.esp|8F8BAE"
+GTSSoundMoan_RipCloth_x8 = "GTS.esp|8F8BAF"
+GTSSoundMoan_RipCloth_x12 = "GTS.esp|8F8BB0"
+GTSSoundMoan_RipCloth_x24 = "GTS.esp|8F8BB1"
+GTSSoundMoan_RipCloth_x48 = "GTS.esp|8F8BB2"
+GTSSoundMoan_RipCloth_x96 = "GTS.esp|8F8BB3"
+
+GTSSoundMoan_HugDrain = "GTS.esp|8FDCB4"
+GTSSoundMoan_HugDrain_x2 = "GTS.esp|8FDCB5"
+GTSSoundMoan_HugDrain_x4 = "GTS.esp|8FDCB6"
+GTSSoundMoan_HugDrain_x8 = "GTS.esp|8FDCB7"
+GTSSoundMoan_HugDrain_x12 = "GTS.esp|8FDCB8"
+GTSSoundMoan_HugDrain_x24 = "GTS.esp|8FDCB9"
+GTSSoundMoan_HugDrain_x48 = "GTS.esp|8FDCBA"
+GTSSoundMoan_HugDrain_x96 = "GTS.esp|8FDCBB"
+
+
+GTSSoundRipClothes = "GTS.esp|30EE54"
+GTSSoundSoftHandAttack = "GTS.esp|5E2E60"
+GTSSoundSwallow = "GTS.esp|56E747"
+GTSSoundEat = "GTS.esp|011031"
+
+GTSSoundTinyCalamity = "GTS.esp|65C6AA"
+GTSSoundTinyCalamity_Absorb = "GTS.esp|7B9BE6"
+GTSSoundTinyCalamity_Crush = "GTS.esp|76DCD3"
+GTSSoundTinyCalamity_FingerSnap = "GTS.esp|8A7B4B"
+GTSSoundTinyCalamity_Impact = "GTS.esp|76DCD2"
+GTSSoundTinyCalamity_ReachedSpeed = "GTS.esp|7820D7"
+GTSSoundTinyCalamity_RuneReady = "GTS.esp|7B9BE5"
+GTSSoundTinyCalamity_SpawnRune = "GTS.esp|7B9BE4"
+
+SKSoundBloodGush = "Skyrim.esm|10F78C"
+
+# -- SL Voices Fem
+
+SLVoiceF1Mil = "Sexlab.esm|066FC0" # Mild
+SLVoiceF1Mid = "Sexlab.esm|067523" # Middle
+SLVoiceF1Hot = "Sexlab.esm|067524" # Hot
+
+SLVoiceF2Mil = "Sexlab.esm|067525"
+SLVoiceF2Mid = "Sexlab.esm|067527"
+SLVoiceF2Hot = "Sexlab.esm|067526"
+
+SLVoiceF3Mil = "Sexlab.esm|06752A"
+SLVoiceF3Mid = "Sexlab.esm|067529"
+SLVoiceF3Hot = "Sexlab.esm|067528"
+
+SLVoiceF4Mil = "Sexlab.esm|06752D"
+SLVoiceF4Mid = "Sexlab.esm|06752C"
+SLVoiceF4Hot = "Sexlab.esm|06752B"
+
+SLVoiceF5Mil = "Sexlab.esm|067530"
+SLVoiceF5Mid = "Sexlab.esm|06752F"
+SLVoiceF5Hot = "Sexlab.esm|06752E"
+
+SLVoiceF6Mil = "Sexlab.esm|067533"
+SLVoiceF6Mid = "Sexlab.esm|067532"
+SLVoiceF6Hot = "Sexlab.esm|067531"
+
+SLVoiceF7Mil = "Sexlab.esm|067536"
+SLVoiceF7Mid = "Sexlab.esm|067535"
+SLVoiceF7Hot = "Sexlab.esm|067534"
+
+SLVoiceF8Mil = "Sexlab.esm|067539"
+SLVoiceF8Mid = "Sexlab.esm|067538"
+SLVoiceF8Hot = "Sexlab.esm|067537"
+
+# Magic Effects -------------------------------------------------------------
+[MGEF] 
+GTSEffectTinyCalamity = "GTS.esp|1A2568"
+
+# Spurt
+GTSEffectGrowthSpurt1 = "GTS.esp|007928"
+GTSEffectGrowthSpurt2 = "GTS.esp|1E42A5"
+GTSEffectGrowthSpurt3 = "GTS.esp|1E42A6"
+
+# Restore
+GTSEffectRestoreSize = "GTS.esp|005369"
+GTSEffectRestoreSizeOther = "GTS.esp|00536C"
+
+# Shrink
+GTSEffectShrink = "GTS.esp|002850"
+GTSEffectShrinkAlly = "GTS.esp|0058D1"
+GTSEffectShrinkAllyAdept = "GTS.esp|452F17"
+GTSEffectShrinkAllyExpert = "GTS.esp|452F18"
+GTSEffectShrinkEnemy = "GTS.esp|00387B"
+GTSEffectShrinkEnemyAOE = "GTS.esp|0DCDC5"
+GTSEffectShrinkOtherAOEMastery = "GTS.esp|0DCDCA"
+GTSEffectShrinkBolt = "GTS.esp|3C5278"
+GTSEffectShrinkStorm = "GTS.esp|3C527C"
+GTSEffectShrinkToNothing = "GTS.esp|009979"
+
+# Enchants
+GTSEnchSwordAbsorbSize = "GTS.esp|00FA9E"
+GTSEnchGigantism = "GTS.esp|3EDAC5"
+
+# Grow
+GTSEffectSlowGrowth = "GTS.esp|019C3D"
+GTSEffectSlowGrowthDual = "GTS.esp|086C8D"
+GTSEffectGrowth = "GTS.esp|0022EB"
+GTSEffectGrowthAdept = "GTS.esp|45D124"
+GTSEffectGrowthExpert = "GTS.esp|45D125"
+GTSEffectGrowAlly = "GTS.esp|0058D5"
+GTSEffectGrowAllyAdept = "GTS.esp|452F15"
+GTSEffectGrowAllyExpert = "GTS.esp|452F16"
+
+# Absorb
+GTSEffectAbsorb = "GTS.esp|00B470"
+GTSEffectAbsorbTrue = "GTS.esp|22B0D5"
+
+# Potions
+GTSPotionEffectGrowthWeak = "GTS.esp|3D4582"
+GTSPotionEffectGrowthNormal = "GTS.esp|7C8F02"
+GTSPotionEffectGrowthStrong = "GTS.esp|7C8F03"
+GTSPotionEffectGrowthExtreme = "GTS.esp|7C8F04"
+
+GTSPotionEffectMightWeak = "GTS.esp|7D8215"
+GTSPotionEffectMightNormal = "GTS.esp|7D8216"
+GTSPotionEffectMightStrong = "GTS.esp|7D8217"
+GTSPotionEffectMightExtreme = "GTS.esp|7D8218"
+
+GTSPotionEffectEssenceWeak = "GTS.esp|7EC62B"
+GTSPotionEffectEssenceNormal = "GTS.esp|7EC62C"
+GTSPotionEffectEssenceStrong = "GTS.esp|7EC62D"
+GTSPotionEffectEssenceExtreme = "GTS.esp|7EC62E"
+
+GTSPotionEffectResistShrinkWeak = "GTS.esp|3D4583"
+GTSPotionEffectResistShrinkNormal = "GTS.esp|7C8F09"
+GTSPotionEffectResistShrinkStrong = "GTS.esp|7C8F0A"
+GTSPotionEffectResistShrinkExtreme = "GTS.esp|7C8F0B"
+
+GTSPotionEffectSizeLimitWeak = "GTS.esp|3E38BB"
+GTSPotionEffectSizeLimitNormal = "GTS.esp|3E38BC"
+GTSPotionEffectSizeLimitStrong = "GTS.esp|3E38BD"
+GTSPotionEffectSizeLimitExtreme = "GTS.esp|3E38C0"
+
+GTSPotionEffectSizeExperienceBasic = "GTS.esp|7CE013"
+GTSPotionEffectSizeHunger = "GTS.esp|42F7D6"
+GTSPotionEffectSizeAmplify = "GTS.esp|452F1D"
+
+# Poison
+GTSPoisonEffectShrinking = "GTS.esp|5B5557"
+GTSPotionEffectSizeDrain = "GTS.esp|5B5552"
+
+# Scalable potions
+GTSAlchEffectGrowth = "GTS.esp|89D948"
+GTSAlchEffectSizeLimit = "GTS.esp|89D94A"
+GTSAlchEffectEssence = "GTS.esp|89D947"
+GTSAlchEffectMight = "GTS.esp|89D946"
+GTSAlchEffectResistShrink = "GTS.esp|89D949"
+
+[SPEL] # Spells ------------------------------------------------------------------------
+
+# Shout Spells
+GTSPowerGrowthSpurt = "GTS.esp|00792A"
+GTSPowerGrowthSpurtMedium = "GTS.esp|1E42A3"
+GTSPowerGrowthSpurtMassive = "GTS.esp|1E42A7"
+GTSVoiceTinyCalamity = "GTS.esp|1A2566"
+
+# Spells
+GTSSpellAbsorb = "GTS.esp|00B471"
+GTSSpellFear = "GTS.esp|026D15"
+GTSSpellGrowAlly = "GTS.esp|0058D4"
+GTSSpellGrowAllyAdept = "GTS.esp|452F11"
+GTSSpellGrowAllyExpert = "GTS.esp|452F13"
+GTSSpellGrowth = "GTS.esp|0022EC"
+GTSSpellGrowthAdept = "GTS.esp|45D120"
+GTSSpellGrowthExpert = "GTS.esp|45D122"
+GTSSpellRestoreSize = "GTS.esp|005368"
+GTSSpellRestoreSizeOther = "GTS.esp|00536B"
+GTSSpellShrink = "GTS.esp|00284F"
+GTSSpellShrinkAlly = "GTS.esp|0058D0"
+GTSSpellShrinkAllyAdept = "GTS.esp|452F0D"
+GTSSpellShrinkAllyExpert = "GTS.esp|452F0F"
+GTSSpellShrinkBolt = "GTS.esp|3C5276"
+GTSSpellShrinkEnemy = "GTS.esp|00387A"
+GTSSpellShrinkEnemyAOE = "GTS.esp|0DCDC2"
+GTSSpellShrinkEnemyAOEMastery = "GTS.esp|0DCDC7"
+GTSSpellShrinkStorm = "GTS.esp|3C527A"
+GTSSpellShrinkToNothing = "GTS.esp|00997A"
+GTSSpellSlowGrowth = "GTS.esp|019C38"
+GTSSpellTrueAbsorb = "GTS.esp|22B0D6"
+
+# Survival Mode
+Survival_HungerStage0 = "ccQDRSSE001-SurvivalMode.esl|000876"
+Survival_HungerStage1 = "ccQDRSSE001-SurvivalMode.esl|00087E"
+Survival_HungerStage2 = "ccQDRSSE001-SurvivalMode.esl|000880"
+Survival_HungerStage3 = "ccQDRSSE001-SurvivalMode.esl|000881"
+Survival_HungerStage4 = "ccQDRSSE001-SurvivalMode.esl|000886"
+Survival_HungerStage5 = "ccQDRSSE001-SurvivalMode.esl|000885"
+
+# Perks ----------------------------------------------------------------------
+[PERK]
+GTSPerkAcceleration = "GTS.esp|87F342"          # Acceleration (75)
+GTSPerkAdditionalGrowth = "GTS.esp|151518"      # Additional Growth (80)
+GTSPerkBendTheLifeless = "GTS.esp|7913D9"       # Bend The Lifeless (60)
+
+GTSPerkBreastsAbsorb = "GTS.esp|856B39"         # Alluring Softness (50)
+GTSPerkBreastsIntro = "GTS.esp|898845"          # Personal Approach (15)
+GTSPerkBreastsMastery1 = "GTS.esp|856B3B"       # Cleavage Mastery (40)
+GTSPerkBreastsMastery2 = "GTS.esp|856B3D"       # Predominance (60)
+GTSPerkBreastsStrangle = "GTS.esp|8ACC4C"       # Succulent Strangle (25)
+GTSPerkBreastsSuffocation = "GTS.esp|856B3A"    # Breathtaking Bust (25)
+GTSPerkBreastsVore = "GTS.esp|856B38"           # Nimble Vore (35)
+
+GTSPerkButtCrush = "GTS.esp|5FC366"             # Deadly Body (15)
+GTSPerkButtCrushAug1 = "GTS.esp|5FC36A"         # No Escape (25)
+GTSPerkButtCrushAug2 = "GTS.esp|5FC367"         # Growing Disaster (35)
+GTSPerkButtCrushAug3 = "GTS.esp|5FC368"         # Horrendous Growth (60)
+GTSPerkButtCrushAug4 = "GTS.esp|5FC369"         # Looming Doom (100)
+
+GTSPerkHugs = "GTS.esp|60656E"                  # Gentle Hugs (25)
+GTSPerkHugsGreed = "GTS.esp|606571"             # Thirsty Cuddles (40)
+GTSPerkHugsOfDeath = "GTS.esp|629C98"           # Hugs Of Death (90)
+GTSPerkHugsLovingEmbrace = "GTS.esp|7598CE"     # Loving Embrace (50)
+GTSPerkHugMightyCuddles = "GTS.esp|60656F"      # Mighty Cuddles (80)
+GTSPerkHugsToughGrip = "GTS.esp|606570"         # Full Concentration (50)
+
+GTSPerkDarkArts = "GTS.esp|64319B"              # Shrink Outburst (15)
+GTSPerkDarkArtsAug1 = "GTS.esp|64319C"          # Empowered Shrink (30)
+GTSPerkDarkArtsAug2 = "GTS.esp|64319D"          # Additional Burst (50)
+GTSPerkDarkArtsAug3 = "GTS.esp|19D462"          # Burst Resistance (60)
+GTSPerkDarkArtsAug4 = "GTS.esp|63E09A"          # Pressured Outburst (80)
+GTSPerkDarkArtsLegendary = "GTS.esp|8F3A83"     # Shrink Surge (100, Legendary Rank 1)
+
+GTSPerkTinyCalamity = "GTS.esp|18E161"          # Tiny Calamity (65)
+GTSPerkTinyCalamityRefresh = "GTS.esp|5ED064"   # Eternal Calamity (80)
+GTSPerkTinyCalamityAug = "GTS.esp|2E663B"       # Approaching Disaster (90)
+GTSPerkTinyCalamitySizeSteal = "GTS.esp|2496E8" # Life Steal (85)
+GTSPerkTinyCalamityRage = "GTS.esp|856B3C"      # Wrathful Calamity (70)
+
+GTSPerkRandomGrowth = "GTS.esp|35AD69"          # Pleasurable Growth (65)
+GTSPerkRandomGrowthAug = "GTS.esp|865E3E"       # Breaching Growth (75)
+GTSPerkRandomGrowthTerror = "GTS.esp|865E3F"    # Terrifying Growth (85)
+
+GTSPerkSizeReserve = "GTS.esp|4204CE"           # Size Reserve (50)
+GTSPerkSizeReserveAug1 = "GTS.esp|4C7638"       # Critical Reserve (60)
+GTSPerkSizeReserveAug2 = "GTS.esp|4255D0"       # Healing Reserve (65)
+
+GTSPerkSizeManipulation1 = "GTS.esp|128CF2"     # Size Manipulation (10)
+GTSPerkSizeManipulation2 = "GTS.esp|128CF3"     # Expanded Growth (35)
+GTSPerkSizeManipulation3 = "GTS.esp|128CF4"     # Adapting To Growth (70)
+
+GTSPerkCruelty = "GTS.esp|128CF8"               # Strengthened Might (20)
+GTSPerkRealCruelty = "GTS.esp|142205"           # Cruelty (80)
+
+GTSPerkVoreAbility = "GTS.esp|355C68"           # Effortless Vore (15)
+GTSPerkVoreHeal = "GTS.esp|33C764"              # Voracious Vore (60)
+
+GTSPerkSprintDamageMult1 = "GTS.esp|123BEA"     # Quick Approach (25)
+GTSPerkSprintDamageMult2 = "GTS.esp|123BEB"     # Devastating Sprint (60)
+
+GTSPerkExtraGrowth1 = "GTS.esp|332563"          # Strong Spurt (50)
+GTSPerkExtraGrowth2 = "GTS.esp|397972"          # True Growth (60)
+
+GTSPerkShrinkAdept = "GTS.esp|16081F"           # Shrink Adept (35)
+GTSPerkShrinkExpert = "GTS.esp|160820"          # Shrink Expert (50)
+
+GTSPerkGrowthDesire = "GTS.esp|128CF6"          # Growth Desire (60)
+GTSPerkGrowthDesireAug = "GTS.esp|829231"       # Manual Growth (85)
+
+GTSPerkGrowthAug1 = "GTS.esp|151519"            # Growth Of Strength (30)
+GTSPerkGrowthAug2 = "GTS.esp|18E160"            # Growing Regeneration (40)
+
+GTSPerkMightOfDragons = "GTS.esp|67FDAC"        # Might Of Dragons (40)
+GTSPerkMightOfGiants = "GTS.esp|6AD6B1"         # Might Of Giants (Quest)  
+
+
+GTSPerkGrowingPressure = "GTS.esp|1E93A9"       # Growing Pressure (75)
+GTSPerkDisastrousTremmor = "GTS.esp|61FA97"     # Disastrous Tremor (100)
+GTSPerkRuinousStride = "GTS.esp|8F3A81"         # Ruinous Stride (100, Legendary Rank 1)
+GTSPerkMassActions = "GTS.esp|462228"           # Enhanced Capacity (65)
+GTSPerkDestructionBasics = "GTS.esp|587C4A"     # Destruction Basics (10)
+GTSPerkHitGrowth = "GTS.esp|30EE52"             # Hit Growth (50)
+GTSPerkHealthGate = "GTS.esp|4E0B39"            # Second Wind (55)
+GTSPerkHighHeels = "GTS.esp|271EF1"             # Heels Of Destruction (50)
+GTSPerkThighAbilities = "GTS.esp|587C4B"        # Killer Thighs (10)
+GTSPerkDeadlyRumble = "GTS.esp|2496E9"          # Deadly Rumble (90)
+GTSPerkLifeAbsorption = "GTS.esp|87F341"        # Life Absorption (75)
+GTSPerkCruelFall = "GTS.esp|123BE9"             # Puissant Fall (25)
+GTSPerkOnTheEdge = "GTS.esp|4399E3"             # On The Edge (65)
+GTSPerkRavagingInjuries = "GTS.esp|128CF5"      # Ravaging Injuries (40)
+GTSPerkColossalGrowth = "GTS.esp|128CF7"        # Colossal Growth (100)
+GTSPerkOverindulgence = "GTS.esp|8F3A80"        # Overindulgence (100, Legendary Rank 2)
+GTSPerkRumblingFeet = "GTS.esp|1CAD91"          # Overwhelming Steps (65)
+GTSPerkShrinkingGaze = "GTS.esp|889543"         # Shrinking Gaze (90)
+GTSPerkSizeConversion = "GTS.esp|610774"        # Size Conversion (50)
+GTSPerkFullAssimilation = "GTS.esp|33C765"      # Full Assimilation (80)
+GTSPerkExperiencedGiantess = "GTS.esp|61A996"   # Experienced Giantess (60)
+
+GTSUtilTalkToActor = "GTS.esp|5F7265"           # TalkToActorWhenSneaking (Internal)
+
+# Explosions --------------------------------------------------------------------------
+[EXPL] 
+GTSExplosionBlood = "GTS.esp|01CE9D"
+GTSExplosionFootstep = "GTS.esp|035C81"
+GTSExplosionDraugr = "GTS.esp|035C80"
+
+# Globals -----------------------------------------------------------------------------
+[GLOB]
+GTSSkillMenu = "GTS.esp|1421FF"
+GTSSkillLevel = "GTS.esp|142200"
+GTSSkillRatio = "GTS.esp|142202"
+GTSSkillProgress = "GTS.esp|142201"
+GTSSkillPerkPoints = "GTS.esp|2352E1" 
+GTSUtilEnableDialogue = "GTS.esp|277000"
+
+# Survival Mode
+Survival_HungerNeedMaxValue = "ccQDRSSE001-SurvivalMode.esl|00080C"
+Survival_HungerNeedValue = "ccQDRSSE001-SurvivalMode.esl|00081A"
+Survival_HungerStage1Value = "ccQDRSSE001-SurvivalMode.esl|000806"
+Survival_HungerStage2Value = "ccQDRSSE001-SurvivalMode.esl|000802"
+Survival_HungerStage3Value = "ccQDRSSE001-SurvivalMode.esl|000803"
+Survival_HungerStage4Value = "ccQDRSSE001-SurvivalMode.esl|000804"
+Survival_HungerStage5Value = "ccQDRSSE001-SurvivalMode.esl|000805"
+Survival_ModeEnabled = "ccQDRSSE001-SurvivalMode.esl|000826"
+
+# Quests -------------------------------------------------------------------------------
+[QUST] 
+GTSQuestProgression = "GTS.esp|005E3A"
+GTSQuestProxy = "GTS.esp|8C104D"
+
+# Factions -----------------------------------------------------------------------------
+[FACT]
+FollowerFaction = "Skyrim.esm|05C84E"
+DwarwenAutomatonFaction = "Skyrim.esm|043598"
+DraugrFaction = "Skyrim.esm|02430D"
+SexLabAnimatingFaction = "SexLab.esm|00E50F"
+
+# Impacts ------------------------------------------------------------------------------
+[IDPS] 
+GTSBloodSprayImpactSet = "GTS.esp|01CEA7"
+GTSBloodSprayImpactSetVore = "GTS.esp|024578"
+GTSBloodSprayImpactSetVoreMedium = "GTS.esp|024579"
+GTSBloodSprayImpactSetVoreSmallest = "GTS.esp|02457A"
+
+# Races --------------------------------------------------------------------------------
+[RACE] 
+DragonRace = "Skyrim.esm|012E82"
+FrostbiteSpiderRace = "Skyrim.esm|0131F8"
+FrostbiteSpiderRaceGiant = "Skyrim.esm|04E507"
+FrostbiteSpiderRaceLarge = "Skyrim.esm|053477"
+ChaurusReaperRace = "Skyrim.esm|0A5601"
+ChaurusRace = "Skyrim.esm|0131EB"
+DLC1ChaurusHunterRace = "Dawnguard.esm|0051FB"
+DLC1_BF_ChaurusRace = "Dawnguard.esm|015136"
+DLC2ExpSpiderBaseRace = "Dragonborn.esm|014449"
+DLC2ExpSpiderPackmuleRace = "Dragonborn.esm|027483"
+DLC2AshHopperRace = "Dragonborn.esm|01B658"
+IcewraithRace = "Skyrim.esm|0131FE"
+MammothRace = "Skyrim.esm|0131FF"
+GiantRace = "Skyrim.esm|0131F9"
+
+# Keywords -----------------------------------------------------------------------------
+[KYWD]
+GTSKeywordBlackListActor = "GTS.esp|6A85AF"
+GTSKeywordCountAsFollower = "GTS.esp|88E644"
+
+UndeadKeyword = "Skyrim.esm|013796"
+DwemerKeyword = "Skyrim.esm|01397A"
+DragonKeyword = "Skyrim.esm|035D59"
+VampireKeyword = "Skyrim.esm|0A82BB"
+AnimalKeyword = "Skyrim.esm|013798"
+CreatureKeyword = "Skyrim.esm|013795"
+DarkSouls = "Skyrim.esm|0C1E8F"
+SummonUndead = "Skyrim.esm|02482B"
+ActorTypeNPC = "Skyrim.esm|013794"
+EnforceGiantessKeyword = "GTS.esp|8C614E"
+
+# Container ----------------------------------------------------------------------------
+[CONT] 
+GTSDropboxGore = "GTS.esp|6AD6B0"
+GTSDropboxUndead = "GTS.esp|6BC9BC"
+GTSDropboxMechanical = "GTS.esp|6C1ABE"
+GTSDropboxSoul = "GTS.esp|6C1ABD"
+GTSDropboxInsect = "GTS.esp|6C1ABF"
+
+# Leveled List Item --------------------------------------------------------------------
+[LVLI] 
+GTSLootListMaster = "GTS.esp|7C3DFB"

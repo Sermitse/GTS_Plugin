@@ -239,10 +239,10 @@ namespace GTS {
 			 "GTSPlugin {}\n"
 			 "Build Date: {} {}\n"
 			 "{}",
-			 PluginVersion,
+			 GTSPlugin::ModVersion.string(),
 			 __DATE__,
 			 __TIME__,
-			git::AnyUncommittedChanges() ? "Development Version" : fmt::format("SHA1 {}",git::CommitSHA1().c_str()));
+			git::AnyUncommittedChanges() ? "Development Version" : fmt::format("SHA1 {}",git::CommitSHA1()));
 
 	        ImGui::TextColored(ImUtil::ColorSubscript, FooterMessage.c_str());
 	        ImGui::PopFont();

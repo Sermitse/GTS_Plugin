@@ -46,7 +46,7 @@ namespace GTS {
 	}
 
 	static inline void CPrintPluginInfo() {
-		Cprint("[GTSPlugin.dll]: [ Giantess Mod {} was succesfully initialized. Waiting for New Game/Save Load. ]", PluginVersion);
+		Cprint("[GTSPlugin.dll]: [ Giantess Mod {} was succesfully initialized. Waiting for New Game/Save Load. ]", GTSPlugin::ModVersion.string());
 		Cprint("[GTSPlugin.dll]: Dll Build Date: {} {}", __DATE__, __TIME__);
 		Cprint("[GTSPlugin.dll]: Git Info:");
 		Cprint("\t -- Commit: {}", git_CommitSubject());
@@ -61,7 +61,7 @@ namespace GTS {
 
 	static void LogPrintPluginInfo() {
 
-		logger::info("GTSPlugin {}", PluginVersion);
+		logger::info("GTSPlugin {}", GTSPlugin::ModVersion.string());
 		logger::info("Dll Build Date: {} {}", __DATE__, __TIME__);
 
 		const std::string_view git_commit = fmt::format("\t -- Commit: {}", git_CommitSubject());
