@@ -40,7 +40,6 @@ namespace GTS {
 	}
 
 	void SpectatorManager::Update() {
-		std::ignore = Profilers::Profile("SpectatorManager::Update");
 		if (Plugin::Live()) {
 
 			auto currentCameraTarget = GetCameraActor();

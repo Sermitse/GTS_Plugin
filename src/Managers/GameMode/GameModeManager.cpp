@@ -344,7 +344,7 @@ namespace GTS {
 
 	void GameModeManager::ApplyGameMode(Actor* a_Actor, const SelectedGameMode& a_SelectedGameMode, const float& a_GrowthRate, const float& a_ShrinkRate)  {
 
-		auto profiler = Profilers::Profile("GameModeManager: ApplyGameMode");
+		GTS_PROFILE_SCOPE("GameModeManager: ApplyGameMode");
 
 
 		if (a_SelectedGameMode == SelectedGameMode::kNone) {
@@ -417,7 +417,7 @@ namespace GTS {
 	}
 
 	void GameModeManager::GameMode(Actor* actor)  {
-		auto profiler = Profilers::Profile("GameModeManager: GameMode");
+		GTS_PROFILE_SCOPE("GameModeManager: GameMode");
 
 		if (!actor) {
 			return;

@@ -48,7 +48,7 @@ namespace GTS {
     
                 //Incase the File is empty/missing newly added data...
                 //Explicitly Ignore the [[Nodiscard]]
-                std::ignore = Instance.SaveKeybinds();
+                auto res = Instance.SaveKeybinds();
     
                 logger::info(".ctor Load OK");
     

@@ -304,7 +304,7 @@ namespace GTS {
 				direction.z /= len;
 			}
 
-			float timeMultiplier = 1.0f / Time::GetTimeMultiplier();
+			float timeMultiplier = 1.0f / Time::GGTM();
 
 			// Apply physics impulse to tiny
 			ApplyManualHavokImpulse(tiny, direction.x, direction.y, direction.z, speed * speedmult * timeMultiplier);

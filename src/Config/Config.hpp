@@ -146,17 +146,9 @@ namespace GTS {
 
                 //Incase the File is empty/missing newly added data...
                 //Explicitly Ignore the [[Nodiscard]]
-                std::ignore = Instance.SaveSettings();
+                auto res = Instance.SaveSettings();
 
                 logger::info(".ctor Load OK");
-
-                //Don't Do this. This Deadlocks the The plugin on load
-				//Because its trying to call itself before its done initializing in the 1st place;
-                //Profiler::ProfilerEnabled = GetAdvanced().bProfile;
-
-                //Moved Here. So Its only set on startup. Enabling Mid Game Will Cause freezes.
-                Profiler::ProfilerEnabled = Instance.Advanced.bProfile;
-
 
                 Latch.count_down();
             }

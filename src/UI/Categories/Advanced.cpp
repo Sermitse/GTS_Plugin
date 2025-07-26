@@ -7,21 +7,19 @@ namespace GTS {
 
     void CategoryAdvanced::DrawLeft() {
 
-
         ImUtil_Unique{
 
             const char* T0 = "Show or hide this page.\n"
-							 "After Disabling you have to re-add the option to the settings toml again if you want to re-enable it.";
+                             "After Disabling you have to re-add the option to the settings toml again if you want to re-enable it.";
 
             if (ImGui::CollapsingHeader("Advanced",ImUtil::HeaderFlagsDefaultOpen)) {
                 ImUtil::CheckBox("Enable/Disable This Page", &Config::GetHidden().IKnowWhatImDoing, T0);
             }
         }
 
-        ImUtil_Unique {
-
-            const char* T0 = "Enable the profiler to diagnose performance issues.\n"
-        					 "Note: Needs a game restart to enable after setting it.";
+        ImUtil_Unique{
+            	
+            const char* T0 = "Show The Profiler (Only works if #define is enabled)";
             const char* T1 = "Enable the debug overlay.";
 
             const char* T2 = "Set the log severity level. The higher it is the more info is dumped into GTSPlugin.log";
@@ -29,23 +27,14 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Logging / Debugging",ImUtil::HeaderFlagsDefaultOpen)) {
 
-                ImUtil::CheckBox("Enable Profiling",&Settings.bProfile, T0);
-                ImUtil::CheckBox("Show Debug Overlay",&Settings.bShowOverlay,T1);
+				#ifdef  GTS_PROFILER_ENABLED
+                ImUtil::CheckBox("Draw Profiler", &Profilers::DrawProfiler, T0);
+				#endif
 
-                if (ImUtil::ComboEx<spdlog::level::level_enum>("Log Level", Settings.sLogLevel,T2,false,true)) {
+                ImUtil::CheckBox("Draw Debug Overlay", &Settings.bShowOverlay,T1);
 
-					#ifndef GTSCONSOLE
-						spdlog::set_level(spdlog::level::from_str(Settings.sLogLevel));
-					#endif
-                	
-				}
-
-				if (ImUtil::ComboEx<spdlog::level::level_enum>("Flush Level", Settings.sFlushLevel,T3,false,true)) {
-
-					#ifndef GTSCONSOLE
-						spdlog::flush_on(spdlog::level::from_str(Settings.sFlushLevel));
-                    #endif
-
+                if (ImUtil::ComboEx<spdlog::level::level_enum>("Log Level", Settings.sLogLevel, T2, false, true)) {
+                	spdlog::set_level(spdlog::level::from_str(Settings.sLogLevel));
 				}
 
               ImGui::Spacing();
@@ -56,13 +45,13 @@ namespace GTS {
 
         ImUtil_Unique {
 
-            const char* T0 = "Immediately return from DamageAV Calls (such as damage HP/Stamina) for the player.";
-            const char* T1 = "Bypasses action cooldowns if enabled.";
+            const char* T0 = "Enable/Disable DamageAV for the player's stamina and magicka.";
+            const char* T1 = "GTS actions will have cooldowns if this is enabled.";
             const char* T2 = "Multiply the resulting GetAnimationSlowdown Value";
 
             if (ImGui::CollapsingHeader("Cheats",ImUtil::HeaderFlagsDefaultOpen)) {
-                ImUtil::CheckBox("Ignore ActorValue Damage",&Settings.bDamageAV, T0);
-                ImUtil::CheckBox("Ignore Size-Action Cooldowns",&Settings.bCooldowns, T1);
+                ImUtil::CheckBox("Enable ActorValue Damage",&Settings.bDamageAV, T0);
+                ImUtil::CheckBox("Enable Size-Action Cooldowns",&Settings.bCooldowns, T1);
                 ImUtil::SliderF("Animspeed Player", &Settings.fAnimSpeedAdjMultPlayer, 0.2f, 1.0f, T2);
                 ImUtil::SliderF("Animspeed Teammate", &Settings.fAnimSpeedAdjMultTeammate, 0.2f, 1.0f, T2);
 

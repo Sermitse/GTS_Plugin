@@ -4,9 +4,9 @@ namespace GTS {
 
 	vector<Actor*> find_actors();
 	vector<Actor*> find_actors_high();
-	vector<Actor*> find_actors_middle_high();
-	vector<Actor*> find_actors_middle_low();
-	vector<Actor*> find_actors_low();
+	//vector<Actor*> find_actors_middle_high();
+	//vector<Actor*> find_actors_middle_low();
+	//vector<Actor*> find_actors_low();
 
 	// This will find up to howMany actors in the scene
 	// (not including player and teammate which are ALWAYS returned
@@ -24,4 +24,9 @@ namespace GTS {
 	vector<Actor*> FindTeammates();
 
 	vector<Actor*> FindFemaleTeammates();
+
+	static inline std::atomic<std::thread::id> main_update_thread_id{};
+	static inline std::vector<Actor*> cached_actors;
+	static inline std::mutex cache_mutex;
+	static inline std::atomic<bool> cache_valid{ false };
 }

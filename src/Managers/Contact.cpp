@@ -410,7 +410,7 @@ namespace GTS {
 	}
 
 	void ContactManager::HavokUpdate() {
-		auto profiler = Profilers::Profile("ContactManager: HavokUpdate");
+		GTS_PROFILE_SCOPE("ContactManager: HavokUpdate");
 		auto playerCharacter = PlayerCharacter::GetSingleton();
 
 		auto cell = playerCharacter->GetParentCell();

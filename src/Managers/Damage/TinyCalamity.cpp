@@ -154,7 +154,7 @@ namespace GTS {
     }
 
     void TinyCalamity_ShrinkActor(Actor* giant, Actor* tiny, float shrink) {
-        auto profiler = Profilers::Profile("TinyCalamity: ShrinkActor");
+       GTS_PROFILE_SCOPE("TinyCalamity: ShrinkActor");
         if (HasSMT(giant)) {
             bool HasPerk = Runtime::HasPerk(giant, "GTSPerkTinyCalamitySizeSteal");
             float limit = Minimum_Actor_Scale;
@@ -297,7 +297,7 @@ namespace GTS {
     }
 
     void TinyCalamity_SeekActors(Actor* giant) {
-        auto profiler = Profilers::Profile("TinyCalamity: SeekActors");
+       GTS_PROFILE_SCOPE("TinyCalamity: SeekActors");
         if (giant->formID == 0x14) {
             if (giant->AsActorState()->IsSprinting() && HasSMT(giant)) {
                 auto node = find_node(giant, "NPC Pelvis [Pelv]");
@@ -345,7 +345,7 @@ namespace GTS {
     }
 
     void TinyCalamity_CrushCheck(Actor* giant, Actor* tiny) {
-		auto profiler = Profilers::Profile("TinyCalamity: CrushCheck");
+		GTS_PROFILE_SCOPE("TinyCalamity: CrushCheck");
 		if (giant == tiny) {
 			return;
 		}

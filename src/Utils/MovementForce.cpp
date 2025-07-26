@@ -92,7 +92,7 @@ namespace GTS {
 		if (actor->formID != 0x14) {
 			return 1.0f;
 		}
-		auto profiler = Profilers::Profile("MovementForce: GetBoneMovementSpeed");
+		GTS_PROFILE_SCOPE("MovementForce: GetBoneMovementSpeed");
 		auto Data = Transient::GetSingleton().GetData(actor);
 		float NodeMovementForce = 0.0f;
 		
@@ -131,7 +131,7 @@ namespace GTS {
 			return 1.0f;
 		}
 
-		auto profiler = Profilers::Profile("MovementForce: GetBoneMovementSpeed");
+		GTS_PROFILE_SCOPE("MovementForce: GetBoneMovementSpeed");
 		NodeMovementType Type = Convert_To_MovementType(Source);
 
 		return Get_Bone_Movement_Speed(giant, Type);

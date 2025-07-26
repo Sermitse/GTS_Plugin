@@ -12,17 +12,13 @@
 #include "Magic/Effects/Common.hpp"
 #include "Utils/DynamicScale.hpp"
 #include "AI/AIFunctions.hpp"
-
-#include "Animation/Utils/AnimationUtils.hpp"
 #include "Utils/MovementForce.hpp"
-
 #include "Config/Config.hpp"
 
-#include "Hooks/Skyrim/Settings.hpp"
+#include "Hooks/Engine/Settings.hpp"
 #include "UI/DebugAPI.hpp"
 
 using namespace GTS;
-
 
 namespace {
 
@@ -90,7 +86,9 @@ namespace {
 	}
 
 	void ManageActorControl() { // Rough control other fix
-		auto profiler = Profilers::Profile("GTSManager: ManageActorControl");
+
+		GTS_PROFILE_SCOPE("GTSManager: ManageActorControl");
+
 		Actor* target = GetPlayerOrControlled();
 		if (target->formID != 0x14) {
 			auto grabbed = Grab::GetHeldActor(target);
@@ -124,7 +122,7 @@ namespace {
 	}
 
 	void FixActorFade() {
-		auto profiler = Profilers::Profile("GTSManager: FixActorFade");
+		GTS_PROFILE_SCOPE("GTSManager: FixActorFade");
 		// No fix: 
 		// -Followers fade away at ~x1000 scale, may even fade earlier than that
 		// -Proteus Player gets disabled at ~x2200 scale
@@ -184,7 +182,7 @@ namespace {
 	}
 
 	void update_height(Actor* actor, ActorData* persi_actor_data, TempActorData* trans_actor_data) {
-		auto profiler = Profilers::Profile("GTSManager: UpdateHeight");
+		GTS_PROFILE_SCOPE("GTSManager: UpdateHeight");
 
 		if (!actor) {
 			return;
@@ -257,7 +255,9 @@ namespace {
 	}
 
 	void apply_height(Actor* actor, ActorData* persi_actor_data, TempActorData* trans_actor_data, bool force = false) {
-		auto profiler = Profilers::Profile("GTSManager: ApplyHeight");
+
+		GTS_PROFILE_SCOPE("GTSManager: ApplyHeight");
+
 		if (!actor) {
 			return;
 		}
@@ -303,7 +303,7 @@ namespace {
 	}
 
 	void apply_speed(Actor* actor, ActorData* persi_actor_data, TempActorData* trans_actor_data, bool force = false) {
-		auto profiler = Profilers::Profile("GTSManager: ApplySpeed");
+		GTS_PROFILE_SCOPE("GTSManager: ApplySpeed");
 		if (!Config::GetGeneral().bDynamicAnimspeed) {
 			return;
 		}
@@ -342,14 +342,18 @@ namespace {
 	}
 
 	void update_actor(Actor* actor) {
-		auto profiler = Profilers::Profile("GTSManager: UpdateActor");
+
+		GTS_PROFILE_SCOPE("GTSManager: UpdateActor");
+
 		auto temp_data = Transient::GetSingleton().GetActorData(actor);
 		auto saved_data = Persistent::GetSingleton().GetActorData(actor);
 		update_height(actor, saved_data, temp_data);
 	}
 
 	void apply_actor(Actor* actor, bool force = false) {
-		auto profiler = Profilers::Profile("GTSManager: ApplyActor");
+
+		GTS_PROFILE_SCOPE("GTSManager: ApplyActor");
+
 		auto temp_data = Transient::GetSingleton().GetData(actor);
 		auto saved_data = Persistent::GetSingleton().GetData(actor);
 		apply_height(actor, saved_data, temp_data, force);
@@ -380,7 +384,6 @@ void GtsManager::Start() {
 
 // Poll for updates
 void GtsManager::Update() {
-	auto profiler = Profilers::Profile("GTSManager: Update");
 
 	UpdateInterractionDistance(); // Player exclusive
 	UpdateGlobalSizeLimit();
@@ -395,10 +398,9 @@ void GtsManager::Update() {
 
 	const auto& ActorList = find_actors();
 
-	if (Profiler::ProfilerEnabled) {
-		//Used for profiling
-		GtsManager::LoadedActorCount = static_cast<uint32_t>(ActorList.size());
-	}
+#ifdef GTS_PROFILER_ENABLED
+	GtsManager::LoadedActorCount = static_cast<uint32_t>(ActorList.size());
+#endif
 
 	for (auto actor : ActorList) {
 
@@ -448,7 +450,9 @@ void GtsManager::FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, boo
 
 void GtsManager::reapply(bool force) {
 	// Get everyone in loaded AI data and reapply
-	auto profiler = Profilers::Profile("GTSManager: ReApply");
+
+	GTS_PROFILE_SCOPE("GTSManager: ReApply");
+
 	for (auto actor: find_actors()) {
 		if (actor) {
 		   	if (actor->Is3DLoaded()) {
@@ -458,7 +462,9 @@ void GtsManager::reapply(bool force) {
 	}
 }
 void GtsManager::reapply_actor(Actor* actor, bool force) {
-	auto profiler = Profilers::Profile("GTSManager: ReApplyActor");
+
+	GTS_PROFILE_SCOPE("GTSManager: ReApplyActor");
+
 	// Reapply just this actor
 	if (actor) {
 		if (actor->Is3DLoaded()) {

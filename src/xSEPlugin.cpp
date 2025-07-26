@@ -11,51 +11,14 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Console/ConsoleManager.hpp"
 
+#include "Utils/Logger.hpp"
+
 using namespace SKSE;
 using namespace RE;
 using namespace RE::BSScript;
 using namespace GTS;
 
 namespace {
-
-	void InitializeLogging() {
-		auto path = GTS::log_directory_fixed();
-
-		if (!path) {
-			ReportAndExit("Unable to lookup SKSE logs directory.");
-		}
-
-		*path /= PluginDeclaration::GetSingleton()->GetName();
-		*path += L".log";
-
-		std::shared_ptr <spdlog::logger> log;
-
-		if (IsDebuggerPresent()) {
-			log = std::make_shared <spdlog::logger>("Global", std::make_shared <spdlog::sinks::msvc_sink_mt>());
-			log->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%s:%#] %v");
-		}
-		else {
-
-			#ifdef GTSCONSOLE
-
-				auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-				console_sink->set_pattern("\033[37m[\033[33mGTS\033[37m]\033[0m\033[37m[\033[37m%H:%M:%S.%e\033[37m]\033[0m\033[37m[%^%l%$]\033[0m\033[37m[\033[33m%s:%#\033[37m]\033[0m\033[37m: %v\033[0m");
-				log = std::make_shared <spdlog::logger>(spdlog::logger("Global", console_sink));
-
-			#else
-
-				log = std::make_shared <spdlog::logger>("Global", std::make_shared <spdlog::sinks::basic_file_sink_mt>(path->string(), true));
-				log->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%s:%#] %v");
-
-			#endif
-
-		}
-
-		spdlog::set_default_logger(std::move(log));
-		spdlog::set_level(spdlog::level::level_enum::trace);
-		spdlog::flush_on(spdlog::level::level_enum::trace);
-
-	}
 
 	void InitializeMessaging() {
 
@@ -173,56 +136,39 @@ namespace {
 		RegisterManagers();
 	}
 
-	void SetLogLevel() {
-
-		try {
-			log::info("Getting Logger Config...");
-			const auto& debugConfig = Config::GetAdvanced();
-			log::info("Config Loaded from settings struct: Print: {} Flush: {}", debugConfig.sLogLevel, debugConfig.sFlushLevel);
-			spdlog::set_level(spdlog::level::from_str(debugConfig.sLogLevel));
-			spdlog::flush_on(spdlog::level::from_str(debugConfig.sFlushLevel));
-		}
-		catch (exception& e) {
-			logger::critical("Could not load spdlog settings from config struct", e.what());
-			ReportAndExit("Could not load spdlog settings from config struct");
-		}
-	}
 }
 
 SKSEPluginLoad(const LoadInterface * a_skse){
 
-	//This hack is needed because debug builds of commonlib combletly break during trampoline hooks.
-	//Destination pointers for write call and write branch suddenly forget to add offsets to skyrims base image address.
-	//Why??? who tf knows why...
-	//So we instead build with the relwithdebinfo preset when using the debug and debug-eha presets, but pass all debug flags to the compiler when doing so...
-	//This results in this dll being built with full debug options but commonlib and other libraries being built as release...
-	//I mean is this good? No. But does it finnaly allow us to have working breakpoints in the dll when using a debugger? Yes.
-
-	#ifdef GTSCONSOLE
-		AllocateConsole();
-    #endif
-
 	#ifdef GTSDEBUG
 		ReportInfo("GTSplugin Debug Build.\nAttach the debugger and press OK.");
-		std::cout << "GTSPlugin Debug Build" << '\n';
-	#endif
-
-	InitializeLogging();
-	LogPrintPluginInfo();
-
-	#ifndef GTSCONSOLE
-		SetLogLevel();
 	#endif
 
 	Init(a_skse);
+
+#ifndef GTS_DISABLE_PLUGIN
+
+	logger::Initialize();
+	LogPrintPluginInfo();
+
+	if (logger::HasConsole()) {
+		logger::SetLevel("Trace");
+	}
+	else {
+		logger::LoadConfig();
+	}
+
 	VersionCheck(a_skse);
-
-
 	InitializeMessaging();
 	Hooks::Install();
+
 	InitializePapyrus();
-	InitializeSerialization();
 	InitializeEventSystem();
+
+#endif
+
+	InitializeSerialization();
+
 
 	logger::info("SKSEPluginLoad OK");
 

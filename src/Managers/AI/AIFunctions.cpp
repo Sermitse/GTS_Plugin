@@ -272,7 +272,7 @@ namespace GTS {
 	}
 
 	void ScareActors(Actor* giant) {
-		auto profiler = Profilers::Profile("ActorUtils: ScareActors");
+		GTS_PROFILE_SCOPE("ActorUtils: ScareActors");
 		if (!Config::GetAI().bPanic) {
 			return; // Disallow Panic if bool is false.
 		}

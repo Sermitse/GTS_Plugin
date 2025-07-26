@@ -140,7 +140,7 @@ namespace GTS {
 	}
 
 	void VoreData::Update() {
-		auto profiler = Profilers::Profile("VoreData: Update");
+		GTS_PROFILE_SCOPE("VoreData: Update");
 		if (this->giant) {
 			auto giant = this->giant.get().get();
 			float giantScale = get_visual_scale(giant);

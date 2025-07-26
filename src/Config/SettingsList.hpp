@@ -312,10 +312,8 @@ TOML_SERIALIZABLE(SettingsHidden);
 struct SettingsAdvanced {
     // Logging levels
     std::string sLogLevel = "err";
-    std::string sFlushLevel = "trace";
 
     // Toggles for advanced features
-    bool bProfile = false;
     bool bShowOverlay = false;
     bool bDamageAV = true;
     bool bCooldowns = true;

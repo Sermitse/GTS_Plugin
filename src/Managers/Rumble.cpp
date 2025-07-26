@@ -94,7 +94,7 @@ namespace GTS {
 
 
 	void Rumbling::Update() {
-		auto profiler = Profilers::Profile("Rumbling: Update");
+		GTS_PROFILE_SCOPE("Rumbling: Update");
 		for (auto& [actor, data]: this->data) {
 			// Update values based on time passed
 			std::vector<std::string> tagsToErase = {};

@@ -155,7 +155,7 @@ namespace GTS {
 	}
 
 	float AttributeManager::GetAttributeBonus(Actor* actor, ActorValue av) const {
-		auto profiler = Profilers::Profile("AttributeManager: GetAttributeBonus");
+		GTS_PROFILE_SCOPE("AttributeManager: GetAttributeBonus");
 		if (!actor) {
 			return 1.0f;
 		}

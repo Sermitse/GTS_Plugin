@@ -19,9 +19,15 @@ namespace GTS {
 	void Persistent::OnGameLoaded(SerializationInterface* serde) {
 		//logger::info("Persistent OnGameLoaded Start");
 		std::unique_lock lock(GetSingleton()._Lock);
+
+	#ifndef GTS_DISABLE_PLUGIN
+
 		SizeManager::GetSingleton().Reset();
 		DistributeChestItems();
 		FixAnimationsAndCamera(); // Call it from ActorUtils, needed to fix Grab anim on save-reload
+
+	#endif
+
 		LoadPersistent(serde);
 		LoadModLocalModConfiguration();
 
@@ -512,10 +518,11 @@ namespace GTS {
 
 	// The Revert Callback Fires when we exit to the main menu and when a game is loaded.
 	void Persistent::OnRevert(SerializationInterface*) {
+	#ifndef GTS_DISABLE_PLUGIN
 		logger::info("Persistent::OnRevert");
-
 		Persistent::GetSingleton().Reset();
 		Transient::GetSingleton().Reset();
+	#endif
 	
 	}
 

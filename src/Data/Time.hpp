@@ -9,8 +9,8 @@ namespace GTS {
 			static float WorldTimeDelta();
 			static double WorldTimeElapsed();
 			static std::uint64_t FramesElapsed();
-			static float GetTimeMultiplier();
-			static void MultiplyGameTime(float modifier);
+			static float GGTM();
+			static void SGTM(float modifier);
 			[[nodiscard]] static Time& GetSingleton() noexcept;
 			void Update();
 		private:

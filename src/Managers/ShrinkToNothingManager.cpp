@@ -28,7 +28,7 @@ namespace GTS {
 	}
 
 	void ShrinkToNothingManager::Update() {
-		auto profiler = Profilers::Profile("ShrinkToNothingManager: Update");
+		GTS_PROFILE_SCOPE("ShrinkToNothingManager: Update");
 		for (auto &[tinyId, data]: this->data) {
 			auto tiny = TESForm::LookupByID<Actor>(tinyId);
 			auto giantHandle = data.giant;

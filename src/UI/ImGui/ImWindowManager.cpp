@@ -25,7 +25,7 @@ namespace GTS {
 
     void ImWindowManager::Update() {
 
-        std::ignore = Profilers::Profile("ImWindowManager Update");
+       GTS_PROFILE_SCOPE("ImWindowManager Update");
 
 		if (HasWindows()) [[likely]] {
 

@@ -1,11 +1,9 @@
 #pragma once
 #define _USE_MATH_DEFINES
 
-//Sanity checks incase the compiler decides to be funny
-static_assert(sizeof(bool) == 1, "Assumed sizeof bool is incorrect. This will break Serde!");
-static_assert(sizeof(short) == 2, "Assumed sizeof short is incorrect. This will break Serde!");
-static_assert(sizeof(float) == 4, "Assumed sizeof float is incorrect. This will break Serde!");
-static_assert(sizeof(double) == 8, "Assumed sizeof double is incorrect. This will break Serde!");
+//Project-Wide Defines
+//#define GTS_PROFILER_ENABLED
+//#define GTS_DISABLE_PLUGIN
 
 #include <cassert>
 #include <cctype>
@@ -28,7 +26,6 @@ static_assert(sizeof(double) == 8, "Assumed sizeof double is incorrect. This wil
 #include <cuchar>
 #include <cwchar>
 #include <cwctype>
-
 #include <algorithm>
 #include <any>
 #include <array>
@@ -129,9 +126,6 @@ static_assert(sizeof(double) == 8, "Assumed sizeof double is incorrect. This wil
 #include <magic_enum/magic_enum.hpp>    //https://github.com/Neargye/magic_enum
 #include <lz4.h>
 
-// Compatible declarations with other sample projects.
-#define DLLEXPORT __declspec(dllexport)
-
 using namespace std::literals;
 using namespace REL::literals;
 
@@ -169,10 +163,6 @@ namespace RE {
 }
 
 namespace logger = SKSE::log;
-
-#ifdef GTSDEBUG
-	#define GTSCONSOLE
-#endif
 
 //git version tracking
 #include "git.h"

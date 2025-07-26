@@ -97,7 +97,7 @@ namespace GTS {
 	}
 
 	void LaunchActor::ApplyLaunchTo(Actor* giant, Actor* tiny, float force, float launch_power) {
-		auto profiler = Profilers::Profile("LaunchActor: ApplyLaunchTo");
+		GTS_PROFILE_SCOPE("LaunchActor: ApplyLaunchTo");
 		if (IsBeingKilledWithMagic(tiny)) {
 			return;
 		}
@@ -225,7 +225,7 @@ namespace GTS {
 	}
 
 	void LaunchActor::LaunchAtCustomNode(Actor* giant, float radius, float min_radius, float power, NiAVObject* node) {
-		auto profiler = Profilers::Profile("LaunchActor: LaunchAtCustomNode");
+		GTS_PROFILE_SCOPE("LaunchActor: LaunchAtCustomNode");
 		if (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant)) {
 			if (!node) {
 				return;
@@ -273,7 +273,7 @@ namespace GTS {
 	}
 
 	void LaunchActor::LaunchAtFoot(Actor* giant, float radius, float power, bool right_foot) {
-		auto profiler = Profilers::Profile("LaunchActor: LaunchAtFoot");
+		GTS_PROFILE_SCOPE("LaunchActor: LaunchAtFoot");
 		if (!giant) {
 			return;
 		}

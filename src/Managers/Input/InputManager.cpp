@@ -73,7 +73,7 @@ namespace GTS {
 			return;
 		}
 
-		std::ignore = Profilers::Profile("InputManager: ProcessEvents");
+		GTS_PROFILE_SCOPE("InputManager: ProcessEvents");
 
 		//Get Current InputKeys
 		for (auto eventIt = *a_event; eventIt; eventIt = eventIt->next) {

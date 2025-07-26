@@ -3,7 +3,7 @@
 #include "UI/DearImGui/imgui_impl_win32.h"
 #include "UI/UIManager.hpp"
 
-#include "Hooks/Skyrim/Settings.hpp"
+#include "Hooks/Engine/Settings.hpp"
 
 #include "Managers/Console/ConsoleManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
@@ -40,7 +40,7 @@ namespace {
                 msgQueue->AddMessage(RE::DialogueMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
             }
 
-            GTS::UIManager::UnPausedGameTime = Hooks::Time::GGTM();
+            GTS::UIManager::UnPausedGameTime = GTS::Time::GGTM();
 
             if (GTS::Config::GetAdvanced().bPauseGame) {
                 //Pause the game, Figuring out that this was the "magic" value that needed to be set for the full game to pause was fun*
@@ -52,7 +52,7 @@ namespace {
                 //RE::Main::GetSingleton()->freezeTime = true;
             }
             else {
-                Hooks::Time::SGTM(GTS::Config::GetAdvanced().fSGTMMult);
+                GTS::Time::SGTM(GTS::Config::GetAdvanced().fSGTMMult);
             }
 
             RE::UIBlurManager::GetSingleton()->IncrementBlurCount();
@@ -198,10 +198,12 @@ namespace GTS {
 
         ImWindowManager::GetSingleton().Update();
 
-        if (Profiler::ProfilerEnabled) {
-            Profilers::DisplayReport();
+#ifdef GTS_PROFILER_ENABLED
+		if (Profilers::DrawProfiler) {
             ShouldDrawOverTop = true;
         }
+        GTS_PROFILER_DISPLAY_REPORT();
+#endif
 
         ImGui::Render();
 

@@ -313,7 +313,6 @@ namespace GTS {
 					ImFontManager::GetSingleton().RebuildFonts();
 
 					spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
-					spdlog::flush_on(spdlog::level::from_str(Config::GetAdvanced().sFlushLevel));
 
 					// ----- If You need to do something when settings reset add it here.
 

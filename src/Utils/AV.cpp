@@ -62,7 +62,7 @@ namespace GTS {
 	}
 
 	void SetHealthPercentage(Actor* actor, float target) {
-		auto profiler = Profilers::Profile("AV: SetHealthPercentage");
+		GTS_PROFILE_SCOPE("AV: SetHealthPercentage");
 		SetPercentageAV(actor, ActorValue::kHealth, target);
 	}
 

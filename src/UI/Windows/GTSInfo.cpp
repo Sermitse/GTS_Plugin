@@ -131,7 +131,7 @@ namespace GTS {
             a_featureFlags = static_cast<GTSInfoFeatures>(UINT32_MAX);
         }
 
-        std::ignore = Profilers::Profile("UI: DrawGTSInfo");
+       GTS_PROFILE_SCOPE("UI: DrawGTSInfo");
 
         if (!CheckOK(a_Actor)) {
             ImUtil::TextShadow("Actor Invalid!");

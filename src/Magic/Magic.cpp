@@ -169,9 +169,7 @@ namespace GTS {
 			this->numberOfEffects += 1;
 			if (!this->active_effects.contains(effect)) {
 				EffectSetting* base_spell = effect->GetBaseObject();
-				Profilers::Start("MagicManager: MagicRuntime");
 				auto factorySearch = this->factories.find(base_spell);
-				Profilers::Stop("MagicManager: MagicRuntime");
 				if (factorySearch != this->factories.end()) {
 					auto &[key, factory] = (*factorySearch);
 					auto magic_effect = factory->MakeNew(effect);
@@ -189,21 +187,14 @@ namespace GTS {
 
 	void MagicManager::Update() {
 
-		Profilers::Start("MagicManager: MagicLookup");
-
 		for (auto actor: find_actors()) {
 			this->ProcessActiveEffects(actor);
 		}
 
-		Profilers::Stop("MagicManager: MagicLookup");
-
 		for (auto i = this->active_effects.begin(); i != this->active_effects.end();) {
 			this->numberOfOurEffects += 1;
 			auto& magic = (*i);
-
-			Profilers::Start(magic.second->GetName());
 			magic.second->poll();
-			Profilers::Stop(magic.second->GetName());
 			if (magic.second->IsFinished()) {
 				i = this->active_effects.erase(i);
 			} else {

@@ -490,7 +490,7 @@ namespace GTS {
 
 	bool IsFemale(Actor* a_Actor, bool AllowOverride) {
 		if (AllowOverride) {
-			auto profiler = Profilers::Profile("ActorUtils: IsFemale");
+			GTS_PROFILE_SCOPE("ActorUtils: IsFemale");
 
 			if (Config::GetGeneral().bEnableMales) {
 				return true;
@@ -931,7 +931,7 @@ namespace GTS {
 	}
 
 	float GetSizeFromBoundingBox(Actor* tiny) {
-		auto profiler = Profilers::Profile("ActorUtils: GetSizeFromBoundingBox");
+		GTS_PROFILE_SCOPE("ActorUtils: GetSizeFromBoundingBox");
 		float sc = get_bounding_box_to_mult(tiny);
 		return sc;
 	}
@@ -1466,7 +1466,7 @@ namespace GTS {
 	}
 
 	float GetHighHeelsBonusDamage(Actor* actor, bool multiply, float adjust) {
-		auto profiler = Profilers::Profile("ActorUtils: GetHighHeelsBonusDamage");
+		GTS_PROFILE_SCOPE("ActorUtils: GetHighHeelsBonusDamage");
 		float value;
 		float hh = 0.0f;
 
@@ -1484,7 +1484,7 @@ namespace GTS {
 	}
 
 	float get_distance_to_actor(Actor* receiver, Actor* target) {
-		auto profiler = Profilers::Profile("ActorUtils: GetDistanceToActor");
+		GTS_PROFILE_SCOPE("ActorUtils: GetDistanceToActor");
 		if (target) {
 			auto point_a = receiver->GetPosition();
 			auto point_b = target->GetPosition();
@@ -1572,7 +1572,7 @@ namespace GTS {
 	}
 
 	bool IsEquipBusy(Actor* actor) {
-		auto profiler = Profilers::Profile("ActorUtils: IsEquipBusy");
+		GTS_PROFILE_SCOPE("ActorUtils: IsEquipBusy");
 		int State;
 		actor->GetGraphVariableInt("currentDefaultState", State);
 		if (State >= 10 && State <= 20) {
@@ -1738,7 +1738,7 @@ namespace GTS {
 	}
 
 	bool IsGtsBusy(Actor* actor) {
-		auto profiler = Profilers::Profile("ActorUtils: IsGtsBusy"); 
+		GTS_PROFILE_SCOPE("ActorUtils: IsGtsBusy"); 
 		bool GTSBusy = false;
 		actor->GetGraphVariableBool("GTS_Busy", GTSBusy);
 
@@ -2412,7 +2412,7 @@ namespace GTS {
 					}
 				}
 
-				float Time = (1.0f / Time::GetTimeMultiplier());
+				float Time = (1.0f / Time::GGTM());
 				ApplyManualHavokImpulse(tiny, direction.x, direction.y, direction.z, speed * 2.0f * power * Time);
 
 				return false;
@@ -3275,7 +3275,7 @@ namespace GTS {
 	}
 
 	void FixAnimationsAndCamera() { // Fixes Animations for GTS Grab Actions and resets the bone tracking on camera
-		auto profiler = Profilers::Profile("ActorUtils: FixAnimationsAndCamera");
+		GTS_PROFILE_SCOPE("ActorUtils: FixAnimationsAndCamera");
 
 		for (auto giant: find_actors()) {
 			if (!giant) {
