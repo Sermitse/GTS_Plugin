@@ -1,5 +1,7 @@
 #include "ImUtil.hpp"
 
+#include "Config/Config.hpp"
+
 namespace ImUtil {
 	//------------------------------------
     //  Modified/Extended Imgui Controls
@@ -32,12 +34,16 @@ namespace ImUtil {
     const bool SliderF(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip, const char* fmt, const bool a_disabled, const bool a_alwaysclamp){
         ImGui::BeginDisabled(a_disabled);
 
-        if(a_alwaysclamp){
+        auto flags = GTS::Config::GetAdvanced().bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
+
+    	if (GTS::Config::GetAdvanced().bEnforceUIClamps){}
+
+        if(a_alwaysclamp && flags){
 	        *a_value = std::min(*a_value, a_max);
 	        *a_value = std::max(*a_value, a_min);
         }
 
-        const bool res = ImGui::SliderFloat(a_label, a_value, a_min, a_max, fmt, ImGuiSliderFlags_AlwaysClamp);
+        const bool res = ImGui::SliderFloat(a_label, a_value, a_min, a_max, fmt, flags);
 
         Tooltip(a_Tooltip);
 
@@ -47,7 +53,10 @@ namespace ImUtil {
 
     const bool SliderF3(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip, const char* fmt, const bool a_disabled){
         ImGui::BeginDisabled(a_disabled);
-        const bool res = ImGui::SliderFloat3(a_label, a_value, a_min, a_max, fmt, ImGuiSliderFlags_AlwaysClamp);
+
+        auto flags = GTS::Config::GetAdvanced().bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
+
+        const bool res = ImGui::SliderFloat3(a_label, a_value, a_min, a_max, fmt, flags);
 
         Tooltip(a_Tooltip);
 
@@ -57,7 +66,9 @@ namespace ImUtil {
 
     const bool SliderF2(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip, const char* fmt, const bool a_disabled){
         ImGui::BeginDisabled(a_disabled);
-        const bool res = ImGui::SliderFloat2(a_label, a_value, a_min, a_max, fmt, ImGuiSliderFlags_AlwaysClamp);
+
+        auto flags = GTS::Config::GetAdvanced().bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
+        const bool res = ImGui::SliderFloat2(a_label, a_value, a_min, a_max, fmt, flags);
 
         Tooltip(a_Tooltip);
 

@@ -6,8 +6,8 @@ cmake_policy(VERSION 3.21...3.31)
 # #######################################################################################################################
 
 project(
-	GTSPlugin
-	VERSION 3.0.3.1
+	GtsPlugin
+	VERSION 3.0.4.0
 	DESCRIPTION "The main SKSE plugin of the Size Matters mod"
 	LANGUAGES CXX
 )
@@ -173,9 +173,9 @@ message(STATUS "CMAKE_EXE_LINKER_FLAGS_DEBUG:           ${CMAKE_EXE_LINKER_FLAGS
 message(STATUS "CMAKE_EXE_LINKER_FLAGS_RELEASE:         ${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 message(STATUS "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:  ${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
 
-get_target_property(compile_flags GTSPlugin COMPILE_OPTIONS)
-message(STATUS "GTSPlugin COMPILE_OPTIONS:      ${compile_flags}")
+get_target_property(compile_flags GtsPlugin COMPILE_OPTIONS)
+message(STATUS "GtsPlugin COMPILE_OPTIONS:      ${compile_flags}")
 
-get_target_property(link_flags GTSPlugin LINK_OPTIONS)
-message(STATUS "GTSPlugin LINK_OPTIONS:         ${link_flags}")
+get_target_property(link_flags GtsPlugin LINK_OPTIONS)
+message(STATUS "GtsPlugin LINK_OPTIONS:         ${link_flags}")
 

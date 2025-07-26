@@ -39,14 +39,14 @@ namespace {
 	constexpr float EPS = 1e-4f;
 	constexpr float DegToRadConst = 0.017453292f;
 
-	constexpr SoftPotential getspeed {
-		// https://www.desmos.com/calculator/vyofjrqmrn
-		.k = 0.142f, 
-		.n = 0.82f,
-		.s = 1.90f, 
-		.o = 1.0f,
-		.a = 0.0f,  //Default is 0
-	};
+	//constexpr SoftPotential getspeed {
+	//	// https://www.desmos.com/calculator/vyofjrqmrn
+	//	.k = 0.142f, 
+	//	.n = 0.82f,
+	//	.s = 1.90f, 
+	//	.o = 1.0f,
+	//	.a = 0.0f,  //Default is 0
+	//};
 
 	const std::vector<std::string> disarm_nodes = {
 		"WeaponDagger",
@@ -2203,8 +2203,18 @@ namespace GTS {
 					return 1.0f; // For some reason makes furniture angles funny if there's anim slowdown. So we prevent that
 				}
 
+				const auto SpeedVars = Config::GetAdvanced().fAnimSpeedFormula;
+
+				const SoftPotential Speed = {
+					SpeedVars[0],
+					SpeedVars[1],
+					SpeedVars[2],
+					SpeedVars[3],
+					SpeedVars[4]
+				};
+
 				float scale = get_visual_scale(giant);
-				float speedmultcalc = soft_core(scale, getspeed);
+				float speedmultcalc = soft_core(scale, Speed);
 				speedmultcalc = std::clamp(speedmultcalc, 0.01f, 1.0f);
 
 				if (giant->formID == 0x14)

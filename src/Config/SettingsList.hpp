@@ -317,6 +317,7 @@ struct SettingsAdvanced {
     bool bShowOverlay = false;
     bool bDamageAV = true;
     bool bCooldowns = true;
+    bool bEnforceUIClamps = true;
     bool bPauseGame = true;
     bool bHideLoadButton = true;
     bool bEnlargeBreastsOnAbsorption = false;
@@ -326,6 +327,7 @@ struct SettingsAdvanced {
     float fAnimSpeedAdjMultTeammate = 1.0f;
     bool bEnableExperimentalDevourmentAI = false;
     float fExperimentalDevourmentAIProb = 25.0f;
+    std::array<float, 5> fAnimSpeedFormula = { 0.142f, 0.82f, 1.90f, 1.0f, 0.0f };
 
 };
 TOML_SERIALIZABLE(SettingsAdvanced);

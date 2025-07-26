@@ -193,6 +193,8 @@ namespace GTS {
 
         try {
             bool LoadRes = true;
+            LoadRes &= LoadStructFromTOML(TomlData, Hidden);
+            LoadRes &= LoadStructFromTOML(TomlData, Advanced);
             LoadRes &= LoadStructFromTOML(TomlData, General);
             LoadRes &= LoadStructFromTOML(TomlData, Gameplay);
             LoadRes &= LoadStructFromTOML(TomlData, Balance);
@@ -200,11 +202,7 @@ namespace GTS {
             LoadRes &= LoadStructFromTOML(TomlData, AI);
             LoadRes &= LoadStructFromTOML(TomlData, Camera);
             LoadRes &= LoadStructFromTOML(TomlData, GtsUI);
-            LoadRes &= LoadStructFromTOML(TomlData, Hidden);
 
-            if (Hidden.IKnowWhatImDoing) {
-                LoadRes &= LoadStructFromTOML(TomlData, Advanced);
-            }
 
             if (!LoadRes) {
                 logger::error("One or more structs could not be deserialized with the fallback init failing too...");
@@ -259,6 +257,8 @@ namespace GTS {
         try {
             bool LoadRes = true;
 
+            LoadRes &= LoadStructFromTOML(TomlData, Hidden);
+            LoadRes &= LoadStructFromTOML(TomlData, Advanced);
             LoadRes &= LoadStructFromTOML(TomlData, General);
             LoadRes &= LoadStructFromTOML(TomlData, Gameplay);
             LoadRes &= LoadStructFromTOML(TomlData, Balance);
@@ -266,12 +266,7 @@ namespace GTS {
             LoadRes &= LoadStructFromTOML(TomlData, AI);
             LoadRes &= LoadStructFromTOML(TomlData, Camera);
             LoadRes &= LoadStructFromTOML(TomlData, GtsUI);
-            LoadRes &= LoadStructFromTOML(TomlData, Hidden);
 
-            //If Enabled Allow Loading Advanced Settings from TOML.
-            if (Hidden.IKnowWhatImDoing) {
-                LoadRes &= LoadStructFromTOML(TomlData, Advanced);
-            }
 
             if (!LoadRes) {
                 logger::error("One or more structs could not be deserialized with the fallback init failing too...");
@@ -300,10 +295,9 @@ namespace GTS {
         try {
 
             bool UpdateRes = true;
-            if (Hidden.IKnowWhatImDoing) {
-                UpdateRes &= UpdateTOMLFromStruct(TomlData, Advanced);
-            }
 
+            UpdateRes &= UpdateTOMLFromStruct(TomlData, Hidden);
+            UpdateRes &= UpdateTOMLFromStruct(TomlData, Advanced);
             UpdateRes &= UpdateTOMLFromStruct(TomlData, General);
             UpdateRes &= UpdateTOMLFromStruct(TomlData, Gameplay);
             UpdateRes &= UpdateTOMLFromStruct(TomlData, Balance);
@@ -341,11 +335,9 @@ namespace GTS {
 
         try {
             bool UpdateRes = true;
-            if (Hidden.IKnowWhatImDoing) {
-                UpdateRes &= UpdateTOMLFromStruct(TomlData, Hidden);
-                UpdateRes &= UpdateTOMLFromStruct(TomlData, Advanced);
-            }
 
+        	UpdateRes &= UpdateTOMLFromStruct(TomlData, Hidden);
+        	UpdateRes &= UpdateTOMLFromStruct(TomlData, Advanced);
             UpdateRes &= UpdateTOMLFromStruct(TomlData, General);
             UpdateRes &= UpdateTOMLFromStruct(TomlData, Gameplay);
             UpdateRes &= UpdateTOMLFromStruct(TomlData, Balance);

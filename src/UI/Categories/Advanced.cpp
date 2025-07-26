@@ -47,13 +47,24 @@ namespace GTS {
 
             const char* T0 = "Enable/Disable DamageAV for the player's stamina and magicka.";
             const char* T1 = "GTS actions will have cooldowns if this is enabled.";
-            const char* T2 = "Multiply the resulting GetAnimationSlowdown Value";
+            const char* T2 = "Multiply the resulting GetAnimationSlowdown Value (Acts as a flat multiplier applied after the main formula).";
+            const char* T3 = "Enforce Min/Max Values In UI.";
+            const char* T4 = "Modify The \"SoftCore\" formula used to calculate the amount animations will slow down relative to scale.";
 
             if (ImGui::CollapsingHeader("Cheats",ImUtil::HeaderFlagsDefaultOpen)) {
                 ImUtil::CheckBox("Enable ActorValue Damage",&Settings.bDamageAV, T0);
                 ImUtil::CheckBox("Enable Size-Action Cooldowns",&Settings.bCooldowns, T1);
+                ImUtil::CheckBox("Enforce Slider Range", &Settings.bEnforceUIClamps, T3);
+
                 ImUtil::SliderF("Animspeed Player", &Settings.fAnimSpeedAdjMultPlayer, 0.2f, 1.0f, T2);
                 ImUtil::SliderF("Animspeed Teammate", &Settings.fAnimSpeedAdjMultTeammate, 0.2f, 1.0f, T2);
+
+                ImGui::Spacing();
+
+                //https://www.desmos.com/calculator/vyofjrqmrn
+                ImGui::Text("Animation Formula");
+                ImUtil::SliderF3("Param K, N, S", &Settings.fAnimSpeedFormula.at(0), 0.0f, 10.0f, T4, "%.3f");
+                ImUtil::SliderF2("Param O, A", &Settings.fAnimSpeedFormula.at(3), 0.0f, 10.0f, T4, "%.3f");
 
                 ImGui::Spacing();
             }
