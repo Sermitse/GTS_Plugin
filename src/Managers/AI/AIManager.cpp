@@ -114,7 +114,7 @@ namespace {
 	}
 
 	// Check if an actor is a valid action victim
-	inline bool ValidPrey(Actor* a_Performer, Actor* a_Prey, const bool a_AllowPlayer, const bool a_AllowTeamMates, const bool a_AllowEssential, const bool HostileOnly) {
+	inline bool ValidPrey(Actor* a_Performer, Actor* a_Prey, const bool a_AllowPlayer, const bool a_AllowTeamMates, const bool a_AllowEssential, const bool a_HostileOnly) {
 
 		if (!a_Prey) {
 			return false;
@@ -134,7 +134,7 @@ namespace {
 
 		const bool Hostile = IsHostile(a_Prey, a_Performer) || IsHostile(a_Performer, a_Prey);
 
-		if (HostileOnly && !Hostile) {
+		if (a_HostileOnly && !Hostile) {
 			return false;
 		}
 
