@@ -33,7 +33,7 @@ namespace GTS {
         float power = std::cbrt(SizeDifference) * multiplier;
         float result = std::min(power, limit);
 
-        log::info("Push Result: {}, {}", result, to_string(Type));
+        //log::info("Push Result: {}, {}", result, to_string(Type));
         return result;
     }
 
