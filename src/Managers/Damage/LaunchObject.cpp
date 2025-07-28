@@ -4,6 +4,9 @@
 #include "Config/Config.hpp"
 
 #include "Managers/HighHeel.hpp"
+
+#include "RE/T/TES.hpp"
+
 #include "UI/DebugAPI.hpp"
 
 using namespace GTS;
@@ -266,15 +269,15 @@ namespace GTS {
 		if (!PreciseScan) { // Scan single cell only
 			TESObjectCELL* cell = giant->GetParentCell();
 			if (cell) {
-				auto data = cell->GetRuntimeData();
+				const auto data = cell->GetRuntimeData();
 				for (const auto& object: data.references) {
 					if (object) {
-						auto objectref = object.get();
+						const auto objectref = object.get();
 						if (objectref) {
-							bool IsActor = objectref->Is(FormType::ActorCharacter);
+							const bool IsActor = objectref->Is(FormType::ActorCharacter);
 							if (!IsActor) { // we don't want to apply it to actors
-								NiPoint3 objectlocation = objectref->GetPosition();
-								float distance = (point - objectlocation).Length();
+								const NiPoint3 objectlocation = objectref->GetPosition();
+								const float distance = (point - objectlocation).Length();
 								if (distance <= maxDistance) {
 									ObjectRefHandle refhandle = objectref->CreateRefHandle(); 
 									Objects.push_back(refhandle);
@@ -284,17 +287,17 @@ namespace GTS {
 					}
 				}
 			}
-		} else if (PreciseScan) { // Else scan Entire world
+		}
+    	else { // Else scan Entire world
 			TESObjectREFR* GiantRef = skyrim_cast<TESObjectREFR*>(giant);
 			if (GiantRef) {
-				//Revert to hack....
-				ForEachReferenceInRange_Custom(GiantRef, maxDistance, [&](RE::TESObjectREFR& a_ref) {
-					bool IsActor = a_ref.Is(FormType::ActorCharacter);
+				TESEx::ForEachReferenceInRangeEx(GiantRef, maxDistance, [&](RE::TESObjectREFR* a_ref){
+					const bool IsActor = a_ref->Is(FormType::ActorCharacter);
 					if (!IsActor) { // we don't want to apply it to actors
-						NiPoint3 objectlocation = a_ref.GetPosition();
-						float distance = (point - objectlocation).Length();
+						const NiPoint3 objectlocation = a_ref->GetPosition();
+						const float distance = (point - objectlocation).Length();
 						if (distance <= maxDistance) {
-							ObjectRefHandle handle = a_ref.CreateRefHandle();
+							const ObjectRefHandle handle = a_ref->CreateRefHandle();
 							if (handle) {
 								Objects.push_back(handle);
 							}

@@ -74,6 +74,7 @@ namespace GTS {
 			Config::GetSingleton().LoadSettingsFromString();
 			ImStyleManager::GetSingleton().LoadStyle();
 			ImFontManager::GetSingleton().RebuildFonts();
+			spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
 		}
 	}
 

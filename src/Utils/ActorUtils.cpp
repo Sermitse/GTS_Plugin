@@ -3656,46 +3656,4 @@ namespace GTS {
 		return a_actor->formID == 0x14 && IsFirstPerson();
 	}
 
-	void ForEachReferenceInRange_Custom(RE::TESObjectREFR* origin, float radius, std::function<RE::BSContainer::ForEachResult(RE::TESObjectREFR& ref)> callback) {
-		if (REL::Module::IsAE()) { // Since commonlib didn't fix this function crashing on AE, we have to create fixed function ourselves
-			if (origin && radius > 0.0f) {
-				const auto originPos = origin->GetPosition();
-				auto* tesSingleton = RE::TES::GetSingleton();
-				auto* interiorCell = tesSingleton->interiorCell;
-				if (interiorCell) {
-					interiorCell->ForEachReferenceInRange(originPos, radius,[&](RE::TESObjectREFR& a_ref) { return callback(a_ref); });
-				} else {
-					if (const auto gridLength = tesSingleton->gridCells ? tesSingleton->gridCells->length : 0;
-						gridLength > 0) {
-						const float yPlus = originPos.y + radius;
-						const float yMinus = originPos.y - radius;
-						const float xPlus = originPos.x + radius;
-						const float xMinus = originPos.x - radius;
-
-						std::uint32_t x = 0;
-						do {
-							std::uint32_t y = 0;
-							do {
-								if (const auto cell = tesSingleton->gridCells->GetCell(x, y); cell && cell->IsAttached()) {
-									if (const auto cellCoords = cell->GetCoordinates(); cellCoords) {
-										const RE::NiPoint2 worldPos{cellCoords->worldX, cellCoords->worldY};
-										if (worldPos.x < xPlus && (worldPos.x + 4096.0f) > xMinus && worldPos.y < yPlus &&
-											(worldPos.y + 4096.0f) > yMinus) {
-											cell->ForEachReferenceInRange(originPos, radius, [&](RE::TESObjectREFR& a_ref) {
-												return callback(a_ref);
-											});
-										}
-									}
-								}
-								++y;
-							} while (y < gridLength);
-							++x;
-						} while (x < gridLength);
-					}
-				}
-			} 
-		} else { // If on SE, just use old function
-			TES::GetSingleton()->ForEachReference([&](RE::TESObjectREFR& a_ref) { return callback(a_ref); });
-		}
-	}
 }
