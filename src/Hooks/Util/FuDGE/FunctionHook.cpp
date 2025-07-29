@@ -1,5 +1,7 @@
 #include "FunctionHook.hpp"
-#include "Hooks/Util/Detours/Detours.hpp"
+#include <detours/detours.h>
+
+// Deprecated
 
 namespace Hooks {
 

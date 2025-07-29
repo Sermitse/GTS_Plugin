@@ -1,13 +1,11 @@
 #pragma once
 
-//#include <gluino/type_traits.h>
+// Deprecated
 
 namespace Hooks {
 	
 	template <class Signature>
-	class FunctionHook {
-		//static_assert(gluino::dependent_false<Signature>, "Signature template must be a function signature.");
-	};
+	class FunctionHook {};
 
 	template <>
 	class FunctionHook<void> {

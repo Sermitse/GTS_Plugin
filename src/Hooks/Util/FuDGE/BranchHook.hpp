@@ -1,16 +1,12 @@
 #pragma once
 
 // https://gitlab.com/colorglass/fully-dynamic-game-engine/-/blob/main/Trueflame/include/FDGE/Hook/BranchHook.h
-// Modified from FuDGE, Clib has its own propper hooking mechanism now but we'd have to redo all the hooks were we to switch to it.
-
-//#include <gluino/type_traits.h>
+// Deprecated
 
 namespace Hooks {
 
 	template <class Signature>
-	class BranchHook {
-		//static_assert(gluino::dependent_false<Signature>, "Signature template must be a function signature.");
-	};
+	class BranchHook {};
 
 	template <class Return, class ... Args>
 	

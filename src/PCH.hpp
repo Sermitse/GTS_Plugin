@@ -154,7 +154,7 @@ namespace Hooks {
 	using namespace GTS;
 }
 
-//Add Missing Game versions to our antequated version of clib-ng
+//Add Missing Game versions to our old version of clib-ng
 namespace RE {
 	constexpr REL::Version RUNTIME_SSE_1_6_659(1, 6, 659, 0);
 	constexpr REL::Version RUNTIME_SSE_1_6_678(1, 6, 678, 0);
@@ -179,3 +179,4 @@ namespace logger = SKSE::log;
 #include "Data/Data.hpp"
 #include "Hooks/Hooks.hpp"
 #include "Version.hpp"
+#include "RE/RE.hpp"

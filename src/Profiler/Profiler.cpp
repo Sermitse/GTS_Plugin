@@ -209,7 +209,7 @@ namespace GTS {
 					ImGuiTableFlags_HighlightHoveredColumn |
 					ImGuiTableFlags_Sortable |
 					ImGuiTableFlags_BordersOuter |
-					ImGuiTableFlags_SizingFixedFit)) {  // removed NoSavedSettings
+					ImGuiTableFlags_SizingFixedFit)) {
 
 					ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch);
 					ImGui::TableSetupColumn("CPU Time", ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_WidthFixed);
@@ -228,14 +228,12 @@ namespace GTS {
 						ranges::sort(entries, [&](auto* a, auto* b) {
 							switch (spec.ColumnIndex) {
 								case 0: return asc ? (a->first < b->first) : (a->first > b->first);
-								case 1:
-								{
+								case 1: {
 									double ea = a->second.GetElapsed();
 									double eb = b->second.GetElapsed();
 									return asc ? (ea < eb) : (ea > eb);
 								}
-								case 2:
-								{
+								case 2: {
 									double ea = a->second.GetElapsed();
 									double eb = b->second.GetElapsed();
 									double pa = total_time > 0 ? ea / total_time : 0.0;
@@ -244,7 +242,7 @@ namespace GTS {
 								}
 							}
 							return false;
-							});
+						});
 						specs->SpecsDirty = false;
 					}
 
@@ -276,13 +274,13 @@ namespace GTS {
 
 		// Regular Profilers for this thread
 		if (!data.profilers.empty()) {
-			if (ImGui::TreeNode(("Scoped##" + thread_name).c_str())) {  // no DefaultOpen
+			if (ImGui::TreeNode(("Scoped##" + thread_name).c_str())) {
 				if (ImGui::BeginTable(("ProfilerTable##" + thread_name).c_str(), 4,
 					ImGuiTableFlags_Borders |
 					ImGuiTableFlags_HighlightHoveredColumn |
 					ImGuiTableFlags_Sortable |
 					ImGuiTableFlags_BordersOuter |
-					ImGuiTableFlags_SizingFixedFit)) {     // removed NoSavedSettings
+					ImGuiTableFlags_SizingFixedFit)) {
 
 					ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch);
 					ImGui::TableSetupColumn("CPU Time", ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_WidthFixed);
@@ -311,32 +309,33 @@ namespace GTS {
 									case 0:
 										if (a->first != b->first) return asc ? (a->first < b->first) : (a->first > b->first);
 										break;
-									case 1:
-									{
+
+									case 1:{
 										double ea = a->second.GetElapsed();
 										double eb = b->second.GetElapsed();
 										if (ea != eb) return asc ? (ea < eb) : (ea > eb);
 									} break;
-									case 2:
-									{
+
+									case 2:{
 										double ea = a->second.GetElapsed();
 										double eb = b->second.GetElapsed();
 										double pa = total_time > 0 ? ea / total_time : 0.0;
 										double pb = total_time > 0 ? eb / total_time : 0.0;
 										if (pa != pb) return asc ? (pa < pb) : (pa > pb);
 									} break;
-									case 3:
-									{
+
+									case 3: {
 										double ea = a->second.GetElapsed();
 										double eb = b->second.GetElapsed();
 										double fr = delta > 0 ? ea / delta : 0.0;
 										double frb = delta > 0 ? eb / delta : 0.0;
 										if (fr != frb) return asc ? (fr < frb) : (fr > frb);
 									} break;
+
 								}
 							}
 							return false;
-							});
+						});
 						specs->SpecsDirty = false;
 					}
 
@@ -391,9 +390,7 @@ namespace GTS {
 		ImGui::PushFont(ImFontManager::GetFont("subscript"));
 
 		// Begin window with persistent collapse state
-		if (!ImGui::Begin("Profiler Report", nullptr,
-			ImGuiWindowFlags_NavFlattened  // removed NoCollapse & NoTitleBar
-			)) {
+		if (!ImGui::Begin("Profiler Report", nullptr, ImGuiWindowFlags_NavFlattened)) {
 			ImGui::End();
 			ImGui::PopFont();
 			return;

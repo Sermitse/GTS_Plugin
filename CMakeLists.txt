@@ -59,6 +59,13 @@ include(xSEPlugin)
 find_path(CLIB_UTIL_INCLUDE_DIRS "ClibUtil/Utils.hpp")
 
 # #######################################################################################################################
+# # Find dependencies - VCPKG Other
+# #######################################################################################################################
+
+find_path(DETOURS_INCLUDE_DIRS "detours/detours.h")
+find_library(DETOURS_LIBRARY detours REQUIRED)
+
+# #######################################################################################################################
 # # Find dependencies - Git
 # #######################################################################################################################
 
@@ -102,35 +109,6 @@ find_package(xbyak CONFIG REQUIRED)
 find_package(toml11 CONFIG REQUIRED)
 find_package(nlohmann_json 3.12.0 REQUIRED)
 
-# #######################################################################################################################
-# # VSCode Exclude Clib from search
-# #######################################################################################################################
-
-if(DEFINED ENV{TERM_PROGRAM} AND "$ENV{TERM_PROGRAM}" STREQUAL "vscode")
-    message(STATUS "Detected build inside VS Code (TERM_PROGRAM=vscode)")
-    set(BUILD_INSIDE_VSCODE TRUE CACHE INTERNAL "")
-elseif(DEFINED ENV{VSCODE_PID})
-    message(STATUS "Detected build inside VS Code (VSCODE_PID set)")
-    set(BUILD_INSIDE_VSCODE TRUE CACHE INTERNAL "")
-else()
-    set(BUILD_INSIDE_VSCODE FALSE CACHE INTERNAL "")
-endif()
-
-if(BUILD_INSIDE_VSCODE)
-    file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/.vscode")
-    set(VSCODE_SETTINGS_FILE "${CMAKE_SOURCE_DIR}/.vscode/settings.json")
-
-    if(NOT EXISTS "${VSCODE_SETTINGS_FILE}")
-        file(WRITE "${VSCODE_SETTINGS_FILE}" 
-[[
-{
-  "search.exclude": {
-    "**/extern/CommonLibNG": true
-  }
-}
-]])
-    endif()
-endif()
 
 # #######################################################################################################################
 # # Non-CLib Includes
@@ -143,12 +121,14 @@ target_include_directories(
 	${GLM_INCLUDE_DIRS}
 	${CLIBUTIL_INCLUDE_DIRS}
 	${boost_ext_reflect_SOURCE_DIR}
+    ${DETOURS_INCLUDE_DIRS}
     ${cpp-i18n_SOURCE_DIR}/include
 )
 
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
+    ${DETOURS_LIBRARY}
     cpp-i18n
 	xbyak::xbyak
 	Boost::headers

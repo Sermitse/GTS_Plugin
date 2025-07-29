@@ -14,7 +14,8 @@
         "nlohmann-json",
         "magic-enum",
         "boost-pfr",
-        "lz4"
+        "lz4",
+        "detours"
       ]
     }
   },

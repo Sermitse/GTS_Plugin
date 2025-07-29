@@ -77,6 +77,11 @@ namespace GTS {
 
                     window->Draw();
 
+
+                    Actor* a = nullptr;
+
+                    auto ctd = a->GetScale();
+
                     ImGui::End();
 
                     ImGui::PopStyleColor();

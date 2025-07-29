@@ -1,9 +1,8 @@
-#include "API/Racemenu.hpp"
+#include "API/TrainWreck.hpp"
 #include "API/SmoothCam.hpp"
 #include "Hooks/Hooks.hpp"
 #include "Papyrus/Papyrus.hpp"
 #include "UI/DebugAPI.hpp"
-#include "Config/Config.hpp"
 #include "Utils/InitUtils.hpp"
 
 #include "Managers/Register.hpp"
@@ -144,11 +143,13 @@ SKSEPluginLoad(const LoadInterface * a_skse){
 		ReportInfo("GTSplugin Debug Build.\nAttach the debugger and press OK.");
 	#endif
 
+
 	Init(a_skse);
+	logger::Initialize();
+	TrainWreck::Install();
 
 #ifndef GTS_DISABLE_PLUGIN
 
-	logger::Initialize();
 	LogPrintPluginInfo();
 
 	if (logger::HasConsole()) {
@@ -168,7 +169,6 @@ SKSEPluginLoad(const LoadInterface * a_skse){
 #endif
 
 	InitializeSerialization();
-
 
 	logger::info("SKSEPluginLoad OK");
 

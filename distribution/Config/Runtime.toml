@@ -1,5 +1,5 @@
 ## Runtime.toml
-## This file contains references to plugin ID's that are used by the dll.
+## This file contains references to plugin IDs that are used by the dll.
 ## Do not modify this file unless you know what you are doing.
 
 # Sound Descriptors ---------------------------------------------------------
@@ -10,13 +10,11 @@ GTSSoundThighSandwichImpact = "GTS.esp|582B49"
 
 GTSSoundCrunchImpact = "GTS.esp|5D8C5C"
 GTSSoundCrunchKill = "GTS.esp|5D8C5D"
-
 GTSSoundCrushDefault = "GTS.esp|01102F"
 GTSSoundCrushFootMulti3x8x = "GTS.esp|82E332"
 GTSSoundCrushFootSingle8x = "GTS.esp|833433"
 
 GTSSoundFail = "GTS.esp|851A37"
-
 
 # Stomps ----------
 GTSSoundFootstep_Stomp_Light_x2 = "GTS.esp|8DA56D"
@@ -198,7 +196,6 @@ GTSSoundMoan_HugDrain_x12 = "GTS.esp|8FDCB8"
 GTSSoundMoan_HugDrain_x24 = "GTS.esp|8FDCB9"
 GTSSoundMoan_HugDrain_x48 = "GTS.esp|8FDCBA"
 GTSSoundMoan_HugDrain_x96 = "GTS.esp|8FDCBB"
-
 
 GTSSoundRipClothes = "GTS.esp|30EE54"
 GTSSoundSoftHandAttack = "GTS.esp|5E2E60"
@@ -449,7 +446,6 @@ GTSPerkGrowthAug2 = "GTS.esp|18E160"            # Growing Regeneration (40)
 
 GTSPerkMightOfDragons = "GTS.esp|67FDAC"        # Might Of Dragons (40)
 GTSPerkMightOfGiants = "GTS.esp|6AD6B1"         # Might Of Giants (Quest)  
-
 
 GTSPerkGrowingPressure = "GTS.esp|1E93A9"       # Growing Pressure (75)
 GTSPerkDisastrousTremmor = "GTS.esp|61FA97"     # Disastrous Tremor (100)
