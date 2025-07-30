@@ -3,6 +3,8 @@
 #include "UI/ImGui/ImWindowManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
 
+#include "Utils/Logger.hpp"
+
 namespace GTS {
 
     void CategoryAdvanced::DrawLeft() {
@@ -32,7 +34,7 @@ namespace GTS {
                 ImUtil::CheckBox("Draw Debug Overlay", &Settings.bShowOverlay,T1);
 
                 if (ImUtil::ComboEx<spdlog::level::level_enum>("Log Level", Settings.sLogLevel, T2, false, true)) {
-                	spdlog::set_level(spdlog::level::from_str(Settings.sLogLevel));
+	                logger::SetLevel(Settings.sLogLevel.c_str());
 				}
 
               ImGui::Spacing();

@@ -119,8 +119,8 @@ namespace SKSE::log {
 			SetLevel(debugConfig.sLogLevel.c_str());
 		}
 		catch (std::exception& e) {
-			logger::critical("Could not load spdlog settings from config struct", e.what());
-			GTS::ReportAndExit("Could not load spdlog settings from config struct");
+			logger::critical("Could not load spdlog settings from config", e.what());
+			GTS::ReportAndExit("Could not load spdlog settings from config");
 		}
 	}
 
