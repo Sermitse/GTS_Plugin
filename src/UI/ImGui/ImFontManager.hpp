@@ -61,6 +61,13 @@ namespace GTS {
 
             Font2(const char* a_Name, const std::array<std::string, 4>& a_paths) {
 
+                // Check if all font files exist
+                for (size_t i = 0; i < a_paths.size() - 1; i++) {
+                    if (!std::filesystem::exists(a_paths[i])) {
+                        ReportAndExit("Required font file not found: " + a_paths[i] + "\nReinstall the mod.\nPress OK to close the game.");
+                    }
+                }
+
                 ImFontAtlas* const Atlas = ImGui::GetIO().Fonts;
                 memcpy(&Config->Name, a_Name, strlen(a_Name));
 

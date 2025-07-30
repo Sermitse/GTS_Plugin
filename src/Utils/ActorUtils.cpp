@@ -3006,7 +3006,6 @@ namespace GTS {
 
 		ModSizeExperience(player, 0.45f);
 
-		
 		Notify("You feel like something is filling you");
 		BonusSize.value += size_increase * size_boost;
 

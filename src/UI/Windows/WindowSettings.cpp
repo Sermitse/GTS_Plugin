@@ -167,17 +167,6 @@ namespace GTS {
 			ImFontManager::PopActiveFont();
 	    }
 
-		{  //Draw Help text
-	        const char* THelp = "1. Holding Ctrl when clicking on a UI element (eg. slider) allows you to manually enter a value instead.\n\n"
-								"2. If the settings menu is behaving strangely and you can't select/change things try pressing the Tab key once.\n\n"
-	    						"3. You can also close this menu by pressing ESC.";
-
-	        ImGui::TextColored(ImUtil::ColorSubscript, "Help / Info (?)");
-	        if (ImGui::IsItemHovered()){
-	            ImGui::SetTooltip(THelp);
-	        }
-	    }
-
 		ImGui::PopStyleVar();
 	    ImUtil::SeperatorH();
 

@@ -10,15 +10,14 @@ namespace GTS {
         static Font2 FontSet_Medium = { "NotoMedium", { g_Noto_Medium , g_Noto_Medium_JP, g_Noto_Medium_KR, g_Noto_Medium_SC } };
 
     	TextTypeMap = {
-		    {ActiveFontType::kDefault,TextType(&FontSet_Regular, 16.0f)},
-		    {ActiveFontType::kText,TextType(&FontSet_Regular, 20.0f)},
-		    {ActiveFontType::kTitle,TextType(&FontSet_Medium, 56.0f)},
-		    {ActiveFontType::kFooter,TextType(&FontSet_Medium, 30.0f)},
+		    {ActiveFontType::kText,TextType(&FontSet_Regular, 18.0f)},
+		    {ActiveFontType::kTitle,TextType(&FontSet_Medium, 48.0f)},
+		    {ActiveFontType::kFooter,TextType(&FontSet_Medium, 28.0f)},
 		    {ActiveFontType::kSubText,TextType(&FontSet_Regular, 16.0f)},
-		    {ActiveFontType::kSidebar,TextType(&FontSet_Regular, 34.0f)},
+		    {ActiveFontType::kSidebar,TextType(&FontSet_Regular, 28.0f)},
 		    {ActiveFontType::kError,TextType(&FontSet_Regular, 22.0f)},
-		    {ActiveFontType::kWidgetBody,TextType(&FontSet_Regular, 21.0f)},
-		    {ActiveFontType::kWidgetTitle,TextType(&FontSet_Light, 34.0f)},
+		    {ActiveFontType::kWidgetBody,TextType(&FontSet_Regular, 20.0f)},
+		    {ActiveFontType::kWidgetTitle,TextType(&FontSet_Light, 32.0f)},
         };
 
     }
