@@ -1,4 +1,5 @@
 #include "Utils/MovementForce.hpp"
+#include "Config/Config.hpp"
 
 using namespace GTS;
 
@@ -6,6 +7,16 @@ using namespace GTS;
 // Needs rework
 
 namespace {
+	bool IsAllowed(Actor* a_Giant) {
+		const bool IsPlayer = a_Giant->formID == 0x14; // Always allow Player
+		const bool ConfigLock = Config::GetAI().bRecordBoneSpeedData; // IF ON, also allow NPC's
+		
+		if (IsPlayer || ConfigLock) {
+			return true;
+		}
+		return false;
+	}
+
 	NodeMovementType Convert_To_MovementType(DamageSource Source) {
 
 		NodeMovementType Type = NodeMovementType::Movement_None;
@@ -51,45 +62,48 @@ namespace {
 
 namespace GTS {
 
-	void UpdatePlayerMovement() { // It is a good idea to keep it player exclusive to not calculate each single NPC in the scene which may vore FPS
-		auto player = PlayerCharacter::GetSingleton();
-
-		auto Data = Transient::GetSingleton().GetData(player);
-
-		if (Data) {
-			NiAVObject* Node_LeftFoot = find_node(player, "NPC L Foot [Lft ]");
-			NiAVObject* Node_RightFoot = find_node(player, "NPC R Foot [Rft ]");
-			
-			if (player->IsSneaking() || IsCrawling(player)) {
-				NiAVObject* Node_LeftHand = find_node(player, "NPC L Hand [LHnd]");
-				NiAVObject* Node_RightHand = find_node(player, "NPC R Hand [RHnd]");
-				if (Node_LeftHand && Node_RightHand) {
-					Data->POSCurrentHandL = Node_LeftHand->world.translate;
-					Data->POSCurrentHandR = Node_RightHand->world.translate;
-
-					Data->HandVelocity_L = (Data->POSCurrentHandL - Data->POSLastHandL).Length();
-					Data->HandVelocity_R = (Data->POSCurrentHandR - Data->POSLastHandR).Length();
-
-					Data->POSLastHandL = Data->POSCurrentHandL;
-					Data->POSLastHandR = Data->POSCurrentHandR;
-				}
+	void UpdateBoneMovementData(Actor* a_Giant) { // It is a good idea to keep it player/follower exclusive to not calculate each single NPC in the scene which may vore FPS
+		if (a_Giant && a_Giant->Is3DLoaded()) {
+			if (!IsAllowed(a_Giant)) {
+				return; // Do nothing in that case
 			}
+			auto Data = Transient::GetSingleton().GetData(a_Giant);
 
-			if (Node_LeftFoot && Node_RightFoot) {
-				Data->POSCurrentLegL = Node_LeftFoot->world.translate;
-				Data->POSCurrentLegR = Node_RightFoot->world.translate;
+			if (Data) {
+				NiAVObject* Node_LeftFoot = find_node(a_Giant, "NPC L Foot [Lft ]");
+				NiAVObject* Node_RightFoot = find_node(a_Giant, "NPC R Foot [Rft ]");
+				
+				if (a_Giant->IsSneaking() || IsCrawling(a_Giant)) {
+					NiAVObject* Node_LeftHand = find_node(a_Giant, "NPC L Hand [LHnd]");
+					NiAVObject* Node_RightHand = find_node(a_Giant, "NPC R Hand [RHnd]");
+					if (Node_LeftHand && Node_RightHand) {
+						Data->POSCurrentHandL = Node_LeftHand->world.translate;
+						Data->POSCurrentHandR = Node_RightHand->world.translate;
 
-				Data->FootVelocity_L = (Data->POSCurrentLegL - Data->POSLastLegL).Length();
-				Data->FootVelocity_R = (Data->POSCurrentLegR - Data->POSLastLegR).Length();
+						Data->HandVelocity_L = (Data->POSCurrentHandL - Data->POSLastHandL).Length();
+						Data->HandVelocity_R = (Data->POSCurrentHandR - Data->POSLastHandR).Length();
 
-				Data->POSLastLegL = Data->POSCurrentLegL;
-				Data->POSLastLegR = Data->POSCurrentLegR;
+						Data->POSLastHandL = Data->POSCurrentHandL;
+						Data->POSLastHandR = Data->POSCurrentHandR;
+					}
+				}
+
+				if (Node_LeftFoot && Node_RightFoot) {
+					Data->POSCurrentLegL = Node_LeftFoot->world.translate;
+					Data->POSCurrentLegR = Node_RightFoot->world.translate;
+
+					Data->FootVelocity_L = (Data->POSCurrentLegL - Data->POSLastLegL).Length();
+					Data->FootVelocity_R = (Data->POSCurrentLegR - Data->POSLastLegR).Length();
+
+					Data->POSLastLegL = Data->POSCurrentLegL;
+					Data->POSLastLegR = Data->POSCurrentLegR;
+				}
 			}
 		}
 	}
 
 	float Get_Bone_Movement_Speed(Actor* actor, NodeMovementType type) {
-		if (actor->formID != 0x14) {
+		if (!IsAllowed(actor)) {
 			return 1.0f;
 		}
 		auto profiler = Profilers::Profile("MovementForce: GetBoneMovementSpeed");
@@ -127,7 +141,7 @@ namespace GTS {
 	}
 
 	float Get_Bone_Movement_Speed(Actor* giant, DamageSource Source) {
-		if (giant->formID != 0x14) {
+		if (!IsAllowed(giant)) {
 			return 1.0f;
 		}
 

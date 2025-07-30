@@ -76,12 +76,16 @@ namespace GTS {
                             "- This toggle requires Dynamic Animation Speed toggle in order to work";
             const char* T2 = "Toggle whether Followers should have decreased rotation speed past x1.25 size.\n\n"
                             "- This toggle requires Dynamic Animation Speed toggle in order to work";
-            const char* T3 = "Toggle whether other NPCs should panic when near a GTS.";
+            const char* T3 = "Toggle whether Followers should record movement speed of their legs/hands\n"
+                             "- If on - followers won't push others away if just standing still\n"
+                             "- May affect fps in a negative way since it records data each frame for each follower";
+            const char* T4 = "Toggle whether other NPCs should panic when near a GTS.";
 
             if (ImGui::CollapsingHeader("Misc Settings",ImUtil::HeaderFlagsDefaultOpen)) {
                 ImUtil::CheckBox("Decrease Movement Speed AV", &Settings.bSlowMovementDown, T0);
                 ImUtil::CheckBox("Decrease Combat Rotation Speed", &Settings.bSlowRotationDown, T2);
-                ImUtil::CheckBox("Actors Panic", &Settings.bPanic, T3);
+                ImUtil::CheckBox("Record Node Movement Speed Data", &Settings.bRecordBoneSpeedData, T3);
+                ImUtil::CheckBox("Actors Panic", &Settings.bPanic, T4);
                 ImGui::Spacing();
             }
 		}

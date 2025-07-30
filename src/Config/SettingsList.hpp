@@ -542,6 +542,7 @@ struct SettingsAI {
     bool bAlwaysDisableAttacks = false;
     bool bSlowMovementDown = true;
     bool bSlowRotationDown = true;
+    bool bRecordBoneSpeedData = false;
 };
 TOML_SERIALIZABLE(SettingsAI);
 

@@ -410,7 +410,7 @@ void GtsManager::Update() {
 				GameModeManager::GameMode(actor); // Handle Game Modes
 
 				Foot_PerformIdleEffects_Main(actor); // Just idle zones for pushing away/dealing minimal damage
-				UpdatePlayerMovement(); // Records movement force of Player Legs/Hands
+				UpdateBoneMovementData(actor); // Records movement force of Player/Follower Legs/Hands
 				TinyCalamity_SeekActors(actor); // Active only on Player
 				SpawnActionIcon(actor); // Icons for interactions with others, Player only
 				ScareActors(actor);
