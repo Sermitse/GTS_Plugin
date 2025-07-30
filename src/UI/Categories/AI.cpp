@@ -21,7 +21,10 @@ namespace GTS {
             const char* T3 = "Allow the AI to target other followers.";
             const char* T4 = "Allow AI to perform actions only if NPC is hostile to performer.";
             const char* T5 = "Only allow the action AI to be active when the follower is in combat.";
-            const char* T6 = "Prevent Followers from using regular attacks when they're large. The chance to not attack increases with size.";
+            const char* T6 = "Prevent Followers from using regular attacks based on their size, when they're large.\n"
+            "- The chance to not attack increases with size.\n"
+            "- Works only if enemies are close to Follower";
+            const char* T7 = "If on, always prevents Attacks of followers even if there's no enemies nearby";
 
            
 
@@ -56,6 +59,7 @@ namespace GTS {
 
                     ImUtil::CheckBox("Enable AI Only During Combat",&Settings.bCombatOnly, T5);
                     ImUtil::CheckBox("Disable Regular Attacks When Large", &Settings.bDisableAttacks, T6);
+                    ImUtil::CheckBox("Always Disable Regular Attacks When Large", &Settings.bAlwaysDisableAttacks, T7, !Settings.bDisableAttacks);
 
                     ImGui::EndDisabled();
                 }
@@ -72,12 +76,16 @@ namespace GTS {
                             "- This toggle requires Dynamic Animation Speed toggle in order to work";
             const char* T2 = "Toggle whether Followers should have decreased rotation speed past x1.25 size.\n\n"
                             "- This toggle requires Dynamic Animation Speed toggle in order to work";
-            const char* T3 = "Toggle whether other NPCs should panic when near a GTS.";
+            const char* T3 = "Toggle whether Followers should record movement speed of their legs/hands\n"
+                             "- If on - followers won't push others away if just standing still\n"
+                             "- May affect fps in a negative way since it records data each frame for each follower";
+            const char* T4 = "Toggle whether other NPCs should panic when near a GTS.";
 
             if (ImGui::CollapsingHeader("Misc Settings",ImUtil::HeaderFlagsDefaultOpen)) {
                 ImUtil::CheckBox("Decrease Movement Speed AV", &Settings.bSlowMovementDown, T0);
                 ImUtil::CheckBox("Decrease Combat Rotation Speed", &Settings.bSlowRotationDown, T2);
-                ImUtil::CheckBox("Actors Panic", &Settings.bPanic, T3);
+                ImUtil::CheckBox("Record Node Movement Speed Data", &Settings.bRecordBoneSpeedData, T3);
+                ImUtil::CheckBox("Actors Panic", &Settings.bPanic, T4);
                 ImGui::Spacing();
             }
 		}

@@ -68,6 +68,14 @@ namespace GTS {
 				return;
 			}
 
+			if (Config::GetAI().bAlwaysDisableAttacks) { // If this option is on, always prevent attacks past 2.5x scale
+				const float SizeDiff = get_visual_scale(a_Giant);
+				const float Threshold = 2.5f;
+				DisableAttacks_Melee(a_Giant, SizeDiff, Threshold, false);
+				DisableAttacks_Magic(a_Giant, SizeDiff, Threshold, false);
+				return;
+			}
+
 			if (a_Tiny) {
 
 				const float SizeDiff = GetSizeDifference(a_Giant, a_Tiny, SizeType::VisualScale, true, false);
