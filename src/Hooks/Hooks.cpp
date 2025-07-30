@@ -87,7 +87,7 @@ namespace Hooks {
 		//Hook_Experiments::Install();
 
 		//Unused
-		////Hook_PlayerCamera::Install();
+		//Hook_PlayerCamera::Install();
 		//Hook_TESCamera::Install();
 		//Hook_MagicTarget::Install();
 

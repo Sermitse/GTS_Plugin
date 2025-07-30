@@ -17,9 +17,9 @@ namespace Hooks {
 			float value = func<ID>(a_owner, a_akValue);
 			const auto actor = skyrim_cast<Actor*>(a_owner);
 			if (actor) {
-				if (a_akValue == ActorValue::kCarryWeight) {
-					value = AttributeManager::AlterGetAv(actor, a_akValue, value);
-				}
+
+				value = AttributeManager::AlterGetAv(actor, a_akValue, value);
+				
 				if (a_akValue == ActorValue::kSpeedMult && actor->formID != 0x14) {
 					value = GetNPCSpeedOverride(actor, value);
 				}
@@ -72,9 +72,7 @@ namespace Hooks {
 			float bonus = 0.0f;
 			const auto actor = skyrim_cast<Actor*>(a_owner);
 			if (actor) {
-				if (a_akValue == ActorValue::kCarryWeight) {
-					bonus = AttributeManager::AlterGetBaseAv(actor, a_akValue, value);
-				}
+				bonus = AttributeManager::AlterGetBaseAv(actor, a_akValue, value);
 			}
 
 			return value + bonus;
@@ -97,9 +95,7 @@ namespace Hooks {
 
 			const auto actor = skyrim_cast<Actor*>(a_owner);
 			if (actor) {
-				if (a_akValue == ActorValue::kCarryWeight) {
-					a_value = AttributeManager::AlterSetBaseAv(actor, a_akValue, a_value);
-				}
+				a_value = AttributeManager::AlterSetBaseAv(actor, a_akValue, a_value);
 			}
 
 			func<ID>(a_owner, a_akValue, a_value);
@@ -119,9 +115,10 @@ namespace Hooks {
 		stl::write_vfunc_unique<GetActorValue, 1>(VTABLE_Character[5]);
 		stl::write_vfunc_unique<GetActorValue, 2>(VTABLE_PlayerCharacter[5]);
 
-		stl::write_vfunc_unique<GetPermanentActorValue, 0>(VTABLE_Actor[5]);
-		stl::write_vfunc_unique<GetPermanentActorValue, 1>(VTABLE_Character[5]);
-		stl::write_vfunc_unique<GetPermanentActorValue, 2>(VTABLE_Actor[5]);
+		//Does Nothing
+		//stl::write_vfunc_unique<GetPermanentActorValue, 0>(VTABLE_Actor[5]);
+		//stl::write_vfunc_unique<GetPermanentActorValue, 1>(VTABLE_Character[5]);
+		//stl::write_vfunc_unique<GetPermanentActorValue, 2>(VTABLE_Actor[5]);
 
 		stl::write_vfunc_unique<GetBaseActorValue, 0>(VTABLE_Actor[5]);
 		stl::write_vfunc_unique<GetBaseActorValue, 1>(VTABLE_Character[5]);
