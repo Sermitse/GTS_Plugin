@@ -23,6 +23,7 @@ namespace {
 	constexpr const char* PatternConsole = WHT "[" MAG "GTS" WHT "][%H:%M:%S.%e][%^%l%$][" YEL "%s:%#" WHT "]: %v" RST;
 
 	static inline std::optional<std::filesystem::path> log_directory_fixed() {
+
 		wchar_t* buffer{ nullptr };
 		const auto result = ::SHGetKnownFolderPath(::FOLDERID_Documents, ::KNOWN_FOLDER_FLAG::KF_FLAG_DEFAULT, nullptr, std::addressof(buffer));
 		std::unique_ptr<wchar_t[], decltype(&::CoTaskMemFree)> knownPath(buffer, ::CoTaskMemFree);
@@ -66,10 +67,10 @@ namespace SKSE::log {
 			logger = std::make_shared <spdlog::logger>("Global", std::make_shared <spdlog::sinks::stdout_color_sink_mt>());
 			logger->set_pattern(PatternConsole);
 		}
-		else if (IsDebuggerPresent()) {
+		/*else if (IsDebuggerPresent()) {
 			logger = std::make_shared <spdlog::logger>("Global", std::make_shared <spdlog::sinks::msvc_sink_mt>());
 			logger->set_pattern(PatternDefault);
-		}
+		}*/
 		else {
 			logger = std::make_shared <spdlog::logger>("Global", std::make_shared <spdlog::sinks::basic_file_sink_mt>(path->string(), true));
 			logger->set_pattern(PatternDefault);

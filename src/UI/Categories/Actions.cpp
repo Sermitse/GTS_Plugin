@@ -1,6 +1,6 @@
 #include "Actions.hpp"
 #include "UI/Categories/General.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
 
 namespace GTS {

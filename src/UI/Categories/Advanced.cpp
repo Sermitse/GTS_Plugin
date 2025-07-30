@@ -1,5 +1,5 @@
-#include "UI/Categories/Advanced.hpp"
-#include "UI/DearImGui/imgui.h"
+﻿#include "UI/Categories/Advanced.hpp"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImWindowManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
 
@@ -19,11 +19,9 @@ namespace GTS {
 
         ImUtil_Unique{
             	
-            const char* T0 = "Show The Profiler (Only works if #define is enabled)";
+            const char* T0 = "Show The Profiler";
             const char* T1 = "Enable the debug overlay.";
-
             const char* T2 = "Set the log severity level. The higher it is the more info is dumped into GTSPlugin.log";
-            const char* T3 = "Set the flush severity level. The higher it is the more info is dumped into GTSPlugin.log when a crash happens";
 
             if (ImGui::CollapsingHeader("Logging / Debugging",ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -98,14 +96,69 @@ namespace GTS {
                 {
                     const char* T0 = "Show ImGui's Metrics Window";
                     const char* T1 = "Show ImGui's Stack Window";
+                    const char* T2 = "Show ImGui's Demo Window";
 
                     ImUtil::CheckBox("Show Metrics", &ImWindowManager::GetSingleton().ShowMetrics,T0);
                     ImGui::SameLine();
                     ImUtil::CheckBox("Show Stack", &ImWindowManager::GetSingleton().ShowStack,T1);
+                    ImUtil::CheckBox("Show Demo Window", &ImWindowManager::GetSingleton().ShowDemoWindow, T2);
                 }
 
                 if (ImUtil::Button("Quit", "This will immediatly close the game.", false, 1.0f)) {
-                    SKSE::WinAPI::TerminateProcess(SKSE::WinAPI::GetCurrentProcess(), EXIT_FAILURE);
+                    SKSE::WinAPI::TerminateProcess(SKSE::WinAPI::GetCurrentProcess(), EXIT_SUCCESS);
+                }
+
+                ImGui::SameLine();
+
+                if (ImUtil::Button("Trigger Crash", "This will immediatly crash the game.", false, 1.0f)) {
+                    using FuncType = void(*)();
+                    FuncType func = nullptr;
+                    func();
+                }
+            }
+        }
+
+        ImUtil_Unique{
+
+            //Multi-Language Font Test
+            if (ImGui::CollapsingHeader("Font Test")) {
+
+                {
+                    ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::EN);
+                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+
+                    ImGui::Text(reinterpret_cast <const char*>(u8"This îs à fóntlöäder tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève"));
+                    ImGui::Text(reinterpret_cast<const char*>(u8"Αυτή είναι μια δοκιμή για τον φορτωτή γραμματοσειράς"));
+                    ImGui::Text(reinterpret_cast<const char*>(u8"Это тест загрузчика шрифтов"));
+
+                    ImFontManager::PopActiveFont();
+                }
+
+                {
+                    ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::JP);
+                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+
+                    ImGui::Text(reinterpret_cast<const char*>(u8"これはフォントローダーのテストです"));
+
+                    ImFontManager::PopActiveFont();
+                }
+
+                {
+                    ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::EN);
+                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+
+                    ImGui::Text(reinterpret_cast<const char*>(u8"이것은 폰트로더 테스트입니다"));
+
+                    ImFontManager::PopActiveFont();
+                }
+
+                {
+                    ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::EN);
+                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+
+                    ImGui::Text(reinterpret_cast<const char*>(u8"这是一个字体加载器测试"));
+
+                    ImFontManager::PopActiveFont();
                 }
             }
         }

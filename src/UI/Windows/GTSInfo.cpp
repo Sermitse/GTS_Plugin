@@ -1,6 +1,6 @@
 #include "UI/Windows/GTSInfo.hpp"
 #include "UI/ImGui/ImUtil.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "Managers/Attributes.hpp"
 #include "Managers/SpectatorManager.hpp"
 

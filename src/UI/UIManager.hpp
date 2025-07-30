@@ -34,7 +34,7 @@ namespace GTS {
 		static void ShowInfos();
 		static void CloseSettings();
 		void Init();
-		void Update();
+		void Draw();
 
 		[[nodiscard]] inline bool Ready() const {
 			return Initialized.load();

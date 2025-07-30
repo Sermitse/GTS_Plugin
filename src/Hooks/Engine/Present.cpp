@@ -22,7 +22,8 @@ namespace Hooks {
 
 					//IO can only be retrieved if a valid imgui context exists.
 					auto& io = ImGui::GetIO();
-					io.ClearInputCharacters();
+					io.ClearEventsQueue();
+					io.ClearInputMouse();
 					io.ClearInputKeys();
 
 				}
@@ -76,7 +77,7 @@ namespace Hooks {
 			func(unk_01);
 
 			if (UIManager::ShouldDrawOverTop) {
-				UIManager::GetSingleton().Update();
+				UIManager::GetSingleton().Draw();
 			}
 
 		}
@@ -105,7 +106,7 @@ namespace Hooks {
 			func(a_menu);
 
 			if (!UIManager::ShouldDrawOverTop) {
-				UIManager::GetSingleton().Update();
+				UIManager::GetSingleton().Draw();
 			}
 		}
 

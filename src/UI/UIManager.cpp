@@ -1,10 +1,7 @@
-#include "UI/DearImGui/imgui.h"
-#include "UI/DearImGui/imgui_impl_dx11.h"
-#include "UI/DearImGui/imgui_impl_win32.h"
+#include "UI/ImGui/Lib/imgui.h"
+#include "UI/ImGui/Lib/imgui_impl_dx11.h"
+#include "UI/ImGui/Lib/imgui_impl_win32.h"
 #include "UI/UIManager.hpp"
-
-#include "Hooks/Engine/Settings.hpp"
-
 #include "Managers/Console/ConsoleManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
 #include "UI/ImGui/ImWindowManager.hpp"
@@ -43,8 +40,7 @@ namespace {
             GTS::UIManager::UnPausedGameTime = GTS::Time::GGTM();
 
             if (GTS::Config::GetAdvanced().bPauseGame) {
-                //Pause the game, Figuring out that this was the "magic" value that needed to be set for the full game to pause was fun*
-                //*it was not... Atleast it was good practice in figuring out how ghidra works with the RE'd stuff....
+                //Pause the game
                 RE::UI::GetSingleton()->numPausesGame++;
                 GTS::UIManager::GamePaused = true;
                 //Old method Only stops world update, Its litterally only used for the TFC 1 command in the whole exe.
@@ -105,14 +101,13 @@ namespace GTS {
 
             //If we incremented the pause counter ourselves
             //decrement it again
-            //if we didnt and some random message box did this prevents underflowing the counter to 4 bilion
+            //if we didnt and some random message box did, it prevents underflowing the counter
             if (GTS::UIManager::GamePaused){
                 if (RE::UI::GetSingleton()->numPausesGame > 0)
                     RE::UI::GetSingleton()->numPausesGame--;
                 GTS::UIManager::GamePaused = false;
 			}
 
-            //RE::Main::GetSingleton()->freezeTime = false;
             RE::UIBlurManager::GetSingleton()->DecrementBlurCount();
             //Restore Modified Game time.
             Hooks::Time::SGTM(GTS::UIManager::UnPausedGameTime);
@@ -153,10 +148,6 @@ namespace GTS {
         io.ConfigNavCaptureKeyboard = false;
         io.ConfigNavEscapeClearFocusWindow = false;
         io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-        
-        //Keyboard nav is too buggy if using borderless mode...
-        //This tries to remmedy that slightly
-        io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard;
 
         ImGui_ImplWin32_Init(SwapChainDesc.OutputWindow);
         ImGui_ImplDX11_Init(D3DDevice, D3DContext);
@@ -176,10 +167,7 @@ namespace GTS {
         ConsoleManager::RegisterCommand("menu", OpenSettingsC, "Open the settings menu");
     }
 
-
-    //Called After RE::HUDMenu is drawn
-    void UIManager::Update() {
-       
+    void UIManager::Draw() {
 
         if (!Initialized.load()) {
             return;
@@ -208,8 +196,6 @@ namespace GTS {
         ImGui::Render();
 
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-        ImFontManager::GetSingleton().ProcessActions();
 
     }
 }

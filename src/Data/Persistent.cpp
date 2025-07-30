@@ -25,11 +25,9 @@ namespace GTS {
 		SizeManager::GetSingleton().Reset();
 		DistributeChestItems();
 		FixAnimationsAndCamera(); // Call it from ActorUtils, needed to fix Grab anim on save-reload
-
-	#endif
-
-		LoadPersistent(serde);
 		LoadModLocalModConfiguration();
+	#endif
+		LoadPersistent(serde);
 
 		//logger::info("Persistent OnGameLoaded OK");
 	}
@@ -73,7 +71,6 @@ namespace GTS {
 		if (Persi.LocalSettingsEnable.value) {
 			Config::GetSingleton().LoadSettingsFromString();
 			ImStyleManager::GetSingleton().LoadStyle();
-			ImFontManager::GetSingleton().RebuildFonts();
 			spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
 		}
 	}

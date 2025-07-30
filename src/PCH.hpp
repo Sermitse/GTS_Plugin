@@ -1,9 +1,15 @@
 #pragma once
+
+//stdlib Defines
 #define _USE_MATH_DEFINES
 
 //Project-Wide Defines
 //#define GTS_PROFILER_ENABLED
 //#define GTS_DISABLE_PLUGIN
+
+
+//Imgui Defines
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
 #include <cassert>
 #include <cctype>

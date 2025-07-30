@@ -2,7 +2,7 @@
 #include "Config/Keybinds.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "UI/UIManager.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGUI/ImFontManager.hpp"
 #include "UI/ImGUI/ImStyleManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
@@ -26,7 +26,8 @@ namespace GTS {
 				const auto Player = PlayerCharacter::GetSingleton();
 				const bool WorkingAnims = AnimationsInstalled(Player);
 
-				ImGui::PushFont(ImFontManager::GetFont("widgettitle"));
+				ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kWidgetTitle);
+
 				ImGui::Text("Animations Installed: ");
 				if (WorkingAnims) {
 					ImGui::SameLine(0,1);
@@ -37,7 +38,7 @@ namespace GTS {
 					ImGui::TextColored(ImUtil::ColorError, "No");
 				}
 
-				ImGui::PopFont();
+				ImFontManager::PopActiveFont();
 
 				if (ImUtil::Button("Manualy Test Animations", T0)) {
 
@@ -310,7 +311,6 @@ namespace GTS {
 					Config::GetSingleton().ResetToDefaults();
 					Keybinds::GetSingleton().ResetKeybinds();
 					ImStyleManager::GetSingleton().LoadStyle();
-					ImFontManager::GetSingleton().RebuildFonts();
 
 					spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
 

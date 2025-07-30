@@ -1,57 +1,102 @@
 #pragma once
 
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "Config/Config.hpp"
 
 namespace GTS {
 
     class ImFontManager {
-        private:
 
         //Consts
-        const std::string _ext = ".ttf";
-        const std::string _basePath = R"(Data\SKSE\Plugins\GTSPlugin\Fonts\)";
+        static inline const std::string _ext = ".ttf";
+        static inline const std::string _basePath = R"(Data\SKSE\Plugins\GTSPlugin\Fonts\)";
 
-        //Jost mimicks futura <- Skyrim Default UI Font
-        //OpenSans mimicks Arial <- Skyrim Default UI Font for the console
+        static inline const std::string g_Noto_Light = _basePath + R"(Noto\EN\NotoSans-Light)" + _ext;
+        static inline const std::string g_Noto_Medium = _basePath + R"(Noto\EN\NotoSans-Medium)" + _ext;
+        static inline const std::string g_Noto_Regular = _basePath + R"(Noto\EN\NotoSans-Regular)" + _ext;
 
-        const std::string _Jost_Light = _basePath + R"(Jost\Jost-Light)" + _ext;
-        const std::string _Jost_Regular = _basePath + R"(Jost\Jost-Regular)" + _ext;
-        const std::string _Jost_Medium = _basePath + R"(Jost\Jost-Medium)" + _ext;
-        const std::string _OpenSans_Regular = _basePath + R"(OpenSans\OpenSans-Regular)" + _ext;
+        static inline const std::string g_Noto_Light_JP = _basePath + R"(Noto\JP\NotoSans-Light)" + _ext;
+        static inline const std::string g_Noto_Medium_JP = _basePath + R"(Noto\JP\NotoSans-Medium)" + _ext;
+        static inline const std::string g_Noto_Regular_JP = _basePath + R"(Noto\JP\NotoSans-Regular)" + _ext;
+
+        static inline const std::string g_Noto_Light_KR = _basePath + R"(Noto\KR\NotoSans-Light)" + _ext;
+        static inline const std::string g_Noto_Medium_KR = _basePath + R"(Noto\KR\NotoSans-Medium)" + _ext;
+        static inline const std::string g_Noto_Regular_KR = _basePath + R"(Noto\KR\NotoSans-Regular)" + _ext;
+
+        static inline const std::string g_Noto_Light_SC = _basePath + R"(Noto\SC\NotoSans-Light)" + _ext;
+        static inline const std::string g_Noto_Medium_SC = _basePath + R"(Noto\SC\NotoSans-Medium)" + _ext;
+        static inline const std::string g_Noto_Regular_SC = _basePath + R"(Noto\SC\NotoSans-Regular)" + _ext;
 
         const SettingsUI& Settings = Config::GetUI();
 
-        //Structs
-        typedef struct FontData {
-            std::string name;
-            std::string path;
-            float size;
-            ImFontConfig* conf = new ImFontConfig();
-            ImFont* font;
-            FontData(const std::string& name, const std::string& path, float size) : name(name), path(path), size(size) {
-                //8 is probably overkill...
-                //By directly chaning the font scale this hack is no longer needed.
-                conf->OversampleH = 4;
-                conf->OversampleV = 3;
-            }
-        } FontData;
+		public:
 
-        enum class AQueueType {
-            kRasterizerScale,
-            kRebuildAtlas
+        enum ActiveScriptType {
+            EN,
+            JP,
+            KR,
+            SC
         };
 
-        //Lists
-        std::stack<std::pair<AQueueType, float>> ActionQueue;
-        std::unordered_map<std::string, FontData*> Fonts;
+        enum class ActiveFontType {
+            kDefault,
+            kSidebar,
+            kTitle,
+            kFooter,
+            kText,
+            kError,
+            kSubText,
+            kWidgetBody,
+            kWidgetTitle
+        };
 
-        //Funcs
-        void ChangeRasterizerScaleImpl(float a_scale);
-        void RebuildFontAtlasImpl() const;
-        void BuildFontsInt() const;
+        typedef struct Font2 {
 
-        public:
+            ImFont* EN = nullptr;
+            ImFont* JP = nullptr;
+            ImFont* KR = nullptr;
+            ImFont* SC = nullptr;
+
+            ImFontConfig* Config = new ImFontConfig();
+
+            Font2(const char* a_Name, const std::array<std::string, 4>& a_paths) {
+
+                ImFontAtlas* const Atlas = ImGui::GetIO().Fonts;
+                memcpy(&Config->Name, a_Name, strlen(a_Name));
+
+                Config->OversampleH = 4;
+                Config->OversampleV = 4;
+
+                //Base Font
+                EN = Atlas->AddFontFromFileTTF(a_paths[0].data(), 0.0f, Config);
+
+                //Has to be set after atleast 1 font has been added fist.
+                //Merge Glyphs From Other Langs Into Base Font.
+                Config->MergeMode = true;
+                JP = Atlas->AddFontFromFileTTF(a_paths[1].data(), 0.0f, Config);
+                KR = Atlas->AddFontFromFileTTF(a_paths[2].data(), 0.0f, Config);
+                SC = Atlas->AddFontFromFileTTF(a_paths[3].data(), 0.0f, Config);
+
+            }
+
+            [[nodiscard]] ImFont* GetActiveScript() const {
+                switch (ImFontManager::ActiveScript) {
+                    case ActiveScriptType::EN: return EN;
+                    case ActiveScriptType::JP: return JP;
+                    case ActiveScriptType::KR: return KR;
+                    case ActiveScriptType::SC: return SC;
+                    default: return nullptr;
+                }
+            }
+
+        } Font2;
+
+        struct TextType {
+            Font2* FontSet;
+            float Scale;
+            TextType(Font2* FontSet, float Scale) : FontSet(FontSet), Scale(Scale) {}
+        };
+
         ~ImFontManager() = default;
 
         [[nodiscard]] static inline ImFontManager& GetSingleton() {
@@ -59,23 +104,17 @@ namespace GTS {
             return instance;
         }
 
-        inline void PushAction(AQueueType a_type, const float a_value){
-            ActionQueue.emplace(a_type, a_value);
-        }
-
-        //Queuable Actions
-        inline void ChangeRasterizerScale(const float a_scale) {
-            PushAction(AQueueType::kRasterizerScale,a_scale);
-        }
-
-        inline void RebuildFonts() {
-            PushAction(AQueueType::kRebuildAtlas,1.0);
-        }
-
         void Init();
-        void AddFont(FontData* a_font);
-        [[nodiscard]] static ImFont* GetFont(const std::string& fontName);
-        void ProcessActions();
 
+        static __forceinline void SetActiveScript(ActiveScriptType a_script){
+            ActiveScript = a_script;
+        }
+
+        static void PushActiveFont(ActiveFontType a_ActiveFontType);
+        static void PopActiveFont();
+
+		private:
+        std::unordered_map<ActiveFontType, TextType> TextTypeMap{};
+        static inline ActiveScriptType ActiveScript = EN;
     };
 }

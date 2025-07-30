@@ -1,5 +1,5 @@
 #include "UI/Windows/WindowSettings.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 
 //categories
 #include "UI/Categories/Gameplay.hpp"
@@ -37,7 +37,6 @@ namespace GTS {
 
 			ErrorString.clear();
 			StyleMgr.LoadStyle();
-			FontMgr.RebuildFonts();
 			SaveLoadBusy.store(false);
 		}
 		//Should not be needed but just in case...
@@ -98,9 +97,9 @@ namespace GTS {
 	void WindowSettings::Draw() {
 
 	    auto& Categories = CatMgr.GetCategories();
-		ImGui::PushFont(ImFontManager::GetFont("footer"));
+		ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kFooter);
 	    const float Footer = ImGui::GetFrameHeightWithSpacing() + (ImGui::GetStyle().ItemSpacing.y * 4.0);  // text + separator
-		ImGui::PopFont();
+		ImFontManager::PopActiveFont();
 	    
 	    //Calc Button Width
 	    std::array<const char*,3> Lables = { "Load", "Save", "Reset" };
@@ -163,9 +162,9 @@ namespace GTS {
 
 	    {  // Draw Title
 
-	        ImGui::PushFont(ImFontManager::GetFont("title"));
+			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kTitle);
 	        ImGui::Text(Title.c_str());
-	        ImGui::PopFont();
+			ImFontManager::PopActiveFont();
 	    }
 
 		{  //Draw Help text
@@ -186,7 +185,7 @@ namespace GTS {
 
 	        ImGui::BeginChild("Sidebar", ImVec2(CatMgr.GetLongestCategory(), ImGui::GetContentRegionAvail().y - Footer), true);
 	        ImGui::BeginDisabled(Disabled);
-	        ImGui::PushFont(ImFontManager::GetFont("sidebar"));
+			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kSidebar);
 
 	        // Display the categories in the sidebar
 	        for (uint8_t i = 0; i < static_cast<uint8_t>(Categories.size()); i++) {
@@ -204,7 +203,7 @@ namespace GTS {
 
 	        }
 
-	        ImGui::PopFont();
+			ImFontManager::PopActiveFont();
 	        ImGui::EndDisabled();
 	        ImGui::EndChild();
 	    }
@@ -233,7 +232,7 @@ namespace GTS {
 	    
 	    {   //Footer - Mod Info
 
-	        ImGui::PushFont(ImFontManager::GetFont("subscript"));
+			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kSubText);
 
 			const std::string FooterMessage = fmt::format(
 			 "GTSPlugin {}\n"
@@ -245,18 +244,18 @@ namespace GTS {
 			git::AnyUncommittedChanges() ? "Development Version" : fmt::format("SHA1 {}",git::CommitSHA1()));
 
 	        ImGui::TextColored(ImUtil::ColorSubscript, FooterMessage.c_str());
-	        ImGui::PopFont();
+			ImFontManager::PopActiveFont();
 	    }
 
 	    ImGui::SameLine(TextCenter);
 
 	    {   
 	        ImGui::SetCursorPosY(ImGui::GetWindowHeight() - (Footer / 2.0f) - Style.FramePadding.y);
-	        ImGui::PushFont(ImFontManager::GetFont("errortext"));
+			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kError);
 	        ImGui::PushStyleColor(ImGuiCol_Text,ImUtil::ColorError);
 	        ImGui::Text(ErrorString.c_str());
 	        ImGui::PopStyleColor();
-	        ImGui::PopFont();
+			ImFontManager::PopActiveFont();
 	    }
 
 	    ImGui::SameLine(ButtonStartX);

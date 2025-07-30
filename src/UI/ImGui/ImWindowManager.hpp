@@ -21,6 +21,7 @@ namespace GTS {
 
         bool ShowMetrics = false;
         bool ShowStack = false;
+        bool ShowDemoWindow = false;
 
         [[nodiscard]] static inline ImWindowManager& GetSingleton() {
             static ImWindowManager instance;

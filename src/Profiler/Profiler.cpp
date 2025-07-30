@@ -1,6 +1,6 @@
 #include "Profiler/Profiler.hpp"
 #include "Managers/GtsManager.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImFontManager.hpp"
 
 
@@ -387,17 +387,17 @@ namespace GTS {
 		// Clean up expired threads
 		Instance.CleanupExpiredThreads();
 
-		ImGui::PushFont(ImFontManager::GetFont("subscript"));
+		ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kSubText);
 
 		// Begin window with persistent collapse state
-		if (!ImGui::Begin("Profiler Report", nullptr, ImGuiWindowFlags_NavFlattened)) {
+		if (!ImGui::Begin("Profiler Report", nullptr, ImGuiWindowFlags_None)) {
 			ImGui::End();
-			ImGui::PopFont();
+			ImFontManager::PopActiveFont();
 			return;
 		}
 		if (ImGui::IsWindowCollapsed()) {
 			ImGui::End();
-			ImGui::PopFont();
+			ImFontManager::PopActiveFont();
 			return;
 		}
 
@@ -503,7 +503,7 @@ namespace GTS {
 		Instance.TotalTime.Reset();
 
 		ImGui::End();
-		ImGui::PopFont();
+		ImFontManager::PopActiveFont();
 	}
 
 

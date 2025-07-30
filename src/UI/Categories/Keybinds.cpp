@@ -1,7 +1,7 @@
 #include "UI/Categories/Keybinds.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/imGui/ImUtil.hpp"
-#include "UI/DearImGui/imgui_stdlib.h"
+#include "UI/ImGui/Lib/imgui_stdlib.h"
 #include "UI/ImGui/ImInput.hpp"
 #include "UI/Windows/WindowSettings.hpp"
 

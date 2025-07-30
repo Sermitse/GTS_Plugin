@@ -1,5 +1,5 @@
 #include "UI/Categories/Gameplay.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
 
 namespace {

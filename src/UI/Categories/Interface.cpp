@@ -61,7 +61,6 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-
 	        const char* T0 = "Choose which type of measurement units to display.";
 
 	        if(ImGui::CollapsingHeader("Misc Settings",ImUtil::HeaderFlagsDefaultOpen)){
@@ -84,7 +83,6 @@ namespace GTS {
 	            ImUtil::SliderF("UI Scale", &Settings.fScale, 0.7f, 1.8f, T0,"%.1fx");
 	            if (ImGui::IsItemDeactivatedAfterEdit()) {
 	                StyleMgr.LoadStyle();
-	                FontMgr.RebuildFonts();
 	            }
 
 	            ImUtil::SliderF("Item Width", &Settings.fItemWidth, 0.4f, 0.7f, T1,"%.2fx");

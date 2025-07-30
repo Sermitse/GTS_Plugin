@@ -1,7 +1,7 @@
 #pragma once
 
-#include "UI/DearImGui/imgui.h"
-#include "UI/DearImGui/imgui_internal.h"
+#include "UI/ImGui/Lib/imgui.h"
+#include "UI/ImGui/Lib/imgui_internal.h"
 
 
 // RAII helper to push an ID on construction and pop it on destruction

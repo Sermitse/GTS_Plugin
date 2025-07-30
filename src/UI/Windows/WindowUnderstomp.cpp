@@ -1,4 +1,4 @@
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/Windows/WindowUnderstomp.hpp"
 
 #include "Managers/Animation/Stomp_Under.hpp"
@@ -140,7 +140,7 @@ namespace GTS {
 
             CheckFade(Player);
 
-            ImGui::PushFont(ImFontManager::GetFont("widgetbody"));
+            ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kWidgetBody);
 
             std::string Text = "";
 
@@ -186,7 +186,7 @@ namespace GTS {
             );
 
             ImGui::PopStyleColor();
-            ImGui::PopFont();
+            ImFontManager::PopActiveFont();
         }
 
         ImGui::SetWindowSize({ 0.0f,0.0f });
