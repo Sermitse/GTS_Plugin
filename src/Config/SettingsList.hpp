@@ -539,6 +539,7 @@ struct SettingsAI {
     bool bAllowFollowers = true;
     bool bHostileOnly = true;
     bool bDisableAttacks = true;
+    bool bAlwaysDisableAttacks = false;
     bool bSlowMovementDown = true;
     bool bSlowRotationDown = true;
 };

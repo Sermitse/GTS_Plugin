@@ -21,7 +21,10 @@ namespace GTS {
             const char* T3 = "Allow the AI to target other followers.";
             const char* T4 = "Allow AI to perform actions only if NPC is hostile to performer.";
             const char* T5 = "Only allow the action AI to be active when the follower is in combat.";
-            const char* T6 = "Prevent Followers from using regular attacks when they're large. The chance to not attack increases with size.";
+            const char* T6 = "Prevent Followers from using regular attacks based on their size, when they're large.\n"
+            "- The chance to not attack increases with size.\n"
+            "- Works only if enemies are close to Follower";
+            const char* T7 = "If on, always prevents Attacks of followers even if there's no enemies nearby";
 
            
 
@@ -56,6 +59,7 @@ namespace GTS {
 
                     ImUtil::CheckBox("Enable AI Only During Combat",&Settings.bCombatOnly, T5);
                     ImUtil::CheckBox("Disable Regular Attacks When Large", &Settings.bDisableAttacks, T6);
+                    ImUtil::CheckBox("Always Disable Regular Attacks When Large", &Settings.bAlwaysDisableAttacks, T7, !Settings.bDisableAttacks);
 
                     ImGui::EndDisabled();
                 }
