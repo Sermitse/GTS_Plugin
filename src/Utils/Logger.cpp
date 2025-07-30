@@ -81,10 +81,6 @@ namespace SKSE::log {
 
 	}
 
-	void LoadSettings() {
-		
-	}
-
 	void SetLevel(spdlog::level::level_enum a_level) {
 		spdlog::set_level(a_level);
 		spdlog::flush_on(a_level);
