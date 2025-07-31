@@ -13,7 +13,7 @@ namespace GTS {
         CategoryKeybinds(){
             title = "Keybinds";
             for(auto& e : DefaultEvents){
-                HeaderStateMap.emplace(e.Event,false);
+                HeaderStateMap.emplace(e.Event.Event,false);
             }
         }
         void Draw() override;
@@ -35,7 +35,7 @@ namespace GTS {
         }
 
 
-        int Div = 3;
+        int Div = 2;
         std::string SearchRes;
         bool HideFiltered = false;
         volatile uint8_t ColExpState = 0;
@@ -47,7 +47,7 @@ namespace GTS {
         int RebindIndex = 0;
         int CurEventIndex = 1000;
         float Width = 0.0f;
-        bool DrawInputEvent(GTSInputEvent& Event, const std::string& a_name);
+        bool DrawInputEvent(GTSInputEvent& Event, const std::string& a_name, float columnNameWidth);
         const int HeaderFlags =  ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AutoResizeX ;
 
     };

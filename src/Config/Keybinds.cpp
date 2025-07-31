@@ -3,15 +3,18 @@
 namespace GTS {
 
     bool Keybinds::LoadKeybinds() {
+
         std::lock_guard<std::mutex> lock(_ReadWriteLock);
 
         if (!CheckFile(InputFile)) {
             return false;
         }
 
+        const auto DefaultInputEvents = GetAllInputEvents();
+
         try {
             // Parse the TOML file and initialize with default keybinds.
-            InputEvents = DefaultEvents;
+            InputEvents = DefaultInputEvents;
             TomlData = toml::parse<toml::ordered_type_config>(InputFile);
         }
         catch (const std::exception& e) {
@@ -29,11 +32,11 @@ namespace GTS {
             }
             TomlData["InputEvent"] = toml::ordered_array();
             return TomlData["InputEvent"].as_array();
-            }();
+        }();
 
         // Build a set of valid event names from the default keybinds.
         std::unordered_set<std::string> validEvents;
-        for (const auto& bind : DefaultEvents) {
+        for (const auto& bind : DefaultInputEvents) {
             validEvents.insert(bind.Event);
         }
 
@@ -52,14 +55,15 @@ namespace GTS {
                 continue;
             }
             const std::string& eventName = itEvent->second.as_string();
-            if (!validEvents.count(eventName)) {
+            if (!validEvents.contains(eventName)) {
                 inputEventArray.erase(inputEventArray.begin() + i);
                 continue;
             }
 
             // Locate the corresponding keybind from the defaults.
-            auto bindIt = std::find_if(InputEvents.begin(), InputEvents.end(),
-                [&](const GTSInputEvent& ke) { return ke.Event == eventName; });
+            auto bindIt = ranges::find_if(InputEvents,[&](const GTSInputEvent& ke) {
+	            return ke.Event == eventName;
+            });
             if (bindIt == InputEvents.end())
                 continue; // Should not happen.
 
@@ -130,6 +134,7 @@ namespace GTS {
     }
 
     bool Keybinds::SaveKeybinds() {
+
         std::lock_guard<std::mutex> lock(_ReadWriteLock);
 
         //Check File
@@ -188,7 +193,7 @@ namespace GTS {
 
     void Keybinds::ResetKeybinds() {
         //Reset Vector
-        InputEvents = DefaultEvents;
+        InputEvents = GetAllInputEvents();
 
         //Reset TOML Array
         TomlData = toml::basic_value<toml::ordered_type_config>();

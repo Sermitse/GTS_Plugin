@@ -6218,6 +6218,9 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, I
     if ((child_flags & (ImGuiChildFlags_ResizeX | ImGuiChildFlags_ResizeY)) == 0)
         window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
 
+    // -- CUSTOM
+    child_flags |= ImGuiChildFlags_NavFlattened;
+
     // Special framed style
     if (child_flags & ImGuiChildFlags_FrameStyle)
     {

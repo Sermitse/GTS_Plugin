@@ -489,7 +489,7 @@ namespace GTS {
 		std::vector<KeyEvent> KeyEventQueue {};
 
 		public:
-
+		static void UnstickKeys();
 		void ProcessInputEventQueue();
 
 		void OnFocusLost() {

@@ -31,6 +31,7 @@ namespace ImUtil {
     constexpr ImVec4 ColorError = {1.0f, 0.35f, 0.30f, 0.9f};
     constexpr ImVec4 ColorOK = { 0.30f, 1.0f, 0.35f, 0.9f };
     constexpr ImVec4 ColorSubscript = {1.0f, 1.0f, 1.0f, 0.5f};
+    constexpr ImVec4 ColorDisabled = { 0.4f, 0.1f, 0.1f, 1.0f };
 
     constexpr uint32_t HeaderFlagsDefaultOpen = ImGuiTreeNodeFlags_DefaultOpen;
     
@@ -214,5 +215,6 @@ namespace ImUtil {
     void TextShadow(const char* fmt, ...);
     void TextShadowImpl(const char* text, const char* textend, ImU32 text_color = IM_COL32(255, 255, 255, 255), ImU32 shadow_color = IM_COL32(0, 0, 0, 192 * ImGui::GetStyle().Alpha), float shadow_offset = 2.0f);
 
+    
 }
 

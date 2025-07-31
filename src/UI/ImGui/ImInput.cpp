@@ -4,6 +4,21 @@
 
 namespace GTS {
 
+
+	void ImInput::UnstickKeys() {
+
+		ImGuiIO& io = ImGui::GetIO();
+
+		if ((io.KeysData[ImGuiKey_LeftShift].Down && !(GetAsyncKeyState(VK_LSHIFT) & 0x8000)) || (io.KeysData[ImGuiKey_RightShift].Down && !(GetAsyncKeyState(VK_RSHIFT) & 0x8000))) {
+			io.AddKeyEvent(ImGuiKey_LeftShift, false);
+			io.AddKeyEvent(ImGuiKey_RightShift, false);
+		}
+
+		if (io.KeysData[ImGuiKey_Tab].Down && !(GetAsyncKeyState(VK_TAB) & 0x8000)) {
+			io.AddKeyEvent(ImGuiKey_Tab, false);
+		}
+	}
+
 	void ImInput::ProcessInputEventQueue() {
 
 		std::unique_lock<std::shared_mutex> mutex(InputMutex);
@@ -71,14 +86,6 @@ namespace GTS {
 		}
 
 		KeyEventQueue.clear();
-
-		if ((io.KeysData[ImGuiKey_LeftShift].Down && !(GetAsyncKeyState(VK_LSHIFT) & 0x8000)) || (io.KeysData[ImGuiKey_RightShift].Down && !(GetAsyncKeyState(VK_RSHIFT) & 0x8000))) {
-			io.AddKeyEvent(ImGuiKey_LeftShift, false);
-			io.AddKeyEvent(ImGuiKey_RightShift, false);
-		}
-
-		if (io.KeysData[ImGuiKey_Tab].Down && !(GetAsyncKeyState(VK_TAB) & 0x8000)) {
-			io.AddKeyEvent(ImGuiKey_Tab, false);
-		}
+		UnstickKeys();
 	}
 }

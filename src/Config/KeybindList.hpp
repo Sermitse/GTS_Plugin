@@ -1,5 +1,24 @@
 #pragma once
 
+
+enum class InputCategory : uint8_t {
+    kDefault = 0,
+    kMenu,
+    kVore,
+    kHugs,
+    kThighs,
+    kGrab,
+    kGrabPlay,
+    kStomp,
+    kKickSwipe,
+    kMovement,
+    kCrush,
+    kCleavage,
+    kCamera,
+    kAbility,
+    kMisc,
+};
+
 struct GTSInputEvent {
     std::string Event;                      //Event Name
     std::vector<std::string> Keys;          //List Of Dinput key names Minus "DIK_ preffix"
@@ -11,6 +30,11 @@ struct GTSInputEvent {
 };
 TOML_SERIALIZABLE(GTSInputEvent);
 
+// Re-ordered: category first, then event (so you can do inline init cleanly)
+struct CategorizedInputEvent {
+    InputCategory Category;
+    GTSInputEvent Event;
+};
 
 enum class TriggerType : uint8_t {
     Once,
@@ -24,11 +48,10 @@ enum class BlockInputTypes : uint8_t {
     Never,
 };
 
-inline bool CheckDuplicateEvent(const std::vector<GTSInputEvent>& items) {
-    // Use a simple O(n^2) check (acceptable if n is small)
+inline bool CheckDuplicateEvent(const std::vector<CategorizedInputEvent>& items) {
     for (std::size_t i = 0; i < items.size(); ++i) {
         for (std::size_t j = i + 1; j < items.size(); ++j) {
-            if (items[i].Event == items[j].Event)
+            if (items[i].Event.Event == items[j].Event.Event)
                 return true;
         }
     }
@@ -40,9 +63,992 @@ namespace GTS {
     //----------------------------------------
     // EVENT LIST ----
     //----------------------------------------
+
+    inline const std::vector<CategorizedInputEvent> DefaultEvents = {
+    	
+        /* // ----- EXAMPLE
+        {
+            InputCategory::kDefault,
+	        {
+	            .Event = "Event",
+	            .Keys = {"A", "B"},
+	            .Exclusive = false,
+	            .Duration = 1.0f,
+	            .Trigger = "Once",
+	            .BlockInput = "Automatic",
+	            .Disabled = false,
+	        }
+        },
+        */
+
+
+        //=======================================================
+	    //================ M E N U
+	    //=======================================================
+
+	    {
+	        InputCategory::kMenu,
+            {
+		        .Event = "OpenModSettings",
+		        .Keys = {"F1"},
+		        .Trigger = "Once",
+		        .BlockInput = "Always"
+		    }
+	    },
+        {
+            InputCategory::kMenu,
+            {
+		        .Event = "OpenSkillTree",
+		        .Keys = {"F4"},
+		        .Trigger = "Once",
+		        .BlockInput = "Always"
+		    }
+        },
+        {
+            InputCategory::kMenu,
+            {
+                .Event = "PartyReport",
+                .Keys = {"LCONTROL"},
+                .Duration = 1.33f,
+                .BlockInput = "Never"
+            }
+        },
+        {
+            InputCategory::kMenu,
+            {
+                .Event = "ShowQuickStats",
+                .Keys = {"F3"},
+                .BlockInput = "Never"
+            }
+        },
+        {
+            InputCategory::kMenu,
+            {
+                .Event = "DebugReport",
+                .Keys = {"RCONTROL"},
+                .Duration = 1.33f,
+                .BlockInput = "Never"
+            }
+        },
+
+        //========================================================
+	    //================ V O R E
+	    //========================================================
+
+		{
+            InputCategory::kVore,
+            {
+		        .Event = "Vore",
+		        .Keys = {"LSHIFT", "V"},
+		        .Trigger = "Once"
+		    }
+        },
+        {
+            InputCategory::kVore,
+            {
+		        .Event = "PlayerVore",
+		        .Keys = {"LSHIFT", "V"},
+		        .Trigger = "Continuous",
+		        .Duration = 1.0,
+		        .BlockInput = "Never"
+		    }
+
+        },
+
+        //========================================================
+	    //================ S T O M P S
+	    //========================================================
+
+		{
+            InputCategory::kStomp,
+            {
+		        .Event = "RightStomp",
+		        .Keys = {"LSHIFT", "E"},
+		        .Trigger = "Release",
+		    }
+        },
+        {
+            InputCategory::kStomp,
+            {
+		        .Event = "LeftStomp",
+		        .Keys = {"LSHIFT", "Q"},
+		        .Trigger = "Release",
+		    }
+        },
+        {
+            InputCategory::kStomp,
+            {
+		        .Event = "RightStomp_Strong",
+		        .Keys = {"LSHIFT", "E"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.44f,
+		    }
+        },
+        {
+            InputCategory::kStomp,
+            {
+		        .Event = "LeftStomp_Strong",
+		        .Keys = {"LSHIFT", "Q"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.44f,
+		    }
+        },
+		{
+            InputCategory::kStomp,
+            {
+		        .Event = "TrampleRight",
+		        .Keys = {"LSHIFT", "E"},
+		        .Trigger = "Release",
+		        .Duration = 0.20f,
+		    }
+        },
+        {
+            InputCategory::kStomp,
+            {
+		        .Event = "TrampleLeft",
+		        .Keys = {"LSHIFT", "Q"},
+		        .Trigger = "Release",
+		        .Duration = 0.20f,
+		    }
+        },
+
+        //========================================================
+	    //================ T H I G H  C R U S H
+	    //========================================================
+
+
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "ThighCrush",
+		        .Keys = {"LSHIFT", "W", "C"},
+		        .Exclusive = true
+		    }
+        },
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "ThighCrushKill",
+		        .Keys = {"LMB"},
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "ThighCrushSpare",
+		        .Keys = {"W"},
+		        .Exclusive = true,
+		        .BlockInput = "Never"
+		    }
+        },
+
+		//========================================================
+		//============ T H I G H  S A N D W I C H
+		//========================================================
+
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "ThighSandwichEnter",
+		        .Keys = {"LSHIFT", "C"},
+		        .Exclusive = true,
+		    }
+        },
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "PlayerThighSandwichEnter",
+		        .Keys = {"LSHIFT", "C"},
+		        .Exclusive = true,
+		        .Trigger = "Continuous",
+		        .Duration = 1.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "ThighSandwichAttackHeavy",
+		        .Keys = {"LMB"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.33f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "ThighSandwichAttack",
+		        .Keys = {"LMB"},
+		        .Trigger = "Release",
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "ThighSandwichExit",
+		        .Keys = {"W"},
+		        .Exclusive = true,
+		        .BlockInput = "Never"
+		    }
+        },
+
+        //========================================================
+	    //============ K I C K S
+	    //========================================================
+
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "LightKickRight",
+		        .Keys = {"LALT", "E"},
+		        .Trigger = "Release",
+		    }
+        },
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "LightKickLeft",
+		        .Keys = {"LALT", "Q"},
+		        .Trigger = "Release",
+		    }
+        },
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "HeavyKickRight",
+		        .Keys = {"LALT", "E"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.33f,
+		    }
+        },
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "HeavyKickLeft",
+		        .Keys = {"LALT", "Q"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.33f,
+		    }
+        },
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "HeavyKickRight_Low",
+		        .Keys = {"LALT", "E"},
+		        .Trigger = "Release",
+		        .Duration = 0.1f,
+		    }
+        },
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "HeavyKickLeft_Low",
+		        .Keys = {"LALT", "Q"},
+		        .Trigger = "Release",
+		        .Duration = 0.1f,
+		    }
+        },
+
+        //========================================================
+	    //============ C R A W L I N G
+	    //========================================================
+
+        {
+            InputCategory::kMovement,
+            {
+		        .Event = "TogglePlayerCrawl",
+		        .Keys = {"NUMPAD1"},
+		    }
+        },
+        {
+            InputCategory::kMovement,
+            {
+		        .Event = "ToggleFollowerCrawl",
+		        .Keys = {"NUMPAD3"},
+		    }
+        },
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "LightSwipeRight",
+		        .Keys = {"LALT", "E"},
+		        .Trigger = "Release",
+		    }
+        },
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "LightSwipeLeft",
+		        .Keys = {"LALT", "Q"},
+		        .Trigger = "Release",
+		    }
+        },
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "HeavySwipeRight",
+		        .Keys = {"LALT", "E"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.33f,
+		    }
+        },
+        {
+            InputCategory::kKickSwipe,
+            {
+		        .Event = "HeavySwipeLeft",
+		        .Keys = {"LALT", "Q"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.33f,
+		    }
+        },
+
+        //========================================================
+	    //============ C L E A V A G E
+	    //========================================================
+
+        {
+            InputCategory::kCleavage,
+            {
+		        .Event = "CleavageEnter",
+		        .Keys = {"LSHIFT", "H"},
+		    }
+        },
+        {
+            InputCategory::kCleavage,
+            {
+		        .Event = "CleavageExit",
+		        .Keys = {"RMB"},
+		        .BlockInput = "Never"
+		    }
+        },
+		{
+            InputCategory::kCleavage,
+            {
+		        .Event = "CleavageLightAttack",
+		        .Keys = {"LMB"},
+		        .Exclusive = true,
+		        .Trigger = "Release",
+		        .BlockInput = "Never"
+		    }
+		},
+        {
+            InputCategory::kCleavage,
+            {
+		        .Event = "CleavageHeavyAttack",
+		        .Keys = {"LMB"},
+		        .Exclusive = true,
+		        .Trigger = "Continuous",
+		        .Duration = 0.33f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kCleavage,
+            {
+		        .Event = "CleavageSuffocate",
+		        .Keys = {"W"},
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kCleavage,
+            {
+		        .Event = "CleavageAbsorb",
+		        .Keys = {"S"},
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kCleavage,
+            {
+		        .Event = "CleavageVore",
+		        .Keys = {"V"},
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kCleavage,
+            {
+		        .Event = "CleavageDOT",
+		        .Keys = {"E"},
+		    }
+        },
+
+        //========================================================
+		//============ H U G S
+		//========================================================
+
+        {
+            InputCategory::kHugs,
+            {
+		        .Event = "HugAttempt",
+		        .Keys = {"LSHIFT", "H"},
+		        .Trigger = "Release",
+		    }
+        },
+        {
+            InputCategory::kHugs,
+            {
+		        .Event = "HugPlayer",
+		        .Keys = {"LSHIFT", "H"},
+		        .Trigger = "Continuous",
+		        .Duration = 1.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kHugs,
+            {
+		        .Event = "HugShrink",
+		        .Keys = {"LMB"},
+		        .Exclusive = true,
+		        .Trigger = "Release"
+		    }
+        },
+        {
+            InputCategory::kHugs,
+            {
+		        .Event = "HugHeal",
+		        .Keys = {"LMB"},
+		        .Exclusive = true,
+		        .Trigger = "Continuous",
+		        .Duration = 0.33f,
+		    }
+        },
+        {
+            InputCategory::kHugs,
+            {
+		        .Event = "HugCrush",
+		        .Keys = {"S"},
+		    }
+        },
+        {
+            InputCategory::kHugs,
+            {
+		        .Event = "HugRelease",
+		        .Keys = {"RMB"},
+		        .Exclusive = true,
+		        .BlockInput = "Never"
+			}
+        },
+
+        //========================================================
+	    //============ B U T T / B R E A S T   C R U S H
+	    //========================================================
+
+        {
+            InputCategory::kCrush,
+            {
+		        .Event = "QuickButtCrushStart",
+		        .Keys = {"LSHIFT", "B"},
+		        .Trigger = "Continuous",
+		        .Duration = 1.0f,
+		    }
+        },
+        {
+            InputCategory::kCrush,
+            {
+		        .Event = "ButtCrushStart",
+		        .Keys = {"LSHIFT", "B"},
+		        .Trigger = "Release",
+		    }
+        },
+        {
+            InputCategory::kCrush,
+            {
+		        .Event = "ButtCrushStart_Player",
+		        .Keys = {"LSHIFT", "B"},
+		        .Trigger = "Continuous",
+		        .Duration = 1.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kCrush,
+            {
+		        .Event = "ButtCrushGrow",
+		        .Keys = {"W"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kCrush,
+            {
+		        .Event = "ButtCrushAttack",
+		        .Keys = {"LMB"},
+		        .Duration = 0.0f,
+		    }
+        },
+
+        //========================================================
+        //======== P R O N E   B E H A V I O R
+        //========================================================
+
+        {
+            InputCategory::kMovement,
+			{
+		        .Event = "SBO_ToggleProne",
+		        .Keys = {"X"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.66f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kMovement,
+            {
+		        .Event = "SBO_ToggleDive_Standing",
+		        .Keys = {"W", "S"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.50f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kMovement,
+            {
+		        .Event = "SBO_ToggleDive_Sneak",
+		        .Keys = {"W", "S"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.50f,
+		        .BlockInput = "Never"
+		    }
+        },
+
+        //========================================================
+	    //========================= G R A B
+	    //======================================================== 
+
+        {
+            InputCategory::kGrab,
+            {
+		        .Event = "GrabOther",
+		        .Keys = {"F"},
+		        .Duration = 0.25f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrab,
+            {
+		        .Event = "GrabPlayer",
+		        .Keys = {"F"},
+		        .Trigger = "Continuous",
+		        .Duration = 1.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+		    InputCategory::kGrab,
+		    {
+				.Event = "GrabAttack",
+		        .Keys = {"E"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.50f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrab,
+            {
+		        .Event = "GrabVore",
+		        .Keys = {"V"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.50f,
+		    }
+        },
+        {
+            InputCategory::kGrab,
+            {
+		        .Event = "GrabThrow",
+		        .Keys = {"X"},
+		        .Trigger = "Continuous",
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrab,
+            {
+		        .Event = "GrabRelease",
+		        .Keys = {"RMB"},
+		    }
+        },
+        {
+            InputCategory::kGrab,
+            {
+		        .Event = "BreastsPut",
+		        .Keys = {"LSHIFT", "B"},
+		        .Duration = 0.50f,
+		    }
+        },
+        {
+            InputCategory::kGrab,
+		    {
+		        .Event = "BreastsRemove",
+		        .Keys = {"LSHIFT", "B"},
+		        .Duration = 0.50f,
+		    }
+        },
+
+
+
+        //========================================================
+	    //========================= G R A B  P L A Y
+	    //======================================================== 
+
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_Start",
+		        .Keys = {"LSHIFT", "H"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_Exit",
+		        .Keys = {"LSHIFT","H"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_CrushHeavy",
+		        .Keys = {"LMB"},
+		        .Trigger = "Continuous",
+		        .Duration = 0.5f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_Vore",
+		        .Keys = {"V"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_KissVore",
+		        .Keys = {"V"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_Kiss",
+		        .Keys = {"E"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_Poke",
+		        .Keys = {"LMB"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_Flick",
+		        .Keys = {"RMB"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_Sandwich",
+		        .Keys = {"S"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_GrindStart",
+		        .Keys = {"W"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kGrabPlay,
+            {
+		        .Event = "GrabPlay_GrindStop",
+		        .Keys = {"W"},
+		        .Trigger = "Once",
+		        .Duration = 0.0f,
+		        .BlockInput = "Never"
+		    }
+        },
+
+        //========================================================
+	    //========================= C A M E R A
+	    //========================================================
+
+        {
+            InputCategory::kCamera,
+            {
+		        .Event = "HorizontalCameraReset",
+		        .Keys = {"RIGHT", "LEFT"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kCamera,
+            {
+		        .Event = "VerticalCameraReset",
+		        .Keys = {"UP", "DOWN"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kCamera,
+            {
+		        .Event = "CameraLeft",
+		        .Keys = {"LALT", "LEFT"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kCamera,
+            {
+		        .Event = "CameraRight",
+		        .Keys = {"LALT", "RIGHT"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kCamera,
+            {
+		        .Event = "CameraUp",
+		        .Keys = {"LALT", "UP"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kCamera,
+            {
+		        .Event = "CameraDown",
+		        .Keys = {"LALT", "DOWN"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kCamera,
+            {
+		        .Event = "SwitchCameraMode",
+		        .Keys = {"F2"}
+		    }
+        },
+
+        //========================================================
+		//========================= A N I M  S P E E D
+		//========================================================
+
+        {
+            InputCategory::kMisc,
+            {
+		        .Event = "AnimSpeedUp",
+		        .Keys = {"LMB"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kMisc,
+            {
+		        .Event = "AnimSpeedDown",
+		        .Keys = {"RMB"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kMisc,
+            {
+		        .Event = "AnimMaxSpeed",
+		        .Keys = {"LMB", "RMB"},
+		        .Trigger = "Continuous",
+		    }
+        },
+
+        //========================================================
+	    //========================= A B I L I T I E S
+	    //========================================================
+
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ShrinkOutburst",
+		        .Keys = {"LSHIFT", "F"},
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "SizeReserve",
+		        .Keys = {"E"},
+		        .Trigger = "Continuous",
+		        .Duration = 1.33f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kAbility,
+			{
+		        .Event = "DisplaySizeReserve",
+		        .Keys = {"F"},
+		        .Trigger = "Continuous",
+		        .Duration = 1.33f,
+		        .BlockInput = "Never"
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "RapidGrowth",
+		        .Keys = {"LSHIFT", "1"},
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "RapidShrink",
+		        .Keys = {"LSHIFT", "2"},
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ManualGrow",
+		        .Keys = {"UP", "LEFT"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ManualShrink",
+		        .Keys = {"DOWN", "LEFT"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ManualGrowOther",
+		        .Keys = {"LSHIFT", "UP", "LEFT"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ManualShrinkOther",
+		        .Keys = {"LSHIFT", "DOWN", "LEFT"},
+		        .Trigger = "Continuous",
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ManualGrowOverTime",
+		        .Keys = {"NUMPAD8"},
+		        .Trigger = "Once",
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ManualShrinkOverTime",
+		        .Keys = {"NUMPAD4"},
+		        .Trigger = "Once",
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ManualGrowOtherOverTime",
+		        .Keys = {"NUMPAD5"},
+		        .Trigger = "Once",
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ManualShrinkOtherOverTime",
+		        .Keys = {"NUMPAD2"},
+		        .Trigger = "Once",
+		    }
+        },
+        {
+            InputCategory::kAbility,
+            {
+		        .Event = "ProtectSmallOnes",
+		        .Keys = {"C"},
+		        .Duration = 1.0f,
+		        .BlockInput = "Never"
+		    }
+        }
+
+        //========================================================
+	    //========================= M I S C
+	    //========================================================
+    };
+
+    inline auto GetAllInputEvents() -> std::vector<GTSInputEvent> {
+        std::vector<GTSInputEvent> result;
+        result.reserve(DefaultEvents.size());
+        for (const auto& item : DefaultEvents) {
+            result.push_back(item.Event);
+        }
+        return result;
+    }
+
+    inline auto GetAllInputEventsView() {
+        return DefaultEvents | std::views::transform([](const CategorizedInputEvent& item) -> const GTSInputEvent& {
+            return item.Event;
+        });
+    }
+
+    inline auto GetInputEventsByCategory(InputCategory category) {
+        return DefaultEvents | std::views::filter([category](const CategorizedInputEvent& item) {
+			return item.Category == category;
+            }) | std::views::transform([](const CategorizedInputEvent& item) -> const GTSInputEvent& {
+            return item.Event;
+        });
+    }
+
     
     //Add New Events Here
-    inline const std::vector<GTSInputEvent> DefaultEvents = [](){
+
         const std::vector<GTSInputEvent> DefaultVec = {
 
 
@@ -706,12 +1712,5 @@ namespace GTS {
 
         };
 
-        if(CheckDuplicateEvent(DefaultVec)){
-            ReportAndExit("KeybindList.hpp\n"
-                "InputEvents with duplicate event names are not allowed.");
 
-        }
-
-        return DefaultVec;
-    }();
-};
+}
