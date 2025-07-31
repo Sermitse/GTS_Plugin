@@ -53,7 +53,7 @@ namespace {
 
     void RefreshDuration(Actor* giant) {
         if (Runtime::HasPerk(giant, "GTSPerkTinyCalamityAug")) {
-            AttributeManager::GetSingleton().OverrideSMTBonus(0.75f); // Reduce speed after crush
+            AttributeManager::OverrideSMTBonus(0.75f); // Reduce speed after crush
         } else {
             AttributeManager::OverrideSMTBonus(0.35f); // Reduce more speed after crush
         }

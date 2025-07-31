@@ -17,10 +17,10 @@ namespace Hooks {
 			float value = func<ID>(a_owner, a_akValue);
 			const auto actor = skyrim_cast<Actor*>(a_owner);
 			if (actor) {
-
-				value = AttributeManager::AlterGetAv(actor, a_akValue, value);
-				
-				if (a_akValue == ActorValue::kSpeedMult && actor->formID != 0x14) {
+				if (a_akValue == ActorValue::kCarryWeight) {
+					value = AttributeManager::AlterCarryWeightAV(actor, a_akValue, value);
+				}
+				else if (a_akValue == ActorValue::kSpeedMult && actor->formID != 0x14) {
 					value = GetNPCSpeedOverride(actor, value);
 				}
 			}
@@ -33,6 +33,7 @@ namespace Hooks {
 
 	};
 
+	//Unused
 	struct GetPermanentActorValue {
 
 		static constexpr std::size_t funcIndex = 0x02;
@@ -41,15 +42,7 @@ namespace Hooks {
 		static float thunk(ActorValueOwner* a_owner, ActorValue a_akValue) {
 
 			GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorValueOwner::GetPermanentActorValue", ID);
-
 			float value = func<ID>(a_owner, a_akValue);
-			const auto actor = skyrim_cast<Actor*>(a_owner);
-			if (actor) {
-				if (a_akValue == ActorValue::kCarryWeight) {
-					value = AttributeManager::AlterGetPermenantAv(actor, a_akValue, value);
-				}
-			}
-
 			return value;
 		}
 
@@ -67,16 +60,13 @@ namespace Hooks {
 
 			GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorValueOwner::GetBaseActorValue", ID);
 
-			const float value = func<ID>(a_owner, a_akValue);
+			float value = func<ID>(a_owner, a_akValue);
 
-			float bonus = 0.0f;
 			const auto actor = skyrim_cast<Actor*>(a_owner);
-			if (actor) {
-				bonus = AttributeManager::AlterGetBaseAv(actor, a_akValue, value);
+			if (actor && actor->formID == 0x14) { // Player Exclusive
+				value = AttributeManager::AlterGetBaseAv(actor, a_akValue, value);
 			}
-
-			return value + bonus;
-
+			return value;
 		}
 
 		template<int ID>
@@ -115,10 +105,10 @@ namespace Hooks {
 		stl::write_vfunc_unique<GetActorValue, 1>(VTABLE_Character[5]);
 		stl::write_vfunc_unique<GetActorValue, 2>(VTABLE_PlayerCharacter[5]);
 
-		//Does Nothing
-		//stl::write_vfunc_unique<GetPermanentActorValue, 0>(VTABLE_Actor[5]);
-		//stl::write_vfunc_unique<GetPermanentActorValue, 1>(VTABLE_Character[5]);
-		//stl::write_vfunc_unique<GetPermanentActorValue, 2>(VTABLE_Actor[5]);
+		//Unused
+		/*stl::write_vfunc_unique<GetPermanentActorValue, 0>(VTABLE_Actor[5]);
+		stl::write_vfunc_unique<GetPermanentActorValue, 1>(VTABLE_Character[5]);
+		stl::write_vfunc_unique<GetPermanentActorValue, 2>(VTABLE_Actor[5]);*/
 
 		stl::write_vfunc_unique<GetBaseActorValue, 0>(VTABLE_Actor[5]);
 		stl::write_vfunc_unique<GetBaseActorValue, 1>(VTABLE_Character[5]);

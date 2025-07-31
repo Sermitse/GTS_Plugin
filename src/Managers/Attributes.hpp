@@ -5,20 +5,22 @@
 namespace GTS {
 
 	class AttributeManager : public EventListener {
+
 		public:
-			[[nodiscard]] static AttributeManager& GetSingleton() noexcept;
 
-			virtual std::string DebugName() override;
-			virtual void Update() override;
+		[[nodiscard]] static AttributeManager& GetSingleton() {
+			static AttributeManager Instance;
+			return Instance;
+		};
 
-			static void OverrideSMTBonus(float Value);
-			float GetAttributeBonus(Actor* actor, ActorValue av) const;
+		virtual std::string DebugName() override;
+		virtual void Update() override;
 
-			static float AlterGetAv(Actor* actor, ActorValue av, float originalValue);
-			static float AlterGetBaseAv(Actor* actor, ActorValue av, float originalValue);
-			static float AlterSetBaseAv(Actor* actor, ActorValue av, float originalValue);
-			static float AlterGetPermenantAv(Actor* actor, ActorValue av, float originalValue);
-			static float AlterMovementSpeed(Actor* actor, const NiPoint3& direction);
-			static float AlterGetAvMod(float orginal_value, Actor* a_this, RE::ACTOR_VALUE_MODIFIER a_modifier, ActorValue a_value);
+		static void OverrideSMTBonus(float Value);
+		static float GetAttributeBonus(Actor* actor, ActorValue av);
+		static float AlterCarryWeightAV(Actor* actor, ActorValue av, float originalValue);
+		static float AlterGetBaseAv(Actor* actor, ActorValue av, float originalValue);
+		static float AlterSetBaseAv(Actor* actor, ActorValue av, float originalValue);
+		static float AlterMovementSpeed(Actor* actor);
 	};
 }

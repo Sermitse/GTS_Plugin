@@ -851,11 +851,11 @@ namespace GTS {
 	}
 
 	float GetDamageResistance(Actor* actor) {
-		return AttributeManager::GetSingleton().GetAttributeBonus(actor, ActorValue::kHealth);
+		return AttributeManager::GetAttributeBonus(actor, ActorValue::kHealth);
 	}
 
 	float GetDamageMultiplier(Actor* actor) {
-		return AttributeManager::GetSingleton().GetAttributeBonus(actor, ActorValue::kAttackDamageMult);
+		return AttributeManager::GetAttributeBonus(actor, ActorValue::kAttackDamageMult);
 	}
 
 	float GetSizeDifference(Actor* giant, Actor* tiny, SizeType Type, bool Check_SMT, bool HH) {
@@ -983,7 +983,7 @@ namespace GTS {
 			float giantScale = get_visual_scale(giant);
 			auto huggedActor = HugShrink::GetHuggiesActor(giant);
 
-			const float BASE_DISTANCE = 124.0f;
+			constexpr float BASE_DISTANCE = 124.0f;
 			float CheckDistance = BASE_DISTANCE * giantScale;
 
 			if (IsCrawling(giant)) {

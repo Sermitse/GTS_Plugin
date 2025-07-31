@@ -61,7 +61,9 @@ namespace {
 	}
 
 	void AlterMovementSpeed(Actor* giant, float& speed) {
+
 		float speedMult = std::clamp(AnimationManager::GetAnimSpeed(giant), 0.01f, 1.0f);
+
 		if (get_visual_scale(giant) > 1.75f && giant->AsActorState()->IsSprinting()) {
 			giant->AsActorState()->actorState1.sprinting = 0;
 			giant->AsActorState()->actorState1.walking = 1;
@@ -105,7 +107,9 @@ namespace {
 namespace GTS {
 
 	float GetNPCSpeedOverride(Actor* giant, float incoming_speed) {
+
 		float new_speed = incoming_speed;
+
 		if (ShouldBeAltered(giant)) {
 			if (Config::GetAI().bSlowMovementDown) {
 				AlterMovementSpeed(giant, new_speed);

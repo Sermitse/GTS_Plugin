@@ -43,7 +43,7 @@ namespace Hooks {
 			GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Move", ID);
 
 			if (a_this && a_this->Get3D1(false) && !a_this->IsInKillMove()) {
-				const float bonus = AttributeManager::AlterMovementSpeed(a_this, a_position);
+				const float bonus = AttributeManager::AlterMovementSpeed(a_this);
 				return func<ID>(a_this, a_arg2, a_position * bonus);
 			}
 
