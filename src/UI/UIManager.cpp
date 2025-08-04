@@ -92,9 +92,7 @@ namespace GTS {
     void UIManager::CloseSettings() {
         if (auto Window = dynamic_cast<WindowSettings*>(GTS::ImWindowManager::GetSingleton().GetWindowByName("Settings"))) {
 
-            if (Config::GetUI().bEnableAutoSaveOnClose) {
-                Window->AsyncSave();
-            }
+        	Window->AsyncSave();
 
             //Show Settings Window
             ShouldDrawOverTop = false;

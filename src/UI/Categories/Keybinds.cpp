@@ -30,10 +30,10 @@ namespace {
 	const char* T4 = "This adds a time delay before an action gets triggerd if its keys are pressed.\n"
 		"(eg. if the trigger type is once and this value is set to 1.0 you'd need to hold the correct key combination for atleast 1 second before this event's action will fire.)";
 
-	const char* T5 = "Here you can see the current key combination required to trigger an action as well as modify it.\n"
-		"Pressing \"Rebind\" Will allow you to enter a new key combination for this action.\n"
-		"You don't have to hold down the keys if creating a key combination. Pressing a key once will append it to the list\n."
-		"After entering the new key combination press \"Confirm\" to apply it.";
+	const char* T5 = "Change the key combination to trigger this event.\n"
+		"You don't have to hold down the keys if creating a key combination. Pressing a key once will append it to the list\n"
+		"After entering the new key combination press this button again to save it.\n"
+		"Pressing ESC will cancel the keybind reassignment.";
 
 	const char* T6 = "Click to open advanced settings for this keybind.";
 

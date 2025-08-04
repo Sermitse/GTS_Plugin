@@ -121,7 +121,7 @@ namespace Hooks::stl {
 
 	template <class T>
 	void write_vfunc(REL::VariantID a_varID) {
-		logger::debug("Installing vfunc hook [{}] at VariantID [0x:{:X} + 0x{:X}] Index: {}", 
+		logger::debug("Installing vfunc hook [{}] at VariantID [0x{:X} + 0x{:X}] Index: {}", 
 			Internal::get_type_name<T>(), 
 			a_varID.address(),
 			T::funcIndex * sizeof(void*),
@@ -141,7 +141,7 @@ namespace Hooks::stl {
 
 	template <class T, int ID>
 	void write_vfunc_unique(REL::VariantID a_varID) {
-		logger::debug("Installing vfunc hook [{}] at VariantID [0x:{:X} + 0x{:X}] Index {} ID {}",
+		logger::debug("Installing vfunc hook [{}] at VariantID [0x{:X} + 0x{:X}] Index {} ID {}",
 			Internal::get_type_name<T>(),
 			a_varID.address(),
 			T::funcIndex * sizeof(void*),

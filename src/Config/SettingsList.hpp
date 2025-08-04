@@ -319,7 +319,6 @@ struct SettingsAdvanced {
     bool bCooldowns = true;
     bool bEnforceUIClamps = true;
     bool bPauseGame = true;
-    bool bHideLoadButton = true;
     bool bEnlargeBreastsOnAbsorption = false;
     bool bPlayerAI = false;
     float fSGTMMult = 0.5f;
@@ -556,13 +555,12 @@ struct SettingsUI {
     float fScale = 1.0f;
     float fItemWidth = 0.55f;
     std::array<float, 3> f3AccentColor = { 0.81834f, 0.797923f, 0.834302f }; // Default Menu UI Color
+
     // Red: 0.273f, 0.0106f, 0.0106f
     // White: 0.81834f, 0.797923f, 0.834302f
     //std::array<float, 3> f3AccentColor = {0.486f, 0.431f, 0.529f};
     std::array<float, 3> StatusAccentColor =        {  0.273f, 0.0106f, 0.0106f }; // Default Status Bar Color
     std::array<float, 3> UnderStompAccentColor =    {  0.273f, 0.0106f, 0.0106f }; // Default Understomp Bar Color
-
-    bool bEnableAutoSaveOnClose = true;
 
     // Window configurations
     WindowConfSettings SettingsWindow {};

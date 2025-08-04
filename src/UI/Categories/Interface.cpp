@@ -22,16 +22,12 @@ namespace GTS {
 
 			const char* T5 = "Adjust the opacity of the stats window.";
 			const char* T6 = "Adjust the opacity of the stats window's backround.";
-			const char* T7 = "Automatically save settings when closing the settings window.\n"
-							 "If disabled you have to manually press save each time you modify something\n"
-							 "for the changes to persist after restarting/reloading the game.";
 
 			if (ImGui::CollapsingHeader("Config Window", ImUtil::HeaderFlagsDefaultOpen)) {
 
-				ImUtil::CheckBox("Autosave On Close", &Settings.bEnableAutoSaveOnClose, T7);
-
 				ImUtil::CheckBox("Lock Config Window Position", &Settings.SettingsWindow.bLock, T0);
 				ImGui::BeginDisabled(!Settings.SettingsWindow.bLock);
+
 				{
 					ImUtil::SliderF("Window Size", &Settings.SettingsWindow.fWindowSize, 60.0f, 100.0f, T1,"%.0f%%");
 					ImUtil::ComboEx<ImWindow::WindowAnchor>("Anchor", Settings.SettingsWindow.sAnchor, T2);

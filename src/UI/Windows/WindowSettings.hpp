@@ -61,20 +61,13 @@ namespace GTS {
         void LoadImpl();
         void SaveImpl();
 
-        void SetErrorAndUnlock(const std::string& error) {
-            ErrorString = error;
-            SaveLoadBusy.store(false);
+        void SetErrorAndUnlock(const std::string& a_error) {
+            logger::error("SaveLoadError: {}", a_error);
+           
         }
-
-        static constexpr const char* kLoadSettingsError = "Could Not Load Settings! Check GTSPlugin.log for more info";
-        static constexpr const char* kLoadInputError = "Could Not Load Input Settings! Check GTSPlugin.log for more info";
-        static constexpr const char* kSaveSettingsError = "Could Not Save Settings! Check GTSPlugin.log for more info.";
-        static constexpr const char* kSaveInputError = "Could Not Save Input Settings! Check GTSPlugin.log for more info.";
-
 
         std::atomic<bool> SaveLoadBusy = false;
 
-        std::string ErrorString;
         ImCategoryManager& CatMgr = ImCategoryManager::GetSingleton();
         ImFontManager& FontMgr = ImFontManager::GetSingleton();
         ImStyleManager& StyleMgr = ImStyleManager::GetSingleton();

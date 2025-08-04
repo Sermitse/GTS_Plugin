@@ -230,7 +230,6 @@ namespace GTS {
                 ImGui::TextColored(ImUtil::ColorError, "Info (!)");
                 ImUtil::Tooltip(THelp, true);
 
-                ImUtil::CheckBox("Hide Load Button", &Settings.bHideLoadButton, "Toggle the visibility of the load button");
 	        }
         }
     }
