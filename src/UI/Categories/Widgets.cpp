@@ -1,4 +1,6 @@
 #include "UI/Categories/Widgets.hpp"
+
+#include "UI/UIManager.hpp"
 #include "UI/ImGUI/ImUtil.hpp"
 #include "UI/Windows/GTSInfo.hpp"
 #include "UI/Windows/WindowStatus.hpp"
@@ -86,16 +88,18 @@ namespace GTS {
 			{   // Color A
 
 				ImUtil_Unique {
-					if (ImUtil::Button("[A]", TReset)) {
+
+					if (ImUtil::ImageButton("Reset", "generic_reset", 18, TReset)) {
 						AwSettings.f3ColorA = Config::GetUI().f3AccentColor;
 					}
 				}
 
 				ImGui::SameLine(0.0f, 6.0f);
-
 				ImGui::ColorEdit3("Base Color", AwSettings.f3ColorA.data(), ImGuiColorEditFlags_DisplayHSV);
 
 			}
+
+
 
 			ImGui::Spacing();
 
@@ -114,11 +118,15 @@ namespace GTS {
 
 				{   // Color B
 
-					ImUtil_Unique {
-						if (ImUtil::Button("[A]", TReset)) {
+					ImUtil_Unique{
+
+						if (ImUtil::ImageButton("Reset", "generic_reset", 18, TReset)) {
 							AwSettings.f3ColorB = Config::GetUI().f3AccentColor;
 						}
 					}
+
+					ImGui::SameLine(0.0f, 6.0f);
+					ImGui::ColorEdit3("Base Color", AwSettings.f3ColorA.data(), ImGuiColorEditFlags_DisplayHSV);
 
 					ImGui::SameLine(0.0f,6.0f);
 

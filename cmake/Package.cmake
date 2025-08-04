@@ -51,6 +51,16 @@ if(GTS_BUILD_DISTRIBUTION)
       )
     endif()
 
+    # Copy Icons directory
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/distribution/Icons")
+      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${CMAKE_CURRENT_SOURCE_DIR}/distribution/Icons"
+                "${DEPLOY_DIR}/GTSPlugin/Icons"
+        COMMENT "Copying Icons directory to deployment"
+      )
+    endif()
+
     # Copy Config directory
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/distribution/Config")
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

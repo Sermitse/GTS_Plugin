@@ -9,6 +9,7 @@
 #include "UI/Windows/WindowStatus.hpp"
 #include "Managers/Input/InputManager.hpp"
 #include "Windows/WindowUnderstomp.hpp"
+#include "ImGui/ImGraphics.hpp"
 
 namespace {
 
@@ -158,6 +159,9 @@ namespace GTS {
         WinMgr.AddWindow(std::make_unique<WindowSettings>());
         WinMgr.AddWindow(std::make_unique<WindowStatus>());
         WinMgr.AddWindow(std::make_unique<WindowUnderstomp>());
+
+        Graphics = new ImGraphics(D3DDevice, D3DContext);
+        Graphics->Load();
 
         Initialized.store(true);
 

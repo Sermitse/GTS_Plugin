@@ -15,7 +15,8 @@
         "magic-enum",
         "boost-pfr",
         "lz4",
-        "detours"
+        "detours",
+        "lunasvg"
       ]
     }
   },

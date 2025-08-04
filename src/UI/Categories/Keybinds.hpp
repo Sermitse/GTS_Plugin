@@ -45,7 +45,7 @@ namespace GTS {
         std::string VisualKeyString;
         std::vector<std::string> TempKeys = {};
         int RebindIndex = 0;
-        int CurEventIndex = 1000;
+        int CurEventIndex = UINT16_MAX;
         float Width = 0.0f;
         bool DrawInputEvent(GTSInputEvent& Event, const std::string& a_name, float columnNameWidth);
         const int HeaderFlags =  ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AutoResizeX ;

@@ -147,11 +147,11 @@ namespace GTS {
 
 		{
 
-			ImVec2 pos = ImVec2(ImGui::GetContentRegionAvail().x - (ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetStyle().CellPadding.x), ImGui::GetStyle().FramePadding.y * 2 + ImGui::GetStyle().CellPadding.y);
+			const ImVec2 pos = ImVec2(ImGui::GetContentRegionAvail().x - (ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetStyle().CellPadding.x), ImGui::GetStyle().FramePadding.y * 2 + ImGui::GetStyle().CellPadding.y);
 			ImGui::SetCursorPos(pos);
 
-			// Create the button
-			if (ImUtil::Button(" X ")) {
+			//Close button
+			if (ImUtil::ImageButton("Close##", "generic_cross", 18, "Close")) {
 				UIManager::CloseSettings();
 			}
 
@@ -218,23 +218,28 @@ namespace GTS {
 
 	    ImUtil::SeperatorH();
 	    ImGui::BeginDisabled(Disabled);
-	    
-	    {   //Footer - Mod Info
+
+		{   //Footer - Mod Info
 
 			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kSubText);
 
-			const std::string FooterMessage = fmt::format(
-			 "GTSPlugin {}\n"
-			 "Build Date: {} {}\n"
-			 "{}",
-			 GTSPlugin::ModVersion.string(),
-			 __DATE__,
-			 __TIME__,
-			git::AnyUncommittedChanges() ? "Development Version" : fmt::format("SHA1 {}",git::CommitSHA1()));
+			std::string FooterText = GTSPlugin::ModName.data();
+			FooterText += " ";
 
-	        ImGui::TextColored(ImUtil::ColorSubscript, FooterMessage.c_str());
+			for (auto it = GTSPlugin::ModVersion.begin(); it != GTSPlugin::ModVersion.end(); ++it) {
+				FooterText += std::to_string(*it);
+				if (std::next(it) != GTSPlugin::ModVersion.end()) {
+					FooterText += ".";
+				}
+			}
+
+			if (git::AnyUncommittedChanges()) {
+				FooterText += (git::AnyUncommittedChanges() ? " - Dev Build" : "");
+			}
+
+			ImGui::TextColored(ImUtil::ColorSubscript, FooterText.c_str());
 			ImFontManager::PopActiveFont();
-	    }
+		}
 
 	    ImGui::SameLine(TextCenter);
 

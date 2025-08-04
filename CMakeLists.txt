@@ -108,7 +108,7 @@ find_package(lz4 CONFIG REQUIRED)
 find_package(xbyak CONFIG REQUIRED)
 find_package(toml11 CONFIG REQUIRED)
 find_package(nlohmann_json 3.12.0 REQUIRED)
-
+find_package(lunasvg CONFIG REQUIRED)
 
 # #######################################################################################################################
 # # Non-CLib Includes
@@ -134,6 +134,7 @@ target_link_libraries(
 	Boost::headers
 	toml11::toml11
 	lz4::lz4
+    lunasvg::lunasvg
 	nlohmann_json::nlohmann_json
 	cmake_git_version_tracking
 )

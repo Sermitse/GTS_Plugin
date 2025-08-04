@@ -1,4 +1,6 @@
 ﻿#include "UI/Categories/Advanced.hpp"
+
+#include "UI/UIManager.hpp"
 #include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImWindowManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
@@ -120,7 +122,26 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique{
+        ImUtil_Unique {
+            if (ImGui::CollapsingHeader("Graphics Test")) {
+                ImGui::ArrowButton("Huh", ImGuiDir_Right);
+                auto x = UIManager::Graphics->GetAsImGuiTexture("keybind_showadv", {32,32});
+
+                ImTextureID id = std::get<0>(x);
+                ImVec2 res = std::get<1>(x);
+
+                ImGui::ImageButton("Hamood", id, res);
+
+                auto y = UIManager::Graphics->GetAsImGuiTexture("dummy");
+
+                ImTextureID id2 = std::get<0>(y);
+                ImVec2 res2 = std::get<1>(y);
+
+                ImGui::ImageButton("dummy", id2, res2);
+            }
+        }
+
+        ImUtil_Unique {
 
             //Multi-Language Font Test
             if (ImGui::CollapsingHeader("Font Test")) {

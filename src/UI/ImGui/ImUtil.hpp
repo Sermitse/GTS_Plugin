@@ -64,7 +64,9 @@ namespace ImUtil {
 
     const std::string HumanizeString(std::string_view name);
 
-    const bool Button(const char* a_label, const char* a_Tooltip = nullptr, const bool a_disabled = false, const float a_padding = 1.0f);
+    const bool Button(const char* a_label, const char* a_Tooltip = nullptr, bool a_disabled = false, float a_padding = 1.0f);
+    const bool ImageButtonEx(const char* a_label, ImTextureID a_texture, const char* a_Tooltip = nullptr, bool a_disabled = false, ImVec2 a_imgSize = {32,32});
+    const bool ImageButton(const char* a_label, const std::string& a_TexName, const int a_size = 32, const char* a_Tooltip = nullptr, const bool a_disabled = false);
     const bool CheckBox(const char* a_label, bool* a_state, const char* a_Tooltip = nullptr, const bool a_disabled = false);
     const bool SliderF(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip = nullptr, const char* fmt = "%.2f", const bool a_disabled = false, const bool a_alwaysclamp = false);
     const bool SliderF2(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip = nullptr, const char* fmt = "%.2f", const bool a_disabled = false);

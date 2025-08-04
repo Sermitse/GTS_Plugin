@@ -120,6 +120,7 @@
 //WinAPI Fix
 #undef PlaySound 
 #undef DeleteFile
+#undef LoadImage
 
 // For console sink
 
