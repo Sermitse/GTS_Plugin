@@ -2,6 +2,8 @@
 
 namespace {
 
+	constexpr float EPSILON = 1e-3f;
+
 	template <class T>
 	T* find_form(std::string_view lookup_id) {
 		// From https://github.com/Exit-9B/MCM-Helper/blob/a39b292909923a75dbe79dc02eeda161763b312e/src/FormUtil.cpp
@@ -114,11 +116,14 @@ namespace GTS {
 			auto actorget = actorref.get().get();
 			if (actorget) {
 				soundHandle.SetVolume(a_volume);
-				soundHandle.SetFrequency(a_frequency);
-				NiAVObject* follow = nullptr;
+
+				if (std::abs(a_frequency - 1.0f) > EPSILON) {
+					soundHandle.SetFrequency(a_frequency);
+				}
+
 				NiAVObject* current_3d = actorget->GetCurrent3D();
 				if (current_3d) {
-					follow = current_3d;
+					NiAVObject* follow = current_3d;
 					soundHandle.SetObjectToFollow(follow);
 					soundHandle.Play();
 				}
@@ -150,6 +155,11 @@ namespace GTS {
 				if (current_3d) {
 					NiAVObject& follow = *current_3d;
 					soundHandle.SetVolume(a_volume);
+
+					if (std::abs(a_frequency - 1.0f) > EPSILON) {
+						soundHandle.SetFrequency(a_frequency);
+					}
+
 					soundHandle.SetObjectToFollow(&follow);
 					soundHandle.Play();
 				}
@@ -195,7 +205,11 @@ namespace GTS {
 		if (success) {
 			float falloff = Sound_GetFallOff(a_node, a_falloff);
 			soundHandle.SetVolume(a_volume * falloff);
-			soundHandle.SetFrequency(a_frequency);
+
+			if (std::abs(a_frequency - 1.0f) > EPSILON) {
+				soundHandle.SetFrequency(a_frequency);
+			}
+
 			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();
 		}
@@ -226,7 +240,11 @@ namespace GTS {
 		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, soundDescriptor);
 		if (success) {
 			soundHandle.SetVolume(a_volume);
-			soundHandle.SetFrequency(a_frequency);
+
+			if (std::abs(a_frequency - 1.0f) > EPSILON) {
+				soundHandle.SetFrequency(a_frequency);
+			}
+
 			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();
 		}

@@ -21,8 +21,15 @@ namespace {
 
         //0 Refer's to the built in one effectively disabling the feature
         if (CustomSoundIndex != 0) {
-            const auto [_, freq] = CalculateVoicePitch(actor);
-            Runtime::PlaySoundAtNode_FallOff(ObtainSLMoanSound(CustomSoundIndex), actor, volume, "NPC Head [Head]", FallOff, freq);
+
+            float vfreq = 1.0f;
+            if (Config::GetAudio().bApplyPitchToGTSVoice) {
+                const auto [_, freq] = CalculateVoicePitch(actor);
+                vfreq = freq;
+            }
+            
+            Runtime::PlaySoundAtNode_FallOff(ObtainSLMoanSound(CustomSoundIndex), actor, volume, "NPC Head [Head]", FallOff, vfreq);
+
             return true;
         }
         return false;
@@ -60,8 +67,14 @@ namespace GTS {
                     SoundToPlay = ObtainGTSMoanLaughSound(Scale, Laugh_Superiority);             break;
             }
             if (!SoundToPlay.empty()) {
-                const auto [_, freq] = CalculateVoicePitch(actor);
-                Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, "NPC Head [Head]", FallOff, freq);
+
+                float vfreq = 1.0f;
+                if (Config::GetAudio().bApplyPitchToGTSVoice) {
+                    const auto [_, freq] = CalculateVoicePitch(actor);
+                    vfreq = freq;
+                }
+
+                Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, "NPC Head [Head]", FallOff, vfreq);
                 //log::info("Playing {} with {} volume", SoundToPlay, volume);
             }
         }
@@ -95,8 +108,14 @@ namespace GTS {
             }
             if (!PlaySexLabMoans(actor, volume, FallOff)) { // If it returns true = we play Sexlab moans instead
                 if (!SoundToPlay.empty()) {
-                    const auto [_, freq] = CalculateVoicePitch(actor);
-                    Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, "NPC Head [Head]", FallOff, freq);
+
+                    float vfreq = 1.0f;
+                    if (Config::GetAudio().bApplyPitchToGTSVoice) {
+                        const auto [_, freq] = CalculateVoicePitch(actor);
+                        vfreq = freq;
+                    }
+
+                    Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, "NPC Head [Head]", FallOff, vfreq);
                     //log::info("Playing {} with {} volume", SoundToPlay, volume);
                 }
             }

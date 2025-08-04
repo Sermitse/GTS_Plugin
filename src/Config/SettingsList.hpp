@@ -355,7 +355,8 @@ struct SettingsAudio {
     bool bMoanLaughPCExclusive = false;
     bool bUseOtherHighHeelSet = true;
     bool bBlendBetweenFootsteps = false;
-    
+
+    bool bApplyPitchToGTSVoice = false;
     float fMaxVoiceFrequency = 1.0f;
 
     float fFallOffMultiplier = 1.0f;

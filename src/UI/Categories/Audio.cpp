@@ -137,10 +137,12 @@ namespace GTS {
 			const char* T7 = "Enable/Disable npc's making death sounds/screams when being eaten through vore.";
 
 			const char* T8 = "FallOff Range Multiplier for Moans and Laughs. Large values = can be heard from further dist";
-			const char* T9 = "Moan and Laugh volume multiplier";
+			const char* T9 = "Moan and Laugh volume multiplier.";
+			const char* T10 = "Toggle wether the GTS moan/laugh voice should also have its pitch modified.";
 			
 			if (ImGui::CollapsingHeader("Voice",ImUtil::HeaderFlagsDefaultOpen)) {
-				ImUtil::CheckBox("Enable Voice Override",&Settings.bEnableVoiceOverride, T0);
+				ImUtil::CheckBox("Enable Voice Pitch Override",&Settings.bEnableVoiceOverride, T0);
+				ImUtil::CheckBox("Apply to GTS Voice", &Settings.bApplyPitchToGTSVoice, T10, !Settings.bEnableVoiceOverride);
 				ImUtil::SliderF("Voice Pitch Max",&Settings.fMaxVoiceFrequency, 1.0f, 1.6f, T1, "%.2fx", !Settings.bEnableVoiceOverride);
 				
 				ImUtil::CheckBox("Shrink To Nothing: Mute Death Sound", &Settings.bMuteShrinkToNothingDeathScreams,T2);
