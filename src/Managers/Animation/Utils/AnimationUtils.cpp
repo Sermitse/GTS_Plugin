@@ -296,7 +296,7 @@ namespace GTS {
 		}
 
 		std::string sound = "GTSSoundShrinkToNothing";
-		Runtime::PlaySoundAtNode(sound, giant, 1.0f, 1.0f, "NPC Spine2 [Spn2]");
+		Runtime::PlaySoundAtNode(sound, giant, 1.0f, "NPC Spine2 [Spn2]");
 
 		if (!IsLiving(tiny)) {
 			SpawnDustParticle(tiny, tiny, "NPC Root [Root]", 3.6f);
@@ -1038,10 +1038,10 @@ namespace GTS {
 
 								float Volume = std::clamp(difference*pushForce, 0.15f, 1.0f);
 
-								auto node = find_node(giant, GetDeathNodeName(Cause));
-								if (node) {
-									Runtime::PlaySoundAtNode("GTSSoundSwingImpact", giant, Volume, 1.0f, node); // play swing impact sound
-									ApplyShakeAtPoint(giant, 1.8f * pushpower * audio, node->world.translate, 0.0f);
+								auto targetNode = find_node(giant, GetDeathNodeName(Cause));
+								if (targetNode) {
+									Runtime::PlaySoundAtNode("GTSSoundSwingImpact", Volume, targetNode); // play swing impact sound
+									ApplyShakeAtPoint(giant, 1.8f * pushpower * audio, targetNode->world.translate, 0.0f);
 								}
 
 								ApplyActionCooldown(otherActor, CooldownSource::Damage_Hand);

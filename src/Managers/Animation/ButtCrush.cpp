@@ -142,7 +142,7 @@ namespace {
 		
 		DamageAV(giant, ActorValue::kStamina, WasteStamina);
 
-		Runtime::PlaySoundAtNode("GTSSoundGrowth", giant, 1.0f, 1.0f, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode("GTSSoundGrowth", giant, 1.0f, "NPC Pelvis [Pelv]");
 
 		StartRumble("BCRumble", data.giant, 1.25f, 0.30f);
 	}

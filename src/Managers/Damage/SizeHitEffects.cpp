@@ -98,11 +98,11 @@ namespace {
 				}
 
 				if (!LessGore()) {
-					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, 1.0f, "NPC L Hand [LHnd]");
-					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, 1.0f, "NPC L Hand [LHnd]");
-					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, "NPC L Hand [LHnd]");
 				} else {
-					Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", receiver, 1.0f, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", receiver, 1.0f, "NPC L Hand [LHnd]");
 				}
 				Rumbling::Once("GrabAttackKill", receiver, 8.0f, 0.15f, "NPC L Hand [LHnd]", 0.0f);
 				AnimationManager::StartAnim("GrabAbort", receiver); // Abort Grab animation
@@ -160,7 +160,7 @@ namespace {
 		update_target_scale(receiver, GrowthValue, SizeEffectType::kNeutral);
 		
 		if (soundtimer.ShouldRunFrame()) {
-			Runtime::PlaySoundAtNode("GTSSoundGrowth", receiver, GrowthValue * 2, 1.0f, "NPC Pelvis [Pelv]");
+			Runtime::PlaySoundAtNode("GTSSoundGrowth", receiver, GrowthValue * 2, "NPC Pelvis [Pelv]");
 		}
 		if (ShrinkChance >= 2) {
 			if (get_target_scale(attacker) >= 0.06f/Adjustment) {

@@ -9,7 +9,7 @@ namespace {
 		if (checkTimer) {
 			Rumbling::Once("ShrinkResistPotion", giant, 2.0f, 0.05f);
 			float Volume = std::clamp(get_visual_scale(giant)/10.0f, 0.20f, 2.0f);
-			Runtime::PlaySoundAtNode("GTSSoundGrowth", giant, Volume, 1.0f, "NPC Pelvis [Pelv]");
+			Runtime::PlaySoundAtNode("GTSSoundGrowth", giant, Volume, "NPC Pelvis [Pelv]");
 		}
 	}
 }

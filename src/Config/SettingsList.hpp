@@ -77,9 +77,9 @@ enum class SelectedGameMode : uint8_t {
     kCombatGrowth,
     kSlowCombatGrowth,
     kCurseOfGrowth,
-    kCurseOfTheGiantess,        //<------- TODO Implement these... AKA: Just take them from my dll
+    kCurseOfTheGiantess,
     kCurseOfDiminishing,
-    kSizeLocked //<-------------- Combines both
+    kSizeLocked 
 };
 
 //-------------------------------------------------------------------------------------------------------------------

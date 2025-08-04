@@ -180,7 +180,7 @@ namespace {
 
 	void GTSSandwich_ThighImpact(AnimationEventData& data) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
-		Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", &data.giant, 1.0f, 1.0f, "AnimObjectB");
+		Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", &data.giant, 1.0f, "AnimObjectB");
 		sandwichdata.EnableSuffocate(true);
 
 		
@@ -198,7 +198,7 @@ namespace {
 
 	void GTSSandwich_ThighImpact_H(AnimationEventData& data) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
-		Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", &data.giant, 1.2f, 1.0f, "AnimObjectA");
+		Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", &data.giant, 1.2f, "AnimObjectA");
 		sandwichdata.EnableSuffocate(true);
 		
 		for (auto tiny: sandwichdata.GetActors()) {

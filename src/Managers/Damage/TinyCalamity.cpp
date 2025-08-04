@@ -257,7 +257,7 @@ namespace GTS {
             tiny->SetAlpha(0.0f); // Player can't be disintegrated, so we make player Invisible
         }
         
-        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Crush", giant, 1.0f, 1.0f, "NPC COM [COM ]");
+        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Crush", giant, 1.0f, "NPC COM [COM ]");
         giant->SetGraphVariableFloat("GiantessScale", OldScale);
         DecreaseShoutCooldown(giant);
 
@@ -283,7 +283,7 @@ namespace GTS {
         update_target_scale(tiny, -0.06f, SizeEffectType::kShrink);
         ModSizeExperience(giant, xp);
 
-        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Impact", giant, 1.0f, 1.0f, "NPC COM [COM ]");
+        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Impact", giant, 1.0f, "NPC COM [COM ]");
         shake_camera_at_node(giant, "NPC COM [COM ]", 16.0f, 1.0f);
         
         if (IsEssential(giant, tiny)) {

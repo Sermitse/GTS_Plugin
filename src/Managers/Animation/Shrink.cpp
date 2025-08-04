@@ -27,7 +27,7 @@ namespace {
 		float scale = get_visual_scale(actor);
 		float Volume = std::clamp(scale * 0.10f, 0.10f, 1.0f);
 			
-		Runtime::PlaySoundAtNode("GTSSoundShrink", actor, Volume, 1.0f, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode("GTSSoundShrink", actor, Volume, "NPC Pelvis [Pelv]");
 
 		//SetHalfLife(actor, 0.0f);
 		TaskManager::Run(name, [=](auto& progressData) {

@@ -218,7 +218,7 @@ namespace {
             }
 			
 			Rumbling::Once("GrabAttack", tiny, Rumble_Grab_Hand_Attack * bonus * damage_mult, 0.05f, "NPC Root [Root]", 0.0f);
-            Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, 1.0f, 1.0f, "NPC Root [Root]");
+            Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, 1.0f, "NPC Root [Root]");
 
             Utils_CrushTask(giant, tiny, bonus, false, false, DamageSource::BreastImpact, QuestStage::Crushing);
             ModSizeExperience(giant, experience);
@@ -306,7 +306,7 @@ namespace {
         auto tiny = Grab::GetHeldActor(&data.giant);
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		if (tiny) {
-            Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, 1.0f, "NPC Head [Head]"); // Play sound
+            Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
 			for (auto& tiny: VoreData.GetVories()) {
 				if (!AllowDevourment()) {
 					VoreData.Swallow();
@@ -369,7 +369,7 @@ namespace {
 
             float volume = std::clamp(0.12f * get_visual_scale(giant), 0.12f, 1.0f);
 
-            Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, volume, 1.0f, "NPC Root [Root]");
+            Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, volume, "NPC Root [Root]");
 
             bool Blocked = IsActionOnCooldown(giant, CooldownSource::Emotion_Laugh);
             if (!Blocked && data.stage < 8) { // We don't want Laugh to happen at the end of absorption
@@ -570,7 +570,7 @@ namespace {
             Rumbling::Once("HandLand_L", &data.giant, 0.45f, 0.0f, "R Breast02", 0.0f);
 
             float volume = std::clamp(0.12f * get_visual_scale(&data.giant), 0.12f, 1.0f);
-            Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, volume, 1.0f, "NPC Root [Root]");
+            Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, volume, "NPC Root [Root]");
         }
     }
 

@@ -84,7 +84,7 @@ namespace {
 		std::string name = std::format("Calamity_{}_{}", giant->formID, false);
 		TaskManager::Cancel(name);
 
-		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_RuneReady", giant, 1.0f, 1.0f, "NPC R Hand [RHnd]");
+		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_RuneReady", giant, 1.0f, "NPC R Hand [RHnd]");
 
 		auto node = find_node(&data.giant, "ShrinkRune-Obj", false);
         if (node) {
@@ -111,8 +111,8 @@ namespace {
 
 				slow_down(victim, 0.60f); // decrease MS by 60%
 
-				Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_SpawnRune", victim, 1.0f, 1.0f, "NPC Root [Root]");
-				Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Absorb", victim, 1.0f, 1.0f, "NPC Root [Root]");
+				Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_SpawnRune", victim, 1.0f, "NPC Root [Root]");
+				Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Absorb", victim, 1.0f, "NPC Root [Root]");
 			}
 		}
 	}

@@ -221,7 +221,7 @@ namespace {
 				CallDevourment(giant, tiny);
 			} 
 		} else {
-			Runtime::PlaySoundAtNode("GTSSoundSwallow", giant, 1.0f, 1.0f, "NPC Head [Head]"); // Play sound
+			Runtime::PlaySoundAtNode("GTSSoundSwallow", giant, 1.0f, "NPC Head [Head]"); // Play sound
 			VoreData.Swallow();
 		}
 	}

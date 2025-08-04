@@ -147,7 +147,7 @@ namespace {
 			} else {
 				VoreData.Swallow();
 				tiny->SetAlpha(0.0f);
-				Runtime::PlaySoundAtNode("GTSSoundSwallow", giant, 1.0f, 1.0f, "NPC Head [Head]"); // Play sound
+				Runtime::PlaySoundAtNode("GTSSoundSwallow", giant, 1.0f, "NPC Head [Head]"); // Play sound
 			}
 		}
 	}

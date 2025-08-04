@@ -62,7 +62,7 @@ namespace {
 			}
 			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
 			giant->SetGraphVariableInt("GTS_Grab_State", 0);
-			Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, 1.0f, "NPC Head [Head]"); // Play sound
+			Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
 			AnimationManager::StartAnim("TinyDied", giant);
 			//BlockFirstPerson(giant, false);
 			ManageCamera(&data.giant, false, CameraTracking::Grab_Left);

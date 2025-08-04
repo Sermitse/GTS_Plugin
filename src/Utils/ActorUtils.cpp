@@ -113,7 +113,7 @@ namespace {
 			StaggerActor_Around(giantref, 48.0f, false);
 
 			auto node = find_node(giantref, "NPC Root [Root]");
-			Runtime::PlaySoundAtNode("GTSSoundMagicBreak", giantref, 1.0f, 1.0f, "NPC COM [COM ]");
+			Runtime::PlaySoundAtNode("GTSSoundMagicBreak", giantref, 1.0f, "NPC COM [COM ]");
 			
 			if (node) {
 				NiPoint3 position = node->world.translate;
@@ -2639,7 +2639,7 @@ namespace GTS {
 		const float BASE_DISTANCE = 84.0f;
 		float CheckDistance = BASE_DISTANCE*giantScale*radius;
 
-		Runtime::PlaySoundAtNode("GTSSoundShrinkOutburst", giant, explosion, 1.0f, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode("GTSSoundShrinkOutburst", giant, explosion, "NPC Pelvis [Pelv]");
 		Rumbling::For("ShrinkOutburst", giant, Rumble_Misc_ShrinkOutburst, 0.15f, "NPC COM [COM ]", 0.60f, 0.0f);
 
 		SpawnParticle(giant, 6.00f, "GTS/Shouts/ShrinkOutburst.nif", NiMatrix3(), NodePosition, giantScale*explosion*3.0f, 7, nullptr); // Spawn effect
@@ -2683,7 +2683,7 @@ namespace GTS {
 				float scale = get_visual_scale(actor);
 
 				SpawnCustomParticle(actor, ParticleType::Red, NiPoint3(), "NPC Root [Root]", scale * 1.15f);
-				Runtime::PlaySoundAtNode("GTSSoundMagicProctectTinies", actor, 1.0f, 1.0f, "NPC COM [COM ]");
+				Runtime::PlaySoundAtNode("GTSSoundMagicProctectTinies", actor, 1.0f, "NPC COM [COM ]");
 
 				std::string name_com = std::format("Protect_{}", actor->formID);
 				std::string name_root = std::format("Protect_Root_{}", actor->formID);
@@ -2744,7 +2744,7 @@ namespace GTS {
 			static Timer Cooldown = Timer(1.2);
 			if (Cooldown.ShouldRun()) {
 				float falloff = 0.13f * get_visual_scale(actor);
-				Runtime::PlaySoundAtNode_FallOff("GTSSoundFail", actor, 0.4f, 1.0f, "NPC COM [COM ]", falloff);
+				Runtime::PlaySoundAtNode_FallOff("GTSSoundFail", actor, 0.4f, "NPC COM [COM ]", falloff);
 				Notify(message);
 			}
 		}
@@ -3653,6 +3653,25 @@ namespace GTS {
 	bool IsPlayerFirstPerson(Actor* a_actor) {
 		if (!a_actor) return false;
 		return a_actor->formID == 0x14 && IsFirstPerson();
+	}
+
+
+	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor) {
+
+		float natural_scale = std::clamp(get_natural_scale(a_actor, false), 1.0f, 5000.0f); // Don't allow < 1.0
+		float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
+		// ^ Some npc's have natural scale < than 1.0 (such as children) so it's a must to alter it by natural scale...
+
+		const float volume = std::clamp(scale + 0.5f, 0.35f, 1.0f);
+		const float size = (scale * 0.20f) + 0.8f;
+		const float frequence = (1.0f / size) / (1.0f * size);
+		const float freq_high = 1.0f / std::clamp(Config::GetAudio().fMaxVoiceFrequency, 1.0f, 10.0f);
+		constexpr float freq_low = 1.5f;
+		const float freq = std::clamp(frequence, freq_high, freq_low);
+		return { volume, freq };
+		// < 1  = deep voice, below 0.5 = audio bugs out, not recommended
+		// > 1 = mouse-like voice, not recommended to go above 1.5
+
 	}
 
 }

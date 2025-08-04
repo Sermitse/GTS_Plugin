@@ -325,6 +325,6 @@ namespace GTS {
 
 	bool IsPlayerFirstPerson(Actor* a_actor);
 
-	void ForEachReferenceInRange_Custom(TESObjectREFR* origin, float radius, std::function<BSContainer::ForEachResult(TESObjectREFR& ref)> callback);
+	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor);
 
 }

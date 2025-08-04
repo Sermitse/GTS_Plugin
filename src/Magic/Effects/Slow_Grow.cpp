@@ -67,7 +67,7 @@ namespace GTS {
 
 			if (timer.ShouldRun()) {
 				float Volume = std::clamp(get_visual_scale(CasterActor) / 8.0f, 0.20f, 1.0f);
-				Runtime::PlaySoundAtNode("GTSSoundGrowth", CasterActor, Volume, 1.0f, "NPC Pelvis [Pelv]");
+				Runtime::PlaySoundAtNode("GTSSoundGrowth", CasterActor, Volume, "NPC Pelvis [Pelv]");
 			}
 
 			if (Runtime::HasMagicEffect(CasterActor, "GTSPotionEffectSizeAmplify")) {

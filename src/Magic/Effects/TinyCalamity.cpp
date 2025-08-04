@@ -57,7 +57,7 @@ namespace GTS {
 
 		auto caster = GetCaster();
 		if (caster) {
-			Runtime::PlaySoundAtNode("GTSSoundTinyCalamity", caster, 1.0f, 1.0f, "NPC COM [COM ]");
+			Runtime::PlaySoundAtNode("GTSSoundTinyCalamity", caster, 1.0f, "NPC COM [COM ]");
 			AdjustCalamityDuration(caster, GetActiveEffect());
 			auto node = find_node(caster, "NPC Root [Root]");
 			StartShrinkingGaze(caster);

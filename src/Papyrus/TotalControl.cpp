@@ -17,7 +17,7 @@ namespace {
 					if (targetRef) {
 						float falloff = 0.11f * get_visual_scale(targetRef);
 						float Volume = std::clamp(get_visual_scale(targetRef)/8.0f, 0.20f, 1.0f);
-						Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", targetRef, Volume, 1.0f, "NPC Pelvis [Pelv]", falloff);
+						Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
 
 						// Thread safe handles
 						ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -69,7 +69,7 @@ namespace {
 						float Volume = std::clamp(scale * 0.10f, 0.10f, 1.0f);
 						
 						float falloff = 0.11f * scale;
-						Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", targetRef, Volume, 1.0f, "NPC Pelvis [Pelv]", falloff);
+						Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
 						
 						// Thread safe handles
 						ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -119,7 +119,7 @@ namespace {
 
 				float falloff = 0.11f * scale;
 
-				Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", casterRef, Volume, 1.0f, "NPC Pelvis [Pelv]", falloff);
+				Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
 			
 				// Thread safe handles
 				ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -164,7 +164,7 @@ namespace {
 				float Volume = std::clamp(scale * 0.10f, 0.10f, 1.0f);
 				float falloff = 0.11f * scale;
 
-				Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", casterRef, Volume, 1.0f, "NPC Pelvis [Pelv]", falloff);
+				Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
 			
 				// Thread safe handles
 				ActorHandle casterHandle = casterRef->CreateRefHandle();

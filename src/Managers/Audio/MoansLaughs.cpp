@@ -10,6 +10,7 @@
 using namespace GTS;
 
 namespace {
+
     bool PlaySexLabMoans(Actor* actor, float volume, float FallOff) {
         const auto ActorData = Persistent::GetSingleton().GetData(actor);
         uint8_t CustomSoundIndex = 0;
@@ -20,11 +21,13 @@ namespace {
 
         //0 Refer's to the built in one effectively disabling the feature
         if (CustomSoundIndex != 0) {
-            Runtime::PlaySoundAtNode_FallOff(ObtainSLMoanSound(CustomSoundIndex), actor, volume, 1.0f, "NPC Head [Head]", FallOff);
+            const auto [_, freq] = CalculateVoicePitch(actor);
+            Runtime::PlaySoundAtNode_FallOff(ObtainSLMoanSound(CustomSoundIndex), actor, volume, "NPC Head [Head]", FallOff, freq);
             return true;
         }
         return false;
     }
+
 }
 
 namespace GTS {
@@ -57,7 +60,8 @@ namespace GTS {
                     SoundToPlay = ObtainGTSMoanLaughSound(Scale, Laugh_Superiority);             break;
             }
             if (!SoundToPlay.empty()) {
-                Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, 1.0f, "NPC Head [Head]", FallOff);
+                const auto [_, freq] = CalculateVoicePitch(actor);
+                Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, "NPC Head [Head]", FallOff, freq);
                 //log::info("Playing {} with {} volume", SoundToPlay, volume);
             }
         }
@@ -91,7 +95,8 @@ namespace GTS {
             }
             if (!PlaySexLabMoans(actor, volume, FallOff)) { // If it returns true = we play Sexlab moans instead
                 if (!SoundToPlay.empty()) {
-                    Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, 1.0f, "NPC Head [Head]", FallOff);
+                    const auto [_, freq] = CalculateVoicePitch(actor);
+                    Runtime::PlaySoundAtNode_FallOff(SoundToPlay, actor, volume, "NPC Head [Head]", FallOff, freq);
                     //log::info("Playing {} with {} volume", SoundToPlay, volume);
                 }
             }
