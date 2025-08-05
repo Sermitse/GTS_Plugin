@@ -1,4 +1,4 @@
-#include "UI/Categories/General.hpp"
+﻿#include "UI/Categories/General.hpp"
 #include "Config/Keybinds.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "UI/UIManager.hpp"
@@ -7,6 +7,113 @@
 #include "UI/ImGUI/ImStyleManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
 #include "Utils/QuestUtil.hpp"
+#include "Config/SettingsModHandler.hpp"
+
+
+namespace {
+
+	const char* T_Export = "Export the current mod configuration to a file.";
+	const char* T_Import = "Import the current mod configuration from the selected export file.";
+	const char* T_Delete = "Delete the currently selected settings export.";
+	const char* T_Cleanup = "Delete all but the 5 most recent exports.";
+	const char* T_Reset = "Reset all settings, this does not reset any modified action keybinds.\n If you want to reset those press the reset button on its page instead.";
+
+	void DrawIEUI(){
+
+		auto& conf = GTS::Config::GetSingleton();
+		static std::string statusText = "";
+		static int selectedExportIndex = -1;
+		constexpr int keepCount = 5;
+
+		// Get available export files
+		auto exportFiles = conf.GetExportedFiles();
+		std::vector<std::string> fileNames;
+		for (const auto& file : exportFiles) {
+			fileNames.push_back(file.filename().string());
+		}
+
+		// Export section
+		if (ImUtil::ImageButton("##Export","export_save", 32, T_Export)) {
+			if (conf.ExportSettings()) {
+				auto files = conf.GetExportedFiles();
+				if (!files.empty()) {
+					statusText = fmt::format("✓ Saved as {}", files.front().filename().string());
+				}
+			}
+		}
+
+		ImGui::SameLine();
+
+		if (ImUtil::ImageButton("##Import", "export_load", 32, T_Import)) {
+			if(selectedExportIndex < 0) {
+				statusText = fmt::format("Select an export first", fileNames[selectedExportIndex]);
+			}
+			else if (selectedExportIndex >= 0 && selectedExportIndex < exportFiles.size()) {
+				if (conf.LoadFromExport(exportFiles[selectedExportIndex].string())) {
+					GTS::HandleSettingsRefresh();
+					statusText = fmt::format("✓ Applied {}", fileNames[selectedExportIndex]);
+				}
+				else {
+					statusText = "Import failed";
+				}
+			}
+		}
+
+		ImGui::SameLine();
+
+		if (ImUtil::ImageButton("##Delete", "export_delete", 32, T_Delete)) {
+
+			if (selectedExportIndex < 0) {
+				statusText = fmt::format("Select an export first", fileNames[selectedExportIndex]);
+			}
+			else if (selectedExportIndex >= 0 && selectedExportIndex < exportFiles.size()) {
+				conf.DeleteExport(exportFiles[selectedExportIndex].string());
+				statusText = fmt::format("Deleted {}", fileNames[selectedExportIndex]);
+				selectedExportIndex = -1;
+			}
+		}
+
+		ImGui::SameLine();
+
+		if (ImUtil::ImageButton("##Cleaunup", "export_cleanup", 32, T_Cleanup)) {
+			conf.CleanOldExports(keepCount);
+			statusText = fmt::format("✓ Cleaned old exports (kept {0})", keepCount);
+		}
+
+		ImUtil::SeperatorV();
+
+		if (ImUtil::ImageButton("##Reset", "generic_reset", 32, T_Reset)) {
+			GTS::HandleSettingsReset();
+			statusText = fmt::format("✓ Mod settings have been reset.");
+		}
+
+		// Combo box for selecting exports
+		const char* previewValue = (selectedExportIndex >= 0 && selectedExportIndex < fileNames.size()) ? fileNames[selectedExportIndex].c_str() : "Select export file...";
+
+		if (ImGui::BeginCombo("##ExportCombo", previewValue)) {
+			for (int i = 0; i < fileNames.size(); i++) {
+				bool isSelected = (selectedExportIndex == i);
+				if (ImGui::Selectable(fileNames[i].c_str(), isSelected)) {
+					selectedExportIndex = i;
+				}
+				if (isSelected) {
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		ImGui::Spacing();
+
+		// Status message
+		if (!statusText.empty()) {
+			GTS::ImFontManager::PushActiveFont(GTS::ImFontManager::ActiveFontType::kLargeText);
+			ImGui::TextColored(ImUtil::ColorMessage, statusText.c_str());
+			GTS::ImFontManager::PopActiveFont();
+		}
+	}
+}
+
 
 
 namespace GTS {
@@ -68,7 +175,15 @@ namespace GTS {
 			}
 		}
 
-			//----------- Skill Tree
+		//----------- Settings Export
+
+		ImUtil_Unique {
+			if (ImGui::CollapsingHeader("Export/Import Settings", ImUtil::HeaderFlagsDefaultOpen)) {
+				DrawIEUI();
+			}
+		}
+
+		//----------- Skill Tree
 
 		ImUtil_Unique{
 
@@ -266,65 +381,6 @@ namespace GTS {
 			}
 		}
 
-		//-------- Settings Storage
-
-		ImUtil_Unique{
-
-			const char* T0 = "Reset this mod's setting do their default values";
-			const char* T1 = "Should the mod settings be saved globaly or on a per save basis like older versions of the mod?\n"
-							 "Effectively this mimicks the behavior you'd experience when using a MCM menu.\n";
-			//Reset
-			if (ImGui::CollapsingHeader("Settings Storage", ImUtil::HeaderFlagsDefaultOpen)) {
-
-				if (ImUtil::Button("Reset Mod Settings", T0)) {
-
-					Config::GetSingleton().ResetToDefaults();
-					Keybinds::GetSingleton().ResetKeybinds();
-					ImStyleManager::GetSingleton().LoadStyle();
-
-					spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
-
-					// ----- If You need to do something when settings reset add it here.
-
-					if (!Settings.bTrackBonesDuringAnim) {
-						auto actors = find_actors();
-						for (auto actor : actors) {
-							if (actor) {
-								ResetCameraTracking(actor);
-							}
-						}
-					}
-
-					if (!Settings.bHighheelsFurniture) {
-
-						auto actors = find_actors();
-
-						for (auto actor : actors) {
-							if (!actor) {
-								return;
-							}
-
-							for (bool person : {false, true}) {
-								auto npc_root_node = find_node(actor, "NPC", person);
-								if (npc_root_node && actor->GetOccupiedFurniture()) {
-									npc_root_node->local.translate.z = 0.0f;
-									update_node(npc_root_node);
-								}
-							}
-						}
-					}
-
-					Notify("Mod settins have been reset");
-					logger::info("All Mod Settings Reset");
-				}
-
-				ImGui::SameLine();
-
-				ImUtil::CheckBox("Save Specific Settings", &Persistent::GetSingleton().LocalSettingsEnable.value, T1);
-
-				ImGui::Spacing();
-			}
-		}
 
 		//----------- Progress
 

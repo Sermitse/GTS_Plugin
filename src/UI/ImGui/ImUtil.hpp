@@ -32,7 +32,7 @@ namespace ImUtil {
     constexpr ImVec4 ColorOK = { 0.30f, 1.0f, 0.35f, 0.9f };
     constexpr ImVec4 ColorSubscript = {1.0f, 1.0f, 1.0f, 0.5f};
     constexpr ImVec4 ColorDisabled = { 0.4f, 0.1f, 0.1f, 1.0f };
-
+    constexpr ImVec4 ColorMessage = { 1.0f, 0.5f, 0.0f, 1.0f };
     constexpr uint32_t HeaderFlagsDefaultOpen = ImGuiTreeNodeFlags_DefaultOpen;
     
     constexpr float TooltipDelay = 0.45f; //sec

@@ -18,6 +18,8 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Advanced",ImUtil::HeaderFlagsDefaultOpen)) {
                 ImUtil::CheckBox("Enable/Disable This Page", &Config::GetHidden().IKnowWhatImDoing, T0);
+
+                ImGui::Spacing();
             }
         }
 
@@ -119,25 +121,15 @@ namespace GTS {
                     FuncType func = nullptr;
                     func();
                 }
+
+                ImGui::Spacing();
             }
         }
 
         ImUtil_Unique {
             if (ImGui::CollapsingHeader("Graphics Test")) {
-                ImGui::ArrowButton("Huh", ImGuiDir_Right);
-                auto x = UIManager::Graphics->GetAsImGuiTexture("keybind_showadv", {32,32});
-
-                ImTextureID id = std::get<0>(x);
-                ImVec2 res = std::get<1>(x);
-
-                ImGui::ImageButton("Hamood", id, res);
-
-                auto y = UIManager::Graphics->GetAsImGuiTexture("dummy");
-
-                ImTextureID id2 = std::get<0>(y);
-                ImVec2 res2 = std::get<1>(y);
-
-                ImGui::ImageButton("dummy", id2, res2);
+                UIManager::Graphics->DebugDrawTest();
+                ImGui::Spacing();
             }
         }
 
@@ -147,18 +139,20 @@ namespace GTS {
             if (ImGui::CollapsingHeader("Font Test")) {
 
                 {
-                    ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::EN);
+                    //Apparently Setting the activescript type is not needed?
+					//I'd expect some character overlap due to merging but it appears things "just work".
+                    //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::EN);
                     ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
 
-                    ImGui::Text(reinterpret_cast <const char*>(u8"This îs à fóntlöäder tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève"));
-                    ImGui::Text(reinterpret_cast<const char*>(u8"Αυτή είναι μια δοκιμή για τον φορτωτή γραμματοσειράς"));
+                    ImGui::Text(reinterpret_cast <const char*>(u8"This îs à fónt tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève"));
+                    ImGui::Text(reinterpret_cast<const char*>(u8"Αυτή είναι μια δοκιμή για το συστυμα γραμματοσειράς"));
                     ImGui::Text(reinterpret_cast<const char*>(u8"Это тест загрузчика шрифтов"));
 
                     ImFontManager::PopActiveFont();
                 }
 
                 {
-                    ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::JP);
+                    //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::JP);
                     ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
 
                     ImGui::Text(reinterpret_cast<const char*>(u8"これはフォントローダーのテストです"));
@@ -167,7 +161,7 @@ namespace GTS {
                 }
 
                 {
-                    ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::EN);
+                    //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::KR);
                     ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
 
                     ImGui::Text(reinterpret_cast<const char*>(u8"이것은 폰트로더 테스트입니다"));
@@ -176,13 +170,15 @@ namespace GTS {
                 }
 
                 {
-                    ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::EN);
+                    //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::SC);
                     ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
 
                     ImGui::Text(reinterpret_cast<const char*>(u8"这是一个字体加载器测试"));
 
                     ImFontManager::PopActiveFont();
                 }
+
+                ImGui::Spacing();
             }
         }
 
@@ -198,6 +194,8 @@ namespace GTS {
 
 	            ImUtil::CheckBox("Pause Game", &Settings.bPauseGame, T0);
 	            ImUtil::SliderF("SGTM Mult", &Settings.fSGTMMult, 0.05f, 1.0f, T1, "%.2fx", Settings.bPauseGame);
+
+                ImGui::Spacing();
 
             }
 
@@ -229,6 +227,8 @@ namespace GTS {
 
                 ImGui::TextColored(ImUtil::ColorError, "Info (!)");
                 ImUtil::Tooltip(THelp, true);
+
+                ImGui::Spacing();
 
 	        }
         }

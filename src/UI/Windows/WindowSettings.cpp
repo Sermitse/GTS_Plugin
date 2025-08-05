@@ -46,7 +46,7 @@ namespace GTS {
 
 		try {
 
-			if (!Settings.LoadSettings()) {
+			if (!Settings.LoadSettingsFromString()) {
 				logger::error("Settings.LoadSettings() Error");
 				SaveLoadBusy.store(false);
 				return;
@@ -71,7 +71,7 @@ namespace GTS {
 
 		try {
 
-			if (!Settings.SaveSettings()) {
+			if (!Settings.SaveSettingsToString()) {
 				logger::error("Settings.SaveSettings() Error");
 				SaveLoadBusy.store(false);
 				return;

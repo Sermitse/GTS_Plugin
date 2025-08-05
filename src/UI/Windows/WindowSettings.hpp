@@ -45,7 +45,8 @@ namespace GTS {
             std::thread(&WindowSettings::SaveImpl, this).detach();
         }
 
-        void AsyncLoad() {
+        //Unused
+        /*void AsyncLoad() {
 
             if (SaveLoadBusy.load()) {
                 return;
@@ -54,17 +55,12 @@ namespace GTS {
             //TODO Use std::async instead of spawning a new thread. So we can get a return value.
             SaveLoadBusy.store(true);
             std::thread(&WindowSettings::LoadImpl, this).detach();
-        }
+        }*/
 
 
         private:
         void LoadImpl();
         void SaveImpl();
-
-        void SetErrorAndUnlock(const std::string& a_error) {
-            logger::error("SaveLoadError: {}", a_error);
-           
-        }
 
         std::atomic<bool> SaveLoadBusy = false;
 

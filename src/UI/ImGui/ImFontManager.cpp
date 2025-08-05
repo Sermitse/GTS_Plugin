@@ -15,7 +15,7 @@ namespace GTS {
 		    {ActiveFontType::kFooter,TextType(&FontSet_Medium, 28.0f)},
 		    {ActiveFontType::kSubText,TextType(&FontSet_Regular, 16.0f)},
 		    {ActiveFontType::kSidebar,TextType(&FontSet_Regular, 28.0f)},
-		    {ActiveFontType::kError,TextType(&FontSet_Regular, 22.0f)},
+		    {ActiveFontType::kLargeText,TextType(&FontSet_Regular, 22.0f)},
 		    {ActiveFontType::kWidgetBody,TextType(&FontSet_Regular, 20.0f)},
 		    {ActiveFontType::kWidgetTitle,TextType(&FontSet_Light, 32.0f)},
         };

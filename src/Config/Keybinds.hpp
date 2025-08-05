@@ -38,7 +38,7 @@ namespace GTS {
                     }
                     
                     //Recreate the config file and start with a fresh table.
-                    if(!CheckFile(Instance.InputFile)){
+                    if(!CheckOrCreateFile(Instance.InputFile)){
                         ReportAndExit("Could not create a blank Input.toml file.\n"
 									  "Check GTSPlugin.log for more info.\n"
 									  "The game will now close."

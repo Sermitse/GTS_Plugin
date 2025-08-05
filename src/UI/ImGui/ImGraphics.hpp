@@ -297,9 +297,9 @@ namespace GTS {
             }
 
             //If default size is less than 32px (caused by bad svg metadata) enforce min size
-            if (texture->size.x < 32 || texture->size.y < 32) {
-                texture->size.x = 32;
-                texture->size.y = 32;
+            if (texture->size.x < 8 || texture->size.y < 8) {
+                texture->size.x = 8;
+                texture->size.y = 8;
             }
 
             // If no size specified, use the texture's size
@@ -310,7 +310,29 @@ namespace GTS {
             return true;
         }
 
-        // Render SVG by name within ImGui
+        void DebugDrawTest() {
+
+            constexpr int split = 12;
+            int amtDrawn = 0;
+
+            Render("dummy", { 32, 32 });
+
+            ImGui::SameLine();
+
+            for (const auto& key : m_TextureMap | views::keys) {
+                Render(key,{32,32});
+                ImGui::SameLine();
+                amtDrawn++;
+                if (amtDrawn % split == 0) {
+                    ImGui::NewLine();
+                }
+            }
+
+            ImGui::NewLine();
+
+        }
+
+
         std::tuple<ImTextureID, ImVec2> GetAsImGuiTexture(const std::string& a_name, ImVec2 a_size = { 0,0 }) {
             std::lock_guard<std::mutex> lock(m_Lock);
             auto it = m_TextureMap.find(a_name);

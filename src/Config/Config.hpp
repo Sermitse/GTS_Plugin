@@ -8,6 +8,14 @@ namespace GTS {
 
         private:
 
+        // Helper methods for export functionality
+        static std::string GetTimestamp();
+        bool EnsureExportDirectoryExists() const;
+
+        // Core serialization/deserialization methods
+        bool SerializeStructsToTOML();
+        bool DeserializeStructsFromTOML();
+
         //Create structs with default values.
         //These act as sane defaults in case new data is loaded or the toml itself is corrupted.
         SettingsGeneral General = {};
@@ -43,10 +51,12 @@ namespace GTS {
         REGISTER_STRUCT_NAME(SettingsHidden, "Hidden")
 
         const std::string _Subfolder = R"(Data\SKSE\Plugins\GTSPlugin)";
-        const std::string _ConfigFile = "Settings.toml";
+        const std::string _Exports = R"(Exports)";
+        const std::string _LegacyConfigFile = "Settings.toml";
 
         //Currentpath Resolves to the Skyrim root folder where the .exe is.
-        const std::filesystem::path ConfigFile = std::filesystem::current_path() / _Subfolder / _ConfigFile;
+        const std::filesystem::path LegacyConfigFilePath = std::filesystem::current_path() / _Subfolder / _LegacyConfigFile;
+        const std::filesystem::path ModConfigPath = std::filesystem::current_path() / _Subfolder;
 
         toml::basic_value<toml::ordered_type_config> TomlData;
         toml::basic_value<toml::ordered_type_config> TomlDataGlobal;
@@ -110,61 +120,50 @@ namespace GTS {
             return GetSingleton().Hidden;
         }
 
+        static inline void CopyLegacySettings(Config& Instance) {
+
+            // Check if the file exists else don't do anything
+            if (!std::filesystem::exists(Instance.LegacyConfigFilePath)) {
+                return;
+            }
+            if (!Instance.EnsureExportDirectoryExists()) {
+                return;
+            }
+
+            try {
+                // Create destination path in exports folder
+                auto exportDir = std::filesystem::path(Instance.ModConfigPath / Instance._Exports);
+                auto destinationPath = exportDir / "LegacySettings.toml";
+
+                // Copy the legacy config file to exports folder
+                std::filesystem::copy_file(Instance.LegacyConfigFilePath, destinationPath,
+                    std::filesystem::copy_options::overwrite_existing);
+
+                // Delete the original legacy file after successful copy
+                std::filesystem::remove(Instance.LegacyConfigFilePath);
+
+            }
+            catch (const std::filesystem::filesystem_error& e) {
+                logger::error("CopyLegacySettings() FS error {}", e.what());
+            }
+        }
+
         [[nodiscard]] static inline Config& GetSingleton() {
             static Config Instance;
-
-            static std::atomic_bool Initialized;
-            static std::latch Latch(1);
-
-            if (!Initialized.exchange(true)) {
-                logger::info("Loading TOML Settings in .ctor...");
-
-                if (!Instance.LoadSettingsFromFile()) {
-                    ReportInfo("Settings.toml is either invalid or corrupted.\n"
-							   "Click OK to clear out the settings file.\n"
-							   "This will reset the mod's settings."
-                    );
-
-                    Instance.ResetToDefaults();
-
-                    //Delete the config file
-                    if (!DeleteFile(Instance.ConfigFile)) {
-                        ReportAndExit("Could not delete Settings.toml\n"
-									  "Check GTSPlugin.log for more info.\n"
-									  "The game will now close."
-                        );
-                    }
-
-                    //Recreate the config file and start with a fresh table.
-                    if (!CheckFile(Instance.ConfigFile)) {
-                        ReportAndExit("Could not create a blank Settings.toml file.\n"
-                                      "Check GTSPlugin.log for more info.\n"
-                                      "The game will now close."
-                        );
-                    }
-                }
-
-                //Incase the File is empty/missing newly added data...
-                //Explicitly Ignore the [[Nodiscard]]
-                auto res = Instance.SaveSettings();
-
-                logger::info(".ctor Load OK");
-
-                Latch.count_down();
-            }
-            Latch.wait();
-
             return Instance;
         }
 
-        [[nodiscard]] bool LoadSettingsFromFile();
-        bool SaveSettingsToString();
-        bool SaveSettingsToFile();
+        // Export management methods
+        bool ExportSettings(const std::string& a_customName = "");
+        std::vector<std::filesystem::path> GetExportedFiles() const;
+        bool LoadFromExport(const std::filesystem::path& a_exportPath);
+        static bool DeleteExport(const std::filesystem::path& a_exportPath);
+        bool CleanOldExports(int a_keepCount = 5) const;
 
-        [[nodiscard]] bool SaveSettings();
+        bool SaveSettingsToString();
+        bool LoadSettingsFromString();
 
         void ResetToDefaults();
-        bool LoadSettings();
-        bool LoadSettingsFromString();
+
     };
 }

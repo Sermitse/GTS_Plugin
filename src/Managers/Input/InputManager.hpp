@@ -24,7 +24,7 @@ namespace GTS {
 
 			std::string DebugName() override;
 
-			void Init();
+			static void Init();
 
 			static void RegisterInputEvent(std::string_view namesv, std::function<void(const ManagedInputEvent&)> 
 				callback, std::function<bool(void)> condition = nullptr);

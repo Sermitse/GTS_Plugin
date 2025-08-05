@@ -1,4 +1,7 @@
 #include "Actions.hpp"
+
+#include "Config/SettingsModHandler.hpp"
+
 #include "UI/Categories/General.hpp"
 #include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
@@ -18,14 +21,7 @@ namespace GTS {
 
 				ImUtil::CheckBox("Enable FOV Edits", &SGeneral.bEnableFOVEdits, T0);
 				if (ImUtil::CheckBox("Track Bones During Actions", &SGeneral.bTrackBonesDuringAnim, T1)) {
-					if (!SGeneral.bTrackBonesDuringAnim) {
-						auto actors = find_actors();
-						for (auto actor : actors) {
-							if (actor) {
-								ResetCameraTracking(actor);
-							}
-						}
-					}
+                    GTS::HandleCameraTrackingReset();
 				}
 
                 ImGui::Spacing();
@@ -202,17 +198,6 @@ namespace GTS {
 								 "Up/Down | Forward/Back";
 
                 ImUtil::SliderF2("Placement Offset", &SGameplay.ActionSettings.f2CleavageOffset.at(0), -15.0f, 15.0f, T0, "%.2f");
-
-                ImGui::Spacing();
-            }
-            
-        }
-
-        ImUtil_Unique{
-
-            if (ImGui::CollapsingHeader("Grab-Play Settings", ImUtil::HeaderFlagsDefaultOpen)) {
-
-                
 
                 ImGui::Spacing();
             }

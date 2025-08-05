@@ -2,6 +2,7 @@
 #include "Data/Persistent.hpp"
 
 #include "Config/Config.hpp"
+#include "Config/SettingsModHandler.hpp"
 
 #include "Managers/GtsSizeManager.hpp"
 
@@ -68,14 +69,9 @@ namespace GTS {
 	}
 
 	void Persistent::LoadModLocalModConfiguration() {
-
-		const auto& Persi = Persistent::GetSingleton();
-
-		if (Persi.LocalSettingsEnable.value) {
-			Config::GetSingleton().LoadSettingsFromString();
-			ImStyleManager::GetSingleton().LoadStyle();
-			spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
-		}
+		Config::GetSingleton().LoadSettingsFromString();
+		ImStyleManager::GetSingleton().LoadStyle();
+		spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
 	}
 
 	void Persistent::LoadPersistent(SerializationInterface* serde) {
@@ -124,7 +120,6 @@ namespace GTS {
 			Persistent.UnlockMaxSizeSliders.Load(serde, RecordType, RecordVersion, RecordSize);
 
 			// ---- Save Baked Settings
-			Persistent.LocalSettingsEnable.Load(serde, RecordType, RecordVersion, RecordSize);
 			Persistent.ModSettings.Load(serde, RecordType, RecordVersion, RecordSize);
 
 		}
@@ -170,7 +165,6 @@ namespace GTS {
 		Persistent.UnlockMaxSizeSliders.Save(serde);
 
 		// ---- Save Baked Settings
-		Persistent.LocalSettingsEnable.Save(serde);
 		Persistent.ModSettings.Save(serde);
 	}
 	

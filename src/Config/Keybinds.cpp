@@ -6,7 +6,7 @@ namespace GTS {
 
         std::lock_guard<std::mutex> lock(_ReadWriteLock);
 
-        if (!CheckFile(InputFile)) {
+        if (!CheckOrCreateFile(InputFile)) {
             return false;
         }
 
@@ -138,7 +138,7 @@ namespace GTS {
         std::lock_guard<std::mutex> lock(_ReadWriteLock);
 
         //Check File
-        if (!CheckFile(InputFile)) {
+        if (!CheckOrCreateFile(InputFile)) {
             return false;
         }
 

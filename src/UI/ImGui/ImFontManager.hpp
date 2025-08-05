@@ -44,7 +44,7 @@ namespace GTS {
             kTitle,
             kFooter,
             kText,
-            kError,
+            kLargeText,
             kSubText,
             kWidgetBody,
             kWidgetTitle

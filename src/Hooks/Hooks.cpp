@@ -1,5 +1,7 @@
 #include "Hooks/Hooks.hpp"
 
+#include "Experiments/Experiments.hpp"
+
 #include "Hooks/Actor/Actor.hpp"
 #include "Hooks/Actor/ActorValueOwner.hpp"
 #include "Hooks/Actor/ActorEquipManager.hpp"
@@ -37,7 +39,7 @@ namespace Hooks {
 
 		logger::info("Installing Hooks...");
 		auto& SKSETrampoline = SKSE::GetTrampoline();
-		SKSETrampoline.create(256);
+		SKSETrampoline.create(256); //Don't forget to increase when you add new callhooks.
 
 		//Actor
 		Hook_Actor::Install();

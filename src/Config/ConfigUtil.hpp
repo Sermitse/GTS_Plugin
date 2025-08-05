@@ -59,7 +59,7 @@ namespace toml {                                           \
 
 namespace GTS {
 
-    [[nodiscard]] static inline bool CheckFile(const std::filesystem::path& a_file) {
+    [[nodiscard]] static inline bool CheckOrCreateFile(const std::filesystem::path& a_file) {
         try {
             // Check if the file exists
             if (std::filesystem::exists(a_file)) {

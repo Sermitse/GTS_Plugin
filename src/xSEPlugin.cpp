@@ -1,5 +1,8 @@
 #include "API/TrainWreck.hpp"
 #include "API/SmoothCam.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Hooks/Hooks.hpp"
 #include "Papyrus/Papyrus.hpp"
 #include "UI/DebugAPI.hpp"
@@ -24,19 +27,9 @@ namespace {
 		if (!GetMessagingInterface()->RegisterListener([](MessagingInterface::Message *message) {
 			switch (message->type) {
 
-				// Called after all plugins have finished running SKSEPlugin_Load.
-				case MessagingInterface::kPostLoad: { 
-					break;
-				}
-
 				// Called after all kPostLoad message handlers have run.
 				case MessagingInterface::kPostPostLoad: {
 					//Racemenu::Register(); // <- Disabled For Now...
-					break;
-				}
-
-				// Called when all game data has been found.
-				case MessagingInterface::kInputLoaded: {
 					break;
 				}
 
@@ -44,7 +37,7 @@ namespace {
 				case MessagingInterface::kDataLoaded: {
 
 					EventDispatcher::DoDataReady();
-					InputManager::GetSingleton().Init();
+					InputManager::Init();
 					ConsoleManager::Init();
 					SmoothCam::Register();
 					Runtime::CheckSoftDependencies();
@@ -71,22 +64,13 @@ namespace {
 
 				// Player selected a game to load, but it hasn't loaded yet.
 				// Data will be the name of the loaded save.
-				case MessagingInterface::kPreLoadGame:{
+				case MessagingInterface::kPreLoadGame: {
 					Plugin::SetInGame(false);
 					EventDispatcher::DoReset();
 					break;
 				}
 
-				// The player has saved a game.
-				case MessagingInterface::kSaveGame:{
-					break;
-				}
-
-				// The player deleted a saved game from within the load menu.
-				// Data will be the save name.
-				case MessagingInterface::kDeleteGame:{
-					break;
-				} 
+				default: {};
 			}
 		})) {
 			ReportAndExit("Unable to register message listener.");
@@ -97,8 +81,6 @@ namespace {
 		log::trace("Initializing cosave serialization...");
 
 		auto* serde = GetSerializationInterface();
-
-
 		serde->SetUniqueID(_byteswap_ulong('GTSP'));
 
 		serde->SetSaveCallback(Persistent::OnGameSaved);
@@ -139,10 +121,7 @@ namespace {
 
 SKSEPluginLoad(const LoadInterface * a_skse){
 
-	#ifdef GTSDEBUG
-		ReportInfo("GTSplugin Debug Build.\nAttach the debugger and press OK.");
-	#endif
-
+	Config::CopyLegacySettings(Config::GetSingleton());
 
 	Init(a_skse);
 	logger::Initialize();
@@ -152,19 +131,22 @@ SKSEPluginLoad(const LoadInterface * a_skse){
 
 	LogPrintPluginInfo();
 
+	//If console forse to trace for init.
+	//Else set to info.
+	//Userconfig gets parsed during game load where this setting will be overriden by that value.
 	if (logger::HasConsole()) {
 		logger::SetLevel("Trace");
 	}
 	else {
-		logger::LoadConfig();
+		logger::SetLevel("Info");
 	}
 
 	VersionCheck(a_skse);
 	InitializeMessaging();
 	Hooks::Install();
-
 	InitializePapyrus();
 	InitializeEventSystem();
+
 
 #endif
 
