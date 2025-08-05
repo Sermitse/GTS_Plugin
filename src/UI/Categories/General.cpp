@@ -1,14 +1,11 @@
 ﻿#include "UI/Categories/General.hpp"
-#include "Config/Keybinds.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "UI/UIManager.hpp"
 #include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGUI/ImFontManager.hpp"
-#include "UI/ImGUI/ImStyleManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
 #include "Utils/QuestUtil.hpp"
 #include "Config/SettingsModHandler.hpp"
-
 
 namespace {
 
@@ -16,7 +13,8 @@ namespace {
 	const char* T_Import = "Import the current mod configuration from the selected export file.";
 	const char* T_Delete = "Delete the currently selected settings export.";
 	const char* T_Cleanup = "Delete all but the 5 most recent exports.";
-	const char* T_Reset = "Reset all settings, this does not reset any modified action keybinds.\n If you want to reset those press the reset button on its page instead.";
+	const char* T_Reset = "Reset all settings, this does not reset any modified action keybinds.\n"
+					      "If you want to reset those press the reset button on its page instead.";
 
 	void DrawIEUI(){
 
@@ -77,14 +75,14 @@ namespace {
 
 		if (ImUtil::ImageButton("##Cleaunup", "export_cleanup", 32, T_Cleanup)) {
 			conf.CleanOldExports(keepCount);
-			statusText = fmt::format("✓ Cleaned old exports (kept {0})", keepCount);
+			statusText = fmt::format("✓ Removed old exports [Kept {0} most recent]", keepCount);
 		}
 
 		ImUtil::SeperatorV();
 
 		if (ImUtil::ImageButton("##Reset", "generic_reset", 32, T_Reset)) {
 			GTS::HandleSettingsReset();
-			statusText = fmt::format("✓ Mod settings have been reset.");
+			statusText = fmt::format("✓ Mod settings have been reset");
 		}
 
 		// Combo box for selecting exports
@@ -255,7 +253,7 @@ namespace GTS {
                             "But it should drastically reduce or even fix ice-skating effect";
 
 
-	        if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
+	        if (ImGui::CollapsingHeader("Experimental")) {
 	            ImUtil::CheckBox("Allow Male Actors", &Settings.bEnableMales, T0);
 				ImUtil::CheckBox("Apply Size Effects to all Actors", &Settings.bAllActorSizeEffects, T1);
 				ImUtil::CheckBox("Override Item/NPC Interaction Range", &Settings.bOverrideInteractionDist, T2);

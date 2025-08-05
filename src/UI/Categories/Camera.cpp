@@ -28,7 +28,8 @@ namespace GTS {
 	        ImUtil_Unique {
 	            DrawCameraOffsets(
 	                "Offsets | Standing",
-	                "Adjust camera offsets when standing.",
+	                "Adjust camera offsets when standing.\n"
+					"Left/Right | Forward/Back | Up/Down",
 	                &a_set->f3NormalStand
 	            );
 	        }
