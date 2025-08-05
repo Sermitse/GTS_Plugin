@@ -4,6 +4,14 @@ namespace {
 
 	constexpr float EPSILON = 1e-3f;
 
+	static void SetSoundHandleFrequency(RE::BSAudioManager* a_manager, std::uint32_t a_soundID, float a_freq) {
+		if (a_soundID != 0xffffffff){
+			using func_t = decltype(&SetSoundHandleFrequency);
+			static const REL::Relocation<func_t> func{ REL::RelocationID(66422, 67685, NULL) };
+			func(a_manager, a_soundID, a_freq);
+		}
+	}
+
 	template <class T>
 	T* find_form(std::string_view lookup_id) {
 		// From https://github.com/Exit-9B/MCM-Helper/blob/a39b292909923a75dbe79dc02eeda161763b312e/src/FormUtil.cpp
@@ -115,11 +123,10 @@ namespace GTS {
 			auto actorref = a_actor->CreateRefHandle();
 			auto actorget = actorref.get().get();
 			if (actorget) {
+
 				soundHandle.SetVolume(a_volume);
 
-				if (std::abs(a_frequency - 1.0f) > EPSILON) {
-					soundHandle.SetFrequency(a_frequency);
-				}
+				SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
 
 				NiAVObject* current_3d = actorget->GetCurrent3D();
 				if (current_3d) {
@@ -156,9 +163,7 @@ namespace GTS {
 					NiAVObject& follow = *current_3d;
 					soundHandle.SetVolume(a_volume);
 
-					if (std::abs(a_frequency - 1.0f) > EPSILON) {
-						soundHandle.SetFrequency(a_frequency);
-					}
+					SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
 
 					soundHandle.SetObjectToFollow(&follow);
 					soundHandle.Play();
@@ -206,9 +211,7 @@ namespace GTS {
 			float falloff = Sound_GetFallOff(a_node, a_falloff);
 			soundHandle.SetVolume(a_volume * falloff);
 
-			if (std::abs(a_frequency - 1.0f) > EPSILON) {
-				soundHandle.SetFrequency(a_frequency);
-			}
+			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
 
 			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();
@@ -241,9 +244,7 @@ namespace GTS {
 		if (success) {
 			soundHandle.SetVolume(a_volume);
 
-			if (std::abs(a_frequency - 1.0f) > EPSILON) {
-				soundHandle.SetFrequency(a_frequency);
-			}
+			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
 
 			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();

@@ -327,7 +327,8 @@ struct SettingsAdvanced {
     bool bEnableExperimentalDevourmentAI = false;
     float fExperimentalDevourmentAIProb = 25.0f;
     std::array<float, 5> fAnimSpeedFormula = { 0.142f, 0.82f, 1.90f, 1.0f, 0.0f };
-
+    bool bGTSAnimsFullSpeed = false;
+    float fAnimspeedLowestBoundAllowed = 0.1f;
 };
 TOML_SERIALIZABLE(SettingsAdvanced);
 
@@ -357,7 +358,11 @@ struct SettingsAudio {
     bool bUseOtherHighHeelSet = true;
     bool bBlendBetweenFootsteps = false;
 
-    float fMaxVoiceFrequency = 1.0f;
+    float fMaxVoiceFrequency = 1.45f; // > Higher Value means Higher Freq -> Higher Voice
+    float fMinVoiceFrequency = 0.8355f; // > Lower Value means Lower Freq -> Lower Voice
+
+    float fTargetPitchAtScaleMax = 8.0f;
+    float fTargetPitchAtScaleMin = 0.2f;
 
     float fFallOffMultiplier = 1.0f;
     float fVoiceVolumeMult = 1.0f;

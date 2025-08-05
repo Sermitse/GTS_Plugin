@@ -51,28 +51,47 @@ namespace GTS {
 
             const char* T0 = "Enable/Disable DamageAV for the player's stamina and magicka.";
             const char* T1 = "GTS actions will have cooldowns if this is enabled.";
-            const char* T2 = "Multiply the resulting GetAnimationSlowdown Value (Acts as a flat multiplier applied after the main formula).";
-            const char* T3 = "Enforce Min/Max Values In UI.";
-            const char* T4 = "Modify The \"SoftCore\" formula used to calculate the amount animations will slow down relative to scale.";
+            const char* T2 = "Enforce Min/Max Values In UI.";
 
             if (ImGui::CollapsingHeader("Cheats",ImUtil::HeaderFlagsDefaultOpen)) {
                 ImUtil::CheckBox("Enable ActorValue Damage",&Settings.bDamageAV, T0);
                 ImUtil::CheckBox("Enable Size-Action Cooldowns",&Settings.bCooldowns, T1);
-                ImUtil::CheckBox("Enforce Slider Range", &Settings.bEnforceUIClamps, T3);
+                ImUtil::CheckBox("Enforce Slider Range", &Settings.bEnforceUIClamps, T2);
 
-                ImUtil::SliderF("Animspeed Player", &Settings.fAnimSpeedAdjMultPlayer, 0.2f, 1.0f, T2);
-                ImUtil::SliderF("Animspeed Teammate", &Settings.fAnimSpeedAdjMultTeammate, 0.2f, 1.0f, T2);
+                ImGui::Spacing();
+            }
+        }
+
+        ImUtil_Unique{
+
+	        const char* T0 = "Multiply the resulting GetAnimationSlowdown Value (Acts as a flat multiplier applied after the main formula).";
+	        const char* T1 = "Modify The \"SoftCore\" formula used to calculate the amount animations will slow down relative to scale.";
+            const char* T2 = "Should AnimSpeed be force set to 1x if IsGTSBusy() == true?";
+            const char* T3 = "Define the floor value for the animation speed formula. (Default 0.1f).";
+
+	        if (ImGui::CollapsingHeader("Animation Speed",ImUtil::HeaderFlagsDefaultOpen)) {
+
+                ImUtil::CheckBox("GTS Actions Always 1x Speed", &Settings.bGTSAnimsFullSpeed, T2);
+                ImUtil::SliderF("Animspeed Player", &Settings.fAnimSpeedAdjMultPlayer, 0.1f, 3.0f, T0);
+                ImUtil::SliderF("Animspeed Teammate", &Settings.fAnimSpeedAdjMultTeammate, 0.1f, 3.0f, T0);
+                ImUtil::SliderF("Animspeed Lowest Allowed", &Settings.fAnimspeedLowestBoundAllowed, 0.1f, 1.0f, T3);
+
+                const float PlayerSlowDown = GetAnimationSlowdown(PlayerCharacter::GetSingleton());
+
+                ImGui::Spacing();
+
+                ImGui::Text("Player Slowdown: %.2fx", PlayerSlowDown);
 
                 ImGui::Spacing();
 
                 //https://www.desmos.com/calculator/vyofjrqmrn
                 ImGui::Text("Animation Formula");
-                ImUtil::SliderF3("Param K, N, S", &Settings.fAnimSpeedFormula.at(0), 0.0f, 10.0f, T4, "%.3f");
-                ImUtil::SliderF2("Param O, A", &Settings.fAnimSpeedFormula.at(3), 0.0f, 10.0f, T4, "%.3f");
+                ImUtil::SliderF3("Param K, N, S", &Settings.fAnimSpeedFormula.at(0), 0.0f, 10.0f, T1, "%.3f");
+                ImUtil::SliderF2("Param O, A", &Settings.fAnimSpeedFormula.at(3), 0.0f, 10.0f, T1, "%.3f");
 
-                ImGui::Spacing();
-            }
-        }
+	            ImGui::Spacing();
+	        }
+	    }
     }
 
     void CategoryAdvanced::DrawRight() {

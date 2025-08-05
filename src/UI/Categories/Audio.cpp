@@ -132,10 +132,15 @@ namespace GTS {
 
 		ImUtil_Unique{
 
+			const char* TpLow = "The lowest voice pitch multipler when over 1.0x scale, lower values will lower the pitch when the actor is large(r).";
+
+			const char* TsMax = "Change the target scale at which the pitch will be the lowest.";
+
+			const char* TpHi = "The highest voice pitch multipler when under 1.0x scale, lower values will lower the pitch when the actor is smaller(r).";
+
+			const char* TsMin = "Change the target scale at which the pitch will be highest.";
+
 			const char* T0 = "Toggle wether the NPC voicelines should have their pitch modified based on size.";
-			const char* T1 = "Change the maximum voice pitch, Higher values will lower the pitch when the actor is large.\n"
-							 "It's recommended to leave this at 1.0x. Anything above 1.2x doesn't sound good.";
-			
 			const char* T2 = "Enable/Disable npc's making death sounds/screams when being shrunken to nothing.";
 			const char* T3 = "Enable/Disable npc's making death sounds/screams when being absorbed by breasts.";
 			const char* T4 = "Enable/Disable npc's making death sounds/screams when killed through Wrathful Calamity.";
@@ -150,10 +155,16 @@ namespace GTS {
 			if (ImGui::CollapsingHeader("Voice",ImUtil::HeaderFlagsDefaultOpen)) {
 				ImUtil::CheckBox("Normal Voice Pitch Override",&Settings.bEnableVoicePitchOverrideN, T0);
 				ImUtil::CheckBox("GTS Voice Pitch Override", &Settings.bEnableVoicePitchOverrideG, T10);
-				ImUtil::SliderF("Voice Pitch Max",&Settings.fMaxVoiceFrequency, 1.0f, 1.5f, T1, "%.2fx", !Settings.bEnableVoicePitchOverrideN && !Settings.bEnableVoicePitchOverrideG);
+
+				const bool Enable = !Settings.bEnableVoicePitchOverrideN && !Settings.bEnableVoicePitchOverrideG;
+
+				ImUtil::SliderF("Lowest Pitch", &Settings.fMinVoiceFrequency, 0.65f, 1.0f, TpLow, "%.4fx", Enable);
+				ImUtil::SliderF("Lowest Pitch At Scale", &Settings.fTargetPitchAtScaleMax, 1.0f, 25.0f, TsMax, "At %.1fx", Enable);
 				ImGui::Spacing();
+				ImUtil::SliderF("Highest Pitch", &Settings.fMaxVoiceFrequency, 1.0f, 1.6f, TpHi, "%.4fx", Enable);
+				ImUtil::SliderF("Highest Pitch At Scale", &Settings.fTargetPitchAtScaleMin, 0.10f, 1.0f, TsMin, "At %.2fx", Enable);
 
-
+				ImGui::Spacing();
 
 				ImGui::Text("Mute Death Sounds");
 				ImUtil::CheckBox("Shrink To Nothing", &Settings.bMuteShrinkToNothingDeathScreams,T2);

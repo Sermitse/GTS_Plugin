@@ -2197,13 +2197,19 @@ namespace GTS {
 	}
 
 	float GetAnimationSlowdown(Actor* giant) {
+
 		if (giant) {
-			if (Config::GetGeneral().bDynamicAnimspeed) {
+
+			auto& Gen = Config::GetGeneral();
+			auto& Adv = Config::GetAdvanced();
+
+			if (Gen.bDynamicAnimspeed) {
+
 				if (giant->AsActorState()->GetSitSleepState() != SIT_SLEEP_STATE::kNormal){
 					return 1.0f; // For some reason makes furniture angles funny if there's anim slowdown. So we prevent that
 				}
 
-				const auto SpeedVars = Config::GetAdvanced().fAnimSpeedFormula;
+				const auto SpeedVars = Adv.fAnimSpeedFormula;
 
 				const SoftPotential Speed = {
 					SpeedVars[0],
@@ -2215,12 +2221,17 @@ namespace GTS {
 
 				float scale = get_visual_scale(giant);
 				float speedmultcalc = soft_core(scale, Speed);
-				speedmultcalc = std::clamp(speedmultcalc, 0.01f, 1.0f);
+				speedmultcalc = std::clamp(speedmultcalc, Adv.fAnimspeedLowestBoundAllowed, 1.0f);
 
-				if (giant->formID == 0x14)
-					return Config::GetAdvanced().fAnimSpeedAdjMultPlayer * speedmultcalc;
-				if (IsTeammate(giant))
-					return Config::GetAdvanced().fAnimSpeedAdjMultTeammate * speedmultcalc;
+				if (IsGtsBusy(giant) && Adv.bGTSAnimsFullSpeed) {
+					return 1.0f;
+				}
+				else if (giant->formID == 0x14) {
+					return Adv.fAnimSpeedAdjMultPlayer * speedmultcalc;
+				}
+				else if (IsTeammate(giant)) {
+					return Adv.fAnimSpeedAdjMultTeammate * speedmultcalc;
+				}
 
 				return speedmultcalc;
 			}
@@ -3657,21 +3668,38 @@ namespace GTS {
 
 
 	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor) {
+		auto& Audio = Config::GetAudio();
+		const float& MinFreq = Audio.fMinVoiceFrequency;
+		const float& MaxFreq = Audio.fMaxVoiceFrequency;
+		const float& ScaleAtWhichToApplyFullMin = Audio.fTargetPitchAtScaleMin;
+		const float& ScaleAtWhichToApplyFullMax = Audio.fTargetPitchAtScaleMax;
 
-		float natural_scale = std::clamp(get_natural_scale(a_actor, false), 1.0f, 5000.0f); // Don't allow < 1.0
+		float natural_scale = std::max(get_natural_scale(a_actor, false), 1.0f);
 		float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
-		// ^ Some npc's have natural scale < than 1.0 (such as children) so it's a must to alter it by natural scale...
-
 		const float volume = std::clamp(scale + 0.5f, 0.35f, 1.0f);
-		const float size = (scale * 0.20f) + 0.8f;
-		const float frequence = (1.0f / size) / (1.0f * size);
-		const float freq_high = 1.0f / std::clamp(Config::GetAudio().fMaxVoiceFrequency, 1.0f, 10.0f);
-		constexpr float freq_low = 1.5f;
-		const float freq = std::clamp(frequence, freq_high, freq_low);
-		return { volume, freq };
-		// < 1  = deep voice, below 0.5 = audio bugs out, not recommended
-		// > 1 = mouse-like voice, not recommended to go above 1.5
 
+		// Linear physics-based pitch (1/scale) with range remapping
+		const float raw_pitch = 1.0f / scale;
+
+		float freq;
+		if (scale > 1.0f) {
+			// Large actors: remap raw_pitch range to [MinFreq, 1.0]
+			const float raw_at_target = 1.0f / ScaleAtWhichToApplyFullMax;
+			const float scale_factor = (1.0f - MinFreq) / (1.0f - raw_at_target);
+			freq = 1.0f - (1.0f - raw_pitch) * scale_factor;
+			freq = std::max(freq, MinFreq);
+		}
+		else if (scale < 1.0f) {
+			// Small actors: remap raw_pitch range to [1.0, MaxFreq]
+			const float raw_at_target = 1.0f / ScaleAtWhichToApplyFullMin;
+			const float scale_factor = (MaxFreq - 1.0f) / (raw_at_target - 1.0f);
+			freq = 1.0f + (raw_pitch - 1.0f) * scale_factor;
+			freq = std::min(freq, MaxFreq);
+		}
+		else {
+			freq = 1.0f;
+		}
+		return { volume, freq };
 	}
 
 }
