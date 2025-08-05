@@ -17,8 +17,8 @@ namespace GTS {
 
 			const char* T1 = "Adjust the window size as a percentage of the screen.";
 			const char* T2 = "Choose where to align the window on screen.";
-			const char* T3 = "Adjust horizontal offset from the selected anchor point.";
-			const char* T4 = "Adjust vertical offset from the selected anchor point.";
+			const char* T3 = "Adjust the offset relative to the selected anchor point.\n"
+							 "Left/Right | Up/Down";
 
 			const char* T5 = "Adjust the opacity of the stats window.";
 			const char* T6 = "Adjust the opacity of the stats window's backround.";
@@ -32,10 +32,10 @@ namespace GTS {
 					ImUtil::SliderF("Window Size", &Settings.SettingsWindow.fWindowSize, 60.0f, 100.0f, T1,"%.0f%%");
 					ImUtil::ComboEx<ImWindow::WindowAnchor>("Anchor", Settings.SettingsWindow.sAnchor, T2);
 					ImGui::BeginDisabled(Settings.SettingsWindow.sAnchor == "kCenter");
-					{
-						ImUtil::SliderF("Offset (Left/Right)", &Settings.SettingsWindow.f2Offset.at(0), 0.0f, 1280.f, T3,"%.1f");
-						ImUtil::SliderF("Offset (Up/Down)", &Settings.SettingsWindow.f2Offset.at(1), 0.0f, 720.0f, T4,"%.1f");
-					}
+
+					ImUtil::SliderF2("Anchor Offsets", &Settings.SettingsWindow.f2Offset.at(0), 0.0f, 1280.f, T3, "%.1f");
+
+
 					ImGui::EndDisabled();
 				}
 

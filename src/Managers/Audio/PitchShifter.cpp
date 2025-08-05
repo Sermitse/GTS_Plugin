@@ -5,7 +5,7 @@ using namespace GTS;
 
 namespace GTS {
 	 void ShiftAudioFrequency() {
-	 	auto enable = Config::GetAudio().bEnableVoiceOverride;
+	 	auto enable = Config::GetAudio().bEnableVoicePitchOverrideN;
 		if (!enable) {
 			return;
 		}

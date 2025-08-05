@@ -38,7 +38,7 @@ namespace GTS {
             return Settings.fScale;
         }
 
-        inline void LoadStyle(){
+        inline void LoadStyle() const {
             SetupStyleImpl();
         }
 

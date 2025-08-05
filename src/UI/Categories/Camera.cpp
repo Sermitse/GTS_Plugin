@@ -5,18 +5,10 @@
 namespace GTS {
 
 	static void DrawCameraOffsets(const char* a_title, const char* a_toolip, std::array<float, 3>* a_offsets) {
-	    ImGui::Spacing();
 
-	    ImGui::Text(a_title);
 	    ImGui::BeginGroup();
 
-	    const char* T0 = "Move the camera left or right.";
-	    const char* T1 = "Move the camera up or down.";
-	    const char* T2 = "Move the camera forward or backward.";
-
-	    ImUtil::SliderF("Left - Right", &a_offsets->at(0), -75.f, 75.f, T0, "%.1f");
-	    ImUtil::SliderF("Up - Down", &a_offsets->at(2), -75.f, 75.f, T1, "%.1f");
-	    ImUtil::SliderF("Forward - Back", &a_offsets->at(1), -300.f, 100.f, T2, "%.1f");
+		ImUtil::SliderF3(a_title, &a_offsets->at(0), -175.f, 175.f, nullptr, "%.1f");
 
 	    ImGui::EndGroup();
 
@@ -30,7 +22,7 @@ namespace GTS {
 
 	    const char* T0 = "Select which biped skeleton bone the camera should track.";
 
-	    if (ImGui::CollapsingHeader(a_title, ImGuiTreeNodeFlags_None)) {
+	    if (ImGui::CollapsingHeader(a_title, ImUtil::HeaderFlagsDefaultOpen)) {
 	        ImUtil::ComboEx<CameraTrackingSettings>("Center On Bone", a_set->sCenterOnBone, T0);
 
 	        ImUtil_Unique {
@@ -44,7 +36,8 @@ namespace GTS {
 	        ImUtil_Unique {
 	            DrawCameraOffsets(
 	                "Offsets | Standing Combat",
-	                "Adjust camera offsets when standing and in combat.",
+	                "Adjust camera offsets when standing and in combat.\n"
+					"Left/Right | Forward/Back | Up/Down",
 	                &a_set->f3CombatStand
 	            );
 	        }
@@ -52,7 +45,8 @@ namespace GTS {
 	        ImUtil_Unique {
 	            DrawCameraOffsets(
 	                "Offsets | Crawling",
-	                "Adjust camera offsets while sneaking, crawling, or prone.",
+	                "Adjust camera offsets while sneaking, crawling, or prone.\n"
+					"Left/Right | Forward/Back | Up/Down",
 	                &a_set->f3NormalCrawl
 	            );
 	        }
@@ -60,16 +54,18 @@ namespace GTS {
 	        ImUtil_Unique {
 	            DrawCameraOffsets(
 	                "Offsets | Crawling Combat",
-	                "Adjust camera offsets while sneaking, crawling, or prone and in combat.",
+	                "Adjust camera offsets while sneaking, crawling, or prone and in combat.\n"
+					"Left/Right | Forward/Back | Up/Down",
 	                &a_set->f3CombatCrawl
 	            );
 	        }
-	        ImGui::Spacing();
+
 	        ImGui::Spacing();
 	    }
 	}
 
 	void CategoryCamera::DrawLeft() {
+
 	    ImUtil_Unique {
 
 	        const char* T0 = "Change the intensity of camera shakes when performing actions as a player.";
@@ -87,14 +83,15 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Change the height multiplier of the camera while crawling in first person.";
-	        const char* T1 = "Change the height multiplier of the camera while crawling in third person.\n"
-	    					 "Note: This wont't work correctly if you are using smoothcam.";
+	        const char* T0 = "Change the height multiplier of the camera while crawling.\n"
+							 "1st Person | 3rd Person\n\n"
+							 "Note: 3rd Person wont't work correctly if you are using smoothcam.";
 
-	        if (ImGui::CollapsingHeader("Crawl Height", ImUtil::HeaderFlagsDefaultOpen)) {
-	            ImUtil::SliderF("1st P. Crawl Height", &Settings.fFPCrawlHeightMult, 0.01f, 1.0f, T0, "%.1fx");
-	            ImUtil::SliderF("3rd P. Crawl Height", &Settings.fTPCrawlHeightMult, 0.01f, 1.0f, T1, "%.1fx");
+			if (ImGui::CollapsingHeader("Crawl Height", ImUtil::HeaderFlagsDefaultOpen)) {
+				//Temp Store
+				static std::array const Temp = { &Settings.fFPCrawlHeightMult,  &Settings.fTPCrawlHeightMult };
 
+				ImUtil::SliderF2("Crawl Height Mults.", Temp.at(0), 0.01f, 1.0f, T0, "%.1fx");
 	            ImGui::Spacing();
 	        }
 	    }
@@ -113,7 +110,7 @@ namespace GTS {
 	    					 "Disables itself when past 1.0x scale\n\n"
 	    					 "Note: Can conflict with other mods that also change this value";
 
-	        if (ImGui::CollapsingHeader("Camera Collision", ImGuiTreeNodeFlags_None)) {
+	        if (ImGui::CollapsingHeader("Camera Collision", ImUtil::HeaderFlagsDefaultOpen)) {
 	            ImUtil::CheckBox("Collide With Actors", &Settings.bCamCollideActor, T0);
 	            ImGui::SameLine();
 	            ImUtil::CheckBox("Collide With Trees", &Settings.bCamCollideTree, T1);
@@ -191,14 +188,13 @@ namespace GTS {
 	}
 
 	void CategoryCamera::DrawRight() {
+
 	    ImUtil_Unique {
+
 	        const char* T0 = "Enable automatic camera.";
 
 	        const char* T1 = "Change the third-person camera mode.\n"
 	    					 "Note: This setting is save file specific.";
-
-			const char* T2 = "Change how the camera's linerar interpolation behaves.\n"
-	    					 "Lower values smooth harder while higher values smooth less";
 
 			//Hack
             auto CamState = std::bit_cast<int*>(&Persistent::GetSingleton().TrackedCameraState.value);
@@ -206,7 +202,6 @@ namespace GTS {
 	        if (ImGui::CollapsingHeader("Automatic Camera", ImUtil::HeaderFlagsDefaultOpen)) {
 	            ImUtil::CheckBox("Enable Automatic Camera", &Settings.bAutomaticCamera, T0);
 	            ImUtil::IComboEx<CameraModeTP>("Camera Mode", CamState, T1, !Settings.bAutomaticCamera);
-				ImUtil::SliderF("Interpolation Factor", &Settings.fCameraInterpolationFactor, 0.01f, 1.0f, T2, "%.2fx", !Settings.bAutomaticCamera);
 	        	ImGui::Spacing();
 	        }
 	    }

@@ -46,7 +46,14 @@ namespace GTS {
 
 		try {
 
-			if (!Settings.LoadSettings() || !KeyMgr.LoadKeybinds()) {
+			if (!Settings.LoadSettings()) {
+				logger::error("Settings.LoadSettings() Error");
+				SaveLoadBusy.store(false);
+				return;
+			}
+
+			if (!KeyMgr.LoadKeybinds()) {
+				logger::error("KeyMgr.LoadKeybinds() Error");
 				SaveLoadBusy.store(false);
 				return;
 			}
@@ -64,7 +71,14 @@ namespace GTS {
 
 		try {
 
-			if (!Settings.SaveSettings() || !KeyMgr.SaveKeybinds()) {
+			if (!Settings.SaveSettings()) {
+				logger::error("Settings.SaveSettings() Error");
+				SaveLoadBusy.store(false);
+				return;
+			}
+
+			if (!KeyMgr.SaveKeybinds()) {
+				logger::error("KeyMgr.SaveKeybinds() Error");
 				SaveLoadBusy.store(false);
 				return;
 			}

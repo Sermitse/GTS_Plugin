@@ -68,6 +68,22 @@ namespace GTS {
 			}
 		}
 
+			//----------- Skill Tree
+
+		ImUtil_Unique{
+
+			const char* T0 = "Open this mod's custom skill tree";
+
+			if (ImGui::CollapsingHeader("Skill Tree", ImUtil::HeaderFlagsDefaultOpen)) {
+				if (ImUtil::Button("Open Skill Tree",T0)) {
+					UIManager::CloseSettings();
+					Runtime::SetFloat("GTSSkillMenu", 1.0);
+				}
+
+				ImGui::Spacing();
+			}
+		}
+
 		//------ Protect Actors
 
 		ImUtil_Unique{
@@ -99,21 +115,6 @@ namespace GTS {
 				ImGui::Spacing();
 
 			}
-	}
-
-
-		//------ Settings Storage
-
-		ImUtil_Unique{
-
-			const char* T0 = "Should the mod settings be saved globaly or on a per save basis like older versions of the mod?\n"
-			"Effectively this mimicks the behavior you'd experience when using a MCM menu.\n";
-
-			if (ImGui::CollapsingHeader("Settings Storage", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImUtil::CheckBox("Save Specific Settings", &Persistent::GetSingleton().LocalSettingsEnable.value, T0);
-				ImGui::Spacing();
-			}
-
 		}
 
 		//------ Experimental
@@ -137,28 +138,14 @@ namespace GTS {
                             "- to:   1.0 * (size * anim slowdown)\n\n"
                             "As a result, movement speed will be faster (which isn't always good)\n"
                             "But it should drastically reduce or even fix ice-skating effect";
-			const char* T4 = "Enables or Disables gravity acceleration based on size \n"
-							"- If enabled, gravity will slightly increase as the player grows: 1.0 * sqrt(size)\n"
-							"  (This means large player falls faster, but not too fast)\n"
-							"- If disabled, gravity stays constant at 1.0\n"
-							"- This option is player exclusive.";
-			const char* T5 = "Some animations have bad event timings during jump lands\n"
-							"- If anim timings are bad = then damage zones may spawn in air, not hitting anyone\n"
-							"- Use this slider to adjust delay, 0 = no delay, 1 = 1sec delay on jump land";
-			const char* T6 = "Adjusts extra jump land delay when 'Affect Player Gravity' is on\n"
-							"- it may be needed because animation may not have enough time to do foot events on ground\n"
-							"- Which will lead to not dealing any damage to enemies on the ground\n"
-							"- Acts as additional value on top of original jump land delay\n\n"
-							"- This value is further multiplied by Gravity Power.";
+
 
 	        if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
 	            ImUtil::CheckBox("Allow Male Actors", &Settings.bEnableMales, T0);
 				ImUtil::CheckBox("Apply Size Effects to all Actors", &Settings.bAllActorSizeEffects, T1);
 				ImUtil::CheckBox("Override Item/NPC Interaction Range", &Settings.bOverrideInteractionDist, T2);
 				ImUtil::CheckBox("Alternative Movement Speed",&Settings.bAlternativeSpeedFormula, T3);
-				ImUtil::CheckBox("Affect Player Gravity", &Settings.bAlterPlayerGravity, T4);
-				ImUtil::SliderF("Jump Effect Delay", &Settings.fAdditionalJumpEffectDelay, 0.0f, 1.0f, T5, "%.2fs");
-				ImUtil::SliderF("Jump Effect Delay - Gravity", &Settings.fAdditionalJumpEffectDelay_Gravity, 0.0f, 1.0f, T6, "%.2fs", !Settings.bAlterPlayerGravity);
+
 
 	        	ImGui::Spacing();
 	        }
@@ -200,11 +187,12 @@ namespace GTS {
 
 	        if (ImGui::CollapsingHeader("High-Heels", ImUtil::HeaderFlagsDefaultOpen)) {
 
-	            ImUtil::CheckBox("High Heels: Enable Height Adjustment", &Settings.bEnableHighHeels, T0);
+	            ImUtil::CheckBox("Height Adjustment", &Settings.bEnableHighHeels, T0);
 
 				ImGui::SameLine();
 
-	        	if (ImUtil::CheckBox("High Heels: Disable When Using Furniture", &Settings.bHighheelsFurniture, T1, !Settings.bEnableHighHeels)){
+	        	if (ImUtil::CheckBox("Disable With Furniture", &Settings.bHighheelsFurniture, T1, !Settings.bEnableHighHeels)){
+
 	            	if (!Settings.bHighheelsFurniture) {
 
 						auto actors = find_actors();
@@ -224,6 +212,9 @@ namespace GTS {
 						}
 					}
 	            }
+
+				ImGui::Spacing();
+
 	        }
 	    }
 
@@ -245,67 +236,46 @@ namespace GTS {
 	        }
 	    }
 
-		//----------- Skill Tree
 
-		ImUtil_Unique{
+		//------------- Gravity
 
-			const char* T0 = "Open this mod's custom skill tree";
+		ImUtil_Unique {
 
-			if (ImGui::CollapsingHeader("Skill Tree", ImUtil::HeaderFlagsDefaultOpen)) {
-				if (ImUtil::Button("Open Skill Tree",T0)) {
-					UIManager::CloseSettings();
-					Runtime::SetFloat("GTSSkillMenu", 1.0);
-				}
+			const char* T0 = "Enables or Disables gravity acceleration based on size \n"
+							"- If enabled, gravity will slightly increase as the player grows: 1.0 * sqrt(size)\n"
+							"  (This means large player falls faster, but not too fast)\n"
+							"- If disabled, gravity stays constant at 1.0\n"
+							"- This option is player exclusive.";
+
+			const char* T1 = "Some animations have bad event timings during jump lands\n"
+							"- If anim timings are bad = then damage zones may spawn in air, not hitting anyone\n"
+							"- Use this slider to adjust delay, 0 = no delay, 1 = 1sec delay on jump land";
+
+			const char* T2 = "Adjusts extra jump land delay when 'Affect Player Gravity' is on\n"
+							"- It may be needed because animation may not have enough time to do foot events on ground\n"
+							"- Which will lead to not dealing any damage to enemies on the ground\n"
+							"- Acts as additional value on top of original jump land delay\n\n"
+							"- This value is further multiplied by Gravity Power.";
+
+			if (ImGui::CollapsingHeader("Jumping", ImUtil::HeaderFlagsDefaultOpen)) {
+				ImUtil::CheckBox("Affect Player Gravity", &Settings.bAlterPlayerGravity, T0);
+				ImUtil::SliderF("Damage Effect Delay - Gravity", &Settings.fAdditionalJumpEffectDelay_Gravity, 0.0f, 1.0f, T2, "%.2fs", !Settings.bAlterPlayerGravity);
+				ImUtil::SliderF("Damage Effect Delay", &Settings.fAdditionalJumpEffectDelay, 0.0f, 1.0f, T1, "%.2fs");
 
 				ImGui::Spacing();
 			}
 		}
 
-		//----------- Progress
-
-	    ImUtil_Unique {
-
-	        const char* T0 = "Automatically complete this mod's quest.";
-			const char* T1 = "Get all of the mod's spells";
-	        const char* T2 = "Instantly complete the perk tree.";
-			const char* T3 = "Get all of the mod's shouts";
-
-	        if (ImGui::CollapsingHeader("Skip Progression")) {
-
-				const auto Complete = ProgressionQuestCompleted();
-
-	            if (ImUtil::Button("Skip Quest",T0, Complete)) {
-					SkipProgressionQuest();
-	            }
-
-	            ImGui::SameLine();
-
-				if (ImUtil::Button("Get All Spells", T1, !Complete)) {
-					GiveAllSpellsToPlayer();
-				} 
-
-	            ImGui::SameLine();
-
-	            if (ImUtil::Button("Get All Perks",T2, !Complete)) {
-					GiveAllPerksToPlayer();
-	            }
-
-				ImGui::SameLine();
-
-				if (ImUtil::Button("Get All Shouts", T3, !Complete)) {
-					GiveAllShoutsToPlayer();
-				}
-	        }
-	    }
-
-		//-------- Settings Reset
+		//-------- Settings Storage
 
 		ImUtil_Unique{
 
 			const char* T0 = "Reset this mod's setting do their default values";
-
+			const char* T1 = "Should the mod settings be saved globaly or on a per save basis like older versions of the mod?\n"
+							 "Effectively this mimicks the behavior you'd experience when using a MCM menu.\n";
 			//Reset
-			if (ImGui::CollapsingHeader("Reset Settings")) {
+			if (ImGui::CollapsingHeader("Settings Storage", ImUtil::HeaderFlagsDefaultOpen)) {
+
 				if (ImUtil::Button("Reset Mod Settings", T0)) {
 
 					Config::GetSingleton().ResetToDefaults();
@@ -347,6 +317,51 @@ namespace GTS {
 					Notify("Mod settins have been reset");
 					logger::info("All Mod Settings Reset");
 				}
+
+				ImGui::SameLine();
+
+				ImUtil::CheckBox("Save Specific Settings", &Persistent::GetSingleton().LocalSettingsEnable.value, T1);
+
+				ImGui::Spacing();
+			}
+		}
+
+		//----------- Progress
+
+		ImUtil_Unique{
+
+			const char* T0 = "Automatically complete this mod's quest.";
+			const char* T1 = "Get all of the mod's spells";
+			const char* T2 = "Instantly complete the perk tree.";
+			const char* T3 = "Get all of the mod's shouts";
+
+			if (ImGui::CollapsingHeader("Skip Progression")) {
+
+				const auto Complete = ProgressionQuestCompleted();
+
+				if (ImUtil::Button("Skip Quest",T0, Complete)) {
+					SkipProgressionQuest();
+				}
+
+				ImGui::SameLine();
+
+				if (ImUtil::Button("Get All Spells", T1, !Complete)) {
+					GiveAllSpellsToPlayer();
+				}
+
+				ImGui::SameLine();
+
+				if (ImUtil::Button("Get All Perks",T2, !Complete)) {
+					GiveAllPerksToPlayer();
+				}
+
+				ImGui::SameLine();
+
+				if (ImUtil::Button("Get All Shouts", T3, !Complete)) {
+					GiveAllShoutsToPlayer();
+				}
+
+				ImGui::Spacing();
 			}
 		}
 	}

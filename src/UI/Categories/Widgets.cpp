@@ -26,7 +26,9 @@ namespace GTS {
 
 		if (ImGui::CollapsingHeader(aTitle, ImUtil::HeaderFlagsDefaultOpen)) {
 			ImUtil::CheckBox("Show Player Stats Widget", &AwSettings.bVisible, T0);
+
 			ImGui::SameLine();
+
 			ImUtil::CheckBox("Inactivity Fade", &AwSettings.bEnableFade, T7);
 			ImUtil::SliderF("Fade After", &AwSettings.fFadeAfter, 0.5f, 10.0f, T8, "After %.1f Seconds", !AwSettings.bEnableFade);
 			ImUtil::SliderF("Reappear Delta", &AwSettings.fFadeDelta, 0.0, 0.5f, T9, "After a %.2fx Difference", !AwSettings.bEnableFade);
@@ -36,13 +38,14 @@ namespace GTS {
 			ImUtil::SliderF("Widget Alpha", &AwSettings.fAlpha, 0.1f, 1.0f, T1, "%.1fx");
 			ImUtil::SliderF("Widget BG Alpha", &AwSettings.fBGAlphaMult, 0.0f, 1.0f, T6, "%.1fx");
 
+			ImGui::Spacing();
+
 			ImUtil::CheckBox("Lock Widget Position", &AwSettings.bLock, T2);
 
 			ImGui::BeginDisabled(!AwSettings.bLock);
 			{
 				ImUtil::ComboEx<ImWindow::WindowAnchor>("Anchor", AwSettings.sAnchor, T3);
-				ImUtil::SliderF("Offset (Left/Right)", &AwSettings.f2Offset.at(0), -100.0f, 1500.0f, T4, "%.1f%", AwSettings.sAnchor == "kCenter");
-				ImUtil::SliderF("Offset (Up/Down)", &AwSettings.f2Offset.at(1), -100.0f, 1500.0f, T5, "%.1f%");
+				ImUtil::SliderF2("Anchor Offsets", &AwSettings.f2Offset.at(0), -100.0f, 1500.0f, T4, "%.1f%", AwSettings.sAnchor == "kCenter");
 			}
 			ImGui::EndDisabled();
 
@@ -79,6 +82,7 @@ namespace GTS {
 			ImGui::Spacing();
 
 			ImUtil::CheckBox("Border Rounding", &AwSettings.bEnableRounding, T2);
+
 			ImUtil::SliderF("Border Thickness", &AwSettings.fBorderThickness, 0.0f, 5.0f, T3, "%.2fx");
 			ImUtil::SliderF("Border Lightness", &AwSettings.fBorderLightness, 0.0f, 1.0f, T4, "%.2fx");
 			ImUtil::SliderF("Border Alpha", &AwSettings.fBorderAlpha, 0.0f, 1.0f, T5, "%.2fx");

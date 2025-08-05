@@ -17,8 +17,10 @@ namespace GTS {
 	//-----------------
 
 	void Persistent::OnGameLoaded(SerializationInterface* serde) {
-		//logger::info("Persistent OnGameLoaded Start");
+		logger::info("Persistent OnGameLoaded Start");
 		std::unique_lock lock(GetSingleton()._Lock);
+
+		LoadPersistent(serde);
 
 	#ifndef GTS_DISABLE_PLUGIN
 
@@ -26,17 +28,18 @@ namespace GTS {
 		DistributeChestItems();
 		FixAnimationsAndCamera(); // Call it from ActorUtils, needed to fix Grab anim on save-reload
 		LoadModLocalModConfiguration();
-	#endif
-		LoadPersistent(serde);
 
-		//logger::info("Persistent OnGameLoaded OK");
+	#endif
+
+		logger::info("Persistent OnGameLoaded OK");
 	}
 
 	void Persistent::OnGameSaved(SerializationInterface* serde) {
-		//logger::info("Persistent OnGameSaved Start");
+		logger::info("Persistent OnGameSaved Start");
 		std::unique_lock lock(GetSingleton()._Lock);
 		SavePersistent(serde);
-		//logger::info("Persistent OnGameSaved OK");
+		
+		logger::info("Persistent OnGameSaved OK");
 	}
 
 	void Persistent::ClearData() {

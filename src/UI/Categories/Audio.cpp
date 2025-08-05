@@ -78,10 +78,17 @@ namespace GTS {
 
 	            ImUtil::CheckBox("Footstep Sounds",&Settings.bFootstepSounds,T0);
 	            ImUtil::CheckBox("Moans On Slow Growth",&Settings.bSlowGrowMoans, T1);
-				ImUtil::CheckBox("Moans and Laughs: Size Variance", &Settings.bMoanLaughSizeVariants, T2);
-				ImUtil::CheckBox("Moans and Laughs: Player Exclusive", &Settings.bMoanLaughPCExclusive, T3);
+
+				ImGui::Spacing();
+				ImGui::Text("Moans and Laughs");
+				ImUtil::CheckBox("Size Variance", &Settings.bMoanLaughSizeVariants, T2);
+				ImGui::SameLine();
+				ImUtil::CheckBox("Player Exclusive", &Settings.bMoanLaughPCExclusive, T3);
+
+				ImGui::Spacing();
 				ImUtil::CheckBox("Alternative High Heel Size Sounds", &Settings.bUseOtherHighHeelSet, T4);
 				ImUtil::CheckBox("Smoothly Blend between Footstep Sounds", &Settings.bBlendBetweenFootsteps, T5);
+
 	            ImGui::Spacing();
 	        }
 	    }
@@ -125,7 +132,7 @@ namespace GTS {
 
 		ImUtil_Unique{
 
-			const char* T0 = "Alter the voiceline pitch of NPCs when small/large.";
+			const char* T0 = "Toggle wether the NPC voicelines should have their pitch modified based on size.";
 			const char* T1 = "Change the maximum voice pitch, Higher values will lower the pitch when the actor is large.\n"
 							 "It's recommended to leave this at 1.0x. Anything above 1.2x doesn't sound good.";
 			
@@ -138,21 +145,33 @@ namespace GTS {
 
 			const char* T8 = "FallOff Range Multiplier for Moans and Laughs. Large values = can be heard from further dist";
 			const char* T9 = "Moan and Laugh volume multiplier.";
-			const char* T10 = "Toggle wether the GTS moan/laugh voice should also have its pitch modified.";
+			const char* T10 = "Toggle wether the GTS moan/laugh voice should have its pitch modified based on size.";
 			
 			if (ImGui::CollapsingHeader("Voice",ImUtil::HeaderFlagsDefaultOpen)) {
-				ImUtil::CheckBox("Enable Voice Pitch Override",&Settings.bEnableVoiceOverride, T0);
-				ImUtil::CheckBox("Apply to GTS Voice", &Settings.bApplyPitchToGTSVoice, T10, !Settings.bEnableVoiceOverride);
-				ImUtil::SliderF("Voice Pitch Max",&Settings.fMaxVoiceFrequency, 1.0f, 1.6f, T1, "%.2fx", !Settings.bEnableVoiceOverride);
-				
-				ImUtil::CheckBox("Shrink To Nothing: Mute Death Sound", &Settings.bMuteShrinkToNothingDeathScreams,T2);
-				ImUtil::CheckBox("Breast Absorption: Mute Death Sound", &Settings.bMuteBreastAbsorptionDeathScreams,T3);
-				ImUtil::CheckBox("Wrathful Calamity: Mute Death Sound", &Settings.bMuteFingerSnapDeathScreams,T4);
-				ImUtil::CheckBox("Hug Crush: Mute Death Sound", &Settings.bMuteHugCrushDeathScreams,T5);
-				ImUtil::CheckBox("Crush: Mute Death Sounds", &Settings.bMuteCrushDeathScreams, T6);
-				ImUtil::CheckBox("Vore: Mute Death Sound", &Settings.bMuteVoreDeathScreams,T7);
-				
+				ImUtil::CheckBox("Normal Voice Pitch Override",&Settings.bEnableVoicePitchOverrideN, T0);
+				ImUtil::CheckBox("GTS Voice Pitch Override", &Settings.bEnableVoicePitchOverrideG, T10);
+				ImUtil::SliderF("Voice Pitch Max",&Settings.fMaxVoiceFrequency, 1.0f, 1.5f, T1, "%.2fx", !Settings.bEnableVoicePitchOverrideN && !Settings.bEnableVoicePitchOverrideG);
+				ImGui::Spacing();
 
+
+
+				ImGui::Text("Mute Death Sounds");
+				ImUtil::CheckBox("Shrink To Nothing", &Settings.bMuteShrinkToNothingDeathScreams,T2);
+				ImGui::SameLine();
+				//Store x-Pos of 2nd element
+				auto FirstPos = ImGui::GetCursorPosX();
+
+				ImUtil::CheckBox("Breast Absorption", &Settings.bMuteBreastAbsorptionDeathScreams,T3);
+
+				ImUtil::CheckBox("Wrathful Calamity", &Settings.bMuteFingerSnapDeathScreams,T4);
+				ImGui::SameLine(FirstPos);
+				ImUtil::CheckBox("Hug Crush", &Settings.bMuteHugCrushDeathScreams,T5);
+
+				ImUtil::CheckBox("Crush", &Settings.bMuteCrushDeathScreams, T6);
+				ImGui::SameLine(FirstPos);
+				ImUtil::CheckBox("Vore", &Settings.bMuteVoreDeathScreams,T7);
+				
+				ImGui::Spacing();
 				ImUtil::SliderF("Moan/Laugh Falloff", &Settings.fFallOffMultiplier, 0.02f, 6.0f, T8, "%.2fx");
 				ImUtil::SliderF("Moan/Laugh Volume", &Settings.fVoiceVolumeMult, 0.02f, 1.0f, T9, "%.2fx");
 

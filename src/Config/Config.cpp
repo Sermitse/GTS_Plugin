@@ -147,6 +147,7 @@ namespace GTS {
     }
 
     bool Config::LoadSettings() {
+
         const auto LocalSave = Persistent::GetSingleton().LocalSettingsEnable.value;
 
         if (LocalSave) {

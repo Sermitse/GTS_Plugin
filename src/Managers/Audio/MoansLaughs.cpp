@@ -23,7 +23,7 @@ namespace {
         if (CustomSoundIndex != 0) {
 
             float vfreq = 1.0f;
-            if (Config::GetAudio().bApplyPitchToGTSVoice) {
+            if (Config::GetAudio().bEnableVoicePitchOverrideG) {
                 const auto [_, freq] = CalculateVoicePitch(actor);
                 vfreq = freq;
             }
@@ -69,7 +69,7 @@ namespace GTS {
             if (!SoundToPlay.empty()) {
 
                 float vfreq = 1.0f;
-                if (Config::GetAudio().bApplyPitchToGTSVoice) {
+                if (Config::GetAudio().bEnableVoicePitchOverrideG) {
                     const auto [_, freq] = CalculateVoicePitch(actor);
                     vfreq = freq;
                 }
@@ -110,7 +110,7 @@ namespace GTS {
                 if (!SoundToPlay.empty()) {
 
                     float vfreq = 1.0f;
-                    if (Config::GetAudio().bApplyPitchToGTSVoice) {
+                    if (Config::GetAudio().bEnableVoicePitchOverrideG) {
                         const auto [_, freq] = CalculateVoicePitch(actor);
                         vfreq = freq;
                     }

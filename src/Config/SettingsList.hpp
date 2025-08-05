@@ -342,7 +342,8 @@ struct SettingsAudio {
 
     // Voice settings
     bool bSlowGrowMoans = true;
-    bool bEnableVoiceOverride = true;
+    bool bEnableVoicePitchOverrideN = true;
+    bool bEnableVoicePitchOverrideG = false;
     bool bMuteVoreDeathScreams = true;
     bool bMuteHugCrushDeathScreams = true;
     bool bMuteFingerSnapDeathScreams = true;
@@ -356,7 +357,6 @@ struct SettingsAudio {
     bool bUseOtherHighHeelSet = true;
     bool bBlendBetweenFootsteps = false;
 
-    bool bApplyPitchToGTSVoice = false;
     float fMaxVoiceFrequency = 1.0f;
 
     float fFallOffMultiplier = 1.0f;
