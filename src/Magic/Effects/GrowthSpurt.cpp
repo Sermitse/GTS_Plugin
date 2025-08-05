@@ -12,11 +12,11 @@ namespace {
 		float falloff = 0.18f * scale;
 		Rumbling::Once("GrowthSpurt", actor, Rumble_Shrink_GrowthSpurt, 0.05f);
 		if (timer_1) {
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundRumble", actor, power/20, 1.0f, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff("GTSSoundRumble", actor, power/20, "NPC Pelvis [Pelv]", falloff);
 		}
 		if (timer_2) {
 			float Volume = std::clamp(get_visual_scale(actor) * 0.10f, 0.10f, 1.0f);
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", actor, Volume, 1.0f, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", actor, Volume, "NPC Pelvis [Pelv]", falloff);
 		}
 	}
 
@@ -25,11 +25,11 @@ namespace {
 		float falloff = 0.18f * scale;
 		Rumbling::Once("GrowthSpurt", actor, Rumble_Growth_GrowthSpurt, 0.05f);
 		if (timer_1) {
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundRumble", actor, power/20, 1.0f, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff("GTSSoundRumble", actor, power/20, "NPC Pelvis [Pelv]", falloff);
 		}
 		if (timer_2) {
 			float Volume = std::clamp(scale * 0.10f, 0.20f, 1.0f);
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", actor, Volume, 1.0f, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", actor, Volume, "NPC Pelvis [Pelv]", falloff);
 		}
 	}
 

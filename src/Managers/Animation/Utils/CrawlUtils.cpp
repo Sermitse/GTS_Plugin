@@ -39,7 +39,7 @@ namespace GTS {
 
 	void DoCrawlingSounds(Actor* actor, float scale, NiAVObject* node, FootEvent foot_kind) { // Call crawling sounds
 		if (actor) {
-			auto profiler = Profilers::Profile("CrawlUtils: DoCrawlingSounds");
+			GTS_PROFILE_SCOPE("CrawlUtils: DoCrawlingSounds");
 			auto player = PlayerCharacter::GetSingleton();
 			if (actor->formID == 0x14 && HasSMT(actor)) {
 				scale *= 1.85f;
@@ -109,7 +109,7 @@ namespace GTS {
 	}
 
 	void DoDamageAtPoint(Actor* giant, float radius, float damage, NiAVObject* node, float random, float bbmult, float crushmult, DamageSource Cause) { // Apply damage to specific bone
-		auto profiler = Profilers::Profile("CrawlUtils: DoDamageAtPoint");
+		GTS_PROFILE_SCOPE("CrawlUtils: DoDamageAtPoint");
 		if (!node) {
 			return;
 		}

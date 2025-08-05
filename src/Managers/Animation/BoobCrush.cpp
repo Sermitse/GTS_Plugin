@@ -309,7 +309,7 @@ namespace {
 		float WasteStamina = 100.0f * GetButtCrushCost(giant, false);
 		DamageAV(giant, ActorValue::kStamina, WasteStamina);
 		
-		Runtime::PlaySoundAtNode("GTSSoundGrowth", giant, 1.0f, 1.0f, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode("GTSSoundGrowth", giant, 1.0f, "NPC Pelvis [Pelv]");
 		Task_FacialEmotionTask_Moan(giant, 0.675f, "BoobCrush_Growth", 0.20f);
 		
 		StartRumble("CleavageRumble", data.giant, 0.06f, 0.60f);

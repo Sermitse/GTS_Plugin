@@ -50,7 +50,7 @@ namespace GTS {
 	}
 
 	void HighHeelManager::HavokUpdate() {
-		auto profiler = Profilers::Profile("HHMgr: HavokUpdate");
+		GTS_PROFILE_SCOPE("HHMgr: HavokUpdate");
 		auto actors = FindSomeActors("HHHavokUpdate", 1);
 		for (auto actor: actors) {
 			ApplyHH(actor, false);
@@ -98,7 +98,7 @@ namespace GTS {
 	}
 
 	void HighHeelManager::ApplyHH(Actor* actor, bool force) {
-		auto profiler = Profilers::Profile("HHMgr: ApplyHH");
+		GTS_PROFILE_SCOPE("HHMgr: ApplyHH");
 		if (actor) {
 
 			if (!IsHumanoid(actor)) {
@@ -168,7 +168,7 @@ namespace GTS {
 
 	// This seems to be the most expensive HH function so far, not sure how to optimize it properly
 	void HighHeelManager::UpdateHHOffset(Actor* actor) {
-		auto profiler = Profilers::Profile("HHMgr: UpdateHHOffset");
+		GTS_PROFILE_SCOPE("HHMgr: UpdateHHOffset");
 		auto models = GetModelsForSlot(actor, BGSBipedObjectForm::BipedObjectSlot::kFeet);
 		NiPoint3 result = NiPoint3();
 		for (auto model: models) {
@@ -242,7 +242,7 @@ namespace GTS {
 
 	// Unscaled base .z offset of HH, takes Natural Scale into account
 	NiPoint3 HighHeelManager::GetBaseHHOffset(Actor* actor) {  
-		auto profiler = Profilers::Profile("HHMgr: GetBaseHHOffset");
+		GTS_PROFILE_SCOPE("HHMgr: GetBaseHHOffset");
 		auto& me = HighHeelManager::GetSingleton();
 		me.data.try_emplace(actor);
 		auto& hhData = me.data[actor];
@@ -250,13 +250,13 @@ namespace GTS {
 	}
 
 	NiPoint3 HighHeelManager::GetHHOffset(Actor* actor) { // Scaled .z offset of HH
-		auto profiler = Profilers::Profile("HHMgr: GetHHOffset");
+		GTS_PROFILE_SCOPE("HHMgr: GetHHOffset");
 		auto Scale = get_visual_scale(actor);
 		return HighHeelManager::GetBaseHHOffset(actor) * Scale;
 	}
 
 	float HighHeelManager::GetInitialHeelHeight(Actor* actor) { // Get raw heel height, used in damage bonus for HH perk
-		auto profiler = Profilers::Profile("HH: GetInitHeight");
+		GTS_PROFILE_SCOPE("HH: GetInitHeight");
 		auto& me = HighHeelManager::GetSingleton();
 		me.data.try_emplace(actor);
 		auto& hhData = me.data[actor];

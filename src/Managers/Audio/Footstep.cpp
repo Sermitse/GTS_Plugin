@@ -111,7 +111,7 @@ namespace PlayFootSound {
 
 	static void BuildAndPlayStompSounds(Actor* giant, float a_modifier, NiAVObject* a_foot, FootEvent a_footKind, float a_scale, bool Strong) {
 		//https://www.desmos.com/calculator/wh0vwgljfl
-		auto profiler = Profilers::Profile("StompManager: PlayHighHeelSounds");
+		GTS_PROFILE_SCOPE("StompManager: PlayHighHeelSounds");
 		const bool blend = Config::GetAudio().bBlendBetweenFootsteps;
 
 		const auto& steps = blend ? Steps_PeculiarMGTS_Blend : Steps_PeculiarMGTS_NoBlend;
@@ -146,7 +146,7 @@ namespace GTS {
 				return;
 			}
 
-			auto profiler = Profilers::Profile("FootStepManager: OnImpact");
+			GTS_PROFILE_SCOPE("FootStepManager: OnImpact");
 
 			float scale = impact.scale;
 			auto actor = impact.actor;
@@ -195,14 +195,14 @@ namespace GTS {
 
 	void FootStepManager::PlayHighHeelSounds_Walk(float modifier, NiAVObject* foot, FootEvent foot_kind, float scale, bool UseOtherHeelSet) {
 		//https://www.desmos.com/calculator/wh0vwgljfl
-		auto profiler = Profilers::Profile("FootStepManager: PlayHighHeelSounds");
+		GTS_PROFILE_SCOPE("FootStepManager: PlayHighHeelSounds");
 		PlayFootSound::BuildSounds_HighHeels_NormalOrAlt(modifier, foot, foot_kind, scale, UseOtherHeelSet); // PeculiarMGTS/TimKroyer sounds
 		PlayFootSound::BuildSounds_RocksAndMisc(modifier, foot, foot_kind, scale);
 	}
 
 	//Uses same sound array as walk
 	void FootStepManager::PlayHighHeelSounds_Jump(float modifier, NiAVObject* foot, FootEvent foot_kind, float scale, bool UseOtherHeelSet) {
-		auto profiler = Profilers::Profile("FootStepManager: PlayHighHeelSounds");
+		GTS_PROFILE_SCOPE("FootStepManager: PlayHighHeelSounds");
 
 		const bool blend = Config::GetAudio().bBlendBetweenFootsteps;
 
@@ -279,9 +279,9 @@ namespace GTS {
 			if (scale > 1.25f) {
 				float volume = 0.14f * bonus * (scale - 1.10f) * animspeed;
 				if (volume > 0.05f) {
-					Runtime::PlaySoundAtNode("GTSSoundHeavyStomp", giant, volume, 1.0f, feet);
-					Runtime::PlaySoundAtNode("GTSSoundFootstep_XL", giant, volume, 1.0f, feet);
-					Runtime::PlaySoundAtNode("GTSSoundRumble", giant, volume, 1.0f, feet);
+					Runtime::PlaySoundAtNode("GTSSoundHeavyStomp", giant, volume, feet);
+					Runtime::PlaySoundAtNode("GTSSoundFootstep_XL", giant, volume, feet);
+					Runtime::PlaySoundAtNode("GTSSoundRumble", giant, volume, feet);
 				}
 			}
 		}

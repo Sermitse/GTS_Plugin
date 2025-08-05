@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 
 namespace GTS {
 
@@ -486,14 +486,11 @@ namespace GTS {
 		};
 
 		std::shared_mutex InputMutex;
-
 		std::vector<KeyEvent> KeyEventQueue {};
 
 		public:
-
+		static void UnstickKeys();
 		void ProcessInputEventQueue();
-
-		static void ReleaseStuckKeys();
 
 		void OnFocusLost() {
 			std::unique_lock<std::shared_mutex> mutex(InputMutex);
@@ -501,6 +498,7 @@ namespace GTS {
 		}
 
 		void ProcessInputEvents(RE::InputEvent* const* a_events) {
+
 			for (auto it = *a_events; it; it = it->next) {
 				if (it->GetEventType() != RE::INPUT_EVENT_TYPE::kButton && it->GetEventType() != RE::INPUT_EVENT_TYPE::kChar)  // we do not care about non button or char events
 					continue;

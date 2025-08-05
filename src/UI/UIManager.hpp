@@ -1,4 +1,5 @@
 #pragma once
+#include "ImGui/ImGraphics.hpp"
 #include "ImGui/ImWindowManager.hpp"
 #include "ImGui/ImInput.hpp"
 
@@ -20,11 +21,11 @@ namespace GTS {
 		ImStyleManager& StyleMgr = ImStyleManager::GetSingleton();
 
 
-
 		public:
 		static inline std::atomic_bool ShouldDrawOverTop = false;
 		static inline std::atomic_bool GamePaused = false;
 		static inline float UnPausedGameTime = 1.0f;
+		static inline ImGraphics* Graphics = nullptr;
 
 		static UIManager& GetSingleton() {
 			static UIManager Instance;
@@ -34,7 +35,7 @@ namespace GTS {
 		static void ShowInfos();
 		static void CloseSettings();
 		void Init();
-		void Update();
+		void Draw();
 
 		[[nodiscard]] inline bool Ready() const {
 			return Initialized.load();

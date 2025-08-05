@@ -265,7 +265,7 @@ namespace GTS {
 	}
 
 	void CollisionDamage::DoSizeDamage(Actor* giant, Actor* tiny, float damage, float bbmult, float crush_threshold, int random, DamageSource Cause, bool apply_damage) { // Applies damage and crushing
-		auto profiler = Profilers::Profile("CollisionDamage: DoSizeDamage");
+		GTS_PROFILE_SCOPE("CollisionDamage: DoSizeDamage");
 		if (!giant) {
 			return;
 		}

@@ -192,8 +192,6 @@ namespace GTS {
 			// ---- Unlimited Size slider unlocker
 			BasicRecord<bool, 'USSD'> UnlockMaxSizeSliders = false;
 
-			// ---- Save Baked Settings
-			BasicRecord<bool, 'LSEN'> LocalSettingsEnable = true;
 			CompressedStringRecord<'CONF'> ModSettings{""};
 
 		private:

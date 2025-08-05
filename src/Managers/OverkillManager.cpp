@@ -40,7 +40,7 @@ namespace GTS {
 	}
 
 	void OverkillManager::Update() {
-		auto profiler = Profilers::Profile("OverkillManager: Update");
+		GTS_PROFILE_SCOPE("OverkillManager: Update");
 		for (auto &[tinyId, data]: this->data) {
 			auto tiny = TESForm::LookupByID<Actor>(tinyId);
 			auto giantHandle = data.giant;

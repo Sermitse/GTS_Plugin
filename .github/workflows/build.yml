@@ -1,99 +1,71 @@
-name: CI
-
-on: [push, pull_request]
-
+name: Build Plugin
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'cmake/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'vcpkg.json'
+      - '.github/workflows/build.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'cmake/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'vcpkg.json'
+      - '.github/workflows/build.yml'
+  workflow_dispatch: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  pre_job:
-    # continue-on-error: true # Uncomment once integration is finished
-    runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@v5
-        with:
-          # All of these options are optional, so you can remove them if you are happy with the defaults
-          concurrent_skipping: 'same_content_newer'
-          skip_after_successful_duplicate: 'false'
-
-  native:
-    name: build
-    needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true'
+  build:
     runs-on: windows-2025
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
-          submodules: true
-          fetch-depth: 0
+          submodules: recursive
 
-      - name: Setup CMake
-        uses: lukka/get-cmake@latest
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1
         with:
-          cmakeVersion: "~3.31.5"
-          ninjaVersion: "~1.12.1"
+          arch: 'x64'
 
-      - name: Set Env
-        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
+      - name: Cache vcpkg
+        uses: actions/cache@v4
         with:
-            arch: x64
-            toolset: 14.44
+          path: vcpkg
+          key: windows-vcpkg-${{ steps.vcpkg-version.outputs.hash }}-v1
+          restore-keys: |
+            windows-vcpkg-${{ steps.vcpkg-version.outputs.hash }}-
+            windows-vcpkg-
 
-      - name: Compile
-        run: |
-           cmake --preset build-release
-           cmake --build --preset preset-release
-            
-      - name: Copy Plugin
-        shell: bash
-        run: |
-          # Create the unified destination folder for plugin files.
-          mkdir -p contrib/Distribution/Plugin || exit 1
-          shopt -s nullglob
-
-            # Find any folder starting with "Plugin-" in contrib/Distribution.
-          root_folder=""
-          for folder in contrib/Distribution/Plugin-*; do
-            if [ -d "$folder" ]; then
-              root_folder="$folder"
-              break
-            fi
-          done
-
-          if [ -n "$root_folder" ]; then
-            echo "Found build preset folder: $root_folder"
-            # Copy all DLL and PDB files from the found folder into the unified Plugin folder.
-            cp "$root_folder"/*.dll contrib/Distribution/Plugin/ 2>/dev/null
-            cp "$root_folder"/*.pdb contrib/Distribution/Plugin/ 2>/dev/null
-
-            # List the folder contents for debugging purposes.
-            ls -la "$root_folder"/
-            ls -la "$root_folder"/*.pdb 2>/dev/null
-          else
-            echo "No Plugin-* folder found."
-            exit 1
-          fi
-
-          # Remove the source build preset folder after copying.
-          rm -rf "$root_folder"
-          shopt -u nullglob
-
-      - uses: actions/upload-artifact@v4
-        name: Upload package
+      - name: Cache build
+        uses: actions/cache@v4
         with:
-          name: GTSPlugin
-          path: "contrib/Distribution/*"
+          path: build/Release
+          key: windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-${{ steps.vcpkg-version.outputs.hash }}-${{ steps.submodule-hashes.outputs.hash }}-v1
+          restore-keys: |
+            windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-${{ steps.vcpkg-version.outputs.hash }}-${{ steps.submodule-hashes.outputs.hash }}-
+            windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-${{ steps.vcpkg-version.outputs.hash }}-
+            windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-
 
-      - uses: actions/upload-artifact@v4
-        name: Upload debug info
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11.5
         with:
-          name: GTSPluginDebugInfo
-          path: "contrib/Distribution/Plugin/*.pdb"
+          vcpkgJsonGlob: vcpkg.json
 
-      - uses: actions/upload-artifact@v4
-        name: Update compile_commands.json
+      - name: Build
+        uses: lukka/run-cmake@v10
         with:
-          name: "Compiled File Data"
-          path: "compile_commands.json"
+            configurePreset: config-release
+            buildPreset: build-release
+
+      - name: Upload Distribution Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-package
+          path: distribution/Package-*

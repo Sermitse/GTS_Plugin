@@ -45,7 +45,6 @@ namespace GTS {
 
 		EventDispatcher::AddListener(&GameModeManager::GetSingleton()); // Manages Game Modes
 		EventDispatcher::AddListener(&GtsManager::GetSingleton()); // Manages smooth size increase and animation & movement speed
-		//EventDispatcher::AddListener(&AttackManager::GetSingleton()); // Manages disallowing of Attack at large scales for NPC's
 		EventDispatcher::AddListener(&PerkHandler::GetSingleton()); // Manages some perk updates
 		EventDispatcher::AddListener(&SizeManager::GetSingleton()); // Manages Max Scale of everyone
 		EventDispatcher::AddListener(&HighHeelManager::GetSingleton()); // Applies high heels

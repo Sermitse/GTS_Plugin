@@ -1,5 +1,5 @@
 #include "UI/ImGui/ImStyleManager.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 
 namespace GTS {
 
@@ -74,16 +74,16 @@ namespace GTS {
         // Tabs
         colors[ImGuiCol_Tab] = ImVec4{};
         colors[ImGuiCol_TabHovered] = tabHovered;
-        colors[ImGuiCol_TabActive] = tabHovered;
-        colors[ImGuiCol_TabUnfocused] = colors[ImGuiCol_Tab];
-        colors[ImGuiCol_TabUnfocusedActive] = tabHovered;
+        colors[ImGuiCol_TabSelected] = tabHovered;
+        colors[ImGuiCol_TabDimmed] = colors[ImGuiCol_Tab];
+        colors[ImGuiCol_TabDimmedSelected] = tabHovered;
 
         // Sliders
         colors[ImGuiCol_SliderGrab] = AdjustAlpha(accentColor, 0.45f);
         colors[ImGuiCol_SliderGrabActive] = AdjustAlpha(accentColor, 0.9f);
 
         // Navigation & Highlights
-        colors[ImGuiCol_NavHighlight] = AdjustAlpha(accentColor, 0.5f);
+        colors[ImGuiCol_NavCursor] = AdjustAlpha(accentColor, 0.5f);
 
         // Accent-colored elements
         colors[ImGuiCol_CheckMark] = AdjustAlpha(accentColor, 1.0f);
@@ -112,6 +112,7 @@ namespace GTS {
 
         // Apply scaling
         currentStyle.ScaleAllSizes(exp2(Settings.fScale));
+        currentStyle.FontScaleMain = Settings.fScale;
         currentStyle.MouseCursorScale = 1.0f;
     }
 }

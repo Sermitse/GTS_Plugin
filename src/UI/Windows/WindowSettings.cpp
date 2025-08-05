@@ -1,5 +1,5 @@
 #include "UI/Windows/WindowSettings.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 
 //categories
 #include "UI/Categories/Gameplay.hpp"
@@ -20,24 +20,45 @@
 
 #include "UI/UIManager.hpp"
 
+namespace {
+
+	std::string FooterText;
+
+	void BuildFooterText() {
+
+		for (auto it = GTSPlugin::ModVersion.begin(); it != GTSPlugin::ModVersion.end(); ++it) {
+			FooterText += std::to_string(*it);
+			if (std::next(it) != GTSPlugin::ModVersion.end()) {
+				FooterText += ".";
+			}
+		}
+
+		if (git::AnyUncommittedChanges()) {
+			FooterText += "\nDevelopment Build";
+			FooterText += "\n" + fmt::format("{} {}", __DATE__, __TIME__);
+		}
+	}
+}
+
 namespace GTS {
 
 	void WindowSettings::LoadImpl() {
 
 		try {
-			if (!Settings.LoadSettings()) {
-				SetErrorAndUnlock(kLoadSettingsError);
+
+			if (!Settings.LoadSettingsFromString()) {
+				logger::error("Settings.LoadSettings() Error");
+				SaveLoadBusy.store(false);
 				return;
 			}
 
 			if (!KeyMgr.LoadKeybinds()) {
-				SetErrorAndUnlock(kLoadInputError);
+				logger::error("KeyMgr.LoadKeybinds() Error");
+				SaveLoadBusy.store(false);
 				return;
 			}
 
-			ErrorString.clear();
 			StyleMgr.LoadStyle();
-			FontMgr.RebuildFonts();
 			SaveLoadBusy.store(false);
 		}
 		//Should not be needed but just in case...
@@ -50,17 +71,18 @@ namespace GTS {
 
 		try {
 
-			if (!Settings.SaveSettings()) {
-				SetErrorAndUnlock(kSaveSettingsError);
+			if (!Settings.SaveSettingsToString()) {
+				logger::error("Settings.SaveSettings() Error");
+				SaveLoadBusy.store(false);
 				return;
 			}
 
 			if (!KeyMgr.SaveKeybinds()) {
-				SetErrorAndUnlock(kSaveInputError);
+				logger::error("KeyMgr.SaveKeybinds() Error");
+				SaveLoadBusy.store(false);
 				return;
 			}
 
-			ErrorString.clear();
 			InputManager::GetSingleton().Init();
 			SaveLoadBusy.store(false);
 		}
@@ -78,7 +100,7 @@ namespace GTS {
 	    Name = "Settings";
 	    Show = false;
 		ConsumeInput = true;
-	    flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoScrollbar;
+	    flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 	    //Add Categories, order here defines the order they'll be shown.
 	    CatMgr.AddCategory(std::make_shared<CategoryInfo>());
@@ -93,19 +115,13 @@ namespace GTS {
 		CatMgr.AddCategory(std::make_shared<CategoryWidgets>());
 	    CatMgr.AddCategory(std::make_shared<CategoryKeybinds>());
 	    CatMgr.AddCategory(std::make_shared<CategoryAdvanced>());
+
+		BuildFooterText();
 	}
 
 	void WindowSettings::Draw() {
 
 	    auto& Categories = CatMgr.GetCategories();
-		ImGui::PushFont(ImFontManager::GetFont("footer"));
-	    const float Footer = ImGui::GetFrameHeightWithSpacing() + (ImGui::GetStyle().ItemSpacing.y * 4.0);  // text + separator
-		ImGui::PopFont();
-	    
-	    //Calc Button Width
-	    std::array<const char*,3> Lables = { "Load", "Save", "Reset" };
-	    const ImGuiStyle& Style = ImGui::GetStyle();
-
 
 	    //Update Window Flags
 	    flags = (sUI.bLock ? (flags | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove) : (flags & ~ImGuiWindowFlags_NoResize & ~ImGuiWindowFlags_NoMove));
@@ -122,37 +138,15 @@ namespace GTS {
 	        }
 	    }
 
-		float TotalWidth = 0.0f;
-
-		if (!Config::GetUI().bEnableAutoSaveOnClose) {
-			//Save
-			TotalWidth += Style.ItemSpacing.x + 2;
-			TotalWidth += (ImGui::CalcTextSize(Lables[1]).x + 2.0f * Style.FramePadding.x);
-		}
-
-		if (!Config::GetAdvanced().bHideLoadButton) {
-			//Load
-			TotalWidth += Style.ItemSpacing.x + 2; // Add Seperator offset
-			TotalWidth += (ImGui::CalcTextSize(Lables[0]).x + 2.0f * Style.FramePadding.x);
-		}
-
-		//Reset
-		//TotalWidth += (ImGui::CalcTextSize(Lables[3]).x + 2.0f * Style.FramePadding.x) + Style.ItemSpacing.x;
-
-		const float ButtonStartX = ImGui::GetWindowWidth() - (TotalWidth + Style.WindowPadding.x);
-
-		//While mathematically correct 2.0 Just doesn't look right...
-		const float TextCenter = ButtonStartX / 2.0f - ImGui::CalcTextSize(ErrorString.c_str()).x / 2.5f;
-
 		const auto OldPos = ImGui::GetCursorPos();
 
 		{
 
-			ImVec2 pos = ImVec2(ImGui::GetContentRegionAvail().x - (ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetStyle().CellPadding.x), ImGui::GetStyle().FramePadding.y * 2 + ImGui::GetStyle().CellPadding.y);
+			const ImVec2 pos = ImVec2(ImGui::GetContentRegionAvail().x - (ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetStyle().CellPadding.x), ImGui::GetStyle().FramePadding.y * 2 + ImGui::GetStyle().CellPadding.y);
 			ImGui::SetCursorPos(pos);
 
-			// Create the button
-			if (ImUtil::Button(" X ")) {
+			//Close button
+			if (ImUtil::ImageButton("Close##", "generic_x", 18, "Close")) {
 				UIManager::CloseSettings();
 			}
 
@@ -163,20 +157,9 @@ namespace GTS {
 
 	    {  // Draw Title
 
-	        ImGui::PushFont(ImFontManager::GetFont("title"));
+			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kTitle);
 	        ImGui::Text(Title.c_str());
-	        ImGui::PopFont();
-	    }
-
-		{  //Draw Help text
-	        const char* THelp = "1. Holding Ctrl when clicking on a UI element (eg. slider) allows you to manually enter a value instead.\n\n"
-								"2. If the settings menu is behaving strangely and you can't select/change things try pressing the Tab key once.\n\n"
-	    						"3. You can also close this menu by pressing ESC.";
-
-	        ImGui::TextColored(ImUtil::ColorSubscript, "Help / Info (?)");
-	        if (ImGui::IsItemHovered()){
-	            ImGui::SetTooltip(THelp);
-	        }
+			ImFontManager::PopActiveFont();
 	    }
 
 		ImGui::PopStyleVar();
@@ -184,9 +167,9 @@ namespace GTS {
 
 	    {  // Draw Sidebar
 
-	        ImGui::BeginChild("Sidebar", ImVec2(CatMgr.GetLongestCategory(), ImGui::GetContentRegionAvail().y - Footer), true);
+	        ImGui::BeginChild("Sidebar", ImVec2(CatMgr.GetLongestCategory(), ImGui::GetContentRegionAvail().y), true);
 	        ImGui::BeginDisabled(Disabled);
-	        ImGui::PushFont(ImFontManager::GetFont("sidebar"));
+			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kSidebar);
 
 	        // Display the categories in the sidebar
 	        for (uint8_t i = 0; i < static_cast<uint8_t>(Categories.size()); i++) {
@@ -204,7 +187,7 @@ namespace GTS {
 
 	        }
 
-	        ImGui::PopFont();
+			ImFontManager::PopActiveFont();
 	        ImGui::EndDisabled();
 	        ImGui::EndChild();
 	    }
@@ -213,7 +196,7 @@ namespace GTS {
 
 	    { // Content Area, Where the category contents are drawn
 
-	        ImGui::BeginChild("Content", ImVec2(0, ImGui::GetContentRegionAvail().y - Footer), true); // Remaining width
+	        ImGui::BeginChild("Content", ImVec2(0, ImGui::GetContentRegionAvail().y), true); // Remaining width
 
 	        // Validate selectedCategory to ensure it's within bounds
 	        if (CatMgr.activeIndex < Categories.size()) {
@@ -227,65 +210,27 @@ namespace GTS {
 	        ImGui::EndChild();
 	    }
 
+		{   //Footer - Mod Info
 
-	    ImUtil::SeperatorH();
-	    ImGui::BeginDisabled(Disabled);
-	    
-	    {   //Footer - Mod Info
+			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kSubText);
 
-	        ImGui::PushFont(ImFontManager::GetFont("subscript"));
+			// Get window draw position and size
+			ImVec2 windowPos = ImGui::GetWindowPos();
+			ImVec2 windowSize = ImGui::GetWindowSize();
+			ImVec2 textSize = ImGui::CalcTextSize(FooterText.c_str());
 
-			const std::string FooterMessage = fmt::format(
-			 "GTSPlugin {}\n"
-			 "Build Date: {} {}\n"
-			 "{}",
-			 PluginVersion,
-			 __DATE__,
-			 __TIME__,
-			git::AnyUncommittedChanges() ? "Development Version" : fmt::format("SHA1 {}",git::CommitSHA1().c_str()));
+			auto padding = ImGui::GetStyle().FramePadding;
+			ImVec2 textPos = {
+				windowPos.x + padding.x,
+				windowPos.y + windowSize.y - textSize.y - padding.y
+			};
 
-	        ImGui::TextColored(ImUtil::ColorSubscript, FooterMessage.c_str());
-	        ImGui::PopFont();
-	    }
-
-	    ImGui::SameLine(TextCenter);
-
-	    {   
-	        ImGui::SetCursorPosY(ImGui::GetWindowHeight() - (Footer / 2.0f) - Style.FramePadding.y);
-	        ImGui::PushFont(ImFontManager::GetFont("errortext"));
-	        ImGui::PushStyleColor(ImGuiCol_Text,ImUtil::ColorError);
-	        ImGui::Text(ErrorString.c_str());
-	        ImGui::PopStyleColor();
-	        ImGui::PopFont();
-	    }
-
-	    ImGui::SameLine(ButtonStartX);
-		
-	    
-	    {   //-------------  Buttons
-	        
-	        volatile bool buttonstate = SaveLoadBusy.load();
-
-			if (!Config::GetUI().bEnableAutoSaveOnClose) {
-
-				//Save
-				if (ImUtil::Button(Lables[1], "Save changes", buttonstate, 1.3f)) {
-					AsyncSave();
-				}
-
-				ImGui::SameLine();
-
-			}
-
-			if (!Config::GetAdvanced().bHideLoadButton) {
-
-				//Load
-				if (ImUtil::Button(Lables[0], "Reload and apply the values currenly stored in Settings.toml and Input.toml", buttonstate, 1.3f)) {
-					AsyncLoad();
-				}
-			}
-
-	    }
-	    ImGui::EndDisabled();
+			// Set the cursor to the calculated position
+			ImGui::SetCursorScreenPos(textPos);
+			ImGui::PushStyleColor(ImGuiCol_Text,ImUtil::ColorSubscript);
+			ImGui::TextWrapped(FooterText.c_str());
+			ImGui::PopStyleColor();
+			ImFontManager::PopActiveFont();
+		}
 	}
 }

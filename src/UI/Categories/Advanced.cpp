@@ -1,51 +1,44 @@
-#include "UI/Categories/Advanced.hpp"
-#include "UI/DearImGui/imgui.h"
+﻿#include "UI/Categories/Advanced.hpp"
+
+#include "UI/UIManager.hpp"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImWindowManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
+
+#include "Utils/Logger.hpp"
 
 namespace GTS {
 
     void CategoryAdvanced::DrawLeft() {
 
-
         ImUtil_Unique{
 
             const char* T0 = "Show or hide this page.\n"
-							 "After Disabling you have to re-add the option to the settings toml again if you want to re-enable it.";
+                             "After Disabling you have to re-add the option to the settings toml again if you want to re-enable it.";
 
             if (ImGui::CollapsingHeader("Advanced",ImUtil::HeaderFlagsDefaultOpen)) {
                 ImUtil::CheckBox("Enable/Disable This Page", &Config::GetHidden().IKnowWhatImDoing, T0);
+
+                ImGui::Spacing();
             }
         }
 
-        ImUtil_Unique {
-
-            const char* T0 = "Enable the profiler to diagnose performance issues.\n"
-        					 "Note: Needs a game restart to enable after setting it.";
+        ImUtil_Unique{
+            	
+            const char* T0 = "Show The Profiler";
             const char* T1 = "Enable the debug overlay.";
-
             const char* T2 = "Set the log severity level. The higher it is the more info is dumped into GTSPlugin.log";
-            const char* T3 = "Set the flush severity level. The higher it is the more info is dumped into GTSPlugin.log when a crash happens";
 
             if (ImGui::CollapsingHeader("Logging / Debugging",ImUtil::HeaderFlagsDefaultOpen)) {
 
-                ImUtil::CheckBox("Enable Profiling",&Settings.bProfile, T0);
-                ImUtil::CheckBox("Show Debug Overlay",&Settings.bShowOverlay,T1);
+				#ifdef  GTS_PROFILER_ENABLED
+                ImUtil::CheckBox("Draw Profiler", &Profilers::DrawProfiler, T0);
+				#endif
 
-                if (ImUtil::ComboEx<spdlog::level::level_enum>("Log Level", Settings.sLogLevel,T2,false,true)) {
+                ImUtil::CheckBox("Draw Debug Overlay", &Settings.bShowOverlay,T1);
 
-					#ifndef GTSCONSOLE
-						spdlog::set_level(spdlog::level::from_str(Settings.sLogLevel));
-					#endif
-                	
-				}
-
-				if (ImUtil::ComboEx<spdlog::level::level_enum>("Flush Level", Settings.sFlushLevel,T3,false,true)) {
-
-					#ifndef GTSCONSOLE
-						spdlog::flush_on(spdlog::level::from_str(Settings.sFlushLevel));
-                    #endif
-
+                if (ImUtil::ComboEx<spdlog::level::level_enum>("Log Level", Settings.sLogLevel, T2, false, true)) {
+	                logger::SetLevel(Settings.sLogLevel.c_str());
 				}
 
               ImGui::Spacing();
@@ -56,19 +49,49 @@ namespace GTS {
 
         ImUtil_Unique {
 
-            const char* T0 = "Immediately return from DamageAV Calls (such as damage HP/Stamina) for the player.";
-            const char* T1 = "Bypasses action cooldowns if enabled.";
-            const char* T2 = "Multiply the resulting GetAnimationSlowdown Value";
+            const char* T0 = "Enable/Disable DamageAV for the player's stamina and magicka.";
+            const char* T1 = "GTS actions will have cooldowns if this is enabled.";
+            const char* T2 = "Enforce Min/Max Values In UI.";
 
             if (ImGui::CollapsingHeader("Cheats",ImUtil::HeaderFlagsDefaultOpen)) {
-                ImUtil::CheckBox("Ignore ActorValue Damage",&Settings.bDamageAV, T0);
-                ImUtil::CheckBox("Ignore Size-Action Cooldowns",&Settings.bCooldowns, T1);
-                ImUtil::SliderF("Animspeed Player", &Settings.fAnimSpeedAdjMultPlayer, 0.2f, 1.0f, T2);
-                ImUtil::SliderF("Animspeed Teammate", &Settings.fAnimSpeedAdjMultTeammate, 0.2f, 1.0f, T2);
+                ImUtil::CheckBox("Enable ActorValue Damage",&Settings.bDamageAV, T0);
+                ImUtil::CheckBox("Enable Size-Action Cooldowns",&Settings.bCooldowns, T1);
+                ImUtil::CheckBox("Enforce Slider Range", &Settings.bEnforceUIClamps, T2);
 
                 ImGui::Spacing();
             }
         }
+
+        ImUtil_Unique{
+
+	        const char* T0 = "Multiply the resulting GetAnimationSlowdown Value (Acts as a flat multiplier applied after the main formula).";
+	        const char* T1 = "Modify The \"SoftCore\" formula used to calculate the amount animations will slow down relative to scale.";
+            const char* T2 = "Should AnimSpeed be force set to 1x if IsGTSBusy() == true?";
+            const char* T3 = "Define the floor value for the animation speed formula. (Default 0.1f).";
+
+	        if (ImGui::CollapsingHeader("Animation Speed",ImUtil::HeaderFlagsDefaultOpen)) {
+
+                ImUtil::CheckBox("GTS Actions Always 1x Speed", &Settings.bGTSAnimsFullSpeed, T2);
+                ImUtil::SliderF("Animspeed Player", &Settings.fAnimSpeedAdjMultPlayer, 0.1f, 3.0f, T0);
+                ImUtil::SliderF("Animspeed Teammate", &Settings.fAnimSpeedAdjMultTeammate, 0.1f, 3.0f, T0);
+                ImUtil::SliderF("Animspeed Lowest Allowed", &Settings.fAnimspeedLowestBoundAllowed, 0.01f, 1.0f, T3);
+
+                const float PlayerSlowDown = GetAnimationSlowdown(PlayerCharacter::GetSingleton());
+
+                ImGui::Spacing();
+
+                ImGui::Text("Player Slowdown: %.2fx", PlayerSlowDown);
+
+                ImGui::Spacing();
+
+                //https://www.desmos.com/calculator/vyofjrqmrn
+                ImGui::Text("Animation Formula");
+                ImUtil::SliderF3("Param K, N, S", &Settings.fAnimSpeedFormula.at(0), 0.0f, 10.0f, T1, "%.3f");
+                ImUtil::SliderF2("Param O, A", &Settings.fAnimSpeedFormula.at(3), 0.0f, 10.0f, T1, "%.3f");
+
+	            ImGui::Spacing();
+	        }
+	    }
     }
 
     void CategoryAdvanced::DrawRight() {
@@ -98,15 +121,83 @@ namespace GTS {
                 {
                     const char* T0 = "Show ImGui's Metrics Window";
                     const char* T1 = "Show ImGui's Stack Window";
+                    const char* T2 = "Show ImGui's Demo Window";
 
                     ImUtil::CheckBox("Show Metrics", &ImWindowManager::GetSingleton().ShowMetrics,T0);
                     ImGui::SameLine();
                     ImUtil::CheckBox("Show Stack", &ImWindowManager::GetSingleton().ShowStack,T1);
+                    ImUtil::CheckBox("Show Demo Window", &ImWindowManager::GetSingleton().ShowDemoWindow, T2);
                 }
 
                 if (ImUtil::Button("Quit", "This will immediatly close the game.", false, 1.0f)) {
-                    SKSE::WinAPI::TerminateProcess(SKSE::WinAPI::GetCurrentProcess(), EXIT_FAILURE);
+                    SKSE::WinAPI::TerminateProcess(SKSE::WinAPI::GetCurrentProcess(), EXIT_SUCCESS);
                 }
+
+                ImGui::SameLine();
+
+                if (ImUtil::Button("Trigger Crash", "This will immediatly crash the game.", false, 1.0f)) {
+                    using FuncType = void(*)();
+                    FuncType func = nullptr;
+                    func();
+                }
+
+                ImGui::Spacing();
+            }
+        }
+
+        ImUtil_Unique {
+            if (ImGui::CollapsingHeader("Graphics Test")) {
+                UIManager::Graphics->DebugDrawTest();
+                ImGui::Spacing();
+            }
+        }
+
+        ImUtil_Unique {
+
+            //Multi-Language Font Test
+            if (ImGui::CollapsingHeader("Font Test")) {
+
+                {
+                    //Apparently Setting the activescript type is not needed?
+					//I'd expect some character overlap due to merging but it appears things "just work".
+                    //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::EN);
+                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+
+                    ImGui::Text(reinterpret_cast <const char*>(u8"This îs à fónt tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève"));
+                    ImGui::Text(reinterpret_cast<const char*>(u8"Αυτή είναι μια δοκιμή για το συστυμα γραμματοσειράς"));
+                    ImGui::Text(reinterpret_cast<const char*>(u8"Это тест загрузчика шрифтов"));
+
+                    ImFontManager::PopActiveFont();
+                }
+
+                {
+                    //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::JP);
+                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+
+                    ImGui::Text(reinterpret_cast<const char*>(u8"これはフォントローダーのテストです"));
+
+                    ImFontManager::PopActiveFont();
+                }
+
+                {
+                    //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::KR);
+                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+
+                    ImGui::Text(reinterpret_cast<const char*>(u8"이것은 폰트로더 테스트입니다"));
+
+                    ImFontManager::PopActiveFont();
+                }
+
+                {
+                    //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::SC);
+                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+
+                    ImGui::Text(reinterpret_cast<const char*>(u8"这是一个字体加载器测试"));
+
+                    ImFontManager::PopActiveFont();
+                }
+
+                ImGui::Spacing();
             }
         }
 
@@ -122,6 +213,8 @@ namespace GTS {
 
 	            ImUtil::CheckBox("Pause Game", &Settings.bPauseGame, T0);
 	            ImUtil::SliderF("SGTM Mult", &Settings.fSGTMMult, 0.05f, 1.0f, T1, "%.2fx", Settings.bPauseGame);
+
+                ImGui::Spacing();
 
             }
 
@@ -154,7 +247,8 @@ namespace GTS {
                 ImGui::TextColored(ImUtil::ColorError, "Info (!)");
                 ImUtil::Tooltip(THelp, true);
 
-                ImUtil::CheckBox("Hide Load Button", &Settings.bHideLoadButton, "Toggle the visibility of the load button");
+                ImGui::Spacing();
+
 	        }
         }
     }

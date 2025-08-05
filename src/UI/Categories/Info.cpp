@@ -1,5 +1,5 @@
 #include "UI/Categories/Info.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/imGui/ImUtil.hpp"
 #include "UI/Windows/GTSInfo.hpp"
 #include "UI/ImGui/ImFontManager.hpp"
@@ -29,20 +29,20 @@ namespace GTS {
 
                 std::string Name = Player->GetName();
 
-                ImGui::PushFont(ImFontManager::GetFont("widgettitle"));
+                ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kWidgetTitle);
 
                 //Player Singleton -> Get Name;
                 ImGui::Text(str_toupper(Name).c_str());
 
                 ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 1.0f);
 
-                ImGui::PopFont();
+                ImFontManager::PopActiveFont();
 
-                ImGui::PushFont(ImFontManager::GetFont("widgetbody"));
+                ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kWidgetBody);
                 DrawGTSInfo(0, RE::PlayerCharacter::GetSingleton(), false);
 
                 ImGui::Spacing();
-                ImGui::PopFont();
+                ImFontManager::PopActiveFont();
             }
 
         }
@@ -81,17 +81,18 @@ namespace GTS {
             }
 
             ImGui::BeginChild(ActPtrUID, { DivWidth, 0 }, ImGuiChildFlags_AutoResizeY);
-
-            ImGui::PushFont(ImFontManager::GetFont("widgettitle"));
-            ImGui::Text(str_toupper(Name).c_str());
-            ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 1.0f);
-            ImGui::PopFont();
-            ImGui::PushFont(ImFontManager::GetFont("widgetbody"));
-
-            DrawGTSInfo(0, Follower, false);
-            ImGui::Spacing();
-
-            ImGui::PopFont();
+            {
+                ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kWidgetTitle);
+                ImGui::Text(str_toupper(Name).c_str());
+                ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 1.0f);
+                ImFontManager::PopActiveFont();
+            }
+            {
+                ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kWidgetBody);
+                DrawGTSInfo(0, Follower, false);
+                ImGui::Spacing();
+                ImFontManager::PopActiveFont();
+            }
             ImGui::EndChild();
         }
 

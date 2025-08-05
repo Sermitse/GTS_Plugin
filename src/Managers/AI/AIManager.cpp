@@ -228,7 +228,7 @@ namespace {
 
 	}
 
-	//Calculate which actions should be started based on the which ones can currently be started
+	//Calculate which actions should be started based on which ones can currently be started
 	ActionType CalculateProbability(const std::map<ActionType, int>& a_ValidActionMap) {
 
 		if (a_ValidActionMap.empty()) return ActionType::kNone;

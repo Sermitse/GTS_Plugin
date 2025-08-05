@@ -172,7 +172,7 @@ namespace GTS {
 	}
 
 	void Headtracking::SpineUpdate(Actor* me) {
-		auto profiler = Profilers::Profile("Headtracking: SpineUpdate");
+		GTS_PROFILE_SCOPE("Headtracking: SpineUpdate");
 		if (me->formID == 0x14) {
 			return;
 		}

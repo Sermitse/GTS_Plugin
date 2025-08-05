@@ -53,7 +53,7 @@ namespace {
 
     void RefreshDuration(Actor* giant) {
         if (Runtime::HasPerk(giant, "GTSPerkTinyCalamityAug")) {
-            AttributeManager::GetSingleton().OverrideSMTBonus(0.75f); // Reduce speed after crush
+            AttributeManager::OverrideSMTBonus(0.75f); // Reduce speed after crush
         } else {
             AttributeManager::OverrideSMTBonus(0.35f); // Reduce more speed after crush
         }
@@ -154,7 +154,7 @@ namespace GTS {
     }
 
     void TinyCalamity_ShrinkActor(Actor* giant, Actor* tiny, float shrink) {
-        auto profiler = Profilers::Profile("TinyCalamity: ShrinkActor");
+       GTS_PROFILE_SCOPE("TinyCalamity: ShrinkActor");
         if (HasSMT(giant)) {
             bool HasPerk = Runtime::HasPerk(giant, "GTSPerkTinyCalamitySizeSteal");
             float limit = Minimum_Actor_Scale;
@@ -257,7 +257,7 @@ namespace GTS {
             tiny->SetAlpha(0.0f); // Player can't be disintegrated, so we make player Invisible
         }
         
-        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Crush", giant, 1.0f, 1.0f, "NPC COM [COM ]");
+        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Crush", giant, 1.0f, "NPC COM [COM ]");
         giant->SetGraphVariableFloat("GiantessScale", OldScale);
         DecreaseShoutCooldown(giant);
 
@@ -283,7 +283,7 @@ namespace GTS {
         update_target_scale(tiny, -0.06f, SizeEffectType::kShrink);
         ModSizeExperience(giant, xp);
 
-        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Impact", giant, 1.0f, 1.0f, "NPC COM [COM ]");
+        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Impact", giant, 1.0f, "NPC COM [COM ]");
         shake_camera_at_node(giant, "NPC COM [COM ]", 16.0f, 1.0f);
         
         if (IsEssential(giant, tiny)) {
@@ -297,7 +297,7 @@ namespace GTS {
     }
 
     void TinyCalamity_SeekActors(Actor* giant) {
-        auto profiler = Profilers::Profile("TinyCalamity: SeekActors");
+       GTS_PROFILE_SCOPE("TinyCalamity: SeekActors");
         if (giant->formID == 0x14) {
             if (giant->AsActorState()->IsSprinting() && HasSMT(giant)) {
                 auto node = find_node(giant, "NPC Pelvis [Pelv]");
@@ -345,7 +345,7 @@ namespace GTS {
     }
 
     void TinyCalamity_CrushCheck(Actor* giant, Actor* tiny) {
-		auto profiler = Profilers::Profile("TinyCalamity: CrushCheck");
+		GTS_PROFILE_SCOPE("TinyCalamity: CrushCheck");
 		if (giant == tiny) {
 			return;
 		}

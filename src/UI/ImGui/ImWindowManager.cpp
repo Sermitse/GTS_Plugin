@@ -25,7 +25,7 @@ namespace GTS {
 
     void ImWindowManager::Update() {
 
-        std::ignore = Profilers::Profile("ImWindowManager Update");
+       GTS_PROFILE_SCOPE("ImWindowManager Update");
 
 		if (HasWindows()) [[likely]] {
 
@@ -46,7 +46,11 @@ namespace GTS {
             }
 
             if (ShowStack) {
-                ImGui::ShowStackToolWindow();
+                ImGui::ShowIDStackToolWindow();
+            }
+
+            if (ShowDemoWindow) {
+                ImGui::ShowDemoWindow();
             }
 
             //Things Like the inventory menu draw before our hudmenu hook, this check prevents the widgets from drawing ontop of some things.
@@ -71,17 +75,17 @@ namespace GTS {
                     //Set Entire Window Alpha
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, AlphaMult);
 
-                    ImGui::PushFont(ImFontManager::GetFont("text")); //Default font
+                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
 
                     ImGui::Begin(window->Name.c_str(), &window->Show, window->flags);
 
                     window->Draw();
 
-                    ImGui::End();
+                	ImGui::End();
 
                     ImGui::PopStyleColor();
                     ImGui::PopStyleVar();
-                    ImGui::PopFont();
+                    ImFontManager::PopActiveFont();
                 }
             }
         }

@@ -61,7 +61,7 @@ namespace GTS {
 
 	void TremorManager::OnImpact(const Impact& impact) { // This Tremor is used for regular footsteps, not custom GTS attacks
 		if (impact.actor) {
-			auto profiler = Profilers::Profile("TremorManager: OnImpact");
+			GTS_PROFILE_SCOPE("TremorManager: OnImpact");
 
 			auto actor = impact.actor;
 			if (actor) {

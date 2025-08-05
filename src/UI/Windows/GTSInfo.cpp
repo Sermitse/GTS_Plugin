@@ -1,6 +1,6 @@
 #include "UI/Windows/GTSInfo.hpp"
 #include "UI/ImGui/ImUtil.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "Managers/Attributes.hpp"
 #include "Managers/SpectatorManager.hpp"
 
@@ -131,7 +131,7 @@ namespace GTS {
             a_featureFlags = static_cast<GTSInfoFeatures>(UINT32_MAX);
         }
 
-        std::ignore = Profilers::Profile("UI: DrawGTSInfo");
+       GTS_PROFILE_SCOPE("UI: DrawGTSInfo");
 
         if (!CheckOK(a_Actor)) {
             ImUtil::TextShadow("Actor Invalid!");
@@ -144,9 +144,6 @@ namespace GTS {
             ImUtil::TextShadow("Actor Invalid!");
             return;
         }
-
-        const auto& AttributeManager = AttributeManager::GetSingleton();
-
 
         float CarryWeight;
         // When in god mode carry weight gets 100x'ed for some reason
@@ -178,10 +175,10 @@ namespace GTS {
 
         const float MaxScale = get_max_scale(a_Actor);
         const float AspectOfGTS = Ench_Aspect_GetPower(a_Actor) * 100.0f;
-        const float DamageResist = (1.0f - AttributeManager.GetAttributeBonus(a_Actor, ActorValue::kHealth)) * 100.f;
-        const float Speed = (AttributeManager.GetAttributeBonus(a_Actor, ActorValue::kSpeedMult) - 1.0f) * 100.f;
-        const float JumpHeight = (AttributeManager.GetAttributeBonus(a_Actor, ActorValue::kJumpingBonus) - 1.0f) * 100.0f;
-        const float Damage = (AttributeManager.GetAttributeBonus(a_Actor, ActorValue::kAttackDamageMult) - 1.0f) * 100.0f;
+        const float DamageResist = (1.0f - AttributeManager::GetAttributeBonus(a_Actor, ActorValue::kHealth)) * 100.f;
+        const float Speed = (AttributeManager::GetAttributeBonus(a_Actor, ActorValue::kSpeedMult) - 1.0f) * 100.f;
+        const float JumpHeight = (AttributeManager::GetAttributeBonus(a_Actor, ActorValue::kJumpingBonus) - 1.0f) * 100.0f;
+        const float Damage = (AttributeManager::GetAttributeBonus(a_Actor, ActorValue::kAttackDamageMult) - 1.0f) * 100.0f;
         const float ShrinkResistance = (1.0f - shrinkResist_PreCalc) * 100.f;
         const float OnTheEdge = (GetPerkBonus_OnTheEdge(a_Actor, 0.01f) - 1.0f) * 100.f;
         const float BonusHHDamage = (GetHighHeelsBonusDamage(a_Actor, true) - 1.0f) * 100.0f;

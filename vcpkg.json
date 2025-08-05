@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "gtsplugin",
-  "version-string": "3.0.0",
+  "version-string": "1.0.0",
   "description": "SKSE plugin for Size Matters",
   "features": {
     "plugin": {
@@ -12,10 +12,11 @@
         "glm",
         "toml11",
         "nlohmann-json",
-        "gluino",
         "magic-enum",
         "boost-pfr",
-        "lz4"
+        "lz4",
+        "detours",
+        "lunasvg"
       ]
     }
   },
@@ -24,10 +25,6 @@
     {
       "name": "toml11",
       "version": "4.3.0"
-    },
-    {
-      "name": "nlohmann-json",
-      "version": "3.11.3"
     },
     {
       "name": "magic-enum",

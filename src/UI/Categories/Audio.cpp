@@ -1,5 +1,5 @@
 #include "Audio.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
 
 
@@ -78,10 +78,17 @@ namespace GTS {
 
 	            ImUtil::CheckBox("Footstep Sounds",&Settings.bFootstepSounds,T0);
 	            ImUtil::CheckBox("Moans On Slow Growth",&Settings.bSlowGrowMoans, T1);
-				ImUtil::CheckBox("Moans and Laughs: Size Variance", &Settings.bMoanLaughSizeVariants, T2);
-				ImUtil::CheckBox("Moans and Laughs: Player Exclusive", &Settings.bMoanLaughPCExclusive, T3);
+
+				ImGui::Spacing();
+				ImGui::Text("Moans and Laughs");
+				ImUtil::CheckBox("Size Variance", &Settings.bMoanLaughSizeVariants, T2);
+				ImGui::SameLine();
+				ImUtil::CheckBox("Player Exclusive", &Settings.bMoanLaughPCExclusive, T3);
+
+				ImGui::Spacing();
 				ImUtil::CheckBox("Alternative High Heel Size Sounds", &Settings.bUseOtherHighHeelSet, T4);
 				ImUtil::CheckBox("Smoothly Blend between Footstep Sounds", &Settings.bBlendBetweenFootsteps, T5);
+
 	            ImGui::Spacing();
 	        }
 	    }
@@ -125,10 +132,15 @@ namespace GTS {
 
 		ImUtil_Unique{
 
-			const char* T0 = "Alter the voiceline pitch of NPCs when small/large.";
-			const char* T1 = "Change the maximum voice pitch, Higher values will lower the pitch when the actor is large.\n"
-							 "It's recommended to leave this at 1.0x. Anything above 1.2x doesn't sound good.";
-			
+			const char* TpLow = "The lowest voice pitch multipler when over 1.0x scale, lower values will lower the pitch when the actor is large(r).";
+
+			const char* TsMax = "Change the target scale at which the pitch will be the lowest.";
+
+			const char* TpHi = "The highest voice pitch multipler when under 1.0x scale, lower values will lower the pitch when the actor is smaller(r).";
+
+			const char* TsMin = "Change the target scale at which the pitch will be highest.";
+
+			const char* T0 = "Toggle wether the NPC voicelines should have their pitch modified based on size.";
 			const char* T2 = "Enable/Disable npc's making death sounds/screams when being shrunken to nothing.";
 			const char* T3 = "Enable/Disable npc's making death sounds/screams when being absorbed by breasts.";
 			const char* T4 = "Enable/Disable npc's making death sounds/screams when killed through Wrathful Calamity.";
@@ -137,20 +149,40 @@ namespace GTS {
 			const char* T7 = "Enable/Disable npc's making death sounds/screams when being eaten through vore.";
 
 			const char* T8 = "FallOff Range Multiplier for Moans and Laughs. Large values = can be heard from further dist";
-			const char* T9 = "Moan and Laugh volume multiplier";
+			const char* T9 = "Moan and Laugh volume multiplier.";
+			const char* T10 = "Toggle wether the GTS moan/laugh voice should have its pitch modified based on size.";
 			
 			if (ImGui::CollapsingHeader("Voice",ImUtil::HeaderFlagsDefaultOpen)) {
-				ImUtil::CheckBox("Enable Voice Override",&Settings.bEnableVoiceOverride, T0);
-				ImUtil::SliderF("Voice Pitch Max",&Settings.fMaxVoiceFrequency, 1.0f, 1.6f, T1, "%.2fx", !Settings.bEnableVoiceOverride);
-				
-				ImUtil::CheckBox("Shrink To Nothing: Mute Death Sound", &Settings.bMuteShrinkToNothingDeathScreams,T2);
-				ImUtil::CheckBox("Breast Absorption: Mute Death Sound", &Settings.bMuteBreastAbsorptionDeathScreams,T3);
-				ImUtil::CheckBox("Wrathful Calamity: Mute Death Sound", &Settings.bMuteFingerSnapDeathScreams,T4);
-				ImUtil::CheckBox("Hug Crush: Mute Death Sound", &Settings.bMuteHugCrushDeathScreams,T5);
-				ImUtil::CheckBox("Crush: Mute Death Sounds", &Settings.bMuteCrushDeathScreams, T6);
-				ImUtil::CheckBox("Vore: Mute Death Sound", &Settings.bMuteVoreDeathScreams,T7);
-				
+				ImUtil::CheckBox("Normal Voice Pitch Override",&Settings.bEnableVoicePitchOverrideN, T0);
+				ImUtil::CheckBox("GTS Voice Pitch Override", &Settings.bEnableVoicePitchOverrideG, T10);
 
+				const bool Enable = !Settings.bEnableVoicePitchOverrideN && !Settings.bEnableVoicePitchOverrideG;
+
+				ImUtil::SliderF("Lowest Pitch", &Settings.fMinVoiceFrequency, 0.65f, 1.0f, TpLow, "%.4fx", Enable);
+				ImUtil::SliderF("Lowest Pitch At Scale", &Settings.fTargetPitchAtScaleMax, 1.0f, 25.0f, TsMax, "At %.1fx", Enable);
+				ImGui::Spacing();
+				ImUtil::SliderF("Highest Pitch", &Settings.fMaxVoiceFrequency, 1.0f, 1.6f, TpHi, "%.4fx", Enable);
+				ImUtil::SliderF("Highest Pitch At Scale", &Settings.fTargetPitchAtScaleMin, 0.10f, 1.0f, TsMin, "At %.2fx", Enable);
+
+				ImGui::Spacing();
+
+				ImGui::Text("Mute Death Sounds");
+				ImUtil::CheckBox("Shrink To Nothing", &Settings.bMuteShrinkToNothingDeathScreams,T2);
+				ImGui::SameLine();
+				//Store x-Pos of 2nd element
+				auto FirstPos = ImGui::GetCursorPosX();
+
+				ImUtil::CheckBox("Breast Absorption", &Settings.bMuteBreastAbsorptionDeathScreams,T3);
+
+				ImUtil::CheckBox("Wrathful Calamity", &Settings.bMuteFingerSnapDeathScreams,T4);
+				ImGui::SameLine(FirstPos);
+				ImUtil::CheckBox("Hug Crush", &Settings.bMuteHugCrushDeathScreams,T5);
+
+				ImUtil::CheckBox("Crush", &Settings.bMuteCrushDeathScreams, T6);
+				ImGui::SameLine(FirstPos);
+				ImUtil::CheckBox("Vore", &Settings.bMuteVoreDeathScreams,T7);
+				
+				ImGui::Spacing();
 				ImUtil::SliderF("Moan/Laugh Falloff", &Settings.fFallOffMultiplier, 0.02f, 6.0f, T8, "%.2fx");
 				ImUtil::SliderF("Moan/Laugh Volume", &Settings.fVoiceVolumeMult, 0.02f, 1.0f, T9, "%.2fx");
 

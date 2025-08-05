@@ -109,7 +109,7 @@ namespace GTS {
 	}
 
 	void CrushManager::Update() {
-		auto profiler = Profilers::Profile("CrushManager: Update");
+		GTS_PROFILE_SCOPE("CrushManager: Update");
 		for (auto &[tinyId, data]: this->data) {
 			auto tiny = TESForm::LookupByID<Actor>(tinyId);
 			auto giantHandle = data.giant;

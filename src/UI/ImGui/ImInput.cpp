@@ -1,9 +1,23 @@
 #include "UI/ImGui/ImInput.hpp"
-
 #include "UI/UIManager.hpp"
 #include "UI/ImGui/ImWindowManager.hpp"
 
 namespace GTS {
+
+
+	void ImInput::UnstickKeys() {
+
+		ImGuiIO& io = ImGui::GetIO();
+
+		if ((io.KeysData[ImGuiKey_LeftShift].Down && !(GetAsyncKeyState(VK_LSHIFT) & 0x8000)) || (io.KeysData[ImGuiKey_RightShift].Down && !(GetAsyncKeyState(VK_RSHIFT) & 0x8000))) {
+			io.AddKeyEvent(ImGuiKey_LeftShift, false);
+			io.AddKeyEvent(ImGuiKey_RightShift, false);
+		}
+
+		if (io.KeysData[ImGuiKey_Tab].Down && !(GetAsyncKeyState(VK_TAB) & 0x8000)) {
+			io.AddKeyEvent(ImGuiKey_Tab, false);
+		}
+	}
 
 	void ImInput::ProcessInputEventQueue() {
 
@@ -20,7 +34,7 @@ namespace GTS {
 
 			if (event.device == RE::INPUT_DEVICE::kMouse) {
 				
-				if (event.keyCode > 7) {  // middle scroll
+				if (event.keyCode > 7) {
 					io.AddMouseWheelEvent(0, event.value * (event.keyCode == 8 ? 1 : -1));
 				}
 				else {
@@ -70,23 +84,8 @@ namespace GTS {
 				}
 			}
 		}
+
 		KeyEventQueue.clear();
+		UnstickKeys();
 	}
-
-	void ImInput::ReleaseStuckKeys() {
-
-		BYTE keysToRelease[] = { VK_MENU, VK_TAB, VK_CONTROL, VK_SHIFT };
-
-		INPUT input = { 0 };
-		input.type = INPUT_KEYBOARD;
-		input.ki.time = 0;
-		input.ki.dwExtraInfo = 0;
-
-		for (unsigned char i : keysToRelease) {
-			input.ki.wVk = i;
-			input.ki.dwFlags = KEYEVENTF_KEYUP;
-			SendInput(1, &input, sizeof(INPUT));
-		}
-	}
-
 }

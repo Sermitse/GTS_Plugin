@@ -201,7 +201,7 @@ namespace {
 		auto tinies = Animation_TinyCalamity::GetShrinkActors(&data.giant);
 		for (auto tiny: tinies) {
 			if (tiny) {
-				Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_SpawnRune", tiny, 1.0f, 1.0f, "NPC Root [Root]");
+				Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_SpawnRune", tiny, 1.0f, "NPC Root [Root]");
 				SpawnCustomParticle(tiny, ParticleType::Red, NiPoint3(), "NPC Root [Root]", 0.75f);
 				SpawnRuneOnTiny(&data.giant, 1.0f);
 			}
@@ -226,7 +226,7 @@ namespace {
     }
 
 	void GTS_LC_Liftup(AnimationEventData& data) {
-		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_RuneReady", &data.giant, 1.0f, 1.0f, "NPC R Hand [RHnd]");
+		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_RuneReady", &data.giant, 1.0f, "NPC R Hand [RHnd]");
 		Task_FacialEmotionTask_Anger(&data.giant, 1.25f + RandomFloat(0.01f, 0.25f), "LiftUpSmile", 0.125f);
 		auto tinies = Animation_TinyCalamity::GetShrinkActors(&data.giant);
 		for (auto tiny: tinies) { 
@@ -269,7 +269,7 @@ namespace {
 			Sound_PlayLaughs(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
 		}
 		
-		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_FingerSnap", &data.giant, 1.0f, 1.0f, "NPC R Hand [RHnd]");
+		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_FingerSnap", &data.giant, 1.0f, "NPC R Hand [RHnd]");
 		auto tinies = Animation_TinyCalamity::GetShrinkActors(&data.giant);
 		Rumbling::Once("FingerSnap", &data.giant, 7.25f, 0.025f, true);
 		for (auto tiny: tinies) {

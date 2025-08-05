@@ -39,19 +39,21 @@ namespace GTS {
 
 	void InputManager::Init() {
 
-		Ready.store(false);
+		auto& m = GetSingleton();
+
+		m.Ready.store(false);
 
 		try {
-			ManagedTriggers = LoadInputEvents();
+			m.ManagedTriggers = LoadInputEvents();
 		} 
 		catch (exception e) {
 			log::error("Error Creating ManagedInputEvents: {}", e.what());
 			return;
 		} 
 
-		log::info("Loaded {} key bindings", ManagedTriggers.size());
+		log::info("Loaded {} key bindings", m.ManagedTriggers.size());
 		
-		Ready.store(true);
+		m.Ready.store(true);
 	}
 
 	void InputManager::ProcessEvents(InputEvent** a_event) {
@@ -73,7 +75,7 @@ namespace GTS {
 			return;
 		}
 
-		std::ignore = Profilers::Profile("InputManager: ProcessEvents");
+		GTS_PROFILE_SCOPE("InputManager: ProcessEvents");
 
 		//Get Current InputKeys
 		for (auto eventIt = *a_event; eventIt; eventIt = eventIt->next) {

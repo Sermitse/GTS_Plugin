@@ -1,4 +1,4 @@
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/Windows/WindowStatus.hpp"
 #include "UI/Windows/WindowSettings.hpp"
 #include "UI/Windows/GTSInfo.hpp"
@@ -191,7 +191,7 @@ namespace GTS {
         {
             if (auto Player = RE::PlayerCharacter::GetSingleton()) {
                 //Get Actor ptr.
-                ImGui::PushFont(ImFontManager::GetFont("widgetbody"));
+                ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kWidgetBody);
 
                 for (const auto Teamate : FindTeammates()) {
                     if (const auto ActorData = Persistent::GetSingleton().GetData(Teamate)) {
@@ -205,7 +205,7 @@ namespace GTS {
                 CheckFade(Player);
                 DrawGTSInfo(Config::GetUI().StatusWindow.iFlags, Player, true);
 
-                ImGui::PopFont();
+                ImFontManager::PopActiveFont();
             }
         }
 

@@ -51,7 +51,7 @@ namespace GTS {
 	}
 
 	void mod_target_scale(Actor& actor, float amt) {
-        auto profiler = Profilers::Profile("Scale: ModTargetScale");
+       GTS_PROFILE_SCOPE("Scale: ModTargetScale");
         auto actor_data = Persistent::GetSingleton().GetData(&actor);
         if (actor_data) {
             float natural_scale = get_natural_scale(&actor, true);

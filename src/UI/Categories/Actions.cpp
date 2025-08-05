@@ -1,6 +1,9 @@
 #include "Actions.hpp"
+
+#include "Config/SettingsModHandler.hpp"
+
 #include "UI/Categories/General.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
 
 namespace GTS {
@@ -14,18 +17,15 @@ namespace GTS {
 			const char* T0 = "Allow adjustments to the field of view during certain actions (e.g., Second Wind).";
 			const char* T1 = "Track biped skeleton bone positions during certain animated actions.";
 
-			if (ImGui::CollapsingHeader("Misc"), ImUtil::HeaderFlagsDefaultOpen) {
+			if (ImGui::CollapsingHeader("Misc", ImUtil::HeaderFlagsDefaultOpen)) {
+
 				ImUtil::CheckBox("Enable FOV Edits", &SGeneral.bEnableFOVEdits, T0);
 				if (ImUtil::CheckBox("Track Bones During Actions", &SGeneral.bTrackBonesDuringAnim, T1)) {
-					if (!SGeneral.bTrackBonesDuringAnim) {
-						auto actors = find_actors();
-						for (auto actor : actors) {
-							if (actor) {
-								ResetCameraTracking(actor);
-							}
-						}
-					}
+                    GTS::HandleCameraTrackingReset();
 				}
+
+                ImGui::Spacing();
+
 			}
 		}
 
@@ -73,17 +73,23 @@ namespace GTS {
                     }
                 }
 
-                ImUtil::CheckBox("Player Crawling", &Persi.EnableCrawlPlayer.value, T1, PlayerBusy);
+                ImGui::Text("Replace Sneaking With Crawling");
+                ImUtil::CheckBox("Player##CrawlToggle", &Persi.EnableCrawlPlayer.value, T1, PlayerBusy);
                 ImGui::SameLine();
-                ImUtil::CheckBox("Follower Crawling", &Persi.EnableCrawlFollower.value, T2, FollowersBusy);
+                ImUtil::CheckBox("Follower##CrawlToggle", &Persi.EnableCrawlFollower.value, T2, FollowersBusy);
 
-                ImUtil::CheckBox("Player Sneak Transitions", &SGameplay.ActionSettings.bSneakTransitions, T3);
+                ImGui::Spacing();
+
+                ImGui::Text("Sneak Transition Animations");
+                ImUtil::CheckBox("Player##STransToggle", &SGameplay.ActionSettings.bSneakTransitions, T3);
                 ImGui::SameLine();
-                ImUtil::CheckBox("Follower Sneak Transitions", &SGameplay.ActionSettings.bSneakTransitionsOther, T3);
+                ImUtil::CheckBox("Follower##STransToggle", &SGameplay.ActionSettings.bSneakTransitionsOther, T3);
 
                 ImGui::Spacing();
             }
         }
+
+        //----- Stomps/Kicks
 
         ImUtil_Unique {
 
@@ -96,23 +102,21 @@ namespace GTS {
             const char* T3 = "Toggle whether actions like kicks ragdoll the player, if done by followers";
            
 
-           if (ImGui::CollapsingHeader("Stomps/Kicks", ImUtil::HeaderFlagsDefaultOpen)) {
+			if (ImGui::CollapsingHeader("Stomps/Kicks", ImUtil::HeaderFlagsDefaultOpen)) {
 
-               ImUtil::SliderF("Foot Grind On Understomp Chance", &SGameplay.ActionSettings.fPlayerUnderstompGrindChance, 0.0f, 100.0f, T0, "%.0f%%");
-               ImUtil::CheckBox("Alternative Stomp Player", &SGameplay.ActionSettings.bStompAlternative, T1);
-               ImGui::SameLine();
-               ImUtil::CheckBox("Alternative Stomp NPCs", &SGameplay.ActionSettings.bStomAlternativeOther, T1);
-               ImUtil::CheckBox("Follower Kicks Affect Player", &SGameplay.ActionSettings.bEnablePlayerPushBack, T3);
-               ImGui::Spacing();
-           }
+			   ImUtil::SliderF("Foot Grind On Understomp Chance", &SGameplay.ActionSettings.fPlayerUnderstompGrindChance, 0.0f, 100.0f, T0, "%.0f%%");
+			   ImUtil::CheckBox("Alternative Stomp Player", &SGameplay.ActionSettings.bStompAlternative, T1);
+			   ImGui::SameLine();
+			   ImUtil::CheckBox("Alternative Stomp NPCs", &SGameplay.ActionSettings.bStomAlternativeOther, T1);
+			   ImUtil::CheckBox("Follower Kicks Affect Player", &SGameplay.ActionSettings.bEnablePlayerPushBack, T3);
+			   ImGui::Spacing();
+			}
         }
-
-
 	}
 
 	void CategoryActions::DrawRight() {
 
-
+        //----- Vore Settings
 
         ImUtil_Unique{
 
@@ -139,52 +143,61 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique{
-            const char* T1 = "Toggle whether initial grab is hostile\n"
-        					 "- true = it will start combat on grab\n"
-                             "- false = npc won't start combat";
-			const char* T2 = "Toggle whether non lethal hug actions\n"
-        					 "like Hug-Heal or Hug-Shrink should start combat.";
+		//----- Grab Settings
 
-			const char* T3 = "Toggle whether after hug healing to full HP\n"
-        					 "The held actor should be let go.";
+        ImUtil_Unique {
+
+            const char* T1 = "Toggle whether initial grab is hostile\n"
+                             "- true = it will start combat on grab\n"
+                             "- false = npc won't start combat";
+            
+
+            const char* T2 = "Modify the placement of actors during Kiss Vore.\n"
+                "Offset is affected by size difference.";
+
             if (ImGui::CollapsingHeader("Grab Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
                 ImUtil::CheckBox("Initial Grab is hostile", &SGameplay.ActionSettings.bGrabStartIsHostile, T1);
 
-            	ImGui::Spacing();
-            }
-            if (ImGui::CollapsingHeader("Hug Settings", ImUtil::HeaderFlagsDefaultOpen)) {
+                ImGui::Spacing();
 
-                ImUtil::CheckBox("Non Lethal Hugs Are Hostile", &SGameplay.ActionSettings.bNonLethalHugsHostile, T2);
-                ImUtil::CheckBox("Hug Heal Stops At Full HP (Player & Followers)", &SGameplay.ActionSettings.bHugsStopAtFullHP, T3);
-
-            	ImGui::Spacing();
-            }
-        }
-
-        ImUtil_Unique{
-
-            if (ImGui::CollapsingHeader("Cleavage Offsets", ImUtil::HeaderFlagsDefaultOpen)) {
-
-                const char* T1 = "Modify the placement of actors during cleavage actions.";
-
-                ImUtil::SliderF("Forward/Back", &SGameplay.ActionSettings.f2CleavageOffset.at(1), -15.0f, 15.0f, T1, "%.2f");
-                ImUtil::SliderF("Up/Down", &SGameplay.ActionSettings.f2CleavageOffset.at(0), -15.0f, 15.0f, T1, "%.2f");
+                ImGui::Text("Grab-Play: Kiss Vore Offsets");
+                ImUtil::SliderF("Up/Down", &SGameplay.ActionSettings.fGrabPlayVoreOffset_Z, -15.0f, 15.0f, T2, "%.2f");
 
                 ImGui::Spacing();
             }
-            
+
+        }
+
+        //----- Hug Settings
+
+        ImUtil_Unique {
+
+            const char* T0 = "Toggle whether non lethal hug actions\n"
+        					 "like Hug-Heal or Hug-Shrink should start combat.";
+
+            const char* T1 = "Toggle whether after hug healing to full HP\n"
+                             "The held actor should be let go.\n"
+                             "Applies only to the player/followers.";
+
+            if (ImGui::CollapsingHeader("Hug Settings", ImUtil::HeaderFlagsDefaultOpen)) {
+
+                ImUtil::CheckBox("Non Lethal Hugs Are Hostile", &SGameplay.ActionSettings.bNonLethalHugsHostile, T0);
+                ImGui::SameLine();
+                ImUtil::CheckBox("Hug Heal Stops At Full HP", &SGameplay.ActionSettings.bHugsStopAtFullHP, T1);
+
+            	ImGui::Spacing();
+            }
         }
 
         ImUtil_Unique{
 
-            if (ImGui::CollapsingHeader("Grab-Play: Kiss Vore Offsets", ImUtil::HeaderFlagsDefaultOpen)) {
+            if (ImGui::CollapsingHeader("Cleavage Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                const char* T1 = "Modify the placement of actors during Kiss Vore.\n"
-                "Offset is affected by size difference.";
+                const char* T0 = "Modify the placement of actors during cleavage actions.\n"
+								 "Up/Down | Forward/Back";
 
-                ImUtil::SliderF("Up/Down", &SGameplay.ActionSettings.fGrabPlayVoreOffset_Z, -15.0f, 15.0f, T1, "%.2f");
+                ImUtil::SliderF2("Placement Offset", &SGameplay.ActionSettings.f2CleavageOffset.at(0), -15.0f, 15.0f, T0, "%.2f");
 
                 ImGui::Spacing();
             }

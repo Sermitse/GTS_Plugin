@@ -17,10 +17,10 @@ namespace GTS {
 			return;
 		}
 
-		RaceMenuInterface = static_cast<SKEE::IBodyMorphInterface*>(msg.interfaceMap->QueryInterface("BodyMorph")); // NOLINT(*-pro-type-static-cast-downcast)
+		RaceMenuInterface = static_cast<SKEE::IBodyMorphInterface*>(msg.interfaceMap->QueryInterface("BodyMorph"));
 
 		if (!RaceMenuInterface) {
-			logger::error("Couldn't get SKEE interface.");
+			logger::warn("Couldn't get SKEE interface.");
 			return;
 		}
 

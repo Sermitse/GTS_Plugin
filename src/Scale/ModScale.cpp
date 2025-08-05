@@ -236,7 +236,7 @@ namespace GTS {
 	}
 
 	float get_npcparentnode_scale(Actor* actor) {
-		auto profiler = Profilers::Profile("Modscale: GetNPCParentScale");
+		GTS_PROFILE_SCOPE("Modscale: GetNPCParentScale");
 		// This will get the scale of the root npc node
 		// this is also called the race scale, since it is
 		// the racemenu scale
@@ -291,7 +291,7 @@ namespace GTS {
 	}
 
 	float game_get_scale_overrides(Actor* actor) { // Obtain RaceMenu * GetScale values of actor
-		auto profiler = Profilers::Profile("Modscale: GameGetScaleOverrides");
+		GTS_PROFILE_SCOPE("Modscale: GameGetScaleOverrides");
 		//log::info("Getting Natural Scale of {}: {}", actor->GetDisplayFullName(), get_natural_scale(actor));
 		//log::info("Game Override Result for {}: {}", actor->GetDisplayFullName(), game_getactorscale(actor) * get_natural_scale(actor));
 		return get_natural_scale(actor, true);

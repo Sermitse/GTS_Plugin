@@ -1,7 +1,7 @@
 #pragma once
 
 #include "UI/ImGUI/ImCategory.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 
 namespace GTS {
 

@@ -77,9 +77,9 @@ enum class SelectedGameMode : uint8_t {
     kCombatGrowth,
     kSlowCombatGrowth,
     kCurseOfGrowth,
-    kCurseOfTheGiantess,        //<------- TODO Implement these... AKA: Just take them from my dll
+    kCurseOfTheGiantess,
     kCurseOfDiminishing,
-    kSizeLocked //<-------------- Combines both
+    kSizeLocked 
 };
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -312,15 +312,13 @@ TOML_SERIALIZABLE(SettingsHidden);
 struct SettingsAdvanced {
     // Logging levels
     std::string sLogLevel = "err";
-    std::string sFlushLevel = "trace";
 
     // Toggles for advanced features
-    bool bProfile = false;
     bool bShowOverlay = false;
     bool bDamageAV = true;
     bool bCooldowns = true;
+    bool bEnforceUIClamps = true;
     bool bPauseGame = true;
-    bool bHideLoadButton = true;
     bool bEnlargeBreastsOnAbsorption = false;
     bool bPlayerAI = false;
     float fSGTMMult = 0.5f;
@@ -328,7 +326,9 @@ struct SettingsAdvanced {
     float fAnimSpeedAdjMultTeammate = 1.0f;
     bool bEnableExperimentalDevourmentAI = false;
     float fExperimentalDevourmentAIProb = 25.0f;
-
+    std::array<float, 5> fAnimSpeedFormula = { 0.142f, 0.82f, 1.90f, 1.0f, 0.0f };
+    bool bGTSAnimsFullSpeed = false;
+    float fAnimspeedLowestBoundAllowed = 0.01f;
 };
 TOML_SERIALIZABLE(SettingsAdvanced);
 
@@ -343,7 +343,8 @@ struct SettingsAudio {
 
     // Voice settings
     bool bSlowGrowMoans = true;
-    bool bEnableVoiceOverride = true;
+    bool bEnableVoicePitchOverrideN = true;
+    bool bEnableVoicePitchOverrideG = false;
     bool bMuteVoreDeathScreams = true;
     bool bMuteHugCrushDeathScreams = true;
     bool bMuteFingerSnapDeathScreams = true;
@@ -356,8 +357,12 @@ struct SettingsAudio {
     bool bMoanLaughPCExclusive = false;
     bool bUseOtherHighHeelSet = true;
     bool bBlendBetweenFootsteps = false;
-    
-    float fMaxVoiceFrequency = 1.0f;
+
+    float fMaxVoiceFrequency = 1.45f; // > Higher Value means Higher Freq -> Higher Voice
+    float fMinVoiceFrequency = 0.8355f; // > Lower Value means Lower Freq -> Lower Voice
+
+    float fTargetPitchAtScaleMax = 8.0f;
+    float fTargetPitchAtScaleMin = 0.2f;
 
     float fFallOffMultiplier = 1.0f;
     float fVoiceVolumeMult = 1.0f;
@@ -556,13 +561,12 @@ struct SettingsUI {
     float fScale = 1.0f;
     float fItemWidth = 0.55f;
     std::array<float, 3> f3AccentColor = { 0.81834f, 0.797923f, 0.834302f }; // Default Menu UI Color
+
     // Red: 0.273f, 0.0106f, 0.0106f
     // White: 0.81834f, 0.797923f, 0.834302f
     //std::array<float, 3> f3AccentColor = {0.486f, 0.431f, 0.529f};
     std::array<float, 3> StatusAccentColor =        {  0.273f, 0.0106f, 0.0106f }; // Default Status Bar Color
     std::array<float, 3> UnderStompAccentColor =    {  0.273f, 0.0106f, 0.0106f }; // Default Understomp Bar Color
-
-    bool bEnableAutoSaveOnClose = true;
 
     // Window configurations
     WindowConfSettings SettingsWindow {};

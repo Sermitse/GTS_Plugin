@@ -30,7 +30,7 @@ namespace GTS {
 
 	void StompManager::PlayStompSounds(Actor* giant, float modifier, std::string_view find_foot, FootEvent foot_kind, float scale, bool Strong) {
 		//https://www.desmos.com/calculator/wh0vwgljfl
-		auto profiler = Profilers::Profile("StompManager: PlayHighHeelSounds");
+		GTS_PROFILE_SCOPE("StompManager: PlayHighHeelSounds");
 		if (giant) {
 			modifier *= Volume_Multiply_Function(giant, foot_kind);
 			if (giant->formID == 0x14 && HasSMT(giant)) {

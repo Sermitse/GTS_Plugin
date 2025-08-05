@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "Config/Config.hpp"
 
 namespace GTS {
@@ -38,7 +38,7 @@ namespace GTS {
             return Settings.fScale;
         }
 
-        inline void LoadStyle(){
+        inline void LoadStyle() const {
             SetupStyleImpl();
         }
 

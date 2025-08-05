@@ -1,5 +1,5 @@
 #include "UI/Categories/AI.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
 #include "UI/Windows/GTSInfo.hpp"
 

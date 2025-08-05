@@ -39,14 +39,14 @@ namespace {
 	constexpr float EPS = 1e-4f;
 	constexpr float DegToRadConst = 0.017453292f;
 
-	constexpr SoftPotential getspeed {
-		// https://www.desmos.com/calculator/vyofjrqmrn
-		.k = 0.142f, 
-		.n = 0.82f,
-		.s = 1.90f, 
-		.o = 1.0f,
-		.a = 0.0f,  //Default is 0
-	};
+	//constexpr SoftPotential getspeed {
+	//	// https://www.desmos.com/calculator/vyofjrqmrn
+	//	.k = 0.142f, 
+	//	.n = 0.82f,
+	//	.s = 1.90f, 
+	//	.o = 1.0f,
+	//	.a = 0.0f,  //Default is 0
+	//};
 
 	const std::vector<std::string> disarm_nodes = {
 		"WeaponDagger",
@@ -113,7 +113,7 @@ namespace {
 			StaggerActor_Around(giantref, 48.0f, false);
 
 			auto node = find_node(giantref, "NPC Root [Root]");
-			Runtime::PlaySoundAtNode("GTSSoundMagicBreak", giantref, 1.0f, 1.0f, "NPC COM [COM ]");
+			Runtime::PlaySoundAtNode("GTSSoundMagicBreak", giantref, 1.0f, "NPC COM [COM ]");
 			
 			if (node) {
 				NiPoint3 position = node->world.translate;
@@ -490,7 +490,7 @@ namespace GTS {
 
 	bool IsFemale(Actor* a_Actor, bool AllowOverride) {
 		if (AllowOverride) {
-			auto profiler = Profilers::Profile("ActorUtils: IsFemale");
+			GTS_PROFILE_SCOPE("ActorUtils: IsFemale");
 
 			if (Config::GetGeneral().bEnableMales) {
 				return true;
@@ -851,11 +851,11 @@ namespace GTS {
 	}
 
 	float GetDamageResistance(Actor* actor) {
-		return AttributeManager::GetSingleton().GetAttributeBonus(actor, ActorValue::kHealth);
+		return AttributeManager::GetAttributeBonus(actor, ActorValue::kHealth);
 	}
 
 	float GetDamageMultiplier(Actor* actor) {
-		return AttributeManager::GetSingleton().GetAttributeBonus(actor, ActorValue::kAttackDamageMult);
+		return AttributeManager::GetAttributeBonus(actor, ActorValue::kAttackDamageMult);
 	}
 
 	float GetSizeDifference(Actor* giant, Actor* tiny, SizeType Type, bool Check_SMT, bool HH) {
@@ -931,7 +931,7 @@ namespace GTS {
 	}
 
 	float GetSizeFromBoundingBox(Actor* tiny) {
-		auto profiler = Profilers::Profile("ActorUtils: GetSizeFromBoundingBox");
+		GTS_PROFILE_SCOPE("ActorUtils: GetSizeFromBoundingBox");
 		float sc = get_bounding_box_to_mult(tiny);
 		return sc;
 	}
@@ -983,7 +983,7 @@ namespace GTS {
 			float giantScale = get_visual_scale(giant);
 			auto huggedActor = HugShrink::GetHuggiesActor(giant);
 
-			const float BASE_DISTANCE = 124.0f;
+			constexpr float BASE_DISTANCE = 124.0f;
 			float CheckDistance = BASE_DISTANCE * giantScale;
 
 			if (IsCrawling(giant)) {
@@ -1466,7 +1466,7 @@ namespace GTS {
 	}
 
 	float GetHighHeelsBonusDamage(Actor* actor, bool multiply, float adjust) {
-		auto profiler = Profilers::Profile("ActorUtils: GetHighHeelsBonusDamage");
+		GTS_PROFILE_SCOPE("ActorUtils: GetHighHeelsBonusDamage");
 		float value;
 		float hh = 0.0f;
 
@@ -1484,7 +1484,7 @@ namespace GTS {
 	}
 
 	float get_distance_to_actor(Actor* receiver, Actor* target) {
-		auto profiler = Profilers::Profile("ActorUtils: GetDistanceToActor");
+		GTS_PROFILE_SCOPE("ActorUtils: GetDistanceToActor");
 		if (target) {
 			auto point_a = receiver->GetPosition();
 			auto point_b = target->GetPosition();
@@ -1572,7 +1572,7 @@ namespace GTS {
 	}
 
 	bool IsEquipBusy(Actor* actor) {
-		auto profiler = Profilers::Profile("ActorUtils: IsEquipBusy");
+		GTS_PROFILE_SCOPE("ActorUtils: IsEquipBusy");
 		int State;
 		actor->GetGraphVariableInt("currentDefaultState", State);
 		if (State >= 10 && State <= 20) {
@@ -1738,7 +1738,7 @@ namespace GTS {
 	}
 
 	bool IsGtsBusy(Actor* actor) {
-		auto profiler = Profilers::Profile("ActorUtils: IsGtsBusy"); 
+		GTS_PROFILE_SCOPE("ActorUtils: IsGtsBusy"); 
 		bool GTSBusy = false;
 		actor->GetGraphVariableBool("GTS_Busy", GTSBusy);
 
@@ -2197,20 +2197,41 @@ namespace GTS {
 	}
 
 	float GetAnimationSlowdown(Actor* giant) {
+
 		if (giant) {
-			if (Config::GetGeneral().bDynamicAnimspeed) {
+
+			auto& Gen = Config::GetGeneral();
+			auto& Adv = Config::GetAdvanced();
+
+			if (Gen.bDynamicAnimspeed) {
+
 				if (giant->AsActorState()->GetSitSleepState() != SIT_SLEEP_STATE::kNormal){
 					return 1.0f; // For some reason makes furniture angles funny if there's anim slowdown. So we prevent that
 				}
 
-				float scale = get_visual_scale(giant);
-				float speedmultcalc = soft_core(scale, getspeed);
-				speedmultcalc = std::clamp(speedmultcalc, 0.01f, 1.0f);
+				const auto SpeedVars = Adv.fAnimSpeedFormula;
 
-				if (giant->formID == 0x14)
-					return Config::GetAdvanced().fAnimSpeedAdjMultPlayer * speedmultcalc;
-				if (IsTeammate(giant))
-					return Config::GetAdvanced().fAnimSpeedAdjMultTeammate * speedmultcalc;
+				const SoftPotential Speed = {
+					SpeedVars[0],
+					SpeedVars[1],
+					SpeedVars[2],
+					SpeedVars[3],
+					SpeedVars[4]
+				};
+
+				float scale = get_visual_scale(giant);
+				float speedmultcalc = soft_core(scale, Speed);
+				speedmultcalc = std::clamp(speedmultcalc, Adv.fAnimspeedLowestBoundAllowed, 1.0f);
+
+				if (IsGtsBusy(giant) && Adv.bGTSAnimsFullSpeed) {
+					return 1.0f;
+				}
+				else if (giant->formID == 0x14) {
+					return Adv.fAnimSpeedAdjMultPlayer * speedmultcalc;
+				}
+				else if (IsTeammate(giant)) {
+					return Adv.fAnimSpeedAdjMultTeammate * speedmultcalc;
+				}
 
 				return speedmultcalc;
 			}
@@ -2412,7 +2433,7 @@ namespace GTS {
 					}
 				}
 
-				float Time = (1.0f / Time::GetTimeMultiplier());
+				float Time = (1.0f / Time::GGTM());
 				ApplyManualHavokImpulse(tiny, direction.x, direction.y, direction.z, speed * 2.0f * power * Time);
 
 				return false;
@@ -2629,7 +2650,7 @@ namespace GTS {
 		const float BASE_DISTANCE = 84.0f;
 		float CheckDistance = BASE_DISTANCE*giantScale*radius;
 
-		Runtime::PlaySoundAtNode("GTSSoundShrinkOutburst", giant, explosion, 1.0f, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode("GTSSoundShrinkOutburst", giant, explosion, "NPC Pelvis [Pelv]");
 		Rumbling::For("ShrinkOutburst", giant, Rumble_Misc_ShrinkOutburst, 0.15f, "NPC COM [COM ]", 0.60f, 0.0f);
 
 		SpawnParticle(giant, 6.00f, "GTS/Shouts/ShrinkOutburst.nif", NiMatrix3(), NodePosition, giantScale*explosion*3.0f, 7, nullptr); // Spawn effect
@@ -2673,7 +2694,7 @@ namespace GTS {
 				float scale = get_visual_scale(actor);
 
 				SpawnCustomParticle(actor, ParticleType::Red, NiPoint3(), "NPC Root [Root]", scale * 1.15f);
-				Runtime::PlaySoundAtNode("GTSSoundMagicProctectTinies", actor, 1.0f, 1.0f, "NPC COM [COM ]");
+				Runtime::PlaySoundAtNode("GTSSoundMagicProctectTinies", actor, 1.0f, "NPC COM [COM ]");
 
 				std::string name_com = std::format("Protect_{}", actor->formID);
 				std::string name_root = std::format("Protect_Root_{}", actor->formID);
@@ -2734,7 +2755,7 @@ namespace GTS {
 			static Timer Cooldown = Timer(1.2);
 			if (Cooldown.ShouldRun()) {
 				float falloff = 0.13f * get_visual_scale(actor);
-				Runtime::PlaySoundAtNode_FallOff("GTSSoundFail", actor, 0.4f, 1.0f, "NPC COM [COM ]", falloff);
+				Runtime::PlaySoundAtNode_FallOff("GTSSoundFail", actor, 0.4f, "NPC COM [COM ]", falloff);
 				Notify(message);
 			}
 		}
@@ -2996,7 +3017,6 @@ namespace GTS {
 
 		ModSizeExperience(player, 0.45f);
 
-		
 		Notify("You feel like something is filling you");
 		BonusSize.value += size_increase * size_boost;
 
@@ -3275,7 +3295,7 @@ namespace GTS {
 	}
 
 	void FixAnimationsAndCamera() { // Fixes Animations for GTS Grab Actions and resets the bone tracking on camera
-		auto profiler = Profilers::Profile("ActorUtils: FixAnimationsAndCamera");
+		GTS_PROFILE_SCOPE("ActorUtils: FixAnimationsAndCamera");
 
 		for (auto giant: find_actors()) {
 			if (!giant) {
@@ -3646,46 +3666,40 @@ namespace GTS {
 		return a_actor->formID == 0x14 && IsFirstPerson();
 	}
 
-	void ForEachReferenceInRange_Custom(RE::TESObjectREFR* origin, float radius, std::function<RE::BSContainer::ForEachResult(RE::TESObjectREFR& ref)> callback) {
-		if (REL::Module::IsAE()) { // Since commonlib didn't fix this function crashing on AE, we have to create fixed function ourselves
-			if (origin && radius > 0.0f) {
-				const auto originPos = origin->GetPosition();
-				auto* tesSingleton = RE::TES::GetSingleton();
-				auto* interiorCell = tesSingleton->interiorCell;
-				if (interiorCell) {
-					interiorCell->ForEachReferenceInRange(originPos, radius,[&](RE::TESObjectREFR& a_ref) { return callback(a_ref); });
-				} else {
-					if (const auto gridLength = tesSingleton->gridCells ? tesSingleton->gridCells->length : 0;
-						gridLength > 0) {
-						const float yPlus = originPos.y + radius;
-						const float yMinus = originPos.y - radius;
-						const float xPlus = originPos.x + radius;
-						const float xMinus = originPos.x - radius;
 
-						std::uint32_t x = 0;
-						do {
-							std::uint32_t y = 0;
-							do {
-								if (const auto cell = tesSingleton->gridCells->GetCell(x, y); cell && cell->IsAttached()) {
-									if (const auto cellCoords = cell->GetCoordinates(); cellCoords) {
-										const RE::NiPoint2 worldPos{cellCoords->worldX, cellCoords->worldY};
-										if (worldPos.x < xPlus && (worldPos.x + 4096.0f) > xMinus && worldPos.y < yPlus &&
-											(worldPos.y + 4096.0f) > yMinus) {
-											cell->ForEachReferenceInRange(originPos, radius, [&](RE::TESObjectREFR& a_ref) {
-												return callback(a_ref);
-											});
-										}
-									}
-								}
-								++y;
-							} while (y < gridLength);
-							++x;
-						} while (x < gridLength);
-					}
-				}
-			} 
-		} else { // If on SE, just use old function
-			TES::GetSingleton()->ForEachReference([&](RE::TESObjectREFR& a_ref) { return callback(a_ref); });
+	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor) {
+		auto& Audio = Config::GetAudio();
+		const float& MinFreq = Audio.fMinVoiceFrequency;
+		const float& MaxFreq = Audio.fMaxVoiceFrequency;
+		const float& ScaleAtWhichToApplyFullMin = Audio.fTargetPitchAtScaleMin;
+		const float& ScaleAtWhichToApplyFullMax = Audio.fTargetPitchAtScaleMax;
+
+		float natural_scale = std::max(get_natural_scale(a_actor, false), 1.0f);
+		float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
+		const float volume = std::clamp(scale + 0.5f, 0.35f, 1.0f);
+
+		// Linear physics-based pitch (1/scale) with range remapping
+		const float raw_pitch = 1.0f / scale;
+
+		float freq;
+		if (scale > 1.0f) {
+			// Large actors: remap raw_pitch range to [MinFreq, 1.0]
+			const float raw_at_target = 1.0f / ScaleAtWhichToApplyFullMax;
+			const float scale_factor = (1.0f - MinFreq) / (1.0f - raw_at_target);
+			freq = 1.0f - (1.0f - raw_pitch) * scale_factor;
+			freq = std::max(freq, MinFreq);
 		}
+		else if (scale < 1.0f) {
+			// Small actors: remap raw_pitch range to [1.0, MaxFreq]
+			const float raw_at_target = 1.0f / ScaleAtWhichToApplyFullMin;
+			const float scale_factor = (MaxFreq - 1.0f) / (raw_at_target - 1.0f);
+			freq = 1.0f + (raw_pitch - 1.0f) * scale_factor;
+			freq = std::min(freq, MaxFreq);
+		}
+		else {
+			freq = 1.0f;
+		}
+		return { volume, freq };
 	}
+
 }

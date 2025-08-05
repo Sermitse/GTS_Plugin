@@ -1,0 +1,19 @@
+#pragma once
+
+#include <string_view>
+
+namespace GTSPlugin {
+
+    using namespace std::literals;
+
+    inline constexpr REL::Version ModVersion {
+        // clang-format off
+        @PROJECT_VERSION_MAJOR@u,
+        @PROJECT_VERSION_MINOR@u,
+        @PROJECT_VERSION_PATCH@u,
+        @PROJECT_VERSION_TWEAK@u
+        // clang-format on
+    };
+
+    inline constexpr auto ModName = "@PROJECT_NAME@"sv;
+}

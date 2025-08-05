@@ -38,7 +38,7 @@ namespace GTS {
                     }
                     
                     //Recreate the config file and start with a fresh table.
-                    if(!CheckFile(Instance.InputFile)){
+                    if(!CheckOrCreateFile(Instance.InputFile)){
                         ReportAndExit("Could not create a blank Input.toml file.\n"
 									  "Check GTSPlugin.log for more info.\n"
 									  "The game will now close."
@@ -48,7 +48,7 @@ namespace GTS {
     
                 //Incase the File is empty/missing newly added data...
                 //Explicitly Ignore the [[Nodiscard]]
-                std::ignore = Instance.SaveKeybinds();
+                auto res = Instance.SaveKeybinds();
     
                 logger::info(".ctor Load OK");
     

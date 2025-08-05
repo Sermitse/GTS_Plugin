@@ -1,6 +1,6 @@
 #include "UI/ImGui/ImCategoryContainer.hpp"
 #include "UI/ImGui/ImUtil.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 
 namespace GTS {
 
@@ -9,7 +9,7 @@ namespace GTS {
         if (!ImUtil::ValidState()) return -1.0f;
 
         float longest = 0.0f;
-        const float scale = ImGui::GetIO().FontGlobalScale;
+        const float scale = ImGui::GetStyle().FontScaleMain;
         const float paddingX = (ImGui::GetStyle().FramePadding.x + 64.f) * scale;
 
         for (auto& category : categories) {

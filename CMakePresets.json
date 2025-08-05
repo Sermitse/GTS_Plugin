@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 21,
@@ -7,57 +7,66 @@
   },
   "configurePresets": [
     {
-      "name": "base",
+      "name": "common",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_FLAGS": "$env{COMMONLIBSSE_COMPILER} $env{COMMONLIBSSE_PLATFORM} $env{COMMONLIBSSE_TEXT}",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "SKSE_SUPPORT_XBYAK": "ON",
+        "CMAKE_SUPPRESS_DEVELOPER_WARNINGS": "ON",
+        "CMAKE_WARN_DEPRECATED": "OFF"
       }
+    },
+    {
+      "name": "platform-win32",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+      },
+      "environment": {
+        "PROJECT_PLATFORM_FLAGS": "-DWIN32_LEAN_AND_MEAN -DNOMINMAX",
+        "PROJECT_PLATFORM": "windows"
+      }
+    },
+    {
+      "name": "platform-win32-unicode",
+      "hidden": true,
+      "inherits": "platform-win32",
+      "environment": {
+        "PROJECT_TEXT_FLAGS": "-DUNICODE -D_UNICODE"
+      }
+    },
+    {
+      "name": "generator-ninja",
+      "hidden": true,
+      "generator": "Ninja"
     },
     {
       "name": "vcpkg",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_TARGET_TRIPLET": "x64-windows-skse",
-        "VCPKG_HOST_TRIPLET": "x64-windows-skse",
-        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/cmake",
-        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL",
-        "VCPKG_OVERLAY_PORTS": "${sourceDir}/cmake/ports/"
-      },
-      "warnings": {
-        "deprecated": false,
-        "dev": false
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "STRING",
+          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        },
+        "VCPKG_OVERLAY_PORTS": {
+          "type": "STRING",
+          "value": "${sourceDir}/cmake/ports/"
+        },
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
       }
     },
     {
-      "name": "win32",
+      "name": "win64",
       "hidden": true,
-      "environment": {
-        "COMMONLIBSSE_PLATFORM": "-DWIN32_LEAN_AND_MEAN -DNOMINMAX"
-      }
-    },
-    {
-      "name": "win32-unicode",
-      "hidden": true,
-      "inherits": "win32",
-      "environment": {
-        "COMMONLIBSSE_TEXT": "-DUNICODE -D_UNICODE"
-      }
-    },
-    {
-      "name": "x64",
-      "hidden": true,
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
+      "architecture": "x64",
+      "cacheVariables": {
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
       }
     },
     {
       "name": "msvc",
       "hidden": true,
-      "environment": {
-        "COMMONLIBSSE_COMPILER": "/permissive- /Zc:threadSafeInit /EHsc $penv{CXXFLAGS}"
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "/EHsc /MP $penv{CXXFLAGS}"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
@@ -68,180 +77,162 @@
       }
     },
     {
-      "name": "ninja",
+      "name": "base-config",
       "hidden": true,
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build"
-    },
-    {
-      "name": "build-debug",
       "inherits": [
-        "base",
+        "common",
         "vcpkg",
-        "win32-unicode",
-        "x64",
-        "ninja",
+        "platform-win32-unicode",
+        "generator-ninja",
         "msvc"
       ],
-      "binaryDir": "${sourceDir}/build/debug",
-      "displayName": "Debug",
-      "description": "Debug build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": {
-          "type": "STRING",
-          "value": "RelWithDebInfo"
-        },
-        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/Zi /Ob0 /Od /RTC1 /EHsc -DGTSDEBUG=1",
-        "GTS_BUILDPRESET": "Debug"
-      }
-
-    },
-    {
-      "name": "build-debug-eha",
-      "inherits": [
-        "base",
-        "vcpkg",
-        "win32-unicode",
-        "x64",
-        "ninja",
-        "msvc"
-      ],
-      "displayName": "DebugFullExcept",
-      "binaryDir": "${sourceDir}/build/debug-eha",
-      "description": "Debug build with full exception handling, used for hardware exception debugging",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": {
-          "type": "STRING",
-          "value": "RelWithDebInfo"
-        },
-        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/Zi /Ob0 /Od /RTC1 /EHa -DGTSDEBUG=1",
-        "GTS_BUILDPRESET": "DebugEha"
+        "ENABLE_SKYRIM_AE": "ON",
+        "ENABLE_SKYRIM_SE": "ON",
+        "ENABLE_SKYRIM_VR": "OFF",
+        "BUILD_TESTS": "OFF"
       }
     },
     {
-      "name": "build-release",
-      "inherits": [
-        "base",
-        "vcpkg",
-        "win32-unicode",
-        "x64",
-        "ninja",
-        "msvc"
-      ],
-      "binaryDir": "${sourceDir}/build/release",
-      "displayName": "Release",
-      "description": "Release build with debug symbols",
+      "name": "config-fakedebug",
+      "displayName": "Debug (Fake)",
+      "description": "Fake debug build using RelWithDebInfo and debug flags to bypass the broken true debug builds.",
+      "inherits": "base-config",
+      "binaryDir": "${sourceDir}/build/Debug",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": {
-          "type": "STRING",
-          "value": "RelWithDebInfo"
-        },
-        "GTS_BUILDPRESET": "Release"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_C_FLAGS": "/EHsc /Zi /FS /D_CRTDBG_MAP_ALLOC /DDEBUG_HEAP",
+        "CMAKE_CXX_FLAGS": "/EHsc /Zi /FS /D_CRTDBG_MAP_ALLOC /DDEBUG_HEAP",
+        "CMAKE_C_FLAGS_RELWITHDEBINFO": "/Od /Ob0 /Zi /RTC1",
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/Od /Ob0 /Zi /RTC1",
+        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG /DEBUG:FULL /OPT:NOREF /OPT:NOICF /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG /DEBUG:FULL /OPT:NOREF /OPT:NOICF /INCREMENTAL:NO",
+        "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG /DEBUG:FULL /OPT:NOREF /OPT:NOICF /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG /DEBUG:FULL /OPT:NOREF /OPT:NOICF /INCREMENTAL:NO",
+        "CMAKE_C_FLAGS_INIT": "/fsanitize=address",
+        "CMAKE_CXX_FLAGS_INIT": "/fsanitize=address"
       }
     },
     {
-      "name": "build-maxopt",
-      "inherits": [
-        "base",
-        "vcpkg",
-        "win32-unicode",
-        "x64",
-        "ninja",
-        "msvc"
-      ],
-      "displayName": "RelMaxOpt",
-      "binaryDir": "${sourceDir}/build/release-maxopt",
-      "description": "Release build with debug symbols and every compiler optimization turned on",
+      "name": "config-release",
+      "displayName": "Release (Default)",
+      "description": "Configure release build with SSE4.2.",
+      "inherits": "base-config",
+      "binaryDir": "${sourceDir}/build/Release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": {
-          "type": "STRING",
-          "value": "RelWithDebInfo"
-        },
-        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/DNDEBUG /WX /Zi /MP /W1 /permissive- /fp:fast /GL /Gy- /Gm- /Gw /sdl- /GS- /guard:cf- /O2 /Ob3 /Oi /Ot /Oy /fp:except-",
-        "GTS_BUILDPRESET": "RelMax"
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
+        "CMAKE_CXX_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
+        "CMAKE_C_FLAGS_RELEASE": "/arch:SSE4.2 /O2 /Ob3 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:SSE4.2 /O2 /Ob3 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
+        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO"
       }
     },
     {
-      "name": "build-maxopt-avx2",
-      "inherits": [
-        "base",
-        "vcpkg",
-        "win32-unicode",
-        "x64",
-        "ninja",
-        "msvc"
-      ],
-      "displayName": "RelMaxOpt-AVX2",
-      "binaryDir": "${sourceDir}/build/release-maxopt-avx2",
-      "description": "Release build with debug symbols and every compiler optimization turned on and AVX2 support",
+      "name": "config-relwithdebinfo",
+      "displayName": "RelWithDebInfo (Default)",
+      "description": "Configure release build with SSE4.2 and more debugging information than standard release builds.",
+      "inherits": "base-config",
+      "binaryDir": "${sourceDir}/build/RelWithDebInfo",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": {
-          "type": "STRING",
-          "value": "RelWithDebInfo"
-        },
-        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/arch:AVX2 /DNDEBUG /WX /Zi /MP /W1 /permissive- /fp:fast /GL /Gy- /Gm- /Gw /sdl- /GS- /guard:cf- /O2 /Ob3 /Oi /Ot /Oy /fp:except-",
-        "GTS_BUILDPRESET": "RelMaxAVX2"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_C_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
+        "CMAKE_CXX_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
+        "CMAKE_C_FLAGS_RELWITHDEBINFO": "/arch:SSE4.2 /O2 /Ob3 /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/arch:SSE4.2 /O2 /Ob3 /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
+        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO"
       }
     },
     {
-      "name": "build-nodeb-maxopt-avx2",
-      "inherits": [
-        "base",
-        "vcpkg",
-        "win32-unicode",
-        "x64",
-        "ninja",
-        "msvc"
-      ],
-      "displayName": "RelMaxOpt-AVX2",
-      "binaryDir": "${sourceDir}/build/release-maxopt-avx2",
-      "description": "Release build with debug symbols and every compiler optimization turned on and AVX2 support",
+      "name": "config-relwithdebinfo-avx",
+      "displayName": "RelWithDebInfo (Default)",
+      "description": "Configure release build with AVX and more debugging information than standard release builds.",
+      "inherits": "base-config",
+      "binaryDir": "${sourceDir}/build/RelWithDebInfo-AVX",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": {
-          "type": "STRING",
-          "value": "Release"
-        },
-        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX2 /DNDEBUG /WX /Zi /MP /W1 /permissive- /fp:fast /GL /Gy- /Gm- /Gw /sdl- /GS- /guard:cf- /O2 /Ob3 /Oi /Ot /Oy /fp:except-",
-        "GTS_BUILDPRESET": "RelNoDBMaxAVX2"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_C_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
+        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
+        "CMAKE_C_FLAGS_RELWITHDEBINFO": "/arch:AVX /O2 /Ob3 /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/arch:AVX /O2 /Ob3 /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
+        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO"
+      }
+    },
+    {
+      "name": "config-release-avx",
+      "displayName": "Release (AVX)",
+      "description": "Configure release build with AVX.",
+      "inherits": "base-config",
+      "binaryDir": "${sourceDir}/build/Release-AVX",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
+        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
+        "CMAKE_C_FLAGS_RELEASE": "/arch:AVX /O2 /Ob3 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob3 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
+        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO"
+      }
+    },
+    {
+      "name": "config-strict",
+      "displayName": "Strict",
+      "description": "Configure strict build with warnings as errors.",
+      "inherits": "base-config",
+      "binaryDir": "${sourceDir}/build/Strict",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "GTS_STRICT_COMPILE": "ON"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "preset-release",
-      "displayName": "Release",
-      "configurePreset": "build-release",
-      "description": "Release build With Debug Info"
+      "name": "build-fakedebug",
+      "displayName": "Build AE/SE (Fake Debug)",
+      "configurePreset": "config-fakedebug",
+      "description": "Compile a fake debug build."
     },
     {
-      "name": "preset-release-maxopt",
-      "displayName": "RelMaxOpt",
-      "configurePreset": "build-maxopt",
-      "description": "Release build With Debug Info And Maximum Optimizations"
+      "name": "build-release",
+      "displayName": "Build AE/SE (Release)",
+      "configurePreset": "config-release",
+      "description": "Compile an optimized release build (SSE4.2)."
     },
     {
-      "name": "preset-release-maxopt-avx2",
-      "displayName": "RelMaxOpt-AVX2",
-      "configurePreset": "build-maxopt-avx2",
-      "description": "Release build With Debug Info And Maximum Optimizations And AVX2"
+      "name": "build-release-avx",
+      "displayName": "Build AE/SE (Release AVX)",
+      "configurePreset": "config-release-avx",
+      "description": "Compile an optimized release build (AVX)."
     },
     {
-      "name": "preset-nodeb-release-avx2",
-      "displayName": "RelNoDebMaxOpt-AVX2",
-      "configurePreset": "build-nodeb-maxopt-avx2",
-      "description": "Release build With No debug Info And Maximum Optimizations And AVX2"
+      "name": "build-relwithdebinfo",
+      "displayName": "Build AE/SE (RelWithDebInfo)",
+      "configurePreset": "config-relwithdebinfo",
+      "description": "Compile an optimized release build (SSE4.2)."
     },
     {
-      "name": "preset-debug",
-      "displayName": "Debug",
-      "configurePreset": "build-debug",
-      "description": "Debug build"
+      "name": "build-relwithdebinfo-avx",
+      "displayName": "Build AE/SE (RelWithDebInfo AVX)",
+      "configurePreset": "config-relwithdebinfo-avx",
+      "description": "Compile an optimized release build (AVX)."
     },
     {
-      "name": "preset-debug-eha",
-      "displayName": "Debug-EHa",
-      "configurePreset": "build-debug-eha",
-      "description": "Debug build with full exception support"
+      "name": "build-strict",
+      "displayName": "Build AE/SE (Strict)",
+      "configurePreset": "config-strict",
+      "description": "Compile a strict release build with warnings as errors."
     }
   ]
 }

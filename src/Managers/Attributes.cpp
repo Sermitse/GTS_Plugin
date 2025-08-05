@@ -9,21 +9,10 @@ using namespace REL;
 using namespace GTS;
 
 // TODO move away from polling
-
 namespace {
 
-	const SoftPotential speed_adjustment_walk { .k = 0.265f,.n = 1.11f,.s = 2.0f,.o = 1.0f,.a = 0.0f,};
-	const SoftPotential MS_adjustment{ .k = 0.132f,.n = 0.86f, .s = 1.12f, .o = 1.0f,.a = 0.0f,};
-
-	void SetINIFloat(std::string_view name, float value) {
-		auto ini_conf = GameSettingCollection::GetSingleton();
-		std::string s_name(name);
-		Setting* setting = ini_conf->GetSetting(s_name.c_str());
-		if (setting) {
-			setting->data.f=value; // If float
-			ini_conf->WriteSetting(setting);
-		}
-	}
+	constexpr SoftPotential speed_adjustment_walk { .k = 0.265f,.n = 1.11f,.s = 2.0f,.o = 1.0f,.a = 0.0f,};
+	constexpr SoftPotential MS_adjustment{ .k = 0.132f,.n = 0.86f, .s = 1.12f, .o = 1.0f,.a = 0.0f,};
 
 	float GetMovementSpeedFormula_Alternative(Actor* actor, float smt_speed, float MovementDebuff) {
 		// In short: 1.0 * (size * animation slowdown) * SMT run speed
@@ -33,6 +22,7 @@ namespace {
 		float power = 1.0f * (gts_speed * (smt_speed/2.0f + 1.0f) * MS_mult);
 		return power * MovementDebuff;
 	}
+
 	float GetMovementSpeedFormula_Normal(Actor* actor, float smt_speed, float MovementDebuff) {
 		// In short: (1.0 / Animation slowdown) * SMT run speed
 		float gts_speed = get_giantess_scale(actor);
@@ -58,8 +48,8 @@ namespace {
 		return 1.0f;
 	}
 
-
 	void ManagePerkBonuses(Actor* actor) {
+
 		auto& SizeManager = SizeManager::GetSingleton();
 		float BalanceModeDiv = SizeManager::BalancedMode() ? 2.0f : 1.0f;
 		float gigantism = 1.0f + (Ench_Aspect_GetPower(actor) * 0.30f);
@@ -72,7 +62,7 @@ namespace {
 		float ExpectedSprintDamage = 1.0f;
 		float ExpectedFallDamage = 1.0f;
 
-		///Normal Damage
+		// -- Normal Damage
 		if (Runtime::HasPerkTeam(actor, "GTSPerkCruelty")) {
 			ExpectedGlobalDamage += 0.15f/BalanceModeDiv;
 		}
@@ -86,15 +76,15 @@ namespace {
 			ExpectedGlobalDamage *= 1.15f; // +15% damage
 		}
 
-		///Sprint Damage
+		// -- Sprint Damage
 		if (Runtime::HasPerkTeam(actor, "GTSPerkSprintDamageMult1")) {
 			ExpectedSprintDamage += 0.25f/BalanceModeDiv;
 		}
-		///Fall Damage
+		// -- Fall Damage
 		if (Runtime::HasPerkTeam(actor, "GTSPerkCruelFall")) {
 			ExpectedFallDamage += 0.3f/BalanceModeDiv;
 		}
-		///Buff by enchantment
+		// -- Buff by enchantment
 		ExpectedGlobalDamage *= gigantism;
 		ExpectedSprintDamage *= gigantism;
 		ExpectedFallDamage *= gigantism;
@@ -110,7 +100,6 @@ namespace {
 		}
 	}
 
-	// Todo unify the functions
 	void UpdateActors(Actor* actor) {
 		if (actor) {
 			ManagePerkBonuses(actor);
@@ -123,16 +112,13 @@ namespace {
 
 
 namespace GTS {
-	AttributeManager& AttributeManager::GetSingleton() noexcept {
-		static AttributeManager instance;
-		return instance;
-	}
 
 	std::string AttributeManager::DebugName() {
 		return "::AttributeManager";
 	}
 
 	void AttributeManager::Update() {
+
 		static Timer timer = Timer(0.5);
 
 		if (timer.ShouldRunFrame()) { // Run once per 0.5 sec
@@ -146,7 +132,6 @@ namespace GTS {
 		}
 	}
 
-
 	void AttributeManager::OverrideSMTBonus(float Value) {
 		auto ActorAttributes = Persistent::GetSingleton().GetData(PlayerCharacter::GetSingleton());
 		if (ActorAttributes) {
@@ -154,8 +139,10 @@ namespace GTS {
 		}
 	}
 
-	float AttributeManager::GetAttributeBonus(Actor* actor, ActorValue av) const {
-		auto profiler = Profilers::Profile("AttributeManager: GetAttributeBonus");
+	float AttributeManager::GetAttributeBonus(Actor* actor, ActorValue av) {
+
+		GTS_PROFILE_SCOPE("AttributeManager: GetAttributeBonus");
+
 		if (!actor) {
 			return 1.0f;
 		}
@@ -258,36 +245,31 @@ namespace GTS {
 		}
 	}
 
-	float AttributeManager::AlterGetAv(Actor* actor, ActorValue av, float originalValue) {
-		float bonus = 1.0f;
+	float AttributeManager::AlterCarryWeightAV(Actor* actor, ActorValue av, float originalValue) {
 
-		auto& attributes = AttributeManager::GetSingleton();
 		switch (av) {
 			case ActorValue::kCarryWeight: {
-				bonus = attributes.GetAttributeBonus(actor, av);
+				const float bonus = AttributeManager::GetAttributeBonus(actor, av);
 				auto transient = Transient::GetSingleton().GetData(actor);
 				if (transient != nullptr) {
 					transient->CarryWeightBoost = (originalValue * bonus) - originalValue;
 				}
-				break;
+				return originalValue * bonus;
 			}
+			default: return originalValue;
+
 		}
 
-		return originalValue * bonus;
 	}
 
 	float AttributeManager::AlterGetBaseAv(Actor* actor, ActorValue av, float originalValue) {
-		float finalValue = originalValue;
 
 		switch (av) {
+
 			case ActorValue::kHealth: { // 27.03.2024: Health boost is still applied, but for Player only and only if having matching perks
-				float scale = get_giantess_scale(actor);
-				if (scale <= 0) {
-					scale = 1.0f;
-				}
 
 				float perkbonus = GetStolenAttributes_Values(actor, ActorValue::kHealth); // calc health from the perk bonuses
-				finalValue = originalValue + perkbonus; // add flat health on top
+				float finalValue = originalValue + perkbonus; // add flat health on top
 				auto transient = Transient::GetSingleton().GetData(actor);
 				if (transient) {
 					transient->HealthBoost = finalValue - originalValue;
@@ -296,50 +278,44 @@ namespace GTS {
 			}
 			case ActorValue::kMagicka: {
 				float perkbonus = GetStolenAttributes_Values(actor, ActorValue::kMagicka);
-				finalValue = originalValue + perkbonus;
-				return finalValue;
+				return originalValue + perkbonus;
 			}
 			case ActorValue::kStamina: {
 				float perkbonus = GetStolenAttributes_Values(actor, ActorValue::kStamina);
-				finalValue = originalValue + perkbonus;
-				return finalValue;
+				return originalValue + perkbonus;
 			}
+
+			default: return originalValue;
+
 		}
-		return finalValue;
 	}
 
 	float AttributeManager::AlterSetBaseAv(Actor* actor, ActorValue av, float originalValue) {
-		float finalValue = originalValue;
 
 		switch (av) {
+
 			case ActorValue::kHealth: {
 				auto transient = Transient::GetSingleton().GetData(actor);
 				if (transient) {
 					float lastEdit = transient->HealthBoost;
-					if (finalValue - lastEdit > 0.0f) {
-						finalValue -= lastEdit;
+					if (originalValue - lastEdit > 0.0f) {
+						originalValue -= lastEdit;
+						return originalValue;
 					}
 				}
 			}
+
+			default: return originalValue;
+
 		}
 
-		return finalValue;
+
 	}
 
-	float AttributeManager::AlterGetPermenantAv(Actor* actor, ActorValue av, float originalValue) {
-		return originalValue;
-	}
-
-	float AttributeManager::AlterGetAvMod(float originalValue, Actor* actor, ACTOR_VALUE_MODIFIER a_modifier, ActorValue a_value) {
-		return originalValue;
-	}
-
-	float AttributeManager::AlterMovementSpeed(Actor* actor, const NiPoint3& direction) {
-		float bonus = 1.0f;
+	float AttributeManager::AlterMovementSpeed(Actor* actor) {
 		if (actor) {
-			auto& attributes = AttributeManager::GetSingleton();
-			bonus = attributes.GetAttributeBonus(actor, ActorValue::kSpeedMult);
+			return AttributeManager::GetAttributeBonus(actor, ActorValue::kSpeedMult);
 		}
-		return bonus;
+		return 1.0f;
 	}
 }

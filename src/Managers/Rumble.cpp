@@ -94,7 +94,7 @@ namespace GTS {
 
 
 	void Rumbling::Update() {
-		auto profiler = Profilers::Profile("Rumbling: Update");
+		GTS_PROFILE_SCOPE("Rumbling: Update");
 		for (auto& [actor, data]: this->data) {
 			// Update values based on time passed
 			std::vector<std::string> tagsToErase = {};
@@ -169,7 +169,7 @@ namespace GTS {
 					// Lastly play the sound at each node
 					if (data.delay.ShouldRun()) {
 						//log::info("Playing sound at: {}, Intensity: {}", actor->GetDisplayFullName(), intensity);
-						Runtime::PlaySoundAtNode("GTSSoundWalkAirRumble", actor, volume, 1.0f, node);
+						Runtime::PlaySoundAtNode("GTSSoundWalkAirRumble", volume, node);
 					}
 				}
 			}

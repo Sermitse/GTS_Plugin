@@ -1,12 +1,98 @@
 #include "Config/Config.hpp"
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 
 namespace GTS {
 
-    /// @brief Given a parsed toml file and struct, tries to update the structs contents from the loaded toml table. If one or more elements can't be loaded it defaults to the default value found in the struct.
-    /// @tparam T Type of struct
-    /// @param a_toml Parsed TOML File.
-    /// @param a_data Reference to a data only struct.
-    /// @return true on success, false on failure.
+    // Helper to get current timestamp for exports
+    std::string Config::GetTimestamp() {
+        auto now = std::chrono::system_clock::now();
+        auto time_t = std::chrono::system_clock::to_time_t(now);
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S");
+        return ss.str();
+    }
+
+    // Helper to ensure export directory exists
+    bool Config::EnsureExportDirectoryExists() const {
+        auto exportDir = ModConfigPath / _Exports;
+        std::error_code ec;
+
+        if (!std::filesystem::exists(exportDir, ec)) {
+            if (!std::filesystem::create_directories(exportDir, ec)) {
+                logger::error("Failed to create export directory: {}", ec.message());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Serialize all structs to TOML
+    bool Config::SerializeStructsToTOML() {
+        try {
+            bool updateRes = true;
+
+            updateRes &= UpdateTOMLFromStruct(TomlData, Hidden);
+            updateRes &= UpdateTOMLFromStruct(TomlData, Advanced);
+            updateRes &= UpdateTOMLFromStruct(TomlData, General);
+            updateRes &= UpdateTOMLFromStruct(TomlData, Gameplay);
+            updateRes &= UpdateTOMLFromStruct(TomlData, Balance);
+            updateRes &= UpdateTOMLFromStruct(TomlData, Audio);
+            updateRes &= UpdateTOMLFromStruct(TomlData, AI);
+            updateRes &= UpdateTOMLFromStruct(TomlData, Camera);
+            updateRes &= UpdateTOMLFromStruct(TomlData, GtsUI);
+
+            if (!updateRes) {
+                logger::error("One or more structs could not be serialized to TOML");
+                return false;
+            }
+            return true;
+        }
+        catch (const toml::exception& e) {
+            logger::error("TOML Exception during serialization: {}", e.what());
+            return false;
+        }
+        catch (...) {
+            logger::error("Unknown exception during struct serialization");
+            return false;
+        }
+    }
+
+    // Deserialize all structs from TOML
+    bool Config::DeserializeStructsFromTOML() {
+        try {
+            bool loadRes = true;
+
+            loadRes &= LoadStructFromTOML(TomlData, Hidden);
+            loadRes &= LoadStructFromTOML(TomlData, Advanced);
+            loadRes &= LoadStructFromTOML(TomlData, General);
+            loadRes &= LoadStructFromTOML(TomlData, Gameplay);
+            loadRes &= LoadStructFromTOML(TomlData, Balance);
+            loadRes &= LoadStructFromTOML(TomlData, Audio);
+            loadRes &= LoadStructFromTOML(TomlData, AI);
+            loadRes &= LoadStructFromTOML(TomlData, Camera);
+            loadRes &= LoadStructFromTOML(TomlData, GtsUI);
+
+            if (!loadRes) {
+                logger::critical("One or more structs could not be deserialized");
+            }
+            return loadRes;
+        }
+        catch (const toml::exception& e) {
+            logger::error("TOML Exception during deserialization: {}", e.what());
+            return false;
+        }
+        catch (const std::exception& e) {
+            logger::error("Exception during deserialization: {}", e.what());
+            return false;
+        }
+        catch (...) {
+            logger::error("Unknown exception during struct deserialization");
+            return false;
+        }
+    }
+
     template<typename T>
     bool Config::LoadStructFromTOML(const auto& a_toml, T& a_data) {
         static_assert(std::is_class_v<T>, "a_data must be a struct or class type");
@@ -27,11 +113,6 @@ namespace GTS {
         }
     }
 
-    /// @brief 
-    /// @tparam T Given a parsed toml file and struct, replaces the toml table with the data found in the given stuct.
-    /// @param a_toml Parsed TOML File.
-    /// @param a_data Reference to a data only struct.
-    /// @return true on success, false on failure.
     template<typename T>
     bool Config::UpdateTOMLFromStruct(auto& a_toml, T& a_data) {
         static_assert(std::is_class_v<T>, "a_data must be a struct or class type");
@@ -39,16 +120,13 @@ namespace GTS {
             std::lock_guard<std::mutex> lock(_ReadWriteLock);
             std::string _StructName = std::string(GetStructName(a_data));
 
-            // Convert the struct to a toml::value
             toml::ordered_value table = a_data;
-
-            // Replace the entire table to remove unused data
             a_toml.as_table()[_StructName] = table;
             logger::info("TOML Data for Table {} Has been Replaced", _StructName);
             return true;
         }
         catch (toml::exception& e) {
-            logger::error("Could not parse the struct into a TOML table table into a struct: {}", e.what());
+            logger::error("Could not parse the struct into a TOML table: {}", e.what());
             return false;
         }
         catch (...) {
@@ -57,26 +135,18 @@ namespace GTS {
         }
     }
 
-    /// @brief 
-    /// @param a_toml TOML data.
-    /// @param a_file path to the file to write to.
-    /// @return true on success, false on failure.
     bool Config::SaveTOMLToFile(const auto& a_toml, const std::filesystem::path& a_file) {
-
         try {
             std::lock_guard<std::mutex> lock(_ReadWriteLock);
 
-            //Check if file exists else create it.
-            if (!CheckFile(a_file)) {
+            if (!CheckOrCreateFile(a_file)) {
                 logger::error("Settings file was missing and could not be created");
                 return false;
-            };
+            }
 
-            //Create a output file stream and enable exceptions for it.
             std::ofstream file(a_file);
             file.exceptions(std::ofstream::failbit);
 
-            //Check if the file is writable...
             if (file.is_open()) {
                 file << toml::format(a_toml);
                 file.close();
@@ -85,14 +155,13 @@ namespace GTS {
 
             logger::error("SaveTOMLToFile() -> Could not open the settings for writing. Settings not saved!");
             return false;
-
         }
         catch (toml::exception& e) {
-            logger::error("SaveTOMLToFile() ->Could not parse the toml table when trying to save: {}", e.what());
+            logger::error("SaveTOMLToFile() -> Could not parse the toml table when trying to save: {}", e.what());
             return false;
         }
         catch (const std::ios_base::failure& e) {
-            logger::error("SaveTOMLToFile() -> Could not parse the toml table when trying to save: {}", e.what());
+            logger::error("SaveTOMLToFile() -> Could not write to file: {}", e.what());
             return false;
         }
         catch (const std::exception& e) {
@@ -105,18 +174,13 @@ namespace GTS {
         }
     }
 
-    /// @brief 
-    /// @param a_toml TOML data.
-    /// @return true on success, false on failure.
     bool Config::SaveTOMLToString(const auto& a_toml) {
-
         auto& Settings = Persistent::GetSingleton().ModSettings;
 
         try {
             std::lock_guard<std::mutex> lock(_ReadWriteLock);
             Settings.value = toml::format(a_toml);
             return true;
-
         }
         catch (toml::exception& e) {
             logger::error("SaveTOMLToString() -> Could not parse the toml table when trying to save: {}", e.what());
@@ -132,7 +196,6 @@ namespace GTS {
         }
     }
 
-    /// @brief Reinit all data to defaults.
     void Config::ResetToDefaults() {
         Advanced = SettingsAdvanced{};
         General = SettingsGeneral{};
@@ -142,248 +205,160 @@ namespace GTS {
         Camera = SettingsCamera{};
         Gameplay = SettingsGameplay{};
         GtsUI = SettingsUI{};
+        //Hidden = SettingsHidden{};
 
         TomlData = toml::ordered_table();
     }
 
-    bool Config::LoadSettings() {
-        const auto LocalSave = Persistent::GetSingleton().LocalSettingsEnable.value;
-
-        if (LocalSave) {
-            return LoadSettingsFromString();
-        }
-        else {
-            return LoadSettingsFromFile();
-        }
-
-
-    }
-
     bool Config::LoadSettingsFromString() {
-
         auto& Settings = Persistent::GetSingleton().ModSettings;
         if (Settings.value.empty()) {
             logger::info("LoadSettingsFromString(): no TOML payload, skipping load.");
             return false;
         }
 
-        toml::basic_value<toml::ordered_type_config> tempTable;
         try {
-           tempTable = toml::parse_str<toml::ordered_type_config>(Settings.value);
+            TomlData = toml::parse_str<toml::ordered_type_config>(Settings.value);
         }
         catch (const toml::exception& e) {
-            //Set TomlData to a clean table. So any loaded settings can still be saved propperly if needed.
-            tempTable = toml::ordered_table();
+            TomlData = toml::ordered_table();
             Settings.value.clear();
             logger::error("Could not Parse Persistent Mod Settings: {}", e.what());
             return false;
-
         }
         catch (...) {
             logger::error("LoadSettingsFromString() -> TOML::Parse Exception Outside of TOML11's Scope");
             return false;
         }
 
-        if (tempTable.is_empty()) {
+        if (TomlData.is_empty()) {
             logger::warn("Parsed TOML is empty, skipping load.");
             return false;
         }
 
-        TomlData = std::move(tempTable);
-
-        try {
-            bool LoadRes = true;
-            LoadRes &= LoadStructFromTOML(TomlData, General);
-            LoadRes &= LoadStructFromTOML(TomlData, Gameplay);
-            LoadRes &= LoadStructFromTOML(TomlData, Balance);
-            LoadRes &= LoadStructFromTOML(TomlData, Audio);
-            LoadRes &= LoadStructFromTOML(TomlData, AI);
-            LoadRes &= LoadStructFromTOML(TomlData, Camera);
-            LoadRes &= LoadStructFromTOML(TomlData, GtsUI);
-            LoadRes &= LoadStructFromTOML(TomlData, Hidden);
-
-            if (Hidden.IKnowWhatImDoing) {
-                LoadRes &= LoadStructFromTOML(TomlData, Advanced);
-            }
-
-            if (!LoadRes) {
-                logger::error("One or more structs could not be deserialized with the fallback init failing too...");
-                //This is where we halt and catch fire as this is a litteral imposibility
-                //A bad deserialization should ALWAYS result in a clean struct instance. If this fails something really bad happened.
-            }
-            return LoadRes;
-        }
-        catch (const toml::exception& e) {
-            logger::error("Could not parse Persistent Mod Settings: {}", e.what());
-            return false;
-        }
-        catch (const std::exception& e) {
-            logger::error("Could not parse Persistent Mod Settings:{}", e.what());
-            return false;
-        }
-        catch (...) {
-            logger::error("LoadSettingsFromString() -> Unknown Exception");
-            return false;
-        }
-
-    }
-
-    bool Config::LoadSettingsFromFile() {
-
-        if (!CheckFile(ConfigFile)) {
-            return false;
-        }
-
-        try {
-            TomlData = toml::parse<toml::ordered_type_config>(ConfigFile.string());
-        }
-        catch (const toml::exception& e) {
-
-            //We shouldn't immediatly panic while ingame like we do in the constructor call. 
-            //The only way to even trigger this exception would be to modify the file incorrectly while ingame.
-            //You'd never need to mess with the file though in the first place
-            //Except to enable the hidden options. But... if someone does decide to be an idiot
-            //Atleast I can say I tried to handle said someone being an idiot...
-
-            //Set TomlData to a clean table. So any loaded settings can still be saved propperly if needed.
-            TomlData = toml::ordered_table();
-            logger::error("Could not parse {}: {}", _ConfigFile, e.what());
-            return false;
-
-        }
-        catch (...) {
-            logger::error("LoadSettings() -> TOML::Parse Exception Outside of TOML11's Scope");
-            return false;
-        }
-
-        try {
-            bool LoadRes = true;
-
-            LoadRes &= LoadStructFromTOML(TomlData, General);
-            LoadRes &= LoadStructFromTOML(TomlData, Gameplay);
-            LoadRes &= LoadStructFromTOML(TomlData, Balance);
-            LoadRes &= LoadStructFromTOML(TomlData, Audio);
-            LoadRes &= LoadStructFromTOML(TomlData, AI);
-            LoadRes &= LoadStructFromTOML(TomlData, Camera);
-            LoadRes &= LoadStructFromTOML(TomlData, GtsUI);
-            LoadRes &= LoadStructFromTOML(TomlData, Hidden);
-
-            //If Enabled Allow Loading Advanced Settings from TOML.
-            if (Hidden.IKnowWhatImDoing) {
-                LoadRes &= LoadStructFromTOML(TomlData, Advanced);
-            }
-
-            if (!LoadRes) {
-                logger::error("One or more structs could not be deserialized with the fallback init failing too...");
-                //This is where we halt and catch fire as this is a litteral imposibility
-                //A bad deserialization should ALWAYS result in a clean struct instance. If this fails something really bad happened.
-            }
-            return LoadRes;
-        }
-        catch (const toml::exception& e) {
-            logger::error("Could not parse {}: {}", _ConfigFile, e.what());
-            return false;
-        }
-        catch (const std::exception& e) {
-            logger::error("Could not parse {}: {}", _ConfigFile, e.what());
-            return false;
-        }
-        catch (...) {
-            logger::error("LoadSettings() -> Unknown Exception");
-            return false;
-        }
-
+        return DeserializeStructsFromTOML();
     }
 
     bool Config::SaveSettingsToString() {
+        if (!SerializeStructsToTOML()) {
+            return false;
+        }
+
+        bool saveRes = SaveTOMLToString(TomlData);
+        if (!saveRes) {
+            logger::error("Something went wrong when trying to save the TOML data to string");
+        }
+        return saveRes;
+    }
+
+    bool Config::ExportSettings(const std::string& a_customName) {
+
+        if (!EnsureExportDirectoryExists()) {
+            return false;
+        }
+
+        if (!SerializeStructsToTOML()) {
+            logger::error("Failed to serialize settings for export");
+            return false;
+        }
+
+        std::string filename = a_customName.empty() ?
+            "Export_" + GetTimestamp() + ".toml" :
+            a_customName + "_" + GetTimestamp() + ".toml";
+
+        auto exportPath = ModConfigPath / _Exports / filename;
+
+        bool result = SaveTOMLToFile(TomlData, exportPath);
+        if (result) {
+            logger::info("Settings exported to: {}", exportPath.string());
+        }
+        else {
+            logger::error("Failed to export settings to: {}", exportPath.string());
+        }
+        return result;
+    }
+
+    std::vector<std::filesystem::path> Config::GetExportedFiles() const {
+        std::vector<std::filesystem::path> exports;
+        auto exportDir = ModConfigPath / _Exports;
+
+        if (!std::filesystem::exists(exportDir)) {
+            return exports;
+        }
+
+        std::error_code ec;
+        for (const auto& entry : std::filesystem::directory_iterator(exportDir, ec)) {
+            if (entry.is_regular_file() && entry.path().extension() == ".toml") {
+                exports.push_back(entry.path());
+            }
+        }
+
+        // Sort by modification time (newest first)
+        ranges::sort(exports, [](const auto& a, const auto& b) {
+            std::error_code err;
+            auto timeA = std::filesystem::last_write_time(a, err);
+            auto timeB = std::filesystem::last_write_time(b, err);
+            return timeA > timeB;
+        });
+
+        return exports;
+    }
+
+    bool Config::LoadFromExport(const std::filesystem::path& a_exportPath) {
+        if (!std::filesystem::exists(a_exportPath)) {
+            logger::error("Export file does not exist: {}", a_exportPath.string());
+            return false;
+        }
 
         try {
+            auto exportedData = toml::parse<toml::ordered_type_config>(a_exportPath.string());
+            TomlData = std::move(exportedData);
 
-            bool UpdateRes = true;
-            if (Hidden.IKnowWhatImDoing) {
-                UpdateRes &= UpdateTOMLFromStruct(TomlData, Advanced);
+            bool result = DeserializeStructsFromTOML();
+            if (result) {
+                logger::info("Settings loaded from export: {}", a_exportPath.string());
             }
-
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, General);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, Gameplay);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, Balance);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, Audio);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, AI);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, Camera);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, GtsUI);
-
-            if (!UpdateRes) {
-                logger::error("One or more structs could not be serialized to TOML, Skipping Write");
-                return false;
-            }
-
-            bool SaveRes = SaveTOMLToString(TomlData);
-            if (!SaveRes) {
-                logger::error("Something went wrong when trying to save the TOML data... Settings are probably not saved...");
-            }
-
-            return SaveRes;
+            return result;
         }
         catch (const toml::exception& e) {
-            logger::error("TOML Exception: Could not update one or more structs: {}", _ConfigFile, e.what());
+            logger::error("Could not parse export file {}: {}", a_exportPath.string(), e.what());
             return false;
         }
         catch (...) {
-            logger::error("SaveSettingsToString() -> Unknown Exception");
+            logger::error("Unknown exception loading from export: {}", a_exportPath.string());
             return false;
         }
     }
 
-    bool Config::SaveSettingsToFile() {
-        if (!CheckFile(ConfigFile)) {
-            return false;
+    bool Config::DeleteExport(const std::filesystem::path& a_exportPath) {
+        std::error_code ec;
+        bool result = std::filesystem::remove(a_exportPath, ec);
+
+        if (result) {
+            logger::info("Deleted export: {}", a_exportPath.string());
         }
-
-        try {
-            bool UpdateRes = true;
-            if (Hidden.IKnowWhatImDoing) {
-                UpdateRes &= UpdateTOMLFromStruct(TomlData, Hidden);
-                UpdateRes &= UpdateTOMLFromStruct(TomlData, Advanced);
-            }
-
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, General);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, Gameplay);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, Balance);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, Audio);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, AI);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, Camera);
-            UpdateRes &= UpdateTOMLFromStruct(TomlData, GtsUI);
-
-            if (!UpdateRes) {
-                logger::error("One or more structs could not be serialized to TOML, Skipping Write");
-                return false;
-            }
-
-            bool SaveRes = SaveTOMLToFile(TomlData, ConfigFile);;
-            if (!SaveRes) {
-                logger::error("Something went wrong when trying to save the TOML data... Settings are probably not saved...");
-            }
-
-            return SaveRes;
+        else {
+            logger::error("Failed to delete export {}: {}", a_exportPath.string(), ec.message());
         }
-        catch (const toml::exception& e) {
-            logger::error("TOML Exception: Could not update one or more structs: {}", _ConfigFile, e.what());
-            return false;
-        }
-        catch (...) {
-            logger::error("SaveSettingsToFile() -> Unknown Exception");
-            return false;
-        }
+        return result;
     }
 
-    bool Config::SaveSettings() {
+    bool Config::CleanOldExports(int a_keepCount) const {
+        auto exports = GetExportedFiles();
 
-        const bool EnableLocalSaves = Persistent::GetSingleton().LocalSettingsEnable.value;
-
-        if (EnableLocalSaves) {
-            return SaveSettingsToString();
+        if (exports.size() <= static_cast<size_t>(a_keepCount)) {
+            return true; // Nothing to clean
         }
 
-        return SaveSettingsToFile();
+        bool allDeleted = true;
+        for (size_t i = a_keepCount; i < exports.size(); ++i) {
+            if (!DeleteExport(exports[i])) {
+                allDeleted = false;
+            }
+        }
+
+        logger::info("Cleaned {} old export files", exports.size() - a_keepCount);
+        return allDeleted;
     }
+
 }

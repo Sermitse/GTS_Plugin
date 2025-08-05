@@ -28,7 +28,7 @@ namespace {
     void PlaySingleCrushSound(Actor* giant, NiAVObject* node, int crushed, float size) {
         for (int i = 0; i < crushed; i++) {
             if (node) {
-                Runtime::PlaySoundAtNode("GTSSoundCrushFootSingle8x", giant, 1.0f, 1.0f, node);
+                Runtime::PlaySoundAtNode("GTSSoundCrushFootSingle8x", 1.0f, node);
             } else {
                 Runtime::PlaySound("GTSSoundCrushFootSingle8x", giant, 1.0f, 1.0f);
             }
@@ -37,7 +37,7 @@ namespace {
 
      void PlayMultiCrushSound(Actor* giant, NiAVObject* node, int crushed, float size) {
         if (node) {
-            Runtime::PlaySoundAtNode("GTSSoundCrushFootMulti3x8x", giant, 1.0f, 1.0f, node);
+            Runtime::PlaySoundAtNode("GTSSoundCrushFootMulti3x8x", 1.0f, node);
         } else {
             Runtime::PlaySound("GTSSoundCrushFootMulti3x8x", giant, 1.0f, 1.0f);
         }
@@ -46,7 +46,7 @@ namespace {
     void PlayDefaultSound(Actor* giant, NiAVObject* node, int crushed) {
         for (int i = 0; i < crushed; i++) {
             if (node) {
-                Runtime::PlaySoundAtNode("GTSSoundCrushDefault", giant, 1.0f, 1.0f, node);
+                Runtime::PlaySoundAtNode("GTSSoundCrushDefault", 1.0f, node);
             } else {
                 Runtime::PlaySound("GTSSoundCrushDefault", giant, 1.0f, 1.0f);
             }

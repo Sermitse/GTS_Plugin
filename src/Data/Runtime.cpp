@@ -2,6 +2,16 @@
 
 namespace {
 
+	constexpr float EPSILON = 1e-3f;
+
+	static void SetSoundHandleFrequency(RE::BSAudioManager* a_manager, std::uint32_t a_soundID, float a_freq) {
+		if (a_soundID != 0xffffffff){
+			using func_t = decltype(&SetSoundHandleFrequency);
+			static const REL::Relocation<func_t> func{ REL::RelocationID(66422, 67685, NULL) };
+			func(a_manager, a_soundID, a_freq);
+		}
+	}
+
 	template <class T>
 	T* find_form(std::string_view lookup_id) {
 		// From https://github.com/Exit-9B/MCM-Helper/blob/a39b292909923a75dbe79dc02eeda161763b312e/src/FormUtil.cpp
@@ -96,10 +106,10 @@ namespace GTS {
 		return data;
 	}
 
-	void Runtime::PlaySound(const std::string_view& tag, Actor* actor, const float& volume, const float& frequency) {
-		auto soundDescriptor = Runtime::GetSound(tag);
+	void Runtime::PlaySound(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const float& a_frequency) {
+		auto soundDescriptor = Runtime::GetSound(a_tag);
 		if (!soundDescriptor) {
-			log::error("Sound invalid: {}", tag);
+			log::error("Sound invalid: {}", a_tag);
 			return;
 		}
 		auto audioManager = BSAudioManager::GetSingleton();
@@ -110,15 +120,17 @@ namespace GTS {
 		BSSoundHandle soundHandle;
 		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, soundDescriptor);
 		if (success) {
-			auto actorref = actor->CreateRefHandle();
+			auto actorref = a_actor->CreateRefHandle();
 			auto actorget = actorref.get().get();
 			if (actorget) {
-				soundHandle.SetVolume(volume);
-				//soundHandle.SetFrequency(frequency);
-				NiAVObject* follow = nullptr;
+
+				soundHandle.SetVolume(a_volume);
+
+				SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+
 				NiAVObject* current_3d = actorget->GetCurrent3D();
 				if (current_3d) {
-					follow = current_3d;
+					NiAVObject* follow = current_3d;
 					soundHandle.SetObjectToFollow(follow);
 					soundHandle.Play();
 				}
@@ -128,10 +140,10 @@ namespace GTS {
 		}
 	}
 
-	void Runtime::PlaySound(const std::string_view& tag, TESObjectREFR* ref, const float& volume, const float& frequency) {
-		auto soundDescriptor = Runtime::GetSound(tag);
+	void Runtime::PlaySound(const std::string_view& a_tag, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
+		auto soundDescriptor = Runtime::GetSound(a_tag);
 		if (!soundDescriptor) {
-			log::error("Sound invalid: {}", tag);
+			log::error("Sound invalid: {}", a_tag);
 			return;
 		}
 		auto audioManager = BSAudioManager::GetSingleton();
@@ -142,14 +154,17 @@ namespace GTS {
 		BSSoundHandle soundHandle;
 		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, soundDescriptor);
 		if (success) {
-			auto objectref = ref->CreateRefHandle();
+			auto objectref = a_ref->CreateRefHandle();
 			if (objectref) {
 				auto objectget = objectref.get().get();
 			
 				NiAVObject* current_3d = objectget->GetCurrent3D();
 				if (current_3d) {
 					NiAVObject& follow = *current_3d;
-					soundHandle.SetVolume(volume);
+					soundHandle.SetVolume(a_volume);
+
+					SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+
 					soundHandle.SetObjectToFollow(&follow);
 					soundHandle.Play();
 				}
@@ -165,31 +180,24 @@ namespace GTS {
 		CheckModLoaded(&SoftDep_SurvMode_Found, "ccQDRSSE001-SurvivalMode.esl");
 	}
 
-
-	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& tag, Actor* actor, const float& volume, const float& frequency, const std::string_view& node, float Falloff) {
-		Runtime::PlaySoundAtNode_FallOff(tag, actor, volume, frequency, find_node(actor, node), Falloff);
+	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
+		Runtime::PlaySoundAtNode_FallOff(a_tag, a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
 	}
 
-	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& tag, Actor* actor, const float& volume, const float& frequency, NiAVObject* node, float Falloff) {
-		if (node) {
-			Runtime::PlaySoundAtNode_FallOff(tag, actor, volume, frequency, *node, Falloff);
+	void Runtime::PlaySoundAtNode(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_frequency) {
+		Runtime::PlaySoundAtNode(a_tag, a_volume, find_node(a_actor, a_node), a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
+
+		if (!a_node) {
+			logger::warn("Tried to play a sound on a null node");
+			return;
 		}
-	}
 
-	void Runtime::PlaySoundAtNode(const std::string_view& tag, Actor* actor, const float& volume, const float& frequency, const std::string_view& node) {
-		Runtime::PlaySoundAtNode(tag, actor, volume, frequency, find_node(actor, node));
-	}
-
-	void Runtime::PlaySoundAtNode(const std::string_view& tag, Actor* actor, const float& volume, const float& frequency, NiAVObject* node) {
-		if (node) {
-			Runtime::PlaySoundAtNode(tag, actor, volume, frequency, *node);
-		}
-	}
-
-	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& tag, Actor* actor, const float& volume, const float& frequency, NiAVObject& node, float Falloff) {
-		auto soundDescriptor = Runtime::GetSound(tag);
+		auto soundDescriptor = Runtime::GetSound(a_tag);
 		if (!soundDescriptor) {
-			log::error("Sound invalid: {}", tag);
+			log::error("Sound invalid: {}", a_tag);
 			return;
 		}
 		auto audioManager = BSAudioManager::GetSingleton();
@@ -200,9 +208,12 @@ namespace GTS {
 		BSSoundHandle soundHandle;
 		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, soundDescriptor);
 		if (success) {
-			float falloff = Sound_GetFallOff(&node, Falloff);
-			soundHandle.SetVolume(volume * falloff);
-			soundHandle.SetObjectToFollow(&node);
+			float falloff = Sound_GetFallOff(a_node, a_falloff);
+			soundHandle.SetVolume(a_volume * falloff);
+
+			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+
+			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();
 		}
 		else {
@@ -210,10 +221,17 @@ namespace GTS {
 		}
 	}
 
-	void Runtime::PlaySoundAtNode(const std::string_view& tag, Actor* actor, const float& volume, const float& frequency, NiAVObject& node) {
-		auto soundDescriptor = Runtime::GetSound(tag);
+	void Runtime::PlaySoundAtNode(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_frequency) {
+
+
+		if (!a_node) {
+			logger::warn("Tried to play a sound on a null node");
+			return;
+		}
+
+		auto soundDescriptor = Runtime::GetSound(a_tag);
 		if (!soundDescriptor) {
-			log::error("Sound invalid: {}", tag);
+			log::error("Sound invalid: {}", a_tag);
 			return;
 		}
 		auto audioManager = BSAudioManager::GetSingleton();
@@ -224,8 +242,11 @@ namespace GTS {
 		BSSoundHandle soundHandle;
 		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, soundDescriptor);
 		if (success) {
-			soundHandle.SetVolume(volume);
-			soundHandle.SetObjectToFollow(&node);
+			soundHandle.SetVolume(a_volume);
+
+			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+
+			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();
 		}
 		else {

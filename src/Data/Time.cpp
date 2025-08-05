@@ -23,15 +23,15 @@ namespace GTS {
 		return Time::GetSingleton().framesElapsed;
 	}
 
-	float Time::GetTimeMultiplier() {
+	float Time::GGTM() {
 		return (*g_SGTM);
 	}
 
-	void Time::MultiplyGameTime(float modifier) {
+	void Time::SGTM(float modifier) {
 		*g_SGTM = modifier;
-		using func_t = decltype(MultiplyGameTime);
+		using func_t = decltype(SGTM);
 		REL::Relocation<func_t> func{ RELOCATION_ID(66989, 68246) };
-		return;
+		func(modifier);
 	}
 
 	void Time::Update() {

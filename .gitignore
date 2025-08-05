@@ -531,12 +531,12 @@ FodyWeavers.xsd
 
 build/
 
-contrib/Distribution/esps/*
-!contrib/Distribution/esps/*.esp
-contrib/Distribution/**/*.dll
-contrib/Distribution/**/*.pdb
-
-contrib/Distribution/Plugin*/*
+distribution/esps/*
+!distribution/esps/*.esp
+distribution/**/*.dll
+distribution/**/*.pdb
+distribution/Plugin*/*
+distribution/Package-*/*
 
 vcpkg
 

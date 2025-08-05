@@ -296,7 +296,7 @@ namespace GTS {
 		}
 
 		std::string sound = "GTSSoundShrinkToNothing";
-		Runtime::PlaySoundAtNode(sound, giant, 1.0f, 1.0f, "NPC Spine2 [Spn2]");
+		Runtime::PlaySoundAtNode(sound, giant, 1.0f, "NPC Spine2 [Spn2]");
 
 		if (!IsLiving(tiny)) {
 			SpawnDustParticle(tiny, tiny, "NPC Root [Root]", 3.6f);
@@ -949,7 +949,7 @@ namespace GTS {
 	}
 
 	void DoDamageAtPoint_Cooldown(Actor* giant, float radius, float damage, NiAVObject* node, NiPoint3 NodePosition, float random, float bbmult, float crushmult, float pushpower, DamageSource Cause) { // Apply crawl damage to each bone individually
-		auto profiler = Profilers::Profile("AnimUtils: DoDamageAtPoint");
+		GTS_PROFILE_SCOPE("AnimUtils: DoDamageAtPoint");
 		if (node) {
 			if (!giant) {
 				return;
@@ -1038,10 +1038,10 @@ namespace GTS {
 
 								float Volume = std::clamp(difference*pushForce, 0.15f, 1.0f);
 
-								auto node = find_node(giant, GetDeathNodeName(Cause));
-								if (node) {
-									Runtime::PlaySoundAtNode("GTSSoundSwingImpact", giant, Volume, 1.0f, node); // play swing impact sound
-									ApplyShakeAtPoint(giant, 1.8f * pushpower * audio, node->world.translate, 0.0f);
+								auto targetNode = find_node(giant, GetDeathNodeName(Cause));
+								if (targetNode) {
+									Runtime::PlaySoundAtNode("GTSSoundSwingImpact", Volume, targetNode); // play swing impact sound
+									ApplyShakeAtPoint(giant, 1.8f * pushpower * audio, targetNode->world.translate, 0.0f);
 								}
 
 								ApplyActionCooldown(otherActor, CooldownSource::Damage_Hand);
@@ -1055,7 +1055,7 @@ namespace GTS {
 	}
 
 	void ApplyThighDamage(Actor* actor, bool right, bool CooldownCheck, float radius, float damage, float bbmult, float crush_threshold, int random, DamageSource Cause) {
-		auto profiler = Profilers::Profile("AnimUtils: ApplyThighDamage");
+		GTS_PROFILE_SCOPE("AnimUtils: ApplyThighDamage");
 		auto& CollisionDamage = CollisionDamage::GetSingleton();
 		
 		if (actor) {
@@ -1155,7 +1155,7 @@ namespace GTS {
 	}
 
 	void ApplyFingerDamage(Actor* giant, float radius, float damage, NiAVObject* node, float random, float bbmult, float crushmult, float Shrink, DamageSource Cause) { // Apply crawl damage to each bone individually
-		auto profiler = Profilers::Profile("AnimUtils: ApplyFingerDamage");
+		GTS_PROFILE_SCOPE("AnimUtils: ApplyFingerDamage");
 		if (!node) {
 			return;
 		}

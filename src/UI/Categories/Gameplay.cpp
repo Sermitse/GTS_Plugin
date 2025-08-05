@@ -1,5 +1,5 @@
 #include "UI/Categories/Gameplay.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
 
 namespace {
@@ -27,8 +27,8 @@ namespace GTS {
             "- Curse of Diminishing: When not in combat or when not performing any giantess actions. You will slowly shrink to the target scale if too large.\n"
             "- Size Locked: Combines the effects of both curses. You will grow to the specified size and slowly shrink back to it if larger.";
 
-        const char* T1 = "Modify the amount grown each tick.";
-        const char* T2 = "Modify the amount shrunk each tick.";
+        const char* T1 = "Modify the amount grown or shrunk each tick.\n"
+						 "Grow Rate | Shrink Rate";
 
         const char* T3 = "Set the maximum size for the \"Curse of Growth\" game mode";
 
@@ -63,16 +63,17 @@ namespace GTS {
 
             ImGui::Spacing();
             ImGui::Text("Basic Game Modes");
-            ImUtil::SliderF("Growth Rate", &a_Settings->fGrowthRate, 0.0001f, 0.2f, T1, "%.3fx");
-            ImUtil::SliderF("Shrink Rate", &a_Settings->fShrinkRate, 0.0001f, 0.2f, T2, "%.3fx");
 
+            static std::array const pTemp = { &a_Settings->fGrowthRate, &a_Settings->fShrinkRate };
+
+            ImUtil::SliderF2("Grow/Shrink Rate", pTemp.at(0), 0.001f, 0.2f, T1, "%.3fx");
             ImUtil::CheckBox("Multiply Rates", &a_Settings->bMultiplyGrowthrate, T4);
 
             ImGui::Spacing();
             ImGui::Text("Curse Game Modes");
-            ImUtil::SliderF("Curse Update Interval", &a_Settings->fGameModeUpdateInterval, 2.0f, 60.0f, T6, "Every %.2f Seconds");
+            ImUtil::SliderF("Curse Update Interval", &a_Settings->fGameModeUpdateInterval, 1.0f, 60.0f, T6, "Every %.2f Seconds");
             ImUtil::SliderF("Curse of Growth Limit", &a_Settings->fCurseGrowthSizeLimit, 1.1f, 50.0f, T3, "%.2fx");
-        	ImUtil::SliderF("Target Scale", &a_Settings->fCurseTargetScale, 1.1f, 4.0f, T5, "%.2fx");
+        	ImUtil::SliderF("Target Scale", &a_Settings->fCurseTargetScale, 1.0f, 5.0f, T5, "%.2fx");
 
             ImGui::EndDisabled();
             ImGui::Spacing();
@@ -142,7 +143,7 @@ namespace GTS {
 
         ImUtil_Unique{
 
-            if (ImGui::CollapsingHeader("Size Effects")) {
+            if (ImGui::CollapsingHeader("Size Effects", ImUtil::HeaderFlagsDefaultOpen)) {
 
                 const char* T1 = "When large enough, footsteps or size-related actions will launch physics-enabled items.";
 

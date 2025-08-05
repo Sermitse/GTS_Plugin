@@ -1,12 +1,117 @@
-#include "UI/Categories/General.hpp"
-#include "Config/Keybinds.hpp"
+﻿#include "UI/Categories/General.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "UI/UIManager.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGUI/ImFontManager.hpp"
-#include "UI/ImGUI/ImStyleManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
 #include "Utils/QuestUtil.hpp"
+#include "Config/SettingsModHandler.hpp"
+
+namespace {
+
+	const char* T_Export = "Export the current mod configuration to a file.";
+	const char* T_Import = "Import the current mod configuration from the selected export file.";
+	const char* T_Delete = "Delete the currently selected settings export.";
+	const char* T_Cleanup = "Delete all but the 5 most recent exports.";
+	const char* T_Reset = "Reset all settings, this does not reset any modified action keybinds.\n"
+					      "If you want to reset those press the reset button on its page instead.";
+
+	void DrawIEUI(){
+
+		auto& conf = GTS::Config::GetSingleton();
+		static std::string statusText = "";
+		static int selectedExportIndex = -1;
+		constexpr int keepCount = 5;
+
+		// Get available export files
+		auto exportFiles = conf.GetExportedFiles();
+		std::vector<std::string> fileNames;
+		for (const auto& file : exportFiles) {
+			fileNames.push_back(file.filename().string());
+		}
+
+		// Export section
+		if (ImUtil::ImageButton("##Export","export_save", 32, T_Export)) {
+			if (conf.ExportSettings()) {
+				auto files = conf.GetExportedFiles();
+				if (!files.empty()) {
+					statusText = fmt::format("✓ Saved as {}", files.front().filename().string());
+				}
+			}
+		}
+
+		ImGui::SameLine();
+
+		if (ImUtil::ImageButton("##Import", "export_load", 32, T_Import)) {
+			if(selectedExportIndex < 0) {
+				statusText = fmt::format("Select an export first", fileNames[selectedExportIndex]);
+			}
+			else if (selectedExportIndex >= 0 && selectedExportIndex < exportFiles.size()) {
+				if (conf.LoadFromExport(exportFiles[selectedExportIndex].string())) {
+					GTS::HandleSettingsRefresh();
+					statusText = fmt::format("✓ Applied {}", fileNames[selectedExportIndex]);
+				}
+				else {
+					statusText = "Import failed";
+				}
+			}
+		}
+
+		ImGui::SameLine();
+
+		if (ImUtil::ImageButton("##Delete", "export_delete", 32, T_Delete)) {
+
+			if (selectedExportIndex < 0) {
+				statusText = fmt::format("Select an export first", fileNames[selectedExportIndex]);
+			}
+			else if (selectedExportIndex >= 0 && selectedExportIndex < exportFiles.size()) {
+				conf.DeleteExport(exportFiles[selectedExportIndex].string());
+				statusText = fmt::format("Deleted {}", fileNames[selectedExportIndex]);
+				selectedExportIndex = -1;
+			}
+		}
+
+		ImGui::SameLine();
+
+		if (ImUtil::ImageButton("##Cleaunup", "export_cleanup", 32, T_Cleanup)) {
+			conf.CleanOldExports(keepCount);
+			statusText = fmt::format("✓ Removed old exports [Kept {0} most recent]", keepCount);
+		}
+
+		ImUtil::SeperatorV();
+
+		if (ImUtil::ImageButton("##Reset", "generic_reset", 32, T_Reset)) {
+			GTS::HandleSettingsReset();
+			statusText = fmt::format("✓ Mod settings have been reset");
+		}
+
+		// Combo box for selecting exports
+		const char* previewValue = (selectedExportIndex >= 0 && selectedExportIndex < fileNames.size()) ? fileNames[selectedExportIndex].c_str() : "Select export file...";
+
+		if (ImGui::BeginCombo("##ExportCombo", previewValue)) {
+			for (int i = 0; i < fileNames.size(); i++) {
+				bool isSelected = (selectedExportIndex == i);
+				if (ImGui::Selectable(fileNames[i].c_str(), isSelected)) {
+					selectedExportIndex = i;
+				}
+				if (isSelected) {
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		ImGui::Spacing();
+
+		// Status message
+		if (!statusText.empty()) {
+			GTS::ImFontManager::PushActiveFont(GTS::ImFontManager::ActiveFontType::kLargeText);
+			ImGui::TextColored(ImUtil::ColorMessage, statusText.c_str());
+			GTS::ImFontManager::PopActiveFont();
+		}
+	}
+}
+
 
 
 namespace GTS {
@@ -26,7 +131,8 @@ namespace GTS {
 				const auto Player = PlayerCharacter::GetSingleton();
 				const bool WorkingAnims = AnimationsInstalled(Player);
 
-				ImGui::PushFont(ImFontManager::GetFont("widgettitle"));
+				ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kWidgetTitle);
+
 				ImGui::Text("Animations Installed: ");
 				if (WorkingAnims) {
 					ImGui::SameLine(0,1);
@@ -37,7 +143,7 @@ namespace GTS {
 					ImGui::TextColored(ImUtil::ColorError, "No");
 				}
 
-				ImGui::PopFont();
+				ImFontManager::PopActiveFont();
 
 				if (ImUtil::Button("Manualy Test Animations", T0)) {
 
@@ -63,6 +169,30 @@ namespace GTS {
 						return true;
 					});
 				}
+				ImGui::Spacing();
+			}
+		}
+
+		//----------- Settings Export
+
+		ImUtil_Unique {
+			if (ImGui::CollapsingHeader("Export/Import Settings", ImUtil::HeaderFlagsDefaultOpen)) {
+				DrawIEUI();
+			}
+		}
+
+		//----------- Skill Tree
+
+		ImUtil_Unique{
+
+			const char* T0 = "Open this mod's custom skill tree";
+
+			if (ImGui::CollapsingHeader("Skill Tree", ImUtil::HeaderFlagsDefaultOpen)) {
+				if (ImUtil::Button("Open Skill Tree",T0)) {
+					UIManager::CloseSettings();
+					Runtime::SetFloat("GTSSkillMenu", 1.0);
+				}
+
 				ImGui::Spacing();
 			}
 		}
@@ -98,21 +228,6 @@ namespace GTS {
 				ImGui::Spacing();
 
 			}
-	}
-
-
-		//------ Settings Storage
-
-		ImUtil_Unique{
-
-			const char* T0 = "Should the mod settings be saved globaly or on a per save basis like older versions of the mod?\n"
-			"Effectively this mimicks the behavior you'd experience when using a MCM menu.\n";
-
-			if (ImGui::CollapsingHeader("Settings Storage", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImUtil::CheckBox("Save Specific Settings", &Persistent::GetSingleton().LocalSettingsEnable.value, T0);
-				ImGui::Spacing();
-			}
-
 		}
 
 		//------ Experimental
@@ -136,28 +251,14 @@ namespace GTS {
                             "- to:   1.0 * (size * anim slowdown)\n\n"
                             "As a result, movement speed will be faster (which isn't always good)\n"
                             "But it should drastically reduce or even fix ice-skating effect";
-			const char* T4 = "Enables or Disables gravity acceleration based on size \n"
-							"- If enabled, gravity will slightly increase as the player grows: 1.0 * sqrt(size)\n"
-							"  (This means large player falls faster, but not too fast)\n"
-							"- If disabled, gravity stays constant at 1.0\n"
-							"- This option is player exclusive.";
-			const char* T5 = "Some animations have bad event timings during jump lands\n"
-							"- If anim timings are bad = then damage zones may spawn in air, not hitting anyone\n"
-							"- Use this slider to adjust delay, 0 = no delay, 1 = 1sec delay on jump land";
-			const char* T6 = "Adjusts extra jump land delay when 'Affect Player Gravity' is on\n"
-							"- it may be needed because animation may not have enough time to do foot events on ground\n"
-							"- Which will lead to not dealing any damage to enemies on the ground\n"
-							"- Acts as additional value on top of original jump land delay\n\n"
-							"- This value is further multiplied by Gravity Power.";
 
-	        if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
+
+	        if (ImGui::CollapsingHeader("Experimental")) {
 	            ImUtil::CheckBox("Allow Male Actors", &Settings.bEnableMales, T0);
 				ImUtil::CheckBox("Apply Size Effects to all Actors", &Settings.bAllActorSizeEffects, T1);
 				ImUtil::CheckBox("Override Item/NPC Interaction Range", &Settings.bOverrideInteractionDist, T2);
 				ImUtil::CheckBox("Alternative Movement Speed",&Settings.bAlternativeSpeedFormula, T3);
-				ImUtil::CheckBox("Affect Player Gravity", &Settings.bAlterPlayerGravity, T4);
-				ImUtil::SliderF("Jump Effect Delay", &Settings.fAdditionalJumpEffectDelay, 0.0f, 1.0f, T5, "%.2fs");
-				ImUtil::SliderF("Jump Effect Delay - Gravity", &Settings.fAdditionalJumpEffectDelay_Gravity, 0.0f, 1.0f, T6, "%.2fs", !Settings.bAlterPlayerGravity);
+
 
 	        	ImGui::Spacing();
 	        }
@@ -199,11 +300,12 @@ namespace GTS {
 
 	        if (ImGui::CollapsingHeader("High-Heels", ImUtil::HeaderFlagsDefaultOpen)) {
 
-	            ImUtil::CheckBox("High Heels: Enable Height Adjustment", &Settings.bEnableHighHeels, T0);
+	            ImUtil::CheckBox("Height Adjustment", &Settings.bEnableHighHeels, T0);
 
 				ImGui::SameLine();
 
-	        	if (ImUtil::CheckBox("High Heels: Disable When Using Furniture", &Settings.bHighheelsFurniture, T1, !Settings.bEnableHighHeels)){
+	        	if (ImUtil::CheckBox("Disable With Furniture", &Settings.bHighheelsFurniture, T1, !Settings.bEnableHighHeels)){
+
 	            	if (!Settings.bHighheelsFurniture) {
 
 						auto actors = find_actors();
@@ -223,6 +325,9 @@ namespace GTS {
 						}
 					}
 	            }
+
+				ImGui::Spacing();
+
 	        }
 	    }
 
@@ -244,110 +349,73 @@ namespace GTS {
 	        }
 	    }
 
-		//----------- Skill Tree
 
-		ImUtil_Unique{
+		//------------- Gravity
 
-			const char* T0 = "Open this mod's custom skill tree";
+		ImUtil_Unique {
 
-			if (ImGui::CollapsingHeader("Skill Tree", ImUtil::HeaderFlagsDefaultOpen)) {
-				if (ImUtil::Button("Open Skill Tree",T0)) {
-					UIManager::CloseSettings();
-					Runtime::SetFloat("GTSSkillMenu", 1.0);
-				}
+			const char* T0 = "Enables or Disables gravity acceleration based on size \n"
+							"- If enabled, gravity will slightly increase as the player grows: 1.0 * sqrt(size)\n"
+							"  (This means large player falls faster, but not too fast)\n"
+							"- If disabled, gravity stays constant at 1.0\n"
+							"- This option is player exclusive.";
+
+			const char* T1 = "Some animations have bad event timings during jump lands\n"
+							"- If anim timings are bad = then damage zones may spawn in air, not hitting anyone\n"
+							"- Use this slider to adjust delay, 0 = no delay, 1 = 1sec delay on jump land";
+
+			const char* T2 = "Adjusts extra jump land delay when 'Affect Player Gravity' is on\n"
+							"- It may be needed because animation may not have enough time to do foot events on ground\n"
+							"- Which will lead to not dealing any damage to enemies on the ground\n"
+							"- Acts as additional value on top of original jump land delay\n\n"
+							"- This value is further multiplied by Gravity Power.";
+
+			if (ImGui::CollapsingHeader("Jumping", ImUtil::HeaderFlagsDefaultOpen)) {
+				ImUtil::CheckBox("Affect Player Gravity", &Settings.bAlterPlayerGravity, T0);
+				ImUtil::SliderF("Damage Effect Delay - Gravity", &Settings.fAdditionalJumpEffectDelay_Gravity, 0.0f, 1.0f, T2, "%.2fs", !Settings.bAlterPlayerGravity);
+				ImUtil::SliderF("Damage Effect Delay", &Settings.fAdditionalJumpEffectDelay, 0.0f, 1.0f, T1, "%.2fs");
 
 				ImGui::Spacing();
 			}
 		}
 
+
 		//----------- Progress
 
-	    ImUtil_Unique {
+		ImUtil_Unique{
 
-	        const char* T0 = "Automatically complete this mod's quest.";
+			const char* T0 = "Automatically complete this mod's quest.";
 			const char* T1 = "Get all of the mod's spells";
-	        const char* T2 = "Instantly complete the perk tree.";
+			const char* T2 = "Instantly complete the perk tree.";
 			const char* T3 = "Get all of the mod's shouts";
 
-	        if (ImGui::CollapsingHeader("Skip Progression")) {
+			if (ImGui::CollapsingHeader("Skip Progression")) {
 
 				const auto Complete = ProgressionQuestCompleted();
 
-	            if (ImUtil::Button("Skip Quest",T0, Complete)) {
+				if (ImUtil::Button("Skip Quest",T0, Complete)) {
 					SkipProgressionQuest();
-	            }
+				}
 
-	            ImGui::SameLine();
+				ImGui::SameLine();
 
 				if (ImUtil::Button("Get All Spells", T1, !Complete)) {
 					GiveAllSpellsToPlayer();
-				} 
+				}
 
-	            ImGui::SameLine();
+				ImGui::SameLine();
 
-	            if (ImUtil::Button("Get All Perks",T2, !Complete)) {
+				if (ImUtil::Button("Get All Perks",T2, !Complete)) {
 					GiveAllPerksToPlayer();
-	            }
+				}
 
 				ImGui::SameLine();
 
 				if (ImUtil::Button("Get All Shouts", T3, !Complete)) {
 					GiveAllShoutsToPlayer();
 				}
-	        }
-	    }
 
-		//-------- Settings Reset
-
-		ImUtil_Unique{
-
-			const char* T0 = "Reset this mod's setting do their default values";
-
-			//Reset
-			if (ImGui::CollapsingHeader("Reset Settings")) {
-				if (ImUtil::Button("Reset Mod Settings", T0)) {
-
-					Config::GetSingleton().ResetToDefaults();
-					Keybinds::GetSingleton().ResetKeybinds();
-					ImStyleManager::GetSingleton().LoadStyle();
-					ImFontManager::GetSingleton().RebuildFonts();
-
-					spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
-					spdlog::flush_on(spdlog::level::from_str(Config::GetAdvanced().sFlushLevel));
-
-					// ----- If You need to do something when settings reset add it here.
-
-					if (!Settings.bTrackBonesDuringAnim) {
-						auto actors = find_actors();
-						for (auto actor : actors) {
-							if (actor) {
-								ResetCameraTracking(actor);
-							}
-						}
-					}
-
-					if (!Settings.bHighheelsFurniture) {
-
-						auto actors = find_actors();
-
-						for (auto actor : actors) {
-							if (!actor) {
-								return;
-							}
-
-							for (bool person : {false, true}) {
-								auto npc_root_node = find_node(actor, "NPC", person);
-								if (npc_root_node && actor->GetOccupiedFurniture()) {
-									npc_root_node->local.translate.z = 0.0f;
-									update_node(npc_root_node);
-								}
-							}
-						}
-					}
-
-					Notify("Mod settins have been reset");
-					logger::info("All Mod Settings Reset");
-				}
+				ImGui::Spacing();
 			}
 		}
 	}

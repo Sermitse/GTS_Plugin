@@ -1,11 +1,15 @@
 #pragma once
+
+//stdlib Defines
 #define _USE_MATH_DEFINES
 
-//Sanity checks incase the compiler decides to be funny
-static_assert(sizeof(bool) == 1, "Assumed sizeof bool is incorrect. This will break Serde!");
-static_assert(sizeof(short) == 2, "Assumed sizeof short is incorrect. This will break Serde!");
-static_assert(sizeof(float) == 4, "Assumed sizeof float is incorrect. This will break Serde!");
-static_assert(sizeof(double) == 8, "Assumed sizeof double is incorrect. This will break Serde!");
+//Project-Wide Defines
+//#define GTS_PROFILER_ENABLED
+//#define GTS_DISABLE_PLUGIN
+
+
+//Imgui Defines
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
 #include <cassert>
 #include <cctype>
@@ -28,7 +32,6 @@ static_assert(sizeof(double) == 8, "Assumed sizeof double is incorrect. This wil
 #include <cuchar>
 #include <cwchar>
 #include <cwctype>
-
 #include <algorithm>
 #include <any>
 #include <array>
@@ -117,6 +120,7 @@ static_assert(sizeof(double) == 8, "Assumed sizeof double is incorrect. This wil
 //WinAPI Fix
 #undef PlaySound 
 #undef DeleteFile
+#undef LoadImage
 
 // For console sink
 
@@ -128,9 +132,6 @@ static_assert(sizeof(double) == 8, "Assumed sizeof double is incorrect. This wil
 #include <toml.hpp>                     //https://github.com/ToruNiina/toml11
 #include <magic_enum/magic_enum.hpp>    //https://github.com/Neargye/magic_enum
 #include <lz4.h>
-
-// Compatible declarations with other sample projects.
-#define DLLEXPORT __declspec(dllexport)
 
 using namespace std::literals;
 using namespace REL::literals;
@@ -160,7 +161,7 @@ namespace Hooks {
 	using namespace GTS;
 }
 
-//Add Missing Game versions to our antequated version of clib-ng
+//Add Missing Game versions to our old version of clib-ng
 namespace RE {
 	constexpr REL::Version RUNTIME_SSE_1_6_659(1, 6, 659, 0);
 	constexpr REL::Version RUNTIME_SSE_1_6_678(1, 6, 678, 0);
@@ -169,10 +170,6 @@ namespace RE {
 }
 
 namespace logger = SKSE::log;
-
-#ifdef GTSDEBUG
-	#define GTSCONSOLE
-#endif
 
 //git version tracking
 #include "git.h"
@@ -189,3 +186,4 @@ namespace logger = SKSE::log;
 #include "Data/Data.hpp"
 #include "Hooks/Hooks.hpp"
 #include "Version.hpp"
+#include "RE/RE.hpp"

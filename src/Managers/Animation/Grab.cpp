@@ -280,7 +280,7 @@ namespace {
 	void GTSGrab_Breast_PutActor(AnimationEventData& data) { // Places actor between breasts
 		auto giant = &data.giant;
 		
-		Runtime::PlaySoundAtNode("GTSSoundBreastImpact", giant, 1.0f, 0.0f, "NPC L Hand [LHnd]");
+		Runtime::PlaySoundAtNode("GTSSoundBreastImpact", giant, 1.0f, "NPC L Hand [LHnd]");
 		giant->SetGraphVariableInt("GTS_Storing_Tiny", 1);
 		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
 		auto otherActor = Grab::GetHeldActor(giant);
@@ -447,14 +447,14 @@ namespace GTS {
 				DelayedBreastDeattach(tiny);
                 SetBeingHeld(tiny, false);
 
-                Runtime::PlaySoundAtNode("GTSSoundCrushDefault", giantess, 1.0f, 1.0f, "NPC L Hand [LHnd]");
+                Runtime::PlaySoundAtNode("GTSSoundCrushDefault", giantess, 1.0f, "NPC L Hand [LHnd]");
 
 				if (do_sound) {
 					if (!LessGore()) {
-						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, 1.0f, "NPC L Hand [LHnd]");
-						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, "NPC L Hand [LHnd]");
 					} else {
-						Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", giantess, 1.0f, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", giantess, 1.0f, "NPC L Hand [LHnd]");
 					}
 				}
 
@@ -470,10 +470,10 @@ namespace GTS {
             } else {
 				if (do_sound) {
 					if (!LessGore()) {
-						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, "NPC L Hand [LHnd]");
 						SpawnHurtParticles(giantess, tiny, 1.0f, 1.0f);
 					} else {
-						Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", giantess, 1.0f, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", giantess, 1.0f, "NPC L Hand [LHnd]");
 					}
 				}
 				if (stagger) {

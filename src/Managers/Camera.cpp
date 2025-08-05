@@ -98,7 +98,7 @@ namespace GTS {
 
 	void CameraManager::CameraUpdate() {
 
-		auto profiler = Profilers::Profile("CameraManager: CameraUpdate");
+		GTS_PROFILE_SCOPE("CameraManager: CameraUpdate");
 		CameraState* CurrentState = this->GetCameraState();
 
 		if (SmoothCam::Enabled()) {

@@ -11,66 +11,53 @@ namespace GTS {
 		unordered_set<FormID> previousActors;
 	};
 
-	/*vector<Actor*> find_actors() {
-	        auto profiler = Profilers::Profile("FindActor: Find Actors");
-	        vector<Actor*> result;
-
-	        auto high_actors = find_actors_high();
-	        result.insert(result.end(), high_actors.begin(), high_actors.end());
-
-	        auto middle_high_actors = find_actors_middle_high();
-	        result.insert(result.end(), middle_high_actors.begin(), middle_high_actors.end());
-
-	        auto middle_low_actors = find_actors_high();
-	        result.insert(result.end(), middle_low_actors.begin(), middle_low_actors.end());
-
-	        auto low_actors = find_actors_high();
-	        result.insert(result.end(), low_actors.begin(), low_actors.end());
-
-	        std::sort( result.begin(), result.end() );
-	        result.erase( std::unique( result.begin(), result.end() ), result.end() );
-	        return result;
-	   }*///Backup
 
 
-	vector<Actor*> find_actors() { // Backup above ^
-		auto profiler = Profilers::Profile("FindActor: FindActors");
-		vector<Actor*> result;
-		auto high_actors = find_actors_high();
+	vector<Actor*> find_actors() {
 
-		result.insert(result.end(), high_actors.begin(), high_actors.end());
+		GTS_PROFILE_SCOPE("FindActor: FindActors");
 
-		ranges::sort(result);
-		return result;
+		// Get the current thread ID
+		std::thread::id current_thread = std::this_thread::get_id();
+		std::thread::id stored_main_thread = main_update_thread_id.load();
+
+		// If we're on the main update thread and cache is valid, return cached version
+		if (current_thread == stored_main_thread && cache_valid.load()) {
+			std::lock_guard<std::mutex> lock(cache_mutex);
+			return cached_actors; // This will copy the vector
+		}
+
+		return find_actors_high();
 	}
 
 	vector<Actor*> find_actors_high() {
-		vector<Actor*> result;
 
-		auto process_list = ProcessLists::GetSingleton();
-		for (const ActorHandle& actor_handle: process_list->highActorHandles){
-			if (!actor_handle) {
-				continue;
-			}
+		const auto process_list = ProcessLists::GetSingleton();
+
+		vector<Actor*> result;
+		result.reserve(process_list->highActorHandles.size() + 1);
+
+		for (const auto& actor_handle : process_list->highActorHandles) {
+			if (!actor_handle) continue;
+
 			auto actor_smartptr = actor_handle.get();
-			if (!actor_smartptr) {
-				continue;
-			}
+			if (!actor_smartptr) continue;
 
 			Actor* actor = actor_smartptr.get();
-			// auto actor = actor_handle.get().get();
-			if (actor && actor->Is3DLoaded()) {
+			if (actor->Is3DLoaded()) {
 				result.push_back(actor);
 			}
 		}
-		auto player = PlayerCharacter::GetSingleton();
+
+		auto* player = PlayerCharacter::GetSingleton();
 		if (player && player->Is3DLoaded()) {
 			result.push_back(player);
 		}
+
 		return result;
 	}
 
-	vector<Actor*> find_actors_middle_high() {
+	/*vector<Actor*> find_actors_middle_high() {
 		vector<Actor*> result;
 
 		auto process_list = ProcessLists::GetSingleton();
@@ -137,7 +124,7 @@ namespace GTS {
 			}
 		}
 		return result;
-	}
+	}*/
 
 	vector<Actor*> FindSomeActors(std::string_view tag, uint32_t howMany) {
 		static unordered_map<string, FindActorData> allData;
@@ -148,7 +135,7 @@ namespace GTS {
 		vector<Actor*> finalActors;
 		vector<Actor*> notAddedAcrors;
 		uint32_t addedCount = 0;
-		for (auto actor: find_actors()) {
+		for (const auto actor: find_actors_high()) {
 			// Player or teammate are always updated
 			if (actor->formID == 0x14 || IsTeammate(actor)) {
 				finalActors.push_back(actor);

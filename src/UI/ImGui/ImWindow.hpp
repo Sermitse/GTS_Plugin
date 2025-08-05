@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 
 namespace GTS {
 
@@ -34,7 +34,7 @@ namespace GTS {
 
         std::string Name = "Default";   //Imgui Window Name (Must be unique)
         std::string Title = "Default";  //Window Title
-        ImGuiWindowFlags flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NavFlattened;
+        ImGuiWindowFlags flags = ImGuiWindowFlags_None;
 
         virtual ~ImWindow() noexcept = default;
 

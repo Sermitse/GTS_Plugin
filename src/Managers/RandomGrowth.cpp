@@ -120,8 +120,8 @@ namespace GTS {
 											Sound_PlayMoans(actor, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 											Task_FacialEmotionTask_Moan(actor, 0.8f, "RandomGrow");
 										}
-										Runtime::PlaySoundAtNode("GTSSoundRumble", actor, base_power, 1.0f, "NPC COM [COM ]");
-										Runtime::PlaySoundAtNode("GTSSoundGrowth", actor, Volume, 1.0f, "NPC Pelvis [Pelv]");
+										Runtime::PlaySoundAtNode("GTSSoundRumble", actor, base_power, "NPC COM [COM ]");
+										Runtime::PlaySoundAtNode("GTSSoundGrowth", actor, Volume, "NPC Pelvis [Pelv]");
 
 										double Start = Time::WorldTimeElapsed();
 										TaskManager::Run(name, [=](auto& progressData) {

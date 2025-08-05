@@ -2,6 +2,7 @@
 #include "Data/Persistent.hpp"
 
 #include "Config/Config.hpp"
+#include "Config/SettingsModHandler.hpp"
 
 #include "Managers/GtsSizeManager.hpp"
 
@@ -17,22 +18,29 @@ namespace GTS {
 	//-----------------
 
 	void Persistent::OnGameLoaded(SerializationInterface* serde) {
-		//logger::info("Persistent OnGameLoaded Start");
+		logger::info("Persistent OnGameLoaded Start");
 		std::unique_lock lock(GetSingleton()._Lock);
+
+		LoadPersistent(serde);
+
+	#ifndef GTS_DISABLE_PLUGIN
+
 		SizeManager::GetSingleton().Reset();
 		DistributeChestItems();
 		FixAnimationsAndCamera(); // Call it from ActorUtils, needed to fix Grab anim on save-reload
-		LoadPersistent(serde);
 		LoadModLocalModConfiguration();
 
-		//logger::info("Persistent OnGameLoaded OK");
+	#endif
+
+		logger::info("Persistent OnGameLoaded OK");
 	}
 
 	void Persistent::OnGameSaved(SerializationInterface* serde) {
-		//logger::info("Persistent OnGameSaved Start");
+		logger::info("Persistent OnGameSaved Start");
 		std::unique_lock lock(GetSingleton()._Lock);
 		SavePersistent(serde);
-		//logger::info("Persistent OnGameSaved OK");
+		
+		logger::info("Persistent OnGameSaved OK");
 	}
 
 	void Persistent::ClearData() {
@@ -61,14 +69,9 @@ namespace GTS {
 	}
 
 	void Persistent::LoadModLocalModConfiguration() {
-
-		const auto& Persi = Persistent::GetSingleton();
-
-		if (Persi.LocalSettingsEnable.value) {
-			Config::GetSingleton().LoadSettingsFromString();
-			ImStyleManager::GetSingleton().LoadStyle();
-			ImFontManager::GetSingleton().RebuildFonts();
-		}
+		Config::GetSingleton().LoadSettingsFromString();
+		ImStyleManager::GetSingleton().LoadStyle();
+		spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
 	}
 
 	void Persistent::LoadPersistent(SerializationInterface* serde) {
@@ -117,7 +120,6 @@ namespace GTS {
 			Persistent.UnlockMaxSizeSliders.Load(serde, RecordType, RecordVersion, RecordSize);
 
 			// ---- Save Baked Settings
-			Persistent.LocalSettingsEnable.Load(serde, RecordType, RecordVersion, RecordSize);
 			Persistent.ModSettings.Load(serde, RecordType, RecordVersion, RecordSize);
 
 		}
@@ -163,7 +165,6 @@ namespace GTS {
 		Persistent.UnlockMaxSizeSliders.Save(serde);
 
 		// ---- Save Baked Settings
-		Persistent.LocalSettingsEnable.Save(serde);
 		Persistent.ModSettings.Save(serde);
 	}
 	
@@ -512,10 +513,11 @@ namespace GTS {
 
 	// The Revert Callback Fires when we exit to the main menu and when a game is loaded.
 	void Persistent::OnRevert(SerializationInterface*) {
+	#ifndef GTS_DISABLE_PLUGIN
 		logger::info("Persistent::OnRevert");
-
 		Persistent::GetSingleton().Reset();
 		Transient::GetSingleton().Reset();
+	#endif
 	
 	}
 

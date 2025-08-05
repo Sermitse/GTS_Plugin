@@ -1,7 +1,7 @@
 #pragma once
 
-#include "UI/DearImGui/imgui.h"
-#include "UI/DearImGui/imgui_internal.h"
+#include "UI/ImGui/Lib/imgui.h"
+#include "UI/ImGui/Lib/imgui_internal.h"
 
 
 // RAII helper to push an ID on construction and pop it on destruction
@@ -31,7 +31,8 @@ namespace ImUtil {
     constexpr ImVec4 ColorError = {1.0f, 0.35f, 0.30f, 0.9f};
     constexpr ImVec4 ColorOK = { 0.30f, 1.0f, 0.35f, 0.9f };
     constexpr ImVec4 ColorSubscript = {1.0f, 1.0f, 1.0f, 0.5f};
-
+    constexpr ImVec4 ColorDisabled = { 0.4f, 0.1f, 0.1f, 1.0f };
+    constexpr ImVec4 ColorMessage = { 1.0f, 0.5f, 0.0f, 1.0f };
     constexpr uint32_t HeaderFlagsDefaultOpen = ImGuiTreeNodeFlags_DefaultOpen;
     
     constexpr float TooltipDelay = 0.45f; //sec
@@ -63,7 +64,9 @@ namespace ImUtil {
 
     const std::string HumanizeString(std::string_view name);
 
-    const bool Button(const char* a_label, const char* a_Tooltip = nullptr, const bool a_disabled = false, const float a_padding = 1.0f);
+    const bool Button(const char* a_label, const char* a_Tooltip = nullptr, bool a_disabled = false, float a_padding = 1.0f);
+    const bool ImageButtonEx(const char* a_label, ImTextureID a_texture, const char* a_Tooltip = nullptr, bool a_disabled = false, ImVec2 a_imgSize = {32,32});
+    const bool ImageButton(const char* a_label, const std::string& a_TexName, const int a_size = 32, const char* a_Tooltip = nullptr, const bool a_disabled = false);
     const bool CheckBox(const char* a_label, bool* a_state, const char* a_Tooltip = nullptr, const bool a_disabled = false);
     const bool SliderF(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip = nullptr, const char* fmt = "%.2f", const bool a_disabled = false, const bool a_alwaysclamp = false);
     const bool SliderF2(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip = nullptr, const char* fmt = "%.2f", const bool a_disabled = false);
@@ -214,5 +217,6 @@ namespace ImUtil {
     void TextShadow(const char* fmt, ...);
     void TextShadowImpl(const char* text, const char* textend, ImU32 text_color = IM_COL32(255, 255, 255, 255), ImU32 shadow_color = IM_COL32(0, 0, 0, 192 * ImGui::GetStyle().Alpha), float shadow_offset = 2.0f);
 
+    
 }
 

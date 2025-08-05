@@ -1,5 +1,5 @@
 #include "UI/Categories/Balance.hpp"
-#include "UI/DearImGui/imgui.h"
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
 
 
@@ -56,6 +56,8 @@ namespace GTS {
             }
         }
 
+    	// ---- Misc
+
         ImUtil_Unique{
 
             const char* T0 = "Toggle whether the player should receive friendly size-related damage.";
@@ -65,10 +67,23 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Misc Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                ImUtil::CheckBox("Player: Friendly Size Damage Immunity", &Settings.bPlayerFriendlyImmunity, T0);
-                ImUtil::CheckBox("Followers: Friendly Size Damage Immunity", &Settings.bFollowerFriendlyImmunity, T1);
-                ImUtil::CheckBox("Allow Friendly Stagger", &Settings.bAllowFriendlyStagger, T2);
-                ImUtil::CheckBox("Allow Stagger", &Settings.bAllowOthersStagger, T3);
+                {
+                    ImGui::Text("Friendly Size Damage Immunity");
+                    ImUtil::CheckBox("Player", &Settings.bPlayerFriendlyImmunity, T0);
+                    ImGui::SameLine();
+                    ImUtil::CheckBox("Followers", &Settings.bFollowerFriendlyImmunity, T1);
+                }
+
+                ImGui::Spacing();
+
+                {
+
+                    ImGui::Text("Size Based Stagger");
+                    ImUtil::CheckBox("Allow", &Settings.bAllowOthersStagger, T3);
+                    ImGui::SameLine();
+                    ImUtil::CheckBox("Allow Friendly", &Settings.bAllowFriendlyStagger, T2);
+
+                }
 
                 ImGui::Spacing();
             }
@@ -105,10 +120,12 @@ namespace GTS {
         }
 
         ImUtil_Unique{
+
             const char* Thelp = "Maximal Size isn't always determined only by these sliders\n"
                                 "It is further affected by:\n"
                                 "- Game Scale (SetScale)\n"
                                 "- Natural Size";
+
         	bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), CollossalGrowthPerk);
             bool Unlock = Persistent::GetSingleton().UnlockMaxSizeSliders.value;
 
@@ -260,6 +277,8 @@ namespace GTS {
                 ImGui::Spacing();
             }
         }
+
+        // ---- Multipiers
 
         ImUtil_Unique{
 
