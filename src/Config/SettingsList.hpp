@@ -328,7 +328,7 @@ struct SettingsAdvanced {
     float fExperimentalDevourmentAIProb = 25.0f;
     std::array<float, 5> fAnimSpeedFormula = { 0.142f, 0.82f, 1.90f, 1.0f, 0.0f };
     bool bGTSAnimsFullSpeed = false;
-    float fAnimspeedLowestBoundAllowed = 0.1f;
+    float fAnimspeedLowestBoundAllowed = 0.01f;
 };
 TOML_SERIALIZABLE(SettingsAdvanced);
 

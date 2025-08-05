@@ -74,7 +74,7 @@ namespace GTS {
                 ImUtil::CheckBox("GTS Actions Always 1x Speed", &Settings.bGTSAnimsFullSpeed, T2);
                 ImUtil::SliderF("Animspeed Player", &Settings.fAnimSpeedAdjMultPlayer, 0.1f, 3.0f, T0);
                 ImUtil::SliderF("Animspeed Teammate", &Settings.fAnimSpeedAdjMultTeammate, 0.1f, 3.0f, T0);
-                ImUtil::SliderF("Animspeed Lowest Allowed", &Settings.fAnimspeedLowestBoundAllowed, 0.1f, 1.0f, T3);
+                ImUtil::SliderF("Animspeed Lowest Allowed", &Settings.fAnimspeedLowestBoundAllowed, 0.01f, 1.0f, T3);
 
                 const float PlayerSlowDown = GetAnimationSlowdown(PlayerCharacter::GetSingleton());
 
