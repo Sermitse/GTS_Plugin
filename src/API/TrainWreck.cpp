@@ -1,9 +1,11 @@
 #include "TrainWreck.hpp"
 #include "Impl/TrainWreckAPI.hpp"
+#include "Version.hpp"
+#include "git.h"
 
 namespace GTS {
 
-	void TrainWreck::Install() {
+    void TrainWreck::Install() {
 
         auto err = TrainWreckAPI::register_section(
             TRAINWRECK_SECTION_CALL_STACK,
@@ -25,6 +27,6 @@ namespace GTS {
             logger::warn("Could not register trainwreck section");
         }
         logger::info("Registered TrainWreck section");
-	}
+    }
 
 }
