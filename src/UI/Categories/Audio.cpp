@@ -158,11 +158,11 @@ namespace GTS {
 
 				const bool Enable = !Settings.bEnableVoicePitchOverrideN && !Settings.bEnableVoicePitchOverrideG;
 
-				ImUtil::SliderF("Lowest Pitch", &Settings.fMinVoiceFrequency, 0.65f, 1.0f, TpLow, "%.4fx", Enable);
-				ImUtil::SliderF("Lowest Pitch At Scale", &Settings.fTargetPitchAtScaleMax, 1.0f, 25.0f, TsMax, "At %.1fx", Enable);
+				ImUtil::SliderF("Lowest Pitch", &Settings.fMinVoiceFreq, 0.65f, 1.0f, TpLow, "%.3fx", Enable);
+				ImUtil::SliderF("Lowest Pitch At Scale", &Settings.fTargetPitchAtScaleMax, 1.5f, 50.0f, TsMax, "At %.1fx", Enable);
 				ImGui::Spacing();
-				ImUtil::SliderF("Highest Pitch", &Settings.fMaxVoiceFrequency, 1.0f, 1.6f, TpHi, "%.4fx", Enable);
-				ImUtil::SliderF("Highest Pitch At Scale", &Settings.fTargetPitchAtScaleMin, 0.10f, 1.0f, TsMin, "At %.2fx", Enable);
+				ImUtil::SliderF("Highest Pitch", &Settings.fMaxVoiceFreq, 1.0f, 1.75f, TpHi, "%.3fx", Enable);
+				ImUtil::SliderF("Highest Pitch At Scale", &Settings.fTargetPitchAtScaleMin, 0.10f, 0.6f, TsMin, "At %.2fx", Enable);
 
 				ImGui::Spacing();
 

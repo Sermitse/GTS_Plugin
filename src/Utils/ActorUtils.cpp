@@ -3669,8 +3669,8 @@ namespace GTS {
 
 	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor) {
 		auto& Audio = Config::GetAudio();
-		const float& MinFreq = Audio.fMinVoiceFrequency;
-		const float& MaxFreq = Audio.fMaxVoiceFrequency;
+		const float& MinFreq = Audio.fMinVoiceFreq;
+		const float& MaxFreq = Audio.fMaxVoiceFreq;
 		const float& ScaleAtWhichToApplyFullMin = Audio.fTargetPitchAtScaleMin;
 		const float& ScaleAtWhichToApplyFullMax = Audio.fTargetPitchAtScaleMax;
 

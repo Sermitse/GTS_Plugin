@@ -358,8 +358,8 @@ struct SettingsAudio {
     bool bUseOtherHighHeelSet = true;
     bool bBlendBetweenFootsteps = false;
 
-    float fMaxVoiceFrequency = 1.45f; // > Higher Value means Higher Freq -> Higher Voice
-    float fMinVoiceFrequency = 0.8355f; // > Lower Value means Lower Freq -> Lower Voice
+    float fMaxVoiceFreq = 1.6f; // > Higher Value means Higher Freq -> Higher Voice
+    float fMinVoiceFreq = 0.8355f; // > Lower Value means Lower Freq -> Lower Voice
 
     float fTargetPitchAtScaleMax = 8.0f;
     float fTargetPitchAtScaleMin = 0.2f;
