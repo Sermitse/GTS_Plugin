@@ -10,6 +10,7 @@
 
 //Imgui Defines
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+#define IMGUI_DEFINE_MATH_OPERATORS
 
 #include <cassert>
 #include <cctype>
@@ -171,9 +172,6 @@ namespace RE {
 
 namespace logger = SKSE::log;
 
-//git version tracking
-#include "git.h"
-
 //Own Includes
 #include "Config/ConfigUtil.hpp"
 #include "Constants.hpp"
@@ -185,5 +183,4 @@ namespace logger = SKSE::log;
 #include "Scale/Height.hpp"
 #include "Data/Data.hpp"
 #include "Hooks/Hooks.hpp"
-#include "Version.hpp"
 #include "RE/RE.hpp"

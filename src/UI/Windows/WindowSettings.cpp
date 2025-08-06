@@ -20,6 +20,9 @@
 
 #include "UI/UIManager.hpp"
 
+#include "Version.hpp"
+#include "git.h"
+
 namespace {
 
 	std::string FooterText;
@@ -96,47 +99,47 @@ namespace GTS {
 	//Note: Dont do any calls to the imgui api here as the window is not yet created
 	WindowSettings::WindowSettings() {
 
-	    Title = "Size Matters - Settings";
-	    Name = "Settings";
-	    Show = false;
+		Title = "Size Matters - Settings";
+		Name = "Settings";
+		Show = false;
 		ConsumeInput = true;
-	    flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+		flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
-	    //Add Categories, order here defines the order they'll be shown.
-	    CatMgr.AddCategory(std::make_shared<CategoryInfo>());
-	    CatMgr.AddCategory(std::make_shared<CategoryGeneral>());
-	    CatMgr.AddCategory(std::make_shared<CategoryGameplay>());
+		//Add Categories, order here defines the order they'll be shown.
+		CatMgr.AddCategory(std::make_shared<CategoryInfo>());
+		CatMgr.AddCategory(std::make_shared<CategoryGeneral>());
+		CatMgr.AddCategory(std::make_shared<CategoryGameplay>());
 		CatMgr.AddCategory(std::make_shared<CategoryBalance>());
 		CatMgr.AddCategory(std::make_shared<CategoryActions>());
-	    CatMgr.AddCategory(std::make_shared<CategoryAudio>());
-	    CatMgr.AddCategory(std::make_shared<CategoryAI>());
-	    CatMgr.AddCategory(std::make_shared<CategoryCamera>());
-	    CatMgr.AddCategory(std::make_shared<CategoryInterface>());
+		CatMgr.AddCategory(std::make_shared<CategoryAudio>());
+		CatMgr.AddCategory(std::make_shared<CategoryAI>());
+		CatMgr.AddCategory(std::make_shared<CategoryCamera>());
+		CatMgr.AddCategory(std::make_shared<CategoryInterface>());
 		CatMgr.AddCategory(std::make_shared<CategoryWidgets>());
-	    CatMgr.AddCategory(std::make_shared<CategoryKeybinds>());
-	    CatMgr.AddCategory(std::make_shared<CategoryAdvanced>());
+		CatMgr.AddCategory(std::make_shared<CategoryKeybinds>());
+		CatMgr.AddCategory(std::make_shared<CategoryAdvanced>());
 
 		BuildFooterText();
 	}
 
 	void WindowSettings::Draw() {
 
-	    auto& Categories = CatMgr.GetCategories();
+		auto& Categories = CatMgr.GetCategories();
 
-	    //Update Window Flags
-	    flags = (sUI.bLock ? (flags | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove) : (flags & ~ImGuiWindowFlags_NoResize & ~ImGuiWindowFlags_NoMove));
+		//Update Window Flags
+		flags = (sUI.bLock ? (flags | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove) : (flags & ~ImGuiWindowFlags_NoResize & ~ImGuiWindowFlags_NoMove));
 
-	    //Handle Fixed Position and Size
-	    if(sUI.bLock){
-	        ImGui::SetWindowSize(ImUtil::ScaleToViewport(sUI.fWindowSize));
+		//Handle Fixed Position and Size
+		if (sUI.bLock) {
+			ImGui::SetWindowSize(ImUtil::ScaleToViewport(sUI.fWindowSize));
 
-	        //Mousedown Check Prevents the window from moving around and messing with the slider while dragging
-	        if(!ImGui::GetIO().MouseDown[0]){
-	            //X,Y
-	            const ImVec2 Offset {sUI.f2Offset[0], sUI.f2Offset[1]};
-	            ImGui::SetWindowPos(GetAnchorPos(StringToEnum<ImWindow::WindowAnchor>(sUI.sAnchor), Offset, false));
-	        }
-	    }
+			//Mousedown Check Prevents the window from moving around and messing with the slider while dragging
+			if (!ImGui::GetIO().MouseDown[0]) {
+				//X,Y
+				const ImVec2 Offset{ sUI.f2Offset[0], sUI.f2Offset[1] };
+				ImGui::SetWindowPos(GetAnchorPos(StringToEnum<ImWindow::WindowAnchor>(sUI.sAnchor), Offset, false));
+			}
+		}
 
 		const auto OldPos = ImGui::GetCursorPos();
 
@@ -155,60 +158,60 @@ namespace GTS {
 		ImGui::SetCursorPos(OldPos);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 4.0,0.0 });
 
-	    {  // Draw Title
+		{  // Draw Title
 
 			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kTitle);
-	        ImGui::Text(Title.c_str());
+			ImGui::Text(Title.c_str());
 			ImFontManager::PopActiveFont();
-	    }
+		}
 
 		ImGui::PopStyleVar();
-	    ImUtil::SeperatorH();
+		ImUtil::SeperatorH();
 
-	    {  // Draw Sidebar
+		{  // Draw Sidebar
 
-	        ImGui::BeginChild("Sidebar", ImVec2(CatMgr.GetLongestCategory(), ImGui::GetContentRegionAvail().y), true);
-	        ImGui::BeginDisabled(Disabled);
+			ImGui::BeginChild("Sidebar", ImVec2(CatMgr.GetLongestCategory(), ImGui::GetContentRegionAvail().y), true);
+			ImGui::BeginDisabled(Disabled);
 			ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kSidebar);
 
-	        // Display the categories in the sidebar
-	        for (uint8_t i = 0; i < static_cast<uint8_t>(Categories.size()); i++) {
-	            ImCategory* category = Categories[i].get();
+			// Display the categories in the sidebar
+			for (uint8_t i = 0; i < static_cast<uint8_t>(Categories.size()); i++) {
+				ImCategory* category = Categories[i].get();
 
-	            //If nullptr / invisible / or dbg category, Do not draw.
+				//If nullptr / invisible / or dbg category, Do not draw.
 
-	            if(!category) continue;
-	            if(!sHidden.IKnowWhatImDoing && category->GetTitle() == "Advanced") continue;
-	            if(!category->IsVisible()) continue;
+				if (!category) continue;
+				if (!sHidden.IKnowWhatImDoing && category->GetTitle() == "Advanced") continue;
+				if (!category->IsVisible()) continue;
 
-	            if (ImGui::Selectable(category->GetTitle().c_str(), CatMgr.activeIndex == i)) {
-	                CatMgr.activeIndex = i;
-	            }
+				if (ImGui::Selectable(category->GetTitle().c_str(), CatMgr.activeIndex == i)) {
+					CatMgr.activeIndex = i;
+				}
 
-	        }
+			}
 
 			ImFontManager::PopActiveFont();
-	        ImGui::EndDisabled();
-	        ImGui::EndChild();
-	    }
+			ImGui::EndDisabled();
+			ImGui::EndChild();
+		}
 
-	    ImUtil::SeperatorV();
+		ImUtil::SeperatorV();
 
-	    { // Content Area, Where the category contents are drawn
+		{ // Content Area, Where the category contents are drawn
 
-	        ImGui::BeginChild("Content", ImVec2(0, ImGui::GetContentRegionAvail().y), true); // Remaining width
+			ImGui::BeginChild("Content", ImVec2(0, ImGui::GetContentRegionAvail().y), true); // Remaining width
 
-	        // Validate selectedCategory to ensure it's within bounds
-	        if (CatMgr.activeIndex < Categories.size()) {
-	            ImCategory* selected = Categories[CatMgr.activeIndex].get();
-	            selected->Draw(); // Call the Draw method of the selected category
-	        } 
-	        else {
-	            ImGui::TextColored(ImUtil::ColorError,"Invalid category or no categories exist!");
-	        }
+			// Validate selectedCategory to ensure it's within bounds
+			if (CatMgr.activeIndex < Categories.size()) {
+				ImCategory* selected = Categories[CatMgr.activeIndex].get();
+				selected->Draw(); // Call the Draw method of the selected category
+			}
+			else {
+				ImGui::TextColored(ImUtil::ColorError, "Invalid category or no categories exist!");
+			}
 
-	        ImGui::EndChild();
-	    }
+			ImGui::EndChild();
+		}
 
 		{   //Footer - Mod Info
 
@@ -227,7 +230,7 @@ namespace GTS {
 
 			// Set the cursor to the calculated position
 			ImGui::SetCursorScreenPos(textPos);
-			ImGui::PushStyleColor(ImGuiCol_Text,ImUtil::ColorSubscript);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImUtil::ColorSubscript);
 			ImGui::TextWrapped(FooterText.c_str());
 			ImGui::PopStyleColor();
 			ImFontManager::PopActiveFont();

@@ -3668,37 +3668,35 @@ namespace GTS {
 
 
 	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor) {
-		auto& Audio = Config::GetAudio();
-		const float& MinFreq = Audio.fMinVoiceFreq;
-		const float& MaxFreq = Audio.fMaxVoiceFreq;
-		const float& ScaleAtWhichToApplyFullMin = Audio.fTargetPitchAtScaleMin;
-		const float& ScaleAtWhichToApplyFullMax = Audio.fTargetPitchAtScaleMax;
 
-		float natural_scale = std::max(get_natural_scale(a_actor, false), 1.0f);
-		float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
+		static auto& Audio = Config::GetAudio();
+		const float& MinFreq = Audio.fMinVoiceFreq;            // e.g. 0.2
+		const float& MaxFreq = Audio.fMaxVoiceFreq;            // e.g. 2.0
+		const float& ScaleMax = Audio.fTargetPitchAtScaleMax;  // e.g. 50.0 (scale at which MinFreq is reached)
+		const float& ScaleMin = Audio.fTargetPitchAtScaleMin;  // e.g. 0.2  (scale at which MaxFreq is reached)
+
+		const float natural_scale = std::max(get_natural_scale(a_actor, false), 1.0f);
+		const float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
+
+		// volume = clamped [0.35,1.0] based on scale+0.5
 		const float volume = std::clamp(scale + 0.5f, 0.35f, 1.0f);
 
-		// Linear physics-based pitch (1/scale) with range remapping
-		const float raw_pitch = 1.0f / scale;
-
-		float freq;
+		float freq = 1.0f;
 		if (scale > 1.0f) {
-			// Large actors: remap raw_pitch range to [MinFreq, 1.0]
-			const float raw_at_target = 1.0f / ScaleAtWhichToApplyFullMax;
-			const float scale_factor = (1.0f - MinFreq) / (1.0f - raw_at_target);
-			freq = 1.0f - (1.0f - raw_pitch) * scale_factor;
-			freq = std::max(freq, MinFreq);
+			// Decrease linearly from 1.0 MinFreq as scale goes 1.0 ScaleMax
+			float t = (scale - 1.0f) / (ScaleMax - 1.0f);
+			t = std::clamp(t, 0.0f, 1.0f);
+			freq = std::lerp(1.0f, MinFreq, t);
+			//logger::trace("ComputedFreq > 1.0f: {}", freq);
 		}
 		else if (scale < 1.0f) {
-			// Small actors: remap raw_pitch range to [1.0, MaxFreq]
-			const float raw_at_target = 1.0f / ScaleAtWhichToApplyFullMin;
-			const float scale_factor = (MaxFreq - 1.0f) / (raw_at_target - 1.0f);
-			freq = 1.0f + (raw_pitch - 1.0f) * scale_factor;
-			freq = std::min(freq, MaxFreq);
+			// Increase linearly from 1.0 MaxFreq as scale goes 1.0 ScaleMin
+			float t = (1.0f - scale) / (1.0f - ScaleMin);
+			t = std::clamp(t, 0.0f, 1.0f);
+			freq = std::lerp(1.0f, MaxFreq, t);
+			//logger::trace("ComputedFreq < 1.0f: {}", freq);
 		}
-		else {
-			freq = 1.0f;
-		}
+
 		return { volume, freq };
 	}
 

@@ -1,4 +1,6 @@
 #include "Managers/Console/ConsoleManager.hpp"
+#include "Version.hpp"
+#include "git.h"
 
 
 namespace GTS {
@@ -23,7 +25,7 @@ namespace GTS {
 
 		std::stringstream Msg(trim(str_tolower(a_msg)));
 
-		std::vector<std::string> Args {};
+		std::vector<std::string> Args{};
 		std::string TmpArg;
 
 		while (Msg >> TmpArg) {
@@ -54,7 +56,7 @@ namespace GTS {
 					return true;
 				}
 				else {
-					logger::warn("Command {} has no function assigned to it",registered_command.first);
+					logger::warn("Command {} has no function assigned to it", registered_command.first);
 					return false;
 				}
 			}
@@ -86,7 +88,8 @@ namespace GTS {
 			if (Runtime::HasPerk(Player, "GTSPerkColossalGrowth")) {
 				Persistent::GetSingleton().UnlockMaxSizeSliders.value = !Persistent::GetSingleton().UnlockMaxSizeSliders.value;
 				Cprint("Max Size Sliders unlocked: {}", Persistent::GetSingleton().UnlockMaxSizeSliders.value);
-			} else {
+			}
+			else {
 				Cprint("You need to obtain Colossal Growth perk to use this command");
 			}
 		}
