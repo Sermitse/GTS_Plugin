@@ -57,7 +57,7 @@ namespace Hooks {
 
 			if (actor) {
 				const float scale = std::clamp(get_giantess_scale(actor), 1.0f, 99999.0f);
-				constexpr float fall_damage_exponent = 0.3f;
+				constexpr float fall_damage_exponent = 0.5f;
 				if (scale > 1e-4) {
 					result /= std::pow(scale, fall_damage_exponent);
 				}
