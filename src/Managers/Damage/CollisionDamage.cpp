@@ -377,7 +377,7 @@ namespace GTS {
 				if (!LessGore()) {
 					auto node = find_node(giant, GetDeathNodeName(Cause));
 					if (!IsMechanical(tiny)) {
-						PlayCrushSound(giant, node, true, StrongGore(Cause)); // Run Crush Sound task that will determine which exact type of crushing audio to play
+						PlayCrushSound(giant, node, StrongGore(Cause), get_corrected_scale(tiny)); // Run Crush Sound task that will determine which exact type of crushing audio to play
 					} 
 				}
 

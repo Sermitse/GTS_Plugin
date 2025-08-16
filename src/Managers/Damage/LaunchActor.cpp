@@ -11,10 +11,9 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
+#include "Managers/Audio/GoreAudio.hpp"
 
 #include "UI/DebugAPI.hpp"
-
-
 
 using namespace GTS;
 
@@ -33,8 +32,15 @@ namespace {
 					Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Overkill);
 					ApplyActionCooldown(giant, CooldownSource::Emotion_Moan_Crush);
 				}
+				
+				if (!IsMechanical(tiny)) {
+					float scale = get_corrected_scale(tiny);
+					Runtime::PlaySoundAtNode(DefaultCrush, 0.66f, tiny->Get3D(), CalculateGorePitch(scale));
+				}
+
 				ReportDeath(giant, tiny, DamageSource::Shockwave, false);
 				CrushManager::Crush(giant, tiny);
+
 				return true;
 			}
 			return false;

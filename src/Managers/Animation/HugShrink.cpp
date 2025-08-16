@@ -219,7 +219,7 @@ namespace {
 			ShrinkPulse_GainSize(giant, huggedActor, true);
 
 			Task_FacialEmotionTask_Moan(giant, 1.85f, "HugMoan", RandomFloat(0.0f, 0.45f));
-			Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Absorption);
+			Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Absorption, CooldownSource::Emotion_Voice_Long);
 
 			if (giant->formID == 0x14) {
 				float target_scale = get_visual_scale(huggedActor);

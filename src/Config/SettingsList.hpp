@@ -345,6 +345,7 @@ struct SettingsAudio {
     bool bSlowGrowMoans = true;
     bool bEnableVoicePitchOverrideN = true;
     bool bEnableVoicePitchOverrideG = false;
+    bool bEnableGorePitchOverride = false;
     bool bMuteVoreDeathScreams = true;
     bool bMuteHugCrushDeathScreams = true;
     bool bMuteFingerSnapDeathScreams = true;
@@ -384,7 +385,7 @@ struct SettingsGeneral {
     bool bDevourmentCompat = false;
     bool bConversationCamCompat = false;
     bool bOverrideInteractionDist = false;
-    bool bAlternativeSpeedFormula = false;
+    bool bAlternativeSpeedFormula = true;
 
     // Protection toggles
     bool bProtectEssentials = true;

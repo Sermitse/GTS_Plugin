@@ -54,7 +54,7 @@ namespace GTS {
 		if (this->power >= 2.0f) {
 			bool Blocked = IsActionOnCooldown(caster, CooldownSource::Emotion_Moan);
 			if (!Blocked) {
-				Sound_PlayMoans(caster, 1.0f, 0.14f, EmotionTriggerSource::Growth);
+				Sound_PlayMoans(caster, 1.0f, 0.14f, EmotionTriggerSource::Growth, CooldownSource::Emotion_Voice_Long);
 				ApplyActionCooldown(caster, CooldownSource::Emotion_Moan);
 			}
 			if (caster->formID == 0x14) {

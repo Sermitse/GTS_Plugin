@@ -1,5 +1,6 @@
 #pragma once
 // Module that handles Moans and Laughs
+#include "Managers/Animation/Utils/CooldownManager.hpp"
 
 namespace GTS {
 
@@ -32,8 +33,8 @@ namespace GTS {
     };
 
     void Sound_PlayMoansOrLaughs(Actor* actor, float volume, GTS_ResponseType Type, EmotionTriggerSource Source, float FallOff = 0.14f);
-    void Sound_PlayLaughs(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source);
-    void Sound_PlayMoans(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source);
+    void Sound_PlayLaughs(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source = CooldownSource::Emotion_Voice);
+    void Sound_PlayMoans(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source = CooldownSource::Emotion_Voice);
 
     void ApplyKillEmotions(Actor* actor, const bool Calamity_PlayLaugh, const bool ShrinkOutburst_Absorb);
 }

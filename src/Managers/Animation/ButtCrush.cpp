@@ -164,7 +164,7 @@ namespace {
 
 		bool Blocked = IsActionOnCooldown(giant, CooldownSource::Emotion_Moan);
 		if (!Blocked) {
-			Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
+			Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth, CooldownSource::Emotion_Voice_Long);
 			ApplyActionCooldown(giant, CooldownSource::Emotion_Moan);
 			Task_FacialEmotionTask_Moan(giant, 1.2f, "ButtCrush_Growth");
 		}

@@ -325,6 +325,7 @@ namespace GTS {
 
 	bool IsPlayerFirstPerson(Actor* a_actor);
 
+	float get_corrected_scale(Actor* a_actor);
 	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor);
-
+	float CalculateGorePitch(float TinyScale);
 }

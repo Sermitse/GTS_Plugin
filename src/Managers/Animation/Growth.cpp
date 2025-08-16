@@ -40,7 +40,7 @@ namespace {
 				double timepassed = Time::WorldTimeElapsed() - Start;
 				if (timepassed >= 0.15f / AnimationManager::GetAnimSpeed(giant)) {
 					Task_FacialEmotionTask_Moan(giant, 1.25f, "GrowthMoan", 0.15f);
-					Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
+					Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth, CooldownSource::Emotion_Voice_Long);
 					return false;
 				}
 				return true;

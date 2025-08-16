@@ -265,12 +265,13 @@ namespace GTS {
 		PlayFootSound::BuildAndPlayStompSounds(giant, modifier, foot, foot_kind, scale, Strong);
 	}
 	void FootStepManager::DoStrongSounds(Actor* giant, float animspeed, std::string_view feet) {
+		const bool HasHeels = HighHeelManager::GetSingleton().IsWearingHH(giant);
 		const bool UseOtherHeelSet = Config::GetAudio().bUseOtherHighHeelSet;
-		if (!UseOtherHeelSet) {
+		
+		if (!UseOtherHeelSet || !HasHeels) {
 			float scale = get_visual_scale(giant);
 			float bonus = 1.0f;
 			
-
 			if (HasSMT(giant)) {
 				bonus = 8.0f;
 				scale += 0.6f;

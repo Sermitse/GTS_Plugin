@@ -85,8 +85,8 @@ namespace {
 				ReportDeath(giant, tiny, DamageSource::ThighSandwiched);
 				AdvanceQuestProgression(giant, tiny, QuestStage::HandCrush, 1.0f, false);
 				auto node = find_node(giant, "NPC R FrontThigh");
-				
-				PlayCrushSound(giant, node, false, false);
+
+				PlayCrushSound(giant, node, false, get_corrected_scale(tiny));
 
 				sandwichdata.Remove(tiny);
 			}

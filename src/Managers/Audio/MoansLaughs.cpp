@@ -44,12 +44,12 @@ namespace GTS {
             case GTS_ResponseType::Moan:   Sound_PlayMoans(actor, volume, FallOff, Source);         break;
         }
     }
-    void Sound_PlayLaughs(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source) {
+    void Sound_PlayLaughs(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source) {
         if (actor->formID != 0x14 && Config::GetAudio().bMoanLaughPCExclusive) {
             return;
         }
-        if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CooldownSource::Emotion_Voice)) {
-            ApplyActionCooldown(actor, CooldownSource::Emotion_Voice);
+        if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CD_Source)) {
+            ApplyActionCooldown(actor, CD_Source);
             float Scale = get_visual_scale(actor);
             std::string SoundToPlay;
             FallOff *= Scale;
@@ -80,12 +80,12 @@ namespace GTS {
         }
     }
 
-    void Sound_PlayMoans(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source) {
+    void Sound_PlayMoans(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source) {
         if (actor->formID != 0x14 && Config::GetAudio().bMoanLaughPCExclusive) {
             return;
         }
-        if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CooldownSource::Emotion_Voice)) {
-            ApplyActionCooldown(actor, CooldownSource::Emotion_Voice);
+        if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CD_Source)) {
+            ApplyActionCooldown(actor, CD_Source);
             float Scale = get_visual_scale(actor);
             std::string SoundToPlay;
             FallOff *= Scale;

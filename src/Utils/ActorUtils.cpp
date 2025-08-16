@@ -3666,6 +3666,13 @@ namespace GTS {
 		return a_actor->formID == 0x14 && IsFirstPerson();
 	}
 
+	float get_corrected_scale(Actor* a_actor) { // Used to take children scale into account so they will return 1.0 scale instead of 0.7 when at 100% scale
+		if (!a_actor) return 1.0f;
+		const float natural_scale = std::max(get_natural_scale((a_actor), false), 1.0f);
+		const float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
+
+		return scale;
+	}
 
 	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor) {
 
@@ -3675,8 +3682,7 @@ namespace GTS {
 		const float& ScaleMax = Audio.fTargetPitchAtScaleMax;  // e.g. 50.0 (scale at which MinFreq is reached)
 		const float& ScaleMin = Audio.fTargetPitchAtScaleMin;  // e.g. 0.2  (scale at which MaxFreq is reached)
 
-		const float natural_scale = std::max(get_natural_scale(a_actor, false), 1.0f);
-		const float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
+		const float scale = get_corrected_scale(a_actor);
 
 		// volume = clamped [0.35,1.0] based on scale+0.5
 		const float volume = std::clamp(scale + 0.5f, 0.35f, 1.0f);
@@ -3699,5 +3705,18 @@ namespace GTS {
 
 		return { volume, freq };
 	}
+
+	float CalculateGorePitch(float TinyScale) {
+        const bool bAlterGorePitch = Config::GetAudio().bEnableGorePitchOverride;
+        float freq = 1.0f;
+
+        if (bAlterGorePitch && TinyScale < 1.0f) {
+            float t = (1.0f - TinyScale) / (1.0f - 0.2f);
+            t = std::clamp(t, 0.0f, 1.0f);
+            freq = std::lerp(1.0f, 2.0f, t);
+        }
+
+        return freq;
+    }
 
 }

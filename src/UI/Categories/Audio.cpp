@@ -151,10 +151,12 @@ namespace GTS {
 			const char* T8 = "FallOff Range Multiplier for Moans and Laughs. Large values = can be heard from further dist";
 			const char* T9 = "Moan and Laugh volume multiplier.";
 			const char* T10 = "Toggle wether the GTS moan/laugh voice should have its pitch modified based on size.";
+			const char* T11 = "Toggle whether gore sounds should have its pitch modified based on tiny size below 1.0";
 			
 			if (ImGui::CollapsingHeader("Voice",ImUtil::HeaderFlagsDefaultOpen)) {
 				ImUtil::CheckBox("Normal Voice Pitch Override",&Settings.bEnableVoicePitchOverrideN, T0);
 				ImUtil::CheckBox("GTS Voice Pitch Override", &Settings.bEnableVoicePitchOverrideG, T10);
+				ImUtil::CheckBox("Tiny Gore Pitch Override", &Settings.bEnableGorePitchOverride, T11);
 
 				const bool Enable = !Settings.bEnableVoicePitchOverrideN && !Settings.bEnableVoicePitchOverrideG;
 
@@ -165,7 +167,7 @@ namespace GTS {
 				ImUtil::SliderF("Highest Pitch At Scale", &Settings.fTargetPitchAtScaleMin, 0.10f, 0.6f, TsMin, "At %.2fx", Enable);
 
 				ImGui::Spacing();
-
+				
 				ImGui::Text("Mute Death Sounds");
 				ImUtil::CheckBox("Shrink To Nothing", &Settings.bMuteShrinkToNothingDeathScreams,T2);
 				ImGui::SameLine();

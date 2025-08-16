@@ -26,7 +26,7 @@ namespace {
 	constexpr float BUTTCRUSH_COOLDOWN = 30.0f;
 	constexpr float HUGS_COOLDOWN = 10.0f;
 
-	constexpr float LAUGH_COOLDOWN = 5.0f;
+	constexpr float LAUGH_COOLDOWN = 3.5f;
 	constexpr float MOAN_COOLDOWN = 5.0f;
 	constexpr float MOAN_CRUSH_COOLDOWN = 3.0f;
 
@@ -43,6 +43,8 @@ namespace {
 	constexpr float SHRINK_TINYCALAMITY_RAGE = 60.0f;
 
     constexpr float EMOTION_COOLDOWN = 1.5f;
+    constexpr float EMOTION_COOLDOWN_LONG = 3.5f;
+    
 
     float Calculate_BreastActionCooldown(Actor* giant, int type) {
         float Cooldown = 1.0;
@@ -116,6 +118,9 @@ namespace {
 
     float Calculate_EmotionCooldown(Actor* actor) {
         return EMOTION_COOLDOWN * AnimationManager::GetAnimSpeed(actor);
+    }
+    float Calculate_EmotionCooldown_Long(Actor* actor) {
+        return EMOTION_COOLDOWN_LONG * AnimationManager::GetAnimSpeed(actor);
     }
     float Calculate_LaughCooldown(Actor* actor) {
         return LAUGH_COOLDOWN * AnimationManager::GetAnimSpeed(actor);
@@ -238,6 +243,9 @@ namespace GTS {
             case CooldownSource::Emotion_Voice:
                 data.lastEmotionTime = Time::WorldTimeElapsed();
                 break;
+            case CooldownSource::Emotion_Voice_Long:
+                data.lastEmotionTime_Long = Time::WorldTimeElapsed();
+                break;
         }
     }
 
@@ -304,6 +312,8 @@ namespace GTS {
                 return (data.lastJumplandTime + Calculate_FootstepTimer(giant)) - time;
             case CooldownSource::Emotion_Voice:
                 return (data.lastEmotionTime + Calculate_EmotionCooldown(giant)) - time;
+            case CooldownSource::Emotion_Voice_Long:
+                return (data.lastEmotionTime + Calculate_EmotionCooldown_Long(giant)) - time;
             }
         return 0.0;
     }
@@ -377,6 +387,8 @@ namespace GTS {
                 return time <= (data.lastJumplandTime + Calculate_FootstepTimer(giant));
             case CooldownSource::Emotion_Voice:
                 return time <= (data.lastEmotionTime + Calculate_EmotionCooldown(giant));
+            case CooldownSource::Emotion_Voice_Long:
+                return time <= (data.lastEmotionTime_Long + Calculate_EmotionCooldown_Long(giant));
             }
         return false; 
     }

@@ -56,7 +56,6 @@ namespace {
 			} else {
 				Cprint("{} was absorbed by {}", prey, pred->GetDisplayFullName());
 			}
-			IncrementKillCount(pred, SizeKillType::kEaten);
 		}
 	}
 
@@ -534,6 +533,7 @@ namespace GTS {
 			break;
 			case DamageSource::Vored:
 				vore_absorbed ? VoreMessage_Absorbed(giant, TinyName) : VoreMessage_SwallowedAbsorbing(giant, tiny);
+				IncrementKillCount(giant, SizeKillType::kEaten);
 			break;
 			case DamageSource::ThighCrushed:
 				IncrementKillCount(giant, SizeKillType::kThighCrushed);
