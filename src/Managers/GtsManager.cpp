@@ -438,16 +438,6 @@ void GtsManager::DragonSoulAbsorption() {
 	DragonAbsorptionBonuses(); 
 }
 
-void GtsManager::FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, bool enter) {
-	if (activator&& object) {
-		auto data = Transient::GetSingleton().GetActorData(activator);
-		if (data) {
-			data->FurnitureScale = object->GetScale() / get_natural_scale(activator, true);
-			data->UsingFurniture = enter;
-		}
-	}
-}
-
 void GtsManager::reapply(bool force) {
 	// Get everyone in loaded AI data and reapply
 

@@ -18,7 +18,6 @@ namespace GTS {
 			static inline uint32_t LoadedActorCount = 0;
 
 			virtual void DragonSoulAbsorption() override;
-			virtual void FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, bool enter) override;
 
 			virtual std::string DebugName() override;
 			virtual void Start() override;

@@ -8,6 +8,8 @@
 #include "Managers/Animation/Stomp_Under_Butt.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 
+#include "Managers/Animation/FurnitureAnimations.hpp"
+
 #include "Config/Config.hpp"
 
 #include "Managers/Animation/CleavageStrangle.hpp"
@@ -175,6 +177,8 @@ namespace GTS {
 
 		Grab::RegisterEvents();
 		Grab::RegisterTriggers();
+
+		FurnitureAnimations::RegisterEvents();
 	}
 
 	void AnimationManager::Update() {

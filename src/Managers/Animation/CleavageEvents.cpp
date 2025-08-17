@@ -372,7 +372,7 @@ namespace {
             Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, volume, "NPC Root [Root]");
 
             bool Blocked = IsActionOnCooldown(giant, CooldownSource::Emotion_Laugh);
-            if (!Blocked && data.stage < 8) { // We don't want Laugh to happen at the end of absorption
+            if (!Blocked && data.stage < 5) { // We don't want Laugh to happen at the end of absorption
                 ApplyActionCooldown(giant, CooldownSource::Emotion_Laugh);
                 Task_FacialEmotionTask_Smile(giant, 0.9f, "AbsorbSmile", 0.12f, 0.25f);
                 Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Struggle);

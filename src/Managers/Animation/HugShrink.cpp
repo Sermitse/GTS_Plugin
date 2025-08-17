@@ -19,6 +19,12 @@
 
 using namespace GTS;
 
+namespace PreventMoans {
+	void BlockHugMoans(AnimationEventData& data, bool block) {
+		block ? data.stage = 3 : data.stage = 0;
+	}
+}
+
 namespace {
 
 	bool CanHugCrush(Actor* giant, Actor* huggedActor) {
@@ -155,11 +161,16 @@ namespace {
 	}
 
 	void GTS_Hug_Moan(AnimationEventData& data) {
-		Task_FacialEmotionTask_Moan(&data.giant, 1.15f, "HugMoan", RandomFloat(0.0f, 0.45f));
-		Sound_PlayMoans(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::HugDrain);
+		if (data.stage < 3) {
+			Task_FacialEmotionTask_Moan(&data.giant, 1.15f, "HugMoan", RandomFloat(0.0f, 0.45f));
+			Sound_PlayMoans(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::HugDrain);
+		}
 	}
 
 	void GTS_Hug_Moan_End(AnimationEventData& data) {
+		if (data.stage >= 3) {
+			PreventMoans::BlockHugMoans(data, false);
+		}
 	}
 
 	void GTS_Hug_FacialOn(AnimationEventData& data) { // Smug or something
@@ -205,6 +216,9 @@ namespace {
 	void GTS_Hug_CrushTiny(AnimationEventData& data) {
 		auto giant = &data.giant;
 		auto huggedActor = HugShrink::GetHuggiesActor(giant);
+
+		PreventMoans::BlockHugMoans(data, true);
+
 		if (huggedActor) {
 			HugCrushOther(giant, huggedActor);
 			ReportDeath(giant, huggedActor, DamageSource::Hugs);

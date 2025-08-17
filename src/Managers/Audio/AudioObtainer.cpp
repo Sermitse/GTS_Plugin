@@ -139,7 +139,7 @@ namespace GTS {
         }
 
         SoundResult += size_range;
-        log::info("Sound Result: {}", SoundResult);
+        //log::info("Sound Result: {}", SoundResult);
         return SoundResult;
     }
 
@@ -385,7 +385,7 @@ namespace GTS {
 
     BSISoundDescriptor* GetJumpLandSounds(const int scale, bool UseHeelSet) {
         if (UseHeelSet) {
-            log::info("Obtaining High Heel jump Lands");
+            //log::info("Obtaining High Heel jump Lands");
             return GetHHSound_JumpAlt(scale);
         } else {
             //return GetHHSound_Jump(scale);

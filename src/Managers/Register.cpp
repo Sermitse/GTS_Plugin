@@ -10,6 +10,8 @@
 #include "Managers/Animation/BoobCrush.hpp"
 #include "Managers/Animation/Grab.hpp"
 
+#include "Managers/FurnitureManager.hpp"
+
 #include "Managers/Gamemode/GameModeManager.hpp"
 #include "Managers/Animation/Controllers/ThighSandwichController.hpp"
 #include "Managers/Animation/Controllers/VoreController.hpp"
@@ -72,6 +74,7 @@ namespace GTS {
 		EventDispatcher::AddListener(&SpectatorManager::GetSingleton()); // Manage Camera Targets
 		EventDispatcher::AddListener(&ContactManager::GetSingleton()); // Manages collisions
 		EventDispatcher::AddListener(&DynamicScale::GetSingleton()); // Handles room heights
+		EventDispatcher::AddListener(&FurnitureManager::GetSingleton()); // Handles furniture stuff
 		log::info("Managers Registered");
 	}
 }

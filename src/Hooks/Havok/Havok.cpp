@@ -280,15 +280,11 @@ namespace Hooks {
 
 				if (Check_A || Check_B) {
 					auto objA = GetTESObjectREFR(a_collidableA);
-					if (objA) {
-						auto objB = GetTESObjectREFR(a_collidableB);
-						if (objB) {
-							if (objA != objB) {
-								//Throw_ThrowCheck(objA, objB, colLayerA, colLayerB);
-								if (IsCollisionDisabledBetween(objA, objB)) {
-									*a_result = false;
-								}
-							}
+					auto objB = GetTESObjectREFR(a_collidableB);
+
+					if (objA && objB && objA != objB) {
+						if (IsCollisionDisabledBetween(objA, objB)) {
+							*a_result = false;
 						}
 					}
 				}

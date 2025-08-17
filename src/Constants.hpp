@@ -63,6 +63,10 @@ namespace GTS {
     constexpr float Damage_Trample_Repeat = 5.0f;
     constexpr float Damage_Trample_Finisher = 22.0f;
 
+    ////////////////Furniture Sit
+    constexpr float Damage_ButtCrush_Sit = 12.0f;
+    constexpr float Damage_ButtCrush_Idle = 0.0002f;
+
     ////////////////Butt Crush
 
     constexpr float Damage_ButtCrush_Under_ButtImpact = 24.4f;
@@ -185,6 +189,9 @@ namespace GTS {
     constexpr float Radius_Trample_Repeat = 6.4f;
     constexpr float Radius_Trample_Finisher = 6.6f;
 
+    /////////Furniture Sit
+    constexpr float Radius_ButtCrush_Sit = 15.4f;
+
     /////////Butt Crush
 
     constexpr float Radius_ButtCrush_Impact = 20.0f;
@@ -303,6 +310,9 @@ namespace GTS {
     constexpr float Rumble_ThighCrush_LegSpread_Light_Loop = 1.20f;
     constexpr float Rumble_ThighCrush_LegSpread_Heavy_Loop = 1.45f;
 
+    // Furniture Sitting
+
+    constexpr float Rumble_ButtCrush_Sit = 2.0f;
 
     // Butt crush
     constexpr float Rumble_ButtCrush_FeetImpact = 2.5f * 1.0f;

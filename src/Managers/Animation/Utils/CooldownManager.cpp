@@ -26,7 +26,7 @@ namespace {
 	constexpr float BUTTCRUSH_COOLDOWN = 30.0f;
 	constexpr float HUGS_COOLDOWN = 10.0f;
 
-	constexpr float LAUGH_COOLDOWN = 3.5f;
+	constexpr float LAUGH_COOLDOWN = 4.0f;
 	constexpr float MOAN_COOLDOWN = 5.0f;
 	constexpr float MOAN_CRUSH_COOLDOWN = 3.0f;
 
@@ -99,7 +99,7 @@ namespace {
         return cooldown;
     }
 
-    float Calculate_ShrinkOutbirstTimer(Actor* actor) {
+    float Calculate_ShrinkOutburstTimer(Actor* actor) {
         bool DarkArts3 = Runtime::HasPerk(actor, "GTSPerkDarkArtsAug3");
         bool HealthRegen = Runtime::HasPerk(actor, "GTSPerkGrowthAug2");
         bool DarkArts_Legendary = Runtime::HasPerk(actor, "GTSPerkDarkArtsLegendary");
@@ -117,16 +117,16 @@ namespace {
     }
 
     float Calculate_EmotionCooldown(Actor* actor) {
-        return EMOTION_COOLDOWN * AnimationManager::GetAnimSpeed(actor);
+        return EMOTION_COOLDOWN / AnimationManager::GetAnimSpeed(actor);
     }
     float Calculate_EmotionCooldown_Long(Actor* actor) {
-        return EMOTION_COOLDOWN_LONG * AnimationManager::GetAnimSpeed(actor);
+        return EMOTION_COOLDOWN_LONG / AnimationManager::GetAnimSpeed(actor);
     }
     float Calculate_LaughCooldown(Actor* actor) {
-        return LAUGH_COOLDOWN * AnimationManager::GetAnimSpeed(actor);
+        return LAUGH_COOLDOWN / AnimationManager::GetAnimSpeed(actor);
     }
     float Calculate_MoanCooldown(Actor* actor) {
-        return MOAN_COOLDOWN * AnimationManager::GetAnimSpeed(actor);
+        return MOAN_COOLDOWN / AnimationManager::GetAnimSpeed(actor);
     }
 }
 
@@ -293,7 +293,7 @@ namespace GTS {
             case CooldownSource::Misc_AiGrowth:
                 return (data.lastGrowthTime + AI_GROWTH_COOLDOWN) - time;  
             case CooldownSource::Misc_ShrinkOutburst:
-                return (data.lastOutburstTime + Calculate_ShrinkOutbirstTimer(giant)) - time; 
+                return (data.lastOutburstTime + Calculate_ShrinkOutburstTimer(giant)) - time; 
             case CooldownSource::Misc_ShrinkOutburst_Forced:
                 return (data.lastForceOutburstTime + SHRINK_OUTBURST_COOLDOWN_FORCED) - time; 
             case CooldownSource::Misc_ShrinkParticle:
@@ -368,7 +368,7 @@ namespace GTS {
             case CooldownSource::Misc_AiGrowth:
                 return time <= (data.lastGrowthTime + AI_GROWTH_COOLDOWN);
             case CooldownSource::Misc_ShrinkOutburst:
-                return time <= (data.lastOutburstTime + Calculate_ShrinkOutbirstTimer(giant));   
+                return time <= (data.lastOutburstTime + Calculate_ShrinkOutburstTimer(giant));   
             case CooldownSource::Misc_ShrinkOutburst_Forced:
                 return time <= (data.lastForceOutburstTime + SHRINK_OUTBURST_COOLDOWN_FORCED);   
             case CooldownSource::Misc_ShrinkParticle:

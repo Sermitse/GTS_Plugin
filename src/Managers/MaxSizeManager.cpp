@@ -100,8 +100,18 @@ namespace {
 namespace GTS {
 
     void UpdateMaxScale() {
+       	GTS_PROFILE_SCOPE("MaxSizeManager: UpdateMaxScale");
 
-       GTS_PROFILE_SCOPE("MaxSizeManager: UpdateMaxScale");
+		const bool IsMassBased = Config::GetBalance().sSizeMode == "kMassBased"; // Should DLL use mass based formula for Player?
+		const bool SizeUnlocked = IsSizeUnlocked();
+
+		const float QuestStage = Runtime::GetStage("GTSQuestProgression");
+
+		// -------------------------------------------------------------------------------------------------
+		const float GlobalLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
+		const float FollowerLimit = SizeUnlocked ? Config::GetBalance().fMaxFollowerSize : GlobalLimit;
+		const float NPCLimit = SizeUnlocked ? Config::GetBalance().fMaxOtherSize : GlobalLimit;
+		// Apply custom limits only if player has Perk and gts unlimited command was executed, else use GlobalLimit
 
 		for (auto actor: find_actors()) {
 
@@ -110,19 +120,8 @@ namespace GTS {
 			if (actor->formID == 0x14) {
 				Endless = get_endless_height(actor);
 			}
-			
-			const bool IsMassBased = Config::GetBalance().sSizeMode == "kMassBased"; // Should DLL use mass based formula for Player?
 
             const float NaturalScale = get_natural_scale(actor, true);
-            const float QuestStage = Runtime::GetStage("GTSQuestProgression");
-
-			// -------------------------------------------------------------------------------------------------
-            const float GlobalLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
-			const float FollowerLimit = IsSizeUnlocked() ? Config::GetBalance().fMaxFollowerSize : GlobalLimit;
-            const float NPCLimit = IsSizeUnlocked() ? Config::GetBalance().fMaxOtherSize : GlobalLimit;
-			// Apply custom limits only if player has Perk and gts unlimited command was executed, else use GlobalLimit
-			
-
 			float GetLimit = get_default_size_limit(NaturalScale, GlobalLimit); // Default size limit
 			
 			if (actor->formID == 0x14 && IsMassBased) { 
