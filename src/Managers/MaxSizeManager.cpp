@@ -8,6 +8,15 @@ namespace {
 
     constexpr float DEFAULT_MAX = 1000000.0f;
 
+	const bool IsSizeUnlocked() {
+		// Reports true when player has ColossalGrowth perk and used gts unlimited command, else it's false
+		if (Persistent::GetSingleton().UnlockMaxSizeSliders.value) {
+			const bool Unlocked = Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth");
+			return Unlocked;
+		}
+		return false;
+	}
+
 	void RecordOverkillSize_Transient(TempActorData* Data, float value, float kills) {
 		if (Data) {
 			Data->OverkillSizeBonus = value;
@@ -20,15 +29,15 @@ namespace {
 		float BonusSize = 0.0f;
 
 		if (Runtime::HasPerk(a_Actor,"GTSPerkSizeManipulation3")) { //SizeManipulation 3
-			BonusSize += static_cast<float>(a_Actor->GetLevel()) * 0.0330f;
+			BonusSize += static_cast<float>(a_Actor->GetLevel()) * Perk_SizeManipulation_3;
 		}
 
 		if (Runtime::HasPerk(a_Actor,"GTSPerkSizeManipulation2")) { //SizeManipulation 2
-			BonusSize += Runtime::GetFloat("GTSSkillLevel") * 0.0165f;
+			BonusSize += Runtime::GetFloat("GTSSkillLevel") * Perk_SizeManipulation_2;
 		}
 
 		if (Runtime::HasPerk(a_Actor,"GTSPerkSizeManipulation1")) { //SizeManipulation 1
-			BonusSize += 0.135f;
+			BonusSize += Perk_SizeManipulation_1;
 		}
 
 		return BonusSize;
@@ -101,15 +110,20 @@ namespace GTS {
 			if (actor->formID == 0x14) {
 				Endless = get_endless_height(actor);
 			}
+			
+			const bool IsMassBased = Config::GetBalance().sSizeMode == "kMassBased"; // Should DLL use mass based formula for Player?
 
             const float NaturalScale = get_natural_scale(actor, true);
             const float QuestStage = Runtime::GetStage("GTSQuestProgression");
-            const float BaseLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
-            const float NPCLimit = Config::GetBalance().fMaxOtherSize;
-			const bool IsMassBased = Config::GetBalance().sSizeMode == "kMassBased"; // Should DLL use mass based formula for Player?
-            const float FollowerLimit = Config::GetBalance().fMaxFollowerSize;
 
-			float GetLimit = get_default_size_limit(NaturalScale, BaseLimit); // Default size limit
+			// -------------------------------------------------------------------------------------------------
+            const float GlobalLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
+			const float FollowerLimit = IsSizeUnlocked() ? Config::GetBalance().fMaxFollowerSize : GlobalLimit;
+            const float NPCLimit = IsSizeUnlocked() ? Config::GetBalance().fMaxOtherSize : GlobalLimit;
+			// Apply custom limits only if player has Perk and gts unlimited command was executed, else use GlobalLimit
+			
+
+			float GetLimit = get_default_size_limit(NaturalScale, GlobalLimit); // Default size limit
 			
 			if (actor->formID == 0x14 && IsMassBased) { 
 				GetLimit = get_mass_based_limit(actor, NaturalScale); // Apply Player Mass-Based max size
@@ -193,20 +207,18 @@ namespace GTS {
 	}
 
 	void VisualScale_CheckForSizeAdjustment(Actor* actor, float& ScaleMult) {
-		if (Persistent::GetSingleton().UnlockMaxSizeSliders.value) {
-			const bool Unlocked = Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth");
-			if (Unlocked) {
-				const float PCLimit = Config::GetBalance().fMaxPlayerSizeOverride;
-				const float NPCLimit = Config::GetBalance().fMaxOtherSize;
-				const float FollowerLimit = Config::GetBalance().fMaxFollowerSize;
-				if (IsTeammate(actor)) {
-					ScaleMult = std::clamp(FollowerLimit, 0.1f, 1.0f);
-				} else if (actor->formID == 0x14) {
-					ScaleMult = std::clamp(PCLimit, 0.1f, 1.0f);
-				} else {
-					ScaleMult = std::clamp(NPCLimit, 0.1f, 1.0f);
-				}
+		if (IsSizeUnlocked()) {
+			const float PCLimit = Config::GetBalance().fMaxPlayerSizeOverride;
+			const float NPCLimit = Config::GetBalance().fMaxOtherSize;
+			const float FollowerLimit = Config::GetBalance().fMaxFollowerSize;
+			if (IsTeammate(actor)) {
+				ScaleMult = std::clamp(FollowerLimit, 0.1f, 1.0f);
+			} else if (actor->formID == 0x14) {
+				ScaleMult = std::clamp(PCLimit, 0.1f, 1.0f);
+			} else {
+				ScaleMult = std::clamp(NPCLimit, 0.1f, 1.0f);
 			}
 		}
 	}
 }
+

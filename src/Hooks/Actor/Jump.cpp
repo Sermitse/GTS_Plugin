@@ -10,6 +10,12 @@ namespace {
 	constexpr float launch_up_radius = 24.0f;
 	constexpr float default_gravity = 1.0f;
 
+	float Jump_GetFallDamageReductionMult(Actor* actor) {
+		bool HasPerk = Runtime::HasPerkTeam(actor, "GTSPerkCruelFall");
+		
+		return HasPerk ? 0.1f : 0.0f;
+	}
+
 	void Jump_ApplyExtraJumpEffects(Actor* actor, float size, float Might) {
 		if (!actor->IsInMidair()) {
 			NiPoint3 pos = actor->GetPosition(); 
@@ -57,7 +63,7 @@ namespace Hooks {
 
 			if (actor) {
 				const float scale = std::clamp(get_giantess_scale(actor), 1.0f, 99999.0f);
-				constexpr float fall_damage_exponent = 0.5f;
+				const float fall_damage_exponent = 0.5f + Jump_GetFallDamageReductionMult(actor);
 				if (scale > 1e-4) {
 					result /= std::pow(scale, fall_damage_exponent);
 				}

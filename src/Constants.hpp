@@ -1,7 +1,10 @@
 #pragma once
 
 namespace GTS {
-
+    //-----------------------------------------Perks
+    constexpr float Perk_SizeManipulation_3 = 0.0330f;
+    constexpr float Perk_SizeManipulation_2 = 0.0165f;
+    constexpr float Perk_SizeManipulation_1 = 0.1350f;
 	//-----------------------------------------Misc
     constexpr float Overkills_Obliteration_Diff_Requirement = 60.0f; // Can obliterate past 60x size difference
     constexpr float Overkills_BonusSizePerKill = 0.0006f; // 100 * 0.0006f = 6% for example, 100 = kills
