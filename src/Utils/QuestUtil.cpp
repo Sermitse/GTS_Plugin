@@ -67,7 +67,7 @@ namespace {
 		"GTSPerkRealCruelty",
 		"GTSPerkRumblingFeet",
 		"GTSPerkShrinkingGaze",
-		"GTSPerkSizeConversion",
+		"GTSPerkCataclysmicStomp",
 		"GTSPerkSizeReserve",
 		"GTSPerkSizeReserveAug1",
 		"GTSPerkSizeReserveAug2",

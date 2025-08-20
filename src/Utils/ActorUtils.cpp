@@ -2048,7 +2048,7 @@ namespace GTS {
 	}
 
 	void AddStolenAttributes(Actor* giant, float value) {
-		if (giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkSizeConversion")) {
+		if (giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkFullAssimilation")) {
 			auto attributes = Persistent::GetSingleton().GetData(giant);
 			if (attributes) {
 				attributes->stolen_attributes += value;
@@ -2062,7 +2062,6 @@ namespace GTS {
 		if (giant->formID == 0x14) {
 			auto Persistent = Persistent::GetSingleton().GetData(giant);
 			if (Persistent) {
-
 				const uint16_t Level = giant->GetLevel();
 				const float modifier = Config::GetGameplay().fSizeConvLevelCap;
 				float& health = Persistent->stolen_health;
@@ -2114,7 +2113,7 @@ namespace GTS {
 	}
 
 	void DistributeStolenAttributes(Actor* giant, float value) {
-		if (value > 0 && giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkSizeConversion")) { // Permamently increases random AV after shrinking and stuff
+		if (value > 0 && giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkFullAssimilation")) { // Permamently increases random AV after shrinking and stuff
 			float scale = std::clamp(get_visual_scale(giant), 0.01f, 1000000.0f);
 			float modifier = Config::GetGameplay().fSizeConvLevelCap;
 			float Storage = GetStolenAttributes(giant);
@@ -2559,7 +2558,7 @@ namespace GTS {
 						if (sizedifference <= 1.6f) {
 							StaggerActor(giant, otherActor, 0.75f);
 						} else {
-							PushActorAway(giant, otherActor, 1.0f * GetLaunchPowerFor(giant, sizedifference, LaunchType::Actor_Launch));
+							PushActorAway(giant, otherActor, 1.0f * GetLaunchPowerFor(giant, sizedifference, LaunchType::Actor_Towards));
 						}
 					}
 				}
@@ -2992,6 +2991,14 @@ namespace GTS {
             return Alteration;
         }
     }
+
+	float GetLegendaryLevel(Actor* giant) {
+		if (giant->formID == 0x14) {
+            auto LegendaryLevel = Runtime::GetFloatOr("GTSSkillLegendary", 0.0f);
+            return LegendaryLevel;
+        } 
+		return 0.0f;
+	}
 
 	float GetXpBonus() {
 		return Config::GetBalance().fExpMult;

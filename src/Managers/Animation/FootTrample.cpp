@@ -10,6 +10,7 @@
 #include "Managers/Rumble.hpp"
 
 #include "Utils/InputConditions.hpp"
+#include "Managers/Perks/PerkHandler.hpp"
 
 using namespace GTS;
 
@@ -123,12 +124,21 @@ namespace {
 		}
 
 		float shake_power = Rumble_Trample_Stage3 * smt * GetHighHeelsBonusDamage(giant, true);
+		float Augment = PerkHandler::Perks_Cataclysmic_EmpowerStomp(giant);
+		bool GotStacks = PerkHandler::Perks_Cataclysmic_HasStacks(giant);
 
-		Rumbling::Once(rumble, giant, shake_power, 0.0f, Node, 1.2f);
-		DoDamageEffect(giant, Damage_Trample_Finisher * perk, Radius_Trample_Finisher, 1, 0.25f, Event, 0.85f, Source);
-		DoLaunch(giant, 1.25f * perk, 5.0f * perk, Event);
+		DoDamageEffect(giant, Damage_Trample_Finisher * perk * Augment, Radius_Trample_Finisher, 1, 0.25f, Event, 0.85f, Source);
+		DoLaunch(giant, 1.25f * perk * Augment, 5.0f * perk * Augment, Event);
 		StompManager::PlayNewOrOldStomps(giant, 1.15f, Event, Node, true);
-		DoDustExplosion(giant, dust * smt, Event, Node);
+		Rumbling::Once(rumble, giant, shake_power, 0.0f, Node, 1.2f);
+		
+		if (!GotStacks) { 
+			DoDustExplosion(giant, dust * smt, Event, Node);
+		} else {
+			for (auto exp: {1.0f, 0.75f, 0.5f}) { // Multi-explosion, show that it's strong
+				DoDustExplosion(giant, dust * smt * Augment * exp, Event, Node);
+			}
+		}
 
 		DeplenishStamina(giant, 100.0f);
 

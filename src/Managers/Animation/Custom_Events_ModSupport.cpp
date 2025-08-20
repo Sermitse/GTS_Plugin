@@ -1,4 +1,4 @@
-#include "Managers/Animation/Compat.hpp"
+#include "Managers/Animation/Custom_Events_ModSupport.hpp"
 
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
@@ -188,7 +188,7 @@ namespace {
 
 namespace GTS
 {
-	void AnimationCompat::RegisterEvents() {
+	void Animation_ModSupport::RegisterEvents() {
 		AnimationManager::RegisterEvent("GTScrush_caster", "Compat", GTScrush_caster);
 		AnimationManager::RegisterEvent("GTScrush_victim", "Compat", GTScrush_victim);
 		AnimationManager::RegisterEvent("MCO_SecondDodge", "MCOCompat1", MCO_SecondDodge);
@@ -217,7 +217,7 @@ namespace GTS
 		AnimationManager::RegisterEvent("GTS_ToAnimB", "Compat", GTS_ToAnimB);
 	}
 
-	void AnimationCompat::RegisterTriggers() {
+	void Animation_ModSupport::RegisterTriggers() {
 		AnimationManager::RegisterTrigger("Tiny_ExitAnims", "Compat3", "GTSBEH_Tiny_Abort");
 	}
 }

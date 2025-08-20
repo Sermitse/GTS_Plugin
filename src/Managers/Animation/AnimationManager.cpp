@@ -1,3 +1,5 @@
+
+#include "Managers/Animation/Custom_Events_ModSupport.hpp"
 #include "Managers/Animation/TinyCalamity_Instakill.hpp"
 #include "Managers/Animation/Sneak_Slam_FingerGrind.hpp"
 #include "Managers/Animation/Stomp_Under_FullBody.hpp"
@@ -42,7 +44,6 @@
 #include "Managers/Animation/Crawling.hpp"
 #include "Managers/Animation/HugHeal.hpp"
 #include "Managers/Animation/Proning.hpp"
-#include "Managers/Animation/Compat.hpp"
 #include "Managers/Animation/Growth.hpp"
 #include "Managers/Animation/Shrink.hpp"
 #include "Managers/Animation/Kicks.hpp"
@@ -152,8 +153,8 @@ namespace GTS {
 		AnimationFootTrample::RegisterEvents();
 		AnimationFootTrample::RegisterTriggers();
 
-		AnimationCompat::RegisterEvents();
-		AnimationCompat::RegisterTriggers();
+		Animation_ModSupport::RegisterEvents();
+		Animation_ModSupport::RegisterTriggers();
 
 		AnimationProning::RegisterEvents();
 		AnimationProning::RegisterTriggers();

@@ -112,11 +112,11 @@ namespace Hooks {
 
 		stl::write_vfunc_unique<GetBaseActorValue, 0>(VTABLE_Actor[5]);
 		stl::write_vfunc_unique<GetBaseActorValue, 1>(VTABLE_Character[5]);
-		stl::write_vfunc_unique<GetBaseActorValue, 2>(VTABLE_Actor[5]);
+		stl::write_vfunc_unique<GetBaseActorValue, 2>(VTABLE_PlayerCharacter[5]);
 
 		stl::write_vfunc_unique<SetBaseActorValue, 0>(VTABLE_Actor[5]);
 		stl::write_vfunc_unique<SetBaseActorValue, 1>(VTABLE_Character[5]);
-		stl::write_vfunc_unique<SetBaseActorValue, 2>(VTABLE_Actor[5]);
+		stl::write_vfunc_unique<SetBaseActorValue, 2>(VTABLE_PlayerCharacter[5]);
 
 	}
 }

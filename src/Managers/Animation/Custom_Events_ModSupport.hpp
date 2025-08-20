@@ -13,7 +13,7 @@
 
 namespace GTS {
 
-	class AnimationCompat {
+	class Animation_ModSupport {
 		public:
 			static void RegisterEvents();
 			static void RegisterTriggers();

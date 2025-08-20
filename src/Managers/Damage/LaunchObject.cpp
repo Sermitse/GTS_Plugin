@@ -133,7 +133,8 @@ namespace GTS {
 							float distance = (point - objectlocation).Length();
 							if (distance <= maxFootDistance) {
 								float force = GetForceFromDistance(distance, maxFootDistance);
-								float push = start_power * GetLaunchPowerFor(giant, giantScale, LaunchType::Object_Launch) * force * power;
+								float push = GetLaunchPowerFor(giant, giantScale, LaunchType::Object_Launch, start_power * force * power) ;
+
 								auto Object1 = objectref->Get3D1(false);
 
 								if (distance <= maxFootDistance / 3.0f) { // Apply only if too close

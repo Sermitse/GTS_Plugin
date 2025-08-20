@@ -129,7 +129,9 @@ namespace GTS {
 				return;
 			}
 
+			const bool AttachToR = Attachment_GetTargetNode(GiantRef) == AttachToNode::ObjectR;
 			float giantScale = get_visual_scale(GiantRef);
+			
 
 			//If AI
 			if ((GiantRef->formID != 0x14) || (GiantRef->formID == 0x14 && Config::GetAdvanced().bPlayerAI)) {
@@ -160,7 +162,7 @@ namespace GTS {
 				if (tiny_is_actor) {
 					ShutUp(tiny_is_actor);
 					ForceRagdoll(tiny_is_actor, false);
-					AttachToObjectA(GiantRef, tiny_is_actor);
+					AttachToR ? AttachToObjectR(GiantRef, tiny_is_actor) : AttachToObjectA(GiantRef, tiny_is_actor);
 				}
 
 				float tinyScale = get_visual_scale(tiny);
@@ -168,6 +170,8 @@ namespace GTS {
 				float threshold = Action_Sandwich;
 
 				if (GiantRef->IsDead() || sizedifference < threshold || !IsThighSandwiching(GiantRef)) {
+					Attachment_SetTargetNode(GiantRef, AttachToNode::None);
+
 					EnableCollisions(tiny);
 					SetBeingHeld(tiny, false);
 					AllowToBeCrushed(tiny, true);
@@ -184,6 +188,7 @@ namespace GTS {
 					InflictSizeDamage(GiantRef, tiny, damage);
 					if (damage > hp && !tiny->IsDead()) {
 						ReportDeath(GiantRef, tiny, DamageSource::ThighSuffocated);
+						Attachment_SetTargetNode(GiantRef, AttachToNode::None);
 						this->Remove(tiny);
 					}
 				}

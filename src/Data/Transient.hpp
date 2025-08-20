@@ -41,8 +41,10 @@ namespace GTS {
 		float OverkillSizeBonus = 1.0f;
 		float Overkills = 0.0f;
 
-		int PerkLifeForceStacks = 0;
-		int CrushedTinies = 0;
+		int Stacks_Perk_CataclysmicStomp = 0;
+		int Stacks_Perk_LifeForce = 0;
+		int CrushSound_Calc_CrushedTinies = 0;
+		
 
 		bool ThrowWasThrown = false;
 		bool CanDoVore = true;

@@ -15,7 +15,7 @@ namespace {
 
         auto tranData = Transient::GetSingleton().GetData(giant);
         if (tranData) {
-            crushed = tranData->CrushedTinies;
+            crushed = tranData->CrushSound_Calc_CrushedTinies;
         }
 
         return crushed;
@@ -25,10 +25,10 @@ namespace {
         auto tranData = Transient::GetSingleton().GetData(giant);
         if (tranData) {
             if (reset) {
-                tranData->CrushedTinies = 0;
+                tranData->CrushSound_Calc_CrushedTinies = 0;
                 return;
             }
-            tranData->CrushedTinies += 1;
+            tranData->CrushSound_Calc_CrushedTinies += 1;
         }
     }
 

@@ -273,6 +273,7 @@ namespace GTS {
 
 	float GetMovementModifier(Actor* giant);
 	float GetGtsSkillLevel(Actor* giant);
+	float GetLegendaryLevel(Actor* giant);
 	float GetXpBonus();
 
 	void DragonAbsorptionBonuses();

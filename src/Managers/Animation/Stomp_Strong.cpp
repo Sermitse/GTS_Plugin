@@ -10,6 +10,8 @@
 
 #include "Utils/InputConditions.hpp"
 
+#include "Managers/Perks/PerkHandler.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -85,12 +87,12 @@ namespace {
 		}
 	}
 
-	void DoImpactRumble(Actor* giant, std::string_view node, std::string_view name) {
+	void DoImpactRumble(Actor* giant, std::string_view node, std::string_view name, float mult = 1.0f) {
 		float shake_power = Rumble_Stomp_Strong;
 		float smt = HasSMT(giant) ? 1.5f : 1.0f;
 		
 		smt *= GetHighHeelsBonusDamage(giant, true);
-		Rumbling::Once(name, giant, shake_power * smt, 0.0f, node, 1.25f);
+		Rumbling::Once(name, giant, shake_power * smt * mult, 0.0f, node, 1.25f);
 	}
 
 	void StrongStomp_DoEverything(Actor* giant, float animSpeed, bool right, FootEvent Event, DamageSource Source, std::string_view Node, std::string_view rumble) {
@@ -116,16 +118,25 @@ namespace {
 			auto giantref = giantHandle.get().get();
 
 			if (Finish - Start > 0.07) { 
+				float Augment = PerkHandler::Perks_Cataclysmic_EmpowerStomp(giantref);
+				bool GotStacks = PerkHandler::Perks_Cataclysmic_HasStacks(giantref);
 
-				DoDamageEffect(giantref, Damage_Stomp_Strong * damage * perk, Radius_Stomp_Strong, 5, 0.35f, Event, 1.0f, Source);
+				DoDamageEffect(giantref, Damage_Stomp_Strong * damage * perk * Augment, Radius_Stomp_Strong, 5, 0.35f, Event, 1.0f, Source);
 				DoImpactRumble(giantref, Node, rumble);
-				DoDustExplosion(giantref, 1.33f * (SMT + (animSpeed * 0.05f)), Event, Node);
+
+				if (!GotStacks) { 
+					DoDustExplosion(giantref, 1.33f * (SMT + (animSpeed * 0.05f)), Event, Node);
+				} else {
+					for (auto exp: {1.0f, 0.75f, 0.5f}) { // Multi-explosion, show that it's strong
+						DoDustExplosion(giantref, 1.33f * (SMT + (animSpeed * 0.05f)) * Augment * exp, Event, Node);
+					}
+				}
 
 				DrainStamina(giantref, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", false, 3.4f);
 
 				StompManager::PlayNewOrOldStomps(giantref, SMT + (animSpeed/10), Event, Node, true);
 
-				LaunchTask(giantref, 1.05f * perk, 3.6f + animSpeed/2, Event);
+				LaunchTask(giantref, 1.05f * perk * Augment, (3.6f + animSpeed/2) * Augment, Event);
 
 				FootStepManager::DoStrongSounds(giantref, 1.15f + animSpeed/20, Node);
 				FootStepManager::PlayVanillaFootstepSounds(giantref, right);
@@ -159,6 +170,7 @@ namespace {
 		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", true, 3.4f);
 
 		SetBusyFoot(&data.giant, BusyFoot::RightFoot);
+		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);
 	}
 
 	void GTS_StrongStomp_LL_Start(AnimationEventData& data) {
@@ -172,6 +184,8 @@ namespace {
 		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", true, 3.4f);
 
 		SetBusyFoot(&data.giant, BusyFoot::LeftFoot);
+
+		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);
 	}
 
 	void GTS_StrongStomp_LR_Middle(AnimationEventData& data) {
@@ -179,12 +193,14 @@ namespace {
 		if (data.giant.formID != 0x14) {
 			data.animSpeed = 1.55f + GetRandomBoost();
 		}
+		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);
 	}
 	void GTS_StrongStomp_LL_Middle(AnimationEventData& data) {
 		data.animSpeed = 1.55f;
 		if (data.giant.formID != 0x14) {
 			data.animSpeed = 1.55f + GetRandomBoost();
 		}
+		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);
 	}
 	void GTS_StrongStomp_LR_End(AnimationEventData& data) {
 		StopLegRumbling("StrongStompR", data.giant, true);
@@ -194,22 +210,12 @@ namespace {
 	}
 
 	void GTS_StrongStomp_ImpactR(AnimationEventData& data) {
-		float SavedSpeed = data.animSpeed;
-
-		data.stage = 0;
-		data.canEditAnimSpeed = false;
-		data.animSpeed = 1.0f;
-
-		StrongStomp_DoEverything(&data.giant, SavedSpeed, true, FootEvent::Right, DamageSource::CrushedRight, RNode, "HeavyStompR");
+		StrongStomp_DoEverything(&data.giant, data.animSpeed, true, FootEvent::Right, DamageSource::CrushedRight, RNode, "HeavyStompR");
+		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, true);
 	}
 	void GTS_StrongStomp_ImpactL(AnimationEventData& data) {
-		float SavedSpeed = data.animSpeed;
-
-		data.stage = 0;
-		data.canEditAnimSpeed = false;
-		data.animSpeed = 1.0f;
-
-		StrongStomp_DoEverything(&data.giant, SavedSpeed, false, FootEvent::Left, DamageSource::CrushedLeft, LNode, "HeavyStompL");
+		StrongStomp_DoEverything(&data.giant, data.animSpeed, false, FootEvent::Left, DamageSource::CrushedLeft, LNode, "HeavyStompL");
+		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, true);
 	}
 
 	void GTS_StrongStomp_ReturnRL_Start(AnimationEventData& data) {StartLegRumbling("StrongStompR", data.giant, 0.25f, 0.10f, true);}

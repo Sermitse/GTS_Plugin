@@ -172,7 +172,7 @@ namespace GTS {
 						InflictSizeDamage(giant, tiny, damage);
 					}
 
-					NiPoint3 Push = NiPoint3(0, 0, startpower * GetLaunchPowerFor(giant, sizeRatio, LaunchType::Actor_Launch) * force * power);
+					NiPoint3 Push = NiPoint3(0, 0, GetLaunchPowerFor(giant, sizeRatio, LaunchType::Actor_Launch, startpower * force * power));
 					PushActorAway(giant, tiny, 1.0f);
 
 					std::string name = std::format("LaunchOther_{}_{}", giant->formID, tiny->formID);

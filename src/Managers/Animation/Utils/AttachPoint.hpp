@@ -110,6 +110,11 @@ namespace GTS {
 	}
 
 	template<typename T, typename U>
+	bool AttachToObjectR(T& anyGiant, U& anyTiny) {
+		return AttachTo(anyGiant, anyTiny, "AnimObjectR");
+	}
+
+	template<typename T, typename U>
 	NiPoint3 AttachToObjectB_GetCoords(T& anyGiant, U& anyTiny) {
 		Actor* giant = GetActorPtr(anyGiant);
 		if (!giant) {

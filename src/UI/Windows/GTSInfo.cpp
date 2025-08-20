@@ -292,7 +292,7 @@ namespace GTS {
                                     "Complete perk requirements to fully absorb them and convert to Absorbed Attributes";
         const char* TAbsorbedAttributes = 
                                     "Absorbed Attributes are permanent Health/Magicka/Stamina attribute boosts of your character\n"
-                                    "They're coming from 'Size Conversion' and 'Full Assimilation' perks";
+                                    "They're coming from 'Full Assimilation' perk";
 
         DrawGTSSizeBar(a_featureFlags, a_Actor, a_IsWidget);
 
@@ -438,7 +438,7 @@ namespace GTS {
             }
 
             // Stolen Attributes for Size Conversion perk
-            if (Runtime::HasPerk(a_Actor, "GTSPerkSizeConversion") && hasFlag(a_featureFlags, GTSInfoFeatures::kStolenAttributes)) {
+            if (Runtime::HasPerk(a_Actor, "GTSPerkFullAssimilation") && hasFlag(a_featureFlags, GTSInfoFeatures::kStolenAttributes)) {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImUtil::TextShadow("Stored Attributes:");
