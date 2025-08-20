@@ -167,18 +167,18 @@ namespace GTS {
     	if (!AllowLaunch) {
 			return;
 		}
-		if (!Bone) {
-			return;
-		} 
-		if (!object) {
+
+		if (!giant || !Bone || !object) {
 			return;
 		}
-        if (!object->Is3DLoaded()) {
+
+        if (!object->Is3DLoaded() || !object->GetCurrent3D()) {
 			return;
         }
-        if (!object->GetCurrent3D()) {
-            return;
-        }
+
+		if (!giant->Is3DLoaded() || !giant->GetCurrent3D()) {
+			return;
+		}
 
 		bool smt = HasSMT(giant);
 		float giantScale = get_visual_scale(giant);
@@ -212,6 +212,7 @@ namespace GTS {
 		}
 
 		if (nodeCollisions > 0) {
+
 			double Start = Time::WorldTimeElapsed();
 			ActorHandle gianthandle = giant->CreateRefHandle();
 			ObjectRefHandle objectref = object->CreateRefHandle();
@@ -220,18 +221,26 @@ namespace GTS {
 			NiPoint3 StartPos = Bone->world.translate;
 
 			TaskManager::Run(name, [=](auto& progressData) {
+
 				if (!gianthandle) {
 					return false;
 				} if (!objectref) {
 					return false;
 				}
-				auto giantref = gianthandle.get().get();
-				auto ref = objectref.get().get();
+
+				Actor* giantref = gianthandle.get().get();
+				TESObjectREFR* ref = objectref.get().get();
 				double Finish = Time::WorldTimeElapsed();
 				double timepassed = Finish - Start;
 
 				if (timepassed > 1e-4) {
+
+					if (!Bone) {
+						return false;
+					}
+
 					NiPoint3 EndPos = Bone->world.translate;
+
 					ApplyPhysicsToObject_Towards(giantref, ref, EndPos - StartPos, start_power, giantScale);
 					Break_Object(ref, power * 12 * giantScale * start_power, giantScale, smt);
 					return false; // end it
