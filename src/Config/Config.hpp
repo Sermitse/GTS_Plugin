@@ -59,7 +59,7 @@ namespace GTS {
         const std::filesystem::path ModConfigPath = std::filesystem::current_path() / _Subfolder;
 
         toml::basic_value<toml::ordered_type_config> TomlData;
-        toml::basic_value<toml::ordered_type_config> TomlDataGlobal;
+        //toml::basic_value<toml::ordered_type_config> TomlDataGlobal;
 
         std::mutex _ReadWriteLock;
 

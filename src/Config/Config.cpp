@@ -32,6 +32,9 @@ namespace GTS {
     bool Config::SerializeStructsToTOML() {
         try {
             bool updateRes = true;
+            // Ensure TomlData is a table
+            TomlData = toml::ordered_table();
+
 
             updateRes &= UpdateTOMLFromStruct(TomlData, Hidden);
             updateRes &= UpdateTOMLFromStruct(TomlData, Advanced);
