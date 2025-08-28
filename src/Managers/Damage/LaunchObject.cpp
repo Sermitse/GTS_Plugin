@@ -236,7 +236,7 @@ namespace GTS {
 
 				if (timepassed > 1e-4) {
 
-					if (!Bone) {
+					if (!Bone || !giantref || !ref) {
 						return false;
 					}
 
