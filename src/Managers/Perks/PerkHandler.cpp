@@ -27,6 +27,8 @@ namespace {
             ActorHandle actorHandle = giant->CreateRefHandle();
             std::string taskname = std::format("LaughCheck_{}", giant->formID);
 
+            ApplyActionCooldown(giant, CooldownSource::Emotion_Laugh);
+
             TaskManager::RunOnce(taskname, [=](auto& update){
                 if (!actorHandle) {
                     return;
@@ -38,7 +40,6 @@ namespace {
                 }
                 Sound_PlayLaughs(giantref, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
                 Task_FacialEmotionTask_Smile(giantref, 1.4f, "Cataclysm", 0.25f);
-                ApplyActionCooldown(giantref, CooldownSource::Emotion_Laugh);
             });
         }
     }

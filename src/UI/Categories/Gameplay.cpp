@@ -111,7 +111,7 @@ namespace GTS {
                 ImUtil::CheckBox(tGrowOnHit.c_str(), &Settings.bEnableGrowthOnHit, T2, !PerkCondHit);
 
                 const char* tSizeConfFMT = (!PerkCondAtribCap ? "[Missing Perk]" : "%.2fx");
-                ImUtil::SliderF("Size Conversion Attrib. Cap", &Settings.fSizeConvLevelCap, 0.1f, 5.0f, T3, tSizeConfFMT, !PerkCondAtribCap);
+                ImUtil::SliderF("Full Assimilation Attrib. Cap", &Settings.fFullAssimilationLevelCap, 0.1f, 5.0f, T3, tSizeConfFMT, !PerkCondAtribCap);
 
                 ImGui::Spacing();
             }

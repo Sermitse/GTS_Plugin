@@ -49,6 +49,11 @@ namespace {
         Actor* giant = &data.giant;
 
         auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
+
+		if (!AllowDevourment()) {
+			Runtime::PlaySoundAtNode("GTSSoundSwallow", giant, 1.0f, "NPC Head [Head]"); // Play sound
+		}
+
 		for (auto& tiny: VoreData.GetVories()) {
 			AllowToBeCrushed(tiny, true);
 			if (tiny->formID == 0x14) {
@@ -61,14 +66,11 @@ namespace {
 			} else {
 				VoreData.Swallow();
 				tiny->SetAlpha(0.0f);
-				Runtime::PlaySoundAtNode("GTSSoundSwallow", giant, 1.0f, "NPC Head [Head]"); // Play sound
 
 				auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
-				for (auto& tiny: VoreData.GetVories()) {
-					if (tiny) {
-						AllowToBeCrushed(tiny, true);
-						EnableCollisions(tiny);
-					}
+				if (tiny) {
+					AllowToBeCrushed(tiny, true);
+					EnableCollisions(tiny);
 				}
 				VoreData.AllowToBeVored(true);
 				VoreData.KillAll();

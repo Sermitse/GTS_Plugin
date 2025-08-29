@@ -135,7 +135,7 @@ namespace GTS {
 	            constexpr float Min = 0.0;
 
                 const bool IsMassBased = Settings.sSizeMode == "kMassBased";
-                const float MassLimit = get_natural_scale(PlayerCharacter::GetSingleton()) + Persistent::GetSingleton().GlobalMassBasedSizeLimit.value;
+                const float MassLimit = get_max_scale(PlayerCharacter::GetSingleton());
 
                 ImGui::TextColored(ImUtil::ColorSubscript,"How is Max Size Determined (?)");
                 if (ImGui::IsItemHovered()) {

@@ -4,6 +4,8 @@
 #include "Managers/Attributes.hpp"
 #include "Managers/SpectatorManager.hpp"
 
+#include "Managers/MaxSizeManager.hpp"
+
 #include "Utils/UnitConverter.hpp"
 #include "Utils/KillDataUtils.hpp"
 
@@ -159,9 +161,11 @@ namespace GTS {
 
     	//--------- Transient Data
         const float BonusSize = ActorTransient->PotionMaxSize;
-        const float StolenHealth = ActorPersistent->stolen_health;
-        const float StolenMagicka = ActorPersistent->stolen_magick;
-        const float StolenStamina = ActorPersistent->stolen_stamin;
+        const float StolenHealth = GetStolenAttributes_Values(a_Actor, ActorValue::kHealth);
+        const float StolenMagicka = GetStolenAttributes_Values(a_Actor, ActorValue::kMagicka);
+        const float StolenStamina = GetStolenAttributes_Values(a_Actor, ActorValue::kStamina);
+        const float StolenCap = GetStolenAttributeCap(a_Actor);
+
         const float StolenAttributes = ActorPersistent->stolen_attributes;
 
         //---------- Persistent Data
@@ -170,8 +174,9 @@ namespace GTS {
 
         //---------- Other
         const bool MassMode = Config::GetBalance().sSizeMode == "kMassBased";
+        const bool IsPlayerMassMode = a_Actor->formID == 0x14 && MassMode;
         const float shrinkResist_PreCalc = 1.0f * Potion_GetShrinkResistance(a_Actor) * Perk_GetSprintShrinkReduction(a_Actor); // to make ShrinkResistance below shorter
-
+        const float NaturalScale = get_natural_scale(a_Actor, true);
 
         const float MaxScale = get_max_scale(a_Actor);
         const float AspectOfGTS = Ench_Aspect_GetPower(a_Actor) * 100.0f;
@@ -293,6 +298,8 @@ namespace GTS {
         const char* TAbsorbedAttributes = 
                                     "Absorbed Attributes are permanent Health/Magicka/Stamina attribute boosts of your character\n"
                                     "They're coming from 'Full Assimilation' perk";
+        const char* TAbsorbedAttributesCap = 
+                                    "Absorbed Attributes cannot exceed this number";
 
         DrawGTSSizeBar(a_featureFlags, a_Actor, a_IsWidget);
 
@@ -305,11 +312,20 @@ namespace GTS {
                 ImGui::TableSetColumnIndex(0);
                 ImUtil::TextShadow("Max Scale:");
                 ImGui::TableSetColumnIndex(1);
+                float MassModeScale = MassMode_GetVisualValues(a_Actor);
+                
                 if (MaxScale > 250.0f) {
-                    ImUtil::TextShadow("Infinite");
-                }
-                else {
-                    ImUtil::TextShadow("%.2fx", MaxScale);
+                    if (IsPlayerMassMode) {
+                        ImUtil::TextShadow("%.2fx out of Infinite", MaxScale);
+                    } else {
+                        ImUtil::TextShadow("Infinite");
+                    }
+                } else {
+                    if (IsPlayerMassMode) {
+                        ImUtil::TextShadow("%.2fx out of %.2fx", MaxScale, MassModeScale);
+                    } else {
+                        ImUtil::TextShadow("%.2fx", MaxScale);
+                    }
                 }
             }
 
@@ -320,7 +336,7 @@ namespace GTS {
                 ImUtil::TextShadow("Bonus Size:");
                 ImUtil::Tooltip(TBonusSize, true);
                 ImGui::TableSetColumnIndex(1);
-                ImUtil::TextShadow("%.0f%% + %.2F + %.2Fx", (BonusSize * 100.0f) + AspectOfGTS, 
+                ImUtil::TextShadow(IsPlayerMassMode ? "%.0f%% + [%.2F + %.2Fx possible]" : "%.0f%% + %.2F + %.2Fx", (BonusSize * 100.0f) + AspectOfGTS, 
                     MassMode ? (SizeEssense * MassMode_ElixirPowerMultiplier) + BonusSize_Overkills : (SizeEssense * 1.0f) + BonusSize_Overkills,
                     std::clamp(BonusSize_Overkills_Multiplier, 1.0f, 999999.0f)
                 );
@@ -457,6 +473,15 @@ namespace GTS {
                     ImUtil::Tooltip(TAbsorbedAttributes, true);
                     ImGui::TableSetColumnIndex(1);
                     ImUtil::TextShadow("HP: +%.2f, MP: +%.2f, SP: +%.2f", StolenHealth, StolenMagicka, StolenStamina);
+                }
+
+                if (hasFlag(a_featureFlags, GTSInfoFeatures::kAbsorbedAttributesCap)) {
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImUtil::TextShadow("Max Attributes:");
+                    ImUtil::Tooltip(TAbsorbedAttributesCap, true);
+                    ImGui::TableSetColumnIndex(1);
+                    ImUtil::TextShadow("%.2f", StolenCap);
                 }
             }
 

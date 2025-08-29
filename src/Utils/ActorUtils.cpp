@@ -70,6 +70,16 @@ namespace {
 		"NPC L Item03",*/
 	};
 
+	void ApplyAttributesOnShrink(float& health, float& magick, float& stamin, float value, float limit) {
+		int Boost = RandomInt(0, 2);
+		constexpr float mult = 1.0f;
+		switch (Boost) {
+			case 0: {health += (value * mult); if (health >= limit) {health = limit;} break;}
+			case 1: {magick += (value * mult); if (magick >= limit) {magick = limit;} break;}
+			case 2: {stamin += (value * mult); if (stamin >= limit) {stamin = limit;} break;}
+		}	
+	}
+
 	float GetGrowthReduction(float size) {
 		// https://www.desmos.com/calculator/pqgliwxzi2
 		
@@ -2047,13 +2057,31 @@ namespace GTS {
 		}
 	}
 
+	float GetStolenAttributeCap(Actor* giant) {
+		const uint16_t Level = giant->GetLevel();
+		const float modifier = Config::GetGameplay().fFullAssimilationLevelCap;
+		const float cap = static_cast<float>(Level) * modifier * 2.0f;
+
+		return cap;
+	}
+
 	void AddStolenAttributes(Actor* giant, float value) {
 		if (giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkFullAssimilation")) {
 			auto attributes = Persistent::GetSingleton().GetData(giant);
 			if (attributes) {
-				attributes->stolen_attributes += value;
-				//Cap it just in case
-				attributes->stolen_attributes = std::max(attributes->stolen_attributes, 0.0f);
+				const float cap = GetStolenAttributeCap(giant);
+
+				float& health = attributes->stolen_health;
+				float& magick = attributes->stolen_magick;
+				float& stamin = attributes->stolen_stamin;
+
+				if (health >= cap && magick >= cap && stamin >= cap) { // If we're at limit, don't add them
+					attributes->stolen_attributes = 0.0f;
+					return;
+				} else { // Add in all other cases
+					attributes->stolen_attributes += value;
+					attributes->stolen_attributes = std::max(attributes->stolen_attributes, 0.0f);
+				}
 			}
 		}
 	}
@@ -2062,21 +2090,20 @@ namespace GTS {
 		if (giant->formID == 0x14) {
 			auto Persistent = Persistent::GetSingleton().GetData(giant);
 			if (Persistent) {
-				const uint16_t Level = giant->GetLevel();
-				const float modifier = Config::GetGameplay().fSizeConvLevelCap;
 				float& health = Persistent->stolen_health;
 				float& magick = Persistent->stolen_magick;
 				float& stamin = Persistent->stolen_stamin;
-				const float limit = static_cast<float>(Level) * modifier * 2.0f;
-				if (type == ActorValue::kHealth) {
+				const float limit = GetStolenAttributeCap(giant);
+
+				if (type == ActorValue::kHealth && health < limit) {
 					health += value;
 					health = std::min(health, limit);
 					//log::info("Adding {} to health, health: {}", value, health);
-				} else if (type == ActorValue::kMagicka) {
+				} else if (type == ActorValue::kMagicka && magick < limit) {
 					magick += value;
 					magick = std::min(magick, limit);
 					//log::info("Adding {} to magick, magicka: {}", value, magick);
-				} else if (type == ActorValue::kStamina) {
+				} else if (type == ActorValue::kStamina && stamin < limit) {
 					stamin += value;
 					stamin = std::min(stamin, limit);
 					//log::info("Adding {} to stamina, stamina: {}", value, stamin);
@@ -2089,12 +2116,13 @@ namespace GTS {
 		if (giant->formID == 0x14) {
 			auto Persistent = Persistent::GetSingleton().GetData(giant);
 			if (Persistent) {
+				float max = GetStolenAttributeCap(giant);
 				if (type == ActorValue::kHealth) {
-					return Persistent->stolen_health;
+					return std::min(Persistent->stolen_health, max);
 				} else if (type == ActorValue::kMagicka) {
-					return Persistent->stolen_magick;
+					return std::min(Persistent->stolen_magick, max);
 				} else if (type == ActorValue::kStamina) {
-					return Persistent->stolen_stamin;
+					return std::min(Persistent->stolen_stamin, max);
 				} else {
 					return 0.0f;
 				}
@@ -2115,10 +2143,8 @@ namespace GTS {
 	void DistributeStolenAttributes(Actor* giant, float value) {
 		if (value > 0 && giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkFullAssimilation")) { // Permamently increases random AV after shrinking and stuff
 			float scale = std::clamp(get_visual_scale(giant), 0.01f, 1000000.0f);
-			float modifier = Config::GetGameplay().fSizeConvLevelCap;
 			float Storage = GetStolenAttributes(giant);
-			float limit = 2.0f * giant->GetLevel() * modifier;
-
+			float limit = GetStolenAttributeCap(giant);
 
 			auto Persistent = Persistent::GetSingleton().GetData(giant);
 			if (!Persistent) {
@@ -2129,27 +2155,10 @@ namespace GTS {
 			float& magick = Persistent->stolen_magick;
 			float& stamin = Persistent->stolen_stamin;
 
+			value = std::clamp(value, 0.0f, Storage); // Can't be stronger than storage bonus
+
 			if (Storage > 0.0f) {
-				int Boost = RandomInt(0, 2);
-				if (Boost == 0) {
-					health += (value * 4);
-					if (health >= limit) {
-						health = limit;
-					}
-					//log::info("Adding {} to HP, HP {}", value * 4, health);
-				} else if (Boost == 1) {
-					magick += (value * 4);
-					if (magick >= limit) {
-						magick = limit;
-					}
-					//log::info("Adding {} to MP, MP {}", value * 4, magick);
-				} else if (Boost >= 2) {
-					stamin += (value * 4);
-					if (stamin >= limit) {
-						stamin = limit;
-					}
-					//log::info("Adding {} to SP, SP {}", value * 4, stamin);
-				}
+				ApplyAttributesOnShrink(health, magick, stamin, value, limit);
 				AddStolenAttributes(giant, -value); // reduce it
 			}
 		}

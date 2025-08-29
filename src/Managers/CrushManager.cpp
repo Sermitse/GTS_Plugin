@@ -60,14 +60,14 @@ namespace {
 		}
 	}
 
-	void GrowAfterTheKill(Actor* caster, Actor* target, float power) { // called twice
+	void GrowAfterTheKill(Actor* caster, Actor* target, float power) { // called twice if lucky
 
 		bool EnableCrushGrowth = Config::GetGameplay().bEnableCrushGrowth;
 
 		if (EnableCrushGrowth && !HasSMT(caster)) {
 
-			if (Runtime::HasPerkTeam(caster, "GTSPerkGrowthDesire") && EnableCrushGrowth) {
-				float Rate = (0.00016f * get_visual_scale(target)) * 120 * power;
+			if (Runtime::HasPerkTeam(caster, "GTSPerkGrowthDesire")) {
+				float Rate = (0.00016f * get_visual_scale(target)) * 120.0f * power;
 				if (Runtime::HasPerkTeam(caster, "GTSPerkAdditionalGrowth")) {
 					Rate *= 2.0f;
 				}
@@ -86,13 +86,11 @@ namespace {
 				ApplyActionCooldown(giant, CooldownSource::Emotion_Moan_Crush);
 				if (select >= 1) {
 					Task_FacialEmotionTask_Moan(giant, 1.6f, "CrushMoan", RandomFloat(0.0f, 0.40f));
-					Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Crushing);
-					GrowAfterTheKill(giant, target, 1.75f);
 				} else {
 					Task_FacialEmotionTask_Smile(giant, 1.25f, "CrushSmile", RandomFloat(0.0f, 0.7f), RandomFloat (0.4f, 0.75f));
-					Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Crushing);
-					GrowAfterTheKill(giant, target, 1.75f);
 				}
+				Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Crushing);
+				GrowAfterTheKill(giant, target, 2.5f);
 			}
 		}
 	}
@@ -146,8 +144,8 @@ namespace GTS {
 				
 				std::string taskname = std::format("CrushTiny {}", tiny->formID);
 
-				GrowAfterTheKill(giant, tiny, 1.0f);
-				MoanOrLaugh(giant, tiny);
+				GrowAfterTheKill(giant, tiny, 2.0f); // Grow first time
+				MoanOrLaugh(giant, tiny); // Grow second time if lucky
 			
 				if (giant->formID == 0x14) {
 					if (IsLiving(tiny)) {

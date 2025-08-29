@@ -24,6 +24,7 @@ namespace GTS {
         kSizeReserve = (1 << 18),
         kHeelsBonusDamage = (1 << 19),
         kOverkillCounter = (1 << 20),
+        kAbsorbedAttributesCap = (1 << 21),
     };
 
 

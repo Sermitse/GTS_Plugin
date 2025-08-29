@@ -232,9 +232,10 @@ namespace GTS {
 					GlobalSizeLimit = 1000000.0f;
 				}
 
-				if (MassBasedSize + get_natural_scale(caster) < GlobalSizeLimit) {
-					Persistent::GetSingleton().GlobalMassBasedSizeLimit.value = MassBasedSize + value * progressionMultiplier * TimeScale();
-				}
+				
+
+				float new_value = MassBasedSize + value * progressionMultiplier * TimeScale();
+				Persistent::GetSingleton().GlobalMassBasedSizeLimit.value = std::clamp(new_value, 0.0f, GlobalSizeLimit);
 			}
 		}
 	}

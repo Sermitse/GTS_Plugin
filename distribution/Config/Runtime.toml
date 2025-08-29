@@ -465,7 +465,7 @@ GTSPerkColossalGrowth = "GTS.esp|128CF7"        # Colossal Growth (100)
 GTSPerkOverindulgence = "GTS.esp|8F3A80"        # Overindulgence (100, Legendary Rank 2)
 GTSPerkRumblingFeet = "GTS.esp|1CAD91"          # Overwhelming Steps (65)
 GTSPerkShrinkingGaze = "GTS.esp|889543"         # Shrinking Gaze (90)
-GTSPerkCataclysmicStomp = "GTS.esp|610774"        # Size Conversion (50)
+GTSPerkCataclysmicStomp = "GTS.esp|610774"      # Cataclysmic Stomp (60)
 GTSPerkFullAssimilation = "GTS.esp|33C765"      # Full Assimilation (60)
 GTSPerkExperiencedGiantess = "GTS.esp|61A996"   # Experienced Giantess (60)
 

@@ -436,7 +436,7 @@ struct SettingsGameplay {
     // Perk settings
     bool bEnableCrushGrowth = true;
     bool bEnableGrowthOnHit = true;
-    float fSizeConvLevelCap = 1.0f;
+    float fFullAssimilationLevelCap = 1.0f;
 
 };
 TOML_SERIALIZABLE(SettingsGameplay);

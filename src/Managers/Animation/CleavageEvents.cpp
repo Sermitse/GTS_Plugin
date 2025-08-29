@@ -306,7 +306,9 @@ namespace {
         auto tiny = Grab::GetHeldActor(&data.giant);
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		if (tiny) {
-            Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
+            if (!AllowDevourment()) {
+                Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
+            }
 			for (auto& tiny: VoreData.GetVories()) {
 				if (!AllowDevourment()) {
 					VoreData.Swallow();
