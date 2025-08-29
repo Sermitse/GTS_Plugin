@@ -25,7 +25,7 @@ jobs:
     runs-on: windows-2025
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -34,35 +34,62 @@ jobs:
         with:
           arch: 'x64'
 
+      # Cache vcpkg dependencies
       - name: Cache vcpkg
         uses: actions/cache@v4
         with:
-          path: vcpkg
-          key: windows-vcpkg-${{ steps.vcpkg-version.outputs.hash }}-v1
+          path: |
+            ~/AppData/Local/vcpkg
+            vcpkg_installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: |
-            windows-vcpkg-${{ steps.vcpkg-version.outputs.hash }}-
-            windows-vcpkg-
+            vcpkg-${{ runner.os }}-
 
-      - name: Cache build
+      # Cache CMake build directory
+      - name: Cache CMake build
         uses: actions/cache@v4
         with:
-          path: build/Release
-          key: windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-${{ steps.vcpkg-version.outputs.hash }}-${{ steps.submodule-hashes.outputs.hash }}-v1
+          path: build
+          key: cmake-build-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'CMakePresets.json') }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: |
-            windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-${{ steps.vcpkg-version.outputs.hash }}-${{ steps.submodule-hashes.outputs.hash }}-
-            windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-${{ steps.vcpkg-version.outputs.hash }}-
-            windows-build-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt') }}-
+            cmake-build-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'CMakePresets.json') }}-
+            cmake-build-${{ runner.os }}-
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11.5
         with:
           vcpkgJsonGlob: vcpkg.json
+        env:
+          VCPKG_BINARY_SOURCES: 'clear;files,~/AppData/Local/vcpkg,readwrite'
 
-      - name: Build
+      # First build attempt
+      - name: Build (First Attempt)
+        id: build_first
+        uses: lukka/run-cmake@v10
+        continue-on-error: true
+        with:
+          configurePreset: config-release
+          buildPreset: build-release
+
+      # Clean and retry if first attempt failed
+      - name: Clean and reconfigure on failure
+        if: steps.build_first.outcome == 'failure'
+        run: |
+          Write-Host "First build attempt failed. Cleaning and reconfiguring..."
+          if (Test-Path "build") {
+            Remove-Item -Recurse -Force "build"
+            Write-Host "Removed build directory"
+          }
+          cmake --preset config-release --fresh
+        shell: pwsh
+
+      # Second build attempt after clean
+      - name: Build (Retry After Clean)
+        if: steps.build_first.outcome == 'failure'
         uses: lukka/run-cmake@v10
         with:
-            configurePreset: config-release
-            buildPreset: build-release
+          configurePreset: config-release
+          buildPreset: build-release
 
       - name: Upload Distribution Package
         uses: actions/upload-artifact@v4
