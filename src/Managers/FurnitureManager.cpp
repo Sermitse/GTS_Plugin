@@ -90,6 +90,10 @@ namespace GTS_Hitboxes {
 
             auto giant = giantHandle.get().get();
 
+            if (!giant) {
+                return false;
+            }
+
             if (!giant->Is3DLoaded() || giant->IsDead() || GetAV(giant, ActorValue::kHealth) <= 0.0f) {
                 return false;
             }
