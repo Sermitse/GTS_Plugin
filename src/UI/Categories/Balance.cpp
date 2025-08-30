@@ -2,7 +2,7 @@
 #include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
 
-
+#include "Managers/MaxSizeManager.hpp"
 
 namespace {
 
@@ -101,7 +101,8 @@ namespace GTS {
         						"In normal mode the maximum size you can grow to is defined by:\n"
 								"Current perks, GTS skill level, player level, and essense absorbed (through potions or by killing dragons while having a perk) and how far you are into the quest.\n"
         						"In \"Mass Based\" mode your maximum size is determiend by how many things you have absorbed/eaten/etc...\n"
-        						"Mass based mode starts off at 1.0x scale and will allow you to grow up to your normal maximum skill based scale (or if you have the perk to whatever you set max scale to) once you've absorbed enough things";
+        						"Mass based mode starts off at 1.0x scale and will allow you to grow up to your normal maximum skill based scale\n"
+                                "(or if you have the perk to whatever you set max scale to) once you've absorbed enough things";
 
             if (ImGui::CollapsingHeader("Size Options", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -149,20 +150,11 @@ namespace GTS {
                     std::string _Frmt;
 
                     if (ShouldBeInf) {
-
                         *Scale = 1000000.0f;
-
-                        if (IsMassBased) {
-                            _Frmt = fmt::format("Mass Based [{:.2f}x] Max [Inf]", MassLimit);
-                        }
-                        else {
-                            _Frmt = "Infinite";
-                        }
+                        _Frmt = "Infinite";
                     }
                     else if (ShouldBeAuto) {
-                      
-                        const float SkillBasedLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
-
+                        float SkillBasedLimit = MassMode_GetValuesForMenu(PlayerCharacter::GetSingleton());
                         if (IsMassBased) {
                             _Frmt = fmt::format("Mass Based [{:.2f}x] Max [{:.2f}x]", MassLimit, SkillBasedLimit);
                         }

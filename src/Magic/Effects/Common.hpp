@@ -228,12 +228,6 @@ namespace GTS {
 
 				auto GlobalSizeLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
 
-				if (Runtime::HasPerk(caster, "GTSPerkColossalGrowth")) {
-					GlobalSizeLimit = 1000000.0f;
-				}
-
-				
-
 				float new_value = MassBasedSize + value * progressionMultiplier * TimeScale();
 				Persistent::GetSingleton().GlobalMassBasedSizeLimit.value = std::clamp(new_value, 0.0f, GlobalSizeLimit);
 			}

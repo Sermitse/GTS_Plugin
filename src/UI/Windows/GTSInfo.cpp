@@ -312,17 +312,12 @@ namespace GTS {
                 ImGui::TableSetColumnIndex(0);
                 ImUtil::TextShadow("Max Scale:");
                 ImGui::TableSetColumnIndex(1);
-                float MassModeScale = MassMode_GetVisualValues(a_Actor);
                 
                 if (MaxScale > 250.0f) {
-                    if (IsPlayerMassMode) {
-                        ImUtil::TextShadow("%.2fx out of Infinite", MaxScale);
-                    } else {
-                        ImUtil::TextShadow("Infinite");
-                    }
+                    ImUtil::TextShadow("Infinite");
                 } else {
                     if (IsPlayerMassMode) {
-                        ImUtil::TextShadow("%.2fx out of %.2fx", MaxScale, MassModeScale);
+                        ImUtil::TextShadow("%.2fx out of %.2fx", MaxScale, MassMode_GetValuesForMenu(a_Actor));
                     } else {
                         ImUtil::TextShadow("%.2fx", MaxScale);
                     }

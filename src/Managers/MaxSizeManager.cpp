@@ -4,9 +4,23 @@
 
 using namespace GTS;
 
+namespace SizeOverride {
+	bool SizeOverrideEnabled() {
+		return !Config::GetBalance().bBalanceMode && Persistent::GetSingleton().UnlockMaxSizeSliders.value;
+	}
+	void MassMode_ApplySizeOverride(float& GetLimit) {
+		if (SizeOverrideEnabled()) {
+			const float SizeOverride = Config::GetBalance().fMaxPlayerSizeOverride;
+			if (SizeOverride > 0.05f) {
+				GetLimit = SizeOverride;
+			}
+		}
+	}
+}
+
 namespace {
 
-    constexpr float DEFAULT_MAX = 1000000.0f;
+    constexpr float DEFAULT_MAX = 1'000'000.0f;
 
 	const bool IsSizeUnlocked() {
 		// Reports true when player has ColossalGrowth perk and used gts unlimited command, else it's false
@@ -61,20 +75,16 @@ namespace {
     }
 
     float get_mass_based_limit(Actor* actor, float NaturalScale) { // gets mass based size limit for Player if using Mass Based mode
-        float low_limit = get_endless_height(actor);
+        float MaxSize = Persistent::GetSingleton().GlobalSizeLimit.value; // Cap max size through normal size rules
+		
+    	const float PotionSize = Persistent::GetSingleton().PlayerExtraPotionSize.value * MassMode_ElixirPowerMultiplier;
 
-        if (low_limit <= 0.0f) {
-            low_limit = Persistent::GetSingleton().GlobalSizeLimit.value; // Cap max size through normal size rules
-            // Else max possible size is unlimited
-        }
+        float size_calc = NaturalScale + Persistent::GetSingleton().GlobalMassBasedSizeLimit.value + PotionSize;
+		// Multiplying MassBasedSizeLimit by Natural Scale is a bad idea, it messes up max scaling with level 100 perk, displays 32x out of 34x
 
+        float GetLimit = std::clamp(size_calc, NaturalScale, MaxSize);
 
-    	const float PotionSize = Persistent::GetSingleton().PlayerExtraPotionSize.value;
-
-        float size_calc = NaturalScale + (Persistent::GetSingleton().GlobalMassBasedSizeLimit.value * NaturalScale);
-        size_calc += (PotionSize * MassMode_ElixirPowerMultiplier); // less effective in mass mode
-
-        float GetLimit = std::clamp(size_calc, NaturalScale, low_limit);
+		SizeOverride::MassMode_ApplySizeOverride(GetLimit);
 
         return GetLimit;
     }
@@ -132,7 +142,7 @@ namespace GTS {
 			}
 
             float TotalLimit = GetLimit;
-            ApplyPotionsAndEnchantments(actor, TotalLimit);
+            Ench_Potions_ApplyBonuses(actor, TotalLimit);
 
 			if (get_max_scale(actor) < TotalLimit + Endless || get_max_scale(actor) > TotalLimit + Endless) {
 				set_max_scale(actor, TotalLimit);
@@ -145,7 +155,7 @@ namespace GTS {
 		const bool IsMassBased = Config::GetBalance().sSizeMode == "kMassBased";
 
 		const float LevelBonus = 1.0f + GetGtsSkillLevel(a_Actor) * 0.006f;
-		const float Essence = Persistent::GetSingleton().PlayerExtraPotionSize.value * (IsMassBased ? MassMode_ElixirPowerMultiplier : 1.0f);
+		const float PotionSize = Persistent::GetSingleton().PlayerExtraPotionSize.value * (IsMassBased ? MassMode_ElixirPowerMultiplier : 1.0f);
 		float Colossal_kills = 0.0f;
 		float Colossal_lvl = 1.0f;
 
@@ -179,7 +189,7 @@ namespace GTS {
 
 			RecordOverkillSize_Transient(Transient, Colossal_lvl, Colossal_kills);
 			
-			if (!Config::GetBalance().bBalanceMode && Persistent::GetSingleton().UnlockMaxSizeSliders.value) {
+			if (SizeOverride::SizeOverrideEnabled()) {
 				const float SizeOverride = Config::GetBalance().fMaxPlayerSizeOverride;
 				if (SizeOverride > 0.05f) {
 					Colossal_kills = 0.0f;
@@ -192,7 +202,7 @@ namespace GTS {
 		}
 
 		const float MaxAllowedSize = start_value + (QuestMult + GetSizeFromPerks(a_Actor)) * LevelBonus;
-		return (MaxAllowedSize + Essence + Colossal_kills) * Colossal_lvl;
+		return (MaxAllowedSize + PotionSize + Colossal_kills) * Colossal_lvl;
 	}
 
     //Ported From Papyrus
@@ -217,7 +227,7 @@ namespace GTS {
 		}
 	}
 
-	void ApplyPotionsAndEnchantments(Actor* actor, float& value) {
+	void Ench_Potions_ApplyBonuses(Actor* actor, float& value) {
 		if (actor) {
 			value *= Potion_GetSizeMultiplier(actor); //Potion size
 			value += GetButtCrushSize(actor); //Butt crush added size
@@ -225,11 +235,11 @@ namespace GTS {
 		}
 	}
 
-	float MassMode_GetVisualValues(Actor* actor) {
+	float MassMode_GetValuesForMenu(Actor* actor) {
 		if (actor) {
 			float MassModeScale = Persistent::GetSingleton().GlobalSizeLimit.value;
-			ApplyPotionsAndEnchantments(actor, MassModeScale);
-
+			Ench_Potions_ApplyBonuses(actor, MassModeScale);
+			
 			return MassModeScale;
 		}
 		return 1.0f;
