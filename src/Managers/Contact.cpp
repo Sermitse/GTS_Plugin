@@ -308,7 +308,7 @@ namespace GTS {
 
 
 		float PlayerScale = player_data->target_scale;
-		auto& CamSettings = Config::GetCamera();
+		auto& CamSettings = Config::Camera;
 
 		// Extract a reference to the camera's bitfield to avoid repeated indexing.
 		auto& cameraBitfield = filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCamera)];

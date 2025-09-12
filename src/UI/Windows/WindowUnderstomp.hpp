@@ -40,7 +40,7 @@ namespace GTS {
         double LastWorldTime = 0.0f;
 
 
-        const WindowConfWidget& sUI = Config::GetUI().UnderstompWindow;
+        const WindowConfWidget& sUI = Config::UI.UnderstompWindow;
 
 
     };

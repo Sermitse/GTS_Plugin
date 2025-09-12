@@ -96,7 +96,7 @@ namespace GTS {
     }
 
     const inline std::string GetFormatedWeight(RE::Actor* a_Actor){
-        std::string displayUnits = Config::GetUI().sDisplayUnits;
+        std::string displayUnits = Config::UI.sDisplayUnits;
         if (displayUnits == "kImperial") 
             return FormatImperialWeight(KiloToPound(GetActorGTSWeight(a_Actor)));
 
@@ -108,7 +108,7 @@ namespace GTS {
     }
 
     const inline std::string GetFormatedHeight(RE::Actor* a_Actor){
-        std::string displayUnits = Config::GetUI().sDisplayUnits;
+        std::string displayUnits = Config::UI.sDisplayUnits;
         if (displayUnits == "kImperial") 
             return FormatImperialHeight(MetersToFeet(GetActorGTSHeight(a_Actor)));
 
@@ -120,7 +120,7 @@ namespace GTS {
     }
 
     const inline std::string GetFormatedHeight(const float Value) {
-        std::string displayUnits = Config::GetUI().sDisplayUnits;
+        std::string displayUnits = Config::UI.sDisplayUnits;
         if (displayUnits == "kImperial")
             return FormatImperialHeight(MetersToFeet(Value));
 

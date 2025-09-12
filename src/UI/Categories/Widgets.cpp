@@ -94,7 +94,7 @@ namespace GTS {
 				ImUtil_Unique {
 
 					if (ImUtil::ImageButton("Reset", "generic_reset", 18, TReset)) {
-						AwSettings.f3ColorA = Config::GetUI().f3AccentColor;
+						AwSettings.f3ColorA = Config::UI.f3AccentColor;
 					}
 				}
 
@@ -125,7 +125,7 @@ namespace GTS {
 					ImUtil_Unique{
 
 						if (ImUtil::ImageButton("Reset", "generic_reset", 18, TReset)) {
-							AwSettings.f3ColorB = Config::GetUI().f3AccentColor;
+							AwSettings.f3ColorB = Config::UI.f3AccentColor;
 						}
 					}
 

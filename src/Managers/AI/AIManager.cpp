@@ -77,7 +77,7 @@ namespace {
 			return false;
 		}
 
-		if (a_Actor->formID == 0x14 && !Config::GetAdvanced().bPlayerAI) {
+		if (a_Actor->formID == 0x14 && !Config::Advanced.bPlayerAI) {
 			return false;
 		}
 
@@ -94,7 +94,7 @@ namespace {
 			const bool IsHoldingSomeone = Grab::GetHeldActor(a_Actor) != nullptr || IsInCleavageState(a_Actor);
 			const bool IsInCombat = (a_Actor->IsInCombat()) || (a_Actor->GetActorRuntimeData().currentCombatTarget.get().get() != nullptr);
 
-			const bool IsPlayer = a_Actor->formID == 0x14 && Config::GetAdvanced().bPlayerAI;
+			const bool IsPlayer = a_Actor->formID == 0x14 && Config::Advanced.bPlayerAI;
 
 			//Is In combat or do we allow ai outside of combat?
 			if ((IsInCombat || !a_CombatOnly) && !IsGtsBusy(a_Actor) && HasHP && IsVisible(a_Actor) && IsInNormalState && !IsHoldingSomeone) {
@@ -180,7 +180,7 @@ namespace {
 
 		std::vector<Actor*> ValidPerformers = {};
 
-		const bool CombatOnly = Config::GetAI().bCombatOnly;
+		const bool CombatOnly = Config::AI.bCombatOnly;
 
 		//Get a list of valid perfomer actors, aka actors that are elidgible to start an action.
 		for (auto Target : find_actors()) {
@@ -205,8 +205,8 @@ namespace {
 
 		std::vector<Actor*> ValidVictims = {};
 
-		const auto& AISettings = Config::GetAI();
-		const auto& GeneralSettings = Config::GetGeneral();
+		const auto& AISettings = Config::AI;
+		const auto& GeneralSettings = Config::General;
 
 		const bool AllowPlayer = AISettings.bAllowPlayer;
 		const bool AllowFollowers = AISettings.bAllowFollowers;

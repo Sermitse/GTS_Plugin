@@ -204,7 +204,7 @@ namespace GTS {
 			if (receiver) {
 				auto& persist = Persistent::GetSingleton();
 				
-				float tremor_scale = Config::GetCamera().fCameraShakeOther;
+				float tremor_scale = Config::Camera.fCameraShakeOther;
 				float might = 1.0f + Potion_GetMightBonus(caster); // Stronger, more impactful shake with Might potion
 				
 				float distance = (coords - receiver->GetPosition()).Length(); // In that case we apply shake based on actor distance
@@ -219,14 +219,14 @@ namespace GTS {
 
 				if (caster->formID == 0x14) {
 					distance = get_distance_to_camera(coords); // use player camera distance (for player only)
-					tremor_scale = Config::GetCamera().fCameraShakePlayer;
+					tremor_scale = Config::Camera.fCameraShakePlayer;
 					sizedifference = sourcesize;
 
 					if (HasSMT(caster)) {
 						sourcesize += 0.2f; // Fix SMT having no shake at x1.0 scale
 					}
 					if (IsFirstPerson() || HasFirstPersonBody()) {
-						tremor_scale *= Config::GetCamera().fCameraShakePlayerFP; // Less annoying FP screen shake
+						tremor_scale *= Config::Camera.fCameraShakePlayerFP; // Less annoying FP screen shake
 					}
 
 					scale_bonus = 0.1f;

@@ -62,7 +62,7 @@ namespace {
 
 	void GrowAfterTheKill(Actor* caster, Actor* target, float power) { // called twice if lucky
 
-		bool EnableCrushGrowth = Config::GetGameplay().bEnableCrushGrowth;
+		bool EnableCrushGrowth = Config::Gameplay.bEnableCrushGrowth;
 
 		if (EnableCrushGrowth && !HasSMT(caster)) {
 
@@ -156,7 +156,7 @@ namespace GTS {
 				AddSMTDuration(giant, 5.0f);
 				ScareChance(giant);
 				
-				const bool silent = Config::GetAudio().bMuteCrushDeathScreams;
+				const bool silent = Config::Audio.bMuteCrushDeathScreams;
 				// Do crush
 				KillActor(giant, tiny, silent);
 				DecreaseShoutCooldown(giant);

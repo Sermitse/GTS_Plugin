@@ -84,7 +84,7 @@ namespace PlayFootSound {
 	}
 
 	static void BuildSounds_HighHeels_NormalOrAlt(float a_modifier, NiAVObject* a_foot, FootEvent a_footKind, float a_scale, bool a_otherset) {
-		const bool blend = Config::GetAudio().bBlendBetweenFootsteps;
+		const bool blend = Config::Audio.bBlendBetweenFootsteps;
 
 		if (a_otherset) {
 			const auto& steps = blend ? Steps_TimKroyer_Blend : Steps_TimKroyer_NoBlend;
@@ -112,7 +112,7 @@ namespace PlayFootSound {
 	static void BuildAndPlayStompSounds(Actor* giant, float a_modifier, NiAVObject* a_foot, FootEvent a_footKind, float a_scale, bool Strong) {
 		//https://www.desmos.com/calculator/wh0vwgljfl
 		GTS_PROFILE_SCOPE("StompManager: PlayHighHeelSounds");
-		const bool blend = Config::GetAudio().bBlendBetweenFootsteps;
+		const bool blend = Config::Audio.bBlendBetweenFootsteps;
 
 		const auto& steps = blend ? Steps_PeculiarMGTS_Blend : Steps_PeculiarMGTS_NoBlend;
 		for (const auto& step : steps) {
@@ -155,7 +155,7 @@ namespace GTS {
 				scale *= 2.5f; // Affect Sound threshold itself
 			}
 
-			//const bool LegacySounds = Config::GetAudio().bUseOldSounds;  // Determine if we should play old pre 2.00 update sounds
+			//const bool LegacySounds = Config::Audio.bUseOldSounds;  // Determine if we should play old pre 2.00 update sounds
 			// ^ Currently forced to true: there's not a lot of sounds yet.
 			bool WearingHighHeels = HighHeelManager::IsWearingHH(actor);
 			if (scale > 1.2f && !actor->AsActorState()->IsSwimming()) {
@@ -163,9 +163,9 @@ namespace GTS {
 				float modifier = Volume_Multiply_Function(actor, impact.kind) * impact.modifier; // Affects the volume only!
 				FootEvent foot_kind = impact.kind;
 				
-				if (Config::GetAudio().bFootstepSounds) {
+				if (Config::Audio.bFootstepSounds) {
 					for (NiAVObject* foot: impact.nodes) {
-						const bool UseOtherHeelSet = Config::GetAudio().bUseOtherHighHeelSet;
+						const bool UseOtherHeelSet = Config::Audio.bUseOtherHighHeelSet;
 						if (foot) {
 							if (UseOtherHeelSet) {
 								if (foot_kind != FootEvent::JumpLand) {
@@ -204,7 +204,7 @@ namespace GTS {
 	void FootStepManager::PlayHighHeelSounds_Jump(float modifier, NiAVObject* foot, FootEvent foot_kind, float scale, bool UseOtherHeelSet) {
 		GTS_PROFILE_SCOPE("FootStepManager: PlayHighHeelSounds");
 
-		const bool blend = Config::GetAudio().bBlendBetweenFootsteps;
+		const bool blend = Config::Audio.bBlendBetweenFootsteps;
 
 		// Reuse static walk param lookup table
 		const auto& steps = blend ? Steps_PeculiarMGTS_Blend : Steps_PeculiarMGTS_NoBlend;
@@ -266,7 +266,7 @@ namespace GTS {
 	}
 	void FootStepManager::DoStrongSounds(Actor* giant, float animspeed, std::string_view feet) {
 		const bool HasHeels = HighHeelManager::GetSingleton().IsWearingHH(giant);
-		const bool UseOtherHeelSet = Config::GetAudio().bUseOtherHighHeelSet;
+		const bool UseOtherHeelSet = Config::Audio.bUseOtherHighHeelSet;
 		
 		if (!UseOtherHeelSet || !HasHeels) {
 			float scale = get_visual_scale(giant);

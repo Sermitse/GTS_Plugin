@@ -235,7 +235,7 @@ namespace {
 
 	void ComputeFrustrumNearDistance(const float a_ActorScale) {
 
-		if (!Config::GetCamera().bEnableAutoFNearDist || a_ActorScale > 1.0f) return;
+		if (!Config::Camera.bEnableAutoFNearDist || a_ActorScale > 1.0f) return;
 
 		if (auto niCamera = GetNiCamera()) {
 

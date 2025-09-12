@@ -99,8 +99,8 @@ namespace GTS {
 
 		if (scale < 0.0f) return -1.0f;
 
-		const float rip_threshold = Config::GetGameplay().fClothRipStart;
-		const float rip_tooBig = Config::GetGameplay().fClothRipThreshold;
+		const float rip_threshold = Config::Gameplay.fClothRipStart;
+		const float rip_tooBig = Config::Gameplay.fClothRipThreshold;
 
 		if (scale >= rip_tooBig) {
 			offset = rip_tooBig - rip_threshold + rip_randomOffsetMax;
@@ -227,7 +227,7 @@ namespace GTS {
 
 		if (!a_actor) return;
 
-		auto& Settings = Config::GetGameplay();
+		auto& Settings = Config::Gameplay;
 
 		if (!Settings.bClothTearing || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return;
 
@@ -292,7 +292,7 @@ namespace GTS {
 		//If anthing is invallid let the native code handle it.
 		if (!a_actor || !a_object) return false;
 
-		auto& Settings = Config::GetGameplay();
+		auto& Settings = Config::Gameplay;
 
 		//Cached offset instead of getting the variable directly. 
 		//The Check can get spammed by the Equip hook when a lot of actors are around.

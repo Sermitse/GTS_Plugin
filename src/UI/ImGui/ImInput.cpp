@@ -78,7 +78,7 @@ namespace GTS {
 
 					if (auto MainWindow = ImWindowManager::GetSingleton().GetWindowByName("Settings")) {
 						if (MainWindow->Show && !MainWindow->Busy) {
-							Config::GetHidden().IKnowWhatImDoing = true;
+							Config::Hidden.IKnowWhatImDoing = true;
 						}
 					}
 				}

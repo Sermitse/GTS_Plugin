@@ -90,7 +90,7 @@ namespace {
 				.s = 3.00f,
 				.a = 0.0f,
 			};
-			const float balance = Config::GetBalance().fBMSizeGainPenaltyMult;
+			const float balance = Config::Balance.fBMSizeGainPenaltyMult;
 			const float power = soft_power(size, cut) * balance;
 			return std::clamp(power, 1.0f, 99999.0f);
 		}
@@ -263,7 +263,7 @@ namespace GTS {
 		}
 
 		// Debug visualization
-		if (Config::GetAdvanced().bShowOverlay) {
+		if (Config::Advanced.bShowOverlay) {
 			glm::vec3 fromGLM{ a_From.x, a_From.y, a_From.z };
 			glm::vec3 directionGLM{ a_To.x, a_To.y, a_To.z };
 			glm::vec3 toGLM = fromGLM + directionGLM * 500.f;
@@ -475,7 +475,7 @@ namespace GTS {
 	}
 
 	bool IsInsect(Actor* actor, bool performcheck) {
-		bool Check = Config::GetGameplay().ActionSettings.bAllowInsects;
+		bool Check = Config::Gameplay.ActionSettings.bAllowInsects;
 
 		if (performcheck && Check) {
 			return false;
@@ -502,7 +502,7 @@ namespace GTS {
 		if (AllowOverride) {
 			GTS_PROFILE_SCOPE("ActorUtils: IsFemale");
 
-			if (Config::GetGeneral().bEnableMales) {
+			if (Config::General.bEnableMales) {
 				return true;
 			}
 		}
@@ -554,7 +554,7 @@ namespace GTS {
 
 	bool IsUndead(Actor* actor, bool PerformCheck) {
 		bool IsDraugr = Runtime::HasKeyword(actor, "UndeadKeyword");
-		bool Check = Config::GetGameplay().ActionSettings.bAllowUndead;
+		bool Check = Config::Gameplay.ActionSettings.bAllowUndead;
 		if (Check && PerformCheck) {
 			return false;
 		}
@@ -590,7 +590,7 @@ namespace GTS {
 		bool Teammate = IsTeammate(tiny);
 		bool hostile = IsHostile(giant, tiny);
 		bool essential = IsEssential_WithIcons(giant, tiny); // Teammate check is also done here, spawns icons
-		bool no_protection = Config::GetAI().bAllowFollowers;
+		bool no_protection = Config::AI.bAllowFollowers;
 		bool Ignore_Protection = (HugCheck && giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkHugsLovingEmbrace"));
 		bool allow_teammate = (giant->formID != 0x14 && no_protection && IsTeammate(tiny) && IsTeammate(giant));
 
@@ -622,7 +622,7 @@ namespace GTS {
 
 	bool IsEssential(Actor* giant, Actor* actor) {
 
-		auto& Settings = Config::GetGeneral();
+		auto& Settings = Config::General;
 
 		const bool ProtectEssential = actor->IsEssential() && Settings.bProtectEssentials;
 		const bool ProtectFollowers = Settings.bProtectFollowers;
@@ -689,7 +689,7 @@ namespace GTS {
 	}
 
 	bool IsDebugEnabled() {
-		return Config::GetAdvanced().bShowOverlay;
+		return Config::Advanced.bShowOverlay;
 	}
 
 	bool CanDoDamage(Actor* giant, Actor* tiny, bool HoldCheck) {
@@ -701,7 +701,7 @@ namespace GTS {
 
 		bool hostile = (IsHostile(giant, tiny) || IsHostile(tiny, giant));
 
-		const auto& Settings = Config::GetBalance();
+		const auto& Settings = Config::Balance;
 
 		bool NPCImmunity = Settings.bFollowerFriendlyImmunity;
 		bool PlayerImmunity = Settings.bPlayerFriendlyImmunity;
@@ -805,7 +805,7 @@ namespace GTS {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	float GetDamageSetting() {
-		return Config::GetBalance().fSizeDamageMult;
+		return Config::Balance.fSizeDamageMult;
 	}
 
 	float GetFallModifier(Actor* giant) {
@@ -971,7 +971,7 @@ namespace GTS {
 			return 0.18f;
 		}
 		else if (IsCrawling(player)) {
-			value = Config::GetCamera().fFPCrawlHeightMult;
+			value = Config::Camera.fFPCrawlHeightMult;
 		}
 		
 		return value;
@@ -981,7 +981,7 @@ namespace GTS {
 		if (!giant) {
 			return;
 		}
-		bool enabled = Config::GetGeneral().bShowIcons;
+		bool enabled = Config::General.bShowIcons;
 
 		if (!enabled) {
 			return;
@@ -1525,15 +1525,15 @@ namespace GTS {
 	}
 
 	bool AllowDevourment() {
-		return Config::GetGeneral().bDevourmentCompat;
+		return Config::General.bDevourmentCompat;
 	}
 
 	bool AllowCameraTracking() {
-		return Config::GetGeneral().bTrackBonesDuringAnim;
+		return Config::General.bTrackBonesDuringAnim;
 	}
 
 	bool LessGore() {
-		return Config::GetGeneral().bLessGore;
+		return Config::General.bLessGore;
 	}
 
 	bool IsTeammate(Actor* actor) {
@@ -1558,7 +1558,7 @@ namespace GTS {
 			return false;
 		}
 		bool dead = giant->IsDead();
-		bool everyone = Config::GetGeneral().bAllActorSizeEffects || CountAsGiantess(giant);
+		bool everyone = Config::General.bAllActorSizeEffects || CountAsGiantess(giant);
 		if (!dead && everyone) {
 			return true;
 		} else {
@@ -1910,7 +1910,7 @@ namespace GTS {
 	}
 
 	bool AllowStagger(Actor* giant, Actor* tiny) {
-		const auto& Settings = Config::GetBalance();
+		const auto& Settings = Config::Balance;
 
 		bool giantIsFriendly = (tiny->formID == 0x14 || IsTeammate(tiny));
 		bool tinyIsFriendly = (tiny->formID == 0x14 || IsTeammate(tiny));
@@ -1968,7 +1968,7 @@ namespace GTS {
 
 	void CallDevourment(Actor* a_Pred, Actor* a_Prey) {
 		auto ProxyQuest = Runtime::GetQuest("GTSQuestProxy");
-		const auto& AllowEndo = Config::GetGameplay().ActionSettings.bDVDoEndoOnTeam;
+		const auto& AllowEndo = Config::Gameplay.ActionSettings.bDVDoEndoOnTeam;
 		bool DoEndo = false;
 
 		if (AllowEndo && ((IsTeammate(a_Pred) || a_Pred->formID == 0x14) && (IsTeammate(a_Prey) || a_Prey->formID == 0x14))) {
@@ -1982,7 +1982,7 @@ namespace GTS {
 
 	void GainWeight(Actor* giant, float value) {
 
-		if (Config::GetGameplay().ActionSettings.bVoreWeightGain) {
+		if (Config::Gameplay.ActionSettings.bVoreWeightGain) {
 
 			if (giant->formID == 0x14) {
 				std::string_view name = "Vore_Weight";
@@ -2059,7 +2059,7 @@ namespace GTS {
 
 	float GetStolenAttributeCap(Actor* giant) {
 		const uint16_t Level = giant->GetLevel();
-		const float modifier = Config::GetGameplay().fFullAssimilationLevelCap;
+		const float modifier = Config::Gameplay.fFullAssimilationLevelCap;
 		const float cap = static_cast<float>(Level) * modifier * 2.0f;
 
 		return cap;
@@ -2208,8 +2208,8 @@ namespace GTS {
 
 		if (giant) {
 
-			auto& Gen = Config::GetGeneral();
-			auto& Adv = Config::GetAdvanced();
+			auto& Gen = Config::General;
+			auto& Adv = Config::Advanced;
 
 			if (Gen.bDynamicAnimspeed) {
 
@@ -3010,7 +3010,7 @@ namespace GTS {
 	}
 
 	float GetXpBonus() {
-		return Config::GetBalance().fExpMult;
+		return Config::Balance.fExpMult;
 	}
 
 	void DragonAbsorptionBonuses() { // The function is ugly but im a bit lazy to make it look pretty
@@ -3215,7 +3215,7 @@ namespace GTS {
 			return;
 		}
 
-		auto& ActionS = Config::GetGameplay().ActionSettings;
+		auto& ActionS = Config::Gameplay.ActionSettings;
 		bool StompState = (a_actor->formID == 0x14) ? ActionS.bStompAlternative : ActionS.bStomAlternativeOther;
 		SetAltFootStompAnimation(a_actor, StompState);
 	}
@@ -3225,7 +3225,7 @@ namespace GTS {
 			return;
 		}
 
-		auto& ActionS = Config::GetGameplay().ActionSettings;
+		auto& ActionS = Config::Gameplay.ActionSettings;
 		bool SneaktState = (a_actor->formID == 0x14) ? ActionS.bSneakTransitions : ActionS.bSneakTransitionsOther;
 		SetEnableSneakTransition(a_actor, !SneaktState);
 	}
@@ -3486,7 +3486,7 @@ namespace GTS {
 
 	void SpawnHearts(Actor* giant, Actor* tiny, float Z, float scale, bool hugs, NiPoint3 CustomPos) {
 
-		bool Allow = Config::GetGeneral().bShowHearts;
+		bool Allow = Config::General.bShowHearts;
 
 		if (Allow) {
 			NiPoint3 Position = NiPoint3(0,0,0);
@@ -3553,13 +3553,13 @@ namespace GTS {
 	void InflictSizeDamage(Actor* attacker, Actor* receiver, float value) {
 
 		if (attacker->formID == 0x14 && IsTeammate(receiver)) {
-			if (Config::GetBalance().bFollowerFriendlyImmunity) {
+			if (Config::Balance.bFollowerFriendlyImmunity) {
 				return;
 			}
 		}
 
 		if (receiver->formID == 0x14 && IsTeammate(attacker)) {
-			if (Config::GetBalance().bPlayerFriendlyImmunity) {
+			if (Config::Balance.bPlayerFriendlyImmunity) {
 				return;
 			}
 		}
@@ -3692,7 +3692,7 @@ namespace GTS {
 
 	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor) {
 
-		static auto& Audio = Config::GetAudio();
+		static auto& Audio = Config::Audio;
 		const float& MinFreq = Audio.fMinVoiceFreq;            // e.g. 0.2
 		const float& MaxFreq = Audio.fMaxVoiceFreq;            // e.g. 2.0
 		const float& ScaleMax = Audio.fTargetPitchAtScaleMax;  // e.g. 50.0 (scale at which MinFreq is reached)
@@ -3723,7 +3723,7 @@ namespace GTS {
 	}
 
 	float CalculateGorePitch(float TinyScale) {
-        const bool bAlterGorePitch = Config::GetAudio().bEnableGorePitchOverride;
+        const bool bAlterGorePitch = Config::Audio.bEnableGorePitchOverride;
         float freq = 1.0f;
 
         if (bAlterGorePitch && TinyScale < 1.0f) {

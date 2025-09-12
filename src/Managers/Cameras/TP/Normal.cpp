@@ -7,7 +7,7 @@
 
 namespace GTS {
 
-	static auto& CamSettings = Config::GetCamera().OffsetsNormal;
+	static auto& CamSettings = Config::Camera.OffsetsNormal;
 
 	NiPoint3 Normal::GetOffset(const NiPoint3& cameraPos) {
 

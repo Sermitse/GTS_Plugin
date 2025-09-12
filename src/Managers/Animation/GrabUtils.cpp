@@ -68,7 +68,7 @@ namespace {
 
             if (Transient) {
                 if (Transient->KissVoring) {
-                    const auto Offset = Config::GetGameplay().ActionSettings.fGrabPlayVoreOffset_Z;
+                    const auto Offset = Config::Gameplay.ActionSettings.fGrabPlayVoreOffset_Z;
                     float offset = (0.6f + Offset) * get_visual_scale(giantref);
                     coords.z += offset;
                 }

@@ -62,7 +62,7 @@ namespace {
 	}
 
 	bool AutoCamEnabledCondition() {
-		return Config::GetCamera().bAutomaticCamera;
+		return Config::Camera.bAutomaticCamera;
 	}
 
 }
@@ -239,7 +239,7 @@ namespace GTS {
 	// Decide which camera state to use
 	CameraState* CameraManager::GetCameraState() {
 
-		if (!Config::GetCamera().bAutomaticCamera || IsFreeCameraEnabled()) {
+		if (!Config::Camera.bAutomaticCamera || IsFreeCameraEnabled()) {
 			return nullptr;
 		}
 
@@ -249,7 +249,7 @@ namespace GTS {
 			return nullptr;
 		}
 
-		if (Config::GetGeneral().bConversationCamCompat) {
+		if (Config::General.bConversationCamCompat) {
 			auto ui = RE::UI::GetSingleton();
 			if (ui) {
 				if (ui->IsMenuOpen(DialogueMenu::MENU_NAME)) {

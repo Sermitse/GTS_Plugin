@@ -132,7 +132,7 @@ namespace GTS {
         float size_gain = sizePower * 0.5f * GetGrowthFormula(get_visual_scale(giant), tinySize, Devourment);
 
 		//Multiply vore gain
-		size_gain *= Config::GetGameplay().ActionSettings.fVoreGainMult;
+		size_gain *= Config::Gameplay.ActionSettings.fVoreGainMult;
 
         if (giant) {
 			if (tiny) {

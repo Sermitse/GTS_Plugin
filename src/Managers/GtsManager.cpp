@@ -22,7 +22,7 @@ using namespace GTS;
 
 namespace {
 
-	const auto& GameplaySettings = Config::GetGameplay();
+	const auto& GameplaySettings = Config::Gameplay;
 
 	constexpr float ini_adjustment = 65535.f; //High Value
 	constexpr float vanilla_interaction_range = 180.0f;
@@ -36,7 +36,7 @@ namespace {
 	}
 
 	void UpdateInterractionDistance() {
-		if (Config::GetGeneral().bOverrideInteractionDist) {
+		if (Config::General.bOverrideInteractionDist) {
 			float player_scale = std::clamp(get_visual_scale(PlayerCharacter::GetSingleton()), 1.0f, 999999.0f);
 			float new_dist_value = vanilla_interaction_range * player_scale;
 			float new_radius_value = vanilla_radius_range * player_scale;
@@ -48,7 +48,7 @@ namespace {
 
 	void UpdateCameraINIs() {
 
-		auto& CamSettings = Config::GetCamera();
+		auto& CamSettings = Config::Camera;
 
 		if (!CamSettings.bEnableSkyrimCameraAdjustments) return;
 
@@ -73,7 +73,7 @@ namespace {
 	}
 
 	void Foot_PerformIdle_Headtracking_Effects_Others(Actor* actor) {
-		if (actor && Config::GetGeneral().bAllActorSizeEffects) {
+		if (actor && Config::General.bAllActorSizeEffects) {
 			if (actor->formID != 0x14 && !IsTeammate(actor)) {
 				if (GetBusyFoot(actor) != BusyFoot::RightFoot) {
 					CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleR, true, false, false, false);
@@ -157,7 +157,7 @@ namespace {
 
 	void PerformRoofRaycastAdjustments(Actor* actor, float& target_scale, float currentOtherScale) {
 
-		const auto& Settings = Config::GetGeneral();
+		const auto& Settings = Config::General;
 		const bool DoRayCast = (actor->formID == 0x14) ? Settings.bDynamicSizePlayer : Settings.bDynamicSizeFollowers;
 		/*auto data = Transient::GetSingleton().GetActorData(actor);
 		if (data->UsingFurniture) { 
@@ -304,7 +304,7 @@ namespace {
 
 	void apply_speed(Actor* actor, ActorData* persi_actor_data, TempActorData* trans_actor_data, bool force = false) {
 		GTS_PROFILE_SCOPE("GTSManager: ApplySpeed");
-		if (!Config::GetGeneral().bDynamicAnimspeed) {
+		if (!Config::General.bDynamicAnimspeed) {
 			return;
 		}
 		if (!actor) {

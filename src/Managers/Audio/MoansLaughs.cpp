@@ -23,7 +23,7 @@ namespace {
         if (CustomSoundIndex != 0) {
 
             float vfreq = 1.0f;
-            if (Config::GetAudio().bEnableVoicePitchOverrideG) {
+            if (Config::Audio.bEnableVoicePitchOverrideG) {
                 const auto [_, freq] = CalculateVoicePitch(actor);
                 vfreq = freq;
             }
@@ -45,7 +45,7 @@ namespace GTS {
         }
     }
     void Sound_PlayLaughs(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source) {
-        if (actor->formID != 0x14 && Config::GetAudio().bMoanLaughPCExclusive) {
+        if (actor->formID != 0x14 && Config::Audio.bMoanLaughPCExclusive) {
             return;
         }
         if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CD_Source)) {
@@ -53,8 +53,8 @@ namespace GTS {
             float Scale = get_visual_scale(actor);
             std::string SoundToPlay;
             FallOff *= Scale;
-            FallOff *= Config::GetAudio().fFallOffMultiplier;
-            volume *= Config::GetAudio().fVoiceVolumeMult;
+            FallOff *= Config::Audio.fFallOffMultiplier;
+            volume *= Config::Audio.fVoiceVolumeMult;
 
             switch (Source) {
                 case EmotionTriggerSource::Crushing:
@@ -69,7 +69,7 @@ namespace GTS {
             if (!SoundToPlay.empty()) {
 
                 float vfreq = 1.0f;
-                if (Config::GetAudio().bEnableVoicePitchOverrideG) {
+                if (Config::Audio.bEnableVoicePitchOverrideG) {
                     const auto [_, freq] = CalculateVoicePitch(actor);
                     vfreq = freq;
                 }
@@ -81,7 +81,7 @@ namespace GTS {
     }
 
     void Sound_PlayMoans(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source) {
-        if (actor->formID != 0x14 && Config::GetAudio().bMoanLaughPCExclusive) {
+        if (actor->formID != 0x14 && Config::Audio.bMoanLaughPCExclusive) {
             return;
         }
         if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CD_Source)) {
@@ -89,8 +89,8 @@ namespace GTS {
             float Scale = get_visual_scale(actor);
             std::string SoundToPlay;
             FallOff *= Scale;
-            FallOff *= Config::GetAudio().fFallOffMultiplier;
-            volume *= Config::GetAudio().fVoiceVolumeMult;
+            FallOff *= Config::Audio.fFallOffMultiplier;
+            volume *= Config::Audio.fVoiceVolumeMult;
             
             switch (Source) {
                 case EmotionTriggerSource::Absorption:
@@ -110,7 +110,7 @@ namespace GTS {
                 if (!SoundToPlay.empty()) {
 
                     float vfreq = 1.0f;
-                    if (Config::GetAudio().bEnableVoicePitchOverrideG) {
+                    if (Config::Audio.bEnableVoicePitchOverrideG) {
                         const auto [_, freq] = CalculateVoicePitch(actor);
                         vfreq = freq;
                     }

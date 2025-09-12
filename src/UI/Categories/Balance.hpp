@@ -15,7 +15,7 @@ namespace GTS {
         void DrawRight() override;
 
         private:
-        SettingsBalance& Settings = Config::GetBalance();
+        SettingsBalance& Settings = Config::Balance;
     };
 
 }

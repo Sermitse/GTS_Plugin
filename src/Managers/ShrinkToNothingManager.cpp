@@ -53,7 +53,7 @@ namespace GTS {
 					CompleteDragonQuest(tiny, ParticleType::Red, tiny->IsDead());
 				}
 
-				const bool silent = Config::GetAudio().bMuteShrinkToNothingDeathScreams;
+				const bool silent = Config::Audio.bMuteShrinkToNothingDeathScreams;
 
 				ShrinkToNothingManager::SpawnDeathEffects(tiny);
 				DecreaseShoutCooldown(giant);

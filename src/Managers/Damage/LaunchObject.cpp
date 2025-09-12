@@ -78,7 +78,7 @@ namespace GTS {
     void PushObjectsUpwards(Actor* giant, const std::vector<NiPoint3>& footPoints, float maxFootDistance, float power, bool IsFoot) {
 		GTS_PROFILE_SCOPE("LaunchObject: PushObjectsUpwards");
 
-		const bool AllowLaunch = Config::GetGameplay().bLaunchObjects;
+		const bool AllowLaunch = Config::Gameplay.bLaunchObjects;
 
     	if (!AllowLaunch) {
 			return;
@@ -163,7 +163,7 @@ namespace GTS {
     void PushObjectsTowards(Actor* giant, TESObjectREFR* object, NiAVObject* Bone, float power, float radius, bool Kick) {
 
     	GTS_PROFILE_SCOPE("LaunchObject: PushObjectsTowards");
-		const bool AllowLaunch = Config::GetGameplay().bLaunchObjects;
+		const bool AllowLaunch = Config::Gameplay.bLaunchObjects;
 
     	if (!AllowLaunch) {
 			return;
@@ -263,7 +263,7 @@ namespace GTS {
 	}
 
 	std::vector<ObjectRefHandle> GetNearbyObjects(Actor* giant) {
-		bool AllowLaunch = Config::GetGameplay().bLaunchObjects;
+		bool AllowLaunch = Config::Gameplay.bLaunchObjects;
 		if (!AllowLaunch) {
 			return {};
 		}
@@ -274,7 +274,7 @@ namespace GTS {
 		std::vector<ObjectRefHandle> Objects = {};
 		NiPoint3 point = giant->GetPosition();
 
-		const bool PreciseScan = Config::GetGameplay().bLaunchAllCells;
+		const bool PreciseScan = Config::Gameplay.bLaunchAllCells;
 
 		if (!PreciseScan) { // Scan single cell only
 			TESObjectCELL* cell = giant->GetParentCell();

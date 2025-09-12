@@ -82,7 +82,7 @@ namespace GTS {
                 return false;
             }
 
-            if (Time::WorldTimeElapsed() - Data->LastWorldTime > Config::GetUI().StatusWindow.fFadeAfter) {
+            if (Time::WorldTimeElapsed() - Data->LastWorldTime > Config::UI.StatusWindow.fFadeAfter) {
                 StartFade(a_actor);
             }
 
@@ -145,7 +145,7 @@ namespace GTS {
         // Check if any actor should keep the window visible
         bool anyVisible = false;
         const double currentTime = Time::WorldTimeElapsed();
-        const float fadeThreshold = Config::GetUI().StatusWindow.fFadeAfter;
+        const float fadeThreshold = Config::UI.StatusWindow.fFadeAfter;
 
         for (auto& actorData : LastData | views::values) {
             if (currentTime - actorData.LastWorldTime <= fadeThreshold) {
@@ -197,13 +197,13 @@ namespace GTS {
                     if (const auto ActorData = Persistent::GetSingleton().GetData(Teamate)) {
                         if (ActorData->ShowSizebarInUI) {
                             CheckFade(Teamate);
-                            DrawGTSSizeBar(Config::GetUI().StatusWindow.iFlags, Teamate, true);
+                            DrawGTSSizeBar(Config::UI.StatusWindow.iFlags, Teamate, true);
                         }
                     }
                 }
 
                 CheckFade(Player);
-                DrawGTSInfo(Config::GetUI().StatusWindow.iFlags, Player, true);
+                DrawGTSInfo(Config::UI.StatusWindow.iFlags, Player, true);
 
                 ImFontManager::PopActiveFont();
             }

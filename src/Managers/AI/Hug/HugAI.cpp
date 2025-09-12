@@ -98,10 +98,10 @@ namespace {
 		const float HPCrushThreshold = GetHugCrushThreshold(a_Performer, a_Prey, true);
 		const bool HasLowHP = HealthPercentage <= HPCrushThreshold;
 		const bool StaminaCheck = Runtime::HasPerkTeam(a_Performer, "GTSPerkHugMightyCuddles") && StaminaPercentage >= 0.75f;
-		const auto& Settings = Config::GetAI().Hugs;
+		const auto& Settings = Config::AI.Hugs;
 		const bool Teammate = IsTeammate(a_Prey) || a_Prey->formID == 0x14;
 		const bool Hostile = IsHostile(a_Performer, a_Prey) || IsHostile(a_Prey, a_Performer);
-		const bool CanStartCrush = Config::GetAI().Hugs.fKillProb > 0.01f;
+		const bool CanStartCrush = Config::AI.Hugs.fKillProb > 0.01f;
 
 		const bool Killable =
 			(Settings.bKillFollowersOrPlayer && Teammate) || //Teammate/Player Check
@@ -114,7 +114,7 @@ namespace {
 	bool HugAI_CanShrink(Actor* a_Performer, Actor* a_Prey) {
 		const float SizeDiff = GetSizeDifference(a_Performer, a_Prey, SizeType::TargetScale, false, true);
 		const bool TooSmall = SizeDiff >= GetHugShrinkThreshold(a_Performer);
-		const bool CanStartShrink = Config::GetAI().Hugs.fShrinkProb > 0.01f;
+		const bool CanStartShrink = Config::AI.Hugs.fShrinkProb > 0.01f;
 
 		return !TooSmall && CanStartShrink;
 	}
@@ -123,7 +123,7 @@ namespace {
 		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->formID == 0x14);
 		const bool HasPerk = Runtime::HasPerkTeam(a_Performer, "GTSPerkHugsLovingEmbrace");
 		const bool Hostile = IsHostile(a_Performer, a_Prey) || IsHostile(a_Prey, a_Performer);
-		const bool CanStartHeal = Config::GetAI().Hugs.fHealProb > 0.01f;
+		const bool CanStartHeal = Config::AI.Hugs.fHealProb > 0.01f;
 		
 		return HasPerk && !Hostile && Teammate && CanStartHeal;
 	}
@@ -132,7 +132,7 @@ namespace {
 		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->formID == 0x14);
 		const bool CanCrush = HugAI_CanHugCrush(a_Performer, a_Prey);
 		const bool CanHeal = HugAI_CanHeal(a_Performer, a_Prey);
-		const bool CanShrink = HugAI_CanShrink(a_Performer, a_Prey) || (!Config::GetAI().Hugs.bStopIfCantShrink && Teammate);
+		const bool CanShrink = HugAI_CanShrink(a_Performer, a_Prey) || (!Config::AI.Hugs.bStopIfCantShrink && Teammate);
 
 		return !(CanCrush || CanHeal || CanShrink);
 	}
@@ -148,7 +148,7 @@ namespace {
 
 			if (!Plugin::Live()) return false;
 
-			const auto& Settings = Config::GetAI().Hugs;
+			const auto& Settings = Config::AI.Hugs;
 
 			if (!PerformerHandle || !PreyHandle) {
 				return false;
@@ -165,7 +165,7 @@ namespace {
 			if (!TransientData) {
 				return false;
 			}
-			TransientData->ActionTimer.UpdateDelta(Config::GetAI().Hugs.fInterval);
+			TransientData->ActionTimer.UpdateDelta(Config::AI.Hugs.fInterval);
 
 			const bool IsDead = PreyActor->IsDead() || PerformerActor->IsDead();
 			const bool IsBusy = IsHugCrushing(PerformerActor) || IsHugHealing(PerformerActor);

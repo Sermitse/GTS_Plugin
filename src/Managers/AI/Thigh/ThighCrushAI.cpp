@@ -54,7 +54,7 @@ namespace {
 
 			if (!Plugin::Live()) return false;
 
-			const auto& ThighSettings = Config::GetAI().ThighCrush;
+			const auto& ThighSettings = Config::AI.ThighCrush;
 
 			if (!GiantHandle || !ActorTransient || !ThighSettings.bEnableAction) {
 				return false;

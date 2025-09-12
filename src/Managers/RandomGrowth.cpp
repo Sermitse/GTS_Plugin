@@ -38,9 +38,9 @@ namespace {
 		const bool BalancedMode = SizeManager::BalancedMode();
 		const int BalanceModeMult = BalancedMode ? 2 : 1;
 
-		float MultiplySlider = Config::GetGameplay().GamemodePlayer.fRandomGrowthDelay;
+		float MultiplySlider = Config::Gameplay.GamemodePlayer.fRandomGrowthDelay;
 		if (IsTeammate(actor) || CountAsGiantess(actor)) {
-			MultiplySlider = Config::GetGameplay().GamemodeFollower.fRandomGrowthDelay;
+			MultiplySlider = Config::Gameplay.GamemodeFollower.fRandomGrowthDelay;
 		}
 
 		if (BalancedMode && MultiplySlider > 0.0f) {
@@ -101,7 +101,7 @@ namespace GTS {
 						if (ShouldGrow(actor)) {
 							if (get_target_scale(actor) < get_max_scale(actor)) {
 								float scale = get_visual_scale(actor);
-								const float SpellEfficiency = Config::GetBalance().fSpellEfficiency;
+								const float SpellEfficiency = Config::Balance.fSpellEfficiency;
 								int random = RandomInt(0, 80);
 								float TotalPower = (100.0f + random)/100.0f;
 								float base_power = ((0.00750f * TotalPower * 25) * SpellEfficiency);  // The power of it

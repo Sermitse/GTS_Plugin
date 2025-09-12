@@ -22,7 +22,7 @@ namespace {
 			.a = 0.0f
 		};
 
-		const float balance = Config::GetBalance().fBMShrinkRate * 1.6f;
+		const float balance = Config::Balance.fBMShrinkRate * 1.6f;
 		float power = soft_power(size, launch) * balance;
 		return power;
 	}
@@ -139,7 +139,7 @@ namespace {
 
 		//Set Values based on Settings and actor type.
 		if (a_Actor->formID == 0x14) {
-			const auto& Settings =  Config::GetGameplay().GamemodePlayer;
+			const auto& Settings =  Config::Gameplay.GamemodePlayer;
 
 			//SkillLevel = GetGtsSkillLevel(a_Actor);
 			CurseOfGrowthMaxSize = Settings.fCurseGrowthSizeLimit;
@@ -147,7 +147,7 @@ namespace {
 			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay/10, RandomDelay / 10));
 		}
 		else if (IsTeammate(a_Actor)) {
-			const auto& Settings = Config::GetGameplay().GamemodeFollower;
+			const auto& Settings = Config::Gameplay.GamemodeFollower;
 
 			//NPC's Set it trough alteration
 			//SkillLevel = GetAV(a_Actor, ActorValue::kAlteration);
@@ -193,7 +193,7 @@ namespace {
 
 			update_target_scale(a_Actor, GrowthPower, SizeEffectType::kGrow);
 
-			if (((DoStrongGrowth && Random >= 15) || (DoStrongGrowth && DoMegaGrowth)) && Config::GetAudio().bSlowGrowMoans) {
+			if (((DoStrongGrowth && Random >= 15) || (DoStrongGrowth && DoMegaGrowth)) && Config::Audio.bSlowGrowMoans) {
 				Sound_PlayMoans(a_Actor, a_CurrentTargetScale / 4, 0.14f, EmotionTriggerSource::Growth);
 				Task_FacialEmotionTask_Moan(a_Actor, 2.0f, "GameMode");
 			}
@@ -217,7 +217,7 @@ namespace {
 
 		//Set Values based on Settings and actor type.
 		if (a_Actor->formID == 0x14) {
-			const auto& Settings = Config::GetGameplay().GamemodePlayer;
+			const auto& Settings = Config::Gameplay.GamemodePlayer;
 
 			CurseTargetScale = Settings.fCurseTargetScale;
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
@@ -225,7 +225,7 @@ namespace {
 			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else if (IsTeammate(a_Actor)) {
-			const auto& Settings = Config::GetGameplay().GamemodeFollower;
+			const auto& Settings = Config::Gameplay.GamemodeFollower;
 			CurseTargetScale = Settings.fCurseTargetScale;
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
 			PowerMult = Settings.fGrowthRate + 0.030f;
@@ -283,7 +283,7 @@ namespace {
 
 		//Set Values based on Settings and actor type.
 		if (a_Actor->formID == 0x14) {
-			const auto& Settings = Config::GetGameplay().GamemodePlayer;
+			const auto& Settings = Config::Gameplay.GamemodePlayer;
 
 			PowerMult = Settings.fShrinkRate + 0.030f;
 			CurseTargetScale = Settings.fCurseTargetScale;
@@ -292,7 +292,7 @@ namespace {
 			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else if (IsTeammate(a_Actor)) {
-			const auto& Settings = Config::GetGameplay().GamemodeFollower;
+			const auto& Settings = Config::Gameplay.GamemodeFollower;
 
 			PowerMult = Settings.fShrinkRate + 0.030f;
 			CurseTargetScale = Settings.fCurseTargetScale;
@@ -349,7 +349,7 @@ namespace GTS {
 			return;
 		}
 
-		auto& Settings = Config::GetGameplay();
+		auto& Settings = Config::Gameplay;
 		float NaturalScale = get_natural_scale(a_Actor, true);
 		float TargetScale = get_target_scale(a_Actor);
 		float MaxScale = get_max_scale(a_Actor);
@@ -435,7 +435,7 @@ namespace GTS {
 		float BonusGrowth = 1.0f;
 		uint16_t QuestStage = Runtime::GetStage("GTSQuestProgression");
 
-		const bool BalanceModeEnabled = Config::GetBalance().bBalanceMode;
+		const bool BalanceModeEnabled = Config::Balance.bBalanceMode;
 
 		float CurrentScale = get_visual_scale(actor);
 		bool DoQuestShrink = false;
@@ -477,7 +477,7 @@ namespace GTS {
 					BaseShrinkRate = 0.0f;
 				}
 				else if (actor->IsInCombat() && BalanceModeEnabled) {
-					BaseShrinkRate *= Config::GetBalance().fBMShrinkRateCombat;
+					BaseShrinkRate *= Config::Balance.fBMShrinkRateCombat;
 				}
 
 				if (fabs(BaseShrinkRate) <= 1e-6) {
@@ -488,7 +488,7 @@ namespace GTS {
 
 		else if (QuestStage > 100 && !BalanceModeEnabled) {
 
-			const auto& Settings = Config::GetGameplay();
+			const auto& Settings = Config::Gameplay;
 
 			if (actor->formID == 0x14) {
 

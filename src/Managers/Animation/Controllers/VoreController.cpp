@@ -63,7 +63,7 @@ namespace GTS {
 				SetBeingHeld(tiny, false);
 				AddSMTDuration(giantref.get().get(), 6.0f);
 
-				const auto& MuteVore = Config::GetAudio().bMuteVoreDeathScreams;
+				const auto& MuteVore = Config::Audio.bMuteVoreDeathScreams;
 
 				if (tiny->formID != 0x14) {
 					KillActor(giantref.get().get(), tiny, MuteVore);

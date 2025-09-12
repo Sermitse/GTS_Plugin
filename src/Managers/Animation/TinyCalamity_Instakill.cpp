@@ -28,7 +28,7 @@ namespace {
 		ShrinkToNothingManager::SpawnDeathEffects(tiny);
 		Attacked(tiny, giant);
 
-		const auto& MuteSnapDeath = Config::GetAudio().bMuteFingerSnapDeathScreams;
+		const auto& MuteSnapDeath = Config::Audio.bMuteFingerSnapDeathScreams;
 		
 		KillActor(giant, tiny, MuteSnapDeath);
 		AddSMTDuration(giant, 5.0f);

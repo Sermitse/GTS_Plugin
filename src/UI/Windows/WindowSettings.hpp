@@ -70,8 +70,8 @@ namespace GTS {
 
         Config& Settings = Config::GetSingleton();
         Keybinds& KeyMgr = Keybinds::GetSingleton();
-        const SettingsHidden& sHidden = Config::GetHidden();
-        const WindowConfSettings& sUI= Config::GetUI().SettingsWindow;
+        const SettingsHidden& sHidden = Config::Hidden;
+        const WindowConfSettings& sUI= Config::UI.SettingsWindow;
         bool Disabled = false;
     };
 }

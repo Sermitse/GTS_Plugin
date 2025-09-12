@@ -120,7 +120,7 @@ namespace {
 			DisableCollisions(tiny, giant);
 			SetBeingHeld(tiny, true);
 		}
-		const bool Freelook = Config::GetGameplay().ActionSettings.bVoreFreecam;
+		const bool Freelook = Config::Gameplay.ActionSettings.bVoreFreecam;
 
 		if (Freelook && giant->formID == 0x14) {
 			EnableFreeCamera();
@@ -303,7 +303,7 @@ namespace {
 		auto giant = &data.giant;
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		VoreData.ReleaseAll();
-		if (Config::GetGameplay().ActionSettings.bVoreFreecam && giant->formID == 0x14) {
+		if (Config::Gameplay.ActionSettings.bVoreFreecam && giant->formID == 0x14) {
 			EnableFreeCamera();
 		}
 		Rumbling::Stop("BodyRumble", &data.giant);

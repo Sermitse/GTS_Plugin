@@ -278,7 +278,7 @@ namespace GTS {
 
 		float speed = 1.0f;
 
-		if (!Config::GetGeneral().bDynamicAnimspeed) {
+		if (!Config::General.bDynamicAnimspeed) {
 			return 1.0f;
 		}
 
@@ -523,7 +523,7 @@ namespace GTS {
 		if (GravityTimer.ShouldRunFrame()) {
 			auto Controller = actor->GetCharController();
 			if (Controller) {
-				bool Enabled = Config::GetGeneral().bAlterPlayerGravity;
+				bool Enabled = Config::General.bAlterPlayerGravity;
 				float size = get_visual_scale(actor);
 
 				float new_gravity = Enabled ? 1.0f * std::sqrt(size) : 1.0f; 

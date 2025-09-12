@@ -181,7 +181,7 @@ namespace GTS {
 			}
 
 			case ActorValue::kCarryWeight: {
-				const float BonusCarryMult = Config::GetBalance().fStatBonusCarryWeightMult;
+				const float BonusCarryMult = Config::Balance.fStatBonusCarryWeightMult;
 				float power = (BonusCarryMult/BalancedMode);
 
 				float might = 1.0f + Potion_GetMightBonus(actor);
@@ -204,7 +204,7 @@ namespace GTS {
 				if (actorData) {
 					smt_speed = actorData->smt_run_speed;
 				}
-				bool AlternativeSpeed = Config::GetGeneral().bAlternativeSpeedFormula;
+				bool AlternativeSpeed = Config::General.bAlternativeSpeedFormula;
 				float MovementSpeed = AlternativeSpeed ? 
 				GetMovementSpeedFormula_Alternative(actor, smt_speed, MovementDebuff)
 				:
@@ -217,7 +217,7 @@ namespace GTS {
 				if (actor->formID == 0x14 && HasSMT(actor)) {
 					scale += 1.0f;
 				}
-				const float BonusDamageMult = Config::GetBalance().fStatBonusDamageMult;
+				const float BonusDamageMult = Config::Balance.fStatBonusDamageMult;
 				const float DamageStorage = 1.0f + ((BonusDamageMult) * (scale - 1.0f));
 
 				float might = 1.0f + Potion_GetMightBonus(actor);

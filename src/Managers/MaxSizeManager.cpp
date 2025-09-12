@@ -6,11 +6,11 @@ using namespace GTS;
 
 namespace SizeOverride {
 	bool SizeOverrideEnabled() {
-		return !Config::GetBalance().bBalanceMode && Persistent::GetSingleton().UnlockMaxSizeSliders.value;
+		return !Config::Balance.bBalanceMode && Persistent::GetSingleton().UnlockMaxSizeSliders.value;
 	}
 	void MassMode_ApplySizeOverride(float& GetLimit) {
 		if (SizeOverrideEnabled()) {
-			const float SizeOverride = Config::GetBalance().fMaxPlayerSizeOverride;
+			const float SizeOverride = Config::Balance.fMaxPlayerSizeOverride;
 			if (SizeOverride > 0.05f) {
 				GetLimit = SizeOverride;
 			}
@@ -109,15 +109,15 @@ namespace GTS {
     void UpdateMaxScale() {
        	GTS_PROFILE_SCOPE("MaxSizeManager: UpdateMaxScale");
 
-		const bool IsMassBased = Config::GetBalance().sSizeMode == "kMassBased"; // Should DLL use mass based formula for Player?
+		const bool IsMassBased = Config::Balance.sSizeMode == "kMassBased"; // Should DLL use mass based formula for Player?
 		const bool SizeUnlocked = IsSizeUnlocked();
 
 		const float QuestStage = Runtime::GetStage("GTSQuestProgression");
 
 		// -------------------------------------------------------------------------------------------------
 		const float GlobalLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
-		const float FollowerLimit = SizeUnlocked ? Config::GetBalance().fMaxFollowerSize : GlobalLimit;
-		const float NPCLimit = SizeUnlocked ? Config::GetBalance().fMaxOtherSize : GlobalLimit;
+		const float FollowerLimit = SizeUnlocked ? Config::Balance.fMaxFollowerSize : GlobalLimit;
+		const float NPCLimit = SizeUnlocked ? Config::Balance.fMaxOtherSize : GlobalLimit;
 		// Apply custom limits only if player has Perk and gts unlimited command was executed, else use GlobalLimit
 
 		for (auto actor: find_actors()) {
@@ -152,7 +152,7 @@ namespace GTS {
 
     //Ported From Papyrus
 	float GetExpectedMaxSize(RE::Actor* a_Actor, float start_value) {
-		const bool IsMassBased = Config::GetBalance().sSizeMode == "kMassBased";
+		const bool IsMassBased = Config::Balance.sSizeMode == "kMassBased";
 
 		const float LevelBonus = 1.0f + GetGtsSkillLevel(a_Actor) * 0.006f;
 		const float PotionSize = Persistent::GetSingleton().PlayerExtraPotionSize.value * (IsMassBased ? MassMode_ElixirPowerMultiplier : 1.0f);
@@ -190,7 +190,7 @@ namespace GTS {
 			RecordOverkillSize_Transient(Transient, Colossal_lvl, Colossal_kills);
 			
 			if (SizeOverride::SizeOverrideEnabled()) {
-				const float SizeOverride = Config::GetBalance().fMaxPlayerSizeOverride;
+				const float SizeOverride = Config::Balance.fMaxPlayerSizeOverride;
 				if (SizeOverride > 0.05f) {
 					Colossal_kills = 0.0f;
 					Colossal_lvl = 1.0f;
@@ -214,9 +214,9 @@ namespace GTS {
 
 	void VisualScale_CheckForSizeAdjustment(Actor* actor, float& ScaleMult) {
 		if (IsSizeUnlocked()) {
-			const float PCLimit = Config::GetBalance().fMaxPlayerSizeOverride;
-			const float NPCLimit = Config::GetBalance().fMaxOtherSize;
-			const float FollowerLimit = Config::GetBalance().fMaxFollowerSize;
+			const float PCLimit = Config::Balance.fMaxPlayerSizeOverride;
+			const float NPCLimit = Config::Balance.fMaxOtherSize;
+			const float FollowerLimit = Config::Balance.fMaxFollowerSize;
 			if (IsTeammate(actor)) {
 				ScaleMult = std::clamp(FollowerLimit, 0.1f, 1.0f);
 			} else if (actor->formID == 0x14) {

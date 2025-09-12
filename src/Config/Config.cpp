@@ -44,7 +44,7 @@ namespace GTS {
             updateRes &= UpdateTOMLFromStruct(TomlData, Audio);
             updateRes &= UpdateTOMLFromStruct(TomlData, AI);
             updateRes &= UpdateTOMLFromStruct(TomlData, Camera);
-            updateRes &= UpdateTOMLFromStruct(TomlData, GtsUI);
+            updateRes &= UpdateTOMLFromStruct(TomlData, UI);
 
             if (!updateRes) {
                 logger::error("One or more structs could not be serialized to TOML");
@@ -75,7 +75,7 @@ namespace GTS {
             loadRes &= LoadStructFromTOML(TomlData, Audio);
             loadRes &= LoadStructFromTOML(TomlData, AI);
             loadRes &= LoadStructFromTOML(TomlData, Camera);
-            loadRes &= LoadStructFromTOML(TomlData, GtsUI);
+            loadRes &= LoadStructFromTOML(TomlData, UI);
 
             if (!loadRes) {
                 logger::critical("One or more structs could not be deserialized");
@@ -207,7 +207,7 @@ namespace GTS {
         Balance = SettingsBalance{};
         Camera = SettingsCamera{};
         Gameplay = SettingsGameplay{};
-        GtsUI = SettingsUI{};
+        UI = SettingsUI{};
         //Hidden = SettingsHidden{};
 
         TomlData = toml::ordered_table();

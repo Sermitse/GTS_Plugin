@@ -62,13 +62,13 @@ namespace GTS {
 		if (a_Giant && a_Giant->formID != 0x14 && IsHumanoid(a_Giant)) {
 
 			//If disabled in settings each call to this should always enable instead.
-			if (!Config::GetAI().bDisableAttacks) {
+			if (!Config::AI.bDisableAttacks) {
 				DisableAttacks_Melee(a_Giant, 0.0f, 0.0f, true);
 				DisableAttacks_Magic(a_Giant, 0.0f, 0.0f, true);
 				return;
 			}
 
-			if (Config::GetAI().bAlwaysDisableAttacks) { // If this option is on, always prevent attacks past 2.5x scale
+			if (Config::AI.bAlwaysDisableAttacks) { // If this option is on, always prevent attacks past 2.5x scale
 				const float SizeDiff = get_visual_scale(a_Giant);
 				const float Threshold = 2.5f;
 				DisableAttacks_Melee(a_Giant, SizeDiff, Threshold, false);

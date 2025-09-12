@@ -29,7 +29,7 @@ namespace GTS {
 			return;
 		}
 
-		if (!Config::GetAdvanced().bDamageAV && actor->formID == 0x14) {
+		if (!Config::Advanced.bDamageAV && actor->formID == 0x14) {
 			return;
 		}
 

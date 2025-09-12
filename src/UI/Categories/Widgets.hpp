@@ -20,7 +20,7 @@ namespace GTS {
         private:
         ImStyleManager& StyleMgr = ImStyleManager::GetSingleton();
         ImFontManager& FontMgr = ImFontManager::GetSingleton();
-        SettingsUI& Settings = Config::GetUI();
+        SettingsUI& Settings = Config::UI;
     };
 
 }

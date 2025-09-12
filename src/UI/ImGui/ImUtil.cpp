@@ -57,9 +57,9 @@ namespace ImUtil {
     const bool SliderF(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip, const char* fmt, const bool a_disabled, const bool a_alwaysclamp){
         ImGui::BeginDisabled(a_disabled);
 
-        auto flags = GTS::Config::GetAdvanced().bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
+        auto flags = GTS::Config::Advanced.bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
 
-    	if (GTS::Config::GetAdvanced().bEnforceUIClamps){}
+    	if (GTS::Config::Advanced.bEnforceUIClamps){}
 
         if(a_alwaysclamp && flags){
 	        *a_value = std::min(*a_value, a_max);
@@ -77,7 +77,7 @@ namespace ImUtil {
     const bool SliderF3(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip, const char* fmt, const bool a_disabled){
         ImGui::BeginDisabled(a_disabled);
 
-        auto flags = GTS::Config::GetAdvanced().bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
+        auto flags = GTS::Config::Advanced.bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
 
         const bool res = ImGui::SliderFloat3(a_label, a_value, a_min, a_max, fmt, flags);
 
@@ -90,7 +90,7 @@ namespace ImUtil {
     const bool SliderF2(const char* a_label, float* a_value, float a_min, float a_max, const char* a_Tooltip, const char* fmt, const bool a_disabled){
         ImGui::BeginDisabled(a_disabled);
 
-        auto flags = GTS::Config::GetAdvanced().bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
+        auto flags = GTS::Config::Advanced.bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
         const bool res = ImGui::SliderFloat2(a_label, a_value, a_min, a_max, fmt, flags);
 
         Tooltip(a_Tooltip);

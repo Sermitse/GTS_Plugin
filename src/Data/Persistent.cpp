@@ -71,7 +71,7 @@ namespace GTS {
 	void Persistent::LoadModLocalModConfiguration() {
 		Config::GetSingleton().LoadSettingsFromString();
 		ImStyleManager::GetSingleton().LoadStyle();
-		spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
+		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 	}
 
 	void Persistent::LoadPersistent(SerializationInterface* serde) {

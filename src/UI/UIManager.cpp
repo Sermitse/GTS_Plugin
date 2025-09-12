@@ -40,7 +40,7 @@ namespace {
 
             GTS::UIManager::UnPausedGameTime = GTS::Time::GGTM();
 
-            if (GTS::Config::GetAdvanced().bPauseGame) {
+            if (GTS::Config::Advanced.bPauseGame) {
                 //Pause the game
                 RE::UI::GetSingleton()->numPausesGame++;
                 GTS::UIManager::GamePaused = true;
@@ -49,7 +49,7 @@ namespace {
                 //RE::Main::GetSingleton()->freezeTime = true;
             }
             else {
-                GTS::Time::SGTM(GTS::Config::GetAdvanced().fSGTMMult);
+                GTS::Time::SGTM(GTS::Config::Advanced.fSGTMMult);
             }
 
             RE::UIBlurManager::GetSingleton()->IncrementBlurCount();

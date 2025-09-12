@@ -17,11 +17,18 @@ namespace GTS {
             InputEvents = DefaultInputEvents;
             TomlData = toml::parse<toml::ordered_type_config>(InputFile);
         }
+        catch (const toml::exception& e) {
+            logger::error("Toml load exception: {}", e.what());
+            TomlData = toml::basic_value<toml::ordered_type_config>();
+            return false;
+        }
         catch (const std::exception& e) {
+            logger::error("std toml load exception: {}", e.what());
             TomlData = toml::basic_value<toml::ordered_type_config>();
             return false;
         }
         catch (...) {
+            logger::error("Unk toml load exception");
             return false;
         }
 

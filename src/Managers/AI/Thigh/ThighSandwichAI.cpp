@@ -126,7 +126,7 @@ namespace GTS {
 
 		if (a_HavePrey && GetPercentageAV(a_Performer,ActorValue::kStamina) > 0.05f) {
 
-			const auto& Settings = Config::GetAI().ThighSandwich;
+			const auto& Settings = Config::AI.ThighSandwich;
 
 			switch (RandomIntWeighted({
 					static_cast<int>(Settings.fProbabilityLight),

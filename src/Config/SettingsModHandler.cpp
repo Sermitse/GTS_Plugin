@@ -6,7 +6,7 @@ namespace GTS {
 
 	void HandleCameraTrackingReset() {
 
-		if (!Config::GetGeneral().bTrackBonesDuringAnim) {
+		if (!Config::General.bTrackBonesDuringAnim) {
 			auto actors = find_actors();
 			for (auto actor : actors) {
 				if (actor) {
@@ -18,7 +18,7 @@ namespace GTS {
 
 	void HandleHHReset() {
 
-		if (!Config::GetGeneral().bHighheelsFurniture) {
+		if (!Config::General.bHighheelsFurniture) {
 
 			auto actors = find_actors();
 
@@ -44,7 +44,7 @@ namespace GTS {
 		//Keybinds::GetSingleton().ResetKeybinds();
 		ImStyleManager::GetSingleton().LoadStyle();
 
-		spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
+		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 
 		// ----- If You need to do something when settings reset add it here.
 
@@ -58,7 +58,7 @@ namespace GTS {
 
 	void HandleSettingsRefresh() {
 		ImStyleManager::GetSingleton().LoadStyle();
-		spdlog::set_level(spdlog::level::from_str(Config::GetAdvanced().sLogLevel));
+		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 		HandleHHReset();
 		HandleCameraTrackingReset();
 		logger::trace("Settings Refreshed");

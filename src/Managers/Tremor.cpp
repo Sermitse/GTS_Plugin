@@ -87,8 +87,8 @@ namespace GTS {
 
 						for (NiAVObject* node: impact.nodes) {
 							if (node) {
-								const bool npcEffects = Config::GetGameplay().bNPCAnimEffects;
-								const bool pcEffects = Config::GetGameplay().bPlayerAnimEffects;
+								const bool npcEffects = Config::Gameplay.bNPCAnimEffects;
+								const bool pcEffects = Config::Gameplay.bPlayerAnimEffects;
 
 								if (actor->formID == 0x14 && pcEffects) {
 									if (impact.kind == FootEvent::JumpLand) { // let Rumble Manager handle it.

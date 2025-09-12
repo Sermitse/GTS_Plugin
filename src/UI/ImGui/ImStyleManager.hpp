@@ -9,7 +9,7 @@ namespace GTS {
     class ImStyleManager {
 
         private:
-        SettingsUI& Settings = Config::GetUI();
+        SettingsUI& Settings = Config::UI;
 
         static void InitializeDefaultStyle(ImGuiStyle& style);
         void ApplyAccentColor(ImGuiStyle& style) const;

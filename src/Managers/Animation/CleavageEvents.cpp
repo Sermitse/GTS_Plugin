@@ -420,7 +420,7 @@ namespace {
             AdjustMassLimit(0.0095f, giant);
 
             DecreaseShoutCooldown(giant);
-		    const auto& MuteAbsorptionScreams = Config::GetAudio().bMuteBreastAbsorptionDeathScreams;
+		    const auto& MuteAbsorptionScreams = Config::Audio.bMuteBreastAbsorptionDeathScreams;
 
             KillActor(giant, tiny, MuteAbsorptionScreams);
 
@@ -465,7 +465,7 @@ namespace {
         std::string taskname = std::format("GrowBreasts_{}", giant->formID);
         ActorHandle giantHandle = giant->CreateRefHandle();
 
-        bool AllowBreastGrow = Config::GetAdvanced().bEnlargeBreastsOnAbsorption;  // Should be tied to UI settings
+        bool AllowBreastGrow = Config::Advanced.bEnlargeBreastsOnAbsorption;  // Should be tied to UI settings
         if (!AllowBreastGrow) {
             return;
         }

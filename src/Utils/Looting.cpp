@@ -119,7 +119,7 @@ namespace GTS {
 		ActorHandle gianthandle = to->CreateRefHandle();
 		ActorHandle tinyhandle = from->CreateRefHandle();
 
-		const auto& Settings = Config::GetGeneral();
+		const auto& Settings = Config::General;
 		const bool PCLoot = Settings.bPlayerLootpiles;
 		const bool NPCLoot = Settings.bFollowerLootpiles;
 

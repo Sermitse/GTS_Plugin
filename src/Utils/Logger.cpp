@@ -110,7 +110,7 @@ namespace SKSE::log {
 
 	void LoadConfig() {
 		try {
-			const auto& debugConfig = GTS::Config::GetAdvanced();
+			const auto& debugConfig = GTS::Config::Advanced;
 			log::info("Config Loaded from settings: Print: {} Flush: {}", debugConfig.sLogLevel, debugConfig.sLogLevel);
 			SetLevel(debugConfig.sLogLevel.c_str());
 		}

@@ -48,10 +48,10 @@ namespace {
 					explosion_pos = node_location;
 					explosion_pos.z = giant->GetPosition().z;
 				}
-				if (giant->formID == 0x14 && Config::GetGameplay().bPlayerAnimEffects) {
+				if (giant->formID == 0x14 && Config::Gameplay.bPlayerAnimEffects) {
 					SpawnParticle(giant, 4.60f, "GTS/Effects/Footstep.nif", NiMatrix3(), explosion_pos, (scale * multiplier) * 1.8f, 7, nullptr);
 				}
-				if (giant->formID != 0x14 && Config::GetGameplay().bNPCAnimEffects) {
+				if (giant->formID != 0x14 && Config::Gameplay.bNPCAnimEffects) {
 					SpawnParticle(giant, 4.60f, "GTS/Effects/Footstep.nif", NiMatrix3(), explosion_pos, (scale * multiplier) * 1.8f, 7, nullptr);
 				}
 			}

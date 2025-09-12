@@ -600,7 +600,7 @@ namespace {
 
 		UIManager::ShowInfos();
 
-		const bool Mammoth = Config::GetUI().sDisplayUnits == "kMammoth";
+		const bool Mammoth = Config::UI.sDisplayUnits == "kMammoth";
 		float HH = HighHeelManager::GetBaseHHOffset(a_Actor)[2] / 100;
 		const std::string HHOffset = (HighHeelManager::IsWearingHH(a_Actor) && !Mammoth) ? fmt::format(" + {}", GetFormatedHeight(HH)) : "";
 

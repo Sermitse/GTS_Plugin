@@ -52,8 +52,8 @@ namespace GTS {
 
 
         Config& Settings = Config::GetSingleton();
-        const SettingsHidden& sHidden = Config::GetHidden();
-        const WindowConfWidget& sUI= Config::GetUI().StatusWindow;
+        const SettingsHidden& sHidden = Config::Hidden;
+        const WindowConfWidget& sUI= Config::UI.StatusWindow;
 
 
     };

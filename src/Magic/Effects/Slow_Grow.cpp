@@ -23,7 +23,7 @@ namespace {
 				}
 			}
 
-			if (Config::GetAudio().bSlowGrowMoans) {
+			if (Config::Audio.bSlowGrowMoans) {
 				Task_FacialEmotionTask_Moan(caster, 1.0f + RandomFloat(0.0f, 0.25f), "SlowGrow");
 				float MoanVolume = std::clamp(get_visual_scale(caster)/8.0f, 0.25f, 1.0f);
 				Sound_PlayMoans(caster, MoanVolume, 0.14f, EmotionTriggerSource::Growth, CooldownSource::Emotion_Voice_Long);

@@ -178,15 +178,15 @@ namespace {
 		float fallmod = GetFallModifier(actor);
 		
 		float damage = sizemanager.GetSizeAttribute(actor, SizeAttribute::JumpFall) * fallmod; // get jump damage boost
-		bool EffectDelay = Config::GetGeneral().bAlterPlayerGravity;
+		bool EffectDelay = Config::General.bAlterPlayerGravity;
 		double gravity = 1.0;
 		
 		if (EffectDelay && actor->GetCharController()) {
 			gravity = std::clamp(actor->GetCharController()->gravity, 1.0f, 999999.0f);
 		}
 
-		const double EffectDelay_Gravity= static_cast<double>(EffectDelay ? Config::GetGeneral().fAdditionalJumpEffectDelay_Gravity : 0.0f);
-		const double EffectDelay_Normal = static_cast<double>(Config::GetGeneral().fAdditionalJumpEffectDelay);
+		const double EffectDelay_Gravity= static_cast<double>(EffectDelay ? Config::General.fAdditionalJumpEffectDelay_Gravity : 0.0f);
+		const double EffectDelay_Normal = static_cast<double>(Config::General.fAdditionalJumpEffectDelay);
 		
 		std::string name = std::format("JumpLandT_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();

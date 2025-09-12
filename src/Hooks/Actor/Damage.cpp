@@ -115,7 +115,7 @@ namespace GTS {
 			if (!camera) {
 				return;
 			}
-			auto AllowEdits = Config::GetGeneral().bEnableFOVEdits;
+			auto AllowEdits = Config::General.bEnableFOVEdits;
 
 			auto tranData = Transient::GetSingleton().GetData(actor);
 			bool TP = camera->IsInThirdPerson();

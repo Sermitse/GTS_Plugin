@@ -47,7 +47,7 @@ namespace GTS {
         bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), CollossalGrowthPerk);
 
         const char* Reason;
-        if (Config::GetBalance().bBalanceMode) {
+        if (Config::Balance.bBalanceMode) {
             Reason = "Balance Mode Active";
             HasPerk = false;
         }
@@ -168,7 +168,7 @@ namespace GTS {
         ImUtil_Unique{
 
             const bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), PleasurableGrowthPerk);
-            const bool BalancedMode = Config::GetBalance().bBalanceMode;
+            const bool BalancedMode = Config::Balance.bBalanceMode;
         	const char* Reason = "Requires \"Pleasurable Growth\" Perk";
 
             if (ImUtil::ConditionalHeader("Random Growth", Reason, HasPerk)) {

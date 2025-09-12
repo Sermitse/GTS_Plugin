@@ -25,8 +25,8 @@ namespace {
 
     void UnderStomp_CheckForFootGrind(Actor* giant, bool right, FootActionType Type) {
         if (!IsCrawling(giant)) { // There's no anim for Crawling state
-            const float PerformChancePlayer = Config::GetGameplay().ActionSettings.fPlayerUnderstompGrindChance;
-            const float PerformChanceNPC = Config::GetAI().Stomp.fUnderstompGrindProbability;
+            const float PerformChancePlayer = Config::Gameplay.ActionSettings.fPlayerUnderstompGrindChance;
+            const float PerformChanceNPC = Config::AI.Stomp.fUnderstompGrindProbability;
         	bool IsPlayer = giant->formID == 0x14;
 
             if (RandomBool(IsPlayer ? PerformChancePlayer : PerformChanceNPC)) {

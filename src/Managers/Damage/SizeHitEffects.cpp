@@ -36,7 +36,7 @@ namespace {
 	}
 
 	bool Hit_ShouldGrow(Actor* receiver) {
-		bool GrowthEnabled = Config::GetGameplay().bEnableGrowthOnHit;
+		bool GrowthEnabled = Config::Gameplay.bEnableGrowthOnHit;
 		bool HasPerk = Runtime::HasPerkTeam(receiver, "GTSPerkHitGrowth");
 		bool Teammate = (IsTeammate(receiver) || CountAsGiantess(receiver)) && IsFemale(receiver, true);
 		bool IsPlayer = receiver->formID == 0x14;
@@ -187,7 +187,7 @@ namespace {
 		float scale = get_target_scale(receiver);
 		float naturalscale = get_natural_scale(receiver, true);
 
-		const float lossmod = Config::GetBalance().fBMShrinkOnHitMult;
+		const float lossmod = Config::Balance.fBMShrinkOnHitMult;
 		float modifier = std::clamp(lossmod, 0.10f, 25.0f); // * size loss value
 
 		ShrinkValue *= modifier;

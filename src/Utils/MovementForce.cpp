@@ -9,7 +9,7 @@ using namespace GTS;
 namespace {
 	bool IsAllowed(Actor* a_Giant) {
 		const bool IsPlayer = a_Giant->formID == 0x14; // Always allow Player
-		const bool ConfigLock = Config::GetAI().bRecordBoneSpeedData; // IF ON, also allow NPC's
+		const bool ConfigLock = Config::AI.bRecordBoneSpeedData; // IF ON, also allow NPC's
 		
 		if (IsPlayer || ConfigLock) {
 			return true;

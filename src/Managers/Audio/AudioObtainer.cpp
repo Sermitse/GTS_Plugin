@@ -110,7 +110,7 @@ namespace GTS {
     std::string ObtainGTSMoanLaughSound(float scale, const std::string& basestring) {
         std::string SoundResult = basestring;
         std::string size_range = "_x2";
-        if (scale < 2.0f || !Config::GetAudio().bMoanLaughSizeVariants) {
+        if (scale < 2.0f || !Config::Audio.bMoanLaughSizeVariants) {
             return basestring; // We're at 'normal' size
         }
 

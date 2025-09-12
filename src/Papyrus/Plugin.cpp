@@ -29,7 +29,7 @@ namespace {
 	}
 
 	void CallDevourmentCompatibility(StaticFunctionTag*, Actor* Pred, Actor* Prey, bool Digested) {
-		if (Config::GetGeneral().bDevourmentCompat) {
+		if (Config::General.bDevourmentCompat) {
 			Devourment_Compatibility(Pred, Prey, Digested);
 		}
 	}

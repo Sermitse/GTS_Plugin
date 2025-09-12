@@ -66,7 +66,7 @@ namespace {
 
 		if (!Healing && hp >= maxhp) {
 
-			if (ShouldContinue && !Config::GetGameplay().ActionSettings.bHugsStopAtFullHP) {
+			if (ShouldContinue && !Config::Gameplay.ActionSettings.bHugsStopAtFullHP) {
 				return true;
 			}
 

@@ -11,7 +11,7 @@ using namespace GTS;
 namespace {
 	bool DisableHighHeels(Actor* actor) {
 		bool disable = (
-			AnimationManager::HHDisabled(actor) || !Config::GetGeneral().bEnableHighHeels ||
+			AnimationManager::HHDisabled(actor) || !Config::General.bEnableHighHeels ||
 			BehaviorGraph_DisableHH(actor) || IsCrawling(actor) || 
 			IsProning(actor)
 		);
@@ -19,7 +19,7 @@ namespace {
 	}
 	bool DisableOnFurniture(Actor* actor) {
 		const auto ActorState = actor->AsActorState()->GetSitSleepState();
-		bool DisableFurniture = Config::GetGeneral().bHighheelsFurniture;
+		bool DisableFurniture = Config::General.bHighheelsFurniture;
 		bool Sleeping = false;
 		bool Sitting = false;
 		
@@ -126,7 +126,7 @@ namespace GTS {
 					// Don't make halflife 0
 				}
 
-				if (!Config::GetGeneral().bEnableHighHeels) {
+				if (!Config::General.bEnableHighHeels) {
 					return;
 				}
 

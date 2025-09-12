@@ -24,7 +24,7 @@ namespace GTS {
             return;
         }
 
-        const auto& Settings = Config::GetUI().StatusWindow;
+        const auto& Settings = Config::UI.StatusWindow;
 
         const ImVec2 ProgressBarSize = { hasFlag(a_featureFlags, GTSInfoFeatures::kAutoSize) ? 0.0f : Settings.fFixedWidth , 0.0f };
         const float ProgressBarHeight = hasFlag(a_featureFlags, GTSInfoFeatures::kAutoSize) ? 1.1f : Settings.fSizeBarHeightMult;
@@ -76,7 +76,7 @@ namespace GTS {
             return;
         }
 
-        const auto& Settings = Config::GetUI().StatusWindow;
+        const auto& Settings = Config::UI.StatusWindow;
 
         const auto& ActorTransient = Transient::GetSingleton().GetData(a_Actor);
         const auto& ActorPersistent = Persistent::GetSingleton().GetData(a_Actor);
@@ -173,7 +173,7 @@ namespace GTS {
     	const float SizeEssense = Persistent::GetSingleton().PlayerExtraPotionSize.value;
 
         //---------- Other
-        const bool MassMode = Config::GetBalance().sSizeMode == "kMassBased";
+        const bool MassMode = Config::Balance.sSizeMode == "kMassBased";
         const bool IsPlayerMassMode = a_Actor->formID == 0x14 && MassMode;
         const float shrinkResist_PreCalc = 1.0f * Potion_GetShrinkResistance(a_Actor) * Perk_GetSprintShrinkReduction(a_Actor); // to make ShrinkResistance below shorter
         const float NaturalScale = get_natural_scale(a_Actor, true);

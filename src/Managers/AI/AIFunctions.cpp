@@ -111,11 +111,11 @@ namespace GTS {
 		float new_speed = incoming_speed;
 
 		if (ShouldBeAltered(giant)) {
-			if (Config::GetAI().bSlowMovementDown) {
+			if (Config::AI.bSlowMovementDown) {
 				AlterMovementSpeed(giant, new_speed);
 			}
 
-			if (Config::GetAI().bSlowRotationDown) {
+			if (Config::AI.bSlowRotationDown) {
 				AlterRotationSpeed(giant);
 			}
 		}
@@ -277,7 +277,7 @@ namespace GTS {
 
 	void ScareActors(Actor* giant) {
 		GTS_PROFILE_SCOPE("ActorUtils: ScareActors");
-		if (!Config::GetAI().bPanic) {
+		if (!Config::AI.bPanic) {
 			return; // Disallow Panic if bool is false.
 		}
 		for (auto tiny: FindSomeActors("AiActors", 2)) {

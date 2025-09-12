@@ -44,12 +44,12 @@ namespace GTS {
 			if (actor->formID == 0x14 && HasSMT(actor)) {
 				scale *= 1.85f;
 			}
-			const bool LegacySounds = Config::GetAudio().bUseOldSounds; // Determine if we should play old pre 2.00 update sounds
+			const bool LegacySounds = Config::Audio.bUseOldSounds; // Determine if we should play old pre 2.00 update sounds
 			if (scale > 1.2f && !actor->AsActorState()->IsSwimming()) {
 				float movement = FootStepManager::Volume_Multiply_Function(actor, foot_kind);
 				scale *= 0.75f;
 
-				if (node && Config::GetAudio().bFootstepSounds) {
+				if (node && Config::Audio.bFootstepSounds) {
 					FootStepManager::PlayHighHeelSounds_Walk(movement, node, foot_kind, scale, false); // We have only HH sounds for now
 				}
 			}
@@ -99,10 +99,10 @@ namespace GTS {
 				explosion_pos = node_location;
 				explosion_pos.z = actor->GetPosition().z;
 			}
-			if (actor->formID == 0x14 && Config::GetGameplay().bPlayerAnimEffects) {
+			if (actor->formID == 0x14 && Config::Gameplay.bPlayerAnimEffects) {
 				SpawnCrawlParticle(actor, scale * multiplier, explosion_pos);
 			}
-			if (actor->formID != 0x14 && Config::GetGameplay().bNPCAnimEffects) {
+			if (actor->formID != 0x14 && Config::Gameplay.bNPCAnimEffects) {
 				SpawnCrawlParticle(actor, scale * multiplier, explosion_pos);
 			}
 		}

@@ -17,7 +17,7 @@ namespace GTS {
                              "After Disabling you have to re-add the option to the settings toml again if you want to re-enable it.";
 
             if (ImGui::CollapsingHeader("Advanced",ImUtil::HeaderFlagsDefaultOpen)) {
-                ImUtil::CheckBox("Enable/Disable This Page", &Config::GetHidden().IKnowWhatImDoing, T0);
+                ImUtil::CheckBox("Enable/Disable This Page", &Config::Hidden.IKnowWhatImDoing, T0);
 
                 ImGui::Spacing();
             }

@@ -151,7 +151,7 @@ namespace {
 		if (huggedActor) {
 			if (!IsTeammate(huggedActor)) {
 
-				if (!IsTeammate(huggedActor) && Config::GetGameplay().ActionSettings.bNonLethalHugsHostile) {
+				if (!IsTeammate(huggedActor) && Config::Gameplay.ActionSettings.bNonLethalHugsHostile) {
 					Attacked(huggedActor, giant);
 				}
 			}
@@ -197,7 +197,7 @@ namespace {
 		if (huggedActor) {
 			auto scale = get_visual_scale(huggedActor);
 
-			if (!IsTeammate(huggedActor) && Config::GetGameplay().ActionSettings.bNonLethalHugsHostile) {
+			if (!IsTeammate(huggedActor) && Config::Gameplay.ActionSettings.bNonLethalHugsHostile) {
 				Attacked(huggedActor, giant);
 			}
 
@@ -506,7 +506,7 @@ namespace GTS {
 			TransferSize(giantref, tinyref, false, shrink, steal, false, ShrinkSource::Hugs); // Shrink foe, enlarge gts
 			ModSizeExperience(giantref, 0.00020f);
 
-			if (!IsTeammate(tinyref) && Config::GetGameplay().ActionSettings.bNonLethalHugsHostile) {
+			if (!IsTeammate(tinyref) && Config::Gameplay.ActionSettings.bNonLethalHugsHostile) {
 				Attacked(tinyref, giantref); // make it look like we attack the tiny
 			}
 

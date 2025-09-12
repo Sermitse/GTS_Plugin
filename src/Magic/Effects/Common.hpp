@@ -50,11 +50,11 @@ namespace GTS {
 
 		if (essential) {
 
-			bool Teammate = !IsHostile(giant, tiny) && IsTeammate(tiny) && Config::GetGeneral().bProtectFollowers;
+			bool Teammate = !IsHostile(giant, tiny) && IsTeammate(tiny) && Config::General.bProtectFollowers;
 
 			bool OnCooldown = IsActionOnCooldown(tiny, CooldownSource::Misc_ShrinkParticle_Animation);
 
-			bool icons_enabled = Config::GetGeneral().bShowIcons;
+			bool icons_enabled = Config::General.bShowIcons;
 
 			if (giant->formID == 0x14 && !OnCooldown) { // player exclusive
 				if (icons_enabled) { 
@@ -210,8 +210,8 @@ namespace GTS {
 
 	inline void AdjustMassLimit(float value, Actor* caster) { // Adjust Size Limit for Mass Based Size Mode
 		if (caster->formID == 0x14) {
-			const auto selectedFormula = Config::GetBalance().sSizeMode;
-			float progressionMultiplier = Config::GetBalance().fSpellEfficiency;
+			const auto selectedFormula = Config::Balance.sSizeMode;
+			float progressionMultiplier = Config::Balance.fSpellEfficiency;
 			if (selectedFormula == "kMassBased") {
 
 				SoftPotential mod {
@@ -264,7 +264,7 @@ namespace GTS {
 	}
 
 	inline float CalcPower(Actor* actor, float scale_factor, float bonus, bool shrink) {
-		float progress_mult = Config::GetBalance().fSpellEfficiency;
+		float progress_mult = Config::Balance.fSpellEfficiency;
 		float size_cap = 0.5f;
 		// y = mx +c
 		// power = scale_factor * scale + bonus
@@ -293,7 +293,7 @@ namespace GTS {
 
 		if (Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth")) {
 
-			const auto& Settings = Config::GetGameplay();
+			const auto& Settings = Config::Gameplay;
 
 			if (actor->formID == 0x14) {
 				const auto Mode = StringToEnum<SelectedGameMode>(Settings.GamemodePlayer.sGameMode);

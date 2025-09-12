@@ -319,7 +319,7 @@ namespace GTS {
 		AddSMTDuration(giant, 5.0f);
 		ApplyShakeAtNode(tiny, 3, "NPC Root [Root]");
 
-		const auto& MuteHugCrush = Config::GetAudio().bMuteHugCrushDeathScreams;
+		const auto& MuteHugCrush = Config::Audio.bMuteHugCrushDeathScreams;
 
 		DecreaseShoutCooldown(giant);
 		KillActor(giant, tiny, MuteHugCrush);
@@ -1024,7 +1024,7 @@ namespace GTS {
 								//log::info("Roll: {}, RandomChance {}, Threshold: {}", roll, RagdollChance, Random);
 								//eventually it reaches 100% chance to ragdoll an actor (at ~x3.0 size difference)
 
-								if (otherActor->formID == 0x14 && !Config::GetGameplay().ActionSettings.bEnablePlayerPushBack) {
+								if (otherActor->formID == 0x14 && !Config::Gameplay.ActionSettings.bEnablePlayerPushBack) {
 									continue;
 								}
 

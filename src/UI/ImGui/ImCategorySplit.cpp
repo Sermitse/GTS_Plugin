@@ -6,7 +6,7 @@ namespace GTS {
 
     void ImCategorySplit::Draw() {
 
-        auto WMult = Config::GetUI().fItemWidth;
+        auto WMult = Config::UI.fItemWidth;
         {   //Left
 
             ImGui::BeginChild("SLeft", ImVec2(ImGui::GetContentRegionAvail().x / splitRatio, 0), ImGuiChildFlags_AlwaysUseWindowPadding);

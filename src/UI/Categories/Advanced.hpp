@@ -15,7 +15,7 @@ namespace GTS {
         void DrawRight() override;
 
         private:
-        SettingsAdvanced& Settings = Config::GetSingleton().GetAdvanced();
+        SettingsAdvanced& Settings = Config::Advanced;
     };
 
 }

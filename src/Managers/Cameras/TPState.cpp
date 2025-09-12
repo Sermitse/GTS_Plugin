@@ -93,7 +93,7 @@ namespace GTS {
 		float proneFactor = 0.0;
 
 		if (GetBoneTarget().boneNames.empty()) {
-			proneFactor = Config::GetCamera().fTPCrawlHeightMult;
+			proneFactor = Config::Camera.fTPCrawlHeightMult;
 		}
 
 		NiPoint3 result = NiPoint3();

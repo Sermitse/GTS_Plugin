@@ -38,7 +38,7 @@ namespace {
 	}
 
 	bool ProtectFollowers(Actor* a_Pred, Actor* a_Prey) {
-		bool NPC = Config::GetGeneral().bProtectFollowers;
+		bool NPC = Config::General.bProtectFollowers;
 		bool Hostile = IsHostile(a_Pred, a_Prey);
 
 		if (a_Prey->formID != 0x14 && !Hostile && NPC && (IsTeammate(a_Pred)) && (IsTeammate(a_Prey))) {

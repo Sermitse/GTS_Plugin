@@ -160,7 +160,7 @@ namespace {
 
 			if (!Plugin::Live()) return false;
 
-			const auto& Settings = Config::GetAI().Grab;
+			const auto& Settings = Config::AI.Grab;
 
 			if (!PerformerHandle || !PreyHandle) {
 				logger::warn("GrabAI: ActorHandle was null");
@@ -180,7 +180,7 @@ namespace {
 				return false;
 			}
 
-			TransientData->ActionTimer.UpdateDelta(Config::GetAI().Grab.fInterval);
+			TransientData->ActionTimer.UpdateDelta(Config::AI.Grab.fInterval);
 			const bool IsDead = PreyActor->IsDead() || GetAV(PreyActor, ActorValue::kHealth) <= 0.0f || PerformerActor->IsDead();
 			const bool IsBusy = IsGrabAttacking(PerformerActor) || IsTransitioning(PerformerActor);
 			const bool ValidPrey = Grab::GetHeldActor(PerformerActor) != nullptr;

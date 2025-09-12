@@ -251,7 +251,7 @@ namespace GTS {
 
 	//===============Balance Mode
 	bool SizeManager::BalancedMode(){
-		return Config::GetBalance().bBalanceMode;
+		return Config::Balance.bBalanceMode;
 	}
 
 	SizeManagerData& SizeManager::GetData(Actor* actor) {

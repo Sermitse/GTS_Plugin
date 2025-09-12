@@ -188,7 +188,7 @@ namespace {
 		data.giant.SetGraphVariableInt("GTS_GrabbedTiny", 1);
 
 		if (auto grabbed = Grab::GetHeldActor(&data.giant)) {
-			if (Config::GetGameplay().ActionSettings.bGrabStartIsHostile && !IsTeammate(grabbed)) {
+			if (Config::Gameplay.ActionSettings.bGrabStartIsHostile && !IsTeammate(grabbed)) {
 				Attacked(grabbed, &data.giant);
 			}
 			Grab::AttachActorTask(&data.giant, grabbed);
