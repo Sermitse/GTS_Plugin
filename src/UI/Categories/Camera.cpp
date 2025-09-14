@@ -18,12 +18,12 @@ namespace GTS {
 	    }
 	}
 
-	static void DrawCameraSettings(CameraOffsets* a_set, const char* a_title) {
+	static void DrawCameraSettings(CameraOffsets_t* a_set, const char* a_title) {
 
 	    const char* T0 = "Select which biped skeleton bone the camera should track.";
 
 	    if (ImGui::CollapsingHeader(a_title, ImUtil::HeaderFlagsDefaultOpen)) {
-	        ImUtil::ComboEx<CameraTrackingSettings>("Center On Bone", a_set->sCenterOnBone, T0);
+	        ImUtil::ComboEx<LCameraTrackBone_t>("Center On Bone", a_set->sCenterOnBone, T0);
 
 	        ImUtil_Unique {
 	            DrawCameraOffsets(
@@ -202,7 +202,7 @@ namespace GTS {
 
 	        if (ImGui::CollapsingHeader("Automatic Camera", ImUtil::HeaderFlagsDefaultOpen)) {
 	            ImUtil::CheckBox("Enable Automatic Camera", &Settings.bAutomaticCamera, T0);
-	            ImUtil::IComboEx<CameraModeTP>("Camera Mode", CamState, T1, !Settings.bAutomaticCamera);
+	            ImUtil::IComboEx<LCameraMode_t>("Camera Mode", CamState, T1, !Settings.bAutomaticCamera);
 	        	ImGui::Spacing();
 	        }
 	    }

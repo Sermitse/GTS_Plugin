@@ -20,8 +20,8 @@ namespace GTS {
 		void Update() override;
 		bool TryStartAction(Actor* a_Performer) const;
 
-		SettingsAI& AISettings = Config::AI;
-		SettingsAdvanced& AdvancedSettings = Config::Advanced;
+		SettingsAI_t& AISettings = Config::AI;
+		SettingsAdvanced_t& AdvancedSettings = Config::Advanced;
 	};
 }
 

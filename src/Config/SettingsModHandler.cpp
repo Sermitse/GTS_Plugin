@@ -40,13 +40,12 @@ namespace GTS {
 
 	void HandleSettingsReset() {
 
-		Config::GetSingleton().ResetToDefaults();
-		//Keybinds::GetSingleton().ResetKeybinds();
+		Config::ResetToDefaults();
 		ImStyleManager::GetSingleton().LoadStyle();
 
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 
-		// ----- If You need to do something when settings reset add it here.
+		// ----- If You need to do something when settings get reset add it here.
 
 		HandleHHReset();
 		HandleCameraTrackingReset();

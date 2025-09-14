@@ -1,5 +1,7 @@
 #include "Managers/Input/InputManager.hpp"
+
 #include "Config/Keybinds.hpp"
+#include "Config/Settings/SettingsKeybinds.hpp"
 
 namespace GTS {
 
@@ -7,9 +9,9 @@ namespace GTS {
 
 		std::vector<ManagedInputEvent> results;
 
-		for (const auto& GTSInputEvent : Keybinds::GetSingleton().InputEvents) {
+		for (const auto& BaseEventData_t : Keybinds::InputEvents) {
 
-			ManagedInputEvent newData(GTSInputEvent);
+			ManagedInputEvent newData(BaseEventData_t);
 
 			if (newData.HasKeys()) {
 				results.push_back(newData);
@@ -117,7 +119,7 @@ namespace GTS {
 				try {
 					auto& eventData = this->registedInputEvents.at(trigger.GetName());
 
-					if (blockInput == BlockInputTypes::Always) {
+					if (blockInput == LBlockInputTypes_t::Always) {
 						//If force blocking is set block game input regardless of conditions
 						std::unordered_set<uint32_t> KeysToAdd = std::unordered_set<uint32_t>(trigger.GetKeys());
 						KeysToBlock.insert(KeysToAdd.begin(), KeysToAdd.end());
@@ -138,7 +140,7 @@ namespace GTS {
 							//log::debug("condition is true for {}", trigger.GetName());
 							//Need to make a copy here otherwise insert throws an assertion
 
-							if (blockInput != BlockInputTypes::Never) {
+							if (blockInput != LBlockInputTypes_t::Never) {
 								std::unordered_set<uint32_t> KeysToAdd = std::unordered_set<uint32_t>(trigger.GetKeys());
 								//log::debug("ShouldBlock is true for {}", trigger.GetName());
 								KeysToBlock.insert(KeysToAdd.begin(), KeysToAdd.end());

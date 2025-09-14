@@ -129,87 +129,87 @@ namespace {
 		return BoneTarget();
 	}
 
-	const BoneTarget GetBoneTargetFromSettings(CameraTrackingSettings a_CamSetting) {
+	const BoneTarget GetBoneTargetFromSettings(LCameraTrackBone_t a_CamSetting) {
 		if (HasFirstPersonBody()) {
 			return BoneTarget();
 		}
 		switch (a_CamSetting) {
 
-			case CameraTrackingSettings::kNone: {
+			case LCameraTrackBone_t::kNone: {
 				return BoneTarget();
 			}
 
-			case CameraTrackingSettings::kSpine: {
+			case LCameraTrackBone_t::kSpine: {
 				return BoneTarget {
 					.boneNames = {"NPC Spine2 [Spn2]","NPC Neck [Neck]"},
 					.zoomScale = ZoomIn_Cam_Spine,
 				};
 			}
-			case CameraTrackingSettings::kClavicle: {
+			case LCameraTrackBone_t::kClavicle: {
 				return BoneTarget {
 					.boneNames = {"NPC R Clavicle [RClv]","NPC L Clavicle [LClv]"},
 					.zoomScale = ZoomIn_Cam_Clavicle,
 				};
 			}
-			case CameraTrackingSettings::kBreasts:
+			case LCameraTrackBone_t::kBreasts:
 			{
 				return BoneTarget{
 					.boneNames = {"NPC L Breast01","NPC R Breast01"},
 					.zoomScale = ZoomIn_Cam_Breasts,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_00:
+			case LCameraTrackBone_t::kBreasts_00:
 			{
 				return BoneTarget{
 					.boneNames = {"L Breast00","R Breast00"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_00,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_01: {
+			case LCameraTrackBone_t::kBreasts_01: {
 				return BoneTarget {
 					.boneNames = {"L Breast01","R Breast01"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_01,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_02: {
+			case LCameraTrackBone_t::kBreasts_02: {
 				return BoneTarget {
 					.boneNames = {"L Breast02","R Breast02"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_02,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_03: {
+			case LCameraTrackBone_t::kBreasts_03: {
 				return BoneTarget {
 					.boneNames = {"L Breast03","R Breast03"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_03,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_04:
+			case LCameraTrackBone_t::kBreasts_04:
 			{
 				return BoneTarget{
 					.boneNames = {"L Breast04","R Breast04"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_04,
 				};
 			}
-			case CameraTrackingSettings::kNeck: {
+			case LCameraTrackBone_t::kNeck: {
 				return BoneTarget {
 					.boneNames = {"NPC Neck [Neck]"},
 					.zoomScale = ZoomIn_Cam_Neck,
 				};
 			}
-			case CameraTrackingSettings::kButt: {
+			case LCameraTrackBone_t::kButt: {
 				return BoneTarget {
 					.boneNames = {"NPC L Butt","NPC R Butt"},
 					.zoomScale = ZoomIn_Cam_Butt,
 				};
 			}
-			case CameraTrackingSettings::kGenitals:
+			case LCameraTrackBone_t::kGenitals:
 			{
 				return BoneTarget{
 					.boneNames = {"Genitals"},
 					.zoomScale = ZoomIn_Cam_Genitals,
 				};
 			}
-			case CameraTrackingSettings::kBelly:
+			case LCameraTrackBone_t::kBelly:
 			{
 				return BoneTarget{
 					.boneNames = {"NPC Belly"},
@@ -248,7 +248,7 @@ namespace {
 
 namespace GTS {
 
-	BoneTarget GetBoneTargets(CameraTracking Camera_Anim, CameraTrackingSettings Camera_MCM) {
+	BoneTarget GetBoneTargets(CameraTracking Camera_Anim, LCameraTrackBone_t Camera_MCM) {
 		if (HasFirstPersonBody()) {
 			return {};
 		}

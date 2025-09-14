@@ -1,5 +1,4 @@
 #include "UI/ImGui/ImWindowManager.hpp"
-
 #include "UI/UIManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
 
@@ -100,7 +99,7 @@ namespace GTS {
                 return window.get();
             }
         }
-        logger::error("ImWindowManager::GetWindowByName Name: {} does not exist, i hope you have nullptr checks...", a_name);
+        logger::error("ImWindowManager::GetWindowByName Name: {} does not exist", a_name);
         return nullptr;
     }
 }

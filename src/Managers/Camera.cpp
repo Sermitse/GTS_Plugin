@@ -49,11 +49,11 @@ namespace {
 		int& Mode = Persistent::GetSingleton().TrackedCameraState.value;
 
 		// Increment by 1 and wrap around if we exceed the enum range
-		constexpr int totalModes = static_cast<int>(magic_enum::enum_count<CameraModeTP>());
+		constexpr int totalModes = static_cast<int>(magic_enum::enum_count<LCameraMode_t>());
 		Mode = (Mode + 1) % totalModes;
 
 		// Convert the integer mode to the corresponding enum value
-		auto currentMode = static_cast<CameraModeTP>(Mode);
+		auto currentMode = static_cast<LCameraMode_t>(Mode);
 
 		// Use magic_enum to get the enum name and humanize it
 		const std::string Msg = fmt::format("Camera Mode: {}", ImUtil::HumanizeString(std::string(magic_enum::enum_name(currentMode))));
@@ -201,27 +201,27 @@ namespace GTS {
 
 	CameraState* CameraManager::GetCameraStateTP() {
 
-		auto Mode = static_cast<CameraModeTP>(Persistent::GetSingleton().TrackedCameraState.value);
+		auto Mode = static_cast<LCameraMode_t>(Persistent::GetSingleton().TrackedCameraState.value);
 
 		switch (Mode) {
 
-			case CameraModeTP::kNormal: {
+			case LCameraMode_t::kNormal: {
 				return &this->CamStateNormal;
 			}
 
-			case CameraModeTP::kAlternative: {
+			case LCameraMode_t::kAlternative: {
 				return &this->CamStateAlt;
 			}
 
-			case CameraModeTP::kFeetCenter: {
+			case LCameraMode_t::kFeetCenter: {
 				return &this->CamStateFoot;
 			}
 
-			case CameraModeTP::kFootLeft: {
+			case LCameraMode_t::kFootLeft: {
 				return &this->CamStateFootL;
 			}
 
-			case CameraModeTP::kFootRight: {
+			case LCameraMode_t::kFootRight: {
 				return &this->CamStateFootR;
 			}
 

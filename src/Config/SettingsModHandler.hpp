@@ -6,4 +6,5 @@ namespace GTS {
 	void HandleSettingsReset();
 	void HandleSettingsRefresh();
 	void HandleHHReset();
+
 }

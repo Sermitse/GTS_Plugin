@@ -7,7 +7,7 @@
 
 namespace GTS {
 
-	static void DrawBaseOptions(WindowConfWidget& AwSettings, const char* aTitle) {
+	static void DrawBaseOptions(WindowConfWidget_t& AwSettings, const char* aTitle) {
 
 		const char* T0 = "Toggle visibility.";
 		const char* T1 = "Adjust the opacity of the entire widget window.";
@@ -54,7 +54,7 @@ namespace GTS {
 		}
 	}
 
-	static void DrawBarOptions(WindowConfWidget& AwSettings, const char* aTitle) {
+	static void DrawBarOptions(WindowConfWidget_t& AwSettings, const char* aTitle) {
 
 		const char* T0 = "Change the progress bar's width.";
 		const char* T1 = "Change the progress bar's height multiplier.";

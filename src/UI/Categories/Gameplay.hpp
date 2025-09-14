@@ -15,8 +15,8 @@ namespace GTS {
         void DrawRight() override;
 
         private:
-        SettingsGameplay& Settings = Config::Gameplay;
-        static void GameModeOptions(const char* a_title, GameplayActorSettings* a_Settings, bool a_DefaultOpen);
+        SettingsGameplay_t& Settings = Config::Gameplay;
+        static void GameModeOptions(const char* a_title, GameplayActorSettings_t* a_Settings, bool a_DefaultOpen);
     };
 
 }

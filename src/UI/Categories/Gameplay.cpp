@@ -13,7 +13,7 @@ namespace {
 
 namespace GTS {
 
-    void CategoryGameplay::GameModeOptions(const char* a_title, GameplayActorSettings* a_Settings, bool a_DefaultOpen) {
+    void CategoryGameplay::GameModeOptions(const char* a_title, GameplayActorSettings_t* a_Settings, bool a_DefaultOpen) {
 
         const char* T0 = "Select the game mode\n\n"
             "Basic:\n"
@@ -57,7 +57,7 @@ namespace GTS {
 
         if (ImUtil::ConditionalHeader(a_title, Reason, HasPerk, a_DefaultOpen)) {
 
-            ImUtil::ComboEx<SelectedGameMode>("Game Mode", a_Settings->sGameMode, T0);
+            ImUtil::ComboEx<LActiveGamemode_t>("Game Mode", a_Settings->sGameMode, T0);
 
             ImGui::BeginDisabled(a_Settings->sGameMode == "kNone");
 

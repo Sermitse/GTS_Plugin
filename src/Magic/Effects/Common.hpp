@@ -293,22 +293,20 @@ namespace GTS {
 
 		if (Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth")) {
 
-			const auto& Settings = Config::Gameplay;
-
 			if (actor->formID == 0x14) {
-				const auto Mode = StringToEnum<SelectedGameMode>(Settings.GamemodePlayer.sGameMode);
-				if (Mode == SelectedGameMode::kSizeLocked ||
-					Mode == SelectedGameMode::kCurseOfDiminishing ||
-					Mode == SelectedGameMode::kCurseOfTheGiantess) {
-					natural_scale = Settings.GamemodePlayer.fCurseTargetScale;
+				const auto Mode = StringToEnum<LActiveGamemode_t>(Config::Gameplay.GamemodePlayer.sGameMode);
+				if (Mode == LActiveGamemode_t::kSizeLocked ||
+					Mode == LActiveGamemode_t::kCurseOfDiminishing ||
+					Mode == LActiveGamemode_t::kCurseOfTheGiantess) {
+					natural_scale = Config::Gameplay.GamemodePlayer.fCurseTargetScale;
 				}
 			}
 			else if (IsTeammate(actor)) {
-				const auto Mode = StringToEnum<SelectedGameMode>(Settings.GamemodeFollower.sGameMode);
-				if (Mode == SelectedGameMode::kSizeLocked ||
-					Mode == SelectedGameMode::kCurseOfDiminishing ||
-					Mode == SelectedGameMode::kCurseOfTheGiantess) {
-					natural_scale = Settings.GamemodeFollower.fCurseTargetScale;
+				const auto Mode = StringToEnum<LActiveGamemode_t>(Config::Gameplay.GamemodeFollower.sGameMode);
+				if (Mode == LActiveGamemode_t::kSizeLocked ||
+					Mode == LActiveGamemode_t::kCurseOfDiminishing ||
+					Mode == LActiveGamemode_t::kCurseOfTheGiantess) {
+					natural_scale = Config::Gameplay.GamemodeFollower.fCurseTargetScale;
 				}
 			}
 		}

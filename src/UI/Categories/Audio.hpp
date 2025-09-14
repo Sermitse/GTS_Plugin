@@ -15,6 +15,6 @@ namespace GTS {
         void DrawRight() override;
 
         private:
-        SettingsAudio& Settings = Config::Audio;
+        SettingsAudio_t& Settings = Config::Audio;
     };
 }

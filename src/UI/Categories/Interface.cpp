@@ -60,7 +60,7 @@ namespace GTS {
 	        const char* T0 = "Choose which type of measurement units to display.";
 
 	        if(ImGui::CollapsingHeader("Misc Settings",ImUtil::HeaderFlagsDefaultOpen)){
-	            ImUtil::ComboEx<DisplayUnit>("Measurement Units",Settings.sDisplayUnits, T0);
+	            ImUtil::ComboEx<LDisplayUnit_t>("Measurement Units",Settings.sDisplayUnits, T0);
 	            ImGui::Spacing();
 	        }
 	    }

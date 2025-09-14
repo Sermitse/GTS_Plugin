@@ -18,13 +18,12 @@ namespace {
 
 	void DrawIEUI(){
 
-		auto& conf = GTS::Config::GetSingleton();
 		static std::string statusText = "";
 		static int selectedExportIndex = -1;
 		constexpr int keepCount = 5;
 
 		// Get available export files
-		auto exportFiles = conf.GetExportedFiles();
+		auto exportFiles = GTS::Config::GetExportedFiles();
 		std::vector<std::string> fileNames;
 		for (const auto& file : exportFiles) {
 			fileNames.push_back(file.filename().string());
@@ -32,8 +31,8 @@ namespace {
 
 		// Export section
 		if (ImUtil::ImageButton("##Export","export_save", 32, T_Export)) {
-			if (conf.ExportSettings()) {
-				auto files = conf.GetExportedFiles();
+			if (GTS::Config::ExportSettings()) {
+				auto files = GTS::Config::GetExportedFiles();
 				if (!files.empty()) {
 					statusText = fmt::format("✓ Saved as {}", files.front().filename().string());
 				}
@@ -47,7 +46,7 @@ namespace {
 				statusText = fmt::format("Select an export first", fileNames[selectedExportIndex]);
 			}
 			else if (selectedExportIndex >= 0 && selectedExportIndex < exportFiles.size()) {
-				if (conf.LoadFromExport(exportFiles[selectedExportIndex].string())) {
+				if (GTS::Config::LoadFromExport(exportFiles[selectedExportIndex].string())) {
 					GTS::HandleSettingsRefresh();
 					statusText = fmt::format("✓ Applied {}", fileNames[selectedExportIndex]);
 				}
@@ -65,7 +64,7 @@ namespace {
 				statusText = fmt::format("Select an export first", fileNames[selectedExportIndex]);
 			}
 			else if (selectedExportIndex >= 0 && selectedExportIndex < exportFiles.size()) {
-				conf.DeleteExport(exportFiles[selectedExportIndex].string());
+				GTS::Config::DeleteExport(exportFiles[selectedExportIndex].string());
 				statusText = fmt::format("Deleted {}", fileNames[selectedExportIndex]);
 				selectedExportIndex = -1;
 			}
@@ -74,7 +73,7 @@ namespace {
 		ImGui::SameLine();
 
 		if (ImUtil::ImageButton("##Cleaunup", "export_cleanup", 32, T_Cleanup)) {
-			conf.CleanOldExports(keepCount);
+			GTS::Config::CleanOldExports(keepCount);
 			statusText = fmt::format("✓ Removed old exports [Kept {0} most recent]", keepCount);
 		}
 

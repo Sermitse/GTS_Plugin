@@ -172,8 +172,11 @@ namespace RE {
 
 namespace logger = SKSE::log;
 
+//Workaround
+
+
 //Own Includes
-#include "Config/ConfigUtil.hpp"
+#include "Config/Util/TomlRefl.hpp"
 #include "Constants.hpp"
 #include "Profiler/Profiler.hpp"
 #include "Events/Events.hpp"

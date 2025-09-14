@@ -44,7 +44,7 @@ namespace GTS {
 	}
 
 	void Persistent::ClearData() {
-		std::unique_lock lock(this->_Lock);
+		std::unique_lock lock(GetSingleton()._Lock);
 		ActorDataMap.clear();
 		KillCountDataMap.clear();
 
@@ -69,7 +69,7 @@ namespace GTS {
 	}
 
 	void Persistent::LoadModLocalModConfiguration() {
-		Config::GetSingleton().LoadSettingsFromString();
+		Config::LoadSettingsFromString();
 		ImStyleManager::GetSingleton().LoadStyle();
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 	}
@@ -80,8 +80,6 @@ namespace GTS {
 		std::uint32_t RecordSize;
 		std::uint32_t RecordVersion;
 
-		auto& Persistent = Persistent::GetSingleton();
-
 		logger::info("De-Serializing Persistent...");
 
 		while (serde->GetNextRecordInfo(RecordType, RecordVersion, RecordSize)) {
@@ -91,36 +89,36 @@ namespace GTS {
 			LoadKillCountData(serde, RecordType, RecordVersion);
 
 			//----- Camera
-			Persistent.TrackedCameraState.Load(serde, RecordType, RecordVersion, RecordSize);
+			TrackedCameraState.Load(serde, RecordType, RecordVersion, RecordSize);
 
 			//----- Crawk/Sneak State
-			Persistent.EnableCrawlPlayer.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.EnableCrawlFollower.Load(serde, RecordType, RecordVersion, RecordSize);
+			EnableCrawlPlayer.Load(serde, RecordType, RecordVersion, RecordSize);
+			EnableCrawlFollower.Load(serde, RecordType, RecordVersion, RecordSize);
 
 			//----- Max Size Related
-			Persistent.GlobalMassBasedSizeLimit.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.PlayerExtraPotionSize.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.GlobalSizeLimit.Load(serde, RecordType, RecordVersion, RecordSize);
+			GlobalMassBasedSizeLimit.Load(serde, RecordType, RecordVersion, RecordSize);
+			PlayerExtraPotionSize.Load(serde, RecordType, RecordVersion, RecordSize);
+			GlobalSizeLimit.Load(serde, RecordType, RecordVersion, RecordSize);
 
 			// ---- Quest Progression
-			Persistent.HugStealCount.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.StolenSize.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.CrushCount.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.STNCount.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.HandCrushed.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.VoreCount.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.GiantCount.Load(serde, RecordType, RecordVersion, RecordSize);
+			HugStealCount.Load(serde, RecordType, RecordVersion, RecordSize);
+			StolenSize.Load(serde, RecordType, RecordVersion, RecordSize);
+			CrushCount.Load(serde, RecordType, RecordVersion, RecordSize);
+			STNCount.Load(serde, RecordType, RecordVersion, RecordSize);
+			HandCrushed.Load(serde, RecordType, RecordVersion, RecordSize);
+			VoreCount.Load(serde, RecordType, RecordVersion, RecordSize);
+			GiantCount.Load(serde, RecordType, RecordVersion, RecordSize);
 
 			// ---- Ability Info
-			Persistent.MSGSeenTinyCamity.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.MSGSeenGrowthSpurt.Load(serde, RecordType, RecordVersion, RecordSize);
-			Persistent.MSGSeenAspectOfGTS.Load(serde, RecordType, RecordVersion, RecordSize);
+			MSGSeenTinyCamity.Load(serde, RecordType, RecordVersion, RecordSize);
+			MSGSeenGrowthSpurt.Load(serde, RecordType, RecordVersion, RecordSize);
+			MSGSeenAspectOfGTS.Load(serde, RecordType, RecordVersion, RecordSize);
 
 			// ---- Unlimited Size slider unlocker
-			Persistent.UnlockMaxSizeSliders.Load(serde, RecordType, RecordVersion, RecordSize);
+			UnlockMaxSizeSliders.Load(serde, RecordType, RecordVersion, RecordSize);
 
 			// ---- Save Baked Settings
-			Persistent.ModSettings.Load(serde, RecordType, RecordVersion, RecordSize);
+			ModSettings.Load(serde, RecordType, RecordVersion, RecordSize);
 
 		}
 
@@ -128,7 +126,6 @@ namespace GTS {
 
 	void Persistent::SavePersistent(SerializationInterface* serde) {
 
-		auto& Persistent = Persistent::GetSingleton();
 		logger::info("Serializing Persistent...");
 
 		//----- Actor Data Struct
@@ -136,36 +133,36 @@ namespace GTS {
 		WriteKillCountData(serde, KillCountStructVersion);
 
 		//----- Camera
-		Persistent.TrackedCameraState.Save(serde);
+		TrackedCameraState.Save(serde);
 
 		//----- Crawk/Sneak State
-		Persistent.EnableCrawlPlayer.Save(serde);
-		Persistent.EnableCrawlFollower.Save(serde);
+		EnableCrawlPlayer.Save(serde);
+		EnableCrawlFollower.Save(serde);
 
 		//----- Max Size Related
-		Persistent.GlobalMassBasedSizeLimit.Save(serde);
-		Persistent.PlayerExtraPotionSize.Save(serde);
-		Persistent.GlobalSizeLimit.Save(serde);
+		GlobalMassBasedSizeLimit.Save(serde);
+		PlayerExtraPotionSize.Save(serde);
+		GlobalSizeLimit.Save(serde);
 
 		// ---- Quest Progression
-		Persistent.HugStealCount.Save(serde);
-		Persistent.StolenSize.Save(serde);
-		Persistent.CrushCount.Save(serde);
-		Persistent.STNCount.Save(serde);
-		Persistent.HandCrushed.Save(serde);
-		Persistent.VoreCount.Save(serde);
-		Persistent.GiantCount.Save(serde);
+		HugStealCount.Save(serde);
+		StolenSize.Save(serde);
+		CrushCount.Save(serde);
+		STNCount.Save(serde);
+		HandCrushed.Save(serde);
+		VoreCount.Save(serde);
+		GiantCount.Save(serde);
 
 		// ---- Ability Info
-		Persistent.MSGSeenTinyCamity.Save(serde);
-		Persistent.MSGSeenGrowthSpurt.Save(serde);
-		Persistent.MSGSeenAspectOfGTS.Save(serde);
+		MSGSeenTinyCamity.Save(serde);
+		MSGSeenGrowthSpurt.Save(serde);
+		MSGSeenAspectOfGTS.Save(serde);
 
 		// ---- Unlimited Size slider unlocker
-		Persistent.UnlockMaxSizeSliders.Save(serde);
+		UnlockMaxSizeSliders.Save(serde);
 
 		// ---- Save Baked Settings
-		Persistent.ModSettings.Save(serde);
+		ModSettings.Save(serde);
 	}
 	
 	//-----------------
@@ -246,12 +243,12 @@ namespace GTS {
 
 				if (Actor* ActorForm = TESForm::LookupByID<Actor>(CorrectedFormID)) {
 					if (ActorForm) {
-						Persistent::GetSingleton().ActorDataMap.insert_or_assign(CorrectedFormID, Data);
+						ActorDataMap.insert_or_assign(CorrectedFormID, Data);
 					}
 				}
 				else {
 					log::warn("LoadActorData() Actor FormID {:08X} could not be found after loading the save.", CorrectedFormID);
-					Persistent::GetSingleton().ActorDataMap.erase(CorrectedFormID);
+					ActorDataMap.erase(CorrectedFormID);
 				}
 			}
 			else {
@@ -312,7 +309,7 @@ namespace GTS {
 
 	void Persistent::WriteActorData(SKSE::SerializationInterface* serde, const uint8_t Version) {
 
-		const size_t NumOfActorRecords = GetSingleton().ActorDataMap.size();
+		const size_t NumOfActorRecords = ActorDataMap.size();
 		
 		if (!serde->OpenRecord(ActorDataRecord, Version)) {
 			log::critical("Unable to open ActorDataRecord in CoSave. Something is really wrong, your save is probably broken!");
@@ -321,7 +318,7 @@ namespace GTS {
 
 		serde->WriteRecordData(&NumOfActorRecords, sizeof(NumOfActorRecords));
 
-		for (auto const& [ActorFormID, Data] : GetSingleton().ActorDataMap) {
+		for (auto const& [ActorFormID, Data] : ActorDataMap) {
 
 			//V1
 			WriteActorRecordFormID(serde, &ActorFormID);                    //0x00 - FORMID
@@ -521,7 +518,7 @@ namespace GTS {
 	
 	}
 
-	void Persistent::EraseUnloadedPersistentData() {
+	void Persistent::EraseUnloadedPersistentData() const {
 		std::unique_lock lock(_Lock);
 		// Create a set to hold the whitelisted FormIDs.
 		std::unordered_set<FormID> allowedFormIDs;
@@ -592,12 +589,12 @@ namespace GTS {
 
 				if (Actor* ActorForm = TESForm::LookupByID<Actor>(CorrectedFormID)) {
 					if (ActorForm) {
-						Persistent::GetSingleton().KillCountDataMap.insert_or_assign(CorrectedFormID, Data);
+						KillCountDataMap.insert_or_assign(CorrectedFormID, Data);
 					}
 				}
 				else {
 					log::warn("LoadKillCountData() Actor FormID {:08X} could not be found after loading the save.", CorrectedFormID);
-					Persistent::GetSingleton().KillCountDataMap.erase(CorrectedFormID);
+					KillCountDataMap.erase(CorrectedFormID);
 				}
 			}
 			else {
@@ -612,7 +609,7 @@ namespace GTS {
 
 	void Persistent::WriteKillCountData(SKSE::SerializationInterface* serde, const uint8_t Version) {
 
-		const size_t NumOfActorRecords = GetSingleton().KillCountDataMap.size();
+		const size_t NumOfActorRecords = KillCountDataMap.size();
 		constexpr uint32_t SizeOfStructDataToWrite = sizeof(KillCountData);
 
 		if (!serde->OpenRecord(KillCountDataRecord, Version)) {
@@ -623,7 +620,7 @@ namespace GTS {
 		serde->WriteRecordData(&NumOfActorRecords, sizeof(size_t));         //0x00 - NumOfRecords
 		serde->WriteRecordData(&SizeOfStructDataToWrite, sizeof(uint32_t)); //0x08 - Struct Size
 
-		for (auto const& [ActorFormID, Data] : GetSingleton().KillCountDataMap) {
+		for (auto const& [ActorFormID, Data] : KillCountDataMap) {
 
 			//V1
 			WriteActorRecordFormID(serde, &ActorFormID);                    //0x00 - FORMID

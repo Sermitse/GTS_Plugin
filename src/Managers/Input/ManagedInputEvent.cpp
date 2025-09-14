@@ -6,14 +6,14 @@ namespace GTS {
 
 	//TODO Patched together from old code, should really be rewritten entirely...
 
-	ManagedInputEvent::ManagedInputEvent(const GTSInputEvent& a_event) {
+	ManagedInputEvent::ManagedInputEvent(const BaseEventData_t& a_event) {
 
 		this->Disabled = a_event.Disabled;
 		this->name = a_event.Event;
 		float duration = a_event.Duration;
 		this->exclusive = a_event.Exclusive;
-		this->trigger = StringToEnum<TriggerType>(a_event.Trigger);
-		this->blockinput = StringToEnum<BlockInputTypes>(a_event.BlockInput);
+		this->trigger = StringToEnum<LTriggerType_t>(a_event.Trigger);
+		this->blockinput = StringToEnum<LBlockInputTypes_t>(a_event.BlockInput);
 		this->minDuration = duration;
 		this->startTime = 0.0;
 		this->keys = {};
@@ -56,12 +56,12 @@ namespace GTS {
 
 	void ManagedInputEvent::Reset() {
 		this->startTime = Time::WorldTimeElapsed();
-		this->state = InputEventState::Idle;
+		this->state = LInputEventState_t::Idle;
 		this->primed = false;
 	}
 
 	bool ManagedInputEvent::IsOnUp() const {
-		return this->trigger == TriggerType::Release;
+		return this->trigger == LTriggerType_t::Release;
 	}
 
 	bool ManagedInputEvent::SameGroup(const ManagedInputEvent& other) const {
@@ -104,7 +104,7 @@ namespace GTS {
 			// Keys aren't held reset the start time of the button hold
 			this->startTime = Time::WorldTimeElapsed();
 			// and reset the state to idle
-			this->state = InputEventState::Idle;
+			this->state = LInputEventState_t::Idle;
 		}
 		// Check based on duration
 		if (shouldFire) {
@@ -118,16 +118,16 @@ namespace GTS {
 		if (shouldFire) {
 			this->primed = true;
 			switch (this->state) {
-				case InputEventState::Idle: {
-					this->state = InputEventState::Held;
+				case LInputEventState_t::Idle: {
+					this->state = LInputEventState_t::Held;
 					switch (this->trigger) {
 						// If once or continius start firing now
 	
-						case TriggerType::Once:
-						case TriggerType::Continuous: {
+						case LTriggerType_t::Once:
+						case LTriggerType_t::Continuous: {
 							return true;
 						}
-						case TriggerType::Release: {
+						case LTriggerType_t::Release: {
 							return false;
 						}
 						default:{
@@ -136,16 +136,16 @@ namespace GTS {
 						}
 					}
 				}
-				case InputEventState::Held: {
+				case LInputEventState_t::Held: {
 					switch (this->trigger) {
 						// If once stop firing
 
-						case TriggerType::Once:
-						case TriggerType::Release:{
+						case LTriggerType_t::Once:
+						case LTriggerType_t::Release:{
 							// For release still do nothing
 							return false;
 						}
-						case TriggerType::Continuous:{
+						case LTriggerType_t::Continuous:{
 							// if continous keep firing
 							return true;
 						}
@@ -166,7 +166,7 @@ namespace GTS {
 		if (this->primed) {
 			this->primed = false;
 			switch (this->trigger) {
-				case TriggerType::Release:{
+				case LTriggerType_t::Release:{
 					// For release fire now that we have stopped pressing
 					return true;
 				}
@@ -190,7 +190,7 @@ namespace GTS {
 		return keys;
 	}
 
-	BlockInputTypes ManagedInputEvent::ShouldBlock() const {
+	LBlockInputTypes_t ManagedInputEvent::ShouldBlock() const {
 		return this->blockinput;
 	}
 }

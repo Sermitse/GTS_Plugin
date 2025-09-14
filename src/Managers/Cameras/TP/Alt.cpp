@@ -54,6 +54,6 @@ namespace GTS {
 		auto& sizemanager = SizeManager::GetSingleton();
 
 		CameraTracking Camera_Anim = sizemanager.GetTrackedBone(player);
-		return GetBoneTargets(Camera_Anim, StringToEnum<CameraTrackingSettings>(CamSettings.sCenterOnBone));
+		return GetBoneTargets(Camera_Anim, StringToEnum<LCameraTrackBone_t>(CamSettings.sCenterOnBone));
 	}
 }

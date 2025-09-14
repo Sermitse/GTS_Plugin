@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Config/Keybinds.hpp"
+#include "Config/Settings/SettingsKeybinds.hpp"
 
 namespace GTS {
 
-	enum class InputEventState : std::uint8_t {
+	enum class LInputEventState_t : std::uint8_t {
 		Idle,
 		Held,
 	};
@@ -12,7 +12,7 @@ namespace GTS {
 	class ManagedInputEvent {
 		public:
 
-		explicit ManagedInputEvent(const GTSInputEvent& a_event);
+		explicit ManagedInputEvent(const BaseEventData_t& a_event);
 
 		// Return time since it was first pressed
 		[[nodiscard]] float Duration() const;
@@ -50,7 +50,7 @@ namespace GTS {
 
 		[[nodiscard]] unordered_set<std::uint32_t> GetKeys();
 
-		[[nodiscard]] BlockInputTypes ShouldBlock() const;
+		[[nodiscard]] LBlockInputTypes_t ShouldBlock() const;
 
 		[[nodiscard]] bool IsDisabled() const;
 
@@ -66,8 +66,8 @@ namespace GTS {
 		// If true this event won't fire unles ONLY the keys are pressed for the entire duration
 		bool exclusive = false;
 		bool Disabled = false;
-		TriggerType trigger = TriggerType::Once;
-		InputEventState state = InputEventState::Idle;
-		BlockInputTypes blockinput = BlockInputTypes::Automatic;
+		LTriggerType_t trigger = LTriggerType_t::Once;
+		LInputEventState_t state = LInputEventState_t::Idle;
+		LBlockInputTypes_t blockinput = LBlockInputTypes_t::Automatic;
 	};
 }

@@ -68,10 +68,9 @@ namespace GTS {
         ImFontManager& FontMgr = ImFontManager::GetSingleton();
         ImStyleManager& StyleMgr = ImStyleManager::GetSingleton();
 
-        Config& Settings = Config::GetSingleton();
-        Keybinds& KeyMgr = Keybinds::GetSingleton();
-        const SettingsHidden& sHidden = Config::Hidden;
-        const WindowConfSettings& sUI= Config::UI.SettingsWindow;
+        const SettingsHidden_t& sHidden = Config::Hidden;
+        const WindowConfSettings_t& sUI= Config::UI.SettingsWindow;
+
         bool Disabled = false;
     };
 }

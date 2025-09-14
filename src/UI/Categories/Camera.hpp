@@ -15,7 +15,7 @@ namespace GTS {
         void DrawRight() override;
 
         private:
-        SettingsCamera& Settings = Config::Camera;
+        SettingsCamera_t& Settings = Config::Camera;
     };
 
 }

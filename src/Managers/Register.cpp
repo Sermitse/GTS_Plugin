@@ -45,36 +45,36 @@ namespace GTS {
 
 	void RegisterManagers() {
 
-		EventDispatcher::AddListener(&GameModeManager::GetSingleton()); // Manages Game Modes
-		EventDispatcher::AddListener(&GtsManager::GetSingleton()); // Manages smooth size increase and animation & movement speed
-		EventDispatcher::AddListener(&PerkHandler::GetSingleton()); // Manages some perk updates
-		EventDispatcher::AddListener(&SizeManager::GetSingleton()); // Manages Max Scale of everyone
-		EventDispatcher::AddListener(&HighHeelManager::GetSingleton()); // Applies high heels
-		EventDispatcher::AddListener(&CameraManager::GetSingleton()); // Edits the camera
-		EventDispatcher::AddListener(&ReloadManager::GetSingleton()); // Handles Skyrim Events
-		EventDispatcher::AddListener(&CollisionDamage::GetSingleton()); // Handles precise size-related damage
-		EventDispatcher::AddListener(&MagicManager::GetSingleton()); // Manages spells and size changes in general
-		EventDispatcher::AddListener(&VoreController::GetSingleton()); // Manages vore
-		EventDispatcher::AddListener(&CrushManager::GetSingleton()); // Manages crushing
-		EventDispatcher::AddListener(&OverkillManager::GetSingleton()); // Manages crushing
-		EventDispatcher::AddListener(&ShrinkToNothingManager::GetSingleton()); // Shrink to nothing manager
-		EventDispatcher::AddListener(&FootStepManager::GetSingleton()); // Manages footstep sounds
-		EventDispatcher::AddListener(&TremorManager::GetSingleton()); // Manages tremors on footsteps
-		EventDispatcher::AddListener(&ExplosionManager::GetSingleton()); // Manages clouds/exposions on footstep
-		EventDispatcher::AddListener(&Rumbling::GetSingleton()); // Manages rumbling of contoller/camera for multiple frames
-		EventDispatcher::AddListener(&AttributeManager::GetSingleton()); // Adjusts most attributes
-		EventDispatcher::AddListener(&RandomGrowth::GetSingleton()); // Manages random growth perk
-		EventDispatcher::AddListener(&HitManager::GetSingleton()); // Hit Manager for handleing papyrus hit events
-		EventDispatcher::AddListener(&AnimationManager::GetSingleton()); // Manages Animation Events
-		EventDispatcher::AddListener(&Grab::GetSingleton()); // Manages grabbing
+		EventDispatcher::AddListener(&GameModeManager::GetSingleton());         // Manages Game Modes
+		EventDispatcher::AddListener(&GtsManager::GetSingleton());              // Manages smooth size increase and animation & movement speed
+		EventDispatcher::AddListener(&PerkHandler::GetSingleton());             // Manages some perk updates
+		EventDispatcher::AddListener(&SizeManager::GetSingleton());             // Manages Max Scale of everyone
+		EventDispatcher::AddListener(&HighHeelManager::GetSingleton());         // Applies high heels
+		EventDispatcher::AddListener(&CameraManager::GetSingleton());           // Edits the camera
+		EventDispatcher::AddListener(&ReloadManager::GetSingleton());           // Handles Skyrim Events
+		EventDispatcher::AddListener(&CollisionDamage::GetSingleton());         // Handles precise size-related damage
+		EventDispatcher::AddListener(&MagicManager::GetSingleton());            // Manages spells and size changes in general
+		EventDispatcher::AddListener(&VoreController::GetSingleton());          // Manages vore
+		EventDispatcher::AddListener(&CrushManager::GetSingleton());            // Manages crushing
+		EventDispatcher::AddListener(&OverkillManager::GetSingleton());         // Manages crushing
+		EventDispatcher::AddListener(&ShrinkToNothingManager::GetSingleton());  // Shrink to nothing manager
+		EventDispatcher::AddListener(&FootStepManager::GetSingleton());         // Manages footstep sounds
+		EventDispatcher::AddListener(&TremorManager::GetSingleton());           // Manages tremors on footsteps
+		EventDispatcher::AddListener(&ExplosionManager::GetSingleton());        // Manages clouds/exposions on footstep
+		EventDispatcher::AddListener(&Rumbling::GetSingleton());                // Manages rumbling of contoller/camera for multiple frames
+		EventDispatcher::AddListener(&AttributeManager::GetSingleton());        // Adjusts most attributes
+		EventDispatcher::AddListener(&RandomGrowth::GetSingleton());            // Manages random growth perk
+		EventDispatcher::AddListener(&HitManager::GetSingleton());              // Hit Manager for handleing papyrus hit events
+		EventDispatcher::AddListener(&AnimationManager::GetSingleton());        // Manages Animation Events
+		EventDispatcher::AddListener(&Grab::GetSingleton());                    // Manages grabbing
 		EventDispatcher::AddListener(&ThighSandwichController::GetSingleton()); // Manages Thigh Sandwiching
 		EventDispatcher::AddListener(&AnimationBoobCrush::GetSingleton());
-		EventDispatcher::AddListener(&AIManager::GetSingleton()); //AI controller for GTS-actions
-		EventDispatcher::AddListener(&Headtracking::GetSingleton()); // Headtracking fixes
-		EventDispatcher::AddListener(&SpectatorManager::GetSingleton()); // Manage Camera Targets
-		EventDispatcher::AddListener(&ContactManager::GetSingleton()); // Manages collisions
-		EventDispatcher::AddListener(&DynamicScale::GetSingleton()); // Handles room heights
-		EventDispatcher::AddListener(&FurnitureManager::GetSingleton()); // Handles furniture stuff
+		EventDispatcher::AddListener(&AIManager::GetSingleton());               //AI controller for GTS-actions
+		EventDispatcher::AddListener(&Headtracking::GetSingleton());            // Headtracking fixes
+		EventDispatcher::AddListener(&SpectatorManager::GetSingleton());        // Manage Camera Targets
+		EventDispatcher::AddListener(&ContactManager::GetSingleton());          // Manages collisions
+		EventDispatcher::AddListener(&DynamicScale::GetSingleton());            // Handles room heights
+		EventDispatcher::AddListener(&FurnitureManager::GetSingleton());        // Handles furniture stuff
 		log::info("Managers Registered");
 	}
 }

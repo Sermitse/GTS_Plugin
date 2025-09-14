@@ -14,7 +14,7 @@ namespace GTS {
         void Draw() override;
 
         private:
-        SettingsHidden& Settings = Config::Hidden;
+        SettingsHidden_t& Settings = Config::Hidden;
     };
 
 }

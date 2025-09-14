@@ -17,8 +17,8 @@ namespace GTS {
         void DrawRight() override;
 
         private:
-        SettingsGeneral& SGeneral = Config::General;
-        SettingsGameplay& SGameplay = Config::Gameplay;
+        SettingsGeneral_t& SGeneral = Config::General;
+        SettingsGameplay_t& SGameplay = Config::Gameplay;
     };
 
 }

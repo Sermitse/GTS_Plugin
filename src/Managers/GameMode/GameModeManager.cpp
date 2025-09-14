@@ -340,12 +340,12 @@ namespace GTS {
 		return "::GameModeManager";
 	}
 
-	void GameModeManager::ApplyGameMode(Actor* a_Actor, const SelectedGameMode& a_SelectedGameMode, const float& a_GrowthRate, const float& a_ShrinkRate)  {
+	void GameModeManager::ApplyGameMode(Actor* a_Actor, const LActiveGamemode_t& a_SelectedGameMode, const float& a_GrowthRate, const float& a_ShrinkRate)  {
 
 		GTS_PROFILE_SCOPE("GameModeManager: ApplyGameMode");
 
 
-		if (a_SelectedGameMode == SelectedGameMode::kNone) {
+		if (a_SelectedGameMode == LActiveGamemode_t::kNone) {
 			return;
 		}
 
@@ -366,46 +366,46 @@ namespace GTS {
 
 			switch (a_SelectedGameMode) {
 
-				case SelectedGameMode::kNone: {
+				case LActiveGamemode_t::kNone: {
 					return;
 				}
 
-				case SelectedGameMode::kGrow: {
+				case LActiveGamemode_t::kGrow: {
 					Grow(a_Actor,RateMultiplier,a_GrowthRate, TargetScale, MaxScale);
 					return;
 				}
 
-				case SelectedGameMode::kShrink: {
+				case LActiveGamemode_t::kShrink: {
 					Shrink(a_Actor, RateMultiplier, a_ShrinkRate, TargetScale, NaturalScale);
 					return;
 				}
 
-				case SelectedGameMode::kSlowCombatGrowth: {
+				case LActiveGamemode_t::kSlowCombatGrowth: {
 					SlowCombatGrowth(a_Actor, RateMultiplier, a_GrowthRate, TargetScale, MaxScale);
 					return;
 				}
 
-				case SelectedGameMode::kCombatGrowth: {
+				case LActiveGamemode_t::kCombatGrowth: {
 					CombatGrowth(a_Actor, RateMultiplier, a_GrowthRate, a_ShrinkRate, TargetScale, NaturalScale, MaxScale);
 					return;
 				}
 
-				case SelectedGameMode::kCurseOfGrowth: {
+				case LActiveGamemode_t::kCurseOfGrowth: {
 					CurseOfGrowth(a_Actor, TargetScale, MaxScale);
 					return;
 				}
 
-				case SelectedGameMode::kCurseOfTheGiantess: {
+				case LActiveGamemode_t::kCurseOfTheGiantess: {
 					CurseOfTheGiantess(a_Actor, TargetScale, MaxScale);
 					return;
 				}
 
-				case SelectedGameMode::kCurseOfDiminishing: {
+				case LActiveGamemode_t::kCurseOfDiminishing: {
 					CurseOfDiminishing(a_Actor, TargetScale);
 					return;
 				}
 
-				case SelectedGameMode::kSizeLocked: {
+				case LActiveGamemode_t::kSizeLocked: {
 					CurseOfTheGiantess(a_Actor, TargetScale, MaxScale);
 					CurseOfDiminishing(a_Actor, TargetScale);
 					break;
@@ -439,7 +439,7 @@ namespace GTS {
 
 		float CurrentScale = get_visual_scale(actor);
 		bool DoQuestShrink = false;
-		SelectedGameMode GameMode = SelectedGameMode::kNone;
+		LActiveGamemode_t GameMode = LActiveGamemode_t::kNone;
 		
 		if (BalanceModeEnabled) {
 			BonusShrink *= GetShrinkPenalty(CurrentScale);
@@ -498,7 +498,7 @@ namespace GTS {
 
 				BaseGrowhtRate = Settings.GamemodePlayer.fGrowthRate * BonusGrowth;
 				BaseShrinkRate = Settings.GamemodePlayer.fShrinkRate;
-				GameMode = StringToEnum<SelectedGameMode>(Settings.GamemodePlayer.sGameMode);
+				GameMode = StringToEnum<LActiveGamemode_t>(Settings.GamemodePlayer.sGameMode);
 			}
 			else if (IsTeammate(actor)) {
 
@@ -508,7 +508,7 @@ namespace GTS {
 
 				BaseGrowhtRate = Settings.GamemodeFollower.fGrowthRate * BonusGrowth;
 				BaseShrinkRate = Settings.GamemodeFollower.fShrinkRate;
-				GameMode = StringToEnum<SelectedGameMode>(Settings.GamemodeFollower.sGameMode);
+				GameMode = StringToEnum<LActiveGamemode_t>(Settings.GamemodeFollower.sGameMode);
 			}
 		}
 

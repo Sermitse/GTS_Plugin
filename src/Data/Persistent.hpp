@@ -140,7 +140,7 @@ namespace GTS {
 			static void OnGameSaved(SKSE::SerializationInterface* serde);
 			static void OnGameLoaded(SKSE::SerializationInterface* serde);
 
-			void EraseUnloadedPersistentData();
+			void EraseUnloadedPersistentData() const;
 
 			KillCountData* GetKillCountData(Actor& actor);
 			KillCountData* GetKillCountData(Actor* actor);
@@ -164,45 +164,45 @@ namespace GTS {
 			const static inline uint32_t KillCountDataRecord = _byteswap_ulong('AKCD');
 
 			//----- Camera
-			BasicRecord<int, 'TCST'> TrackedCameraState = 0;
+			static inline BasicRecord<int, 'TCST'> TrackedCameraState = 0;
 
 			//----- Crawl/Sneak State
-			BasicRecord<bool, 'ECPL'> EnableCrawlPlayer = false;
-			BasicRecord<bool, 'ECFL'> EnableCrawlFollower = false;
+			static inline BasicRecord<bool, 'ECPL'> EnableCrawlPlayer = false;
+			static inline BasicRecord<bool, 'ECFL'> EnableCrawlFollower = false;
 
 			//----- Max Size Related
-			BasicRecord<float, 'GBPS'> PlayerExtraPotionSize = 0.0f;
-			BasicRecord<float, 'GTSL'> GlobalSizeLimit = 1.0f;
-			BasicRecord<float, 'GMBS'> GlobalMassBasedSizeLimit = 0.0f;
+			static inline BasicRecord<float, 'GBPS'> PlayerExtraPotionSize = 0.0f;
+			static inline BasicRecord<float, 'GTSL'> GlobalSizeLimit = 1.0f;
+			static inline BasicRecord<float, 'GMBS'> GlobalMassBasedSizeLimit = 0.0f;
 
 			// ---- Quest Progression
-			BasicRecord<float, 'QHSR'> HugStealCount = 0.0f;
-			BasicRecord<float, 'QSSR'> StolenSize = 0.0f;
-			BasicRecord<float, 'QCCR'> CrushCount = 0.0f;
-			BasicRecord<float, 'QSTR'> STNCount = 0.0f;
-			BasicRecord<float, 'QHCR'> HandCrushed = 0.0f;
-			BasicRecord<float, 'QVRR'> VoreCount = 0.0f;
-			BasicRecord<float, 'QGCR'> GiantCount = 0.0f;
+			static inline BasicRecord<float, 'QHSR'> HugStealCount = 0.0f;
+			static inline BasicRecord<float, 'QSSR'> StolenSize = 0.0f;
+			static inline BasicRecord<float, 'QCCR'> CrushCount = 0.0f;
+			static inline BasicRecord<float, 'QSTR'> STNCount = 0.0f;
+			static inline BasicRecord<float, 'QHCR'> HandCrushed = 0.0f;
+			static inline BasicRecord<float, 'QVRR'> VoreCount = 0.0f;
+			static inline BasicRecord<float, 'QGCR'> GiantCount = 0.0f;
 
 			// ---- Guide Messages Seen
-			BasicRecord<bool, 'MSTC'> MSGSeenTinyCamity = false;
-			BasicRecord<bool, 'MSGS'> MSGSeenGrowthSpurt = false;
-			BasicRecord<bool, 'MSAG'> MSGSeenAspectOfGTS = false;
+			static inline BasicRecord<bool, 'MSTC'> MSGSeenTinyCamity = false;
+			static inline BasicRecord<bool, 'MSGS'> MSGSeenGrowthSpurt = false;
+			static inline BasicRecord<bool, 'MSAG'> MSGSeenAspectOfGTS = false;
 
 			// ---- Unlimited Size slider unlocker
-			BasicRecord<bool, 'USSD'> UnlockMaxSizeSliders = false;
+			static inline BasicRecord<bool, 'USSD'> UnlockMaxSizeSliders = false;
 
-			CompressedStringRecord<'CONF'> ModSettings{""};
+			static inline CompressedStringRecord<'CONF'> ModSettings{""};
 
 		private:
 
 			Persistent() = default;
 			mutable std::mutex _Lock;
 
-			std::unordered_map<FormID, ActorData> ActorDataMap;
-			std::unordered_map<FormID, KillCountData> KillCountDataMap;
+			static inline std::unordered_map<FormID, ActorData> ActorDataMap;
+			static inline std::unordered_map<FormID, KillCountData> KillCountDataMap;
 
-			void ClearData();
+			static void ClearData();
 			static void LoadModLocalModConfiguration();
 
 			static void LoadPersistent(SerializationInterface* serde);

@@ -2,6 +2,7 @@
 #include "API/SmoothCam.hpp"
 
 #include "Config/Config.hpp"
+#include "Config/Keybinds.hpp"
 
 #include "Hooks/Hooks.hpp"
 #include "Papyrus/Papyrus.hpp"
@@ -111,6 +112,8 @@ namespace {
 		EventDispatcher::AddListener(&CooldownManager::GetSingleton());
 		EventDispatcher::AddListener(&TaskManager::GetSingleton());
 		EventDispatcher::AddListener(&SpringManager::GetSingleton());
+		EventDispatcher::AddListener(&Config::GetSingleton());
+		EventDispatcher::AddListener(&Keybinds::GetSingleton());
 
 		log::info("Added Default Listeners");
 
@@ -121,7 +124,7 @@ namespace {
 
 SKSEPluginLoad(const LoadInterface * a_skse){
 
-	Config::CopyLegacySettings(Config::GetSingleton());
+	Config::CopyLegacySettings();
 
 	Init(a_skse);
 	logger::Initialize();

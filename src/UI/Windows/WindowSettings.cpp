@@ -49,13 +49,13 @@ namespace GTS {
 
 		try {
 
-			if (!Settings.LoadSettingsFromString()) {
+			if (!Config::LoadSettingsFromString()) {
 				logger::error("Settings.LoadSettings() Error");
 				SaveLoadBusy.store(false);
 				return;
 			}
 
-			if (!KeyMgr.LoadKeybinds()) {
+			if (!Keybinds::LoadKeybinds()) {
 				logger::error("KeyMgr.LoadKeybinds() Error");
 				SaveLoadBusy.store(false);
 				return;
@@ -74,13 +74,13 @@ namespace GTS {
 
 		try {
 
-			if (!Settings.SaveSettingsToString()) {
+			if (!Config::SaveSettingsToString()) {
 				logger::error("Settings.SaveSettings() Error");
 				SaveLoadBusy.store(false);
 				return;
 			}
 
-			if (!KeyMgr.SaveKeybinds()) {
+			if (!Keybinds::SaveKeybinds()) {
 				logger::error("KeyMgr.SaveKeybinds() Error");
 				SaveLoadBusy.store(false);
 				return;

@@ -27,7 +27,7 @@ namespace GTS {
         static inline const std::string g_Noto_Medium_SC = _basePath + R"(Noto\SC\NotoSans-Medium)" + _ext;
         static inline const std::string g_Noto_Regular_SC = _basePath + R"(Noto\SC\NotoSans-Regular)" + _ext;
 
-        const SettingsUI& Settings = Config::UI;
+        const SettingsUI_t& Settings = Config::UI;
 
 		public:
 

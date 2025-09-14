@@ -109,7 +109,7 @@ namespace GTS {
                 ImGui::TextColored(ImUtil::ColorSubscript, "What is this (?)");
                 ImUtil::Tooltip(Thelp, true);
 
-                if (ImUtil::ComboEx<SizeMode>("Size Gain Mode", Settings.sSizeMode, T0)) {
+                if (ImUtil::ComboEx<LSizeMode_t>("Size Gain Mode", Settings.sSizeMode, T0)) {
                     if (Settings.sSizeMode == "kNormal") Settings.fSpellEfficiency = 0.55f;
                     if (Settings.sSizeMode == "kMassBased") Settings.fSpellEfficiency = 0.33f;
                 }

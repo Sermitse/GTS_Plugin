@@ -50,11 +50,8 @@ namespace GTS {
 
         std::unordered_map<FormID, LastShownData> LastData = {};
 
-
-        Config& Settings = Config::GetSingleton();
-        const SettingsHidden& sHidden = Config::Hidden;
-        const WindowConfWidget& sUI= Config::UI.StatusWindow;
-
+        const SettingsHidden_t& sHidden = Config::Hidden;
+        const WindowConfWidget_t& sUI= Config::UI.StatusWindow;
 
     };
 }

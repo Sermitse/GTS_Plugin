@@ -2,7 +2,6 @@
 #pragma once
 
 #include "UI/ImGUI/ImCategory.hpp"
-#include "Config/Config.hpp"
 #include "Config/Keybinds.hpp"
 #include "UI/ImGui/ImWindowManager.hpp"
 
@@ -20,11 +19,6 @@ namespace GTS {
 
 
         private:
-        const Config& Settings = Config::GetSingleton();
-        Keybinds& KeyMgr = Keybinds::GetSingleton();
-
-        //UI
-
         void DrawOptions();
         void DrawContent();
 
@@ -47,7 +41,7 @@ namespace GTS {
         int RebindIndex = 0;
         int CurEventIndex = UINT16_MAX;
         float Width = 0.0f;
-        bool DrawInputEvent(GTSInputEvent& Event, const std::string& a_name, float columnNameWidth);
+        bool DrawInputEvent(BaseEventData_t& Event, const std::string& a_name, float columnNameWidth);
         const int HeaderFlags =  ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AutoResizeX ;
 
     };

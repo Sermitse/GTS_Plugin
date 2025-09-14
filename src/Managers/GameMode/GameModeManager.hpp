@@ -1,5 +1,5 @@
 #pragma once
-#include "Config/SettingsList.hpp"
+#include "Config/Settings/SettingsGameplay.hpp"
 
 namespace GTS {
 
@@ -15,7 +15,7 @@ namespace GTS {
 			[[nodiscard]] static GameModeManager& GetSingleton() noexcept;
 			virtual std::string DebugName() override;
 
-			static void ApplyGameMode(Actor* a_Actor, const SelectedGameMode& a_SelectedGameMode, const float& a_GrowthRate, const float& a_ShrinkRate);
+			static void ApplyGameMode(Actor* a_Actor, const LActiveGamemode_t& a_SelectedGameMode, const float& a_GrowthRate, const float& a_ShrinkRate);
 			static void GameMode(Actor* actor);
 	};
 }

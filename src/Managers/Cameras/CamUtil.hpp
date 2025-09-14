@@ -1,10 +1,10 @@
 #pragma once
-#include "Config/SettingsList.hpp"
+#include "Config/Settings/SettingsCamera.hpp"
 
 // #define ENABLED_SHADOW
 
 namespace GTS {
-	BoneTarget GetBoneTargets(CameraTracking Camera_Anim, CameraTrackingSettings Camera_MCM);
+	BoneTarget GetBoneTargets(CameraTracking Camera_Anim, LCameraTrackBone_t Camera_MCM);
 
 	float HighHeelOffset();
 

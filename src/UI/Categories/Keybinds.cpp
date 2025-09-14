@@ -76,7 +76,7 @@ namespace GTS {
                 ImGui::SameLine();
 
                 if (ImUtil::ImageButton("Reset", "generic_reset", 18, TH1)) {
-                    KeyMgr.ResetKeybinds();
+                    Keybinds::ResetKeybinds();
                 }
 
                 ImGui::SameLine();
@@ -100,16 +100,16 @@ namespace GTS {
         {
 
             static const auto categoryMap = []() {
-                std::unordered_map<std::string, InputCategory> m;
+                std::unordered_map<std::string, LInputCategory_t> m;
                 for (auto const& ce : GTS::DefaultEvents) {
                     m.emplace(ce.Event.Event, ce.Category);
                 }
                 return m;
             }();
 
-            std::unordered_map<InputCategory, std::vector<GTSInputEvent*>> groups;
+            std::unordered_map<LInputCategory_t, std::vector<BaseEventData_t*>> groups;
 
-            for (auto& ev : KeyMgr.InputEvents) {
+            for (auto& ev : Keybinds::InputEvents) {
 
                 // filter by search
                 if (!ImUtil::ContainsString(ImUtil::HumanizeString(ev.Event), SearchRes)) {
@@ -118,12 +118,12 @@ namespace GTS {
 
                 // find its category (default to kDefault if missing)
                 auto it = categoryMap.find(ev.Event);
-                InputCategory cat = (it != categoryMap.end()) ? it->second : InputCategory::kDefault;
+                LInputCategory_t cat = (it != categoryMap.end()) ? it->second : LInputCategory_t::kDefault;
 
                 groups[cat].push_back(&ev);
             }
 
-            for (auto cat : magic_enum::enum_values<InputCategory>()) {
+            for (auto cat : magic_enum::enum_values<LInputCategory_t>()) {
 
                 auto git = groups.find(cat);
                 if (git == groups.end() || git->second.empty()) {
@@ -140,7 +140,7 @@ namespace GTS {
 
                 // split into Div columns
                 auto& list = git->second;
-                std::vector<std::vector<GTSInputEvent*>> Columns(Div);
+                std::vector<std::vector<BaseEventData_t*>> Columns(Div);
                 for (size_t i = 0; i < list.size(); ++i) {
                     Columns[i % Div].push_back(list[i]);
                 }
@@ -148,7 +148,7 @@ namespace GTS {
                 // measure widest name
                 std::vector ColumnNameWidths(Div, 0.0f);
                 for (int c = 0; c < Div; ++c) {
-                    for (auto evt : KeyMgr.InputEvents) {
+                    for (auto evt : Keybinds::InputEvents) {
 
                         ImGui::PushFont(nullptr, 21.0f);
                         {
@@ -194,7 +194,7 @@ namespace GTS {
 		ImGui::EndChild();
 	}
 
-    bool CategoryKeybinds::DrawInputEvent(GTSInputEvent& Event, const std::string& a_name, float columnNameWidth) {
+    bool CategoryKeybinds::DrawInputEvent(BaseEventData_t& Event, const std::string& a_name, float columnNameWidth) {
 
         const float ButtonImageSize = 18 * ImGui::GetStyle().FontScaleMain;
         const float ButtonSize = ButtonImageSize + ImGui::GetStyle().ItemSpacing.x + (ImGui::GetStyle().FramePadding.x * 2.0f);
@@ -300,8 +300,8 @@ namespace GTS {
                         if (!Event.Disabled) {
                             ImGui::BeginDisabled(IsRebinding);
                             ImUtil::CheckBox("Exclusive", &Event.Exclusive, T1);
-                            ImUtil::ComboEx<TriggerType>("Trigger Type", Event.Trigger, T2);
-                            ImUtil::ComboEx<BlockInputTypes>("Block Input", Event.BlockInput, T3);
+                            ImUtil::ComboEx<LTriggerType_t>("Trigger Type", Event.Trigger, T2);
+                            ImUtil::ComboEx<LBlockInputTypes_t>("Block Input", Event.BlockInput, T3);
                             ImGui::InputFloat("Trigger After", &Event.Duration, 0.1f, 0.01f, "%.2f Seconds");
                             ImUtil::Tooltip(T4);
                             Event.Duration = std::clamp(Event.Duration, 0.0f, 10.0f);
