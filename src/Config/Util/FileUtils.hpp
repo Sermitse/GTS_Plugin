@@ -2,7 +2,8 @@
 
 namespace GTS {
 
-    class FileManager {
+    class FileUtils {
+
         public:
 
         static inline const std::filesystem::path _basePath = std::filesystem::current_path() / R"(Data/SKSE/Plugins/GTSPlugin)";

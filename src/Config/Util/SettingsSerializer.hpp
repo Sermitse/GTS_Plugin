@@ -1,9 +1,9 @@
 #pragma once
-#include "Config/Util/TomlHandler.hpp"
+#include "Config/Util/SettingsHandler.hpp"
 
 namespace GTS {
 
-	class SettingsSerializer : public TOMLHandler {
+	class SettingsSerializer : public SettingsHandler {
 
         public:
         template<typename Config>
@@ -69,19 +69,6 @@ namespace GTS {
                 logger::error("Unknown exception during struct deserialization");
                 return false;
             }
-        }
-
-        template<typename Config>
-        void ResetToDefaults(Config& config) const {
-            config.Advanced = SettingsAdvanced_t{};
-            config.General = SettingsGeneral_t{};
-            config.AI = SettingsAI_t{};
-            config.Audio = SettingsAudio_t{};
-            config.Balance = SettingsBalance_t{};
-            config.Camera = SettingsCamera_t{};
-            config.Gameplay = SettingsGameplay_t{};
-            config.UI = SettingsUI_t{};
-            //config.Hidden = SettingsHidden_t{};
         }
     };
 }

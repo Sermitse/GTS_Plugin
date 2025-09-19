@@ -48,27 +48,27 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Enable footstep sounds when player size meets or exceeds a certain threshold.";
-	        const char* T1 = "Enable moaning sounds during spells like Slow Growth.";
-			const char* T2 = "Enables size variance for moans/laughs similar to footsteps, but without blendings\n"
+	        PSString T0 = "Enable footstep sounds when player size meets or exceeds a certain threshold.";
+	        PSString T1 = "Enable moaning sounds during spells like Slow Growth.";
+			PSString T2 = "Enables size variance for moans/laughs similar to footsteps, but without blendings\n"
 							 "If disabled, it will always use normal size sounds.\n"
 							 "Else picks matching sound category based on current size range:\n"
 							 "normal/x2/x4/x8/x12/x24/x48/x96\n\n"
 							 "- If you have no custom Moan/Laugh sounds, it does nothing.\n"
 							 "- Sounds location: Data\\Sound\\fx\\GTS\\Moans_Laughs. Folders are empty by default.\n"
 							 "- Possible usage: put edited variants of sounds with reverb/echo/etc in matching size folders";
-			const char* T3 = "If true, only Player Character will be able to moan/laugh";
-			const char* T4 = "Replaces custom High Heel Size Sounds past x2 size with different sound sets\n"
+			PSString T3 = "If true, only Player Character will be able to moan/laugh";
+			PSString T4 = "Replaces custom High Heel Size Sounds past x2 size with different sound sets\n"
 			                 "When not wearing High Heels - plays old sounds.\n"
 							 "Requires High Heels: 'Enable Height Adjustment' to be ON to work";
-			const char* T5 = "If True:\n"
+			PSString T5 = "If True:\n"
 							 "- audio of footsteps will attempt to smoothly swap between each other"
 			                 "- It can result in footsteps being quieter than without blending\n"
 							 "- Because of blending, it can even play 2 sounds at once\n"
 							 "If False: \n"
 							 "- Audio of footsteps changes as soon as you pass size threshold";
 
-			const char* THelp = "Note: Moan/Laugh sounds are included in the mod if you chose to install them.\n"
+			PSString THelp = "Note: Moan/Laugh sounds are included in the mod if you chose to install them.\n"
 			"You can also add sounds by adding your own .wav files in the following folder:\n"
 	    	"(Your Skyrim Folder)\\Data\\Sound\\fx\\GTS\\Moans_Laughs";
 	        
@@ -95,16 +95,16 @@ namespace GTS {
 
 		if (Runtime::IsSexlabInstalled()) {
 
-			ImUtil_Unique{
+			ImUtil_Unique {
 
-				const char* THelp = "Sexlab has been detected.\n"
+				PSString THelp = "Sexlab has been detected.\n"
 									"This mod can now use it's voice files as a substitute in case "
 									"you don't have any files that you can add.\n"
 									"This also allows you to select a different voice per actor for some variety.\n\n"
 									"Note: Only The Player/Current Followers will be listed as to not clutter this menu.\n"
 									"If this menu is empty it means none of the currently loaded npc's are elidgible for this feature.";
 
-				if (ImGui::CollapsingHeader("Moan Voice Select",ImUtil::HeaderFlagsDefaultOpen)) {
+				if (ImGui::CollapsingHeader("Alternative Voice Options", ImUtil::HeaderFlagsDefaultOpen)) {
 					ImGui::TextColored(ImUtil::ColorSubscript, "What is this (?)");
 					ImUtil::Tooltip(THelp, true);
 
@@ -130,28 +130,28 @@ namespace GTS {
 
 	void CategoryAudio::DrawRight() {
 
-		ImUtil_Unique{
+		ImUtil_Unique {
 
-			const char* TpLow = "The lowest voice pitch multipler when over 1.0x scale, lower values will lower the pitch when the actor is large(r).";
+			PSString TpLow = "The lowest voice pitch multipler when over 1.0x scale, lower values will lower the pitch when the actor is large(r).";
 
-			const char* TsMax = "Change the target scale at which the pitch will be the lowest.";
+			PSString TsMax = "Change the target scale at which the pitch will be the lowest.";
 
-			const char* TpHi = "The highest voice pitch multipler when under 1.0x scale, lower values will lower the pitch when the actor is smaller(r).";
+			PSString TpHi = "The highest voice pitch multipler when under 1.0x scale, lower values will lower the pitch when the actor is smaller(r).";
 
-			const char* TsMin = "Change the target scale at which the pitch will be highest.";
+			PSString TsMin = "Change the target scale at which the pitch will be highest.";
 
-			const char* T0 = "Toggle wether the NPC voicelines should have their pitch modified based on size.";
-			const char* T2 = "Enable/Disable npc's making death sounds/screams when being shrunken to nothing.";
-			const char* T3 = "Enable/Disable npc's making death sounds/screams when being absorbed by breasts.";
-			const char* T4 = "Enable/Disable npc's making death sounds/screams when killed through Wrathful Calamity.";
-			const char* T5 = "Enable/Disable npc's making death sounds/screams when killed through being Hug Crushed.";
-			const char* T6 = "Enable/Disable npc's making death sounds/screams when being crushed";
-			const char* T7 = "Enable/Disable npc's making death sounds/screams when being eaten through vore.";
+			PSString T0 = "Toggle wether the NPC voicelines should have their pitch modified based on size.";
+			PSString T2 = "Enable/Disable npc's making death sounds/screams when being shrunken to nothing.";
+			PSString T3 = "Enable/Disable npc's making death sounds/screams when being absorbed by breasts.";
+			PSString T4 = "Enable/Disable npc's making death sounds/screams when killed through Wrathful Calamity.";
+			PSString T5 = "Enable/Disable npc's making death sounds/screams when killed through being Hug Crushed.";
+			PSString T6 = "Enable/Disable npc's making death sounds/screams when being crushed";
+			PSString T7 = "Enable/Disable npc's making death sounds/screams when being eaten through vore.";
 
-			const char* T8 = "FallOff Range Multiplier for Moans and Laughs. Large values = can be heard from further dist";
-			const char* T9 = "Moan and Laugh volume multiplier.";
-			const char* T10 = "Toggle wether the GTS moan/laugh voice should have its pitch modified based on size.";
-			const char* T11 = "Toggle whether gore sounds should have its pitch modified based on tiny size below 1.0";
+			PSString T8 = "FallOff Range Multiplier for Moans and Laughs. Large values = can be heard from further dist";
+			PSString T9 = "Moan and Laugh volume multiplier.";
+			PSString T10 = "Toggle wether the GTS moan/laugh voice should have its pitch modified based on size.";
+			PSString T11 = "Toggle whether gore sounds should have its pitch modified based on tiny size below 1.0";
 			
 			if (ImGui::CollapsingHeader("Voice",ImUtil::HeaderFlagsDefaultOpen)) {
 				ImUtil::CheckBox("Normal Voice Pitch Override",&Settings.bEnableVoicePitchOverrideN, T0);

@@ -9,19 +9,19 @@ namespace GTS {
 
 		//------------  Config Window
 
-		ImUtil_Unique{
+		ImUtil_Unique {
 
-			const char* T0 = "Automatically handle positioning for this window.\n"
+			PSString T0 = "Automatically handle positioning for this window.\n"
 							 "Disabling this allows you to move and resize the settings window manually.\n"
 							 "Otherwise, if left enabled you can adjust the position and window scale below.";
 
-			const char* T1 = "Adjust the window size as a percentage of the screen.";
-			const char* T2 = "Choose where to align the window on screen.";
-			const char* T3 = "Adjust the offset relative to the selected anchor point.\n"
+			PSString T1 = "Adjust the window size as a percentage of the screen.";
+			PSString T2 = "Choose where to align the window on screen.";
+			PSString T3 = "Adjust the offset relative to the selected anchor point.\n"
 							 "Left/Right | Up/Down";
 
-			const char* T5 = "Adjust the opacity of the stats window.";
-			const char* T6 = "Adjust the opacity of the stats window's backround.";
+			PSString T5 = "Adjust the opacity of the stats window.";
+			PSString T6 = "Adjust the opacity of the stats window's backround.";
 
 			if (ImGui::CollapsingHeader("Config Window", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -57,7 +57,7 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Choose which type of measurement units to display.";
+	        PSString T0 = "Choose which type of measurement units to display.";
 
 	        if(ImGui::CollapsingHeader("Misc Settings",ImUtil::HeaderFlagsDefaultOpen)){
 	            ImUtil::ComboEx<LDisplayUnit_t>("Measurement Units",Settings.sDisplayUnits, T0);
@@ -72,9 +72,9 @@ namespace GTS {
 
 	        if(ImGui::CollapsingHeader("UI Settings",ImUtil::HeaderFlagsDefaultOpen)){
 
-	            const char* T0 = "Adjust the scale of all elements and fonts.";
-	            const char* T1 = "Modify the width of UI controls";
-	            const char* T2 = "Set the accent color for the UI.";
+	            PSString T0 = "Adjust the scale of all elements and fonts.";
+	            PSString T1 = "Modify the width of UI controls";
+	            PSString T2 = "Set the accent color for the UI.";
 
 	            ImUtil::SliderF("UI Scale", &Settings.fScale, 0.7f, 1.8f, T0,"%.1fx");
 	            if (ImGui::IsItemDeactivatedAfterEdit()) {

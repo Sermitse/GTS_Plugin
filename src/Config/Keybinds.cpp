@@ -1,6 +1,6 @@
 #include "Config/Keybinds.hpp"
 #include "Config/Util/KeybindHandler.hpp"
-#include "Config/Util/FileManager.hpp"
+#include "Config/Util/FileUtils.hpp"
 
 namespace GTS {
 
@@ -8,7 +8,7 @@ namespace GTS {
 
         std::lock_guard<std::mutex> lock(_ReadWriteLock);
 
-        if (!FileManager::CheckOrCreateFile(InputFile)) {
+        if (!FileUtils::CheckOrCreateFile(InputFile)) {
             return false;
         }
 
@@ -50,7 +50,7 @@ namespace GTS {
 
         std::lock_guard<std::mutex> lock(_ReadWriteLock);
 
-        if (!FileManager::CheckOrCreateFile(InputFile)) {
+        if (!FileUtils::CheckOrCreateFile(InputFile)) {
             return false;
         }
 

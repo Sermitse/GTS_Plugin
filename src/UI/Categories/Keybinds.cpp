@@ -9,37 +9,37 @@
 
 namespace {
 
-	const char* T0 = "Disable this input event.\n"
+	PSString T0 = "Disable this input event.\n"
 		"Disabled events are completely ignored by the game and will never trigger.";
 
-	const char* T1 = "When an action is marked as exclusive it means it will only activate if its exact key combination is being pressed.\n"
+	PSString T1 = "When an action is marked as exclusive it means it will only activate if its exact key combination is being pressed.\n"
 		"(eg. If an action requires ALT+E to activate and you're also holding W while trying to trigger it with this flag set, nothing will happen unless you stop pressing W.)";
 
-	const char* T2 = "The action trigger type modifies the activation behavior for an action.\n\n"
+	PSString T2 = "The action trigger type modifies the activation behavior for an action.\n\n"
 		"- Once: Trigger an action once upon pressing its key combo.\n"
 		"- Release: The action will only trigger when you release its keys after pressing them.\n"
 		"- Continuous: As long as you are holding down the key combination the action event will be fired every game frame.";
 
-	const char* T3 = "Normaly when you press a key combo. whatever keys you are holding down are sent to the mod and the game at the same time\n"
+	PSString T3 = "Normaly when you press a key combo. whatever keys you are holding down are sent to the mod and the game at the same time\n"
 		"Depending on what keys you press this may have undesired effects. Which is why this option exists.\n\n"
 		"- Automatic: Prevent the game from reading the pressed action keys only when said GTS action would be valid. (eg. When you have the relevant perk/the action is possible to do).\n"
 		"  (NOTE: Some actions are not compatible with this setting. These are by default set to \"Never\" On purpose.)\n"
 		"- Never: Never prevent the game from reading the pressed keys for this action even if the action would be valid.\n"
 		"- Always: Will always prevent the game from reading this key combination regardless if the action would trigger/do something or not.";
 
-	const char* T4 = "This adds a time delay before an action gets triggerd if its keys are pressed.\n"
+	PSString T4 = "This adds a time delay before an action gets triggerd if its keys are pressed.\n"
 		"(eg. if the trigger type is once and this value is set to 1.0 you'd need to hold the correct key combination for atleast 1 second before this event's action will fire.)";
 
-	const char* T5 = "Change the key combination to trigger this event.\n"
+	PSString T5 = "Change the key combination to trigger this event.\n"
 		"You don't have to hold down the keys if creating a key combination. Pressing a key once will append it to the list\n"
 		"After entering the new key combination press this button again to save it.\n"
 		"Pressing ESC will cancel the keybind reassignment.";
 
-	const char* T6 = "Click to open advanced settings for this keybind.";
+	PSString T6 = "Click to open advanced settings for this keybind.";
 
 
-    const char* TH0 = "Filter based on an actions' name.";
-    const char* TH1 = "Reset all keybinds and their settings to default.";
+    PSString TH0 = "Filter based on an actions' name.";
+    PSString TH1 = "Reset all keybinds and their settings to default.";
 
 }
 

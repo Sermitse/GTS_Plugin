@@ -20,7 +20,7 @@ namespace GTS {
 
 	static void DrawCameraSettings(CameraOffsets_t* a_set, const char* a_title) {
 
-	    const char* T0 = "Select which biped skeleton bone the camera should track.";
+	    PSString T0 = "Select which biped skeleton bone the camera should track.";
 
 	    if (ImGui::CollapsingHeader(a_title, ImUtil::HeaderFlagsDefaultOpen)) {
 	        ImUtil::ComboEx<LCameraTrackBone_t>("Center On Bone", a_set->sCenterOnBone, T0);
@@ -69,9 +69,9 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Change the intensity of camera shakes when performing actions as a player.";
-			const char* T1 = "Change the intensity of first-person camera shakes caused by your own size or size actions";
-			const char* T2 = "Change the intensity of camera shakes for NPCs.";
+	        PSString T0 = "Change the intensity of camera shakes when performing actions as a player.";
+			PSString T1 = "Change the intensity of first-person camera shakes caused by your own size or size actions";
+			PSString T2 = "Change the intensity of camera shakes for NPCs.";
 
 	        if (ImGui::CollapsingHeader("Camera Shake", ImUtil::HeaderFlagsDefaultOpen)) {
 	            ImUtil::SliderF("Player Total Shake Power", &Settings.fCameraShakePlayer, 0.1f, 3.0f, T0, "%.2fx");
@@ -84,7 +84,7 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Change the height multiplier of the camera while crawling.\n"
+	        PSString T0 = "Change the height multiplier of the camera while crawling.\n"
 							 "1st Person | 3rd Person\n\n"
 							 "Note: 3rd Person wont't work correctly if you are using smoothcam.";
 
@@ -99,13 +99,13 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Enable camera collision with actors.";
-	        const char* T1 = "Enable camera collision with trees.";
-	        const char* T2 = "Enable camera collision with debris (physics-enabled objects).";
-	        const char* T3 = "Enable camera collision with terrain.";
-	        const char* T4 = "Enable camera collision with statics (basically any solid, non-movable object).";
-	        const char* T5 = "Change the scale at which the above collision settings should apply.";
-			const char* T6 = "Dynamically change the camera near distance value to fix clipping issues when small.\n"
+	        PSString T0 = "Enable camera collision with actors.";
+	        PSString T1 = "Enable camera collision with trees.";
+	        PSString T2 = "Enable camera collision with debris (physics-enabled objects).";
+	        PSString T3 = "Enable camera collision with terrain.";
+	        PSString T4 = "Enable camera collision with statics (basically any solid, non-movable object).";
+	        PSString T5 = "Change the scale at which the above collision settings should apply.";
+			PSString T6 = "Dynamically change the camera near distance value to fix clipping issues when small.\n"
 							 "May introduce visual issues such as moving/disappearing shadows.\n\n"
 	    				     "Starts applyng when smaller than 1.0x scale.\n"
 	    					 "Disables itself when past 1.0x scale\n\n"
@@ -132,26 +132,26 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Offsets the 3rd person camera's minimum zoom distance.\n"
+	        PSString T0 = "Offsets the 3rd person camera's minimum zoom distance.\n"
 							 "Combined with the maximum distance this affects the distance from the player\n"
 							 "where the camera perspective switches to 1st person.";
 
-	        const char* T1 = "Offsets the 3rd person camera's maximum zoom distance.\n"
+	        PSString T1 = "Offsets the 3rd person camera's maximum zoom distance.\n"
 							 "Higher values will zoom out the camera more.\n"
 							 "Combined with the minimum distance this affects the distance from the player\n"
 	    					 "where the camera perspective switches to 1st person.";
 
-			const char* T2 = "Changes the transition speed between camera steps.";
+			PSString T2 = "Changes the transition speed between camera steps.";
 
-	        const char* T3 = "Changes the camera's zoom step divisor.\n"
+	        PSString T3 = "Changes the camera's zoom step divisor.\n"
 							 "Lower values increase the ammount of zoom steps,\n"
 	    					 "whilst higher values decrease them.\n";
 
-			const char* T4 = "Toggle wether this mod should override skyrim's camera settings.\n"
+			PSString T4 = "Toggle wether this mod should override skyrim's camera settings.\n"
 							 "Note: Requires a game restart after disabling for the original values to be reapplied.\n\n"
 							 "Its reccomended to leave this enabled.";
 
-	        const char* THelp = 
+	        PSString THelp = 
 				             "These are the same settings as can be found in skyrim.ini.\n"
 				             "They're added here for convenience.\n\n"
 				             "Note 1: The settings here will continiously override the game's settings,\n"
@@ -192,9 +192,9 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Enable automatic camera.";
+	        PSString T0 = "Enable automatic camera.";
 
-	        const char* T1 = "Change the third-person camera mode.\n"
+	        PSString T1 = "Change the third-person camera mode.\n"
 	    					 "Note: This setting is save file specific.";
 
 			//Hack

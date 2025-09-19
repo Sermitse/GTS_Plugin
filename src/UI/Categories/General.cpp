@@ -9,11 +9,11 @@
 
 namespace {
 
-	const char* T_Export = "Export the current mod configuration to a file.";
-	const char* T_Import = "Import the current mod configuration from the selected export file.";
-	const char* T_Delete = "Delete the currently selected settings export.";
-	const char* T_Cleanup = "Delete all but the 5 most recent exports.";
-	const char* T_Reset = "Reset all settings, this does not reset any modified action keybinds.\n"
+	PSString T_Export = "Export the current mod configuration to a file.";
+	PSString T_Import = "Import the current mod configuration from the selected export file.";
+	PSString T_Delete = "Delete the currently selected settings export.";
+	PSString T_Cleanup = "Delete all but the 5 most recent exports.";
+	PSString T_Reset = "Reset all settings, this does not reset any modified action keybinds.\n"
 					      "If you want to reset those press the reset button on its page instead.";
 
 	void DrawIEUI(){
@@ -119,9 +119,9 @@ namespace GTS {
 
 		// ----- Animation Check
 
-		ImUtil_Unique{
+		ImUtil_Unique {
 
-			const char* T0 = "The automatic check can sometimes be unreliable.\n"
+			PSString T0 = "The automatic check can sometimes be unreliable.\n"
 							 "By pressing this you can forcefully try to play an animation.\n"
 							 "It is highly recommended to stand still on the ground when using this.\n\n"
 							 "A messagebox should appear stating wether the animation was successfully played or not.";
@@ -182,9 +182,9 @@ namespace GTS {
 
 		//----------- Skill Tree
 
-		ImUtil_Unique{
+		ImUtil_Unique {
 
-			const char* T0 = "Open this mod's custom skill tree";
+			PSString T0 = "Open this mod's custom skill tree";
 
 			if (ImGui::CollapsingHeader("Skill Tree", ImUtil::HeaderFlagsDefaultOpen)) {
 				if (ImUtil::Button("Open Skill Tree",T0)) {
@@ -198,10 +198,10 @@ namespace GTS {
 
 		//------ Protect Actors
 
-		ImUtil_Unique{
+		ImUtil_Unique {
 
-			const char* T0 = "Protect essential NPCs from being crushed, eaten, or affected by size-related spells/actions.";
-			const char* T1 = "Protect followers from being crushed, eaten, or affected by size-related spells/actions.";
+			PSString T0 = "Protect essential NPCs from being crushed, eaten, or affected by size-related spells/actions.";
+			PSString T1 = "Protect followers from being crushed, eaten, or affected by size-related spells/actions.";
 
 			if (ImGui::CollapsingHeader("Protect Actors", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImUtil::CheckBox("Protect Essential NPCs",&Settings.bProtectEssentials, T0);
@@ -212,18 +212,18 @@ namespace GTS {
 	}
 		//------ Compatibility
 
-		ImUtil_Unique{
+		ImUtil_Unique {
 
-			const char* T0 = "Enable or disable experimental compatibility with the Devourment mod.\n"
+			PSString T0 = "Enable or disable experimental compatibility with the Devourment mod.\n"
 							 "This compatibility toggle may lead to issues such as actors being swallowed with delay (because Papyrus lags) or other bugs\n\n"
 							 "If enabled, when this mod's vore actions are completed, the NPC will be delegated to the Devourment mod.";
 
-			const char* T1 = "Enable or disable compatibility with the Alternate Conversation Camera mod.\n"
+			PSString T1 = "Enable or disable compatibility with the Alternate Conversation Camera mod.\n"
 							 "If enabled, this mod's camera offsets during dialogue will be disabled.";
 
 			if (ImGui::CollapsingHeader("Compatibility", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImUtil::CheckBox("Devourment Compatibility",&Settings.bDevourmentCompat, T0);
-				ImUtil::CheckBox("Alt Conversation Cam. Compatibility",&Settings.bConversationCamCompat, T1);
+				ImUtil::CheckBox("Devourment Compatibility",&Settings.bDevourmentCompat, T0, !Runtime::IsDevourmentInstalled());
+				ImUtil::CheckBox("Alt Conversation Cam. Compatibility", &Settings.bConversationCamCompat, T1, !Runtime::IsAltConversationCamInstalled());
 				ImGui::Spacing();
 
 			}
@@ -233,19 +233,19 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Male Actor Support:\n"
+	        PSString T0 = "Male Actor Support:\n"
 	                         "No support is provided for this feature.\n"
 	                         "This mod was primarily designed with female NPCs in mind\n"
 	                         "and always assumes the player/followers are female.\n"
 	                         "Animations may not look good and could cause issues even.\n"
 	                         "Use at your own risk.";
 
-			const char* T1 = "Apply computationally expensive damage calculations to all NPC's in the scene.\n"
+			PSString T1 = "Apply computationally expensive damage calculations to all NPC's in the scene.\n"
 							 "This toggle can be EXTREMELY fps hungry, it is highly recommended to keep it off.";
 			
-			const char* T2 = "Enable or disable dynamic alteration of fActivatePickLength and fActivatePickRadius ini\n"
+			PSString T2 = "Enable or disable dynamic alteration of fActivatePickLength and fActivatePickRadius ini\n"
 			                 "It will be altered from 180 and 18 (default) to 180 and 18 * Player Scale";
-			const char* T3 = "Changes Size-Related Movement Speed calculation\n"
+			PSString T3 = "Changes Size-Related Movement Speed calculation\n"
                             "- from: 1.0 / animation slowdown\n"
                             "- to:   1.0 * (size * anim slowdown)\n\n"
                             "As a result, movement speed will be faster (which isn't always good)\n"
@@ -271,12 +271,12 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "This toggle enables automatic size adjustment:\n"
+	        PSString T0 = "This toggle enables automatic size adjustment:\n"
 	                         "If the player or their followers are too large to fit within a room, they will be temporarily scaled down to roughly 90%% of the room's current height.\n"
 	                         "Once outside the small room, they will regrow to their previous size.";
 
-	        const char* T1 = "Adjust the speed of all animations based on an actor's scale.";
-			const char* T2 = "Reduce the amount of gore in some sound and visual effects.";
+	        PSString T1 = "Adjust the speed of all animations based on an actor's scale.";
+			PSString T2 = "Reduce the amount of gore in some sound and visual effects.";
 
 
 	        if (ImGui::CollapsingHeader("Miscellaneous", ImUtil::HeaderFlagsDefaultOpen)) {
@@ -294,8 +294,8 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Enable height adjustment/correction for actors wearing high heels.";
-	        const char* T1 = "Disable HH height adjustments when using furniture to allow other mods to handle it.";
+	        PSString T0 = "Enable height adjustment/correction for actors wearing high heels.";
+	        PSString T1 = "Disable HH height adjustments when using furniture to allow other mods to handle it.";
 
 	        if (ImGui::CollapsingHeader("High-Heels", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -335,7 +335,7 @@ namespace GTS {
 
 	    ImUtil_Unique {
 
-	        const char* T0 = "Toggle whether actions like vore, shrink to death, or crushing\n"
+	        PSString T0 = "Toggle whether actions like vore, shrink to death, or crushing\n"
 	                         "should spawn loot piles containing the dead actors' inventory.\n"
 	                         "If disabled, the inventory will be automatically transferred to the killer upon death.";
 
@@ -353,17 +353,17 @@ namespace GTS {
 
 		ImUtil_Unique {
 
-			const char* T0 = "Enables or Disables gravity acceleration based on size \n"
+			PSString T0 = "Enables or Disables gravity acceleration based on size \n"
 							"- If enabled, gravity will slightly increase as the player grows: 1.0 * sqrt(size)\n"
 							"  (This means large player falls faster, but not too fast)\n"
 							"- If disabled, gravity stays constant at 1.0\n"
 							"- This option is player exclusive.";
 
-			const char* T1 = "Some animations have bad event timings during jump lands\n"
+			PSString T1 = "Some animations have bad event timings during jump lands\n"
 							"- If anim timings are bad = then damage zones may spawn in air, not hitting anyone\n"
 							"- Use this slider to adjust delay, 0 = no delay, 1 = 1sec delay on jump land";
 
-			const char* T2 = "Adjusts extra jump land delay when 'Affect Player Gravity' is on\n"
+			PSString T2 = "Adjusts extra jump land delay when 'Affect Player Gravity' is on\n"
 							"- It may be needed because animation may not have enough time to do foot events on ground\n"
 							"- Which will lead to not dealing any damage to enemies on the ground\n"
 							"- Acts as additional value on top of original jump land delay\n\n"
@@ -381,12 +381,12 @@ namespace GTS {
 
 		//----------- Progress
 
-		ImUtil_Unique{
+		ImUtil_Unique {
 
-			const char* T0 = "Automatically complete this mod's quest.";
-			const char* T1 = "Get all of the mod's spells";
-			const char* T2 = "Instantly complete the perk tree.";
-			const char* T3 = "Get all of the mod's shouts";
+			PSString T0 = "Automatically complete this mod's quest.";
+			PSString T1 = "Get all of the mod's spells";
+			PSString T2 = "Instantly complete the perk tree.";
+			PSString T3 = "Get all of the mod's shouts";
 
 			if (ImGui::CollapsingHeader("Skip Progression")) {
 

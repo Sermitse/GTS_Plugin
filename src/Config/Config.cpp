@@ -76,7 +76,7 @@ namespace GTS {
             return false;
         }
 
-        std::string baseFileName = "Export_" + FileManager::GetTimestamp() + ".toml";
+        std::string baseFileName = "Export_" + FileUtils::GetTimestamp() + ".toml";
         std::string filename = customName.empty() ? baseFileName : customName + "_" + baseFileName;
 
         auto exportPath = _fileManager.GetExportPath(filename);

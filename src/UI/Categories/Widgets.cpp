@@ -9,20 +9,20 @@ namespace GTS {
 
 	static void DrawBaseOptions(WindowConfWidget_t& AwSettings, const char* aTitle) {
 
-		const char* T0 = "Toggle visibility.";
-		const char* T1 = "Adjust the opacity of the entire widget window.";
+		PSString T0 = "Toggle visibility.";
+		PSString T1 = "Adjust the opacity of the entire widget window.";
 
-		const char* T2 = "Automatically handle positioning and size.\n"
+		PSString T2 = "Automatically handle positioning and size.\n"
 						 "Disabling this allows you to move and resize the widget manually.\n"
 						 "Otherwise, if left enabled you can adjust the position offsets below.";
 
-		const char* T3 = "Choose the alignment point for the widget on screen.";
-		const char* T4 = "Adjust horizontal offset from the selected anchor point.";
-		const char* T5 = "Adjust vertical offset from the selected anchor point.";
-		const char* T6 = "Adjust the opacity of the widget window's backround.";
-		const char* T7 = "Toggle whether the widget fades after no value has changed after a while.";
-		const char* T8 = "Change how long the widget should be shown for after a value has changed.";
-		const char* T9 = "Set the required change (ie Delta) in size for the window to reappear if inactivity fade is enabled.";
+		PSString T3 = "Choose the alignment point for the widget on screen.";
+		PSString T4 = "Adjust horizontal offset from the selected anchor point.";
+		PSString T5 = "Adjust vertical offset from the selected anchor point.";
+		PSString T6 = "Adjust the opacity of the widget window's backround.";
+		PSString T7 = "Toggle whether the widget fades after no value has changed after a while.";
+		PSString T8 = "Change how long the widget should be shown for after a value has changed.";
+		PSString T9 = "Set the required change (ie Delta) in size for the window to reappear if inactivity fade is enabled.";
 
 		if (ImGui::CollapsingHeader(aTitle, ImUtil::HeaderFlagsDefaultOpen)) {
 			ImUtil::CheckBox("Show Player Stats Widget", &AwSettings.bVisible, T0);
@@ -56,22 +56,22 @@ namespace GTS {
 
 	static void DrawBarOptions(WindowConfWidget_t& AwSettings, const char* aTitle) {
 
-		const char* T0 = "Change the progress bar's width.";
-		const char* T1 = "Change the progress bar's height multiplier.";
-		const char* T2 = "Round the progress bar's border if it's visible.";
-		const char* T3 = "Change the thickness of the border surrounding the progress bar.";
-		const char* T4 = "Change how light/dark the border is.";
-		const char* T5 = "Change the border's tranparency multiplier.";
-		const char* T6 = "Draw the progress bar with a gradient instead of only a flat color.";
+		PSString T0 = "Change the progress bar's width.";
+		PSString T1 = "Change the progress bar's height multiplier.";
+		PSString T2 = "Round the progress bar's border if it's visible.";
+		PSString T3 = "Change the thickness of the border surrounding the progress bar.";
+		PSString T4 = "Change how light/dark the border is.";
+		PSString T5 = "Change the border's tranparency multiplier.";
+		PSString T6 = "Draw the progress bar with a gradient instead of only a flat color.";
 
-		const char* T7 = "The gradient normally applies a lightening/darkening effect on the base color.\n"
+		PSString T7 = "The gradient normally applies a lightening/darkening effect on the base color.\n"
 					     "By enabling this you can select your own color for the gradient to use.";
 
-		const char* T8 = "Change the darkening factor of the gradient.";
-		const char* T9 = "Change the lightening factor of the gradient.";
-		const char* T10 = "Flip the direction of the gradient.";
+		PSString T8 = "Change the darkening factor of the gradient.";
+		PSString T9 = "Change the lightening factor of the gradient.";
+		PSString T10 = "Flip the direction of the gradient.";
 
-		const char* TReset = "Reset this color to be the same as the accent color in the interface settings.";
+		PSString TReset = "Reset this color to be the same as the accent color in the interface settings.";
 
 		if (ImGui::CollapsingHeader(aTitle, ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -122,7 +122,7 @@ namespace GTS {
 
 				{   // Color B
 
-					ImUtil_Unique{
+					ImUtil_Unique {
 
 						if (ImUtil::ImageButton("Reset", "generic_reset", 18, TReset)) {
 							AwSettings.f3ColorB = Config::UI.f3AccentColor;
@@ -165,7 +165,7 @@ namespace GTS {
 			DrawBarOptions(Settings.StatusWindow, "Player Widget Style");
 		}
 
-		ImUtil_Unique{
+		ImUtil_Unique {
 			if (ImGui::CollapsingHeader("Player Widget Content Toggles", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImUtil::Bitfield<GTSInfoFeatures>(&Settings.StatusWindow.iFlags);
 			}
@@ -182,7 +182,7 @@ namespace GTS {
 			DrawBarOptions(Settings.UnderstompWindow, "Understomp Widget Style");
 		}
 
-		ImUtil_Unique{
+		ImUtil_Unique {
 			if (ImGui::CollapsingHeader("Understomp Widget Content Toggles", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImUtil::CheckBox("Show Text", reinterpret_cast<bool*>(&Settings.UnderstompWindow.iFlags));
 			}

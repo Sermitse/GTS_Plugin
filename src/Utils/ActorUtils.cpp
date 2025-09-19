@@ -1525,7 +1525,7 @@ namespace GTS {
 	}
 
 	bool AllowDevourment() {
-		return Config::General.bDevourmentCompat;
+		return Config::General.bDevourmentCompat && Runtime::IsDevourmentInstalled();
 	}
 
 	bool AllowCameraTracking() {
@@ -1537,6 +1537,7 @@ namespace GTS {
 	}
 
 	bool IsTeammate(Actor* actor) {
+
 		if (!actor) {
 			return false;
 		}

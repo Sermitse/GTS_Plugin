@@ -249,7 +249,7 @@ namespace GTS {
 			return nullptr;
 		}
 
-		if (Config::General.bConversationCamCompat) {
+		if (Config::General.bConversationCamCompat && Runtime::IsAltConversationCamInstalled()) {
 			auto ui = RE::UI::GetSingleton();
 			if (ui) {
 				if (ui->IsMenuOpen(DialogueMenu::MENU_NAME)) {

@@ -14,6 +14,7 @@
 using namespace GTS;
 
 namespace {
+
     void BuffAttributes(Actor* giant) {
 		if (giant) {
 			if (Runtime::HasPerk(giant, "GTSPerkFullAssimilation")) { // Permamently increases random AV after eating someone
@@ -73,11 +74,11 @@ namespace GTS {
 		return VoreInfo;
 	}
 
-	const float GetGrowthFormula(float a_giantScale, float a_tinyScale, bool a_devourment) {
+	float GetGrowthFormula(float a_giantScale, float a_tinyScale, bool a_devourment) {
 		const float g = a_giantScale;
 		const float t = a_tinyScale;
-        const float b = 5.0f; //Dampening factor for GTS formula, change to whatever you think looks good
-		const float u = 0.1f; //Dampening factor for DV formula, change to whatever you think looks good
+		constexpr float b = 5.0f; //Dampening factor for GTS formula, change to whatever you think looks good
+		constexpr float u = 0.1f; //Dampening factor for DV formula, change to whatever you think looks good
 		const float a = g / (g * u);
 
 		if (a_devourment) {
@@ -162,6 +163,7 @@ namespace GTS {
 	}
 
 	void Task_Vore_StartVoreBuff(Actor* giant, Actor* tiny, int amount_of_tinies) {
+
 		if (!AllowDevourment()) { // ONLY when using default GTS vore logic, not Devourment one
 			std::string name = std::format("Vore_Buff_{}_{}", giant->formID, tiny->formID);
 			VoreInformation VoreInfo = GetVoreInfo(giant, tiny, 1.0f);

@@ -11,9 +11,9 @@ namespace GTS {
 
     void CategoryAdvanced::DrawLeft() {
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-            const char* T0 = "Show or hide this page.\n"
+            PSString T0 = "Show or hide this page.\n"
                              "After Disabling you have to re-add the option to the settings toml again if you want to re-enable it.";
 
             if (ImGui::CollapsingHeader("Advanced",ImUtil::HeaderFlagsDefaultOpen)) {
@@ -23,11 +23,10 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique{
-            	
-            const char* T0 = "Show The Profiler";
-            const char* T1 = "Enable the debug overlay.";
-            const char* T2 = "Set the log severity level. The higher it is the more info is dumped into GTSPlugin.log";
+        ImUtil_Unique {
+
+            PSString T1 = "Enable the debug overlay.";
+            PSString T2 = "Set the log severity level. The higher it is the more info is dumped into GTSPlugin.log";
 
             if (ImGui::CollapsingHeader("Logging / Debugging",ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -49,9 +48,9 @@ namespace GTS {
 
         ImUtil_Unique {
 
-            const char* T0 = "Enable/Disable DamageAV for the player's stamina and magicka.";
-            const char* T1 = "GTS actions will have cooldowns if this is enabled.";
-            const char* T2 = "Enforce Min/Max Values In UI.";
+            PSString T0 = "Enable/Disable DamageAV for the player's stamina and magicka.";
+            PSString T1 = "GTS actions will have cooldowns if this is enabled.";
+            PSString T2 = "Enforce Min/Max Values In UI.";
 
             if (ImGui::CollapsingHeader("Cheats",ImUtil::HeaderFlagsDefaultOpen)) {
                 ImUtil::CheckBox("Enable ActorValue Damage",&Settings.bDamageAV, T0);
@@ -62,12 +61,12 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-	        const char* T0 = "Multiply the resulting GetAnimationSlowdown Value (Acts as a flat multiplier applied after the main formula).";
-	        const char* T1 = "Modify The \"SoftCore\" formula used to calculate the amount animations will slow down relative to scale.";
-            const char* T2 = "Should AnimSpeed be force set to 1x if IsGTSBusy() == true?";
-            const char* T3 = "Define the floor value for the animation speed formula. (Default 0.1f).";
+	        PSString T0 = "Multiply the resulting GetAnimationSlowdown Value (Acts as a flat multiplier applied after the main formula).";
+	        PSString T1 = "Modify The \"SoftCore\" formula used to calculate the amount animations will slow down relative to scale.";
+            PSString T2 = "Should AnimSpeed be force set to 1x if IsGTSBusy() == true?";
+            PSString T3 = "Define the floor value for the animation speed formula. (Default 0.1f).";
 
 	        if (ImGui::CollapsingHeader("Animation Speed",ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -98,17 +97,17 @@ namespace GTS {
 
         ImUtil_Unique {
 
-	        const char* T0 = "When performing Breast Absorption, visually enlarge breasts. Not Guaranteed to Work.";
-	        const char* T1 = "Count Player as NPC, which makes Player perform random animations";
-	        const char* T2 = "Enable the experimental support for devourment using AI manager. Meant to partially replace DV's own PseudoAI";
-	        const char* T3 = "Set the probabilty for a DV action to be started.";
+	        PSString T0 = "When performing Breast Absorption, visually enlarge breasts. Not Guaranteed to Work.";
+	        PSString T1 = "Count Player as NPC, which makes Player perform random animations";
+	        PSString T2 = "Enable the experimental support for devourment using AI manager. Meant to partially replace DV's own PseudoAI";
+	        PSString T3 = "Set the probabilty for a DV action to be started.";
 
 	        if (ImGui::CollapsingHeader("Experimental",ImUtil::HeaderFlagsDefaultOpen)) {
-	            ImUtil::CheckBox("Enlarge Breasts On Absorbtion", &Settings.bEnlargeBreastsOnAbsorption, T0);
+	            ImUtil::CheckBox("Enlarge Breasts On Absorbtion", &Settings.bEnlargeBreastsOnAbsorption, T0, true);
 	            ImUtil::CheckBox("Player AI", &Settings.bPlayerAI, T1);
 
-	            ImUtil::CheckBox("DevourmentAI", &Settings.bEnableExperimentalDevourmentAI, T2);
-	            ImUtil::SliderF("DevourmentAI Probability", &Settings.fExperimentalDevourmentAIProb, 1.0f, 100.0f, T3,"%.0f%%", !Settings.bEnableExperimentalDevourmentAI);
+	            ImUtil::CheckBox("DevourmentAI", &Settings.bEnableExperimentalDevourmentAI, T2, !Runtime::IsDevourmentInstalled());
+	            ImUtil::SliderF("DevourmentAI Probability", &Settings.fExperimentalDevourmentAIProb, 1.0f, 100.0f, T3,"%.0f%%", !Settings.bEnableExperimentalDevourmentAI, !Runtime::IsDevourmentInstalled());
 
 	            ImGui::Spacing();
 	        }
@@ -119,9 +118,9 @@ namespace GTS {
             //ImGui Debug
             if (ImGui::CollapsingHeader("ImGui Debug",ImUtil::HeaderFlagsDefaultOpen)) {
                 {
-                    const char* T0 = "Show ImGui's Metrics Window";
-                    const char* T1 = "Show ImGui's Stack Window";
-                    const char* T2 = "Show ImGui's Demo Window";
+                    PSString T0 = "Show ImGui's Metrics Window";
+                    PSString T1 = "Show ImGui's Stack Window";
+                    PSString T2 = "Show ImGui's Demo Window";
 
                     ImUtil::CheckBox("Show Metrics", &ImWindowManager::GetSingleton().ShowMetrics,T0);
                     ImGui::SameLine();
@@ -161,53 +160,53 @@ namespace GTS {
                     //Apparently Setting the activescript type is not needed?
 					//I'd expect some character overlap due to merging but it appears things "just work".
                     //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::EN);
-                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+                    //ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
 
                     ImGui::Text(reinterpret_cast <const char*>(u8"This îs à fónt tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève"));
                     ImGui::Text(reinterpret_cast<const char*>(u8"Αυτή είναι μια δοκιμή για το συστυμα γραμματοσειράς"));
                     ImGui::Text(reinterpret_cast<const char*>(u8"Это тест загрузчика шрифтов"));
 
-                    ImFontManager::PopActiveFont();
+                    //ImFontManager::PopActiveFont();
                 }
 
                 {
                     //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::JP);
-                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+                    //ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
 
                     ImGui::Text(reinterpret_cast<const char*>(u8"これはフォントローダーのテストです"));
 
-                    ImFontManager::PopActiveFont();
+                    //ImFontManager::PopActiveFont();
                 }
 
                 {
                     //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::KR);
-                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+                    //ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
 
                     ImGui::Text(reinterpret_cast<const char*>(u8"이것은 폰트로더 테스트입니다"));
 
-                    ImFontManager::PopActiveFont();
+                    //ImFontManager::PopActiveFont();
                 }
 
                 {
                     //ImFontManager::SetActiveScript(ImFontManager::ActiveScriptType::SC);
-                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
+                    //PushActiveFont(ImFontManager::ActiveFontType::kText);
 
                     ImGui::Text(reinterpret_cast<const char*>(u8"这是一个字体加载器测试"));
 
-                    ImFontManager::PopActiveFont();
+                    //ImFontManager::PopActiveFont();
                 }
 
                 ImGui::Spacing();
             }
         }
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-            const char* T0 = "Toggle whether to fully pause the game when the menu is open.\n"
+            PSString T0 = "Toggle whether to fully pause the game when the menu is open.\n"
                              "It's heavily recomended that you don't disable this.\n"
                              "Applies after closing and re-opening the menu.";
 
-			const char* T1 = "Multiply game speed by this value when the settings menu is open.\nOnly works if Pause game is disabled.";
+			PSString T1 = "Multiply game speed by this value when the settings menu is open.\nOnly works if Pause game is disabled.";
 
             if (ImGui::CollapsingHeader("Pause",ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -222,7 +221,7 @@ namespace GTS {
 
         ImUtil_Unique {
 
-            const char* THelp = "Here you can erase the internal actor data of this mod.\n"
+            PSString THelp = "Here you can erase the internal actor data of this mod.\n"
         						"Make sure you do this in a cell like qasmoke. Only Unloaded actor data will deleted.\n"
         						"You must save, close and restart the game after doing this else you risk really breaking stuff.";
 

@@ -2,12 +2,7 @@
 
 namespace GTS {
 
-	vector<Actor*> find_actors();
-	vector<Actor*> find_actors_high();
-	//vector<Actor*> find_actors_middle_high();
-	//vector<Actor*> find_actors_middle_low();
-	//vector<Actor*> find_actors_low();
-
+	[[nodiscard]] vector<Actor*> __forceinline inline find_actors();
 	// This will find up to howMany actors in the scene
 	// (not including player and teammate which are ALWAYS returned
 	// regardless of howMany are asked for)
@@ -19,7 +14,6 @@ namespace GTS {
 	vector<Actor*> FindSomeActors(std::string_view tag, uint32_t howMany);
 
 	// Find player teammates
-	//
 	// But not the player themselves
 	vector<Actor*> FindTeammates();
 

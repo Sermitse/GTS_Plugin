@@ -16,13 +16,6 @@ namespace Hooks {
 			static std::atomic_bool started = std::atomic_bool(false);
 			Plugin::SetOnMainThread(true);
 
-			{
-				main_update_thread_id.store(std::this_thread::get_id());
-				std::lock_guard<std::mutex> lock(cache_mutex);
-				cached_actors = find_actors_high();
-				cache_valid.store(true);
-			}
-
 			if (Plugin::Live()) {
 
 				//Cache all currently loaded Actors

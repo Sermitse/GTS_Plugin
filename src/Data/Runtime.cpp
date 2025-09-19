@@ -2,8 +2,6 @@
 
 namespace {
 
-	constexpr float EPSILON = 1e-3f;
-
 	static void SetSoundHandleFrequency(RE::BSAudioManager* a_manager, std::uint32_t a_soundID, float a_freq) {
 		if (a_soundID != 0xffffffff){
 			using func_t = decltype(&SetSoundHandleFrequency);
@@ -77,6 +75,14 @@ namespace {
 		*a_res = false;
 	}
 
+	void CheckDLLLoaded(bool* a_res, const std::string_view& a_name) {
+		logger::info("SoftDependency DLL Checker: Checking for {}", a_name);
+		if (a_res) {
+			*a_res = (GetModuleHandleA(a_name.data()) != nullptr); // DLL name
+			return;
+		}
+		*a_res = false;
+	}
 }
 
 namespace GTS {
@@ -178,6 +184,8 @@ namespace GTS {
 	void Runtime::CheckSoftDependencies() {
 		CheckModLoaded(&SoftDep_SL_Found,"SexLab.esm");
 		CheckModLoaded(&SoftDep_SurvMode_Found, "ccQDRSSE001-SurvivalMode.esl");
+		CheckModLoaded(&SoftDep_DV_Found, "Devourment.esp");
+		CheckDLLLoaded(&SoftDep_AltCam_Found, "AlternateConversationCamera.dll");
 	}
 
 	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {

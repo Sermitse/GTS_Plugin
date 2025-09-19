@@ -1,5 +1,8 @@
 #pragma once
 
+//Helper
+#define PSString static const char* const
+
 namespace GTS {
 
 	template< typename ... Args >

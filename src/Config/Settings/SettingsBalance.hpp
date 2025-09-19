@@ -21,6 +21,11 @@ Reflection based serializer limitations:
 * stucts don't get a special notation
 */
 
+//-------------------------------------------------------------------------------------------------------------------
+//  ENUMS ----- Assumed to be the reference values 
+//  magic_enum will use to convert an enum to a string representation for serialization (Saving The TOML)
+//-------------------------------------------------------------------------------------------------------------------
+
 enum class LSizeMode_t : uint8_t {
     kNormal,
     kMassBased

@@ -1,7 +1,7 @@
 #pragma once
 
 namespace GTS {
-	const float GetGrowthFormula(float a_giantScale, float a_tinyScale, bool a_devourment);
+	float GetGrowthFormula(float a_giantScale, float a_tinyScale, bool a_devourment);
 
     void VoreMessage_SwallowedAbsorbing(Actor* pred, Actor* prey);
 

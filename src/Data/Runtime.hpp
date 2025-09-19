@@ -163,16 +163,26 @@ namespace GTS {
 
 
 			//Dependency Checks
-			[[nodiscard]] __forceinline static inline const bool IsSexlabInstalled() {
+			[[nodiscard]] __forceinline static inline bool IsSexlabInstalled() {
 				return SoftDep_SL_Found;
 			}
 
-			[[nodiscard]] __forceinline static inline const bool IsSurvivalModeInstalled() {
+			[[nodiscard]] __forceinline static inline bool IsSurvivalModeInstalled() {
 				return SoftDep_SurvMode_Found;
+			}
+
+			[[nodiscard]] __forceinline static inline bool IsDevourmentInstalled() {
+				return SoftDep_DV_Found;
+			}
+
+			[[nodiscard]] __forceinline static inline bool IsAltConversationCamInstalled() {
+				return SoftDep_AltCam_Found;
 			}
 
 			private:
 			static inline bool SoftDep_SL_Found = false;
+			static inline bool SoftDep_DV_Found = false;
 			static inline bool SoftDep_SurvMode_Found = false;
+			static inline bool SoftDep_AltCam_Found = false;
 	};
 }

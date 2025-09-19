@@ -12,10 +12,10 @@ namespace GTS {
 
         // ------- Misc Settings
         
-		ImUtil_Unique{
+		ImUtil_Unique {
 
-			const char* T0 = "Allow adjustments to the field of view during certain actions (e.g., Second Wind).";
-			const char* T1 = "Track biped skeleton bone positions during certain animated actions.";
+			PSString T0 = "Allow adjustments to the field of view during certain actions (e.g., Second Wind).";
+			PSString T1 = "Track biped skeleton bone positions during certain animated actions.";
 
 			if (ImGui::CollapsingHeader("Misc", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -31,10 +31,10 @@ namespace GTS {
 
 		//------ Visuals
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-            const char* T0 = "Show heart particle effects during certain actions.";
-            const char* T1 = "Show or hide icons above NPCs indicating which GTS actions can be performed on them.";
+            PSString T0 = "Show heart particle effects during certain actions.";
+            PSString T1 = "Show or hide icons above NPCs indicating which GTS actions can be performed on them.";
 
             if (ImGui::CollapsingHeader("Visuals", ImUtil::HeaderFlagsDefaultOpen)) {
                 ImUtil::CheckBox("Heart Effects",&SGeneral.bShowHearts, T0);
@@ -46,15 +46,15 @@ namespace GTS {
 
 		//----- Sneak Animations
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-            const char* T1 = "Replace sneaking with crawling for the player only.\n(Save specific setting)\n"
+            PSString T1 = "Replace sneaking with crawling for the player only.\n(Save specific setting)\n"
 							 "Note: If sneak/crawl transitions are off you wont automatically switch between crawl/sneak states.";
 
-        	const char* T2 = "Replace sneaking with crawling for followers.\n(Save specific setting)\n"
+        	PSString T2 = "Replace sneaking with crawling for followers.\n(Save specific setting)\n"
 							 "Note: If sneak / crawl transitions are off you wont automatically switch between crawl / sneak states.";
 
-            const char* T3 = "This mod introduces new subtle transition animations when entering/exiting sneak or crawl states.\n"
+            PSString T3 = "This mod introduces new subtle transition animations when entering/exiting sneak or crawl states.\n"
 							 "This toggle disables/enables them.\n";
 
 
@@ -93,13 +93,13 @@ namespace GTS {
 
         ImUtil_Unique {
 
-        	const char* T0 = "Increase/lower the chance to start a foot grinding animation when doing understomps.";
+        	PSString T0 = "Increase/lower the chance to start a foot grinding animation when doing understomps.";
 
-        	const char* T1 = "When enabled:\n"
+        	PSString T1 = "When enabled:\n"
         					 "Replaces the light, non understomp stomp animations made by SonderBain with different\n"
         					 "versions made by NickNack.";
 
-            const char* T3 = "Toggle whether actions like kicks ragdoll the player, if done by followers";
+            PSString T3 = "Toggle whether actions like kicks ragdoll the player, if done by followers";
            
 
 			if (ImGui::CollapsingHeader("Stomps/Kicks", ImUtil::HeaderFlagsDefaultOpen)) {
@@ -118,14 +118,14 @@ namespace GTS {
 
         //----- Vore Settings
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-			const char* T1 = "Modify the amount of growth gained after vore.";
-            const char* T2 = "Enable Skyrim's free camera when doing any vore actions.";
-            const char* T3 = "Increase vanilla character weight after vore.";
-            const char* T4 = "Allow voring insects.";
-            const char* T5 = "Allow voring undead actors (like draugr).";
-            const char* T6 = "If devourment compatibility is enabled.\nToggle whether the GTS should do DV's Endo on the player and teammates instead of doing lethal vore.";
+			PSString T1 = "Modify the amount of growth gained after vore.";
+            PSString T2 = "Enable Skyrim's free camera when doing any vore actions.";
+            PSString T3 = "Increase vanilla character weight after vore.";
+            PSString T4 = "Allow voring insects.";
+            PSString T5 = "Allow voring undead actors (like draugr).";
+            PSString T6 = "If devourment compatibility is enabled.\nToggle whether the GTS should do DV's Endo on the player and teammates instead of doing lethal vore.";
 
             if (ImGui::CollapsingHeader("Vore Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -147,12 +147,12 @@ namespace GTS {
 
         ImUtil_Unique {
 
-            const char* T1 = "Toggle whether initial grab is hostile\n"
+            PSString T1 = "Toggle whether initial grab is hostile\n"
                              "- true = it will start combat on grab\n"
                              "- false = npc won't start combat";
             
 
-            const char* T2 = "Modify the placement of actors during Kiss Vore.\n"
+            PSString T2 = "Modify the placement of actors during Kiss Vore.\n"
                 "Offset is affected by size difference.";
 
             if (ImGui::CollapsingHeader("Grab Settings", ImUtil::HeaderFlagsDefaultOpen)) {
@@ -173,10 +173,10 @@ namespace GTS {
 
         ImUtil_Unique {
 
-            const char* T0 = "Toggle whether non lethal hug actions\n"
+            PSString T0 = "Toggle whether non lethal hug actions\n"
         					 "like Hug-Heal or Hug-Shrink should start combat.";
 
-            const char* T1 = "Toggle whether after hug healing to full HP\n"
+            PSString T1 = "Toggle whether after hug healing to full HP\n"
                              "The held actor should be let go.\n"
                              "Applies only to the player/followers.";
 
@@ -190,11 +190,11 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
             if (ImGui::CollapsingHeader("Cleavage Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                const char* T0 = "Modify the placement of actors during cleavage actions.\n"
+                PSString T0 = "Modify the placement of actors during cleavage actions.\n"
 								 "Up/Down | Forward/Back";
 
                 ImUtil::SliderF2("Placement Offset", &SGameplay.ActionSettings.f2CleavageOffset.at(0), -15.0f, 15.0f, T0, "%.2f");

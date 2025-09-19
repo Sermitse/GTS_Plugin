@@ -1,9 +1,9 @@
 #pragma once
-#include "Config/Util/FileManager.hpp"
+#include "Config/Util/FileUtils.hpp"
 
 namespace GTS {
 
-    class TOMLHandler {
+    class SettingsHandler {
 
         protected:
         static inline std::mutex _ReadWriteLock = {};
@@ -51,7 +51,7 @@ namespace GTS {
 
         static bool SaveTOMLToFile(const toml::ordered_value& a_toml, const std::filesystem::path& a_file) {
             try {
-                if (!FileManager::CheckOrCreateFile(a_file)) {
+                if (!FileUtils::CheckOrCreateFile(a_file)) {
                     logger::error("Settings file was missing and could not be created");
                     return false;
                 }

@@ -20,15 +20,15 @@ namespace GTS {
 
     void CategoryBalance::DrawLeft() {
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-            const char* T0 = "Enable/disable balance mode.";
-            const char* T1 = "Penalty multiplier to all size gain if balance mode is enabled.";
-            const char* T2 = "Shrink over time multiplier, works both in and out of combat. ";
-            const char* T3 = "When in combat, multiplies the shrink modifier above.";
-            const char* T4 = "Affects amount of size you lose when being hit.";
+            PSString T0 = "Enable/disable balance mode.";
+            PSString T1 = "Penalty multiplier to all size gain if balance mode is enabled.";
+            PSString T2 = "Shrink over time multiplier, works both in and out of combat. ";
+            PSString T3 = "When in combat, multiplies the shrink modifier above.";
+            PSString T4 = "Affects amount of size you lose when being hit.";
 
-            const char* THelp = "Balance mode makes it harder to gain size in general.\n"
+            PSString THelp = "Balance mode makes it harder to gain size in general.\n"
                                 "- Enemies resist size damage while they have stamina.\n"
                                 "- You constantly shrink on hit and out of combat.\n\n"
                                 "- On top of that all attribute increases are 50%% weaker and some configuration options are disabled.\n"
@@ -58,12 +58,12 @@ namespace GTS {
 
     	// ---- Misc
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-            const char* T0 = "Toggle whether the player should receive friendly size-related damage.";
-            const char* T1 = "Toggle whether followers should receive friendly size-related damage.";
-            const char* T2 = "Toggle whether the player and followers stagger / ragdoll due to others' size.";
-            const char* T3 = "Toggle whether other NPCs stagger / ragdoll due to others' size.";
+            PSString T0 = "Toggle whether the player should receive friendly size-related damage.";
+            PSString T1 = "Toggle whether followers should receive friendly size-related damage.";
+            PSString T2 = "Toggle whether the player and followers stagger / ragdoll due to others' size.";
+            PSString T3 = "Toggle whether other NPCs stagger / ragdoll due to others' size.";
 
             if (ImGui::CollapsingHeader("Misc Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -92,12 +92,12 @@ namespace GTS {
 
     void CategoryBalance::DrawRight() {
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-            const char* T0 = "Change the formula used for all size gain.";
-            const char* T1 = "Adjust the global multiplier for all size gains and losses.";
+            PSString T0 = "Change the formula used for all size gain.";
+            PSString T1 = "Adjust the global multiplier for all size gains and losses.";
 
-            const char* Thelp = "Size gain mode defines the way you gain maximum size.\n"
+            PSString Thelp = "Size gain mode defines the way you gain maximum size.\n"
         						"In normal mode the maximum size you can grow to is defined by:\n"
 								"Current perks, GTS skill level, player level, and essense absorbed (through potions or by killing dragons while having a perk) and how far you are into the quest.\n"
         						"In \"Mass Based\" mode your maximum size is determiend by how many things you have absorbed/eaten/etc...\n"
@@ -120,9 +120,9 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-            const char* Thelp = "Maximal Size isn't always determined only by these sliders\n"
+            PSString Thelp = "Maximal Size isn't always determined only by these sliders\n"
                                 "It is further affected by:\n"
                                 "- Game Scale (SetScale)\n"
                                 "- Natural Size";
@@ -272,12 +272,12 @@ namespace GTS {
 
         // ---- Multipiers
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
-            const char* T0 = "Changes the amount of damage size-related actions do.";
-            const char* T1 = "Changes the amount of damage increase regular melee and magic atacks gain.";
-            const char* T2 = "Adjust the speed at which you gain size-related experience.";
-            const char* T3 = "Change the ammount of carry weight capacity gained based on your size.";
+            PSString T0 = "Changes the amount of damage size-related actions do.";
+            PSString T1 = "Changes the amount of damage increase regular melee and magic atacks gain.";
+            PSString T2 = "Adjust the speed at which you gain size-related experience.";
+            PSString T3 = "Change the ammount of carry weight capacity gained based on your size.";
 
             if (ImUtil::ConditionalHeader("Multipiers", "Balance Mode Active", !Settings.bBalanceMode)) {
 

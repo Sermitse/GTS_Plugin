@@ -42,8 +42,7 @@ namespace Hooks {
 
 			float anim_speed = 1.0f;
 
-			//Crash...
-			for (auto actor : find_actors_high()) {
+			for (auto actor : find_actors()) {
 				BSAnimationGraphManagerPtr animGraphManager;
 				if (actor->GetAnimationGraphManager(animGraphManager)) {
 					for (auto& graph : animGraphManager->graphs) {

@@ -15,7 +15,7 @@ namespace GTS {
 
     void CategoryGameplay::GameModeOptions(const char* a_title, GameplayActorSettings_t* a_Settings, bool a_DefaultOpen) {
 
-        const char* T0 = "Select the game mode\n\n"
+        PSString T0 = "Select the game mode\n\n"
             "Basic:\n"
             "- Grow: Slowly grow to your size limit.\n"
             "- Shrink: Slowly shrink back to your natural scale.\n"
@@ -27,20 +27,20 @@ namespace GTS {
             "- Curse of Diminishing: When not in combat or when not performing any giantess actions. You will slowly shrink to the target scale if too large.\n"
             "- Size Locked: Combines the effects of both curses. You will grow to the specified size and slowly shrink back to it if larger.";
 
-        const char* T1 = "Modify the amount grown or shrunk each tick.\n"
+        PSString T1 = "Modify the amount grown or shrunk each tick.\n"
 						 "Grow Rate | Shrink Rate";
 
-        const char* T3 = "Set the maximum size for the \"Curse of Growth\" game mode";
+        PSString T3 = "Set the maximum size for the \"Curse of Growth\" game mode";
 
-        const char* T4 = "Multiply the size-gain rate by 25%% of your current size.\n"
+        PSString T4 = "Multiply the size-gain rate by 25%% of your current size.\n"
             "The amount gained caps out at 10x scale.";
 
-        const char* T5 = "Set the target scale to grow/shrink to when using the following game modes:\n\n"
+        PSString T5 = "Set the target scale to grow/shrink to when using the following game modes:\n\n"
             "- Curse of the Giantess\n"
             "- Curse of the Diminishing\n"
             "- Size Locked";
 
-        const char* T6 = "Change how often the curse effects should be applied.\n"
+        PSString T6 = "Change how often the curse effects should be applied.\n"
             "The value you select is offset by +/- 10%% each time.";
 
 
@@ -93,13 +93,13 @@ namespace GTS {
                 const bool PerkCondHit = Runtime::HasPerk(PlayerCharacter::GetSingleton(), GrowOnHitPerk);
                 const bool PerkCondAtribCap = Runtime::HasPerk(PlayerCharacter::GetSingleton(), CrushGrowthAugmetationPerk);;
 
-                const char* T1 = "Upon crushing someone: Grow in size.\n"
+                PSString T1 = "Upon crushing someone: Grow in size.\n"
                                  "Applies to both the player and followers.";
 
-                const char* T2 = "On being hit: Grow in size.\n"
+                PSString T2 = "On being hit: Grow in size.\n"
                                  "Applies to both the player and followers.";
 
-                const char* T3 = "By default, the maximum amount of bonus attributes per player level is 2.\n"
+                PSString T3 = "By default, the maximum amount of bonus attributes per player level is 2.\n"
                                  "You can adjust the multiplier for this here.\n";
 
                 const std::string tGrowOnCrush = fmt::format("Grow On Crush {}", (!PerkCondCrush ? "[Missing Perk]" : ""));
@@ -122,14 +122,14 @@ namespace GTS {
         ImUtil_Unique {
             if (ImGui::CollapsingHeader("Armor Stripping", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                const char* T1 = "Enable/disable the automatic unequipping of clothing/armor when large enough.\n"
+                PSString T1 = "Enable/disable the automatic unequipping of clothing/armor when large enough.\n"
                                  "Applies to both the player and followers.\n"
                                  "This system works based on size thresholds.\n"
                                  "When an armor piece is stripped, the size required for the next piece to be removed increases.";
 
-                const char* T2 = "Set the scale threshold at which to start unequipping pieces of clothing/armor.";
+                PSString T2 = "Set the scale threshold at which to start unequipping pieces of clothing/armor.";
 
-                const char* T3 = "Set the scale threshold at which all clothing/armor is unequipped.";
+                PSString T3 = "Set the scale threshold at which all clothing/armor is unequipped.";
 
                 ImUtil::CheckBox("Enable Armor Strip", &Settings.bClothTearing, T1);
                 ImUtil::SliderF("Starting Threshold", &Settings.fClothRipStart, 1.1f, 2.5f, T2, "%.2fx");
@@ -141,17 +141,17 @@ namespace GTS {
 
     	//----- Size Effects
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
             if (ImGui::CollapsingHeader("Size Effects", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                const char* T1 = "When large enough, footsteps or size-related actions will launch physics-enabled items.";
+                PSString T1 = "When large enough, footsteps or size-related actions will launch physics-enabled items.";
 
-                const char* T2 = "Apply the physics hit impulse to objects outside of the current cell.\n"
+                PSString T2 = "Apply the physics hit impulse to objects outside of the current cell.\n"
                                  "Beware: This is computationally very heavy. Hence the existence of this toggle.\n"
                                  "If you experience FPS drops, try disabling this.";
 
-                const char* T3 = "Enable effects like dust and camera shake/rumble.";
+                PSString T3 = "Enable effects like dust and camera shake/rumble.";
 
                 ImUtil::CheckBox("Launch Objects", &Settings.bLaunchObjects, T1);
                 ImGui::SameLine();
@@ -165,7 +165,7 @@ namespace GTS {
 
         //----- Random Growth
 
-        ImUtil_Unique{
+        ImUtil_Unique {
 
             const bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), PleasurableGrowthPerk);
             const bool BalancedMode = Config::Balance.bBalanceMode;
@@ -173,13 +173,13 @@ namespace GTS {
 
             if (ImUtil::ConditionalHeader("Random Growth", Reason, HasPerk)) {
 
-                const char* T1 = "Change how often the random growth should trigger.\n"
+                PSString T1 = "Change how often the random growth should trigger.\n"
                                  "Lower values = More often.\n"
                                  "Higher values = Less often.\n"
                                  "Set to 0.0 to disable it entirely.\n"
 								 "Note: If Balance Mode is enabled the multiplier is locked to 1.0x. It can still be disabled however by setting it to 0.0";
 
-                const char* THelp = "Random Growth chance is decreased if your size is > than x1.5, up to 4 times decreased chance\n"
+                PSString THelp = "Random Growth chance is decreased if your size is > than x1.5, up to 4 times decreased chance\n"
                                     "If you have 'Breaching Growth' perk, random growth has a chance to start 'Large Growth' animation";
 
                 const char* FmtBalance = BalancedMode ? "Balance Mode (1.0x)" : "%.2fx";
@@ -205,11 +205,11 @@ namespace GTS {
     void CategoryGameplay::DrawRight() {
 
     	//----------- Game Modes
-        ImUtil_Unique{
+        ImUtil_Unique {
             GameModeOptions("Gamemode Player", &Settings.GamemodePlayer, true);
         }
 
-        ImUtil_Unique{
+        ImUtil_Unique {
             GameModeOptions("Gamemode Followers", &Settings.GamemodeFollower, false);
         }
     }

@@ -11,7 +11,7 @@
 
 namespace GTS {
 
-    class SettingsOperations : TOMLHandler {
+    class SettingsOperations : SettingsHandler {
         public:
         template<typename Config>
         static bool SerializeAllStructsToTOML(Config& config, toml::ordered_value& tomlData) {

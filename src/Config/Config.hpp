@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Config/Util/TomlHandler.hpp"
+#include "Config/Util/SettingsHandler.hpp"
 
 #include "Config/Settings/SettingsAdvanced.hpp"
 #include "Config/Settings/SettingsAI.hpp"
@@ -16,12 +16,12 @@
 
 namespace GTS {
 
-    class Config : public CInitSingleton<Config>, public TOMLHandler, public EventListener {
+    class Config : public CInitSingleton<Config>, public SettingsHandler, public EventListener {
 
         private:
         static constexpr const char* _LegacyConfigFile = "Settings.toml";
-        static inline std::filesystem::path LegacyConfigFilePath = FileManager::_basePath / _LegacyConfigFile;
-        static inline FileManager _fileManager = {};
+        static inline std::filesystem::path LegacyConfigFilePath = FileUtils::_basePath / _LegacyConfigFile;
+        static inline FileUtils _fileManager = {};
         static inline toml::ordered_value TomlData = {};
 
         public:

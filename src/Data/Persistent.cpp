@@ -1,14 +1,8 @@
 
 #include "Data/Persistent.hpp"
-
 #include "Config/Config.hpp"
-#include "Config/SettingsModHandler.hpp"
-
 #include "Managers/GtsSizeManager.hpp"
-
-#include "UI/ImGUI/ImFontManager.hpp"
 #include "UI/ImGUI/ImStyleManager.hpp"
-
 #include "Utils/ItemDistributor.hpp"
 
 namespace GTS {

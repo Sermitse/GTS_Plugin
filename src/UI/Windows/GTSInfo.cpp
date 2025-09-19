@@ -264,26 +264,26 @@ namespace GTS {
 
         //------- Tooltip Descriptions
         
-        const char* TOverkillsMade = OverkillsMade.c_str();
+        PSString TOverkillsMade = OverkillsMade.c_str();
 
-        const char* TBonusSize = TotalSizeBonusCalculation.c_str();
+        PSString TBonusSize = TotalSizeBonusCalculation.c_str();
 
-        const char* TDamageResist = "This is your damage resistance in percentage. Some GTS perks may further increase it.";
-        const char* TDamageBonus =  "This is your non-size related damage multiplier. It affects both Physical and Magic damage.";
+        PSString TDamageResist = "This is your damage resistance in percentage. Some GTS perks may further increase it.";
+        PSString TDamageBonus =  "This is your non-size related damage multiplier. It affects both Physical and Magic damage.";
 
-        const char* THHDamage = "Extra foot damage multiplier when wearing high heels.";
+        PSString THHDamage = "Extra foot damage multiplier when wearing high heels.";
 
-        const char* TShrinkResist = "Shrink Resistance reduces the effectiveness of any shrinking spell and/or effect on you.";
+        PSString TShrinkResist = "Shrink Resistance reduces the effectiveness of any shrinking spell and/or effect on you.";
 
-        const char* TOnTheEdge = "When your health drops below 60%%:\n"
+        PSString TOnTheEdge = "When your health drops below 60%%:\n"
                                  "- All growth gained becomes stronger the less health you have.\n"
                                  "- Hostile shrinking is less effective the less health you have.\n\n"
     							 "Maximum effect is achieved at 10%% HP remaining or lower.";
 
-        const char* TSizeReserve = "This is the amount of size stored by the size reserve perk.\n"
+        PSString TSizeReserve = "This is the amount of size stored by the size reserve perk.\n"
 								   "You gain size reserve by eating/absorbing/crushing others";
 
-        const char* TAspectOfGTS = "This is the strength of Aspect of the Giantess enchantment\n"
+        PSString TAspectOfGTS = "This is the strength of Aspect of the Giantess enchantment\n"
                                     "Aspect Of Giantess affects:\n"
                                     "- Maximal Size, power of Shrink and Size Steal spells\n"
                                     "- Size-Related damage, minimal shrink threshold from quest/balance mode\n"
@@ -291,14 +291,14 @@ namespace GTS {
                                     "- Power of Shrink Outburst and Hit Growth size gain\n"
                                     "- Shrink resistance towards hostile shrink sources\n\n"
                                     "Enchantment can be obtained from 'Amulet of Giants', which can be randomly found inside boss chests.";
-        const char* TStoredAttributes = 
+        PSString TStoredAttributes = 
                                     "Stored Attributes are permanent Health/Magicka/Stamina attribute boosts that weren't absorbed by you yet\n"
                                     "They'll be randomly distributed between your three main attributes\n"
                                     "Complete perk requirements to fully absorb them and convert to Absorbed Attributes";
-        const char* TAbsorbedAttributes = 
+        PSString TAbsorbedAttributes = 
                                     "Absorbed Attributes are permanent Health/Magicka/Stamina attribute boosts of your character\n"
                                     "They're coming from 'Full Assimilation' perk";
-        const char* TAbsorbedAttributesCap = 
+        PSString TAbsorbedAttributesCap = 
                                     "Absorbed Attributes cannot exceed this number";
 
         DrawGTSSizeBar(a_featureFlags, a_Actor, a_IsWidget);
