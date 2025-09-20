@@ -89,25 +89,8 @@ namespace GTS {
 
 			ImGui::Spacing();
 
-			{   // Color A
-
-				ImUtil_Unique {
-
-					if (ImUtil::ImageButton("Reset", "generic_reset", 18, TReset)) {
-						AwSettings.f3ColorA = Config::UI.f3AccentColor;
-					}
-				}
-
-				ImGui::SameLine(0.0f, 6.0f);
-				ImGui::ColorEdit3("Base Color", AwSettings.f3ColorA.data(), ImGuiColorEditFlags_DisplayHSV);
-
-			}
-
-
-
-			ImGui::Spacing();
-
 			ImUtil::CheckBox("Gradient", &AwSettings.bUseGradient, T6);
+
 			ImGui::BeginDisabled(!AwSettings.bUseGradient);
 
 			ImGui::SameLine();
@@ -118,33 +101,41 @@ namespace GTS {
 
 			ImUtil::CheckBox("Flip Direction", &AwSettings.bFlipGradientDirection, T10);
 
-			if (AwSettings.bUseCustomGradientColors) {
+			ImGui::EndDisabled();
 
-				{   // Color B
 
-					ImUtil_Unique {
+			{   // Color A
 
-						if (ImUtil::ImageButton("Reset", "generic_reset", 18, TReset)) {
-							AwSettings.f3ColorB = Config::UI.f3AccentColor;
-						}
+				ImUtil_Unique{
+
+					if (ImUtil::ImageButton("Reset", "generic_reset", 18, TReset)) {
+						AwSettings.f3ColorA = Config::UI.f3AccentColor;
 					}
 
 					ImGui::SameLine(0.0f, 6.0f);
 					ImGui::ColorEdit3("Base Color", AwSettings.f3ColorA.data(), ImGuiColorEditFlags_DisplayHSV);
-
-					ImGui::SameLine(0.0f,6.0f);
-
-					ImGui::ColorEdit3("Accent Color", AwSettings.f3ColorB.data(), ImGuiColorEditFlags_DisplayHSV);
 				}
 
 			}
-			else {
-				ImGui::Text("Single Color Gradient Options");
-				ImUtil::SliderF("Darken", &AwSettings.fNormalGradientDarkMult, 0.1f, 1.0f, T8, "%.2fx");
-				ImUtil::SliderF("Lighten", &AwSettings.fNormalGradientLightMult, 1.0f, 2.0f, T9, "%.2fx");
-			}
+			if (AwSettings.bUseGradient) {
+				if (AwSettings.bUseCustomGradientColors) {   // Color B
 
-			ImGui::EndDisabled();
+					ImUtil_Unique{
+
+						if (ImUtil::ImageButton("Reset", "generic_reset", 18, TReset)) {
+							AwSettings.f3ColorB = Config::UI.f3AccentColor;
+						}
+
+						ImGui::SameLine(0.0f, 6.0f);
+						ImGui::ColorEdit3("Gradient Shift Color", AwSettings.f3ColorB.data(), ImGuiColorEditFlags_DisplayHSV);
+					}
+				}
+				else {
+					ImGui::Text("Single Color Gradient Options");
+					ImUtil::SliderF("Darken", &AwSettings.fNormalGradientDarkMult, 0.1f, 1.0f, T8, "%.2fx");
+					ImUtil::SliderF("Lighten", &AwSettings.fNormalGradientLightMult, 1.0f, 2.0f, T9, "%.2fx");
+				}
+			}
 
 			ImGui::Spacing();
 
