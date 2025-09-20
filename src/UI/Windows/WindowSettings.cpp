@@ -137,7 +137,7 @@ namespace GTS {
 			if (!ImGui::GetIO().MouseDown[0]) {
 				//X,Y
 				const ImVec2 Offset{ sUI.f2Offset[0], sUI.f2Offset[1] };
-				ImGui::SetWindowPos(GetAnchorPos(StringToEnum<ImWindow::WindowAnchor>(sUI.sAnchor), Offset, false));
+				ImGui::SetWindowPos(GetAnchorPos(StringToEnum<WindowAnchor>(sUI.sAnchor), Offset, false));
 			}
 		}
 

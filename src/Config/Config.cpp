@@ -65,7 +65,7 @@ namespace GTS {
     }
 
     // Export functionality
-    bool Config::ExportSettings(const std::string& customName) {
+    bool Config::ExportSettings() {
 
         if (!_fileManager.EnsureExportDirectoryExists()) {
             return false;
@@ -76,10 +76,8 @@ namespace GTS {
             return false;
         }
 
-        std::string baseFileName = "Export_" + FileUtils::GetTimestamp() + ".toml";
-        std::string filename = customName.empty() ? baseFileName : customName + "_" + baseFileName;
-
-        auto exportPath = _fileManager.GetExportPath(filename);
+        const std::string FileName = "Export_" + std::string(PlayerCharacter::GetSingleton()->GetName()) +  "_" + FileUtils::GetTimestamp() + ".toml";
+        auto exportPath = _fileManager.GetExportPath(FileName);
         bool result = SaveTOMLToFile(TomlData, exportPath);
 
         if (result) {

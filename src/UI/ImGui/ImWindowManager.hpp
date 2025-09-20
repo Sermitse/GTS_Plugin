@@ -9,7 +9,7 @@ namespace GTS {
     class ImWindowManager {
 
         private:
-        std::vector<std::unique_ptr<ImWindow>> windows;
+        std::vector<std::unique_ptr<IImWindow>> windows;
         const std::string wmName = "GTSPluginWM";
 
         ImFontManager& FontMgr = ImFontManager::GetSingleton();
@@ -28,7 +28,7 @@ namespace GTS {
             return instance;
         }
 
-        [[nodiscard]] ImWindow* GetWindowByName(const std::string& a_name) const;
+        [[nodiscard]] IImWindow* GetWindowByName(const std::string& a_name) const;
         
         [[nodiscard]] inline bool HasWindows() const {
             return !windows.empty();
@@ -46,7 +46,7 @@ namespace GTS {
             });
         }
 
-        void AddWindow(std::unique_ptr<ImWindow> a_window);
+        void AddWindow(std::unique_ptr<IImWindow> a_window);
         void Update();
 
         private:

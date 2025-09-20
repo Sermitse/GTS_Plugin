@@ -5,7 +5,7 @@
 
 namespace GTS {
 
-    class WindowStatus : public ImWindow {
+    class WindowStatus final : public ImWindowBase<WindowStatus> {
 
         public:
 
@@ -18,7 +18,7 @@ namespace GTS {
             std::string FadeTaskID;  // Store the task ID for this actor's fade
         };
 
-        WindowStatus::LastShownData* GetLastData(RE::Actor* a_actor);
+        LastShownData* GetLastData(RE::Actor* a_actor);
         bool CheckFade(RE::Actor* a_actor);
 	    void Show();
 	    void ShowImmediate(RE::Actor* a_actor);

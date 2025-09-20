@@ -144,6 +144,20 @@ TOML_SERIALIZABLE(SettingsUI_t);
 TOML_REGISTER_NAME(SettingsUI_t, "UI");
 
 
+// Base window settings that all windows inherit
+struct BaseWindowSettings_t {
+    float fWindowSize = 90.f;
+    bool bLock = false;
+    bool bVisible = true;
+    std::array<float, 2> f2Offset = { 0.0f, 0.0f };
+    std::array<float, 3> f3ColorA = { 1.0f, 1.0f, 1.0f };
+    std::array<float, 3> f3ColorB = { 1.0f, 1.0f, 1.0f };
+    std::string sAnchor = "kCenter";
+    float fAlpha = 1.0f;
+    float fBGAlphaMult = 0.5f;
+};
+TOML_SERIALIZABLE(BaseWindowSettings_t);
+TOML_REGISTER_NAME(BaseWindowSettings_t, "UI2");
 
 
 

@@ -9,13 +9,13 @@ namespace GTS {
         static inline std::mutex _ReadWriteLock = {};
 
         template<typename T>
-        static bool LoadStructFromTOML(const auto& a_toml, T& a_data) {
+        static bool LoadStructFromTOML(const auto& a_toml, T& a_data, std::string a_tableName) {
             static_assert(std::is_class_v<T>, "a_data must be a struct or class type");
             try {
                 std::lock_guard<std::mutex> lock(_ReadWriteLock);
-                auto _Name = std::string(toml::refl::GetFriendlyName(a_data));
-                a_data = toml::find_or<T>(a_toml, _Name, T{});
-                logger::info("Struct: {} Parsed!", _Name);
+
+                a_data = toml::find_or<T>(a_toml, a_tableName, T{});
+                logger::info("Struct: {} Parsed!", a_tableName);
                 return true;
             }
             catch (toml::exception& e) {
@@ -29,14 +29,14 @@ namespace GTS {
         }
 
         template<typename T>
-        static bool UpdateTOMLFromStruct(toml::ordered_value& a_toml, T& a_data) {
+        static bool UpdateTOMLFromStruct(toml::ordered_value& a_toml, T& a_data, std::string a_tableName) {
             static_assert(std::is_class_v<T>, "a_data must be a struct or class type");
             try {
                 std::lock_guard<std::mutex> lock(_ReadWriteLock);
-                std::string _StructName = std::string(toml::refl::GetFriendlyName(a_data));
+
                 toml::ordered_value table = a_data;
-                a_toml.as_table()[_StructName] = table;
-                logger::info("TOML Data for Table {} Has been Replaced", _StructName);
+                a_toml.as_table()[a_tableName] = table;
+                logger::info("TOML Data for Table {} Has been Replaced", a_tableName);
                 return true;
             }
             catch (toml::exception& e) {

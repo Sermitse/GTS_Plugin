@@ -173,7 +173,7 @@ namespace GTS {
         Title = "Player Info";
         Name = "Status";
         this->flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoFocusOnAppearing;
-        AnchorPos = ImWindow::WindowAnchor::kTopRight;
+        AnchorPos = WindowAnchor::kTopRight;
         ConsumeInput = false;
         Fading = false;
     }
@@ -185,12 +185,12 @@ namespace GTS {
         if (sUI.bLock) {
             //X,Y
             const ImVec2 Offset{ sUI.f2Offset[0], sUI.f2Offset[1] };
-            ImGui::SetWindowPos(GetAnchorPos(StringToEnum<ImWindow::WindowAnchor>(sUI.sAnchor), Offset, true));
+            ImGui::SetWindowPos(GetAnchorPos(StringToEnum<WindowAnchor>(sUI.sAnchor), Offset, true));
         }
 
         {
             if (auto Player = RE::PlayerCharacter::GetSingleton()) {
-                //Get Actor ptr.
+
                 ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kWidgetBody);
 
                 for (const auto Teamate : FindTeammates()) {

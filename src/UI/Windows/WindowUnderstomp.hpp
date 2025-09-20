@@ -5,7 +5,7 @@
 
 namespace GTS {
 
-    class WindowUnderstomp : public ImWindow {
+    class WindowUnderstomp final : public ImWindowBase<WindowUnderstomp> {
 
         public:
         void CheckFade(RE::Actor* a_actor);

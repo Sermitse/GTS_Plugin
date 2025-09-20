@@ -44,7 +44,7 @@ namespace GTS {
 
 			ImGui::BeginDisabled(!AwSettings.bLock);
 			{
-				ImUtil::ComboEx<ImWindow::WindowAnchor>("Anchor", AwSettings.sAnchor, T3);
+				ImUtil::ComboEx<IImWindow::WindowAnchor>("Anchor", AwSettings.sAnchor, T3);
 				ImUtil::SliderF2("Anchor Offsets", &AwSettings.f2Offset.at(0), -100.0f, 1500.0f, T4, "%.1f%", AwSettings.sAnchor == "kCenter");
 			}
 			ImGui::EndDisabled();

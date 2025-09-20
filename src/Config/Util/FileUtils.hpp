@@ -12,10 +12,8 @@ namespace GTS {
         static std::string GetTimestamp() {
             using namespace std::chrono;
             auto now = system_clock::now();
-            // local time in current time zone
-            auto local = zoned_time{ current_zone(), now };
-            // format directly
-            return std::format("{:%Y%m%d_%H%M%S}", local);
+            auto unix_seconds = duration_cast<seconds>(now.time_since_epoch()).count();
+            return std::to_string(unix_seconds);
         }
 
         static bool EnsureExportDirectoryExists() {

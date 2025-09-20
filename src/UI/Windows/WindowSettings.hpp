@@ -6,11 +6,11 @@
 #include "UI/ImGUI/ImStyleManager.hpp"
 
 #include "Config/Config.hpp"
-#include "Config/Keybinds.hpp"
+
 
 namespace GTS {
 
-    class WindowSettings : public ImWindow {
+    class WindowSettings final : public ImWindowBase<WindowSettings> {
 
         public:
         
@@ -44,19 +44,6 @@ namespace GTS {
             SaveLoadBusy.store(true);
             std::thread(&WindowSettings::SaveImpl, this).detach();
         }
-
-        //Unused
-        /*void AsyncLoad() {
-
-            if (SaveLoadBusy.load()) {
-                return;
-            }
-
-            //TODO Use std::async instead of spawning a new thread. So we can get a return value.
-            SaveLoadBusy.store(true);
-            std::thread(&WindowSettings::LoadImpl, this).detach();
-        }*/
-
 
         private:
         void LoadImpl();

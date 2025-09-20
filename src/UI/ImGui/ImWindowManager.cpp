@@ -4,7 +4,7 @@
 
 namespace GTS {
 
-    void ImWindowManager::AddWindow(std::unique_ptr<ImWindow> a_window) {
+    void ImWindowManager::AddWindow(std::unique_ptr<IImWindow> a_window) {
 
         assert(a_window != nullptr);
 
@@ -93,7 +93,7 @@ namespace GTS {
     //Gets a ptr to the window which fully matches the "Name" var.
     //Name var gets set in the ctor of the child window, otherwise its "Default"
     //If 2 Or more default windows exist only the earliest one will be returned
-    ImWindow* ImWindowManager::GetWindowByName(const std::string& a_name) const {
+    IImWindow* ImWindowManager::GetWindowByName(const std::string& a_name) const {
         for (const auto& window : windows) {
             if (window->Name == a_name) {
                 return window.get();

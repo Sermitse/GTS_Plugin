@@ -30,7 +30,7 @@ namespace GTS {
 
 				{
 					ImUtil::SliderF("Window Size", &Settings.SettingsWindow.fWindowSize, 60.0f, 100.0f, T1,"%.0f%%");
-					ImUtil::ComboEx<ImWindow::WindowAnchor>("Anchor", Settings.SettingsWindow.sAnchor, T2);
+					ImUtil::ComboEx<IImWindow::WindowAnchor>("Anchor", Settings.SettingsWindow.sAnchor, T2);
 					ImGui::BeginDisabled(Settings.SettingsWindow.sAnchor == "kCenter");
 
 					ImUtil::SliderF2("Anchor Offsets", &Settings.SettingsWindow.f2Offset.at(0), 0.0f, 1280.f, T3, "%.1f");

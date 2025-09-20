@@ -43,7 +43,7 @@ namespace GTS {
         static void ResetToDefaults();
         static bool LoadSettingsFromString();
         static bool SaveSettingsToString();
-        static bool ExportSettings(const std::string& customName = "");
+        static bool ExportSettings();
         static bool LoadFromExport(const std::filesystem::path& exportPath);
         static std::vector<std::filesystem::path> GetExportedFiles();
         static bool DeleteExport(const std::filesystem::path& exportPath);
