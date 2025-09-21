@@ -115,10 +115,9 @@ namespace GTS {
 
     }
 
-    WindowUnderstomp::WindowUnderstomp() {
-
+    void WindowUnderstomp::Init() {
         Title = "Understomp Angle";
-        Name = "UnderstompAngle";
+        Name = "Understomp";
         this->flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoFocusOnAppearing;
         AnchorPos = WindowAnchor::kTopRight;
         ConsumeInput = false;

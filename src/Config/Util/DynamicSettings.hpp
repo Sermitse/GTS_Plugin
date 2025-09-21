@@ -15,14 +15,14 @@ namespace GTS {
 
     // Template wrapper for custom settings structs
     template<typename DynamicStruct>
-    class DynamicSettingsWrapper final : public IDynamicSettings {
+    class DynamicSettingsWrapper final : public IDynamicSettings, SettingsHandler {
+
         private:
         DynamicStruct m_dynamicSettings;
-        SettingsHandler m_handler;
 
         public:
         explicit DynamicSettingsWrapper() = default;
-        explicit DynamicSettingsWrapper(const DynamicStruct& defaults) : m_dynamicSettings(defaults) {}
+        explicit DynamicSettingsWrapper(const DynamicStruct& a_defaults) : m_dynamicSettings(a_defaults) {}
 
         DynamicStruct& GetCustomSettings() {
             return m_dynamicSettings;
@@ -32,12 +32,14 @@ namespace GTS {
             return m_dynamicSettings;
         }
 
-        bool UpdateTOMLFromStruct(toml::ordered_value& toml) override {
-            return m_handler.UpdateTOMLFromStruct(toml, m_dynamicSettings);
+        bool UpdateTOMLFromStruct(toml::ordered_value& a_toml) override {
+            std::string sectionName = GetSectionName();
+            return SettingsHandler::UpdateTOMLFromStruct(a_toml, m_dynamicSettings, sectionName);
         }
 
-        bool LoadStructFromTOML(const toml::ordered_value& toml) override {
-            return m_handler.LoadStructFromTOML(toml, m_dynamicSettings);
+        bool LoadStructFromTOML(const toml::ordered_value& a_toml) override {
+            std::string sectionName = GetSectionName();
+            return SettingsHandler::LoadStructFromTOML(a_toml, m_dynamicSettings, sectionName);
         }
 
         void ResetToDefaults() override {

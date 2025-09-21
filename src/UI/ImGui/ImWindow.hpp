@@ -29,15 +29,19 @@ namespace GTS {
         bool ConsumeInput = false;
         bool Busy = false;
         WindowAnchor AnchorPos = WindowAnchor::kCenter;
-        std::string Name = "Default";
-        std::string Title = "Default";
         ImGuiWindowFlags flags = ImGuiWindowFlags_None;
 
+		protected:
+        std::string Name = "Default";
+        std::string Title = "Default";
+
+		public:
         virtual ~IImWindow() noexcept = default;
         virtual void Draw() = 0;
         virtual bool ShouldDraw() = 0;
         virtual float GetAlphaMult() = 0;
         virtual float GetBGAlphaMult() = 0;
+        virtual std::string GetWindowName() = 0;
         static ImVec2 GetAnchorPos(WindowAnchor a_position, ImVec2 a_padding, bool a_allowCenterY);
     };
 
@@ -46,16 +50,31 @@ namespace GTS {
     class ImWindowBase : public IImWindow {
         protected:
         std::shared_ptr<WindowSettingsHolder<Derived>> m_settingsHolder;
+        std::string m_instanceName;
 
         public:
-        ImWindowBase() {
-            // Automatically register this window type
-            m_settingsHolder = WindowSettingsRegistry::GetSingleton().RegisterWindow<Derived>();
+        // Constructor with instance name
+        ImWindowBase(const std::string& a_instanceName = "", const std::string& a_basePreffix = "UI") : m_instanceName(a_instanceName) {
+            m_settingsHolder = WindowSettingsRegistry::GetSingleton().RegisterWindow<Derived>(BaseWindowSettings_t{}, a_instanceName, a_basePreffix);
         }
 
-        explicit ImWindowBase(const BaseWindowSettings_t& baseDefaults) {
-            // Automatically register with custom base defaults
-            m_settingsHolder = WindowSettingsRegistry::GetSingleton().RegisterWindow<Derived>(baseDefaults);
+        // Get instance name for this window
+        std::string GetInstanceName() const {
+            return m_instanceName;
+        }
+
+        // Set instance name (useful for dynamic assignment)
+        void SetInstanceName(const std::string& instanceName) {
+            m_instanceName = instanceName;
+            m_settingsHolder->SetInstanceName(instanceName);
+        }
+
+        // Set instance name (useful for dynamic assignment)
+        virtual std::string GetWindowName() override {
+            if (!m_instanceName.empty()) {
+                return Name + "." + m_instanceName;
+            }
+            return Name;
         }
 
         // Access to settings
@@ -67,13 +86,11 @@ namespace GTS {
             return m_settingsHolder->GetBaseSettings();
         }
 
-        // Register custom settings struct for this window type
         template<typename CustomStruct>
         void RegisterCustomSettings(const CustomStruct& defaults = CustomStruct{}) {
             m_settingsHolder->template RegisterCustomSettings<CustomStruct>(defaults);
         }
 
-        // Access custom settings
         template<typename CustomStruct>
         CustomStruct& GetCustomSettings() {
             return m_settingsHolder->template GetCustomSettings<CustomStruct>();
@@ -85,9 +102,4 @@ namespace GTS {
         }
     };
 
-    //// For backwards compatibility
-    //class ImWindow : public ImWindowBase<ImWindow> {
-    //    public:
-    //    using ImWindowBase::ImWindowBase;
-    //};
 }

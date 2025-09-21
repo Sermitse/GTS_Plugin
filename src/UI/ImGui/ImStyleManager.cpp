@@ -16,7 +16,9 @@ namespace GTS {
 
         // Anti-Aliasing
         style.AntiAliasedLines = true;
-        //style.AntiAliasedFill  = true;
+        style.AntiAliasedFill  = true;
+        style.AntiAliasedLinesUseTex = true;
+        style.IndentSpacing = 4.0f;
 
         // Border Sizes
         style.WindowBorderSize = 0.3f;

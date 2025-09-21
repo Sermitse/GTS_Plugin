@@ -51,75 +51,77 @@ namespace GTS {
             return exports;
         }
 
-        static bool DeleteExport(const std::filesystem::path& exportPath) {
+        static bool DeleteExport(const std::filesystem::path& a_exportPath) {
             std::error_code ec;
-            bool result = std::filesystem::remove(exportPath, ec);
+            bool result = std::filesystem::remove(a_exportPath, ec);
             if (result) {
-                logger::info("Deleted export: {}", exportPath.string());
+                logger::info("Deleted export: {}", a_exportPath.string());
             }
             else {
-                logger::error("Failed to delete export {}: {}", exportPath.string(), ec.message());
+                logger::error("Failed to delete export {}: {}", a_exportPath.string(), ec.message());
             }
             return result;
         }
 
-        bool CleanOldExports(int keepCount) const {
+        bool CleanOldExports(int a_keepCount) const {
             auto exports = GetExportedFiles();
-            if (exports.size() <= static_cast<size_t>(keepCount)) {
+            if (exports.size() <= static_cast<size_t>(a_keepCount)) {
                 return true; // Nothing to clean
             }
 
             bool allDeleted = true;
-            for (size_t i = keepCount; i < exports.size(); ++i) {
+            for (size_t i = a_keepCount; i < exports.size(); ++i) {
                 if (!DeleteExport(exports[i])) {
                     allDeleted = false;
                 }
             }
-            logger::info("Cleaned {} old export files", exports.size() - keepCount);
+            logger::info("Cleaned {} old export files", exports.size() - a_keepCount);
             return allDeleted;
         }
 
-        static std::filesystem::path GetExportPath(const std::string& filename) {
-            return _exportsDir / filename;
+        static std::filesystem::path GetExportPath(const std::string& a_fileName) {
+            return _exportsDir / a_fileName;
         }
 
-        static void CopyLegacySettings(const std::filesystem::path& legacyPath) {
+        static void CopyLegacySettings(const std::filesystem::path& a_fullFilePath) {
 
-            if (!std::filesystem::exists(legacyPath) || !EnsureExportDirectoryExists()) {
+            if (!std::filesystem::exists(a_fullFilePath) || !EnsureExportDirectoryExists()) {
                 return;
             }
             try {
                 auto destinationPath = _exportsDir / "LegacySettings.toml";
-                std::filesystem::copy_file(legacyPath, destinationPath, std::filesystem::copy_options::overwrite_existing);
-                std::filesystem::remove(legacyPath);
+                std::filesystem::copy_file(a_fullFilePath, destinationPath, std::filesystem::copy_options::overwrite_existing);
+                std::filesystem::remove(a_fullFilePath);
             }
             catch (const std::filesystem::filesystem_error& e) {
                 logger::error("CopyLegacySettings() FS error {}", e.what());
             }
         }
 
-        static bool CheckOrCreateFile(const std::filesystem::path& a_file) {
+        static bool CheckOrCreateFile(const std::filesystem::path& a_fullFilePath) {
             try {
+
                 // Check if the file exists
-                if (std::filesystem::exists(a_file)) {
+                if (std::filesystem::exists(a_fullFilePath)) {
                     return true;
                 }
 
                 // Create parent directories if they don't exist
-                if (std::filesystem::create_directories(a_file.parent_path())) {
+                if (std::filesystem::create_directories(a_fullFilePath.parent_path())) {
                     logger::critical("Plugin folder was mising and was created, MOD BROKEN.");
                     ReportAndExit("The GTSPlugin folder was missing and had to be created.\n"
                         "This indicates that the mod was not installed correctly.\n"
                         "The mod will not work if the Font Folder and Runtime.toml are missing.\n"
-                        "The game will now close");
+                        "The game will now close"
+                    );
                 }
 
                 // Try to create the file
-                std::ofstream file(a_file);
+                std::ofstream file(a_fullFilePath);
                 file.exceptions(std::ofstream::failbit);
                 if (file) {
                     file.close();
-                    logger::warn("Configuration file did not exist but was successfully created");
+                    logger::info("File created");
                     return true;
                 }
 

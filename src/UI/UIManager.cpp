@@ -82,7 +82,7 @@ namespace GTS {
             }
         }
 
-        if (auto Window = dynamic_cast<WindowUnderstomp*>(GTS::ImWindowManager::GetSingleton().GetWindowByName("UnderstompAngle"))) {
+        if (auto Window = dynamic_cast<WindowUnderstomp*>(GTS::ImWindowManager::GetSingleton().GetWindowByName("Understomp"))) {
             if (Window->ShouldDraw()) {
                 Window->Show();
             }
@@ -154,6 +154,9 @@ namespace GTS {
         FontMgr.Init();
     	StyleMgr.LoadStyle();
 
+        //Single Instance Windows dont't need a name
+        //The name is defined in the derived windows' ctor.
+        //Only add a name if instantiating multiple instances of the same window class.
         WinMgr.AddWindow(std::make_unique<WindowSettings>());
         WinMgr.AddWindow(std::make_unique<WindowStatus>());
         WinMgr.AddWindow(std::make_unique<WindowUnderstomp>());

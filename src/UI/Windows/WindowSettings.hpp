@@ -7,14 +7,19 @@
 
 #include "Config/Config.hpp"
 
+struct TestStruct_t {
+    float fTestValue = 99.0f;
+};
+TOML_SERIALIZABLE(TestStruct_t);
 
 namespace GTS {
 
     class WindowSettings final : public ImWindowBase<WindowSettings> {
 
         public:
-        
-        WindowSettings();
+        WindowSettings(const std::string& a_name = "", const std::string& a_preffix = "UI") : ImWindowBase(a_name, a_preffix) {
+            Init();
+        }
 
         void Draw() override;
 
@@ -48,6 +53,7 @@ namespace GTS {
         private:
         void LoadImpl();
         void SaveImpl();
+        void Init();
 
         std::atomic<bool> SaveLoadBusy = false;
 
@@ -57,6 +63,7 @@ namespace GTS {
 
         const SettingsHidden_t& sHidden = Config::Hidden;
         const WindowConfSettings_t& sUI= Config::UI.SettingsWindow;
+        TestStruct_t TestStruct = {};
 
         bool Disabled = false;
     };

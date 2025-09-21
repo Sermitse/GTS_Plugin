@@ -47,6 +47,7 @@ namespace GTS {
         }
 
         void AddWindow(std::unique_ptr<IImWindow> a_window);
+        void AddWindow(std::unique_ptr<ImWindowBase<IImWindow>> a_window);
         void Update();
 
         private:

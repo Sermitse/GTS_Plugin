@@ -5,7 +5,7 @@
 
 namespace GTS {
 
-    // Base class for type-erased settings holder
+    // Interface for type-erased settings holder
     class IWindowSettingsHolder {
         public:
         virtual ~IWindowSettingsHolder() = default;
@@ -18,37 +18,65 @@ namespace GTS {
     // Combined settings holder for a window
     template<typename WindowType>
     class WindowSettingsHolder : SettingsHandler {
+
         private:
         BaseWindowSettings_t m_baseSettings;
         std::unique_ptr<IDynamicSettings> m_customSettings;
         std::string m_windowTypeName;
+        std::string m_instanceName;  // Meaningful instance name instead of ID
+        std::string m_basePrefix;    // e.g., "UI" for UI windows
+
+        static constexpr const char* const m_extraSectionName = ".Extra";
 
         public:
-        explicit WindowSettingsHolder() {
-            m_windowTypeName = typeid(WindowType).name();
-            // Clean up the type name for readability
+        explicit WindowSettingsHolder(const std::string& a_instanceName, const std::string& a_basePreffix) : m_instanceName(a_instanceName), m_basePrefix(a_basePreffix) {
+        	m_windowTypeName = typeid(WindowType).name();
+
+        	// Clean up the type name for readability
             size_t pos = m_windowTypeName.find_last_of(':');
             if (pos != std::string::npos) {
                 m_windowTypeName = m_windowTypeName.substr(pos + 1);
             }
         }
 
-        // Initialize with base defaults
-        explicit WindowSettingsHolder(const BaseWindowSettings_t& baseDefaults)
-            : m_baseSettings(baseDefaults) {
+        explicit WindowSettingsHolder(const BaseWindowSettings_t& a_baseDefaults, const std::string& a_instanceName, const std::string& a_basePreffix) : m_baseSettings(a_baseDefaults), m_instanceName(a_instanceName), m_basePrefix(a_basePreffix) {
             m_windowTypeName = typeid(WindowType).name();
             size_t pos = m_windowTypeName.find_last_of(':');
             if (pos != std::string::npos) {
                 m_windowTypeName = m_windowTypeName.substr(pos + 1);
             }
+        }
+
+        // Get the full table name in hierarchical format (e.g., "UI.SettingsWindow" or "UI.InventoryWindow.Player")
+        std::string GetBaseTableName() const {
+            std::string tableName = m_basePrefix + "." + m_windowTypeName;
+            if (!m_instanceName.empty()) {
+                tableName += "." + m_instanceName;
+            }
+            return tableName;
+        }
+
+        std::string GetInstanceName() const {
+            return m_instanceName;
+        }
+
+        void SetInstanceName(const std::string& a_instanceName) {
+            m_instanceName = a_instanceName;
+        }
+
+        std::string GetBasePrefix() const {
+            return m_basePrefix;
+        }
+
+        void SetBasePrefix(const std::string& a_basePreffix) {
+            m_basePrefix = a_basePreffix;
         }
 
         // Register custom settings struct
         template<typename CustomStruct>
-        void RegisterCustomSettings(const CustomStruct& defaults = CustomStruct{}) {
-            static_assert(std::is_default_constructible_v<CustomStruct>,
-                "Custom settings struct must be default constructible");
-            m_customSettings = std::make_unique<DynamicSettingsWrapper<CustomStruct>>(defaults);
+        void RegisterCustomSettings(const CustomStruct& a_defaults = CustomStruct{}) {
+            static_assert(std::is_default_constructible_v<CustomStruct>, "Custom settings struct must be default constructible");
+            m_customSettings = std::make_unique<DynamicSettingsWrapper<CustomStruct>>(a_defaults);
         }
 
         // Access base settings
@@ -83,36 +111,101 @@ namespace GTS {
             return m_customSettings != nullptr;
         }
 
-        // Serialization
-        virtual bool UpdateTOMLFromStruct(toml::ordered_value& toml) {
+        // Helper function to create nested tables from dot-separated path
+        static void CreateNestedTable(toml::ordered_value& a_toml, const std::string& a_tablePath, const toml::ordered_value& a_data) {
+            // Ensure the root is a table
+            if (!a_toml.is_table()) {
+                a_toml = toml::ordered_table{};
+            }
 
-            // Serialize base settings with window type name
-            std::string baseSectionName = m_windowTypeName + "_Base";
+            std::vector<std::string> parts;
+            std::stringstream ss(a_tablePath);
+            std::string part;
 
-            // Temporarily change the registered name for base settings
-            auto originalName = toml::refl::GetFriendlyName(m_baseSettings);
+            // Split the path by dots
+            while (std::getline(ss, part, '.')) {
+                parts.push_back(part);
+            }
 
-            // Serialize base settings using the existing handler
-            try {
-                if (!SettingsHandler::UpdateTOMLFromStruct(toml, m_baseSettings, baseSectionName)) {
+            // Navigate/create the nested structure
+            toml::ordered_value* current = &a_toml;
+            for (size_t i = 0; i < parts.size() - 1; ++i) {
+                if (!current->contains(parts[i])) {
+                    current->as_table()[parts[i]] = toml::ordered_table{};
+                }
+                current = &current->as_table()[parts[i]];
+            }
+
+            // Set the final value
+            current->as_table()[parts.back()] = a_data;
+        }
+
+        // Helper function to get nested table from dot-separated path
+        static bool GetNestedTable(const toml::ordered_value& a_toml, const std::string& a_tablePath, toml::ordered_value& a_result) {
+            std::vector<std::string> parts;
+            std::stringstream ss(a_tablePath);
+            std::string part;
+
+            // Split the path by dots
+            while (std::getline(ss, part, '.')) {
+                parts.push_back(part);
+            }
+
+            // Navigate the nested structure
+            const toml::ordered_value* current = &a_toml;
+            for (const auto& pathPart : parts) {
+                if (!current->contains(pathPart)) {
                     return false;
+                }
+                current = &current->at(pathPart);
+            }
+
+            a_result = *current;
+            return true;
+        }
+
+        // Serialization with proper nested table structure
+        virtual bool UpdateTOMLFromStruct(toml::ordered_value& toml) {
+            std::string baseTableName = GetBaseTableName();
+
+            try {
+                // Serialize base settings directly to a temporary section name
+                const std::string tempSectionName = "temp";
+                if (!SettingsHandler::UpdateTOMLFromStruct(toml, m_baseSettings, tempSectionName)) {
+                    return false;
+                }
+
+                // Move the data to the correct nested location
+                if (toml.contains(tempSectionName)) {
+                    CreateNestedTable(toml, baseTableName, toml.at(tempSectionName));
+                    //Remove the temporary section
+                    toml.as_table().erase(tempSectionName);
                 }
             }
             catch (const std::exception& e) {
-                logger::error("Failed to serialize base settings for {}: {}", m_windowTypeName, e.what());
+                logger::error("Failed to serialize base settings for {}: {}", baseTableName, e.what());
                 return false;
             }
 
             // Serialize custom settings if they exist
             if (m_customSettings) {
                 try {
-                    if (!m_customSettings->UpdateTOMLFromStruct(toml)) {
-                        logger::error("Failed to serialize custom settings for {}", m_windowTypeName);
+                    std::string customTableName = baseTableName + m_extraSectionName;
+
+                    toml::ordered_value tempToml = toml::ordered_table{};
+                    if (!m_customSettings->UpdateTOMLFromStruct(tempToml)) {
+                        logger::error("Failed to serialize custom settings for {}", baseTableName);
                         return false;
+                    }
+
+                    // Get the custom settings section and create nested structure
+                    std::string originalSectionName = m_customSettings->GetSectionName();
+                    if (tempToml.contains(originalSectionName)) {
+                        CreateNestedTable(toml, customTableName, tempToml.at(originalSectionName));
                     }
                 }
                 catch (const std::exception& e) {
-                    logger::error("Exception serializing custom settings for {}: {}", m_windowTypeName, e.what());
+                    logger::error("Exception serializing custom settings for {}: {}", baseTableName, e.what());
                     return false;
                 }
             }
@@ -120,32 +213,43 @@ namespace GTS {
             return true;
         }
 
-
         virtual bool LoadStructFromTOML(const toml::ordered_value& toml) {
             bool result = true;
+            std::string baseTableName = GetBaseTableName();
 
-            // Load base settings
-            std::string baseSectionName = m_windowTypeName + "_Base";
+            // Load base settings using nested table lookup
             try {
-                if (toml.contains(baseSectionName)) {
-                    m_baseSettings = toml::get<BaseWindowSettings_t>(toml.at(baseSectionName));
+                toml::ordered_value baseData;
+                if (GetNestedTable(toml, baseTableName, baseData)) {
+                    // Create temporary TOML with expected structure
+                    toml::ordered_value tempToml{ toml::table{} };
+                    tempToml.as_table()["temp"] = baseData;
+                    m_baseSettings = toml::get<BaseWindowSettings_t>(tempToml.at("temp"));
                 }
             }
             catch (const std::exception& e) {
-                logger::warn("Failed to load base settings for {}: {}", m_windowTypeName, e.what());
-                // Don't mark as failure - use defaults
+                logger::warn("Failed to load base settings for {}: {}", baseTableName, e.what());
             }
 
             // Load custom settings if they exist
             if (m_customSettings) {
                 try {
-                    if (!m_customSettings->LoadStructFromTOML(toml)) {
-                        logger::warn("Failed to load custom settings for {}", m_windowTypeName);
-                        // Don't mark as failure - use defaults
+                    std::string customTableName = baseTableName + m_extraSectionName;
+                    toml::ordered_value customData;
+
+                    if (GetNestedTable(toml, customTableName, customData)) {
+                        // Create a temporary TOML with the expected section name
+                        toml::ordered_value tempToml{ toml::table{} };
+                        std::string originalSectionName = m_customSettings->GetSectionName();
+                        tempToml.as_table()[originalSectionName] = customData;
+
+                        if (!m_customSettings->LoadStructFromTOML(tempToml)) {
+                            logger::warn("Failed to load custom settings for {}", customTableName);
+                        }
                     }
                 }
                 catch (const std::exception& e) {
-                    logger::warn("Exception loading custom settings for {}: {}", m_windowTypeName, e.what());
+                    logger::warn("Exception loading custom settings for {}: {}", baseTableName, e.what());
                 }
             }
 
@@ -160,23 +264,24 @@ namespace GTS {
         }
 
         virtual std::string GetWindowTypeName() const {
-            return m_windowTypeName;
+            return GetBaseTableName();
         }
     };
 
     // Template specialization that implements the interface
     template<typename WindowType>
     class WindowSettingsHolderImpl final : public IWindowSettingsHolder, public WindowSettingsHolder<WindowType> {
-        public:
-        explicit WindowSettingsHolderImpl() : WindowSettingsHolder<WindowType>() {}
-        explicit WindowSettingsHolderImpl(const BaseWindowSettings_t& baseDefaults) : WindowSettingsHolder<WindowType>(baseDefaults) {}
 
-        bool UpdateTOMLFromStruct(toml::ordered_value& toml) override {
-            return WindowSettingsHolder<WindowType>::UpdateTOMLFromStruct(toml);
+    	public:
+        explicit WindowSettingsHolderImpl(const std::string& a_instanceName, const std::string& a_basePreffix) : WindowSettingsHolder<WindowType>(a_instanceName, a_basePreffix) {}
+        explicit WindowSettingsHolderImpl(const BaseWindowSettings_t& a_baseDefaults, const std::string& a_instanceName, const std::string& a_basePreffix) : WindowSettingsHolder<WindowType>(a_baseDefaults, a_instanceName, a_basePreffix) {}
+
+        bool UpdateTOMLFromStruct(toml::ordered_value& a_toml) override {
+            return WindowSettingsHolder<WindowType>::UpdateTOMLFromStruct(a_toml);
         }
 
-        bool LoadStructFromTOML(const toml::ordered_value& toml) override {
-            return WindowSettingsHolder<WindowType>::LoadStructFromTOML(toml);
+        bool LoadStructFromTOML(const toml::ordered_value& a_toml) override {
+            return WindowSettingsHolder<WindowType>::LoadStructFromTOML(a_toml);
         }
 
         void ResetToDefaults() override {

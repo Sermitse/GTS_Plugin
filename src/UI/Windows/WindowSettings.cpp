@@ -97,7 +97,7 @@ namespace GTS {
 
 	//Do All your Init Stuff here
 	//Note: Dont do any calls to the imgui api here as the window is not yet created
-	WindowSettings::WindowSettings() {
+	void WindowSettings::Init() {
 
 		Title = "Size Matters - Settings";
 		Name = "Settings";
@@ -120,6 +120,8 @@ namespace GTS {
 		CatMgr.AddCategory(std::make_shared<CategoryAdvanced>());
 
 		BuildFooterText();
+
+		WindowSettings::RegisterCustomSettings(TestStruct);
 	}
 
 	void WindowSettings::Draw() {

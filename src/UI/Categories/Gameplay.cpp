@@ -210,7 +210,7 @@ namespace GTS {
         }
 
         ImUtil_Unique {
-            GameModeOptions("Gamemode Followers", &Settings.GamemodeFollower, false);
+            GameModeOptions("Gamemode Followers", &Settings.GamemodeFollower, true);
         }
     }
 }

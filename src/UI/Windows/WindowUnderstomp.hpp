@@ -12,7 +12,11 @@ namespace GTS {
         void Show();
         void ShowImmediate();
         void StartFade();
-        WindowUnderstomp();
+        void Init();
+
+        WindowUnderstomp(const std::string& a_name = "", const std::string& a_preffix = "UI") : ImWindowBase(a_name, a_preffix) {
+            Init();
+        }
 
         void Draw() override;
 

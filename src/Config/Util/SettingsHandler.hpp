@@ -36,7 +36,7 @@ namespace GTS {
 
                 toml::ordered_value table = a_data;
                 a_toml.as_table()[a_tableName] = table;
-                logger::info("TOML Data for Table {} Has been Replaced", a_tableName);
+                logger::info("TOML Data for Table {} has been replaced", a_tableName);
                 return true;
             }
             catch (toml::exception& e) {
@@ -44,7 +44,7 @@ namespace GTS {
                 return false;
             }
             catch (...) {
-                logger::error("UpdateTOMLFromStruct() -> Something really bad happened with {} and not even TOML11's Handler caught it", reflect::type_name<T&>(a_data));
+                logger::error("UpdateTOMLFromStruct() -> Unknown Exception on table: {}", reflect::type_name<T&>(a_data));
                 return false;
             }
         }
@@ -66,40 +66,42 @@ namespace GTS {
                 return false;
             }
             catch (toml::exception& e) {
-                logger::error("Could not parse the toml table when trying to save: {}", e.what());
+                logger::error("Could not parse the TOML table when trying to save: {}", e.what());
                 return false;
             }
             catch (const std::ios_base::failure& e) {
-                logger::error("Could not write to file: {}", e.what());
+                logger::error("std::ios_base -> Could not write to file: {}", e.what());
                 return false;
             }
             catch (const std::exception& e) {
-                logger::error("Misc Exception: {}", e.what());
+                logger::error("std::exception -> {}", e.what());
                 return false;
             }
             catch (...) {
-                logger::error("Unknown Exception");
+                logger::error("Unknown Exception in SaveTOMLToFile()");
                 return false;
             }
         }
 
         static bool SaveTOMLToString(const toml::ordered_value& a_toml) {
+
             try {
                 Persistent::ModSettings.value = toml::format(a_toml);
                 return true;
             }
             catch (toml::exception& e) {
-                logger::error("SaveTOMLToString() -> Could not parse the toml table when trying to save: {}", e.what());
+                logger::error("SaveTOMLToString() -> TOML Exception: {}", e.what());
                 return false;
             }
             catch (const std::exception& e) {
-                logger::error("SaveTOMLToString() -> Misc Exception: {}", e.what());
+                logger::error("SaveTOMLToString() -> std Exception: {}", e.what());
                 return false;
             }
             catch (...) {
                 logger::error("SaveTOMLToString() -> Unknown Exception");
                 return false;
             }
+
         }
     };
 

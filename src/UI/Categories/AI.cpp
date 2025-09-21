@@ -3,6 +3,7 @@
 #include "UI/ImGui/ImFontManager.hpp"
 #include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImUtil.hpp"
+#include <UI/ImGui/Controls/CollapsingTabHeader.hpp>
 
 
 namespace  {
@@ -329,6 +330,53 @@ namespace GTS {
 
         ImGui::BeginDisabled(!Settings.bEnableActionAI);
 
+		static ImGui::CollapsingTabHeader ActionHeader(
+            "AI Action Settings",
+			{
+				"Vore",
+				"Stomps",
+                "Kicks / Swipes",
+                "Thigh Sandwich",
+                "Thigh Crush",
+                "Hugs",
+                "Butt Crush",
+                "Grabs",
+			}
+        );
+
+        if (ImGui::BeginCollapsingTabHeader(ActionHeader)) {
+            // Content based on active tab
+            switch (ActionHeader.GetActiveTab()) {
+                case 0: 
+                    DrawAIAction_Vore();
+                    break;
+                case 1:
+                    DrawAIAction_Stomps();
+                    break;
+                case 2: 
+                    DrawAIAction_KickSwipe();
+                    break;
+                case 3:
+                    DrawAIAction_ThighSandwich();
+                    break;
+                case 4:
+                    DrawAIAction_ThighCrush();
+                    break;
+                case 5:
+                    DrawAIAction_Hugs();
+                    break;
+                case 6:
+                    DrawAIAction_ButtCrush();
+                    break;
+                case 7:
+                    DrawAIAction_Grab();
+                    break;
+				default: ;
+            }
+        }
+        ImGui::EndCollapsingTabHeader(ActionHeader);
+
+        /*
         ImUtil_Unique {
 
             ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kLargeText);
@@ -360,7 +408,7 @@ namespace GTS {
                 }
                 ImGui::EndTabBar();
             }
-        }
+        }*/
         ImGui::EndDisabled();
     }
 }

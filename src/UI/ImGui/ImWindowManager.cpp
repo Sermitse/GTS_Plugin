@@ -10,15 +10,29 @@ namespace GTS {
 
         if (HasWindows()) {
             for (const auto& window : windows) {
-                if (window->Name == a_window->Name) {
-                    logger::warn("ImWindowManager::AddWindow: Window with name {} already exists, Not Adding New Window", a_window->Name);
-                    return;
-                }
+                assert(window->GetWindowName() != a_window->GetWindowName());
+                return;
             }
         }
 
         windows.push_back(std::move(a_window));
-        logger::info("ImWindowManager::AddWindow {}", windows.back()->Name);
+        logger::info("ImWindowManager::AddWindow {}", windows.back()->GetWindowName());
+
+    }
+
+    void ImWindowManager::AddWindow(std::unique_ptr<ImWindowBase<IImWindow>> a_window) {
+
+        assert(a_window != nullptr);
+
+        if (HasWindows()) {
+            for (const auto& window : windows) {
+                assert(window->GetWindowName() != a_window->GetWindowName());
+                return;
+            }
+        }
+
+        windows.push_back(std::move(a_window));
+        logger::info("ImWindowManager::AddWindow {}", windows.back()->GetWindowName());
     }
 
 
@@ -76,7 +90,7 @@ namespace GTS {
 
                     ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
 
-                    ImGui::Begin(window->Name.c_str(), &window->Show, window->flags);
+                    ImGui::Begin(window->GetWindowName().c_str(), &window->Show, window->flags);
 
                     window->Draw();
 
@@ -95,7 +109,7 @@ namespace GTS {
     //If 2 Or more default windows exist only the earliest one will be returned
     IImWindow* ImWindowManager::GetWindowByName(const std::string& a_name) const {
         for (const auto& window : windows) {
-            if (window->Name == a_name) {
+            if (window->GetWindowName() == a_name) {
                 return window.get();
             }
         }

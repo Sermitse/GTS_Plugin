@@ -286,10 +286,12 @@ namespace GTS {
                     ImGui::EndDisabled();
 
                     // Column 4: Options Button
+                    ImGui::BeginDisabled(IsRebinding);
                     ImGui::TableNextColumn();
 				    if (ImUtil::ImageButton(("Options##" + std::to_string(CurEventIndex)).c_str(), "keybind_showadv", 18, T6)) {
                         ImGui::OpenPopup(("Options##" + std::to_string(CurEventIndex)).c_str());
 				    }
+                    ImGui::EndDisabled();
 
                     // Options Popup
                     if (ImGui::BeginPopup(("Options##" + std::to_string(CurEventIndex)).c_str())) {

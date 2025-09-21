@@ -8,7 +8,6 @@ namespace GTS {
     class WindowStatus final : public ImWindowBase<WindowStatus> {
 
         public:
-
         struct LastShownData {
             float Scale = 0.0f;
             float MaxScale = 0.0f;
@@ -23,7 +22,11 @@ namespace GTS {
 	    void Show();
 	    void ShowImmediate(RE::Actor* a_actor);
 	    void StartFade(RE::Actor* a_actor);
-	    WindowStatus();
+        void Init();
+
+        WindowStatus(const std::string& a_name = "", const std::string& a_preffix = "UI") : ImWindowBase(a_name, a_preffix) {
+            Init();
+        }
 
         void Draw() override;
 

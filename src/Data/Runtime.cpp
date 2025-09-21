@@ -41,7 +41,7 @@ namespace {
 		std::unordered_map<std::string, std::string> containers;
 		std::unordered_map<std::string, std::string> levelitems;
 
-		RuntimeConfig(const toml::value& data) {
+		RuntimeConfig(const toml::ordered_value& data) {
 
 			this->sounds = toml::find_or(data, "SNDR", std::unordered_map<std::string, std::string>());
 			this->spellEffects = toml::find_or(data, "MGEF", std::unordered_map<std::string, std::string>());

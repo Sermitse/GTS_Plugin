@@ -169,7 +169,7 @@ namespace GTS {
         }
     }
 
-    WindowStatus::WindowStatus() {
+    void WindowStatus::Init() {
         Title = "Player Info";
         Name = "Status";
         this->flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoFocusOnAppearing;
