@@ -22,7 +22,7 @@ namespace GTS {
             return title;
         }
 
-        [[nodiscard]] const inline bool IsVisible(){
+        [[nodiscard]] inline bool IsVisible() const {
             return visible;
         }
 

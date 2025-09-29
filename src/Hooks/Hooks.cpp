@@ -32,6 +32,7 @@
 #include "Hooks/Projectile/Projectiles.hpp"
 #include "Hooks/Sound/BGSImpactManager.hpp"
 #include "Hooks/UI/Console.hpp"
+#include "Hooks/UI/Menu.hpp"
 
 namespace Hooks {
 
@@ -84,6 +85,7 @@ namespace Hooks {
 
 		//UI
 		Hook_Console::Install();
+		Hook_Menu::Install();
 
 		//Experiments
 		//Hook_Experiments::Install();

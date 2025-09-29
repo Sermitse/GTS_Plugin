@@ -20,7 +20,7 @@ namespace GTS {
 		public:
 			[[nodiscard]] static InputManager& GetSingleton() noexcept;
 
-			void ProcessEvents(InputEvent** a_event);
+			void ProcessAndFilterEvents(InputEvent** a_event);
 
 			std::string DebugName() override;
 

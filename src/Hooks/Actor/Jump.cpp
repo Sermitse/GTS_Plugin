@@ -55,19 +55,22 @@ namespace Hooks {
 
 		static float thunk(bhkCharacterController* a_this) {
 
-
-			GTS_PROFILE_ENTRYPOINT("ActorJump::GetFallDistance");
-
 			float result = func(a_this);
-			auto actor = GetCharContActor(a_this);
 
-			if (actor) {
-				const float scale = std::clamp(get_giantess_scale(actor), 1.0f, 99999.0f);
-				const float fall_damage_exponent = 0.5f + Jump_GetFallDamageReductionMult(actor);
-				if (scale > 1e-4) {
-					result /= std::pow(scale, fall_damage_exponent);
+			{
+				GTS_PROFILE_ENTRYPOINT("ActorJump::GetFallDistance");
+				auto actor = GetCharContActor(a_this);
+
+				if (actor) {
+					const float scale = std::clamp(get_giantess_scale(actor), 1.0f, 99999.0f);
+					const float fall_damage_exponent = 0.5f + Jump_GetFallDamageReductionMult(actor);
+					if (scale > 1e-4) {
+						result /= std::pow(scale, fall_damage_exponent);
+					}
 				}
+
 			}
+
 			return result;
 		}
 
@@ -79,32 +82,36 @@ namespace Hooks {
 
 		static bool thunk(IAnimationGraphManagerHolder* a_graph, const BSFixedString& a_variableName, float a_in) {
 
-			GTS_PROFILE_ENTRYPOINT("ActorJump::SetGraphVarialbleFloat");
+			{
+				GTS_PROFILE_ENTRYPOINT("ActorJump::SetGraphVarialbleFloat");
 
-			if (a_variableName == "VelocityZ") {
+				if (a_variableName == "VelocityZ") {
 
-				if (a_in < 0) {
-					auto actor = skyrim_cast<Actor*>(a_graph);
-					if (actor) {
+					if (a_in < 0) {
+						auto actor = skyrim_cast<Actor*>(a_graph);
+						if (actor) {
 
-						constexpr float CRITICALHEIGHT = 9.70f;
-						constexpr float ACTORHEIGHT = Characters_AssumedCharSize * 70.0f;
-						constexpr float FACTOR = 0.20f;
-						float gravity = 1.0f;
+							constexpr float CRITICALHEIGHT = 9.70f;
+							constexpr float ACTORHEIGHT = Characters_AssumedCharSize * 70.0f;
+							constexpr float FACTOR = 0.20f;
+							float gravity = 1.0f;
 
-						if (auto controller = actor->GetCharController()) { // Fixes Jump Land anim threshold when altering gravity
-							gravity = controller->gravity;
+							if (auto controller = actor->GetCharController()) { // Fixes Jump Land anim threshold when altering gravity
+								gravity = controller->gravity;
+							}
+
+							float scale = get_giantess_scale(actor);
+							float newCriticalHeight = ACTORHEIGHT * scale * (FACTOR * gravity);
+							const float jump_factor = pow(CRITICALHEIGHT / newCriticalHeight, 0.5f);
+
+							a_in *= jump_factor;
 						}
-
-						float scale = get_giantess_scale(actor);
-						float newCriticalHeight = ACTORHEIGHT * scale * (FACTOR * gravity);
-						const float jump_factor = pow(CRITICALHEIGHT / newCriticalHeight, 0.5f);
-
-						a_in *= jump_factor;
 					}
 				}
 			}
+
 			return func(a_graph, a_variableName, a_in);
+
 		}
 
 		FUNCTYPE_DETOUR func;
@@ -118,24 +125,29 @@ namespace Hooks {
 
 		static float thunk(Actor* a_actor) {
 
-			GTS_PROFILE_ENTRYPOINT("ActorJump::JumpHeight");
-
 			float result = func(a_actor);
-			//log::info("Original jump height: {}", result);
-			if (a_actor) {
-				if (a_actor->formID == 0x14) {
-					float size = get_giantess_scale(a_actor);
 
-					const float might = 1.0f + Potion_GetMightBonus(a_actor);
-					const float modifier = size * might; // Compensate it, since SetScale() already boosts jump height by default
-					const float scaled = std::clamp(modifier, 1.0f, 99999.0f); // Can't have smaller jump height than x1.0
+			{
+				GTS_PROFILE_ENTRYPOINT("ActorJump::JumpHeight");
 
-					Jump_ApplyExtraJumpEffects(a_actor, size, might); // Push items and actors, spawn dust ring and shake the ground
+				//log::info("Original jump height: {}", result);
+				if (a_actor) {
+					if (a_actor->formID == 0x14) {
+						float size = get_giantess_scale(a_actor);
 
-					result *= scaled / game_getactorscale(a_actor);
+						const float might = 1.0f + Potion_GetMightBonus(a_actor);
+						const float modifier = size * might; // Compensate it, since SetScale() already boosts jump height by default
+						const float scaled = std::clamp(modifier, 1.0f, 99999.0f); // Can't have smaller jump height than x1.0
+
+						Jump_ApplyExtraJumpEffects(a_actor, size, might); // Push items and actors, spawn dust ring and shake the ground
+
+						result *= scaled / game_getactorscale(a_actor);
+					}
 				}
 			}
+
 			return result;
+
 		}
 
 		FUNCTYPE_CALL func;

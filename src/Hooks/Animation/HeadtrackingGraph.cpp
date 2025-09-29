@@ -43,22 +43,27 @@ namespace Hooks {
 
 		static bool thunk(IAnimationGraphManagerHolder* a_graph, const BSFixedString& a_variableName, bool a_in) {
 
-			GTS_PROFILE_ENTRYPOINT("Animation::SetGraphVariableBool");
+			bool result = a_in;
 
-			//log::info("SetGraphVariableBool hooked");
-			// Disable weird spine rotation during crawl/prone
-			if (a_variableName == "bHeadTrackSpine") { 
-				// Done through hook since TDM seems to adjust it constantly
-				auto actor = skyrim_cast<Actor*>(a_graph);
-				if (actor) {
-					//log::info("Holder found: {}", actor->GetDisplayFullName());
-					bool ShouldDisable = (IsCrawling(actor) || IsProning(actor) || IsHandStomping_L(actor) || IsHandStomping_H(actor));
-					if (ShouldDisable) {
-						return func(a_graph, a_variableName, false);
+			{
+				GTS_PROFILE_ENTRYPOINT("Animation::SetGraphVariableBool");
+
+				//log::info("SetGraphVariableBool hooked");
+				// Disable weird spine rotation during crawl/prone
+				if (a_variableName == "bHeadTrackSpine") {
+					// Done through hook since TDM seems to adjust it constantly
+					auto actor = skyrim_cast<Actor*>(a_graph);
+					if (actor) {
+						//log::info("Holder found: {}", actor->GetDisplayFullName());
+						bool ShouldDisable = (IsCrawling(actor) || IsProning(actor) || IsHandStomping_L(actor) || IsHandStomping_H(actor));
+						if (ShouldDisable) {
+							result = false;
+						}
 					}
 				}
 			}
-			return func(a_graph, a_variableName, a_in);
+
+			return func(a_graph, a_variableName, result);
 		}
 
 		FUNCTYPE_DETOUR func;
@@ -69,13 +74,15 @@ namespace Hooks {
 
 		static bool thunk(RE::ActorState* a_this, int16_t a_flag) {
 
-			GTS_PROFILE_ENTRYPOINT("AnimationHeadTrack::AddMovementFlagsSneak");
+			{
+				GTS_PROFILE_ENTRYPOINT("AnimationHeadTrack::AddMovementFlagsSneak");
 
-			//Adjust actor pointer based on game version, AE > .629 Changed Struct Layouts
-			auto actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, ptrOffset);
-			if (actor) {
-				// Toggle spine HT on/off based on GTS state
-				Headtracking_ManageSpineToggle(actor); 
+				//Adjust actor pointer based on game version, AE > .629 Changed Struct Layouts
+				auto actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, ptrOffset);
+				if (actor) {
+					// Toggle spine HT on/off based on GTS state
+					Headtracking_ManageSpineToggle(actor);
+				}
 			}
 
 			return func(a_this, a_flag);
@@ -89,14 +96,17 @@ namespace Hooks {
 
 		static bool thunk(RE::ActorState* a_this, int16_t a_flag) {
 
-			GTS_PROFILE_ENTRYPOINT("AnimationHeadTrack::RemoveMovementFlagsSneak");
+			{
+				GTS_PROFILE_ENTRYPOINT("AnimationHeadTrack::RemoveMovementFlagsSneak");
 
-			//Adjust actor pointer based on game version, AE > .629 Changed Struct Layouts
-			auto actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, ptrOffset);
-			if (actor) {
-				// Toggle spine HT on/off based on GTS state
-				Headtracking_ManageSpineToggle(actor); 
+				//Adjust actor pointer based on game version, AE > .629 Changed Struct Layouts
+				auto actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, ptrOffset);
+				if (actor) {
+					// Toggle spine HT on/off based on GTS state
+					Headtracking_ManageSpineToggle(actor);
+				}
 			}
+
 			return func(a_this, a_flag);
 		}
 

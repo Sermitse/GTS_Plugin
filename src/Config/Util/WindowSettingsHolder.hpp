@@ -26,6 +26,7 @@ namespace GTS {
         std::string m_instanceName;  // Meaningful instance name instead of ID
         std::string m_basePrefix;    // e.g., "UI" for UI windows
 
+        //Name of the per class definable extra settings struct
         static constexpr const char* const m_extraSectionName = ".Extra";
 
         public:
@@ -122,8 +123,11 @@ namespace GTS {
             std::stringstream ss(a_tablePath);
             std::string part;
 
+            logger::info("Constructing Nested Table: {}", a_tablePath);
+
             // Split the path by dots
             while (std::getline(ss, part, '.')) {
+                logger::trace("Part {}", part);
                 parts.push_back(part);
             }
 
@@ -148,8 +152,11 @@ namespace GTS {
 
             // Split the path by dots
             while (std::getline(ss, part, '.')) {
+                logger::trace("Part {}", part);
                 parts.push_back(part);
             }
+
+            logger::info("Deconstructing Nested Table: {}", a_tablePath);
 
             // Navigate the nested structure
             const toml::ordered_value* current = &a_toml;
@@ -170,7 +177,7 @@ namespace GTS {
 
             try {
                 // Serialize base settings directly to a temporary section name
-                const std::string tempSectionName = "temp";
+                const std::string tempSectionName = "TempTable";
                 if (!SettingsHandler::UpdateTOMLFromStruct(toml, m_baseSettings, tempSectionName)) {
                     return false;
                 }
@@ -223,7 +230,7 @@ namespace GTS {
                 if (GetNestedTable(toml, baseTableName, baseData)) {
                     // Create temporary TOML with expected structure
                     toml::ordered_value tempToml{ toml::table{} };
-                    tempToml.as_table()["temp"] = baseData;
+                    tempToml.as_table()["TempTable"] = baseData;
                     m_baseSettings = toml::get<BaseWindowSettings_t>(tempToml.at("temp"));
                 }
             }

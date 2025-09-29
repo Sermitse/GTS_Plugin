@@ -38,17 +38,23 @@ namespace Hooks {
 		// TODO Somwehow improve performance instead of looping through all actors
 		static void thunk(bhkCharacterController* a_this, hkVector4& a_from, float a_time) {
 
-			GTS_PROFILE_ENTRYPOINT("HavokPushback::HavokPush");
-
-			Actor* giant = GetCharContActor(a_this);
 			float scale = 1.0f;
-			if (giant) {
-				scale = GetPushMult(giant);
+
+			{
+				GTS_PROFILE_ENTRYPOINT("HavokPushback::HavokPush");
+
+				Actor* giant = GetCharContActor(a_this);
+				
+				if (giant) {
+					scale = GetPushMult(giant);
+				}
+
 			}
 
-			hkVector4 Push = hkVector4(a_from) * scale;
 			// Size difference is recorded only outside of TGM!
 			// In TGM effect isn't applied because of that
+
+			hkVector4 Push = hkVector4(a_from) * scale;
 
 			return func(a_this, Push, a_time);
 		}
@@ -62,7 +68,9 @@ namespace Hooks {
 		//Cache size difference and then use it inside hook above
 		static void thunk(AIProcess* a_this, Actor* a_target, NiPoint3& a_direction, float a_force) {
 
-			GTS_PROFILE_ENTRYPOINT("HavokPushback::PushActorAway");
+			{
+				GTS_PROFILE_ENTRYPOINT("HavokPushback::PushActorAway");
+			}
 
 			return func(a_this, a_target, a_direction, a_force);
 		}

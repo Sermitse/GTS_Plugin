@@ -1,114 +1,153 @@
 #include "UI/ImGui/ImWindowManager.hpp"
 #include "UI/UIManager.hpp"
 #include "UI/ImGui/ImUtil.hpp"
+#include <UI/Windows/TestWindow.hpp>
 
 namespace GTS {
 
-    void ImWindowManager::AddWindow(std::unique_ptr<IImWindow> a_window) {
+    bool ImWindowManager::HasWindows() const {
+        return m_windows.size() > 0;
+    }
+
+    bool ImWindowManager::HasInputConsumers() {
+        return std::ranges::any_of(m_windows, [](const auto& window) {
+            return window->IsVisible() && window->m_consumeInput;
+        });
+
+    }
+
+    bool ImWindowManager::HasActiveWindows() {
+        return std::ranges::any_of(m_windows, [](const auto& window) {
+            return window->IsVisible();
+        });
+
+    }
+
+    ImWindow::DrawLevel ImWindowManager::GetHighestDrawLevel() const {
+        ImWindow::DrawLevel hDrawLevel = ImWindow::DrawLevel::kHUD;
+        for (const auto& window : m_windows) {
+            if (window->IsVisible() && window->m_drawLevel > hDrawLevel) {
+                hDrawLevel = window->m_drawLevel;
+            }
+        }
+        return hDrawLevel;
+
+    }
+
+    void ImWindowManager::AddWindow(std::unique_ptr<ImWindow> a_window) {
 
         assert(a_window != nullptr);
 
-        if (HasWindows()) {
-            for (const auto& window : windows) {
-                assert(window->GetWindowName() != a_window->GetWindowName());
+        for (const auto& window : m_windows) {
+            const auto& nam = a_window->GetWindowName();
+            if (window->GetWindowName() == nam) {
+                logger::error("Duplicate Window {}", nam);
                 return;
             }
         }
 
-        windows.push_back(std::move(a_window));
-        logger::info("ImWindowManager::AddWindow {}", windows.back()->GetWindowName());
-
+        m_windows.push_back(std::move(a_window));
+        logger::info("ImWindowManager::AddWindow {}", m_windows.back()->GetWindowName());
     }
 
-    void ImWindowManager::AddWindow(std::unique_ptr<ImWindowBase<IImWindow>> a_window) {
+    void ImWindowManager::Update() const {
 
-        assert(a_window != nullptr);
+        GTS_PROFILE_SCOPE("ImWindowManager Update");
 
-        if (HasWindows()) {
-            for (const auto& window : windows) {
-                assert(window->GetWindowName() != a_window->GetWindowName());
-                return;
+        if (!HasWindows()) [[unlikely]] {
+            return;
+        }
+
+        // Check if any windows need the game cursor
+        // Present layer windows use ImGui's Win32 cursor instead
+        bool anyWindowNeedsGameCursor = false;
+        for (const auto& window : m_windows) {
+            if (window->ShouldDraw() && window->NeedsGameCursor()) {
+                anyWindowNeedsGameCursor = true;
+                break;
             }
         }
 
-        windows.push_back(std::move(a_window));
-        logger::info("ImWindowManager::AddWindow {}", windows.back()->GetWindowName());
-    }
+        // Update game cursor requirement for overlay
+        if (UIManager::Input) {
+            UIManager::Input->SetOverlayWantsCursor(anyWindowNeedsGameCursor);
+        }
 
+        // Draw all windows that should be drawn
+        // Note: kHUD and kCursor layer windows only draw if game cursor is visible
+        // kPresent layer windows always draw (they use ImGui's Win32 cursor)
+        for (const auto& window : m_windows) {
 
-    void ImWindowManager::Update() {
-
-       GTS_PROFILE_SCOPE("ImWindowManager Update");
-
-		if (HasWindows()) [[likely]] {
-
-            if (HasInputConsumers()) {
-                auto& io = ImGui::GetIO();
-                io.MouseDrawCursor = true;
-            }
-            else {
-                auto& io = ImGui::GetIO();
-                io.MouseDrawCursor = false;
-                io.ClearInputKeys();
-                io.ClearEventsQueue();
-                io.ClearInputMouse();
+            if (!window->ShouldDraw()) {
+                continue;
             }
 
-            if (ShowMetrics) {
-                ImGui::ShowMetricsWindow();
-            }
-
-            if (ShowStack) {
-                ImGui::ShowIDStackToolWindow();
-            }
-
-            if (ShowDemoWindow) {
-                ImGui::ShowDemoWindow();
-            }
-
-            //Things Like the inventory menu draw before our hudmenu hook, this check prevents the widgets from drawing ontop of some things.
-            if (Plugin::AnyWidgetMenuOpen() && !UIManager::ShouldDrawOverTop.load()) {
-                return;
-            }
-
-            for (const auto& window : windows) {
-
-                if (window->ShouldDraw()) {
-
-                    const float BGAlpha = window->GetBGAlphaMult();
-                    const float AlphaMult = window->GetAlphaMult();
-
-                    auto BorderCol = ImGui::GetStyle().Colors[ImGuiCol_Border];
-                    BorderCol.w *= BGAlpha;
-
-                    //Set Background alpha
-                    ImGui::SetNextWindowBgAlpha(BGAlpha * AlphaMult);
-                    ImGui::PushStyleColor(ImGuiCol_Border, BorderCol);
-
-                    //Set Entire Window Alpha
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, AlphaMult);
-
-                    ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kText);
-
-                    ImGui::Begin(window->GetWindowName().c_str(), &window->Show, window->flags);
-
-                    window->Draw();
-
-                	ImGui::End();
-
-                    ImGui::PopStyleColor();
-                    ImGui::PopStyleVar();
-                    ImFontManager::PopActiveFont();
+            // Check if this window can be drawn based on its layer
+            if (window->m_drawLevel != ImWindow::DrawLevel::kPresent) {
+                if (UIManager::Input && !UIManager::Input->IsCursorVisible()) {
+                    continue;
                 }
             }
+
+            const float BGAlpha = window->GetBGAlphaMult();
+            const float AlphaMult = window->GetAlphaMult();
+
+            ImVec4 BorderCol = ImGui::GetStyle().Colors[ImGuiCol_Border];
+            BorderCol.w *= BGAlpha;
+
+            ImGui::SetNextWindowBgAlpha(BGAlpha * AlphaMult);
+            ImGui::PushStyleColor(ImGuiCol_Border, BorderCol);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, AlphaMult);
+            FontManager->PushFont(ImFontManager::ActiveFontType::kText);
+
+            {
+                ImGui::Begin(window->GetWindowName().c_str(), nullptr, window->m_flags);
+                window->Draw();
+                ImGui::End();
+            }
+
+            ImGui::PopStyleColor();
+            ImGui::PopStyleVar();
+            ImGui::PopFont();
         }
     }
 
-    //Gets a ptr to the window which fully matches the "Name" var.
-    //Name var gets set in the ctor of the child window, otherwise its "Default"
-    //If 2 Or more default windows exist only the earliest one will be returned
-    IImWindow* ImWindowManager::GetWindowByName(const std::string& a_name) const {
-        for (const auto& window : windows) {
+    void ImWindowManager::Init() {
+
+        FontManager = new ImFontManager();
+        FontManager->Init();
+
+        StyleManager = new ImStyleManager();
+        StyleManager->ApplyStyle();
+
+        AddWindow(std::make_unique<TestWindow>());
+
+        AddWindow(std::make_unique<TestWindow>("Win1"));
+
+        for (const auto& window : m_windows) {
+            window->Init();
+        }
+
+        m_windows.front()->m_drawLevel = ImWindow::DrawLevel::kPresent;
+
+        logger::info("Window Manager Init");
+
+    }
+
+    void ImWindowManager::ApplyStyle() const {
+        StyleManager->ApplyStyle();
+    }
+
+    void ImWindowManager::SetFont(ImFontManager::ActiveFontType a_fontType) const {
+        FontManager->PushFont(a_fontType);
+    }
+
+    void ImWindowManager::PopFont() {
+        ImGui::PopFont();
+    }
+
+    ImWindow* ImWindowManager::GetWindowByName(const std::string& a_name) const {
+        for (const auto& window : m_windows) {
             if (window->GetWindowName() == a_name) {
                 return window.get();
             }

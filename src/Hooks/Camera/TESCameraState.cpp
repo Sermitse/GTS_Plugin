@@ -10,10 +10,13 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(TESCameraState* a_this, BSTSmartPointer<TESCameraState>& a_nextState) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Camera::TESCameraStateUpdate", ID);
-
 			func<ID>(a_this, a_nextState);
-			GTS::EventDispatcher::DoCameraUpdate();
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Camera::TESCameraStateUpdate", ID);
+				GTS::EventDispatcher::DoCameraUpdate();
+			}
+
 		}
 
 		template<int ID>

@@ -2,6 +2,8 @@
 #include "UI/ImGui/ImStyleManager.hpp"
 #include "spdlog/spdlog.h"
 
+#include "UI/UIManager.hpp"
+
 namespace GTS {
 
 	void HandleCameraTrackingReset() {
@@ -41,7 +43,8 @@ namespace GTS {
 	void HandleSettingsReset() {
 
 		Config::ResetToDefaults();
-		ImStyleManager::GetSingleton().LoadStyle();
+		UIManager::WindowManager->ApplyStyle();
+
 
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 
@@ -56,7 +59,7 @@ namespace GTS {
 	}
 
 	void HandleSettingsRefresh() {
-		ImStyleManager::GetSingleton().LoadStyle();
+		UIManager::WindowManager->ApplyStyle();
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 		HandleHHReset();
 		HandleCameraTrackingReset();

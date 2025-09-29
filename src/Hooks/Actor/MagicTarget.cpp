@@ -12,17 +12,20 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(Actor* a_actor, MagicTarget::AddTargetData& a_targetData) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorMagicTarget::AddTarget", ID);
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorMagicTarget::AddTarget", ID);
 
-			log::info("Add magic target");
-			auto effect = a_targetData.effect;
-			if (effect) {
-				log::info("  - Has effect");
-				auto baseEffect = effect->baseEffect;
-				if (baseEffect) {
-					log::info("    - Has base effect: {}", baseEffect->GetFullName());
+				log::info("Add magic target");
+				auto effect = a_targetData.effect;
+				if (effect) {
+					log::info("  - Has effect");
+					auto baseEffect = effect->baseEffect;
+					if (baseEffect) {
+						log::info("    - Has base effect: {}", baseEffect->GetFullName());
+					}
 				}
 			}
+
 			return func<ID>(a_actor, a_targetData);
 		}
 

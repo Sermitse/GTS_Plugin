@@ -8,12 +8,14 @@ namespace Hooks {
 
 		static void thunk(RE::Script* a_script, RE::ScriptCompiler* a_compiler, RE::COMPILER_NAME a_name, RE::TESObjectREFR* a_targetRef) {
 
-			GTS_PROFILE_ENTRYPOINT("UIConsole::ConsoleScriptCompiler");
+			{
+				GTS_PROFILE_ENTRYPOINT("UIConsole::ConsoleScriptCompiler");
 
-			//logger::info("Entered Console Text: \"{}\"", a_script->text);
-			//If true text was a plugin command 
-			if (ConsoleManager::Process(a_script->text)) {
-				return;
+				//logger::info("Entered Console Text: \"{}\"", a_script->text);
+				//If true text was a plugin command 
+				if (ConsoleManager::Process(a_script->text)) {
+					return;
+				}
 			}
 
 			func(a_script, a_compiler, a_name, a_targetRef);

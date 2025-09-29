@@ -245,10 +245,13 @@ namespace Hooks {
 
 		static void thunk(void* a_unk01) {
 
-			GTS_PROFILE_ENTRYPOINT("Havok::ProcessHavokHitJobs");
-
 			func(a_unk01);
-			EventDispatcher::DoHavokUpdate();
+
+			{
+				GTS_PROFILE_ENTRYPOINT("Havok::ProcessHavokHitJobs");
+				EventDispatcher::DoHavokUpdate();
+			}
+
 		}
 		FUNCTYPE_CALL func;
 	};
@@ -261,35 +264,40 @@ namespace Hooks {
 		// maxsu. for IsCollisionEnabled idea
 		static bool* thunk(hkpCollidableCollidableFilter* a_this, bool* a_result, const hkpCollidable* a_collidableA, const hkpCollidable* a_collidableB) {
 
-			GTS_PROFILE_ENTRYPOINT("Havok::IsCollisionEnabled");
 
 			a_result = func(a_this, a_result, a_collidableA, a_collidableB);
 
-			if (*a_result) {
-				auto colLayerA = GetCollisionLayer(a_collidableA);
-				auto colLayerB = GetCollisionLayer(a_collidableB);
+			{
+				GTS_PROFILE_ENTRYPOINT("Havok::IsCollisionEnabled");
 
-				//CollisionPrints(a_collidableA, a_collidableB);
+				if (*a_result) {
+					auto colLayerA = GetCollisionLayer(a_collidableA);
+					auto colLayerB = GetCollisionLayer(a_collidableB);
 
-				if (IsTreeCollisionDisabled(a_collidableA, a_collidableB)) {
-					*a_result = false;
-				}
+					//CollisionPrints(a_collidableA, a_collidableB);
 
-				bool Check_A = (colLayerA == COL_LAYER::kBiped || colLayerA == COL_LAYER::kCharController || colLayerA == COL_LAYER::kDeadBip || colLayerA == COL_LAYER::kBipedNoCC);
-				bool Check_B = (colLayerB == COL_LAYER::kBiped || colLayerB == COL_LAYER::kCharController || colLayerB == COL_LAYER::kDeadBip || colLayerB == COL_LAYER::kBipedNoCC);
+					if (IsTreeCollisionDisabled(a_collidableA, a_collidableB)) {
+						*a_result = false;
+					}
 
-				if (Check_A || Check_B) {
-					auto objA = GetTESObjectREFR(a_collidableA);
-					auto objB = GetTESObjectREFR(a_collidableB);
+					bool Check_A = (colLayerA == COL_LAYER::kBiped || colLayerA == COL_LAYER::kCharController || colLayerA == COL_LAYER::kDeadBip || colLayerA == COL_LAYER::kBipedNoCC);
+					bool Check_B = (colLayerB == COL_LAYER::kBiped || colLayerB == COL_LAYER::kCharController || colLayerB == COL_LAYER::kDeadBip || colLayerB == COL_LAYER::kBipedNoCC);
 
-					if (objA && objB && objA != objB) {
-						if (IsCollisionDisabledBetween(objA, objB)) {
-							*a_result = false;
+					if (Check_A || Check_B) {
+						auto objA = GetTESObjectREFR(a_collidableA);
+						auto objB = GetTESObjectREFR(a_collidableB);
+
+						if (objA && objB && objA != objB) {
+							if (IsCollisionDisabledBetween(objA, objB)) {
+								*a_result = false;
+							}
 						}
 					}
 				}
 			}
+
 			return a_result;
+
 		}
 
 		FUNCTYPE_VFUNC func;

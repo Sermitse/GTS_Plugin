@@ -2,6 +2,8 @@
 #include "Data/Persistent.hpp"
 #include "Config/Config.hpp"
 #include "Managers/GtsSizeManager.hpp"
+
+#include "UI/UIManager.hpp"
 #include "UI/ImGUI/ImStyleManager.hpp"
 #include "Utils/ItemDistributor.hpp"
 
@@ -64,7 +66,7 @@ namespace GTS {
 
 	void Persistent::LoadModLocalModConfiguration() {
 		Config::LoadSettingsFromString();
-		ImStyleManager::GetSingleton().LoadStyle();
+		UIManager::WindowManager->ApplyStyle();
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 	}
 

@@ -11,7 +11,9 @@ namespace Hooks {
 
 		static void thunk(RE::TESCamera* a_this) {
 
-			GTS_PROFILE_ENTRYPOINT("Camera::TESCameraUpdate");
+			{
+				GTS_PROFILE_ENTRYPOINT("Camera::TESCameraUpdate");
+			}
 
 			func(a_this);
 		}

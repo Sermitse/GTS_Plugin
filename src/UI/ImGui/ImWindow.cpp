@@ -2,7 +2,7 @@
 
 namespace GTS {
 
-    ImVec2 IImWindow::GetAnchorPos(WindowAnchor a_position, ImVec2 a_padding, bool a_allowCenterY) {
+    ImVec2 ImWindow::GetAnchorPos(WindowAnchor a_position, ImVec2 a_padding, bool a_allowCenterY) {
         auto v = ImGui::GetMainViewport();
         auto s = ImGui::GetWindowSize();
 
@@ -30,5 +30,21 @@ namespace GTS {
                 }
         	return { Origin.x * 0.5f, Origin.y * 0.5f };
         }
+    }
+
+    void ImWindow::SetVisible(bool a_state) {
+        if (a_state != m_show) {
+            m_show = a_state;
+            if (m_show) {
+                OnWindowShow();
+            }
+            else {
+                OnWindowHide();
+            }
+        }
+    }
+
+    bool ImWindow::IsVisible() const {
+        return m_show;
     }
 }

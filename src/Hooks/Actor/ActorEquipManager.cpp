@@ -8,9 +8,16 @@ namespace Hooks {
 
 		static void thunk(RE::ActorEquipManager* a_this, RE::Actor* a_actor, RE::TESBoundObject* a_object, std::uint64_t a_unk) {
 
-			GTS_PROFILE_ENTRYPOINT("ActorEquipManager::EquipObject");
+			bool allow = true;
 
-			if (!ClothManager::GetSingleton().ShouldPreventReEquip(a_actor, a_object)) {
+			{
+				GTS_PROFILE_ENTRYPOINT("ActorEquipManager::EquipObject");
+				if (ClothManager::GetSingleton().ShouldPreventReEquip(a_actor, a_object)) {
+					allow = false;
+				}
+			}
+
+			if (allow) {
 				func(a_this, a_actor, a_object, a_unk);
 			}
 		}

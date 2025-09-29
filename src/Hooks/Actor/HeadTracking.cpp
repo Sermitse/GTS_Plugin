@@ -140,10 +140,14 @@ namespace Hooks {
 
 		static float thunk(TESObjectREFR* a_this) {
 
-			GTS_PROFILE_ENTRYPOINT("ActorHeadTracking::AlterHeadTrackScale");
+			float result = func(a_this);
 
-			const float result = func(a_this);
-			return HT_ScaleTargeted_Player(a_this, result);;
+			{
+				GTS_PROFILE_ENTRYPOINT("ActorHeadTracking::AlterHeadTrackScale");
+				result = HT_ScaleTargeted_Player(a_this, result);
+			}
+
+			return result;
 		}
 
 		FUNCTYPE_CALL func;
@@ -154,10 +158,11 @@ namespace Hooks {
 
 		static void thunk(AIProcess* a_this, Actor* a_owner, NiPoint3& a_targetPosition) {
 			// Applied to NPC's + player when needed
+			{
+				GTS_PROFILE_ENTRYPOINT("ActorHeadTracking::AlterHeadTrackTarget");
+				HT_ScaleNonTargeted_Impl(a_owner, a_targetPosition);
+			}
 
-			GTS_PROFILE_ENTRYPOINT("ActorHeadTracking::AlterHeadTrackTarget");
-
-			HT_ScaleNonTargeted_Impl(a_owner, a_targetPosition);
 			func(a_this, a_owner, a_targetPosition);
 		}
 

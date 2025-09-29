@@ -81,10 +81,40 @@ NOTES:
 
 */
 
+
+//True MainLoop of the game
+//AE has 2 of them...
+//AE ID: 36544 AE Offset: 0xd6 Location of the GetActiveWindow() Call Right before other checks.
+//AE ID: 36550 AE Offset: 0x95 Location of the GetActiveWindow() Call Right before other checks.
+struct MainLoop {
+
+	//Right before a bunch of logic runs which eventually calls Main::Update
+	//A call to GetActiveWindow is made to check if the game window is in focus.
+	static HWND __fastcall thunk(void) {
+		logger::trace("MainLoop");
+		return GetActiveWindow();
+	}
+
+	FUNCTYPE_CALL func;
+};
+
+//A Very early call at near the start of Main::Update
+//Call order Crt startup->MainLoop(true int main(), has while(true))->Main::Update, which is the hook below
+struct MainUpdatePre {
+
+	static void __fastcall thunk(int64_t unk_1) {
+		logger::trace("MainUpdatePre");
+		func(unk_1);
+	}
+
+	FUNCTYPE_CALL func;
+};
+
 namespace Hooks {
 
 	void Hook_Experiments::Install() {
-		
+		stl::write_call<MainLoop, 6>(REL::VariantID(NULL, 36544, NULL), REL::VariantOffset(NULL, 0xd6, NULL));
+		stl::write_call<MainUpdatePre>(REL::VariantID(35565, 36564, NULL), REL::VariantOffset(0x1E, 0x3E, NULL));
 	}
 
 }

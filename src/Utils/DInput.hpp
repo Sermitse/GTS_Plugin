@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Direct Input Keys
  * These are taken from the Wine Project which is under the

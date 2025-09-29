@@ -38,25 +38,30 @@ namespace Hooks {
 
 		static void thunk(hkbBehaviorGraph* a_this, const hkbContext& a_context, float a_timestep) {
 
-			GTS_PROFILE_ENTRYPOINT("HavokBehavior::hkbBehaviorGraphUpdate");
 
 			float anim_speed = 1.0f;
 
-			for (auto actor : find_actors()) {
-				BSAnimationGraphManagerPtr animGraphManager;
-				if (actor->GetAnimationGraphManager(animGraphManager)) {
-					for (auto& graph : animGraphManager->graphs) {
-						if (graph) {
-							if (a_this == graph->behaviorGraph) {
-								float multi = Animation_GetSpeedCorrection(actor);
-								AffectByPerk(actor, anim_speed);
-								anim_speed *= multi;
+			{
+				GTS_PROFILE_ENTRYPOINT("HavokBehavior::hkbBehaviorGraphUpdate");
+
+				for (auto actor : find_actors()) {
+					BSAnimationGraphManagerPtr animGraphManager;
+					if (actor->GetAnimationGraphManager(animGraphManager)) {
+						for (auto& graph : animGraphManager->graphs) {
+							if (graph) {
+								if (a_this == graph->behaviorGraph) {
+									float multi = Animation_GetSpeedCorrection(actor);
+									AffectByPerk(actor, anim_speed);
+									anim_speed *= multi;
+								}
 							}
 						}
 					}
 				}
 			}
+
 			func(a_this, a_context, a_timestep * anim_speed);
+
 		}
 
 		FUNCTYPE_VFUNC func;

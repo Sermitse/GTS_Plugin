@@ -3,39 +3,46 @@
 #include "Data/Plugin.hpp"
 #include "Hooks/Util/HookUtil.hpp"
 
+#include "UI/UIManager.hpp"
+
 namespace Hooks {
 
-	struct MainUpdate {
+	struct MainUpdatePost {
+
+		static inline std::atomic_bool started = false;
 
 		static void thunk(RE::Main* a_this, float a_deltaTime) {
 
 			func(a_this, a_deltaTime);
 
-			GTS_PROFILE_ENTRYPOINT("EngineMain::MainUpdate");
+			{
+				GTS_PROFILE_ENTRYPOINT("EngineMain::MainUpdatePost");
 
-			static std::atomic_bool started = std::atomic_bool(false);
-			Plugin::SetOnMainThread(true);
+				
+				Plugin::SetOnMainThread(true);
 
-			if (Plugin::Live()) {
+				if (Plugin::Live()) {
 
-				//Cache all currently loaded Actors
-				// We are not loading or in the mainmenu
-				// Player loaded and not paused
-				if (started.exchange(true)) {
-					// Not first updated
-					Time::GetSingleton().Update();
-					EventDispatcher::DoUpdate();
+					//Cache all currently loaded Actors
+					// We are not loading or in the mainmenu
+					// Player loaded and not paused
+					if (started.exchange(true)) {
+						// Not first updated
+						Time::GetSingleton().Update();
+						EventDispatcher::DoUpdate();
+					}
+					else {
+						// First update this load
+						EventDispatcher::DoStart();
+					}
 				}
-				else {
-					// First update this load
-					EventDispatcher::DoStart();
+				else if (!Plugin::InGame()) {
+					// Loading or in main menu
+					started.store(false);
 				}
+				Plugin::SetOnMainThread(false);
 			}
-			else if (!Plugin::InGame()) {
-				// Loading or in main menu
-				started.store(false);
-			}
-			Plugin::SetOnMainThread(false);
+
 		}
 
 		FUNCTYPE_CALL func;
@@ -43,8 +50,9 @@ namespace Hooks {
 
 
 	void Hook_MainUpdate::Install() {
-		//Update happens at the end of the main game loop right before a BSLightingShader subroutine.
-		stl::write_call<MainUpdate>(REL::RelocationID(35565, 36564, NULL), REL::VariantOffset(0x748, 0xC26, NULL));
+		logger::info("Installing Main Update Hooks...");
+		//Update happens at the end of the Main::Update loop right before a BSLightingShader subroutine.
+		stl::write_call<MainUpdatePost>(REL::RelocationID(35565, 36564, NULL), REL::VariantOffset(0x748, 0xC26, NULL));
 	}
 
 }

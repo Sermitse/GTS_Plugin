@@ -10,30 +10,34 @@ namespace Hooks {
 
 		static bool thunk(BGSImpactManager* a_manager, BGSImpactManager::ImpactSoundData& a_data) {
 
-			GTS_PROFILE_ENTRYPOINT("SoundImpactManager::PlayImpactDataSounds");
 
-			// Trying to get/alter data.sound1/sound2 is useless since they never pass the if (sound) check
-			// So the only way to disable default sounds is to do data.playsound1/2 = false
+			{
+				GTS_PROFILE_ENTRYPOINT("SoundImpactManager::PlayImpactDataSounds");
 
-			if (auto& Object = a_data.objectToFollow) {
-				// GetUserData seems to be player exclusive for some reason
-				if (auto userData = Object->GetUserData()) { 
-					Actor* actor = skyrim_cast<Actor*>(userData);
-					if (actor) {
-						if (actor->formID == 0x14) {
-							float scale = get_visual_scale(actor);
-							if (HasSMT(actor)) {
-								scale *= 2.0f;
-							}
-							if (scale > 1.75f) {
-								//log::info("Disabling sounds for {}", actor->GetDisplayFullName());
-								a_data.playSound1 = false;
-								a_data.playSound2 = false;
+				// Trying to get/alter data.sound1/sound2 is useless since they never pass the if (sound) check
+				// So the only way to disable default sounds is to do data.playsound1/2 = false
+
+				if (auto& Object = a_data.objectToFollow) {
+					// GetUserData seems to be player exclusive for some reason
+					if (auto userData = Object->GetUserData()) {
+						Actor* actor = skyrim_cast<Actor*>(userData);
+						if (actor) {
+							if (actor->formID == 0x14) {
+								float scale = get_visual_scale(actor);
+								if (HasSMT(actor)) {
+									scale *= 2.0f;
+								}
+								if (scale > 1.75f) {
+									//log::info("Disabling sounds for {}", actor->GetDisplayFullName());
+									a_data.playSound1 = false;
+									a_data.playSound2 = false;
+								}
 							}
 						}
 					}
 				}
 			}
+
 			return func(a_manager, a_data);
 		}
 
@@ -47,10 +51,12 @@ namespace Hooks {
 
 		static BSEventNotifyControl thunk(BGSImpactManager* a_this, const BGSFootstepEvent* a_event, BSTEventSource<BGSFootstepEvent>* a_eventSource) {
 
-			GTS_PROFILE_ENTRYPOINT("SoundImpactManager::ImpactManagerProcessEvent");
+			{
+				GTS_PROFILE_ENTRYPOINT("SoundImpactManager::ImpactManagerProcessEvent");
+				ImpactManager::GetSingleton().HookProcessEvent(a_this, a_event, a_eventSource);
+				// ^ On FootEvent: manages damage, effects and launching. do NOT disable it!
 
-			ImpactManager::GetSingleton().HookProcessEvent(a_this, a_event, a_eventSource);
-			// ^ On FootEvent: manages damage, effects and launching. do NOT disable it!
+			}
 
 			return func(a_this, a_event, a_eventSource);
 		}

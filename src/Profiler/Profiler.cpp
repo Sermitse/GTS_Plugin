@@ -1,5 +1,7 @@
 #include "Profiler/Profiler.hpp"
 #include "Managers/GtsManager.hpp"
+
+#include "UI/UIManager.hpp"
 #include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/ImFontManager.hpp"
 
@@ -387,7 +389,7 @@ namespace GTS {
 		// Clean up expired threads
 		Instance.CleanupExpiredThreads();
 
-		ImFontManager::PushActiveFont(ImFontManager::ActiveFontType::kSubText);
+		UIManager::WindowManager->SetFont(ImFontManager::ActiveFontType::kSubText);
 
 		// Begin window with persistent collapse state
 		if (!ImGui::Begin("Profiler Report", nullptr, ImGuiWindowFlags_None)) {

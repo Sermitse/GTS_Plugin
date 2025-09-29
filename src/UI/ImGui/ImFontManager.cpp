@@ -22,10 +22,9 @@ namespace GTS {
 
     }
 
-    void ImFontManager::PushActiveFont(ActiveFontType a_ActiveFontType) {
-        const auto& FontMgr = GetSingleton();
-    	const auto& Type = FontMgr.TextTypeMap.find(a_ActiveFontType)->second;
-        ImGui::PushFont(Type.FontSet->GetActiveScript(), Type.Scale);
+    void ImFontManager::PushFont(ActiveFontType a_ActiveFontType) const {
+    	const auto& Type = TextTypeMap.find(a_ActiveFontType)->second;
+        ImGui::PushFont(Type.FontSet->EN, Type.Scale);
     }
 
     void ImFontManager::PopActiveFont() {

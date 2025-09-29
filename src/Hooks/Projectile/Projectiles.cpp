@@ -104,10 +104,13 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(RE::Explosion* a_this, TESObjectCELL& a_cell) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::InitializeExplosion", ID);
-
 			func<ID>(a_this, a_cell);
-			ScaleExplosion(a_this);
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::InitializeExplosion", ID);
+				ScaleExplosion(a_this);
+			}
+
 		}
 
 		template<int ID>
@@ -123,7 +126,9 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(RE::Projectile* a_this, RE::NiPoint3& a_outVelocity) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::GetLinearVelocity", ID);
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::GetLinearVelocity", ID);
+			}
 
 			func<ID>(a_this, a_outVelocity);
 		}
@@ -141,10 +146,13 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(RE::Projectile* a_this) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::Handle3DLoaded", ID);
-
 			func<ID>(a_this);
-			ScaleProjectile(a_this, 1.0f, false);
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::Handle3DLoaded", ID);
+				ScaleProjectile(a_this, 1.0f, false);
+			}
+
 		}
 
 		template<int ID>
@@ -159,10 +167,13 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(RE::Projectile* a_this, TESObjectREFR* a_ref, const NiPoint3& a_targetLoc, const NiPoint3& a_velocity, hkpCollidable* a_collidable, std::int32_t a_arg6, std::uint32_t a_arg7) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::AddImpact", ID);
-
 			func<ID>(a_this, a_ref, a_targetLoc, a_velocity, a_collidable, a_arg6, a_arg7);
-			//ArrowImpact(a_this);
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::AddImpact", ID);
+				//ArrowImpact(a_this);
+			}
+
 		}
 
 		template<int ID>

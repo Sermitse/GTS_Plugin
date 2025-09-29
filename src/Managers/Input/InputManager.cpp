@@ -58,7 +58,7 @@ namespace GTS {
 		m.Ready.store(true);
 	}
 
-	void InputManager::ProcessEvents(InputEvent** a_event) {
+	void InputManager::ProcessAndFilterEvents(InputEvent** a_event) {
 
 		std::unordered_set<uint32_t> KeysToBlock = {};
 		std::unordered_set<std::uint32_t> gameInputKeys = {};

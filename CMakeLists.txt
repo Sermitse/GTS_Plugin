@@ -17,6 +17,7 @@ set(PROJECT_COPYRIGHT "Apache License 2.0")
 set(PROJECT_DESCRIPTION "${PROJECT_DESCRIPTION}")
 set(PROJECT_NAME "${PROJECT_NAME}")
 set(PROJECT_FRIENDLY_NAME "${PROJECT_NAME}")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Options
 option(GTS_STRICT_COMPILE "Enable strict compilation flags (treat warnings as errors)" OFF)
@@ -27,7 +28,7 @@ option(GTS_BUILD_DISTRIBUTION "Construct a distribution folder after each build"
 # # Flags
 # #######################################################################################################################
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Export compile_commands.json")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_definitions(_ENABLE_EXTENDED_ALIGNED_STORAGE)

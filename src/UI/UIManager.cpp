@@ -1,121 +1,54 @@
 #include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/Lib/imgui_impl_dx11.h"
 #include "UI/ImGui/Lib/imgui_impl_win32.h"
+
 #include "UI/UIManager.hpp"
-#include "Managers/Console/ConsoleManager.hpp"
-#include "UI/ImGui/ImUtil.hpp"
-#include "UI/ImGui/ImWindowManager.hpp"
-#include "UI/Windows/WindowSettings.hpp"
-#include "UI/Windows/WindowStatus.hpp"
-#include "Managers/Input/InputManager.hpp"
-#include "Windows/WindowUnderstomp.hpp"
-#include "ImGui/ImGraphics.hpp"
-
-namespace {
-
-    void OpenSettingsImpl(bool a_IsConsole) {
-
-        auto UI = RE::UI::GetSingleton();
-        
-        if (!GTS::Plugin::Ready() || GTS::Plugin::AnyMenuOpen() || UI->IsMenuOpen(RE::FaderMenu::MENU_NAME)) {
-
-            if (a_IsConsole) {
-                GTS::Cprint("Can not open the settings menu at this time. Try again in game.");
-            }
-
-            return;
-        }
-
-        if (auto Window = GTS::ImWindowManager::GetSingleton().GetWindowByName("Settings")) {
-
-            if (UI->IsMenuOpen(RE::Console::MENU_NAME)) {
-                const auto msgQueue = RE::UIMessageQueue::GetSingleton();
-                msgQueue->AddMessage(RE::Console::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-            }
-
-            if (UI->IsMenuOpen(RE::DialogueMenu::MENU_NAME)) {
-                const auto msgQueue = RE::UIMessageQueue::GetSingleton();
-                msgQueue->AddMessage(RE::DialogueMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-            }
-
-            GTS::UIManager::UnPausedGameTime = GTS::Time::GGTM();
-
-            if (GTS::Config::Advanced.bPauseGame) {
-                //Pause the game
-                RE::UI::GetSingleton()->numPausesGame++;
-                GTS::UIManager::GamePaused = true;
-                //Old method Only stops world update, Its litterally only used for the TFC 1 command in the whole exe.
-                //WorldUpdate Checks this value and it only ever gets set by the TFC 1 console command....
-                //RE::Main::GetSingleton()->freezeTime = true;
-            }
-            else {
-                GTS::Time::SGTM(GTS::Config::Advanced.fSGTMMult);
-            }
-
-            RE::UIBlurManager::GetSingleton()->IncrementBlurCount();
-
-            //Show Settings Window
-            GTS::UIManager::ShouldDrawOverTop = true;
-            Window->Show = true;
-
-
-        }
-    }
-
-    void OpenSettingsK(const GTS::ManagedInputEvent& data) {
-        OpenSettingsImpl(false);
-    }
-
-    void OpenSettingsC() {
-        OpenSettingsImpl(true);
-    }
-
-}
 
 namespace GTS {
 
-
     void UIManager::ShowInfos() {
-        if (auto Window = dynamic_cast<WindowStatus*>(GTS::ImWindowManager::GetSingleton().GetWindowByName("Status"))) {
+        /*if (auto Window = dynamic_cast<WindowStatus*>(WindowManager->GetWindowByName("Status"))) {
             if (Window->ShouldDraw()) {
                 Window->Show();
             }
         }
 
-        if (auto Window = dynamic_cast<WindowUnderstomp*>(GTS::ImWindowManager::GetSingleton().GetWindowByName("Understomp"))) {
+        if (auto Window = dynamic_cast<WindowUnderstomp*>(WindowManager->GetWindowByName("Understomp"))) {
             if (Window->ShouldDraw()) {
                 Window->Show();
             }
-        }
+        }*/
     }
 
     void UIManager::CloseSettings() {
-        if (auto Window = dynamic_cast<WindowSettings*>(GTS::ImWindowManager::GetSingleton().GetWindowByName("Settings"))) {
+   //     if (auto Window = dynamic_cast<WindowSettings*>(WindowManager->GetWindowByName("Settings"))) {
 
-        	Window->AsyncSave();
+   //     	Window->AsyncSave();
 
-            //Show Settings Window
-            ShouldDrawOverTop = false;
-            Window->Show = false;
+   //         //Show Settings Window
+   //         ShouldDrawOverTop = false;
+   //         Window->m_show = false;
 
-            //If we incremented the pause counter ourselves
-            //decrement it again
-            //if we didnt and some random message box did, it prevents underflowing the counter
-            if (GTS::UIManager::GamePaused){
-                if (RE::UI::GetSingleton()->numPausesGame > 0)
-                    RE::UI::GetSingleton()->numPausesGame--;
-                GTS::UIManager::GamePaused = false;
-			}
+   //         //If we incremented the pause counter ourselves
+   //         //decrement it again
+   //         //if we didnt and some random message box did, it prevents underflowing the counter
+   //         if (GTS::UIManager::GamePaused){
+   //             if (RE::UI::GetSingleton()->numPausesGame > 0)
+   //                 RE::UI::GetSingleton()->numPausesGame--;
+   //             GTS::UIManager::GamePaused = false;
+			//}
 
-            RE::UIBlurManager::GetSingleton()->DecrementBlurCount();
-            //Restore Modified Game time.
-            Hooks::Time::SGTM(GTS::UIManager::UnPausedGameTime);
-        }
+   //         RE::UIBlurManager::GetSingleton()->DecrementBlurCount();
+   //         //Restore Modified Game time.
+   //         Hooks::Time::SGTM(GTS::UIManager::UnPausedGameTime);
+
+   //         GTS::ImInput::ShowGameCursor(false);
+   //     }
     }
 
     void UIManager::Init() {
 
-        if (Initialized.load()) {
+        if (m_initialized.load()) {
             return;
         }
 
@@ -126,81 +59,130 @@ namespace GTS {
         const auto DXGISwapChain = reinterpret_cast<IDXGISwapChain*>(RenderManager->GetRuntimeData().swapChain);
 
         DXGI_SWAP_CHAIN_DESC SwapChainDesc{};
+        HRESULT hr = DXGISwapChain->GetDesc(&SwapChainDesc);
 
-		HRESULT hr = DXGISwapChain->GetDesc(&SwapChainDesc);
-
-		if (FAILED(hr)) {
-		    logger::error("Could not get the swapchain, HRESULT: {}", hr);
+        if (FAILED(hr)) {
+            logger::error("Could not get the swapchain, HRESULT: {}", hr);
             ReportAndExit("Could not get the swapchain, HRESULT: {}");
-		}
+        }
 
         ImGui::CreateContext();
 
         ImGuiIO& io = ImGui::GetIO();
-        io.IniFilename = ImGuiINI.data();
+        io.IniFilename = m_ImGuiINI.data();
 
         io.DisplaySize = {
-        	static_cast<float>(SwapChainDesc.BufferDesc.Width),
-        	static_cast<float>(SwapChainDesc.BufferDesc.Height)
+            static_cast<float>(SwapChainDesc.BufferDesc.Width),
+            static_cast<float>(SwapChainDesc.BufferDesc.Height)
         };
 
         io.ConfigNavCaptureKeyboard = false;
+
+        // Cursor configuration:
+        // - MouseDrawCursor = false: We don't want ImGui to draw its own cursor for HUD/Cursor layers
+        // - ConfigFlags: Don't change cursor because we use game's cursor for HUD/Cursor layers
+        // - For kPresent layer, ImGui Win32 backend will handle cursor automatically
+        io.MouseDrawCursor = false;
         io.ConfigNavEscapeClearFocusWindow = false;
         io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
         ImGui_ImplWin32_Init(SwapChainDesc.OutputWindow);
         ImGui_ImplDX11_Init(D3DDevice, D3DContext);
 
-        FontMgr.Init();
-    	StyleMgr.LoadStyle();
-
-        //Single Instance Windows dont't need a name
-        //The name is defined in the derived windows' ctor.
-        //Only add a name if instantiating multiple instances of the same window class.
-        WinMgr.AddWindow(std::make_unique<WindowSettings>());
-        WinMgr.AddWindow(std::make_unique<WindowStatus>());
-        WinMgr.AddWindow(std::make_unique<WindowUnderstomp>());
-
+        logger::info("ImGraphics Init");
         Graphics = new ImGraphics(D3DDevice, D3DContext);
         Graphics->Load();
 
-        Initialized.store(true);
+        logger::info("ImWindowManager Init");
+        WindowManager = new ImWindowManager();
+        WindowManager->Init();
 
-        logger::info("ImGui Init OK");
+        logger::info("ImInput Init");
+        Input = new ImInput();
 
-        InputManager::RegisterInputEvent("OpenModSettings", OpenSettingsK);
-        ConsoleManager::RegisterCommand("menu", OpenSettingsC, "Open the settings menu");
+        m_initialized.store(true);
+
+        logger::info("UIManager Init OK");
+
     }
 
-    void UIManager::Draw() {
+    void UIManager::Update() {
 
-        if (!Initialized.load()) {
+        if (!m_initialized.load(std::memory_order_relaxed)) {
             return;
         }
 
-        if (!Plugin::Ready()) {
+        if (m_frameReady.load(std::memory_order_relaxed)) {
+            ImGui::EndFrame();
             return;
         }
-
-        ProcessInputEventQueue();
 
         ImGui_ImplWin32_NewFrame();
         ImGui_ImplDX11_NewFrame();
-
         ImGui::NewFrame();
 
-        ImWindowManager::GetSingleton().Update();
+        Input->ProcessInputEventQueue();
+        Input->UpdateCursorState();
 
-#ifdef GTS_PROFILER_ENABLED
-		if (Profilers::DrawProfiler) {
-            ShouldDrawOverTop = true;
+        // Update ImGui cursor visibility based on draw level
+        // kPresent layer uses ImGui's Win32 cursor
+        // HUD/Cursor layers use game cursor (don't show ImGui cursor)
+        ImGuiIO& io = ImGui::GetIO();
+        if (WindowManager->GetHighestDrawLevel() == ImWindow::DrawLevel::kPresent) {
+            // Allow ImGui to manage cursor for kPresent layer
+            io.MouseDrawCursor = true; 
+            io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+            Input->GetOverlayWantsCursor();
         }
-        GTS_PROFILER_DISPLAY_REPORT();
-#endif
+        else {
+            // Use game cursor for HUD/Cursor layers
+            io.MouseDrawCursor = false;
+            io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+            Input->UpdateMousePos();
+        }
 
-        ImGui::Render();
+        WindowManager->Update();
 
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        m_frameReady.store(true, std::memory_order_release);
+
+    }
+
+    void UIManager::Present(ImWindow::DrawLevel a_level) {
+
+        if (WindowManager->GetHighestDrawLevel() != a_level) {
+            return;
+        }
+
+        {
+            ReCallGuard guard(g_alreadyPresenting);
+
+            if (!guard.acquired()) {
+                return;
+            }
+
+            if (m_frameReady.exchange(false, std::memory_order_acquire)) {
+                ImGui::Render();
+                ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+            }
+        }
+
+    }
+
+    bool UIManager::Ready() {
+        return GetSingleton().m_initialized.load();
+    }
+
+    void UIManager::ProcessAndFilterEvents(RE::InputEvent** a_events) {
+
+        Input->ProcessInputEvents(a_events);
+
+        //A menu that needs input is open, remove all keypresses from the linked list.
+        if (WindowManager->HasInputConsumers()) {
+            //ImInput::RemoveAllKeyEvents(a_events);
+            return;
+        }
+
+        Input->ResetImGuiInputState();
 
     }
 }

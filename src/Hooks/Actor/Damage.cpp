@@ -297,29 +297,31 @@ namespace Hooks {
 
 		static void thunk(Actor* a_this, float a_dmg, Actor* a_aggressor, uintptr_t a_hitdata, TESObjectREFR* a_damageSrc) {
 
-			GTS_PROFILE_ENTRYPOINT("ActorDamage::TakeDamage");
+			{
+				GTS_PROFILE_ENTRYPOINT("ActorDamage::TakeDamage");
 
-			if (a_aggressor && a_aggressor != a_this) { // apply to hits only, we don't want to decrease fall damage for example
+				if (a_aggressor && a_aggressor != a_this) { // apply to hits only, we don't want to decrease fall damage for example
 
-				const bool ShouldBeKilled = DontAlterDamage(a_this, a_dmg, AddToDamage);
-				// ^ Attempt to fix being unkillable below 5% hp, the bug seems to be player exclusive
-				/*if (a_this->formID == 0x14) {
-					log::info("Damage Pre: {}", a_dmg);
-					log::info("Should be killed: {}", ShouldBeKilled);
-				}*/
-				if (!ShouldBeKilled) {
-					a_dmg *= GetTotalDamageResistance(a_this, a_aggressor);
-					// ^ This function applies damage resistance from being large
-					// Also makes receiver immune to all (?) damage for ~2.5 sec if health gate was triggered
+					const bool ShouldBeKilled = DontAlterDamage(a_this, a_dmg, AddToDamage);
+					// ^ Attempt to fix being unkillable below 5% hp, the bug seems to be player exclusive
+					/*if (a_this->formID == 0x14) {
+						log::info("Damage Pre: {}", a_dmg);
+						log::info("Should be killed: {}", ShouldBeKilled);
+					}*/
+					if (!ShouldBeKilled) {
+						a_dmg *= GetTotalDamageResistance(a_this, a_aggressor);
+						// ^ This function applies damage resistance from being large
+						// Also makes receiver immune to all (?) damage for ~2.5 sec if health gate was triggered
+					}
+
+					if (HealthGateProtection(a_this, a_aggressor, a_dmg)) { // When Health Gate is true, initial hit full damage immunity is applied here 
+						a_dmg *= 0.0f;
+					}
+
+					DoOverkill(a_aggressor, a_this, a_dmg);
+					RecordPushForce(a_this, a_aggressor);
+
 				}
-
-				if (HealthGateProtection(a_this, a_aggressor, a_dmg)) { // When Health Gate is true, initial hit full damage immunity is applied here 
-					a_dmg *= 0.0f;
-				}
-
-				DoOverkill(a_aggressor, a_this, a_dmg);
-				RecordPushForce(a_this, a_aggressor);
-				
 			}
 
 			// This hook has a 'small' downside:

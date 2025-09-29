@@ -58,14 +58,18 @@ namespace Hooks {
 
         static float thunk(Actor* a_this) {
 
-            GTS_PROFILE_ENTRYPOINT("ActorDetection::CalculateFootStepDetection");
-
             float result = func(a_this); // Makes footsteps lounder for AI
-            if (a_this->formID == 0x14 || IsTeammate(a_this)) {
-                //log::info("Hook Weight Result for {} is {}", giant->GetDisplayFullName(), result);
-                float alter = modify_footstep_detection(a_this, result);
-                result = alter;
+
+            {
+                GTS_PROFILE_ENTRYPOINT("ActorDetection::CalculateFootStepDetection");
+
+                if (a_this->formID == 0x14 || IsTeammate(a_this)) {
+                    //log::info("Hook Weight Result for {} is {}", giant->GetDisplayFullName(), result);
+                    float alter = modify_footstep_detection(a_this, result);
+                    result = alter;
+                }
             }
+
             return result;
 
         }
@@ -86,10 +90,13 @@ namespace Hooks {
 
         static float thunk(Actor* a_this, NiPoint3* param_1) {
 
-            GTS_PROFILE_ENTRYPOINT("ActorDetection::CalculateHeading1");
-
             float result = func(a_this, param_1);
-            result *= modify_detection(result);
+
+            {
+                GTS_PROFILE_ENTRYPOINT("ActorDetection::CalculateHeading1");
+                result *= modify_detection(result);
+            }
+
             return result;
         }
 
@@ -109,10 +116,13 @@ namespace Hooks {
 
         static float thunk(Actor* a_this, NiPoint3* param_1) {
 
-            GTS_PROFILE_ENTRYPOINT("ActorDetection::CalculateHeading2");
-
             float result = func(a_this, param_1);
-            result *= modify_detection(result);
+
+            {
+                GTS_PROFILE_ENTRYPOINT("ActorDetection::CalculateHeading2");
+                result *= modify_detection(result);
+            }
+
             return result;
         }
 
@@ -124,23 +134,26 @@ namespace Hooks {
 
 		static uint8_t* thunk(RE::Actor* a_source, RE::Actor* a_target, std::int32_t& a_detectionValue, std::uint8_t& a_unk04, std::uint8_t& a_unk05, std::uint32_t& a_unk06, RE::NiPoint3& a_pos, float& a_unk08, float& a_unk09, float& a_unk10) {
 
-            GTS_PROFILE_ENTRYPOINT("ActorDetection::DoDetectionJob");
+            {
+                GTS_PROFILE_ENTRYPOINT("ActorDetection::DoDetectionJob");
 
-			if (a_source) {
+                if (a_source) {
 
-				if (IsHuman(a_source)) {
-					if (Grab::GetHeldActor(a_source)) {
-						a_detectionValue = -1000;
-						return nullptr;
-					}
-				}
-			}
+                    if (IsHuman(a_source)) {
+                        if (Grab::GetHeldActor(a_source)) {
+                            a_detectionValue = -1000;
+                            return nullptr;
+                        }
+                    }
+                }
 
-			//Doesn't seem to work
-			/*if (a_target) {
-				//Scale the detection value based on the target's scale
-				a_detectionValue = static_cast<int32_t>(static_cast<float>(a_detectionValue) * get_visual_scale(a_target));
-			}*/
+                //Doesn't seem to work
+				/*if (a_target) {
+				    //Scale the detection value based on the target's scale
+				    a_detectionValue = static_cast<int32_t>(static_cast<float>(a_detectionValue) * get_visual_scale(a_target));
+				}*/
+
+            }
 
 			return func(a_source, a_target, a_detectionValue, a_unk04, a_unk05, a_unk06, a_pos, a_unk08, a_unk09, a_unk10);
 		}

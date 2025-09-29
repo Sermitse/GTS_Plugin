@@ -10,9 +10,12 @@ namespace Hooks {
 
 		static void thunk(RE::PlayerCamera* a_this) {
 
-			GTS_PROFILE_ENTRYPOINT("Camera::PlayerCameraUpdate");
+			{
+				GTS_PROFILE_ENTRYPOINT("Camera::PlayerCameraUpdate");
+			}
 
 			func(a_this);
+
 		}
 
 		FUNCTYPE_VFUNC func;

@@ -1,5 +1,4 @@
 #include "Data/Plugin.hpp"
-
 #include "UI/UIManager.hpp"
 
 namespace GTS {
@@ -13,30 +12,28 @@ namespace GTS {
 	}
 
 	bool Plugin::Enabled() {
-		return Plugin::GetSingleton().enabled.load();
+		return m_enabled.load();
 	}
 
 	bool Plugin::InGame() {
-		auto ui = RE::UI::GetSingleton();
+		const auto ui = RE::UI::GetSingleton();
 		if (!ui) {
 			return false;
 		}
 		if (ui->IsMenuOpen(MainMenu::MENU_NAME)) {
 			return false;
 		}
-
-		return Plugin::GetSingleton().ingame.load();
+		return m_inGame.load();
 	}
 
 	void Plugin::SetInGame(bool value) {
-		Plugin::GetSingleton().ingame.store(value);
+		m_inGame.store(value);
 	}
 
 	bool Plugin::Ready() {
-		if (InGame()) {
+		if (m_inGame.load()) {
 			// We are not loading or in the mainmenu
-			auto player_char = RE::PlayerCharacter::GetSingleton();
-			if (player_char) {
+			if (const auto player_char = RE::PlayerCharacter::GetSingleton()) {
 				if (player_char->Is3DLoaded()) {
 					// Player is loaded
 					return true;
@@ -47,10 +44,11 @@ namespace GTS {
 	}
 
 	bool Plugin::Live() {
-        if (Ready()) {
-            auto ui = RE::UI::GetSingleton();
 
-            if (UIManager::MenuOpen() && GTS::UIManager::GamePaused) {
+        if (Ready()) {
+            const auto ui = RE::UI::GetSingleton();
+
+            if (UIManager::WindowManager->HasInputConsumers() && ui->numPausesGame > 0) {
                 return false;
             }
 
@@ -66,8 +64,7 @@ namespace GTS {
 
 	bool Plugin::AnyMenuOpen() {
 
-		//Static const means the list doesnt get recreated Each call. So no perf impact here.
-		static const std::vector<std::string_view> Menus = {
+		static const std::vector Menus = {
 			RE::CraftingMenu::MENU_NAME,
 			RE::BarterMenu::MENU_NAME,
 			RE::BookMenu::MENU_NAME,
@@ -91,8 +88,7 @@ namespace GTS {
 		};
 
 		if (Plugin::Ready()) {
-			//Looping Through the list Is O(n) (almost) no perf impact here.
-			auto ui = RE::UI::GetSingleton();
+			const auto ui = RE::UI::GetSingleton();
 			for (const auto& Menu : Menus) {
 				if (ui->IsMenuOpen(Menu)) {
 					//log::debug("Menu is open: {}", Menu);
@@ -105,8 +101,7 @@ namespace GTS {
 
 	bool Plugin::AnyWidgetMenuOpen() {
 
-		//Static const means the list doesnt get recreated Each call. So no perf impact here.
-		static const std::vector<std::string_view> Menus = {
+		static const std::vector Menus = {
 			RE::CraftingMenu::MENU_NAME,
 			RE::BarterMenu::MENU_NAME,
 			RE::BookMenu::MENU_NAME,
@@ -126,9 +121,8 @@ namespace GTS {
 			RE::TweenMenu::MENU_NAME,
 		};
 
-		if (Plugin::Ready()) {
-			//Looping Through the list Is O(n) (almost) no perf impact here.
-			auto ui = RE::UI::GetSingleton();
+		if (Ready()) {
+			const auto ui = RE::UI::GetSingleton();
 			for (const auto& Menu : Menus) {
 				if (ui->IsMenuOpen(Menu)) {
 					//log::debug("Menu is open: {}", Menu);
@@ -140,15 +134,11 @@ namespace GTS {
 	}
 
 	bool Plugin::OnMainThread() {
-		return Plugin::GetSingleton().onmainthread.load();
+		return m_onMainThread.load();
 	}
 
 	void Plugin::SetOnMainThread(bool value) {
-		Plugin::GetSingleton().onmainthread.store(value);
+		m_onMainThread.store(value);
 	}
 
-	Plugin& Plugin::GetSingleton() {
-		static Plugin instance;
-		return instance;
-	}
 }

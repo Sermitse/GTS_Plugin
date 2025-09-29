@@ -12,16 +12,18 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(RE::Actor* a_this, RE::Actor* a_attacker, float a_damage) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::HandleHealthDamage", ID);
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::HandleHealthDamage", ID);
 
-			if (a_attacker) {
+				if (a_attacker) {
 
-				SizeHitEffects::GetSingleton().ApplyEverything(a_attacker, a_this, a_damage); // Apply bonus damage, overkill, stagger resistance
+					SizeHitEffects::GetSingleton().ApplyEverything(a_attacker, a_this, a_damage); // Apply bonus damage, overkill, stagger resistance
 
-				if (Runtime::HasPerkTeam(a_this, "GTSPerkSizeReserveAug1")) { // Size Reserve Augmentation
-					auto Cache = Persistent::GetSingleton().GetData(a_this);
-					if (Cache) {
-						Cache->SizeReserve += -a_damage / 3000;
+					if (Runtime::HasPerkTeam(a_this, "GTSPerkSizeReserveAug1")) { // Size Reserve Augmentation
+						auto Cache = Persistent::GetSingleton().GetData(a_this);
+						if (Cache) {
+							Cache->SizeReserve += -a_damage / 3000;
+						}
 					}
 				}
 			}
@@ -40,14 +42,16 @@ namespace Hooks {
 		template<int ID>
 		static bhkCharacterController* thunk(RE::Actor* a_this, float a_arg2, const RE::NiPoint3& a_position) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Move", ID);
+			float bonus = 1.0f;
 
-			if (a_this && a_this->Get3D1(false) && !a_this->IsInKillMove()) {
-				const float bonus = AttributeManager::AlterMovementSpeed(a_this);
-				return func<ID>(a_this, a_arg2, a_position * bonus);
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Move", ID);
+				if (a_this && a_this->Get3D1(false) && !a_this->IsInKillMove()) {
+					bonus = AttributeManager::AlterMovementSpeed(a_this);
+				}
 			}
 
-			return func<ID>(a_this, a_arg2, a_position);
+			return func<ID>(a_this, a_arg2, a_position * bonus);
 
 		}
 		template<int ID>
@@ -58,11 +62,11 @@ namespace Hooks {
 
 		logger::info("Installing Actor VTABLE MultiHooks...");
 
-		stl::write_vfunc_unique<HandleHealthDamage, 0>(VTABLE_Actor[0]);
+		//stl::write_vfunc_unique<HandleHealthDamage, 0>(VTABLE_Actor[0]);
 		stl::write_vfunc_unique<HandleHealthDamage, 1>(VTABLE_Character[0]);
 		stl::write_vfunc_unique<HandleHealthDamage, 2>(VTABLE_PlayerCharacter[0]);
 
-		stl::write_vfunc_unique<Move, 0>(VTABLE_Actor[0]);
+		//stl::write_vfunc_unique<Move, 0>(VTABLE_Actor[0]);
 		stl::write_vfunc_unique<Move, 1>(VTABLE_Character[0]);
 		stl::write_vfunc_unique<Move, 2>(VTABLE_PlayerCharacter[0]);
 

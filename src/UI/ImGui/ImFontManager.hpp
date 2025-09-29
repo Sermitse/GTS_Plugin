@@ -31,13 +31,6 @@ namespace GTS {
 
 		public:
 
-        enum ActiveScriptType {
-            EN,
-            JP,
-            KR,
-            SC
-        };
-
         enum class ActiveFontType {
             kDefault,
             kSidebar,
@@ -86,16 +79,6 @@ namespace GTS {
 
             }
 
-            [[nodiscard]] ImFont* GetActiveScript() const {
-                switch (ImFontManager::ActiveScript) {
-                    case ActiveScriptType::EN: return EN;
-                    case ActiveScriptType::JP: return JP;
-                    case ActiveScriptType::KR: return KR;
-                    case ActiveScriptType::SC: return SC;
-                    default: return nullptr;
-                }
-            }
-
         } Font2;
 
         struct TextType {
@@ -106,22 +89,12 @@ namespace GTS {
 
         ~ImFontManager() = default;
 
-        [[nodiscard]] static inline ImFontManager& GetSingleton() {
-            static ImFontManager instance;
-            return instance;
-        }
-
         void Init();
 
-        static __forceinline void SetActiveScript(ActiveScriptType a_script){
-            ActiveScript = a_script;
-        }
-
-        static void PushActiveFont(ActiveFontType a_ActiveFontType);
+        void PushFont(ActiveFontType a_ActiveFontType) const;
         static void PopActiveFont();
 
 		private:
         std::unordered_map<ActiveFontType, TextType> TextTypeMap{};
-        static inline ActiveScriptType ActiveScript = EN;
     };
 }

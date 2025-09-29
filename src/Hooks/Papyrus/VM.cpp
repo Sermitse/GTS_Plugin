@@ -9,12 +9,15 @@ namespace Hooks {
 
 		static void thunk(BSScript::Internal::VirtualMachine* a_this, VMHandle a_handle, const BSFixedString& a_eventName, BSScript::IFunctionArguments* a_args) {
 
-			GTS_PROFILE_ENTRYPOINT("PapyrusVM::VirtualMachineSendEvent");
-
 			func(a_this, a_handle, a_eventName, a_args);
 
-			if (a_eventName == "OnUpdate") {
-				EventDispatcher::DoPapyrusUpdate();
+			{
+				GTS_PROFILE_ENTRYPOINT("PapyrusVM::VirtualMachineSendEvent");
+
+				if (a_eventName == "OnUpdate") {
+					EventDispatcher::DoPapyrusUpdate();
+				}
+
 			}
 
 		}

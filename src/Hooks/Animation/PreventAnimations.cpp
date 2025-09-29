@@ -262,18 +262,20 @@ namespace Hooks {
 
 		static TESIdleForm* thunk(TESIdleForm* a_this, ConditionCheckParams* a_params, void* a_unk03) {
 
-			GTS_PROFILE_ENTRYPOINT("AnimationPrevent::IdleForm");
-
 			TESIdleForm* result = func(a_this, a_params, a_unk03);
 
-			if (a_this) {
-				if (BlockAnimation(a_this, a_params)) {
-					/*auto* EventName = a_this->GetFormEditorID();
-					Actor* performer = params->actionRef->As<RE::Actor>();
-					if (performer) {
-						log::info("Blocking anim: {} of {}", EventName, performer->GetDisplayFullName());
-					}*/
-					result = nullptr; // cancel anim
+			{
+				GTS_PROFILE_ENTRYPOINT("AnimationPrevent::IdleForm");
+
+				if (a_this) {
+					if (BlockAnimation(a_this, a_params)) {
+						/*auto* EventName = a_this->GetFormEditorID();
+						Actor* performer = params->actionRef->As<RE::Actor>();
+						if (performer) {
+							log::info("Blocking anim: {} of {}", EventName, performer->GetDisplayFullName());
+						}*/
+						result = nullptr; // cancel anim
+					}
 				}
 			}
 

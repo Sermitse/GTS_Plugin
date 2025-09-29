@@ -1,65 +1,35 @@
 #pragma once
+
 #include "ImGui/ImGraphics.hpp"
-#include "ImGui/ImWindowManager.hpp"
 #include "ImGui/ImInput.hpp"
+#include "ImGui/ImWindow.hpp"
+#include "ImGui/ImWindowManager.hpp"
 
 namespace GTS {
 
-	class UIManager : public ImInput {
+	class UIManager : public CInitSingleton<UIManager> {
 
 		private:
-
-		UIManager(const UIManager&) = delete;
-		UIManager& operator=(const UIManager&) = delete;
-
-		std::atomic_bool Initialized = false; 
-		UIManager() = default;
-		~UIManager() = default;
-
-		ImWindowManager& WinMgr = ImWindowManager::GetSingleton();
-		ImFontManager& FontMgr = ImFontManager::GetSingleton();
-		ImStyleManager& StyleMgr = ImStyleManager::GetSingleton();
-
+		constexpr static std::string_view m_ImGuiINI = R"(Data\SKSE\Plugins\GTSPlugin\GTSPluginImGui.ini)";
+		std::atomic_bool m_initialized = false;
+		std::atomic_bool m_frameReady = false;
+		std::atomic_bool m_gamePaused = false;
+		float m_unpausedGameTime = 1.0f;
+		inline static std::atomic_flag g_alreadyPresenting = ATOMIC_FLAG_INIT;
 
 		public:
-		static inline std::atomic_bool ShouldDrawOverTop = false;
-		static inline std::atomic_bool GamePaused = false;
-		static inline float UnPausedGameTime = 1.0f;
 		static inline ImGraphics* Graphics = nullptr;
-
-		static UIManager& GetSingleton() {
-			static UIManager Instance;
-			return Instance;
-		}
+		static inline ImInput* Input = nullptr;
+		static inline ImWindowManager* WindowManager = nullptr;
 
 		static void ShowInfos();
 		static void CloseSettings();
 		void Init();
-		void Draw();
+		void Update();
+		void Present(ImWindow::DrawLevel a_level);
 
-		[[nodiscard]] inline bool Ready() const {
-			return Initialized.load();
-		}
-
-		[[nodiscard]] inline bool InputUpdate(RE::InputEvent** a_event) {
-
-			ProcessInputEvents(a_event);
-
-			if (ImWindowManager::GetSingleton().HasInputConsumers()) {  //the menu is open, eat all keypresses
-				return true;
-			}
-
-			OnFocusLost();
-
-			return false;
-
-		}
-
-		[[nodiscard]] static inline bool MenuOpen() {
-			return ImWindowManager::GetSingleton().HasInputConsumers();
-		}
-
-		constexpr static inline std::string_view ImGuiINI = R"(Data\SKSE\Plugins\GTSPlugin\GTSPluginImGui.ini)";
+		[[nodiscard]] static bool Ready();
+		static void ProcessAndFilterEvents(RE::InputEvent** a_events);
 
 	};
 }

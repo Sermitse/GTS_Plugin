@@ -77,17 +77,19 @@ namespace Hooks {
 		//void* is the class instance, can't use PlayerInputHandler as its abstract.
 		static bool thunk(void* a_this, RE::InputEvent* a_event) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorControls::CanProcess", ID);
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorControls::CanProcess", ID);
 
-			if (a_event->GetEventType() != INPUT_EVENT_TYPE::kMouseMove){
+				if (a_event->GetEventType() != INPUT_EVENT_TYPE::kMouseMove) {
 
-				if (!CanMove()) {
-					return false;
-				}
+					if (!CanMove()) {
+						return false;
+					}
 
-				auto EvtID = a_event->AsIDEvent();
-				if (!AllowToPerformSneak(EvtID)) {
-					return false;
+					auto EvtID = a_event->AsIDEvent();
+					if (!AllowToPerformSneak(EvtID)) {
+						return false;
+					}
 				}
 			}
 

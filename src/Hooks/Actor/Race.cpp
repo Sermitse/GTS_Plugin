@@ -7,12 +7,15 @@ namespace Hooks {
 
         static void thunk(Actor* actor, TESRace* a_race, bool a_player) {
 
-            GTS_PROFILE_ENTRYPOINT("ActorRace::SwitchRace");
+            {
+                GTS_PROFILE_ENTRYPOINT("ActorRace::SwitchRace");
 
-            if (actor) {
-                if (actor->formID == 0x14) { // Updates natural scale of Player when changing races
-                    RefreshInitialScales(actor);
+                if (actor) {
+                    if (actor->formID == 0x14) { // Updates natural scale of Player when changing races
+                        RefreshInitialScales(actor);
+                    }
                 }
+
             }
 
             return func(actor, a_race, a_player);

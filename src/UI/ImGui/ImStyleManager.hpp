@@ -5,7 +5,6 @@
 
 namespace GTS {
 
-    //Inspired by Community shaders
     class ImStyleManager {
 
         private:
@@ -29,16 +28,12 @@ namespace GTS {
 
         public:
         ~ImStyleManager() = default;
-        [[nodiscard]] static inline ImStyleManager& GetSingleton() {
-            static ImStyleManager instance;
-            return instance;
-        }
 
         [[nodiscard]] inline float GetScale() const {
             return Settings.fScale;
         }
 
-        inline void LoadStyle() const {
+        inline void ApplyStyle() const {
             SetupStyleImpl();
         }
 
