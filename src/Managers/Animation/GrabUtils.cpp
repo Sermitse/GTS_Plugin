@@ -212,7 +212,7 @@ namespace GTS {
                     if (node) {
                         NiPoint3 point = node->world.translate;
                         
-                        DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), 6.0f, 40, {0.0f, 1.0f, 0.0f, 1.0f});
+                        DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), 6.0f, 40, {0.0f, 1.0f, 0.0f, 1.0f});
                     }
                 }
 

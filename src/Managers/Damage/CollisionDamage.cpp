@@ -9,7 +9,7 @@
 
 #include "Magic/Effects/Common.hpp"
 
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 #include "Utils/DeathReport.hpp"
 #include "Utils/MovementForce.hpp"
@@ -192,7 +192,7 @@ namespace GTS {
 			constexpr int duration = 300;
 			if (Cause != DamageSource::FootIdleL && Cause != DamageSource::FootIdleR) {
 				for (auto footPoints : CoordsToCheck) {
-					DebugAPI::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, duration);
+					DebugDraw::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, duration);
 				}
 			}
 		}

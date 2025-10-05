@@ -23,7 +23,7 @@
 #include "Hooks/Camera/TESCameraState.hpp"
 #include "Hooks/Engine/Input.hpp"
 #include "Hooks/Engine/Main.hpp"
-#include "Hooks/Engine/Present.hpp"
+#include "Hooks/Engine/Window.hpp"
 #include "Hooks/Havok/Havok.hpp"
 #include "Hooks/Havok/hkbBehaviorGraph.hpp"
 #include "Hooks/Havok/Pushback.hpp"
@@ -32,7 +32,6 @@
 #include "Hooks/Projectile/Projectiles.hpp"
 #include "Hooks/Sound/BGSImpactManager.hpp"
 #include "Hooks/UI/Console.hpp"
-#include "Hooks/UI/Menu.hpp"
 
 namespace Hooks {
 
@@ -66,7 +65,7 @@ namespace Hooks {
 		//Engine
 		Hook_Input::Install();
 		Hook_MainUpdate::Install();
-		Hook_Present::Install();
+		Hook_Window::Install();
 
 		//Havok
 		Hook_Havok::Install();
@@ -85,7 +84,6 @@ namespace Hooks {
 
 		//UI
 		Hook_Console::Install();
-		Hook_Menu::Install();
 
 		//Experiments
 		//Hook_Experiments::Install();

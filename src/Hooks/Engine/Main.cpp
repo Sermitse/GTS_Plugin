@@ -3,8 +3,6 @@
 #include "Data/Plugin.hpp"
 #include "Hooks/Util/HookUtil.hpp"
 
-#include "UI/UIManager.hpp"
-
 namespace Hooks {
 
 	struct MainUpdatePost {

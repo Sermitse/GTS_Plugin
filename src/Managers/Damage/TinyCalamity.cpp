@@ -13,7 +13,7 @@
 #include "Managers/AI/AIFunctions.hpp"
 #include "Managers/GtsSizeManager.hpp"
 #include "Magic/Effects/Common.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 #include "Utils/DeathReport.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
@@ -312,7 +312,7 @@ namespace GTS {
                 float CheckDistance = BASE_DISTANCE*giantScale;
 
                 if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
-                    DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 100, {0.0f, 1.0f, 1.0f, 1.0f});
+                    DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 100, {0.0f, 1.0f, 1.0f, 1.0f});
                 }
 
                 NiPoint3 giantLocation = giant->GetPosition();

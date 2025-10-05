@@ -2,7 +2,7 @@
 
 #include "Config/Config.hpp"
 
-#include "UI/UIManager.hpp"
+#include "UI/GTSMenu.hpp"
 
 namespace ImUtil {
 	//------------------------------------
@@ -38,7 +38,7 @@ namespace ImUtil {
     const bool ImageButton(const char* a_label, const std::string& a_TexName, const int a_size, const char* a_Tooltip, const bool a_disabled) {
 
         const float size = a_size * ImGui::GetStyle().FontScaleMain;
-        const auto [texID, _] = GTS::UIManager::Graphics->GetAsImGuiTexture(a_TexName);
+        const auto [texID, _] = GTS::GTSMenu::Graphics->GetAsImGuiTexture(a_TexName);
         const bool res = ImUtil::ImageButtonEx(a_label, texID, a_Tooltip, false, { size, size });
         Tooltip(a_Tooltip);
 

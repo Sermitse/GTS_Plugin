@@ -4,7 +4,7 @@
 #include "Hooks/Engine/Settings.hpp"
 #include "Managers/Camera.hpp"
 #include "Rays/raycast.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 using namespace GTS;
 
@@ -582,7 +582,7 @@ namespace GTS {
 				NiPoint3 worldBonePos = ActorTranslation * bonePos;
 
 				if (IsDebugEnabled()) {
-					DebugAPI::DrawSphere(glm::vec3(worldBonePos.x, worldBonePos.y, worldBonePos.z), 1.0f, 33, { 0.1f, 0.9f, 0.2f, 1.0f }, 5.0f);
+					DebugDraw::DrawSphere(glm::vec3(worldBonePos.x, worldBonePos.y, worldBonePos.z), 1.0f, 33, { 0.1f, 0.9f, 0.2f, 1.0f }, 5.0f);
 				}
 
 				return worldBonePos;

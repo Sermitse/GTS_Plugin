@@ -6,7 +6,7 @@
 
 #include "Hooks/Hooks.hpp"
 #include "Papyrus/Papyrus.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 #include "Utils/InitUtils.hpp"
 
 #include "Managers/Register.hpp"
@@ -105,7 +105,7 @@ namespace {
 
 	void InitializeEventSystem() {
 
-		EventDispatcher::AddListener(&DebugOverlayMenu::GetSingleton());
+
 		EventDispatcher::AddListener(&Runtime::GetSingleton()); // Stores spells, globals and other important data
 		EventDispatcher::AddListener(&Persistent::GetSingleton());
 		EventDispatcher::AddListener(&Transient::GetSingleton());

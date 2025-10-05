@@ -4,7 +4,7 @@
 
 #include "Managers/HighHeel.hpp"
 #include "Rays/Raycast.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 namespace GTS {
 
@@ -81,7 +81,7 @@ namespace GTS {
 		}
 
 		if (IsDebugEnabled()) {
-			DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), 6.0f, 40, {1.0f, 0.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), 6.0f, 40, {1.0f, 0.0f, 0.0f, 1.0f});
 		}
 
 		return true;
@@ -287,9 +287,9 @@ namespace GTS {
 		// scaleFactor = std::clamp(scaleFactor, 0.0f, 1.0f);
 		auto targetPoint = targetA*(scaleFactor) + targetB*(1.0f - scaleFactor);
 		if (IsDebugEnabled()) {
-			DebugAPI::DrawSphere(glm::vec3(targetA.x, targetA.y, targetA.z), 2.0f, 40, {1.0f, 0.0f, 0.0f, 1.0f});
-			DebugAPI::DrawSphere(glm::vec3(targetB.x, targetB.y, targetB.z), 2.0f, 40, {0.0f, 1.0f, 0.0f, 1.0f});
-			DebugAPI::DrawSphere(glm::vec3(targetPoint.x, targetPoint.y, targetPoint.z), 2.0f, 40, {0.0f, 0.0f, 1.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(targetA.x, targetA.y, targetA.z), 2.0f, 40, {1.0f, 0.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(targetB.x, targetB.y, targetB.z), 2.0f, 40, {0.0f, 1.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(targetPoint.x, targetPoint.y, targetPoint.z), 2.0f, 40, {0.0f, 0.0f, 1.0f, 1.0f});
 		}
 
 		/*if (Attachment_GetTargetNode(giant) == AttachToNode::ObjectA) {
@@ -337,7 +337,7 @@ namespace GTS {
 				return false;
 			}
 			if (IsDebugEnabled()) {
-				DebugAPI::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
+				DebugDraw::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
 			}
 			clevagePos += (bone->world * NiPoint3()) * (1.0f / bone_names.size());
 		}
@@ -351,7 +351,7 @@ namespace GTS {
 				return false;
 			}
 			if (IsDebugEnabled()) {
-				DebugAPI::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
+				DebugDraw::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
 			}
 			centerBonePos += bone->world.translate  * (1.0f / center_bone_names.size());
 		}
@@ -365,7 +365,7 @@ namespace GTS {
 				return false;
 			}
 			if (IsDebugEnabled()) {
-				DebugAPI::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
+				DebugDraw::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
 			}
 			upBonePos += bone->world.translate  * (1.0f / up_bone_names.size());
 		}
@@ -417,7 +417,7 @@ namespace GTS {
 		clevagePos += globalOffset;
 
 		if (IsDebugEnabled()) {
-			DebugAPI::DrawSphere(glm::vec3(clevagePos.x, clevagePos.y, clevagePos.z), 2.0f, 10, {1.0f, 0.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(clevagePos.x, clevagePos.y, clevagePos.z), 2.0f, 10, {1.0f, 0.0f, 0.0f, 1.0f});
 		}
 
 		if (IsCleavageZIgnored(giant)) {

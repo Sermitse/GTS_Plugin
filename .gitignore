@@ -158,10 +158,7 @@ _deps
 mono_crash.*
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
+[Pp]ackage-*
 x64/
 x86/
 [Ww][Ii][Nn]32/
@@ -530,14 +527,5 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/clion,visualstudio,visualstudiocode,cmake
 
 build/
-
-distribution/esps/*
-!distribution/esps/*.esp
-distribution/**/*.dll
-distribution/**/*.pdb
-distribution/Plugin*/*
-distribution/Package-*/*
-
 vcpkg
-
 .clangd

@@ -1,6 +1,6 @@
 #include "Utils/DynamicScale.hpp"
 #include "Rays/Raycast.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 namespace GTS {
 
@@ -62,14 +62,14 @@ namespace GTS {
 					auto ray_dir = transform.rotate * (mat * NiPoint3(0.0f, 1.0f, 0.0f));
 					if (debug) {
 						NiPoint3 ray_end = vert + ray_dir*TESTRAY_LENGTH;
-						DebugAPI::DrawSphere(glm::vec3(ray_start.x, ray_start.y, ray_start.z), 8.0f, 10, {1.0f, 1.0f, 0.0f, 1.0f});
-						DebugAPI::DrawLineForMS(glm::vec3(ray_start.x, ray_start.y, ray_start.z), glm::vec3(ray_end.x, ray_end.y, ray_end.z), 10, {1.0f, 0.0f, 1.0f, 1.0f});
+						DebugDraw::DrawSphere(glm::vec3(ray_start.x, ray_start.y, ray_start.z), 8.0f, 10, {1.0f, 1.0f, 0.0f, 1.0f});
+						DebugDraw::DrawLineForMS(glm::vec3(ray_start.x, ray_start.y, ray_start.z), glm::vec3(ray_end.x, ray_end.y, ray_end.z), 10, {1.0f, 0.0f, 1.0f, 1.0f});
 					}
 					bool success = false;
 					NiPoint3 testPos = CastRayStatics(giant, ray_start, ray_dir, TESTRAY_LENGTH, success);
 					if (success) {
 						if (debug) {
-							DebugAPI::DrawSphere(glm::vec3(testPos.x, testPos.y, testPos.z), 5.0f, 30, {1.0f, 0.0f, 0.0f, 1.0f});
+							DebugDraw::DrawSphere(glm::vec3(testPos.x, testPos.y, testPos.z), 5.0f, 30, {1.0f, 0.0f, 0.0f, 1.0f});
 						}
 						break; // Don't do later levels either
 					}
@@ -89,14 +89,14 @@ namespace GTS {
 			NiPoint3 ray_dir = ray.second;
 			if (debug) {
 				NiPoint3 ray_end = ray_start + ray_dir*RAY_LENGTH;
-				DebugAPI::DrawSphere(glm::vec3(ray_start.x, ray_start.y, ray_start.z), 8.0f, 10, {0.0f, 1.0f, 0.0f, 1.0f});
-				DebugAPI::DrawLineForMS(glm::vec3(ray_start.x, ray_start.y, ray_start.z), glm::vec3(ray_end.x, ray_end.y, ray_end.z), 10, {1.0f, 0.0f, 0.0f, 1.0f});
+				DebugDraw::DrawSphere(glm::vec3(ray_start.x, ray_start.y, ray_start.z), 8.0f, 10, {0.0f, 1.0f, 0.0f, 1.0f});
+				DebugDraw::DrawLineForMS(glm::vec3(ray_start.x, ray_start.y, ray_start.z), glm::vec3(ray_end.x, ray_end.y, ray_end.z), 10, {1.0f, 0.0f, 0.0f, 1.0f});
 			}
 			bool success = false;
 			NiPoint3 endpos_up = CastRayStatics(giant, ray_start, ray_dir, RAY_LENGTH, success);
 			if (success) {
 				if (debug) {
-					DebugAPI::DrawSphere(glm::vec3(endpos_up.x, endpos_up.y, endpos_up.z), 5.0f, 30, {1.0f, 0.0f, 0.0f, 1.0f});
+					DebugDraw::DrawSphere(glm::vec3(endpos_up.x, endpos_up.y, endpos_up.z), 5.0f, 30, {1.0f, 0.0f, 0.0f, 1.0f});
 				}
 				ceiling_heights.push_back(endpos_up.z);
 			}
@@ -114,14 +114,14 @@ namespace GTS {
 			NiPoint3 ray_dir = ray.second * -1.0f;
 			if (debug) {
 				NiPoint3 ray_end = ray_start + ray_dir*RAY_LENGTH;
-				DebugAPI::DrawSphere(glm::vec3(ray_start.x, ray_start.y, ray_start.z), 8.0f, 10, {0.0f, 1.0f, 1.0f, 1.0f});
-				DebugAPI::DrawLineForMS(glm::vec3(ray_start.x, ray_start.y, ray_start.z), glm::vec3(ray_end.x, ray_end.y, ray_end.z), 10, {1.0f, 0.0f, 1.0f, 1.0f});
+				DebugDraw::DrawSphere(glm::vec3(ray_start.x, ray_start.y, ray_start.z), 8.0f, 10, {0.0f, 1.0f, 1.0f, 1.0f});
+				DebugDraw::DrawLineForMS(glm::vec3(ray_start.x, ray_start.y, ray_start.z), glm::vec3(ray_end.x, ray_end.y, ray_end.z), 10, {1.0f, 0.0f, 1.0f, 1.0f});
 			}
 			bool success = false;
 			NiPoint3 endpos_up = CastRayStatics(giant, ray_start, ray_dir, RAY_LENGTH, success);
 			if (success) {
 				if (debug) {
-					DebugAPI::DrawSphere(glm::vec3(endpos_up.x, endpos_up.y, endpos_up.z), 5.0f, 30, {1.0f, 0.0f, 1.0f, 1.0f});
+					DebugDraw::DrawSphere(glm::vec3(endpos_up.x, endpos_up.y, endpos_up.z), 5.0f, 30, {1.0f, 0.0f, 1.0f, 1.0f});
 				}
 				floor_heights.push_back(endpos_up.z);
 			}

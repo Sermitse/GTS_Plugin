@@ -1,7 +1,5 @@
 #include "Managers/Register.hpp"
 
-#include "Managers/MaxSizeManager.hpp"
-
 #include "SpectatorManager.hpp"
 
 #include "AI/AIManager.hpp"
@@ -41,6 +39,9 @@
 #include "Utils/DynamicScale.hpp"
 #include "Magic/Magic.hpp"
 
+#include "UI/DebugMenu.hpp"
+#include "UI/GTSMenu.hpp"
+
 namespace GTS {
 
 	void RegisterManagers() {
@@ -75,6 +76,9 @@ namespace GTS {
 		EventDispatcher::AddListener(&ContactManager::GetSingleton());          // Manages collisions
 		EventDispatcher::AddListener(&DynamicScale::GetSingleton());            // Handles room heights
 		EventDispatcher::AddListener(&FurnitureManager::GetSingleton());        // Handles furniture stuff
+		EventDispatcher::AddListener(&DebugMenu::GetSingleton());
+		EventDispatcher::AddListener(&GTSMenu::GetSingleton());
+
 		log::info("Managers Registered");
 	}
 }

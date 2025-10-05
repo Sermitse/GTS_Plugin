@@ -7,7 +7,7 @@
 
 #include "RE/T/TES.hpp"
 
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 using namespace GTS;
 
@@ -116,7 +116,7 @@ namespace GTS {
 				if (IsFoot) {
 					point.z -= HH;
 				}
-				DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
 			}
 		}
 
@@ -195,7 +195,7 @@ namespace GTS {
 		}
 
 		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
-			DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 20, {0.5f, 0.0f, 0.5f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 20, {0.5f, 0.0f, 0.5f, 1.0f});
 		}
 
 		int nodeCollisions = 0;

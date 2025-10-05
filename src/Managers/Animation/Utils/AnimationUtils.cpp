@@ -803,7 +803,7 @@ namespace GTS {
 		}
 		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
 			for (auto &point : CrawlPoints) {
-				DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance);
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance);
 			}
 		}
 
@@ -861,7 +861,7 @@ namespace GTS {
 			if (!CoordsToCheck.empty()) {
 				if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor))) {
 					for (const auto& footPoints : CoordsToCheck) {
-						DebugAPI::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, 800, { 0.0f, 1.0f, 0.0f, 1.0f });
+						DebugDraw::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, 800, { 0.0f, 1.0f, 0.0f, 1.0f });
 					}
 				}
 
@@ -973,7 +973,7 @@ namespace GTS {
 			float CheckDistance = 220 * giantScale;
 
 			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
-				DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance, 400);
+				DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance, 400);
 			}
 
 			NiPoint3 giantLocation = giant->GetPosition();
@@ -1098,7 +1098,7 @@ namespace GTS {
 			if (!ThighPoints.empty()) {
 				if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor) || EffectsForEveryone(actor))) {
 					for (auto &point : ThighPoints) {
-						DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance);
+						DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance);
 					}
 				}
 			
@@ -1184,7 +1184,7 @@ namespace GTS {
 		}
 		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
 			for (auto &point : FingerPoints) {
-				DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 400);
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 400);
 			}
 		}
 

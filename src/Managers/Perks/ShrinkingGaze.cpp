@@ -3,7 +3,7 @@
 #include "Managers/AI/AIFunctions.hpp"
 #include "Magic/Effects/Common.hpp"
 
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
 
@@ -86,7 +86,7 @@ namespace {
 			if (NodePosition.Length() > 0.0f) {
 
 				if (IsDebugEnabled() && (giant->formID == 0x14)) {
-					DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance);
+					DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance);
 				}
 
 				if (NodePosition.Length() > 0) {

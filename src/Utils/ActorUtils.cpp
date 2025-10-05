@@ -28,7 +28,7 @@
 #include "Managers/Audio/MoansLaughs.hpp"
 
 #include "Config/Config.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 
 
@@ -270,7 +270,7 @@ namespace GTS {
 			constexpr int lifetimeMS = 5000;
 			glm::vec4 color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
 			float lineThickness = 2.0f;
-			DebugAPI::DrawLineForMS(fromGLM, toGLM, lifetimeMS, color, lineThickness);
+			DebugDraw::DrawLineForMS(fromGLM, toGLM, lifetimeMS, color, lineThickness);
 		}
 
 		return true;
@@ -1001,7 +1001,7 @@ namespace GTS {
 			}
 
 			if (IsDebugEnabled()) {
-				DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 60, {0.5f, 1.0f, 0.0f, 0.5f});
+				DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 60, {0.5f, 1.0f, 0.0f, 0.5f});
 			}
 
 			for (auto otherActor: find_actors()) {
@@ -2542,7 +2542,7 @@ namespace GTS {
 		float totaldistance = maxDistance * giantScale;
 		// Make a list of points to check
 		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
-			DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), totaldistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), totaldistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
 		}
 
 		NiPoint3 giantLocation = giant->GetPosition();
@@ -2665,7 +2665,7 @@ namespace GTS {
 		SpawnParticle(giant, 6.00f, "GTS/Shouts/ShrinkOutburst.nif", NiMatrix3(), NodePosition, giantScale*explosion*3.0f, 7, nullptr); // Spawn effect
 
 		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
-			DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
 		}
 
 		NiPoint3 giantLocation = giant->GetPosition();
@@ -2936,7 +2936,7 @@ namespace GTS {
 		float CheckDistance = radius * giantScale;
 
 		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
-			DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
 		}
 
 		NiPoint3 giantLocation = giant->GetPosition();

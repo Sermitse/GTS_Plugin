@@ -13,7 +13,6 @@
 
 #include "Managers/GtsSizeManager.hpp"
 
-#include "UI/UIManager.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
 
@@ -598,7 +597,8 @@ namespace {
 
 		if (!a_Actor) return;
 
-		UIManager::ShowInfos();
+		//TODO: Re-implement this
+		//UIManager::ShowInfos();
 
 		const bool Mammoth = Config::UI.sDisplayUnits == "kMammoth";
 		float HH = HighHeelManager::GetBaseHHOffset(a_Actor)[2] / 100;

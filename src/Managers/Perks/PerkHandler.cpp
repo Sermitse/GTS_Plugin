@@ -4,7 +4,7 @@
 #include "Managers/Perks/PerkHandler.hpp"
 
 #include "Managers/Animation/AnimationManager.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 
 using namespace GTS;
@@ -52,7 +52,7 @@ namespace {
         if (node) {
             NiPoint3 point = node->world.translate;
 			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
-				DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
 			}
 
 			NiPoint3 giantLocation = giant->GetPosition();

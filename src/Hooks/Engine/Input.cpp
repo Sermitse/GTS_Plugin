@@ -1,7 +1,8 @@
 #include "Hooks/Engine/Input.hpp"
 #include "Managers/Input/InputManager.hpp"
-#include "UI/UIManager.hpp"
 #include "Hooks/Util/HookUtil.hpp"
+
+#include "UI/GTSMenu.hpp"
 
 using namespace GTS;
 
@@ -18,7 +19,7 @@ namespace Hooks {
 
 			{
 				GTS_PROFILE_ENTRYPOINT("EngineInput::InputDispatchEvent");
-				UIManager::GetSingleton().ProcessAndFilterEvents(a_events);      //UI, If a input consumer is visible, all input events except for mouse move are erased
+				GTSMenu::GetSingleton().ProcessAndFilterEvents(a_events);      //UI, If a input consumer is visible, all input events except for mouse move are erased
 				InputManager::GetSingleton().ProcessAndFilterEvents(a_events);   //GTS Inputs, Keys matching a triggered GTS action are removed.
 			}
 

@@ -1,7 +1,7 @@
 #include "Rays/Raycast.hpp"
 #include "Rays/AllCollector.hpp"
 
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 #include "Managers/Cameras/CamUtil.hpp"
 
 using namespace GTS;

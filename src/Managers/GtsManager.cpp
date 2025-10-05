@@ -16,7 +16,7 @@
 #include "Config/Config.hpp"
 
 #include "Hooks/Engine/Settings.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 using namespace GTS;
 

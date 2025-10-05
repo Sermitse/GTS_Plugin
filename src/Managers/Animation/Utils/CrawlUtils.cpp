@@ -10,7 +10,7 @@
 
 #include "Rays/Raycast.hpp"
 #include "Utils/MovementForce.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 using namespace GTS;
 
@@ -131,7 +131,7 @@ namespace GTS {
 		// Make a list of points to check
 
 		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
-			DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance, 300);
+			DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance, 300);
 		}
 
 		NiPoint3 giantLocation = giant->GetPosition();

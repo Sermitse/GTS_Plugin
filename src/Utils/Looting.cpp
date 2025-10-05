@@ -4,7 +4,7 @@
 
 #include "Managers/AI/AIFunctions.hpp"
 #include "Rays/Raycast.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 using namespace GTS;
 
@@ -228,7 +228,7 @@ namespace GTS {
 
 		NiPoint3 TotalPos = GetContainerSpawnLocation(giant, actor); // obtain goal of container position by doing ray-cast
 		if (IsDebugEnabled()) {
-			DebugAPI::DrawSphere(glm::vec3(TotalPos.x, TotalPos.y, TotalPos.z), 8.0f, 6000, {1.0f, 1.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(TotalPos.x, TotalPos.y, TotalPos.z), 8.0f, 6000, {1.0f, 1.0f, 0.0f, 1.0f});
 		}
 		auto dropbox = Runtime::PlaceContainerAtPos(actor, TotalPos, container); // Place chosen container
 

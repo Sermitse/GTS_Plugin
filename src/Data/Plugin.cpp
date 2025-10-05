@@ -1,5 +1,5 @@
 #include "Data/Plugin.hpp"
-#include "UI/UIManager.hpp"
+#include "UI/GTSMenu.hpp"
 
 namespace GTS {
 
@@ -48,7 +48,7 @@ namespace GTS {
         if (Ready()) {
             const auto ui = RE::UI::GetSingleton();
 
-            if (UIManager::WindowManager->HasInputConsumers() && ui->numPausesGame > 0) {
+            if (GTSMenu::WindowManager->HasInputConsumers() && ui->numPausesGame > 0) {
                 return false;
             }
 

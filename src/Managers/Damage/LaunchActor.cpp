@@ -13,7 +13,7 @@
 #include "Managers/Audio/MoansLaughs.hpp"
 #include "Managers/Audio/GoreAudio.hpp"
 
-#include "UI/DebugAPI.hpp"
+#include "Debug/DebugDraw.hpp"
 
 using namespace GTS;
 
@@ -252,7 +252,7 @@ namespace GTS {
 			float maxDistance = BASE_CHECK_DISTANCE * radius * giantScale;
 			
 			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
-				DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
 			}
 			
 			std::vector<NiPoint3> LaunchObjectPoints = {point};
@@ -301,7 +301,7 @@ namespace GTS {
 			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
 				for (auto footPoints: CoordsToCheck) {
 					footPoints.z -= HH;
-					DebugAPI::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
+					DebugDraw::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
 				}
 			}
 
