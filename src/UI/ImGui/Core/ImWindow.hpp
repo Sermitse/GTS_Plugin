@@ -3,7 +3,6 @@
 #include "Config/Settings/SettingsUI.hpp"
 #include "Config/Util/WindowSettingsHolder.hpp"
 #include "Config/Util/WindowSettingsRegistry.hpp"
-#include "UI/ImGui/Core/ImInputManagerBridge.hpp"
 
 #include "UI/ImGui/Lib/imgui.h"
 
@@ -15,6 +14,15 @@ namespace GTS {
         std::string m_name = "Default";
         std::string m_title = "Default";
 
+		private:
+        struct FadeSettings {
+            bool enabled = false;
+            float visibilityDuration = 5.0f;
+            float fadeDuration = 1.0f;
+            float fadeAlpha = 1.0f;
+            float visibilityTimer = 0.0f;
+            bool isFading = false;
+        };
 
         public:
         enum class WindowAnchor {
@@ -31,20 +39,25 @@ namespace GTS {
             kDebug,
         };
 
-        bool m_busy = false;
         WindowType m_windowType = WindowType::kWidget;
         WindowAnchor m_anchorPos = WindowAnchor::kCenter;
         ImGuiWindowFlags m_flags = ImGuiWindowFlags_None;
+        FadeSettings m_fadeSettings = {};
 
         virtual ~ImWindow() noexcept = default;
 
         virtual void Draw() = 0;
-        virtual bool ShouldDraw() = 0;
+        virtual bool WantsToDraw() = 0;
         virtual std::string GetWindowName() = 0;
         virtual void Init() = 0;
 
-        virtual float GetAlphaMult() = 0;
-        virtual float GetBGAlphaMult() = 0;
+        virtual float GetFullAlpha() = 0;
+        virtual float GetBackgroundAlpha() = 0;
+
+        float GetFadingAlpha() const;
+        void ResetFadeState();
+        void UpdateFade(float deltaTime);
+        bool IsFadeComplete() const;
 
         static ImVec2 GetAnchorPos(WindowAnchor a_position, ImVec2 a_padding, bool a_allowCenterY);
     };
@@ -86,18 +99,26 @@ namespace GTS {
         }
 
         template<typename CustomStruct>
-        void RegisterCustomSettings(const CustomStruct& defaults = CustomStruct{}) {
+        void RegisterExtraSettings(const CustomStruct& defaults = CustomStruct{}) {
             m_settingsHolder->template RegisterCustomSettings<CustomStruct>(defaults);
         }
 
         template<typename CustomStruct>
-        CustomStruct& GetCustomSettings() {
+        CustomStruct& GetExtraSettings() {
             return m_settingsHolder->template GetCustomSettings<CustomStruct>();
         }
 
         template<typename CustomStruct>
-        const CustomStruct& GetCustomSettings() const {
+        const CustomStruct& GetExtraSettings() const {
             return m_settingsHolder->template GetCustomSettings<CustomStruct>();
+        }
+
+        float GetFullAlpha() override {
+			return GetBaseSettings().fAlpha;
+        };
+
+        float GetBackgroundAlpha() override {
+			return GetBaseSettings().fBGAlphaMult;
         }
     };
 }

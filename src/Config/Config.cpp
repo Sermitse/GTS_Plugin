@@ -8,7 +8,7 @@ namespace GTS {
     }
 
     void Config::DataReady() {
-        Config::CopyLegacySettings();
+        CopyLegacySettings();
     }
 
     // Serialization methods using helper class

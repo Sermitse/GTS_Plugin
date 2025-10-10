@@ -69,23 +69,30 @@ namespace GTS {
 	void EventListener::ActorAnimEvent(Actor* actor, const std::string_view& tag, const std::string_view& payload) {}
 
 	// Fired when actor uses furniture
-	void EventListener::FurnitureEvent(RE::Actor* user, TESObjectREFR* object, bool enter) {}
+	void EventListener::FurnitureEvent(Actor* user, TESObjectREFR* object, bool enter) {}
 
-	void EventDispatcher::AddListener(EventListener* listener) {
-		if (listener) {
-			EventDispatcher::GetSingleton().listeners.push_back(listener);
+	void EventDispatcher::AddListener(EventListener* a_listener) {
+		if (a_listener) {
+			m_listeners.push_back(a_listener);
+		}
+	}
+
+	//NEVER USE THIS, WILL EXPLODE GAME.
+	void EventDispatcher::RemoveListener(EventListener* a_listener) {
+		if (a_listener) {
+			std::erase(m_listeners, a_listener);
 		}
 	}
 
 	void EventDispatcher::DoUpdate() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->Update();
 		}
 	}
 
 	void EventDispatcher::DoBoneUpdate() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->BoneUpdate();
 			log::info("BoneUpdateRunning");
@@ -93,131 +100,131 @@ namespace GTS {
 	}
 
 	void EventDispatcher::DoPapyrusUpdate() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->PapyrusUpdate();
 		}
 	}
 
 	void EventDispatcher::DoHavokUpdate() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->HavokUpdate();
 		}
 	}
 
 	void EventDispatcher::DoCameraUpdate() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->CameraUpdate();
 		}
 	}
 
 	void EventDispatcher::DoReset() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->Reset();
 		}
 	}
 
 	void EventDispatcher::DoEnabled() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->Enabled();
 		}
 	}
 	void EventDispatcher::DoDisabled() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->Disabled();
 		}
 	}
 	void EventDispatcher::DoStart() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->Start();
 		}
 	}
 
 	void EventDispatcher::DoDataReady() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->DataReady();
 		}
 	}
 
 	void EventDispatcher::DoResetActor(Actor* actor) {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->ResetActor(actor);
 		}
 	}
 
 	void EventDispatcher::DoActorEquip(Actor* actor) {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->ActorEquip(actor);
 		}
 	}
 
 	void EventDispatcher::DoDragonSoulAbsorption() {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->DragonSoulAbsorption();
 		}
 	}
 
 	void EventDispatcher::DoActorLoaded(Actor* actor) {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->ActorLoaded(actor);
 		}
 	}
 
 	void EventDispatcher::DoHitEvent(const TESHitEvent* evt) {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->HitEvent(evt);
 		}
 	}
 
 	void EventDispatcher::DoUnderFootEvent(const UnderFoot& evt) {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->UnderFootEvent(evt);
 		}
 	}
 
 	void EventDispatcher::DoOnImpact(const Impact& impact) {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->OnImpact(impact);
 		}
 	}
 
 	void EventDispatcher::DoHighheelEquip(const HighheelEquip& evt) {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->OnHighheelEquip(evt);
 		}
 	}
 
 	void EventDispatcher::DoAddPerk(const AddPerkEvent& evt)  {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->OnAddPerk(evt);
 		}
 	}
 
 	void EventDispatcher::DoRemovePerk(const RemovePerkEvent& evt)  {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->OnRemovePerk(evt);
 		}
 	}
 
 	void EventDispatcher::DoMenuChange(const MenuOpenCloseEvent* menu_event) {
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->MenuChange(menu_event);
 		}
@@ -226,7 +233,7 @@ namespace GTS {
 	void EventDispatcher::DoActorAnimEvent(Actor* actor, const BSFixedString& a_tag, const BSFixedString& a_payload) {
 		std::string tag = a_tag.c_str();
 		std::string payload = a_payload.c_str();
-		for (auto listener: EventDispatcher::GetSingleton().listeners) {
+		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->ActorAnimEvent(actor, tag, payload);
 		}
@@ -240,15 +247,11 @@ namespace GTS {
 		log::info("Object: {}", static_cast<bool>(object != nullptr));
 		if (actor && object) {
 			log::info("Both are true");
-			for (auto listener: EventDispatcher::GetSingleton().listeners) {
+			for (auto listener: m_listeners) {
 				GTS_PROFILE_SCOPE(listener->DebugName());
-				listener->FurnitureEvent(actor, object, a_event->type == RE::TESFurnitureEvent::FurnitureEventType::kEnter);
+				listener->FurnitureEvent(actor, object, a_event->type == TESFurnitureEvent::FurnitureEventType::kEnter);
 			}
 		}
 	}
 
-	EventDispatcher& EventDispatcher::GetSingleton() {
-		static EventDispatcher instance;
-		return instance;
-	}
 }

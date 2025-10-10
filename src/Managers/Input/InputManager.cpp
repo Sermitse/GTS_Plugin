@@ -69,7 +69,7 @@ namespace GTS {
 			return;
 		}
 
-		if (Plugin::AnyMenuOpen() || !Plugin::Live() || !Plugin::Ready()) {
+		if (Plugin::IsInBlockingMenu() || !Plugin::Live() || !Plugin::Ready()) {
 			return;
 		}
 

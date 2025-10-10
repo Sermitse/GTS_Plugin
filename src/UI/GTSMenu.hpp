@@ -25,10 +25,10 @@ namespace GTS {
 		std::atomic_bool m_scaleformInitialized = false;
 		std::atomic_bool m_frameReady = false;
 		std::atomic_bool m_gamePaused = false;
-		std::atomic_bool m_visible = false;
+		std::atomic_bool m_isScaleformVisible = false;
 		std::atomic_bool m_cursorEnabled = false;
 
-		float m_unpausedGameTime = 1.0f;
+		static inline float m_originalGameTime = 1.0f;
 		inline static std::atomic_flag g_alreadyPresenting = ATOMIC_FLAG_INIT;
 
 		public:
@@ -47,6 +47,10 @@ namespace GTS {
 		void ProcessAndFilterEvents(RE::InputEvent** a_events) const;
 		void SetInputFlags(bool a_enable);
 
+		static void BlurBackground(bool a_enable);
+		static void PauseGame(bool a_enable);
+		static void AlterTimeScale(bool a_enable);
+
 	private:
 		void Show(const std::string& source);
 		void Hide(const std::string& source);
@@ -55,6 +59,7 @@ namespace GTS {
 		std::string DebugName() override;
 		void DataReady() override;
 		void MenuChange(const MenuOpenCloseEvent* a_event) override;
+		static void RefreshFlags();
 
 		// Inherited via IMenu
 		void AdvanceMovie(float a_interval, std::uint32_t a_currentTime) override;

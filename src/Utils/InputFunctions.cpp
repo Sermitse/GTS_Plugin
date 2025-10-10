@@ -626,7 +626,7 @@ namespace {
 		auto UI = UI::GetSingleton();
 		if (!UI) return;
 
-		if (!Plugin::AnyMenuOpen() && !UI->IsMenuOpen(DialogueMenu::MENU_NAME) && UI->IsMenuOpen(Console::MENU_NAME)) {
+		if (!Plugin::IsInBlockingMenu() && !UI->IsMenuOpen(DialogueMenu::MENU_NAME) && UI->IsMenuOpen(Console::MENU_NAME)) {
 			Notify("Close all menu's first before opening the skill tree");
 			return;
 		}

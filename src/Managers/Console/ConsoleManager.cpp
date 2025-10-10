@@ -23,6 +23,7 @@ namespace GTS {
 
 		[[unlikely]] if (me.RegisteredCommands.empty()) return false;
 
+		//Convert to invariant and trim
 		std::stringstream Msg(trim(str_tolower(a_msg)));
 
 		std::vector<std::string> Args{};

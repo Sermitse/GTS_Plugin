@@ -4,16 +4,15 @@
 
 namespace GTS {
 
-    [[nodiscard]]
-    inline std::vector<std::shared_ptr<ImCategory>>& ImCategoryManager::GetCategories() {
+	std::vector<std::shared_ptr<ImCategory>>& ImCategoryContainer::GetCategories() {
         return m_categories;
     }
 
-    inline void ImCategoryManager::AddCategory(std::shared_ptr<ImCategory> category) {
+    void ImCategoryContainer::AddCategory(std::shared_ptr<ImCategory> category) {
         m_categories.push_back(std::move(category));
     }
 
-    float ImCategoryManager::GetLongestCategory() const {
+    float ImCategoryContainer::GetLongestCategory() const {
 
         if (!ImUtil::ValidState()) return -1.0f;
 

@@ -1,8 +1,7 @@
 #include "Config/SettingsModHandler.hpp"
+#include "Config/Config.hpp"
 #include "UI/ImGui/Core/ImStyleManager.hpp"
 #include "spdlog/spdlog.h"
-
-#include "UI/GTSMenu.hpp"
 
 namespace GTS {
 
@@ -43,7 +42,7 @@ namespace GTS {
 	void HandleSettingsReset() {
 
 		Config::ResetToDefaults();
-		GTSMenu::WindowManager->ApplyStyle();
+		ImStyleManager::ApplyStyle();
 
 
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
@@ -59,7 +58,7 @@ namespace GTS {
 	}
 
 	void HandleSettingsRefresh() {
-		GTSMenu::WindowManager->ApplyStyle();
+		ImStyleManager::ApplyStyle();
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 		HandleHHReset();
 		HandleCameraTrackingReset();

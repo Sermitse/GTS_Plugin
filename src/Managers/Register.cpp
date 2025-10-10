@@ -78,7 +78,6 @@ namespace GTS {
 		EventDispatcher::AddListener(&FurnitureManager::GetSingleton());        // Handles furniture stuff
 		EventDispatcher::AddListener(&DebugMenu::GetSingleton());
 		EventDispatcher::AddListener(&GTSMenu::GetSingleton());
-
 		log::info("Managers Registered");
 	}
 }

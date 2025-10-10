@@ -2,6 +2,39 @@
 
 namespace GTS {
 
+	float ImWindow::GetFadingAlpha() const {
+		return m_fadeSettings.fadeAlpha;
+	}
+
+	void ImWindow::ResetFadeState() {
+		m_fadeSettings.visibilityTimer = 0.0f;
+		m_fadeSettings.fadeAlpha = 1.0f;
+		m_fadeSettings.isFading = false;
+	}
+
+	void ImWindow::UpdateFade(float deltaTime) {
+		if (!m_fadeSettings.enabled) {
+			return;
+		}
+
+		if (!m_fadeSettings.isFading) {
+			m_fadeSettings.visibilityTimer += deltaTime;
+			if (m_fadeSettings.visibilityTimer >= m_fadeSettings.visibilityDuration) {
+				m_fadeSettings.isFading = true;
+				m_fadeSettings.visibilityTimer = 0.0f;
+			}
+		}
+		else {
+			m_fadeSettings.visibilityTimer += deltaTime;
+			float fadeProgress = std::clamp(m_fadeSettings.visibilityTimer / m_fadeSettings.fadeDuration, 0.0f, 1.0f);
+			m_fadeSettings.fadeAlpha = 1.0f - fadeProgress;
+		}
+	}
+
+	bool ImWindow::IsFadeComplete() const {
+		return m_fadeSettings.enabled && m_fadeSettings.isFading && m_fadeSettings.fadeAlpha <= 0.0f;
+	}
+
     ImVec2 ImWindow::GetAnchorPos(WindowAnchor a_position, ImVec2 a_padding, bool a_allowCenterY) {
 
         auto v = ImGui::GetMainViewport();

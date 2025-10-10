@@ -93,71 +93,88 @@ struct SettingsUI_t {
     std::string sDisplayUnits = "kMetric";
     float fScale = 1.0f;
     float fItemWidth = 0.55f;
-
+    float fSGTMMult = 0.7f;
+    bool bDoBGBlur = true;
+    bool bDoPause = true;
+    bool bDoSlowdown = true;
     std::array<float, 3> f3AccentColor = { 0.81834f, 0.797923f, 0.834302f }; // Default Menu UI Color
 
     // Red: 0.273f, 0.0106f, 0.0106f
     // White: 0.81834f, 0.797923f, 0.834302f
     //std::array<float, 3> f3AccentColor = {0.486f, 0.431f, 0.529f};
-    std::array<float, 3> StatusAccentColor = { 0.273f, 0.0106f, 0.0106f }; // Default Status Bar Color
-    std::array<float, 3> UnderStompAccentColor = { 0.273f, 0.0106f, 0.0106f }; // Default Understomp Bar Color
+    //std::array<float, 3> StatusAccentColor = { 0.273f, 0.0106f, 0.0106f }; // Default Status Bar Color
+    //std::array<float, 3> UnderStompAccentColor = { 0.273f, 0.0106f, 0.0106f }; // Default Understomp Bar Color
     // Window configurations
 
-    WindowConfSettings_t SettingsWindow{};
 
-    WindowConfWidget_t StatusWindow = {
-        .bLock = true,
-        .bVisible = true,
-        .f2Offset = {0.0f, 28.5f},
-        .f3ColorA = StatusAccentColor,
-        .f3ColorB = StatusAccentColor,
-        .sAnchor = "kCenter",
-        .fAlpha = 1.0f,
-        .fBGAlphaMult = 0.0f,
-        .bEnableFade = true,
-        .fFadeAfter = 1.8f,
-        .fFixedWidth = 150.0f,
-        .fSizeBarHeightMult = 0.1f,
-        .fFadeDelta = 0.01f,
-        .iFlags = 3,
-    };
 
-    WindowConfWidget_t UnderstompWindow = {
-        .bLock = true,
-        .bVisible = true,
-        .f2Offset = {0.0f, 60.0f},
-        .f3ColorA = UnderStompAccentColor,
-        .f3ColorB = UnderStompAccentColor,
-        .sAnchor = "kCenter",
-        .fAlpha = 1.0f,
-        .fBGAlphaMult = 0.0f,
-        .bEnableFade = true,
-        .fFadeAfter = 1.8f,
-        .fFixedWidth = 120.0f,
-        .fSizeBarHeightMult = 0.01f,
-        .fFadeDelta = 0.05f,
-        .iFlags = 1,
-    };
+
+
+    //WindowConfSettings_t SettingsWindow{};
+
+    //WindowConfWidget_t StatusWindow = {
+    //    .bLock = true,
+    //    .bVisible = true,
+    //    .f2Offset = {0.0f, 28.5f},
+    //    .f3ColorA = StatusAccentColor,
+    //    .f3ColorB = StatusAccentColor,
+    //    .sAnchor = "kCenter",
+    //    .fAlpha = 1.0f,
+    //    .fBGAlphaMult = 0.0f,
+    //    .bEnableFade = true,
+    //    .fFadeAfter = 1.8f,
+    //    .fFixedWidth = 150.0f,
+    //    .fSizeBarHeightMult = 0.1f,
+    //    .fFadeDelta = 0.01f,
+    //    .iFlags = 3,
+    //};
+
+    //WindowConfWidget_t UnderstompWindow = {
+    //    .bLock = true,
+    //    .bVisible = true,
+    //    .f2Offset = {0.0f, 60.0f},
+    //    .f3ColorA = UnderStompAccentColor,
+    //    .f3ColorB = UnderStompAccentColor,
+    //    .sAnchor = "kCenter",
+    //    .fAlpha = 1.0f,
+    //    .fBGAlphaMult = 0.0f,
+    //    .bEnableFade = true,
+    //    .fFadeAfter = 1.8f,
+    //    .fFixedWidth = 120.0f,
+    //    .fSizeBarHeightMult = 0.01f,
+    //    .fFadeDelta = 0.05f,
+    //    .iFlags = 1,
+    //};
 
 };
 TOML_SERIALIZABLE(SettingsUI_t);
-TOML_REGISTER_NAME(SettingsUI_t, "UI");
+TOML_REGISTER_NAME(SettingsUI_t, "UIBase");
 
 
 // Base window settings that all windows inherit
 struct BaseWindowSettings_t {
-    float fWindowSize = 90.f;
-    bool bLock = false;
-    bool bVisible = true;
-    std::array<float, 2> f2Offset = { 0.0f, 0.0f };
-    std::array<float, 3> f3ColorA = { 1.0f, 1.0f, 1.0f };
-    std::array<float, 3> f3ColorB = { 1.0f, 1.0f, 1.0f };
+    bool bLock = true;
+    std::array<float, 2> f2Position = { 0.0f, 0.0f };
     std::string sAnchor = "kCenter";
     float fAlpha = 1.0f;
-    float fBGAlphaMult = 0.5f;
+    float fBGAlphaMult = 1.0f;
+    float fWindowSizePercent = 90.0f;
 };
 TOML_SERIALIZABLE(BaseWindowSettings_t);
-TOML_REGISTER_NAME(BaseWindowSettings_t, "UI2");
+TOML_REGISTER_NAME(BaseWindowSettings_t, "UIWindow");
+
+struct WConfExtraStatsWidget_t {
+    bool bVisible = true;
+    bool bEnableFade = true;
+    float fFadeAfter = 1.0f;
+    float fFixedWidth = 100.0f;
+    float fSizeBarHeightMult = 1.0f;
+    float fFadeDelta = 0.0f;
+    std::array<float, 3> f3ColorA = { 1.0f, 1.0f, 1.0f };
+    std::array<float, 3> f3ColorB = { 1.0f, 1.0f, 1.0f };
+    // Display control
+};
+TOML_SERIALIZABLE(WConfExtraStatsWidget_t);
 
 
 

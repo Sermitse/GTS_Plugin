@@ -4,14 +4,14 @@
 
 namespace GTS {
 
- class ImCategoryManager {
+ class ImCategoryContainer {
 
         private:
         std::vector<std::shared_ptr<ImCategory>> m_categories;
 
         public:
         uint8_t m_activeIndex;
-        ~ImCategoryManager() = default;
+        ~ImCategoryContainer() = default;
 
         [[nodiscard]] std::vector<std::shared_ptr<ImCategory>>& GetCategories();
         [[nodiscard]] float GetLongestCategory() const;

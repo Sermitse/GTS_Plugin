@@ -6,12 +6,10 @@ namespace GTS {
     struct Command {
         std::function<void()> callback = nullptr;
         std::string desc;
-        explicit Command(const std::function<void()>& callback, std::string desc) :
-    	callback(callback),
-    	desc(std::move(desc)) {}
+        explicit Command(const std::function<void()>& callback, std::string desc) : callback(callback), desc(std::move(desc)) {}
     };
 
-    class ConsoleManager {
+    class ConsoleManager : public CInitSingleton<ConsoleManager> {
 
         private:
         //default base command preffix
@@ -22,13 +20,6 @@ namespace GTS {
         static void CMD_Unlimited();
 
         public:
-
-        ~ConsoleManager() = default;
-
-        [[nodiscard]] static inline ConsoleManager& GetSingleton() {
-            static ConsoleManager Instance;
-            return Instance;
-        }
 
         static void Init() {
             logger::info("Loading Default Command List");

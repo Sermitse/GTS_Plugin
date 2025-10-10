@@ -4,9 +4,10 @@
 namespace GTS {
 
 	bool Plugin::IsInRaceMenu() {
-		auto ui = UI::GetSingleton();
+		const auto ui = UI::GetSingleton();
 		if (ui->GetMenu(RaceSexMenu::MENU_NAME)) {
-			return true; // Disallow to do animations in RaceMenu, not more than that. Allows scaling and such.
+			//Used for animation blocking in race menu.
+			return true;
 		}
 		return false;
 	}
@@ -16,7 +17,7 @@ namespace GTS {
 	}
 
 	bool Plugin::InGame() {
-		const auto ui = RE::UI::GetSingleton();
+		const auto ui = UI::GetSingleton();
 		if (!ui) {
 			return false;
 		}
@@ -31,11 +32,9 @@ namespace GTS {
 	}
 
 	bool Plugin::Ready() {
-		if (m_inGame.load()) {
-			// We are not loading or in the mainmenu
-			if (const auto player_char = RE::PlayerCharacter::GetSingleton()) {
-				if (player_char->Is3DLoaded()) {
-					// Player is loaded
+		if (m_inGame.load()) { // We are not loading or in the mainmenu
+			if (const auto player_char = PlayerCharacter::GetSingleton()) {
+				if (player_char->Is3DLoaded()) { // Player is loaded
 					return true;
 				}
 			}
@@ -45,24 +44,27 @@ namespace GTS {
 
 	bool Plugin::Live() {
 
-        if (Ready()) {
-            const auto ui = RE::UI::GetSingleton();
+		if (!Ready()) {
+			return false;
+		}
 
-            if (GTSMenu::WindowManager->HasInputConsumers() && ui->numPausesGame > 0) {
-                return false;
-            }
+		const auto ui = UI::GetSingleton();
+		if (!ui) {
+			return false;
+		}
 
-            if (ui->GameIsPaused() && !IsInRaceMenu()) { // We don't want to pause dll scaling in racemenu
-                return false;
-            }
+		if (ui->GameIsPaused()) {
+			if (GTSMenu::WindowManager->HasInputConsumers() || !IsInRaceMenu()) {
+				return false;
+			}
+		}
 
-            return true;
+		return true;
+	}
 
-        }
-        return false;
-    }
-
-	bool Plugin::AnyMenuOpen() {
+	//Check if a blocking menu is visible.
+	//These menus normally pause gameplay.
+	bool Plugin::IsInBlockingMenu() {
 
 		static const std::vector Menus = {
 			RE::CraftingMenu::MENU_NAME,
@@ -88,40 +90,6 @@ namespace GTS {
 		};
 
 		if (Plugin::Ready()) {
-			const auto ui = RE::UI::GetSingleton();
-			for (const auto& Menu : Menus) {
-				if (ui->IsMenuOpen(Menu)) {
-					//log::debug("Menu is open: {}", Menu);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	bool Plugin::AnyWidgetMenuOpen() {
-
-		static const std::vector Menus = {
-			RE::CraftingMenu::MENU_NAME,
-			RE::BarterMenu::MENU_NAME,
-			RE::BookMenu::MENU_NAME,
-			RE::ContainerMenu::MENU_NAME,
-			RE::GiftMenu::MENU_NAME,
-			RE::InventoryMenu::MENU_NAME,
-			RE::JournalMenu::MENU_NAME,
-			RE::LevelUpMenu::MENU_NAME,
-			RE::LockpickingMenu::MENU_NAME,
-			RE::MagicMenu::MENU_NAME,
-			RE::MapMenu::MENU_NAME,
-			RE::MessageBoxMenu::MENU_NAME,
-			RE::RaceSexMenu::MENU_NAME,
-			RE::StatsMenu::MENU_NAME,
-			RE::TrainingMenu::MENU_NAME,
-			RE::TutorialMenu::MENU_NAME,
-			RE::TweenMenu::MENU_NAME,
-		};
-
-		if (Ready()) {
 			const auto ui = RE::UI::GetSingleton();
 			for (const auto& Menu : Menus) {
 				if (ui->IsMenuOpen(Menu)) {

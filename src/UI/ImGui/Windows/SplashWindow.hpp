@@ -5,16 +5,25 @@
 
 namespace GTS {
 
-    class SplashWindow final : public ImConfigurableWindow<SplashWindow> {
-        using ImConfigurableWindow::ImConfigurableWindow;
+    class SplashWindow final : public ImWindow, public EventListener {
+
+		private:
+        bool m_isInMainMenu = false;
 
         public:
 
+        ~SplashWindow() override;
+
         // Inherited via ImConfigurableWindow
         void Draw() override;
-        bool ShouldDraw() override;
+        bool WantsToDraw() override;
         void Init() override;
-        float GetAlphaMult() override;
-        float GetBGAlphaMult() override;
+        float GetFullAlpha() override;
+        float GetBackgroundAlpha() override;
+        std::string GetWindowName() override;
+
+        // Inherited via EventListener
+        std::string DebugName() override;
+        void MenuChange(const RE::MenuOpenCloseEvent* a_event) override;
     };
 }

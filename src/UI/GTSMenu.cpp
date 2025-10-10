@@ -1,4 +1,7 @@
 #include "UI/GTSMenu.hpp"
+
+#include "Config/Config.hpp"
+
 #include "UI/ScaleformLogger.hpp"
 
 #include "UI/ImGui/Lib/imgui.h"
@@ -146,7 +149,7 @@ namespace GTS {
 	void GTSMenu::SetVisibility(bool a_state) {
 		if (static UIMessageQueue* const msgQ = UIMessageQueue::GetSingleton()) {
 			msgQ->AddMessage(MENU_NAME, a_state ? UI_MESSAGE_TYPE::kShow : UI_MESSAGE_TYPE::kHide, nullptr);
-			m_visible.store(a_state, std::memory_order_relaxed);
+			m_isScaleformVisible.store(a_state, std::memory_order_relaxed);
 		}
 	}
 
@@ -157,7 +160,7 @@ namespace GTS {
 			return;
 		}
 
-		if (WindowManager->HasInputConsumers() && m_visible.load()) {
+		if (WindowManager->HasInputConsumers() && m_isScaleformVisible.load()) {
 			Input->ProcessInputEvents(a_events);
 			Input->UpdateMousePos();
 			ImInput::RemoveAllKeyEvents(a_events); // Remove all button events so they don't reach the game
@@ -166,23 +169,90 @@ namespace GTS {
 
 	void GTSMenu::SetInputFlags(bool a_enable) {
 
-		if (m_cursorEnabled.exchange(a_enable) == a_enable) {
-			return;
+		if (const auto msgQueue = UIMessageQueue::GetSingleton(); const auto ui = RE::UI::GetSingleton()) {
+
+			if (m_cursorEnabled.exchange(a_enable) == a_enable) {
+				return;
+			}
+
+			if (a_enable) {
+				//The Flags don't behave as expected
+				//So we're forced to just outright show the cursor instead of relying on the game to manage it for us.
+				//You can sort of force a partial flag read by sending a kHide and kShow Ui message,
+				//Essentially turning it off and on again. This appears to make the mouse flags work however it seems to have no
+				//effect on other flags like pause game/blur backround.
+				menuFlags.set(UI_MENU_FLAGS::kUpdateUsesCursor); //Maybe these do something maybe they don't
+				menuFlags.set(UI_MENU_FLAGS::kUsesCursor);
+
+				//Disable Imgui's win32 input update code as its not needed.
+				ImIO->ConfigFlags &= ~(ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard);
+
+				//Manually Show the cursor
+				msgQueue->AddMessage(RE::CursorMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
+			}
+			else {
+
+				menuFlags.reset(UI_MENU_FLAGS::kUpdateUsesCursor);
+				menuFlags.reset(UI_MENU_FLAGS::kUsesCursor);
+				ImIO->ConfigFlags |= ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard;
+
+				//Traverse the menu stack and check if another menu is currently being drawn that uses the cursor.
+				//If it does don't force hide the cursor as that would break said other menu.
+				for (const auto& menu : ui->menuStack) {
+
+					//If the menu is us skio over.
+					if (menu.get() == this) {
+						continue;
+					}
+
+					if ((menu->menuFlags & UI_MENU_FLAGS::kUsesCursor) != UI_MENU_FLAGS::kNone ||
+						(menu->menuFlags & UI_MENU_FLAGS::kUpdateUsesCursor) != UI_MENU_FLAGS::kNone) {
+						return;
+					}
+				}
+
+				msgQueue->AddMessage(RE::CursorMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
+			}
+
+			logger::trace("GTSMenu Cursor: {}", a_enable);
 		}
+	}
 
-		if (a_enable) {
-			menuFlags.set(UI_MENU_FLAGS::kUpdateUsesCursor);
-			menuFlags.set(UI_MENU_FLAGS::kUsesCursor);
-			ImIO->ConfigFlags &= ~(ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard);
+	void GTSMenu::BlurBackground(bool a_enable) {
+		if (auto blur = RE::UIBlurManager::GetSingleton()) {
+			if (a_enable && Config::UI.bDoBGBlur) {
+				blur->IncrementBlurCount();
+			}
+			else {
+				if (blur->blurCount > 0) {
+					blur->DecrementBlurCount();
+				}
+			}
+		}
+	}
 
+	void GTSMenu::PauseGame(bool a_enable) {
+		if (auto ui = UI::GetSingleton()){
+			if (a_enable && Config::UI.bDoPause) {
+				ui->numPausesGame++;
+			}
+			else {
+				if (ui->numPausesGame > 0) {
+					ui->numPausesGame--;
+				}
+			}
+		}
+	}
+
+	void GTSMenu::AlterTimeScale(bool a_enable) {
+		//I feel like im missing something here...
+		if (a_enable && Config::UI.bDoSlowdown) {
+			m_originalGameTime = Time::GGTM();
+			Time::SGTM(Config::UI.fSGTMMult);
 		}
 		else {
-			menuFlags.reset(UI_MENU_FLAGS::kUpdateUsesCursor);
-			menuFlags.reset(UI_MENU_FLAGS::kUsesCursor);
-			ImIO->ConfigFlags |= ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard;
+			Time::SGTM(m_originalGameTime);
 		}
-
-		logger::trace("GTSMenu Cursor: {}", a_enable);
 	}
 
 	std::string GTSMenu::DebugName() {
@@ -228,14 +298,13 @@ namespace GTS {
 			mName == RE::ContainerMenu::MENU_NAME ||
 			mName == RE::DialogueMenu::MENU_NAME ||
 			mName == RE::MessageBoxMenu::MENU_NAME ||
-			mName == RE::TweenMenu::MENU_NAME ||
-			//mName == RE::MainMenu::MENU_NAME ||
-			mName == "CustomMenu") { // papyrus custom menus go here
+			mName == RE::TweenMenu::MENU_NAME) {
 
+			//If the game switches to any of these menu's hide ours.
 			a_event->opening ? Hide(mName) : Show(mName);
 
 		}
-		// for some reason, after each cell change, the menu is hidden and needs to be shown again
+		// For some reason, changing cells seems to hide the menu.
 		else if (mName == RE::LoadingMenu::MENU_NAME) {
 			if (!a_event->opening) {
 				SetVisibility(true);
@@ -266,6 +335,7 @@ namespace GTS {
 
 		depthPriority = WindowManager->GetDesiredPriority();
 		SetInputFlags(WindowManager->GetDesiredCursorState());
+
 
 		m_frameReady.store(true, std::memory_order_release);
 	}

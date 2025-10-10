@@ -1,4 +1,5 @@
 #pragma once
+#include "Utils/Singleton.hpp"
 
 namespace GTS {
 	
@@ -268,7 +269,7 @@ namespace GTS {
 	class EventListener {
 		public:
 			EventListener() = default;
-			~EventListener() = default;
+			virtual ~EventListener() = default;
 			EventListener(EventListener const&) = delete;
 			EventListener& operator=(EventListener const&) = delete;
 
@@ -346,13 +347,11 @@ namespace GTS {
 	};
 
 	class EventDispatcher {
-		public:
-			// EventDispatcher() = default;
-			// ~EventDispatcher() = default;
-			// EventDispatcher(EventDispatcher const&) = delete;
-			// EventDispatcher& operator=(EventDispatcher const&) = delete;
 
-			static void AddListener(EventListener* listener);
+			public:
+
+			static void AddListener(EventListener* a_listener);
+			static void RemoveListener(EventListener* a_listener);
 			static void DoUpdate();
 			static void DoBoneUpdate();
 			static void DoPapyrusUpdate();
@@ -377,7 +376,7 @@ namespace GTS {
 			static void DoActorAnimEvent(RE::Actor* actor, const RE::BSFixedString& a_tag, const RE::BSFixedString& a_payload);
 			static void DoFurnitureEvent(const TESFurnitureEvent* a_event);
 		private:
-			[[nodiscard]] static EventDispatcher& GetSingleton();
-			std::vector<EventListener*> listeners;
+			static inline std::mutex m_lock;
+			static inline std::vector<EventListener*> m_listeners;
 	};
 }

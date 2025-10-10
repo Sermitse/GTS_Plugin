@@ -4,7 +4,6 @@
 #include "Managers/GtsSizeManager.hpp"
 
 #include "UI/ImGui/Core/ImStyleManager.hpp"
-#include "UI/GTSMenu.hpp"
 
 #include "Utils/ItemDistributor.hpp"
 
@@ -67,7 +66,7 @@ namespace GTS {
 
 	void Persistent::LoadModLocalModConfiguration() {
 		Config::LoadSettingsFromString();
-		GTSMenu::WindowManager->ApplyStyle();
+		ImStyleManager::ApplyStyle();
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 	}
 

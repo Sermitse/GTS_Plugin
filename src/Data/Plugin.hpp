@@ -1,5 +1,4 @@
 #pragma once
-// Keeps track of global state like is enabled
 
 namespace GTS {
 
@@ -11,8 +10,7 @@ namespace GTS {
 		static bool InGame();
 		static bool Ready();
 		static bool Live();
-		static bool AnyMenuOpen();
-		static bool AnyWidgetMenuOpen();
+		static bool IsInBlockingMenu();
 		static void SetInGame(bool value);
 		static bool OnMainThread();
 		static void SetOnMainThread(bool value);

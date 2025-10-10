@@ -1,6 +1,9 @@
 #include "UI/ImGui/Core/ImWindowManager.hpp"
-#include "UI/ImGui/ImUtil.hpp"
+#include "ImFontManager.hpp"
+#include "ImStyleManager.hpp"
+
 #include "UI/ImGui/Windows/SplashWindow.hpp"
+#include "UI/ImGui/Windows/Settings/SettingsWindow.hpp"
 
 namespace GTS {
 
@@ -14,7 +17,7 @@ namespace GTS {
 
     bool ImWindowManager::HasActiveWindows() {
         return std::ranges::any_of(Windows, [](const auto& window) {
-            return window->ShouldDraw();
+            return window->WantsToDraw() && !window->IsFadeComplete();
         });
 
     }
@@ -23,7 +26,7 @@ namespace GTS {
         ImWindow::WindowType highestType = ImWindow::WindowType::kWidget;
 
         for (const auto& window : Windows) {
-            if (window->ShouldDraw() && window->m_windowType > highestType) {
+            if (window->WantsToDraw() && window->m_windowType > highestType) {
                 highestType = window->m_windowType;
             }
         }
@@ -32,9 +35,11 @@ namespace GTS {
     }
 
 
-    void ImWindowManager::AddWindow(std::unique_ptr<ImWindow> a_window) {
+    void ImWindowManager::AddWindow(std::unique_ptr<ImWindow> a_window, ImWindow** a_accessor) {
 
         assert(a_window != nullptr);
+
+        a_window->Init();
 
         for (const auto& window : Windows) {
             const auto& nam = a_window->GetWindowName();
@@ -44,8 +49,15 @@ namespace GTS {
             }
         }
 
-        Windows.push_back(std::move(a_window));
+        Windows.emplace_back(std::move(a_window));
+
+        // assign out pointer if requested
+        if (a_accessor) {
+            *a_accessor = Windows.back().get();
+        }
+
         logger::info("ImWindowManager::AddWindow {}", Windows.back()->GetWindowName());
+       
     }
 
     void ImWindowManager::Update() const {
@@ -55,19 +67,25 @@ namespace GTS {
             return;
         }
 
+        float deltaTime = GetDeltaTime();
+
         for (const auto& window : Windows) {
 
-            if (!window->ShouldDraw()) {
+            window->UpdateFade(deltaTime);
+
+            if (!window->WantsToDraw()) {
                 continue;
             }
 
-            const float BGAlpha = window->GetBGAlphaMult();
-            const float AlphaMult = window->GetAlphaMult();
+            const float FadeMult = window->GetFadingAlpha();
+            const float BGAlpha = window->GetBackgroundAlpha() * FadeMult;
+            const float AlphaMult = window->GetFullAlpha() * FadeMult;
 
             ImVec4 BorderCol = ImGui::GetStyle().Colors[ImGuiCol_Border];
             BorderCol.w *= BGAlpha;
 
             ImGui::SetNextWindowBgAlpha(BGAlpha * AlphaMult);
+
             ImGui::PushStyleColor(ImGuiCol_Border, BorderCol);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, AlphaMult);
             ImFontManager::Push(ImFontManager::ActiveFontType::kText);
@@ -106,22 +124,14 @@ namespace GTS {
         ImFontManager::Init();
 
         logger::info("ImStyleManager Init");
-        Style = new ImStyleManager();
-        Style->ApplyStyle();
+        ImStyleManager::ApplyStyle();
 
-        AddWindow(std::make_unique<SplashWindow>());
+        AddWindow(std::make_unique<SplashWindow>(), &wSplash);
+        AddWindow(std::make_unique<SettingsWindow>(), &wSettings);
         //AddWindow(std::make_unique<TestWindow>("Win1"));
-
-        for (const auto& window : Windows) {
-            window->Init();
-        }
 
         logger::info("ImWindowManager Init OK");
 
-    }
-
-    void ImWindowManager::ApplyStyle() const {
-        Style->ApplyStyle();
     }
 
     int8_t ImWindowManager::GetDesiredPriority() const {
@@ -130,10 +140,6 @@ namespace GTS {
 
     bool ImWindowManager::GetDesiredCursorState() const {
         return Context->GetCurrentConfig().cursorEnabled;
-    }
-
-    void ImWindowManager::PopFont() {
-        ImGui::PopFont();
     }
 
     ImWindow* ImWindowManager::GetWindowByName(const std::string& a_name) const {
