@@ -6,8 +6,6 @@
 
 #include "Config/Config.hpp"
 
-#include "UI/ImGui/ImUtil.hpp"
-
 using namespace GTS;
 
 namespace {
@@ -56,9 +54,9 @@ namespace {
 		auto currentMode = static_cast<LCameraMode_t>(Mode);
 
 		// Use magic_enum to get the enum name and humanize it
-		const std::string Msg = fmt::format("Camera Mode: {}", ImUtil::HumanizeString(std::string(magic_enum::enum_name(currentMode))));
+		const std::string Msg = fmt::format("Camera Mode: {}", HumanizeString(std::string(magic_enum::enum_name(currentMode))));
 
-		RE::DebugNotification(Msg.c_str());
+		Notify(Msg.c_str());
 	}
 
 	bool AutoCamEnabledCondition() {

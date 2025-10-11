@@ -39,7 +39,6 @@ namespace GTS {
 			{
 				ImFontManager::Push(ImFontManager::kWidgetBody);
 				ImGui::Text("Press %s or type \"gts menu\" to open the mod's settings while in-game.", GetSettingsKeybind().c_str());
-				
 			}
 
 			ImFontManager::Pop(2);
@@ -62,8 +61,9 @@ namespace GTS {
 				  ImGuiWindowFlags_NoFocusOnAppearing |
 				  ImGuiWindowFlags_NoMove             |
 				  ImGuiWindowFlags_NoNav;
+
 		m_name = "SplashWindow";
-		m_title = "Splash Screen";
+		m_title = "Startup Info";
 		m_anchorPos = WindowAnchor::kTopLeft;
 		m_fadeSettings.visibilityDuration = 15.0f;
 		m_fadeSettings.fadeDuration = 3.0f;

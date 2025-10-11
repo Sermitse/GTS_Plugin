@@ -37,6 +37,7 @@ namespace GTS {
 
         void DataReady() override;
         std::string DebugName() override;
+        void OnGameLoaded() override;
 
         static bool SerializeStructsToTOML();
         static bool DeserializeStructsFromTOML();

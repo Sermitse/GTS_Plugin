@@ -42,6 +42,4 @@ namespace GTS {
             ImGui::PopFont();
         }
     }
-
-
 }

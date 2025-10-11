@@ -1,6 +1,6 @@
-#include "UI/DebugMenu.hpp"
-#include "UI/ScaleformLogger.hpp"
 #include "Debug/DebugDraw.hpp"
+#include "UI/DebugMenu.hpp"
+#include "UI/Util/ScaleformLogger.hpp"
 
 namespace GTS {
 
@@ -9,6 +9,7 @@ namespace GTS {
 		if (m_scaleformInitialized.load()) {
 			return;
 		}
+
 		auto Scaleform = RE::BSScaleformManager::GetSingleton();
 		if (!Scaleform) {
 			log::error("Failed to initialize DebugMenu - ScaleformManager not found");
@@ -90,7 +91,9 @@ namespace GTS {
 	}
 
 	void DebugMenu::MenuChange(const MenuOpenCloseEvent* a_event) {
+
 		auto mName = a_event->menuName;
+
 		if (
 			mName == RE::JournalMenu::MENU_NAME ||
 			mName == RE::InventoryMenu::MENU_NAME ||
@@ -111,13 +114,15 @@ namespace GTS {
 			mName == RE::MessageBoxMenu::MENU_NAME ||
 			mName == RE::TweenMenu::MENU_NAME || // tab menu
 			mName == RE::MainMenu::MENU_NAME ||
-			mName == "CustomMenu") { // papyrus custom menus go here
+			mName == "CustomMenu") {
+
 			if (a_event->opening) {
 				Hide(mName.c_str());
 			}
 			else {
 				Show(mName.c_str());
 			}
+
 		}
 		// for some reason, after each cell change, the menu is hidden and needs to be shown again
 		// using a UI message kShow
@@ -143,7 +148,7 @@ namespace GTS {
 	}
 
 	RE::stl::owner<RE::IMenu*> DebugMenu::Creator() {
-		auto Instance = &GetSingleton();
+		DebugMenu* Instance = &GetSingleton();
 		Instance->InitScaleform();
 		return Instance;
 	}

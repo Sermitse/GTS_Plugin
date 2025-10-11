@@ -37,8 +37,7 @@ namespace GTS {
 
 	class Oneshot : public BaseTask {
 		public:
-			Oneshot(std::function<void(const OneshotUpdate&)> tasking) : tasking(tasking), creationTime(Time::WorldTimeElapsed()) {
-			}
+			Oneshot(const std::function<void(const OneshotUpdate&)>& tasking) : creationTime(Time::WorldTimeElapsed()), tasking(tasking) {}
 
 			virtual bool Update() override {
 				double currentTime = Time::WorldTimeElapsed();
@@ -64,9 +63,7 @@ namespace GTS {
 
 	class Task : public BaseTask {
 		public:
-			Task(std::function<bool(const TaskUpdate&)> tasking) : tasking(tasking), lastRunTime(Time::WorldTimeElapsed()), startTime(Time::WorldTimeElapsed()) {
-
-			}
+			Task(const std::function<bool(const TaskUpdate&)>& tasking) : startTime(Time::WorldTimeElapsed()), lastRunTime(Time::WorldTimeElapsed()), tasking(tasking) {}
 
 			virtual bool Update() override {
 				TaskUpdate update;
@@ -107,8 +104,7 @@ namespace GTS {
 	// A `TaskFor` runs until it returns false OR the duration has elapsed
 	class TaskFor : public BaseTask {
 		public:
-			TaskFor(double duration, std::function<bool(const TaskForUpdate&)> tasking) : tasking(tasking), duration(duration), lastRunTime(Time::WorldTimeElapsed()), startTime(Time::WorldTimeElapsed()) {
-			}
+			TaskFor(double duration, const std::function<bool(const TaskForUpdate&)>& tasking) : startTime(Time::WorldTimeElapsed()), lastRunTime(Time::WorldTimeElapsed()), tasking(tasking), duration(duration) {}
 
 			virtual bool Update() override {
 				double currentTime = Time::WorldTimeElapsed();
@@ -150,17 +146,12 @@ namespace GTS {
 	};
 
 
-	class TaskManager : public EventListener {
+	class TaskManager : public EventListener, public CInitSingleton<TaskManager> {
 
 		public:
 
 			std::string DebugName() override {
 				return "::TaskManager";
-			}
-
-			static TaskManager& GetSingleton() {
-				static TaskManager instance;
-				return instance;
 			}
 
 			virtual void Update() override {
@@ -210,21 +201,6 @@ namespace GTS {
 				}
 			}
 
-			virtual void BoneUpdate() override {
-				std::vector<std::string> toRemove = {};
-				for (auto& [name, task]: this->taskings) {
-					if (task->UpdateOn() == UpdateKind::Bone) {
-						if (!task->Update()) {
-							toRemove.push_back(name);
-						}
-					}
-				}
-
-				for (auto task: toRemove) {
-					this->taskings.erase(task);
-				}
-			}
-
 			virtual void PapyrusUpdate() override {
 				std::vector<std::string> toRemove = {};
 				for (auto& [name, task]: this->taskings) {
@@ -255,7 +231,7 @@ namespace GTS {
 				me.taskings.erase(std::string(name));
 			}
 
-			static void Run(std::function<bool(const TaskUpdate&)> tasking) {
+			static void Run(const std::function<bool(const TaskUpdate&)>& tasking) {
 				auto& me = TaskManager::GetSingleton();
 				auto task = new Task(tasking);
 				std::string name = std::format("UNNAMED_{}", *reinterpret_cast<std::uintptr_t*>(task));
@@ -265,7 +241,7 @@ namespace GTS {
 					);
 			}
 
-			static void Run(std::string_view name, std::function<bool(const TaskUpdate&)> tasking) {
+			static void Run(std::string_view name, const std::function<bool(const TaskUpdate&)>& tasking) {
 				auto& me = TaskManager::GetSingleton();
 				me.taskings.try_emplace(
 					std::string(name),
@@ -273,7 +249,7 @@ namespace GTS {
 					);
 			}
 
-			static void RunFor(float duration, std::function<bool(const TaskForUpdate&)> tasking) {
+			static void RunFor(float duration, const std::function<bool(const TaskForUpdate&)>& tasking) {
 				auto& me = TaskManager::GetSingleton();
 				auto task = new TaskFor(duration, tasking);
 				std::string name = std::format("UNNAMED_{}", *reinterpret_cast<std::uintptr_t*>(task));
@@ -283,7 +259,7 @@ namespace GTS {
 					);
 			}
 
-			static void RunFor(std::string_view name, float duration, std::function<bool(const TaskForUpdate&)> tasking) {
+			static void RunFor(std::string_view name, float duration, const std::function<bool(const TaskForUpdate&)>& tasking) {
 				auto& me = TaskManager::GetSingleton();
 				me.taskings.try_emplace(
 					std::string(name),
@@ -291,22 +267,22 @@ namespace GTS {
 					);
 			}
 
-			static void RunOnce(std::function<void(const OneshotUpdate&)> tasking) {
+			static void RunOnce(const std::function<void(const OneshotUpdate&)>& tasking) {
 				auto& me = TaskManager::GetSingleton();
 				auto task = new Oneshot(tasking);
 				std::string name = std::format("UNNAMED_{}", *reinterpret_cast<std::uintptr_t*>(task));
 				me.taskings.try_emplace(
 					name,
 					task
-					);
+				);
 			}
 
-			static void RunOnce(std::string_view name, std::function<void(const OneshotUpdate&)> tasking) {
+			static void RunOnce(std::string_view name, const std::function<void(const OneshotUpdate&)>& tasking) {
 				auto& me = TaskManager::GetSingleton();
 				me.taskings.try_emplace(
 					std::string(name),
 					new Oneshot(tasking)
-					);
+				);
 			}
 
 			static void CancelAllTasks() {
@@ -314,6 +290,10 @@ namespace GTS {
 				me.taskings.clear();
 				log::info("Canceled all task manager tasks");
 			}
+
+			virtual void OnGameLoaded() override {
+				TaskManager::CancelAllTasks(); // just in case, to avoid CTD
+			};
 
 			std::unordered_map<std::string, BaseTask*> taskings;
 	};

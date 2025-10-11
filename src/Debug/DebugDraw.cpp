@@ -1,9 +1,10 @@
 #include "Debug/DebugDraw.hpp"
+
+#include "UI/DebugMenu.hpp"
+
 #include "Debug/Util/DebugUtil.hpp"
 #include "Debug/Util/DebugLine.hpp"
 #include "Debug/Util/ObjectBound.hpp"
-#include "UI/DebugMenu.hpp"
-#include "Config/Config.hpp"
 
 namespace GTS {
 
@@ -45,8 +46,6 @@ namespace GTS {
 				i--;
 			}
 		}
-
-		Config::Advanced.bShowOverlay = true;
 	}
 
 	void DebugDraw::DrawBoundsForMS(DebugUtil::ObjectBound objectBound, int liftetimeMS, const glm::vec4& color, float lineThickness) {
@@ -402,7 +401,7 @@ namespace GTS {
 		ScreenResY = abs(rect.top - rect.bottom);
 
 		CachedMenuData = true;
-		log::info("DebugDraw::CacheMenuData");
+		log::debug("DebugDraw::CacheMenuData");
 
 	}
 

@@ -1,0 +1,36 @@
+#pragma once
+#include "UI/ImGui/Lib/imgui.h"
+
+// RAII helper to push an ID on construction and pop it on destruction
+struct ImGuiUniqueID {
+    ImGuiUniqueID(int id) { ImGui::PushID(id); }
+    ~ImGuiUniqueID() { ImGui::PopID(); }
+};
+
+#define CONCAT_IMPL(a, b) a##b
+#define CONCAT(a, b) CONCAT_IMPL(a, b)
+
+#define ImUtil_Unique                                                     \
+    if (ImGuiUniqueID CONCAT(uniqueID_, __COUNTER__)(__COUNTER__); true)
+
+#define Imutil_UniqueCall(func_call)                            \
+    ImGuiUniqueID CONCAT(uniqueID_, __COUNTER__)(__COUNTER__);  \
+    func_call
+
+namespace ImUtil {
+
+	//Predefined colors {R, G, B, A} (0.0 to 1.0f)
+    namespace Colors {
+        constexpr ImVec4 Error = { 1.0f, 0.35f, 0.30f, 0.9f };
+        constexpr ImVec4 OK = { 0.30f, 1.0f, 0.35f, 0.9f };
+        constexpr ImVec4 Subscript = { 1.0f, 1.0f, 1.0f, 0.5f };
+        constexpr ImVec4 Disabled = { 0.4f, 0.1f, 0.1f, 1.0f };
+        constexpr ImVec4 Message = { 1.0f, 0.5f, 0.0f, 1.0f };
+    }
+
+    constexpr uint32_t HeaderFlagsDefaultOpen = ImGuiTreeNodeFlags_DefaultOpen;
+
+    [[nodiscard]] bool ValidState() noexcept;
+    [[nodiscard]] ImVec2 ScaleToViewport(float a_Percentage);
+}
+

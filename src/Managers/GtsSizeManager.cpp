@@ -50,10 +50,6 @@ namespace {
 }
 
 namespace GTS {
-	SizeManager& SizeManager::GetSingleton() noexcept {
-		static SizeManager instance;
-		return instance;
-	}
 
 	std::string SizeManager::DebugName() {
 		return "::SizeManager";
@@ -260,7 +256,6 @@ namespace GTS {
 	}
 
 	void SizeManager::Reset() {
-		TaskManager::CancelAllTasks(); // just in case, to avoid CTD
 		this->sizeData.clear();
 	}
 
@@ -268,5 +263,9 @@ namespace GTS {
 		if (actor) {
 			this->sizeData.erase(actor);
 		}
+	}
+
+	void SizeManager::OnGameLoaded() {
+		Reset();
 	}
 }

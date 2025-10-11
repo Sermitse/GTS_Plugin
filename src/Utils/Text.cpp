@@ -35,7 +35,7 @@ namespace GTS {
 	}
 
 	std::string remove_whitespace(std::string s) {
-		s.erase(remove(s.begin(),s.end(),' '), s.end());
+		std::erase(s,' ');
 		return s;
 	}
 
@@ -57,8 +57,9 @@ namespace GTS {
 
 	// In-place trimming functions for a std::string
 	void ltrim(std::string& s) {
-		s.erase(s.begin(), std::find_if(s.begin(), s.end(),
-			[](unsigned char ch) { return !std::isspace(ch); }));
+		s.erase(s.begin(), ranges::find_if(s,[](unsigned char ch) {
+			return !std::isspace(ch);
+		}));
 	}
 
 	void rtrim(std::string& s) {
@@ -66,5 +67,72 @@ namespace GTS {
 			[](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
 	}
 
+    std::string HumanizeString(std::string_view name) {
+        if (name.empty()) {
+            return {};
+        }
 
+        std::string result;
+
+        // Remove a leading 'k', if present.
+        if (name.front() == 'k') {
+            name.remove_prefix(1);
+        }
+
+        // Process each character by index.
+        for (size_t i = 0; i < name.size(); ++i) {
+            char c = name[i];
+
+            if (c == '_') {
+                // Replace underscore with a space (avoiding duplicate spaces).
+                if (result.empty() || result.back() != ' ')
+                    result += ' ';
+                continue;
+            }
+
+            // For uppercase letters (except at the very start), add a space if the previous character
+            // was NOT uppercase. This prevents adding spaces between sequential uppercase letters.
+            if (i > 0 && std::isupper(static_cast<unsigned char>(c)) &&
+                !std::isupper(static_cast<unsigned char>(name[i - 1]))) {
+                if (result.empty() || result.back() != ' ')
+                    result += ' ';
+            }
+
+            result += c;
+        }
+
+        // Trim leading and trailing spaces.
+        size_t start = result.find_first_not_of(' ');
+        if (start == std::string::npos) {
+            return "";
+        }
+        size_t end = result.find_last_not_of(' ');
+        result = result.substr(start, end - start + 1);
+
+        // Collapse any consecutive spaces (if any)
+        std::string final_result;
+        bool prev_space = false;
+        for (char ch : result) {
+            if (ch == ' ') {
+                if (!prev_space) {
+                    final_result += ' ';
+                    prev_space = true;
+                }
+            }
+            else {
+                final_result += ch;
+                prev_space = false;
+            }
+        }
+
+        return final_result;
+    }
+
+    bool ContainsString(const std::string& a1, const std::string& a2) {
+        auto to_lower = [](unsigned char c) { return std::tolower(c); };
+        auto a1_view = a1 | std::views::transform(to_lower);
+        auto a2_view = a2 | std::views::transform(to_lower);
+        auto result = std::ranges::search(a1_view, a2_view);
+        return result.begin() != a1_view.end();
+    }
 }

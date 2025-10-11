@@ -72,7 +72,7 @@ namespace {
 
 namespace GTS {
 
-    TESContainer* FilterChests(TESForm* form, ChestType type) {
+    TESContainer* ItemDistributor::FilterChests(TESForm* form, ChestType type) {
         switch (type) {
             case ChestType::BossChest: {
                 for (auto chest: BossChests) {
@@ -102,7 +102,10 @@ namespace GTS {
         return nullptr;
     }
 
-    void DistributeChestItems() {
+    void ItemDistributor::DistributeChestItems() {
+
+        logger::info("Distributing Loot Items");
+
         for (auto Chest: FindAllChests()) {
             if (Chest) {
                 AddItemToChests(Chest);
@@ -110,7 +113,7 @@ namespace GTS {
         }
     }
 
-    void AddItemToChests(TESForm* Chest) {
+    void ItemDistributor::AddItemToChests(TESForm* Chest) {
         TESContainer* container_Boss = FilterChests(Chest, ChestType::BossChest); 
         //ESContainer* container_Normal = FilterChests(Chest, ChestType::NormalChest); 
         //TESContainer* container_Misc = FilterChests(Chest, ChestType::MiscChest);
@@ -134,7 +137,7 @@ namespace GTS {
         }
     }
 
-    std::vector<TESForm*> FindAllChests() {
+    std::vector<TESForm*> ItemDistributor::FindAllChests() {
         RE::TESDataHandler* const DataHandler = RE::TESDataHandler::GetSingleton();
 
         std::vector<TESForm*> Forms = {}; 
@@ -149,20 +152,27 @@ namespace GTS {
         return Forms;
     }
 
-    std::vector<TESLevItem*> CalculateItemProbability(ChestType type) {
+    std::vector<TESLevItem*> ItemDistributor::CalculateItemProbability(ChestType type) {
         return SelectItemsFromPool(type);
     }
 
-    std::vector<TESLevItem*> SelectItemsFromPool(ChestType type) {
+    std::vector<TESLevItem*> ItemDistributor::SelectItemsFromPool(ChestType type) {
         TESLevItem* LootList_Master = Runtime::GetLeveledItem("GTSLootListMaster");
         // Loot probability is configured inside LootList in the esp
 
-        
         std::vector<TESLevItem*> ChosenItems = {
            LootList_Master, 
            // Spawns inside Boss Chests only
         };
     
         return ChosenItems;
+    }
+
+    std::string ItemDistributor::DebugName() {
+        return "::ItemDistributor";
+    }
+
+    void ItemDistributor::OnGameLoaded() {
+        DistributeChestItems();
     }
 }

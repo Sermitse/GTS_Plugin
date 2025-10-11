@@ -23,6 +23,9 @@ namespace GTS {
     void Config::ResetToDefaults() {
         SettingsOperations::ResetAllStructsToDefaults(GetSingleton());
         TomlData = toml::ordered_table();
+
+        //Fire EventDispatcher
+        EventDispatcher::DoConfigResetEvent();
     }
 
     bool Config::LoadSettingsFromString() {
@@ -129,5 +132,10 @@ namespace GTS {
 
     void Config::CopyLegacySettings() {
         _fileManager.CopyLegacySettings(LegacyConfigFilePath);
+    }
+
+    void Config::OnGameLoaded() {
+        LoadSettingsFromString();
+        spdlog::set_level(spdlog::level::from_str(Advanced.sLogLevel));
     }
 }

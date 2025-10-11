@@ -203,7 +203,6 @@ namespace GTS {
 			static inline std::unordered_map<FormID, KillCountData> KillCountDataMap;
 
 			static void ClearData();
-			static void LoadModLocalModConfiguration();
 
 			static void LoadPersistent(SerializationInterface* serde);
 			static void SavePersistent(SerializationInterface* serde);

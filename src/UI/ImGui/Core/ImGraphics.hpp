@@ -11,9 +11,9 @@ namespace GTS {
 
         public:
 
-        const std::string _path = R"(Data\SKSE\Plugins\GTSPlugin\Icons\)";
-        const std::string _svg = ".svg";
-        const std::string _png = ".png";
+        static inline const std::string _path = R"(Data\SKSE\Plugins\GTSPlugin\Icons\)";
+        static constexpr std::string_view _svg = ".svg";
+        static constexpr std::string_view _png = ".png";
 
         enum class BaseImageType {
             Vector,
@@ -40,36 +40,36 @@ namespace GTS {
         };
 
         private:
-        ID3D11Device* m_Device = nullptr;
-        ID3D11DeviceContext* m_Context = nullptr;
-        ID3D11SamplerState* m_PointSampler = nullptr;
-        ID3D11SamplerState* m_LinearSampler = nullptr;
+        static inline ID3D11Device* m_Device = nullptr;
+        static inline ID3D11DeviceContext* m_Context = nullptr;
+        static inline ID3D11SamplerState* m_PointSampler = nullptr;
+        static inline ID3D11SamplerState* m_LinearSampler = nullptr;
 
-        std::unordered_map<std::string, std::shared_ptr<Texture>> m_TextureMap;
-        std::mutex m_Lock;
-        Microsoft::WRL::ComPtr<IWICImagingFactory> m_wicFactory;
-        std::shared_ptr<Texture> m_defaultTexture;
+        static inline std::unordered_map<std::string, std::shared_ptr<Texture>> m_TextureMap;
+        static inline std::mutex m_Lock;
+        static inline Microsoft::WRL::ComPtr<IWICImagingFactory> m_wicFactory;
+        static inline std::shared_ptr<Texture> m_defaultTexture;
 
         public:
-        ImGraphics(ID3D11Device* a_device, ID3D11DeviceContext* a_context);
-        ~ImGraphics();
-        void Load();
-        bool LoadSVG(const std::string& a_name, const std::string& a_path);
-        bool LoadImage(const std::string& name, const std::string& filePath);
-        Texture* GetTexture(const std::string& a_name, ImVec2 a_requestedSize = ImVec2(0, 0));
-        bool Render(const std::string& a_name, ImVec2 a_size = ImVec2(0, 0));
-        void DebugDrawTest();
-        std::tuple<ImTextureID, ImVec2> GetAsImGuiTexture(const std::string& a_name, ImVec2 a_size = { 0,0 });
-        void ClearCache();
-        bool HasSvg(const std::string& a_name);
-        std::vector<std::string> GetLoadedSvgNames();
+        static void Init(ID3D11Device* a_device, ID3D11DeviceContext* a_context);
+        static void Load();
+        static bool LoadSVG(const std::string& a_name, const std::string& a_path);
+        static bool LoadImage(const std::string& name, const std::string& filePath);
+        static Texture* GetTexture(const std::string& a_name, ImVec2 a_requestedSize = ImVec2(0, 0));
+        static bool Render(const std::string& a_name, ImVec2 a_size = ImVec2(0, 0));
+        static void DebugDrawTest();
+        static std::tuple<ImTextureID, ImVec2> GetAsImGuiTexture(const std::string& a_name, ImVec2 a_size = { 0,0 });
+        static void ClearCache();
+        static bool HasSvg(const std::string& a_name);
+        static std::vector<std::string> GetLoadedSvgNames();
 
 		private:
-        bool RasterizeSVG(Texture* a_svgTexture, ImVec2 a_size) const;
-        bool CreateTextureFromWICBitmap(Texture* texture, const BYTE* pixelData, UINT width, UINT height, UINT stride) const;
-        bool CreateDefaultCheckerboardTexture(UINT tileSize = 4, UINT tiles = 8);
-        void CreateSamplers();
-        bool ResampleRaster(Texture* tex, ImVec2 size) const;
+        static inline std::atomic_bool m_ready = false;
+        static bool RasterizeSVG(Texture* a_svgTexture, ImVec2 a_size);
+        static bool CreateTextureFromWICBitmap(Texture* texture, const BYTE* pixelData, UINT width, UINT height, UINT stride);
+        static bool CreateDefaultCheckerboardTexture(UINT tileSize = 4, UINT tiles = 8);
+        static void CreateSamplers();
+        static bool ResampleRaster(Texture* tex, ImVec2 size);
     };
 
 }

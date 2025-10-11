@@ -279,8 +279,6 @@ namespace GTS {
 			// Called on Live (non paused) gameplay
 			virtual void Update();
 
-			virtual void BoneUpdate();
-
 			// Called on Papyrus OnUpdate
 			virtual void PapyrusUpdate();
 
@@ -344,6 +342,15 @@ namespace GTS {
 
 			// Fired when actor uses furniture
 			virtual void FurnitureEvent(RE::Actor* user, TESObjectREFR* object, bool enter);
+
+			// Fired during skse cosave save start
+			virtual void OnGameSave();
+
+			// Fired during skse cosave load end
+			virtual void OnGameLoaded();
+
+			// Fired during config reset
+			virtual void OnConfigReset();
 	};
 
 	class EventDispatcher {
@@ -353,7 +360,6 @@ namespace GTS {
 			static void AddListener(EventListener* a_listener);
 			static void RemoveListener(EventListener* a_listener);
 			static void DoUpdate();
-			static void DoBoneUpdate();
 			static void DoPapyrusUpdate();
 			static void DoHavokUpdate();
 			static void DoCameraUpdate();
@@ -374,6 +380,9 @@ namespace GTS {
 			static void DoRemovePerk(const RemovePerkEvent& evt);
 			static void DoMenuChange(const RE::MenuOpenCloseEvent* menu_event);
 			static void DoActorAnimEvent(RE::Actor* actor, const RE::BSFixedString& a_tag, const RE::BSFixedString& a_payload);
+			static void DoSerdePreSaveEvent();
+			static void DoSerdePostLoadEvent();
+			static void DoConfigResetEvent();
 			static void DoFurnitureEvent(const TESFurnitureEvent* a_event);
 		private:
 			static inline std::mutex m_lock;

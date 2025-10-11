@@ -38,7 +38,7 @@ namespace {
 				case MessagingInterface::kDataLoaded: {
 
 					EventDispatcher::DoDataReady();
-					InputManager::Init();
+					InputManager::GetSingleton().Init();
 					ConsoleManager::Init();
 					SmoothCam::Register();
 					Runtime::CheckSoftDependencies();
@@ -102,24 +102,6 @@ namespace {
 			ReportAndExit("Failure to register Papyrus bindings.");
 		}
 	}
-
-	void InitializeEventSystem() {
-
-
-		EventDispatcher::AddListener(&Runtime::GetSingleton()); // Stores spells, globals and other important data
-		EventDispatcher::AddListener(&Persistent::GetSingleton());
-		EventDispatcher::AddListener(&Transient::GetSingleton());
-		EventDispatcher::AddListener(&CooldownManager::GetSingleton());
-		EventDispatcher::AddListener(&TaskManager::GetSingleton());
-		EventDispatcher::AddListener(&SpringManager::GetSingleton());
-		EventDispatcher::AddListener(&Config::GetSingleton());
-		EventDispatcher::AddListener(&Keybinds::GetSingleton());
-
-		log::info("Added Default Listeners");
-
-		RegisterManagers();
-	}
-
 }
 
 SKSEPluginLoad(const LoadInterface * a_skse){
@@ -133,23 +115,11 @@ SKSEPluginLoad(const LoadInterface * a_skse){
 #ifndef GTS_DISABLE_PLUGIN
 
 	LogPrintPluginInfo();
-
-	//If console forse to trace for init.
-	//Else set to info.
-	//Userconfig gets parsed during game load where this setting will be overriden by that value.
-	if (logger::HasConsole()) {
-		logger::SetLevel("Trace");
-	}
-	else {
-		logger::SetLevel("Info");
-	}
-
 	VersionCheck(a_skse);
 	InitializeMessaging();
 	Hooks::Install();
 	InitializePapyrus();
-	InitializeEventSystem();
-
+	RegisterManagers();
 
 #endif
 

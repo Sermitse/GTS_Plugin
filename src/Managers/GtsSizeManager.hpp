@@ -21,14 +21,13 @@ namespace GTS {
 		float Camera_HalfLife = 0.05f;
 	};
 
-	class SizeManager : public EventListener {
+	class SizeManager : public EventListener, public CInitSingleton<SizeManager> {
 		public:
-			[[nodiscard]] static SizeManager& GetSingleton() noexcept;
 
 			virtual std::string DebugName() override;
-
 			virtual void Reset() override;
 			virtual void ResetActor(Actor* actor) override;
+			virtual void OnGameLoaded() override;
 
 			SizeManagerData& GetData(Actor* actor);
 
@@ -59,7 +58,6 @@ namespace GTS {
 
 			void SetCameraHalflife(Actor* actor, CameraTracking Bone);
 			float GetCameraHalflife(Actor* actor);
-
 
 			static bool BalancedMode();
 

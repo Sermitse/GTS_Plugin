@@ -2,10 +2,14 @@
 
 namespace GTS {
 
+
+	//TODO Eventdispatcher doesnt handle dangling pointers
+	//as its assumed a event class is a singleton.
+	//find a way to make it instance class safe...
+
+
 	// Called on Live (non paused) gameplay
 	void EventListener::Update() {}
-
-	void EventListener::BoneUpdate() {}
 
 	// Called on Papyrus OnUpdate
 	void EventListener::PapyrusUpdate() {}
@@ -71,6 +75,16 @@ namespace GTS {
 	// Fired when actor uses furniture
 	void EventListener::FurnitureEvent(Actor* user, TESObjectREFR* object, bool enter) {}
 
+	//Fires Before Cosave Serialization
+	void EventListener::OnGameSave() {}
+
+	//Fires After Cosave Deserialization
+	void EventListener::OnGameLoaded() {}
+
+	//Fires If Config settings are reset.
+	void EventListener::OnConfigReset() {}
+
+
 	void EventDispatcher::AddListener(EventListener* a_listener) {
 		if (a_listener) {
 			m_listeners.push_back(a_listener);
@@ -88,14 +102,6 @@ namespace GTS {
 		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->Update();
-		}
-	}
-
-	void EventDispatcher::DoBoneUpdate() {
-		for (auto listener: m_listeners) {
-			GTS_PROFILE_SCOPE(listener->DebugName());
-			listener->BoneUpdate();
-			log::info("BoneUpdateRunning");
 		}
 	}
 
@@ -236,6 +242,28 @@ namespace GTS {
 		for (auto listener: m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->ActorAnimEvent(actor, tag, payload);
+		}
+	}
+
+
+	void EventDispatcher::DoSerdePreSaveEvent() {
+		for (auto listener : m_listeners) {
+			GTS_PROFILE_SCOPE(listener->DebugName());
+			listener->OnGameSave();
+		}
+	}
+
+	void EventDispatcher::DoSerdePostLoadEvent() {
+		for (auto listener : m_listeners) {
+			GTS_PROFILE_SCOPE(listener->DebugName());
+			listener->OnGameLoaded();
+		}
+	}
+
+	void EventDispatcher::DoConfigResetEvent() {
+		for (auto listener : m_listeners) {
+			GTS_PROFILE_SCOPE(listener->DebugName());
+			listener->OnConfigReset();
 		}
 	}
 

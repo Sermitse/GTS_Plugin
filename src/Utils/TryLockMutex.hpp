@@ -2,13 +2,13 @@
 
 namespace GTS {
 
-    class ReCallGuard {
+    class TryLockMutex {
 
         public:
 
-        explicit ReCallGuard(std::atomic_flag& flag) : m_flag(flag), m_acquired(!flag.test_and_set(std::memory_order_acquire)) {}
+        explicit TryLockMutex(std::atomic_flag& flag) : m_flag(flag), m_acquired(!flag.test_and_set(std::memory_order_acquire)) {}
 
-        ~ReCallGuard() {
+        ~TryLockMutex() {
             if (m_acquired) {
                 m_flag.clear(std::memory_order_release);
             }

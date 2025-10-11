@@ -77,8 +77,11 @@ namespace SKSE::log {
 		}
 
 		spdlog::set_default_logger(std::move(logger));
-		SetLevel("Info"); //Default level
 
+		//If console force to trace for init.
+		//Else set to info.
+		//Userconfig gets parsed during game load where this setting will be overriden by the value stored in the save.
+		SetLevel(HasConsole() ? "Trace" : "Info");
 	}
 
 	void SetLevel(spdlog::level::level_enum a_level) {
@@ -119,5 +122,4 @@ namespace SKSE::log {
 			GTS::ReportAndExit("Could not load spdlog settings from config");
 		}
 	}
-
 }

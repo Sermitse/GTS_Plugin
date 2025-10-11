@@ -1,13 +1,15 @@
+﻿#include "UI/GTSMenu.hpp"
 #include "UI/ImGui/Windows/Settings/SettingsWindow.hpp"
-
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/Core/ImFontManager.hpp"
 #include "UI/ImGui/Core/ImStyleManager.hpp"
-
-#include "UI/ImGui/Lib/imgui.h"
-#include "UI/ImGui/ImUtil.hpp"
-
+#include "UI/ImGui/Core/ImUtil.hpp"
+#include "UI/ImGui/Controls/Button.hpp"
+#include "UI/ImGui/Controls/Misc.hpp"
 #include "Config/Config.hpp"
 #include "Config/Keybinds.hpp"
+#include "Managers/Input/InputManager.hpp"
+#include "Managers/Console/ConsoleManager.hpp"
 
 //categories
 //#include "UI/Windows/Settings/Categories/Gameplay.hpp"
@@ -23,76 +25,75 @@
 //#include "UI/Windows/Settings/Categories/Actions.hpp"
 //#include "UI/Windows/Settings/Categories/Widgets.hpp"
 
-
-#include "Managers/Input/InputManager.hpp"
-
 #include "Version.hpp"
 #include "git.h"
 
-#include "Managers/Console/ConsoleManager.hpp"
-
-#include "UI/GTSMenu.hpp"
 
 namespace GTS {
 
-	void SettingsWindow::AsyncSave() {
+	bool SettingsWindow::LoadImpl() {
 
-		if (m_saveLoadBusy.load()) {
-			return;
+		TryLockMutex guard(m_saveLoadBusy);
+
+
+		if (!guard.acquired()) {
+			logger::warn("SettingsWindow::LoadImpl Lock Not Aquired");
+			return true; //Assume success...
 		}
-
-		m_saveLoadBusy.store(true);
-		std::thread(&SettingsWindow::SaveImpl, this).detach();
-	}
-
-	void SettingsWindow::LoadImpl() {
 
 		try {
 
 			if (!Config::LoadSettingsFromString()) {
-				logger::error("Settings.LoadSettings() Error");
-				m_saveLoadBusy.store(false);
-				return;
+				logger::error("SettingsWindow::LoadSettingsFromString Error");
+				return false;
 			}
 
 			if (!Keybinds::LoadKeybinds()) {
-				logger::error("KeyMgr.LoadKeybinds() Error");
-				m_saveLoadBusy.store(false);
-				return;
+				logger::error("SettingsWindow::LoadKeybinds Error");
+				return false;
 			}
 
 			ImStyleManager::ApplyStyle();
-			m_saveLoadBusy.store(false);
+
 		}
 		//Should not be needed but just in case...
-		catch (...) {
-			logger::error("An exception occured in LoadImpl()");
+		catch (const exception& e) {
+			logger::error("An exception occured in LoadImpl: {}", e.what());
+			return false;
 		}
+
+		return true;
 	}
 
-	void SettingsWindow::SaveImpl() {
+	bool SettingsWindow::SaveImpl() {
+
+		TryLockMutex guard(m_saveLoadBusy);
+		if (!guard.acquired()) {
+			logger::warn("SettingsWindow::SaveImpl Lock Not Aquired");
+			return true; //Assume success...
+		}
 
 		try {
 
 			if (!Config::SaveSettingsToString()) {
-				logger::error("Settings.SaveSettings() Error");
-				m_saveLoadBusy.store(false);
-				return;
+				logger::error("SettingsWindow::SaveSettings Error");
+				return false;
 			}
 
 			if (!Keybinds::SaveKeybinds()) {
-				logger::error("KeyMgr.SaveKeybinds() Error");
-				m_saveLoadBusy.store(false);
-				return;
+				logger::error("SettingsWindow::SaveKeybinds Error");
+				return false;
 			}
 
 			InputManager::GetSingleton().Init();
-			m_saveLoadBusy.store(false);
 		}
 		//Should not be needed but just in case...
-		catch (...) {
-			logger::error("An exception occured in SaveImpl()");
+		catch (const exception& e) {
+			logger::error("An exception occured in SaveImpl: {}",e.what());
+			return false;
 		}
+
+		return true;
 	}
 
 	void SettingsWindow::Init() {
@@ -126,6 +127,7 @@ namespace GTS {
 		//CatMgr.AddCategory(std::make_shared<CategoryWidgets>());
 		//CatMgr.AddCategory(std::make_shared<CategoryKeybinds>());
 		//CatMgr.AddCategory(std::make_shared<CategoryAdvanced>());
+
 		BuildFooterText();
 
 		InputManager::RegisterInputEvent("OpenModSettings", OpenSettingsKeybindCallback);
@@ -147,39 +149,44 @@ namespace GTS {
 	void SettingsWindow::OpenSettingsConsoleCallback() {
 		if (auto Window = dynamic_cast<SettingsWindow*>(GTSMenu::WindowManager->wSettings)) {
 			Window->HandleOpenClose(true);
+			return;
 		}
 		logger::error("Can't call handler window, pointer was invalid!");
 	}
 
 	void SettingsWindow::HandleOpenClose(bool a_open) {
 
-		if (!Plugin::Live() && !m_show) {
+		if (!Plugin::Ready() && !m_show) {
 			logger::warn("Can't show menu: Not Ingame!");
 			Cprint("Can not open the settings menu at this time. Try again in game.");
 			return;
 		}
 
-		if (Plugin::IsInBlockingMenu() && !m_show) {
+		if (Plugin::IsInBlockingMenu() && !m_show ) {
 			logger::warn("Can't show menu: A Conflicting game menu is open!");
 			Cprint("Can not open the settings menu at this time. A conflicting game menu is open.");
+			DebugNotification("Can not open the settings menu at this time.", nullptr, false);
 			return;
 		}
 
 		if (a_open) {
 
 			if (const auto msgQueue = UIMessageQueue::GetSingleton()) {
-				//The console draws above and since we disable input its unclosable so we need to close it ourselves.
+				//The console draws above and since we disable input it becomes unclosable, we need to close it ourselves.
 				msgQueue->AddMessage(RE::Console::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-
-				//TODO Place any conflicting menus here.
-				//msgQueue->AddMessage(RE::DialogueMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 			}
 
 			m_show = true;
 		}
 
 		else {
-			AsyncSave();
+
+			//If save fails don't hide self and show modal box.
+			if (SaveImpl()) {
+				m_showErrorModal = true;
+				return;
+			}
+
 			m_show = false;
 		}
 
@@ -189,21 +196,49 @@ namespace GTS {
 
 	}
 
-	void SettingsWindow::SetDisabled(bool a_disabled) {
-		m_inputDisabled = a_disabled;
+	void SettingsWindow::DisableUIInteraction(bool a_disabled) {
+		m_disableUIInteraction = a_disabled;
+	}
+
+	void SettingsWindow::ShowErrorModal(bool* a_requestOpen) {
+
+		static const char* const windowName = "##SaveLoadError";
+
+		if (*a_requestOpen) {
+			ImGui::OpenPopup(windowName);
+			*a_requestOpen = false;
+		}
+
+		if (ImGui::BeginPopupModal(windowName, nullptr, m_flags | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize)) {
+			ImFontManager::Push(ImFontManager::kLargeText);
+			ImGui::TextColored(ImUtil::Colors::Error, "Settings could not be saved\nCheck GtsPlugin.log for more info.");
+			if (ImGui::Button("OK")) {
+				ImGui::CloseCurrentPopup();
+
+				GTSMenu::AlterTimeScale(false);
+				GTSMenu::BlurBackground(false);
+				GTSMenu::PauseGame(false);
+
+				m_show = false;
+
+			}
+			ImFontManager::Pop();
+			ImGui::EndPopup();
+		}
+
 	}
 
 	void SettingsWindow::Draw() {
 
+		//Handle closing through the esc key.
 		if (!m_busy && ImGui::IsKeyReleased(ImGuiKey_Escape)) {
 			HandleOpenClose(false);
-			return;
 		}
 
+		//Sectet advanced settings toggle.
 		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && 
 			ImGui::IsKeyDown(ImGuiKey_LeftAlt)  && 
 			ImGui::IsKeyDown(ImGuiKey_F12)) {
-			//Enable Advanced Menu
 			Config::Hidden.IKnowWhatImDoing = true;
 		}
 
@@ -227,15 +262,17 @@ namespace GTS {
 
 		const auto OldPos = ImGui::GetCursorPos();
 
-		{
+		{   //Close button
+
+			ImGui::BeginDisabled(m_disableUIInteraction);
 
 			const ImVec2 pos = ImVec2(ImGui::GetContentRegionAvail().x - (ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetStyle().CellPadding.x), ImGui::GetStyle().FramePadding.y * 2 + ImGui::GetStyle().CellPadding.y);
 			ImGui::SetCursorPos(pos);
-
-			//Close button
-			if (ImUtil::ImageButton("Close##", "generic_x", 18, "Close")) {
+			if (ImGuiEx::ImageButton("Close##", "generic_x", 18, "Close")) {
 				HandleOpenClose(false);
 			}
+
+			ImGui::EndDisabled();
 
 		}
 
@@ -250,21 +287,20 @@ namespace GTS {
 		}
 
 		ImGui::PopStyleVar();
-		ImUtil::SeperatorH();
+		ImGuiEx::SeperatorH();
 
 		{  // Draw Sidebar
 
 			ImGui::BeginChild("Sidebar", ImVec2(CategoryMgr->GetLongestCategory(), ImGui::GetContentRegionAvail().y), true);
-			ImGui::BeginDisabled(m_inputDisabled);
+			ImGui::BeginDisabled(m_disableUIInteraction);
 			ImFontManager::Push(ImFontManager::ActiveFontType::kSidebar);
 
 			// Display the categories in the sidebar
 			for (uint8_t i = 0; i < static_cast<uint8_t>(Categories.size()); i++) {
 				ImCategory* category = Categories[i].get();
 
-				//If nullptr / invisible / or dbg category, Do not draw.
+				//If nullptr / invisible, Do not draw.
 				if (!category) continue;
-				if (!Config::Hidden.IKnowWhatImDoing && category->GetTitle() == "Advanced") continue;
 				if (!category->IsVisible()) continue;
 
 				if (ImGui::Selectable(category->GetTitle().c_str(), CategoryMgr->m_activeIndex == i)) {
@@ -278,7 +314,7 @@ namespace GTS {
 			ImGui::EndChild();
 		}
 
-		ImUtil::SeperatorV();
+		ImGuiEx::SeperatorV();
 
 		{ // Content Area, Where the category contents are drawn
 
@@ -290,7 +326,7 @@ namespace GTS {
 				selected->Draw(); // Call the Draw method of the selected category
 			}
 			else {
-				ImGui::TextColored(ImUtil::ColorError, "Invalid category or no categories exist!");
+				ImGui::TextColored(ImUtil::Colors::Error, "Invalid category or no categories exist!");
 			}
 
 			ImGui::EndChild();
@@ -313,11 +349,14 @@ namespace GTS {
 
 			// Set the cursor to the calculated position
 			ImGui::SetCursorScreenPos(textPos);
-			ImGui::PushStyleColor(ImGuiCol_Text, ImUtil::ColorSubscript);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImUtil::Colors::Subscript);
 			ImGui::TextWrapped(m_footerText.c_str());
 			ImGui::PopStyleColor();
 			ImFontManager::Pop();
 		}
+
+		ShowErrorModal(&m_showErrorModal);
+
 	}
 
 	void SettingsWindow::BuildFooterText() {

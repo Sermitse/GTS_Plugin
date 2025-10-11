@@ -54,6 +54,7 @@ target_compile_options(
     $<$<BOOL:${GTS_STRICT_COMPILE}>:/W4;/WX>
     $<$<NOT:$<BOOL:${GTS_STRICT_COMPILE}>>:/W1>
     /permissive-
+    /utf-8
     /Zc:alignedNew
     /Zc:auto
     /Zc:__cplusplus
@@ -73,6 +74,7 @@ target_compile_options(
     /Zc:threadSafeInit
     /Zc:trigraphs
     /Zc:wchar_t
+    /Zc:char8_t-
     /wd4200 # nonstandard extension used : zero-sized array in struct/union
     /wd4100 # 'identifier' : unreferenced formal parameter
     /wd4101 # 'identifier': unreferenced local variable

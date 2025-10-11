@@ -4,31 +4,15 @@ namespace GTS {
     
     class ImCategory {
         protected:
-            
-        //Fields
-        std::string title = "Default";
-
-        bool visible = true;
-
+        std::string m_name = "Default";
+        bool m_visible = true; //Visible by default
         virtual ~ImCategory() = default;
 
         public:
-
-        //Virtuals
         virtual void Draw() = 0;
-        
-        //Methods
-        [[nodiscard]] const inline std::string& GetTitle(){
-            return title;
-        }
-
-        [[nodiscard]] inline bool IsVisible() const {
-            return visible;
-        }
-
-        inline void SetVisible(const bool a_visible){
-            visible = a_visible;
-        }
+        [[nodiscard]] virtual bool IsVisible() const;
+        virtual void SetVisible(const bool a_visible);
+        [[nodiscard]] const std::string& GetTitle();
 
     };
 }

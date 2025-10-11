@@ -20,7 +20,7 @@ namespace GTS {
     class WindowSettingsHolder : SettingsHandler {
 
         private:
-        BaseWindowSettings_t m_baseSettings;
+        WindowSettingsBase_t m_baseSettings;
         std::unique_ptr<IDynamicSettings> m_customSettings;
         std::string m_windowTypeName;
         std::string m_instanceName;  // Meaningful instance name instead of ID
@@ -40,7 +40,7 @@ namespace GTS {
             }
         }
 
-        explicit WindowSettingsHolder(const BaseWindowSettings_t& a_baseDefaults, const std::string& a_instanceName, const std::string& a_basePreffix) : m_baseSettings(a_baseDefaults), m_instanceName(a_instanceName), m_basePrefix(a_basePreffix) {
+        explicit WindowSettingsHolder(const WindowSettingsBase_t& a_baseDefaults, const std::string& a_instanceName, const std::string& a_basePreffix) : m_baseSettings(a_baseDefaults), m_instanceName(a_instanceName), m_basePrefix(a_basePreffix) {
             m_windowTypeName = typeid(WindowType).name();
             size_t pos = m_windowTypeName.find_last_of(':');
             if (pos != std::string::npos) {
@@ -81,10 +81,10 @@ namespace GTS {
         }
 
         // Access base settings
-        BaseWindowSettings_t& GetBaseSettings() {
+        WindowSettingsBase_t& GetBaseSettings() {
             return m_baseSettings;
         }
-        const BaseWindowSettings_t& GetBaseSettings() const {
+        const WindowSettingsBase_t& GetBaseSettings() const {
             return m_baseSettings;
         }
 
@@ -231,7 +231,7 @@ namespace GTS {
                     // Create temporary TOML with expected structure
                     toml::ordered_value tempToml{ toml::table{} };
                     tempToml.as_table()["TempTable"] = baseData;
-                    m_baseSettings = toml::get<BaseWindowSettings_t>(tempToml.at("temp"));
+                    m_baseSettings = toml::get<WindowSettingsBase_t>(tempToml.at("temp"));
                 }
             }
             catch (const std::exception& e) {
@@ -264,7 +264,7 @@ namespace GTS {
         }
 
         virtual void ResetToDefaults() {
-            m_baseSettings = BaseWindowSettings_t{};
+            m_baseSettings = WindowSettingsBase_t{};
             if (m_customSettings) {
                 m_customSettings->ResetToDefaults();
             }
@@ -281,7 +281,7 @@ namespace GTS {
 
     	public:
         explicit WindowSettingsHolderImpl(const std::string& a_instanceName, const std::string& a_basePreffix) : WindowSettingsHolder<WindowType>(a_instanceName, a_basePreffix) {}
-        explicit WindowSettingsHolderImpl(const BaseWindowSettings_t& a_baseDefaults, const std::string& a_instanceName, const std::string& a_basePreffix) : WindowSettingsHolder<WindowType>(a_baseDefaults, a_instanceName, a_basePreffix) {}
+        explicit WindowSettingsHolderImpl(const WindowSettingsBase_t& a_baseDefaults, const std::string& a_instanceName, const std::string& a_basePreffix) : WindowSettingsHolder<WindowType>(a_baseDefaults, a_instanceName, a_basePreffix) {}
 
         bool UpdateTOMLFromStruct(toml::ordered_value& a_toml) override {
             return WindowSettingsHolder<WindowType>::UpdateTOMLFromStruct(a_toml);

@@ -5,6 +5,8 @@
 
 namespace GTS {
 
+
+	//TODO Convert to eventlistener dispatch
 	void HandleCameraTrackingReset() {
 
 		if (!Config::General.bTrackBonesDuringAnim) {
@@ -17,6 +19,7 @@ namespace GTS {
 		}
 	}
 
+	//TODO Convert to eventlistener dispatch
 	void HandleHHReset() {
 
 		if (!Config::General.bHighheelsFurniture) {
@@ -39,6 +42,7 @@ namespace GTS {
 		}
 	}
 
+	//TODO Convert to eventlistener dispatch
 	void HandleSettingsReset() {
 
 		Config::ResetToDefaults();
@@ -57,6 +61,7 @@ namespace GTS {
 
 	}
 
+	//TODO Convert to eventlistener dispatch
 	void HandleSettingsRefresh() {
 		ImStyleManager::ApplyStyle();
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));

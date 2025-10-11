@@ -2,7 +2,14 @@
 
 namespace GTS {
 
-	ImGraphics::ImGraphics(ID3D11Device* a_device, ID3D11DeviceContext* a_context): m_Device(a_device), m_Context(a_context) {
+	void ImGraphics::Init(ID3D11Device* a_device, ID3D11DeviceContext* a_context) {
+
+		if (m_ready.exchange(true) == true) {
+			return;
+		}
+
+		m_Device = a_device;
+		m_Context = a_context;
 
 		HRESULT hr = CoCreateInstance(
 			CLSID_WICImagingFactory,
@@ -28,12 +35,6 @@ namespace GTS {
 
 		CreateSamplers();
 
-	}
-
-	ImGraphics::~ImGraphics() {
-		ClearCache();
-		if (m_PointSampler) m_PointSampler->Release();
-		if (m_LinearSampler) m_LinearSampler->Release();
 	}
 
 	// Load all SVGs from a directory
@@ -291,14 +292,12 @@ namespace GTS {
 		auto tex = it->second.get();
 
 		// **SVG**: auto re-rasterize when size differs
-		if (tex->type == BaseImageType::Vector &&
-			a_size.x > 0 && a_size.y > 0 &&
+		if (tex->type == BaseImageType::Vector && a_size.x > 0 && a_size.y > 0 && 
 			(fabs(tex->size.x - a_size.x) > 1.0f || fabs(tex->size.y - a_size.y) > 1.0f)) {
 			RasterizeSVG(tex, a_size);
 		}
 		// **Raster**: auto resample via WIC scaler when downsizing
-		else if (tex->type == BaseImageType::Raster &&
-			a_size.x > 0 && a_size.y > 0 &&
+		else if (tex->type == BaseImageType::Raster && a_size.x > 0 && a_size.y > 0 && 
 			(fabs(tex->originalSize.x - a_size.x) > 1.0f || fabs(tex->originalSize.y - a_size.y) > 1.0f)) {
 			ResampleRaster(tex, a_size);
 		}
@@ -333,7 +332,7 @@ namespace GTS {
 	}
 
 	// Create or update a texture from an SVG document
-	bool ImGraphics::RasterizeSVG(Texture* a_svgTexture, ImVec2 a_size) const {
+	bool ImGraphics::RasterizeSVG(Texture* a_svgTexture, ImVec2 a_size) {
 		if (!a_svgTexture->document) {
 			return false;
 		}
@@ -416,8 +415,7 @@ namespace GTS {
 	}
 
 	// Create a DirectX texture from WIC bitmap data
-	bool ImGraphics::CreateTextureFromWICBitmap(Texture* texture, const BYTE* pixelData, UINT width, UINT height,
-		UINT stride) const {
+	bool ImGraphics::CreateTextureFromWICBitmap(Texture* texture, const BYTE* pixelData, UINT width, UINT height, UINT stride) {
 		// Release old texture if it exists
 		if (texture->texture) {
 			texture->texture->Release();
@@ -545,7 +543,7 @@ namespace GTS {
 		logger::info("Samplers built");
 	}
 
-	bool ImGraphics::ResampleRaster(Texture* tex, ImVec2 size) const {
+	bool ImGraphics::ResampleRaster(Texture* tex, ImVec2 size) {
 
 		// Convert path to wstring
 		std::wstring wpath(tex->filePath.begin(), tex->filePath.end());

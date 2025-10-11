@@ -12,7 +12,6 @@ namespace GTS {
 		static constexpr const char* MENU_PATH = "GTSPlugin/OverlayMenu";
 		static constexpr const char* MENU_NAME = "GTSMenu";
 
-		static inline ImGraphics* Graphics = nullptr;
 		static inline ImInput* Input = nullptr;
 		static inline ImWindowManager* WindowManager = nullptr;
 		static inline ImGuiIO* ImIO = nullptr;

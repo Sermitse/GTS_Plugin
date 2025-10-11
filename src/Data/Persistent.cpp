@@ -1,11 +1,6 @@
 
 #include "Data/Persistent.hpp"
 #include "Config/Config.hpp"
-#include "Managers/GtsSizeManager.hpp"
-
-#include "UI/ImGui/Core/ImStyleManager.hpp"
-
-#include "Utils/ItemDistributor.hpp"
 
 namespace GTS {
 
@@ -16,16 +11,12 @@ namespace GTS {
 	void Persistent::OnGameLoaded(SerializationInterface* serde) {
 		logger::info("Persistent OnGameLoaded Start");
 		std::unique_lock lock(GetSingleton()._Lock);
-
 		LoadPersistent(serde);
+		EventDispatcher::DoSerdePostLoadEvent();
 
+		//TODO Move this out of here when actorutils gets rewritten
 	#ifndef GTS_DISABLE_PLUGIN
-
-		SizeManager::GetSingleton().Reset();
-		DistributeChestItems();
 		FixAnimationsAndCamera(); // Call it from ActorUtils, needed to fix Grab anim on save-reload
-		LoadModLocalModConfiguration();
-
 	#endif
 
 		logger::info("Persistent OnGameLoaded OK");
@@ -34,6 +25,7 @@ namespace GTS {
 	void Persistent::OnGameSaved(SerializationInterface* serde) {
 		logger::info("Persistent OnGameSaved Start");
 		std::unique_lock lock(GetSingleton()._Lock);
+		EventDispatcher::DoSerdePreSaveEvent();
 		SavePersistent(serde);
 		
 		logger::info("Persistent OnGameSaved OK");
@@ -62,12 +54,6 @@ namespace GTS {
 		MSGSeenAspectOfGTS = false;
 		UnlockMaxSizeSliders = false;
 
-	}
-
-	void Persistent::LoadModLocalModConfiguration() {
-		Config::LoadSettingsFromString();
-		ImStyleManager::ApplyStyle();
-		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 	}
 
 	void Persistent::LoadPersistent(SerializationInterface* serde) {

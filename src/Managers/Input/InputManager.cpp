@@ -27,35 +27,27 @@ namespace GTS {
 		return results;
 	}
 
-	InputManager& InputManager::GetSingleton() noexcept {
-		static InputManager instance;
-		return instance;
-	}
-
-	void InputManager::RegisterInputEvent(std::string_view namesv, std::function<void(const ManagedInputEvent&)> callback, std::function<bool(void)> condition) {
-		auto& me = InputManager::GetSingleton();
-		std::string name(namesv);
-		me.registedInputEvents.try_emplace(name, callback, condition);
-		log::debug("Registered input event: {}", namesv);
+	void InputManager::RegisterInputEvent(std::string_view a_namesv, std::function<void(const ManagedInputEvent&)> a_funcCallback, std::function<bool(void)> a_condCallbakc) {
+		std::string name(a_namesv);
+		GetSingleton().m_inputEvents.try_emplace(name, a_funcCallback, a_condCallbakc);
+		log::debug("Registered input event: {}", a_namesv);
 	}
 
 	void InputManager::Init() {
 
-		auto& m = GetSingleton();
-
-		m.Ready.store(false);
+		m_ready.store(false);
 
 		try {
-			m.ManagedTriggers = LoadInputEvents();
+			m_eventTriggers = LoadInputEvents();
 		} 
 		catch (exception e) {
 			log::error("Error Creating ManagedInputEvents: {}", e.what());
 			return;
 		} 
 
-		log::info("Loaded {} key bindings", m.ManagedTriggers.size());
+		log::info("Loaded {} key bindings", m_eventTriggers.size());
 		
-		m.Ready.store(true);
+		m_ready.store(true);
 	}
 
 	void InputManager::ProcessAndFilterEvents(InputEvent** a_event) {
@@ -69,11 +61,11 @@ namespace GTS {
 			return;
 		}
 
-		if (Plugin::IsInBlockingMenu() || !Plugin::Live() || !Plugin::Ready()) {
+		if (Plugin::IsInBlockingMenu() || !Plugin::Live()) {
 			return;
 		}
 
-		if (!Ready.load()) {
+		if (!m_ready.load()) {
 			return;
 		}
 
@@ -103,7 +95,7 @@ namespace GTS {
 			}
 		}
 
-		for (auto& trigger : this->ManagedTriggers) {
+		for (auto& trigger : this->m_eventTriggers) {
 
 			if (trigger.IsDisabled()) continue;
 
@@ -117,7 +109,7 @@ namespace GTS {
 				//log::debug("AllkeysPressed for trigger {}", trigger.GetName());
 				//Get the coresponding event data
 				try {
-					auto& eventData = this->registedInputEvents.at(trigger.GetName());
+					auto& eventData = this->m_inputEvents.at(trigger.GetName());
 
 					if (blockInput == LBlockInputTypes_t::Always) {
 						//If force blocking is set block game input regardless of conditions
@@ -177,7 +169,7 @@ namespace GTS {
 					log::debug("Running event {}", trigger.GetName());
 					firedTriggers.push_back(&trigger);
 					try {
-						auto& eventData = this->registedInputEvents.at(trigger.GetName());
+						auto& eventData = this->m_inputEvents.at(trigger.GetName());
 						eventData.callback(trigger);
 					}
 					catch (const std::out_of_range&) {

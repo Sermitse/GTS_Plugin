@@ -4,6 +4,10 @@
 
 #include "AI/AIManager.hpp"
 
+#include "Animation/Utils/CooldownManager.hpp"
+
+#include "Config/Keybinds.hpp"
+
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/BoobCrush.hpp"
 #include "Managers/Animation/Grab.hpp"
@@ -42,9 +46,20 @@
 #include "UI/DebugMenu.hpp"
 #include "UI/GTSMenu.hpp"
 
+#include "Utils/ItemDistributor.hpp"
+
 namespace GTS {
 
 	void RegisterManagers() {
+
+		EventDispatcher::AddListener(&Runtime::GetSingleton());                 // Stores spells, globals and other important data
+		EventDispatcher::AddListener(&Persistent::GetSingleton());
+		EventDispatcher::AddListener(&Transient::GetSingleton());
+		EventDispatcher::AddListener(&CooldownManager::GetSingleton());
+		EventDispatcher::AddListener(&TaskManager::GetSingleton());
+		EventDispatcher::AddListener(&SpringManager::GetSingleton());
+		EventDispatcher::AddListener(&Config::GetSingleton());
+		EventDispatcher::AddListener(&Keybinds::GetSingleton());
 
 		EventDispatcher::AddListener(&GameModeManager::GetSingleton());         // Manages Game Modes
 		EventDispatcher::AddListener(&GtsManager::GetSingleton());              // Manages smooth size increase and animation & movement speed
@@ -78,6 +93,8 @@ namespace GTS {
 		EventDispatcher::AddListener(&FurnitureManager::GetSingleton());        // Handles furniture stuff
 		EventDispatcher::AddListener(&DebugMenu::GetSingleton());
 		EventDispatcher::AddListener(&GTSMenu::GetSingleton());
+		EventDispatcher::AddListener(&ItemDistributor::GetSingleton());
+
 		log::info("Managers Registered");
 	}
 }

@@ -38,76 +38,49 @@ enum class LDisplayUnit_t : uint8_t {
 //  (Not Directly Serialized, but used within other structs)
 //-------------------------------------------------------------------------------------------------------------------
 
-struct WindowConfWidget_t {
-    // Window lock and visibility
-    bool bLock = true;
-    bool bVisible = false;
-
-    // Positioning and appearance
-    std::array<float, 2> f2Offset = { 20.0f, 20.0f };
-    std::array<float, 3> f3ColorA = { 1.0f, 1.0f, 1.0f };
-    std::array<float, 3> f3ColorB = { 1.0f, 1.0f, 1.0f };
-    bool bEnableRounding = true;
-    bool bUseCustomGradientColors = false;
-    bool bUseGradient = true;
-    bool bFlipGradientDirection = false;
-    float fNormalGradientLightMult = 1.5f;
-    float fNormalGradientDarkMult = 1.0f;
-    float fBorderThickness = 2.0f;
-    float fBorderLightness = 0.15f;
-    float fBorderAlpha = 0.50f;
-
-
-    std::string sAnchor = "kTopRight";
-    float fAlpha = 1.0f;
-    float fBGAlphaMult = 1.0f;
-
-    bool bEnableFade = true;
-    float fFadeAfter = 1.0f;
-    float fFixedWidth = 100.0f;
-    float fSizeBarHeightMult = 1.0f;
-    float fFadeDelta = 0.0f;
-    // Display control
-    uint32_t iFlags = 0;
-};
-TOML_SERIALIZABLE(WindowConfWidget_t);
-
-struct WindowConfSettings_t {
-    bool bLock = true;
-    std::array<float, 2> f2Offset = { 0.0f, 0.0f };
-    std::string sAnchor = "kCenter";
-    float fWindowSize = 90.f;
-    float fAlpha = 1.0f;
-    float fBGAlphaMult = 0.45f;
-};
-TOML_SERIALIZABLE(WindowConfSettings_t);
-
-//-------------------------------------------------------------------------------------------------------------------
-//  BASE STRUCT
-//  (Directly Serialized)
-//-------------------------------------------------------------------------------------------------------------------
-
-struct SettingsUI_t {
-
-    // Display settings
-    std::string sDisplayUnits = "kMetric";
-    float fScale = 1.0f;
-    float fItemWidth = 0.55f;
-    float fSGTMMult = 0.7f;
-    bool bDoBGBlur = true;
-    bool bDoPause = true;
-    bool bDoSlowdown = true;
-    std::array<float, 3> f3AccentColor = { 0.81834f, 0.797923f, 0.834302f }; // Default Menu UI Color
-
-    // Red: 0.273f, 0.0106f, 0.0106f
-    // White: 0.81834f, 0.797923f, 0.834302f
-    //std::array<float, 3> f3AccentColor = {0.486f, 0.431f, 0.529f};
-    //std::array<float, 3> StatusAccentColor = { 0.273f, 0.0106f, 0.0106f }; // Default Status Bar Color
-    //std::array<float, 3> UnderStompAccentColor = { 0.273f, 0.0106f, 0.0106f }; // Default Understomp Bar Color
-    // Window configurations
-
-
-
+//struct WindowConfWidget_t {
+//    // Window lock and visibility
+//    bool bLock = true;
+//    bool bVisible = false;
+//
+//    // Positioning and appearance
+//    std::array<float, 2> f2Offset = { 20.0f, 20.0f };
+//    std::array<float, 3> f3ColorA = { 1.0f, 1.0f, 1.0f };
+//    std::array<float, 3> f3ColorB = { 1.0f, 1.0f, 1.0f };
+//    bool bEnableRounding = true;
+//    bool bUseCustomGradientColors = false;
+//    bool bUseGradient = true;
+//    bool bFlipGradientDirection = false;
+//    float fNormalGradientLightMult = 1.5f;
+//    float fNormalGradientDarkMult = 1.0f;
+//    float fBorderThickness = 2.0f;
+//    float fBorderLightness = 0.15f;
+//    float fBorderAlpha = 0.50f;
+//
+//
+//    std::string sAnchor = "kTopRight";
+//    float fAlpha = 1.0f;
+//    float fBGAlphaMult = 1.0f;
+//
+//    bool bEnableFade = true;
+//    float fFadeAfter = 1.0f;
+//    float fFixedWidth = 100.0f;
+//    float fSizeBarHeightMult = 1.0f;
+//    float fFadeDelta = 0.0f;
+//    // Display control
+//    uint32_t iFlags = 0;
+//};
+//TOML_SERIALIZABLE(WindowConfWidget_t);
+//
+//struct WindowConfSettings_t {
+//    bool bLock = true;
+//    std::array<float, 2> f2Offset = { 0.0f, 0.0f };
+//    std::string sAnchor = "kCenter";
+//    float fWindowSize = 90.f;
+//    float fAlpha = 1.0f;
+//    float fBGAlphaMult = 0.45f;
+//};
+//TOML_SERIALIZABLE(WindowConfSettings_t);
 
 
     //WindowConfSettings_t SettingsWindow{};
@@ -146,13 +119,32 @@ struct SettingsUI_t {
     //    .iFlags = 1,
     //};
 
+//-------------------------------------------------------------------------------------------------------------------
+//  BASE STRUCT
+//  (Directly Serialized)
+//-------------------------------------------------------------------------------------------------------------------
+
+struct SettingsUI_t {
+
+    // Display settings
+    std::string sDisplayUnits = "kMetric";
+    float fScale = 1.0f;
+    float fItemWidth = 0.55f;
+    float fSGTMMult = 0.7f;
+    bool bDoBGBlur = true;
+    bool bDoPause = true;
+    bool bDoSlowdown = true;
+
+    // Red: 0.273f, 0.0106f, 0.0106f
+	// White: 0.81834f, 0.797923f, 0.834302f
+    std::array<float, 3> f3AccentColor = { 0.81834f, 0.797923f, 0.834302f }; // Default Menu UI Color
+
 };
 TOML_SERIALIZABLE(SettingsUI_t);
-TOML_REGISTER_NAME(SettingsUI_t, "UIBase");
-
+TOML_REGISTER_NAME(SettingsUI_t, "UI");
 
 // Base window settings that all windows inherit
-struct BaseWindowSettings_t {
+struct WindowSettingsBase_t {
     bool bLock = true;
     std::array<float, 2> f2Position = { 0.0f, 0.0f };
     std::string sAnchor = "kCenter";
@@ -160,21 +152,22 @@ struct BaseWindowSettings_t {
     float fBGAlphaMult = 1.0f;
     float fWindowSizePercent = 90.0f;
 };
-TOML_SERIALIZABLE(BaseWindowSettings_t);
-TOML_REGISTER_NAME(BaseWindowSettings_t, "UIWindow");
+TOML_SERIALIZABLE(WindowSettingsBase_t);
+TOML_REGISTER_NAME(WindowSettingsBase_t, "Window");
 
-struct WConfExtraStatsWidget_t {
+struct WindowSettingsStatsWidget_t {
     bool bVisible = true;
     bool bEnableFade = true;
     float fFadeAfter = 1.0f;
     float fFixedWidth = 100.0f;
-    float fSizeBarHeightMult = 1.0f;
+    float fProgressBarHeightMult = 1.0f;
     float fFadeDelta = 0.0f;
     std::array<float, 3> f3ColorA = { 1.0f, 1.0f, 1.0f };
     std::array<float, 3> f3ColorB = { 1.0f, 1.0f, 1.0f };
-    // Display control
+    uint64_t iFlags;
 };
-TOML_SERIALIZABLE(WConfExtraStatsWidget_t);
+TOML_SERIALIZABLE(WindowSettingsStatsWidget_t);
+TOML_REGISTER_NAME(WindowSettingsStatsWidget_t, "StatsWidget");
 
 
 

@@ -2,11 +2,11 @@
 
 #include "Config/Config.hpp"
 
-#include "UI/ScaleformLogger.hpp"
-
 #include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/Lib/imgui_impl_dx11.h"
 #include "UI/ImGui/Lib/imgui_impl_win32.h"
+
+#include "UI/Util/ScaleformLogger.hpp"
 
 
 namespace GTS {
@@ -34,7 +34,7 @@ namespace GTS {
 		inputContext = Context::kNone;   //Don't need special input context
 
 		menuFlags.set(UI_MENU_FLAGS::kAlwaysOpen);     //If not added, The game will destroy this menu object on menu change.
-		menuFlags.set(UI_MENU_FLAGS::kRequiresUpdate);
+		menuFlags.set(UI_MENU_FLAGS::kRequiresUpdate); //Enable The AdvanceMovie Callback.
 		menuFlags.set(UI_MENU_FLAGS::kAllowSaving);
 
 		//Route scaleform messages for this menu to our logger
@@ -95,8 +95,8 @@ namespace GTS {
 		ImGui_ImplDX11_Init(D3DDevice, D3DContext);
 
 		logger::info("ImGraphics Init");
-		Graphics = new ImGraphics(D3DDevice, D3DContext);
-		Graphics->Load();
+		ImGraphics::Init(D3DDevice, D3DContext);
+		ImGraphics::Load();
 
 		logger::info("ImWindowManager Init");
 		WindowManager = new ImWindowManager();
@@ -184,7 +184,7 @@ namespace GTS {
 				menuFlags.set(UI_MENU_FLAGS::kUpdateUsesCursor); //Maybe these do something maybe they don't
 				menuFlags.set(UI_MENU_FLAGS::kUsesCursor);
 
-				//Disable Imgui's win32 input update code as its not needed.
+				//Enable Imgui's win32 input update code.
 				ImIO->ConfigFlags &= ~(ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard);
 
 				//Manually Show the cursor
@@ -200,7 +200,7 @@ namespace GTS {
 				//If it does don't force hide the cursor as that would break said other menu.
 				for (const auto& menu : ui->menuStack) {
 
-					//If the menu is us skio over.
+					//If the menu is us skip over.
 					if (menu.get() == this) {
 						continue;
 					}
@@ -281,23 +281,23 @@ namespace GTS {
 		auto mName = std::string(a_event->menuName);
 
 		if (
-			mName == RE::JournalMenu::MENU_NAME ||
-			mName == RE::InventoryMenu::MENU_NAME ||
-			mName == RE::MapMenu::MENU_NAME ||
-			mName == RE::BookMenu::MENU_NAME ||
-			mName == RE::LockpickingMenu::MENU_NAME ||
-			mName == RE::MagicMenu::MENU_NAME ||
-			mName == RE::RaceSexMenu::MENU_NAME ||
-			mName == RE::CraftingMenu::MENU_NAME ||
-			mName == RE::SleepWaitMenu::MENU_NAME ||
-			mName == RE::TrainingMenu::MENU_NAME ||
-			mName == RE::BarterMenu::MENU_NAME ||
-			mName == RE::FavoritesMenu::MENU_NAME ||
-			mName == RE::GiftMenu::MENU_NAME ||
-			mName == RE::StatsMenu::MENU_NAME ||
-			mName == RE::ContainerMenu::MENU_NAME ||
-			mName == RE::DialogueMenu::MENU_NAME ||
-			mName == RE::MessageBoxMenu::MENU_NAME ||
+			mName == RE::JournalMenu::MENU_NAME      ||
+			mName == RE::InventoryMenu::MENU_NAME    ||
+			mName == RE::MapMenu::MENU_NAME          ||
+			mName == RE::BookMenu::MENU_NAME         ||
+			mName == RE::LockpickingMenu::MENU_NAME  ||
+			mName == RE::MagicMenu::MENU_NAME        ||
+			mName == RE::RaceSexMenu::MENU_NAME      ||
+			mName == RE::CraftingMenu::MENU_NAME     ||
+			mName == RE::SleepWaitMenu::MENU_NAME    ||
+			mName == RE::TrainingMenu::MENU_NAME     ||
+			mName == RE::BarterMenu::MENU_NAME       ||
+			mName == RE::FavoritesMenu::MENU_NAME    ||
+			mName == RE::GiftMenu::MENU_NAME         ||
+			mName == RE::StatsMenu::MENU_NAME        ||
+			mName == RE::ContainerMenu::MENU_NAME    ||
+			mName == RE::DialogueMenu::MENU_NAME     ||
+			mName == RE::MessageBoxMenu::MENU_NAME   ||
 			mName == RE::TweenMenu::MENU_NAME) {
 
 			//If the game switches to any of these menu's hide ours.
@@ -336,7 +336,6 @@ namespace GTS {
 		depthPriority = WindowManager->GetDesiredPriority();
 		SetInputFlags(WindowManager->GetDesiredCursorState());
 
-
 		m_frameReady.store(true, std::memory_order_release);
 	}
 
@@ -348,6 +347,5 @@ namespace GTS {
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		}
-		
 	}
 }

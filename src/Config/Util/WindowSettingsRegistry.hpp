@@ -40,7 +40,7 @@ namespace GTS {
         public:
         // Register a window type with optional instance name and base prefix
         template<typename WindowType>
-        std::shared_ptr<WindowSettingsHolder<WindowType>> RegisterWindow(const BaseWindowSettings_t& a_baseDefaults = BaseWindowSettings_t{}, const std::string& a_instanceName = "", const std::string& a_basePrefix = "UI") {
+        std::shared_ptr<WindowSettingsHolder<WindowType>> RegisterWindow(const WindowSettingsBase_t& a_baseDefaults = WindowSettingsBase_t{}, const std::string& a_instanceName = "", const std::string& a_basePrefix = "UI") {
 
             auto key = MakeKey(std::type_index(typeid(WindowType)), a_instanceName, a_basePrefix);
 

@@ -34,7 +34,6 @@ namespace GTS {
         return highestType;
     }
 
-
     void ImWindowManager::AddWindow(std::unique_ptr<ImWindow> a_window, ImWindow** a_accessor) {
 
         assert(a_window != nullptr);
@@ -128,7 +127,6 @@ namespace GTS {
 
         AddWindow(std::make_unique<SplashWindow>(), &wSplash);
         AddWindow(std::make_unique<SettingsWindow>(), &wSettings);
-        //AddWindow(std::make_unique<TestWindow>("Win1"));
 
         logger::info("ImWindowManager Init OK");
 

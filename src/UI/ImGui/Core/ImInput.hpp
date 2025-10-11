@@ -33,11 +33,6 @@ namespace GTS {
         std::vector<KeyEvent> m_keyEventQueue{};
 
         public:
-
-
-
-
-
         static void UnstickKeys();
         void ProcessInputEventQueue();
         void ResetImGuiInputState();

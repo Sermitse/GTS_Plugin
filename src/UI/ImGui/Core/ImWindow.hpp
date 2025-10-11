@@ -71,7 +71,7 @@ namespace GTS {
 
         public:
         ImConfigurableWindow(const std::string& a_instanceName = "", const std::string& a_basePreffix = "UI") : m_instanceName(a_instanceName) {
-            m_settingsHolder = WindowSettingsRegistry::GetSingleton().RegisterWindow<Derived>(BaseWindowSettings_t{}, a_instanceName, a_basePreffix);
+            m_settingsHolder = WindowSettingsRegistry::GetSingleton().RegisterWindow<Derived>(WindowSettingsBase_t{}, a_instanceName, a_basePreffix);
         }
 
         std::string GetInstanceName() const {
@@ -90,11 +90,11 @@ namespace GTS {
             return m_name;
         }
 
-        BaseWindowSettings_t& GetBaseSettings() {
+        WindowSettingsBase_t& GetBaseSettings() {
             return m_settingsHolder->GetBaseSettings();
         }
 
-        const BaseWindowSettings_t& GetBaseSettings() const {
+        const WindowSettingsBase_t& GetBaseSettings() const {
             return m_settingsHolder->GetBaseSettings();
         }
 
