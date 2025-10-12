@@ -3,7 +3,6 @@
 #include "Magic/Effects/Common.hpp"
 #include "Magic/Effects/Absorb_Effect.hpp"
 #include "Magic/Effects/GrowthSpurt.hpp"
-#include "Magic/Effects/Enchantments/EnchGigantism.hpp"
 #include "Magic/Effects/Grow_Other.hpp"
 #include "Magic/Effects/Growth.hpp"
 #include "Magic/Effects/Shrink.hpp"
@@ -12,8 +11,11 @@
 #include "Magic/Effects/Shrink_Foe.hpp"
 #include "Magic/Effects/Shrink_Other.hpp"
 #include "Magic/Effects/Slow_Grow.hpp"
-#include "Magic/Effects/Sword_Of_Size.hpp"
 #include "Magic/Effects/TinyCalamity.hpp"
+
+#include "Magic/Effects/Enchantments/EnchGigantism.hpp"
+#include "Magic/Effects/Enchantments/Sword_Of_Size.hpp"
+
 #include "Magic/Effects/Potions/MightPotion.hpp"
 #include "Magic/Effects/Potions/GrowthPotion.hpp"
 #include "Magic/Effects/Potions/MaxSizePotion.hpp"

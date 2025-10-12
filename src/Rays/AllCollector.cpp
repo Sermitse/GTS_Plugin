@@ -4,6 +4,11 @@ using namespace GTS;
 
 namespace GTS {
 
+	void AllRayCollector::Reset() noexcept {
+		hits.clear();
+		hkpClosestRayHitCollector::Reset();
+	}
+
 	void AllRayCollector::AddRayHit(const hkpCdBody& a_body, const hkpShapeRayCastCollectorOutput& a_hitInfo) {
 		AllRayCollectorOutput output;
 

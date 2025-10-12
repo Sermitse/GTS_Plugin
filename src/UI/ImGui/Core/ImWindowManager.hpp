@@ -20,6 +20,7 @@ namespace GTS {
         ImWindow* wActionMenu = nullptr;
         ImWindow* wQuestWidget = nullptr;
         ImWindow* wPlayerWidget = nullptr;
+        ImWindow* wDebug = nullptr;
 
         //TODO Follower Ones Will be runtime created for each follower
         //If that wont work out then just make a fixed amount of them
@@ -28,7 +29,7 @@ namespace GTS {
         [[nodiscard]] bool HasWindows() const;
         [[nodiscard]] bool HasInputConsumers();
         [[nodiscard]] bool HasActiveWindows();
-        void CloseInputConsumers() const;
+        bool CloseInputConsumers() const;
         [[nodiscard]] ImWindow::WindowType GetHighestVisibleWindowType() const;
         float GetDeltaTime() const;
 

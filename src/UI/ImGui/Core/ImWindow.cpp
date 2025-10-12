@@ -2,6 +2,14 @@
 
 namespace GTS {
 
+	void ImWindow::DebugDraw() {
+		//Nothing
+	}
+
+	bool ImWindow::IsDebugging() {
+		return false;
+	}
+
 	float ImWindow::GetFadingAlpha() const {
 		return m_fadeSettings.fadeAlpha;
 	}

@@ -1,4 +1,6 @@
 #include "UI/ImGui/Core/ImInput.hpp"
+
+#include "UI/GTSMenu.hpp"
 #include "UI/ImGui/Core/ImWindowManager.hpp"
 
 namespace GTS {
@@ -51,6 +53,16 @@ namespace GTS {
 				}
 
 				io.AddKeyEvent(VirtualKeyToImGuiKey(key), event.IsPressed());
+
+				if (!event.IsPressed()) {
+					if (key == VK_ESCAPE) {
+
+						//If a window was closed do not add esc to the evt list.
+						if (GTSMenu::CloseInputConsumers()) {
+							continue;
+						}
+					}
+				}
 
 				if (key == VK_LCONTROL || key == VK_RCONTROL) {
 					io.AddKeyEvent(ImGuiMod_Ctrl, event.IsPressed());

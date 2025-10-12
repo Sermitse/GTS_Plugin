@@ -49,7 +49,7 @@ namespace GTS {
 		static void BlurBackground(bool a_enable);
 		static void PauseGame(bool a_enable);
 		static void AlterTimeScale(bool a_enable);
-		static void CloseInputConsumers();
+		static bool CloseInputConsumers();
 
 	private:
 		void Show(const std::string& source);
@@ -59,7 +59,6 @@ namespace GTS {
 		std::string DebugName() override;
 		void DataReady() override;
 		void MenuChange(const MenuOpenCloseEvent* a_event) override;
-		static void RefreshFlags();
 
 		// Inherited via IMenu
 		void AdvanceMovie(float a_interval, std::uint32_t a_currentTime) override;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "UI/ImGUI/Core/ImWindow.hpp"
-#include "UI/ImGui/Core/ImWindowManager.hpp"
 
 namespace GTS {
 

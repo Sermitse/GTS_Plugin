@@ -11,7 +11,7 @@
 #include "UI/GTSMenu.hpp"
 
 #include "Config/Config.hpp"
-#include "Config/SettingsModHandler.hpp"
+#include "Config/ConfigModHandler.hpp"
 
 #include "Utils/QuestUtil.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
@@ -57,7 +57,7 @@ namespace {
 			}
 			else if (selectedExportIndex >= 0 && selectedExportIndex < exportFiles.size()) {
 				if (GTS::Config::LoadFromExport(exportFiles[selectedExportIndex].string())) {
-					GTS::HandleSettingsRefresh();
+					GTS::EventDispatcher::DoConfigRefreshEvent();
 					statusText = fmt::format("✓ Applied {}", fileNames[selectedExportIndex]);
 				}
 				else {
@@ -91,9 +91,6 @@ namespace {
 
 		if (ImGuiEx::ImageButton("##Reset", "generic_reset", 32, T_Reset)) {
 			GTS::EventDispatcher::DoConfigResetEvent();
-
-			//TODO Move reset to event handler
-			GTS::HandleSettingsReset();
 			statusText = fmt::format("✓ Mod settings have been reset");
 		}
 
@@ -126,8 +123,6 @@ namespace {
 		}
 	}
 }
-
-
 
 namespace GTS {
 
@@ -321,25 +316,7 @@ namespace GTS {
 				ImGui::SameLine();
 
 	        	if (ImGuiEx::CheckBox("Disable With Furniture", &Config::General.bHighheelsFurniture, T1, !Config::General.bEnableHighHeels)){
-
-	            	if (!Config::General.bHighheelsFurniture) {
-
-						auto actors = find_actors();
-
-						for (auto actor : actors) {
-							if (!actor) {
-								return;
-							}
-
-							for (bool person : {false, true}) {
-								auto npc_root_node = find_node(actor, "NPC", person);
-								if (npc_root_node && actor->GetOccupiedFurniture()) {
-									npc_root_node->local.translate.z = 0.0f;
-									update_node(npc_root_node);
-								}
-							}
-						}
-					}
+	        		ConfigModHandler::DoHighHeelStateReset();
 	            }
 
 				ImGui::Spacing();

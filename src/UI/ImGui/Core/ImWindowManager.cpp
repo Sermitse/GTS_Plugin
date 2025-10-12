@@ -1,6 +1,8 @@
 #include "UI/ImGui/Core/ImWindowManager.hpp"
-#include "ImFontManager.hpp"
-#include "ImStyleManager.hpp"
+#include "UI/ImGui/Core/ImFontManager.hpp"
+#include "UI/ImGui/Core/ImStyleManager.hpp"
+#include "UI/ImGui/Core/ImUtil.hpp"
+#include "UI/ImGui/Windows/DebugWindow.hpp"
 
 #include "UI/ImGui/Windows/SplashWindow.hpp"
 #include "UI/ImGui/Windows/Settings/SettingsWindow.hpp"
@@ -22,12 +24,33 @@ namespace GTS {
 
     }
 
-    void ImWindowManager::CloseInputConsumers() const {
+    bool ImWindowManager::CloseInputConsumers() const {
+        ImGuiContext* ctx = ImGui::GetCurrentContext();
+        ImGuiWindow* target = ImUtil::GetEffectiveFocusedWindow(ctx);
+
+        if (!target) {
+            for (const auto& window : Windows) {
+                if (window->WantsToDraw() && window->m_windowType > ImWindow::WindowType::kWidget) {
+                    window->RequestClose();
+                    return true;
+                }
+            }
+            return false;
+        }
+
         for (const auto& window : Windows) {
-            if (window->WantsToDraw() && window->m_windowType > ImWindow::WindowType::kWidget) {
-                window->RequestClose();
+            if (!window->WantsToDraw() || window->m_windowType <= ImWindow::WindowType::kWidget)
+                continue;
+
+            if (ImGuiWindow* native = ImGui::FindWindowByName(window->GetWindowName().c_str())) {
+                if (native->RootWindow == target) {
+                    window->RequestClose();
+                    return true;
+                }
             }
         }
+
+        return false;
     }
 
     ImWindow::WindowType ImWindowManager::GetHighestVisibleWindowType() const {
@@ -75,10 +98,16 @@ namespace GTS {
         }
 
         float deltaTime = GetDeltaTime();
+        bool isDebugging = false;
 
         for (const auto& window : Windows) {
 
             window->UpdateFade(deltaTime);
+
+            if (window->IsDebugging()) {
+                isDebugging |= true;
+                window->DebugDraw();
+            }
 
             if (!window->WantsToDraw()) {
                 continue;
@@ -108,7 +137,8 @@ namespace GTS {
             ImFontManager::Pop();
         }
 
-        Context->RequestSwitchForWindowType(GetHighestVisibleWindowType());
+        const auto WindowType = GetHighestVisibleWindowType();
+        Context->RequestSwitchForWindowType(isDebugging ? std::max(ImWindow::WindowType::kDebugNoInput, WindowType) : WindowType);
         if (Context->HasPendingSwitch()) {
             Context->ApplyPendingSwitch();
         }
@@ -135,6 +165,7 @@ namespace GTS {
 
         AddWindow(std::make_unique<SplashWindow>(), &wSplash);
         AddWindow(std::make_unique<SettingsWindow>(), &wSettings);
+        AddWindow(std::make_unique<DebugWindow>(), &wDebug);
 
         logger::info("ImWindowManager Init OK");
 

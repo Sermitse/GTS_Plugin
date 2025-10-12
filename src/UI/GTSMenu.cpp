@@ -2,6 +2,8 @@
 
 #include "Config/Config.hpp"
 
+#include "ImGui/Core/ImStyleManager.hpp"
+
 #include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/Lib/imgui_impl_dx11.h"
 #include "UI/ImGui/Lib/imgui_impl_win32.h"
@@ -255,8 +257,8 @@ namespace GTS {
 		}
 	}
 
-	void GTSMenu::CloseInputConsumers() {
-		WindowManager->CloseInputConsumers();
+	bool GTSMenu::CloseInputConsumers() {
+		return WindowManager->CloseInputConsumers();
 	}
 
 	std::string GTSMenu::DebugName() {

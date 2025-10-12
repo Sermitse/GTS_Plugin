@@ -16,14 +16,14 @@
 #include "Managers/Console/ConsoleManager.hpp"
 
 //categories
-//#include "UI/ImGui/ImGui/Windows/Settings/Categories/Gameplay.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Gameplay.hpp"
 //#include "UI/ImGui/Windows/Settings/Categories/Info.hpp"
-//#include "UI/ImGui/Windows/Settings/Categories/Interface.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Interface.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/Audio.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/AI.hpp"
-//#include "UI/ImGui/Windows/Settings/Categories/Advanced.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Advanced.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/Camera.hpp"
-//#include "UI/ImGui/Windows/Settings/Categories/Keybinds.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Keybinds.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/General.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/Balance.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/Actions.hpp"
@@ -120,16 +120,16 @@ namespace GTS {
 		//Add Categories, order here defines the order they'll be shown.
 		//CategoryMgr->AddCategory(std::make_unique<CategoryInfo>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryGeneral>());
-		//CategoryMgr->AddCategory(std::make_unique<CategoryGameplay>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryGameplay>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryBalance>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryActions>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryAudio>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryAI>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryCamera>());
-		//CategoryMgr->AddCategory(std::make_unique<CategoryInterface>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryInterface>());
 		//CategoryMgr->AddCategory(std::make_unique<CategoryWidgets>());
-		//CategoryMgr->AddCategory(std::make_unique<CategoryKeybinds>());
-		//CategoryMgr->AddCategory(std::make_unique<CategoryAdvanced>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryKeybinds>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryAdvanced>());
 
 		BuildFooterText();
 
@@ -138,7 +138,12 @@ namespace GTS {
 	}
 
 	void SettingsWindow::RequestClose() {
-		HandleOpenClose(false);
+		//Handle closing through the esc key.
+		if (!m_showErrorModal && !m_busy && m_show) {
+			HandleOpenClose(false);
+			return;
+		}
+		logger::trace("Not closed Modal:{} Busy:{}", m_showErrorModal, m_busy);
 	}
 
 	bool SettingsWindow::WantsToDraw() {
@@ -218,7 +223,8 @@ namespace GTS {
 
 		if (ImGui::BeginPopupModal(windowName, nullptr, m_flags | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize)) {
 			ImFontManager::Push(ImFontManager::kLargeText);
-			ImGui::TextColored(ImUtil::Colors::Error, "Settings could not be saved\nCheck GtsPlugin.log for more info.");
+			ImGui::TextColored(ImUtil::Colors::Error, "Settings could not be saved\n"
+											          "Check GtsPlugin.log for more info.");
 			if (ImGui::Button("OK")) {
 				ImGui::CloseCurrentPopup();
 
@@ -351,14 +357,6 @@ namespace GTS {
 		}
 
 		ShowErrorModal(&m_showErrorModal);
-
-
-		//Handle closing through the esc key.
-		if (ImGui::IsKeyReleased(ImGuiKey_Escape) &&
-			!m_showErrorModal                     &&
-			!m_busy) {
-			HandleOpenClose(false);
-		}
 
 		//Sectet advanced settings toggle.
 		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) &&

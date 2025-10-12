@@ -84,6 +84,8 @@ namespace GTS {
 	//Fires If Config settings are reset.
 	void EventListener::OnConfigReset() {}
 
+	//Fires If Config settings are reset.
+	void EventListener::OnConfigRefresh() {}
 
 	void EventDispatcher::AddListener(EventListener* a_listener) {
 		if (a_listener) {
@@ -264,6 +266,13 @@ namespace GTS {
 		for (auto listener : m_listeners) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->OnConfigReset();
+		}
+	}
+
+	void EventDispatcher::DoConfigRefreshEvent() {
+		for (auto listener : m_listeners) {
+			GTS_PROFILE_SCOPE(listener->DebugName());
+			listener->OnConfigRefresh();
 		}
 	}
 

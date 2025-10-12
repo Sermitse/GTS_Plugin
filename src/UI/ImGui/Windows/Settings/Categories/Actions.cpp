@@ -1,7 +1,7 @@
 #include "UI/ImGui/Windows/Settings/Categories/Actions.hpp"
 
 #include "Config/Config.hpp"
-#include "Config/SettingsModHandler.hpp"
+#include "Config/ConfigModHandler.hpp"
 
 #include "UI/ImGui/Controls/CheckBox.hpp"
 #include "UI/ImGui/Controls/Slider.hpp"
@@ -29,7 +29,7 @@ namespace GTS {
 
 				ImGuiEx::CheckBox("Enable FOV Edits", &Config::General.bEnableFOVEdits, T0);
 				if (ImGuiEx::CheckBox("Track Bones During Actions", &Config::General.bTrackBonesDuringAnim, T1)) {
-                    HandleCameraTrackingReset();
+                    ConfigModHandler::DoCameraStateReset();
 				}
 
                 ImGui::Spacing();

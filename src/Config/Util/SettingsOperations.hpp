@@ -114,7 +114,6 @@ namespace GTS {
 
             // Reset window settings
             WindowSettingsRegistry::GetSingleton().ResetAllWindowSettings();
-            EventDispatcher::DoConfigResetEvent();
         }
     };
 }

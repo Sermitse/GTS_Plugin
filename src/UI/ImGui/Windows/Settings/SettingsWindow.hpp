@@ -12,7 +12,8 @@ namespace GTS {
         void BuildFooterText();
         void DisableUIInteraction(bool a_disabled);
         void ShowErrorModal(bool* a_requestOpen);
-
+        bool m_busy = false;
+        bool m_disableUIInteraction = false;
 
 		private:
         bool LoadImpl();
@@ -25,14 +26,11 @@ namespace GTS {
         static void OpenSettingsConsoleCallback();
         void HandleOpenClose(bool a_open);
 
-
         ImCategoryContainer* CategoryMgr = nullptr;
         std::atomic_flag m_saveLoadBusy = ATOMIC_FLAG_INIT;
 
         std::string m_footerText;
-        bool m_disableUIInteraction = false;
         bool m_show = false;
-        bool m_busy = false;
         bool m_showErrorModal = false;
     }; 
 }

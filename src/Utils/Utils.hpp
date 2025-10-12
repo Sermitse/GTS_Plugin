@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Utils/Singleton.hpp"
 #include "Utils/Node.hpp"
 #include "Utils/Timer.hpp"
 #include "Utils/ActorUtils.hpp"

@@ -16,7 +16,8 @@
         "boost-pfr",
         "lz4",
         "detours",
-        "lunasvg"
+        "lunasvg",
+        "tbb"
       ]
     }
   },

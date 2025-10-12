@@ -6,6 +6,7 @@
 
 #include "Animation/Utils/CooldownManager.hpp"
 
+#include "Config/ConfigModHandler.hpp"
 #include "Config/Keybinds.hpp"
 
 #include "Managers/Animation/AnimationManager.hpp"
@@ -14,34 +15,33 @@
 
 #include "Managers/FurnitureManager.hpp"
 
-#include "Managers/Gamemode/GameModeManager.hpp"
 #include "Managers/Animation/Controllers/ThighSandwichController.hpp"
 #include "Managers/Animation/Controllers/VoreController.hpp"
-#include "Managers/ShrinkToNothingManager.hpp"
-#include "Managers/Perks/PerkHandler.hpp"
-#include "Managers/Damage/CollisionDamage.hpp"
 #include "Managers/Audio/Footstep.hpp"
+#include "Managers/Damage/CollisionDamage.hpp"
+#include "Managers/Gamemode/GameModeManager.hpp"
+#include "Managers/Perks/PerkHandler.hpp"
+#include "Managers/ShrinkToNothingManager.hpp"
 
 #include "Managers/AI/headtracking.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/Attributes.hpp"
+#include "Managers/Camera.hpp"
+#include "Managers/Contact.hpp"
 #include "Managers/CrushManager.hpp"
+#include "Managers/Explosion.hpp"
+#include "Managers/GtsManager.hpp"
+#include "Managers/GtsSizeManager.hpp"
+#include "Managers/Highheel.hpp"
+#include "Managers/HitManager.hpp"
 #include "Managers/OverkillManager.hpp"
 #include "Managers/RandomGrowth.hpp"
-#include "Managers/Attributes.hpp"
-#include "Managers/GtsManager.hpp"
-#include "Managers/HitManager.hpp"
-#include "Managers/Explosion.hpp"
 #include "Managers/Reloader.hpp"
-#include "Managers/Highheel.hpp"
-#include "Managers/Contact.hpp"
-#include "Managers/Camera.hpp"
-#include "Managers/Tremor.hpp"
 #include "Managers/Rumble.hpp"
+#include "Managers/Tremor.hpp"
 
-
-#include "Utils/DynamicScale.hpp"
 #include "Magic/Magic.hpp"
+#include "Utils/DynamicScale.hpp"
 
 #include "UI/DebugMenu.hpp"
 #include "UI/GTSMenu.hpp"
@@ -94,6 +94,7 @@ namespace GTS {
 		EventDispatcher::AddListener(&DebugMenu::GetSingleton());
 		EventDispatcher::AddListener(&GTSMenu::GetSingleton());
 		EventDispatcher::AddListener(&ItemDistributor::GetSingleton());
+		EventDispatcher::AddListener(&ConfigModHandler::GetSingleton());
 
 		log::info("Managers Registered");
 	}

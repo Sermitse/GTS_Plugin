@@ -1,4 +1,4 @@
-#include "Magic/Effects/Sword_Of_Size.hpp"
+#include "Magic/Effects/Enchantments/Sword_Of_Size.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 

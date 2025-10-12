@@ -13,4 +13,13 @@ namespace ImUtil {
 	    return { viewportSize.x * (a_Percentage / 100.f), viewportSize.y * (a_Percentage / 100.f) };
     }
 
+    ImGuiWindow* GetEffectiveFocusedWindow(ImGuiContext* a_ctx) {
+        if (a_ctx->NavWindow)
+            return a_ctx->NavWindow->RootWindow;
+        if (a_ctx->ActiveIdWindow)
+            return a_ctx->ActiveIdWindow->RootWindow;
+        if (a_ctx->HoveredWindow)
+            return a_ctx->HoveredWindow->RootWindow;
+        return nullptr;
+    }
 }

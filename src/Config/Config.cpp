@@ -23,9 +23,6 @@ namespace GTS {
     void Config::ResetToDefaults() {
         SettingsOperations::ResetAllStructsToDefaults(GetSingleton());
         TomlData = toml::ordered_table();
-
-        //Fire EventDispatcher
-        EventDispatcher::DoConfigResetEvent();
     }
 
     bool Config::LoadSettingsFromString() {

@@ -351,6 +351,9 @@ namespace GTS {
 
 			// Fired during config reset
 			virtual void OnConfigReset();
+
+			// Fired during config import
+			virtual void OnConfigRefresh();
 	};
 
 	class EventDispatcher {
@@ -383,6 +386,7 @@ namespace GTS {
 			static void DoSerdePreSaveEvent();
 			static void DoSerdePostLoadEvent();
 			static void DoConfigResetEvent();
+			static void DoConfigRefreshEvent();
 			static void DoFurnitureEvent(const TESFurnitureEvent* a_event);
 		private:
 			static inline std::mutex m_lock;

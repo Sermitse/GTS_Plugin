@@ -35,8 +35,9 @@ namespace GTS {
 
         enum WindowType {
             kWidget,
-            kSettings,
+            kDebugNoInput,
             kDebug,
+            kSettings
         };
 
         WindowType m_windowType = WindowType::kWidget;
@@ -47,6 +48,8 @@ namespace GTS {
         virtual ~ImWindow() noexcept = default;
 
         virtual void Draw() = 0;
+        virtual void DebugDraw();
+        virtual bool IsDebugging();
         virtual bool WantsToDraw() = 0;
         virtual std::string GetWindowName() = 0;
         virtual void Init() = 0;

@@ -11,17 +11,17 @@ namespace GTS {
 	Profiler::Profiler(std::string_view name) : Name(std::string(name)), ThreadId(std::this_thread::get_id()), LastAccessed(Clock::now()) {}
 
 	void Profiler::Start() {
-		if (!this->Running) {
+		if (!Running.load(std::memory_order_relaxed)) {
 			ClkBegin = Clock::now();
-			this->Running = true;
+			Running.store(true);
 			UpdateLastAccessed();
 		}
 	}
 
 	void Profiler::Stop() {
-		if (this->Running) {
+		if (Running.load(std::memory_order_relaxed)) {
 			this->Elapsed += RunningTime();
-			this->Running = false;
+			Running.store(false);
 			UpdateLastAccessed();
 		}
 	}
@@ -39,11 +39,11 @@ namespace GTS {
 	}
 
 	bool Profiler::IsRunning() const {
-		return this->Running;
+		return Running.load(std::memory_order_relaxed);
 	}
 
 	double Profiler::RunningTime() const {
-		if (this->Running) {
+		if (Running.load(std::memory_order_relaxed)) {
 			return std::chrono::duration_cast<Second>(Clock::now() - ClkBegin).count();
 		}
 		return 0;
@@ -98,7 +98,7 @@ namespace GTS {
 
 		auto& thread_data = me.thread_data[thread_id];
 		thread_data.last_activity = std::chrono::steady_clock::now();
-		thread_data.profilers.try_emplace(key, a_name);
+		thread_data.profilers.emplace(key, a_name);
 		thread_data.profilers.at(key).Start();
 	}
 
@@ -109,7 +109,7 @@ namespace GTS {
 
 		auto& thread_data = me.thread_data[thread_id];
 		thread_data.last_activity = std::chrono::steady_clock::now();
-		thread_data.profilers.try_emplace(key, a_name);
+		thread_data.profilers.emplace(key, a_name);
 		thread_data.profilers.at(key).Stop();
 	}
 
@@ -120,7 +120,7 @@ namespace GTS {
 
 		auto& thread_data = me.thread_data[thread_id];
 		thread_data.last_activity = std::chrono::steady_clock::now();
-		thread_data.entrypoint_profilers.try_emplace(key, a_name);
+		thread_data.entrypoint_profilers.emplace(key, a_name);
 		thread_data.entrypoint_profilers.at(key).Start();
 
 		// Start total time tracking when any entrypoint starts
@@ -136,7 +136,7 @@ namespace GTS {
 
 		auto& thread_data = me.thread_data[thread_id];
 		thread_data.last_activity = std::chrono::steady_clock::now();
-		thread_data.entrypoint_profilers.try_emplace(key, a_name);
+		thread_data.entrypoint_profilers.emplace(key, a_name);
 		thread_data.entrypoint_profilers.at(key).Stop();
 
 		// Stop total time tracking when no entrypoints are running
@@ -169,25 +169,22 @@ namespace GTS {
 
 	void Profilers::CleanupExpiredThreads() {
 		auto now = std::chrono::steady_clock::now();
-		auto it = thread_data.begin();
-		while (it != thread_data.end()) {
-			auto elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - it->second.last_activity).count();
+		std::vector<std::thread::id> expired;
+
+		for (auto& [tid, data] : thread_data) {
+			auto elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - data.last_activity).count();
 			if (elapsed > thread_expiration_time) {
-				// Also remove from thread names cache
-				{
-					std::lock_guard<std::mutex> lock(thread_names_mutex);
-					thread_names.erase(it->first);
-				}
-				it = thread_data.erase(it);
+				expired.push_back(tid);
 			}
-			else {
-				++it;
-			}
+		}
+
+		for (auto& tid : expired) {
+			thread_data.unsafe_erase(tid); // safe because no iterator involved
+			thread_names.unsafe_erase(tid);
 		}
 	}
 
 	std::string Profilers::GetThreadName(std::thread::id thread_id) {
-		std::lock_guard<std::mutex> lock(thread_names_mutex);
 
 		auto it = thread_names.find(thread_id);
 		if (it != thread_names.end()) {
@@ -242,6 +239,7 @@ namespace GTS {
 									double pb = total_time > 0 ? eb / total_time : 0.0;
 									return asc ? (pa < pb) : (pa > pb);
 								}
+								default: break;
 							}
 							return false;
 						});
@@ -333,7 +331,7 @@ namespace GTS {
 										double frb = delta > 0 ? eb / delta : 0.0;
 										if (fr != frb) return asc ? (fr < frb) : (fr > frb);
 									} break;
-
+									default: break;
 								}
 							}
 							return false;
@@ -366,147 +364,281 @@ namespace GTS {
 		}
 	}
 
-
-	Profilers& Profilers::GetSingleton() {
-		static Profilers Instance;
-		return Instance;
-	}
-
 	void Profilers::DisplayReport() {
-
-		auto& Instance = Profilers::GetSingleton();
+		static auto& Instance = Profilers::GetSingleton();
 
 		if (!DrawProfiler) {
-			// Reset all profilers
-			for (auto& data : Instance.thread_data | views::values) {
-				for (auto& kv : data.profilers | views::values)            kv.Reset();
-				for (auto& kv : data.entrypoint_profilers | views::values) kv.Reset();
+			// Reset display snapshot
+			{
+				std::lock_guard lock(snapshot_mutex);
+				display_snapshot.is_valid = false;
 			}
-			Instance.TotalTime.Reset();
 			return;
 		}
 
-		// Clean up expired threads
-		Instance.CleanupExpiredThreads();
+		// Always capture snapshot and reset (every frame)
+		DisplaySnapshot new_snapshot;
+		new_snapshot.total_time = Instance.TotalTime.GetElapsed();
+
+		for (auto& [tid, data] : Instance.thread_data) {
+			auto& thread_snap = new_snapshot.threads[tid];
+			thread_snap.last_activity = data.last_activity;
+
+			for (auto& [name, prof] : data.profilers) {
+				thread_snap.profilers.emplace_back(name, prof.GetElapsed());
+			}
+
+			for (auto& [name, prof] : data.entrypoint_profilers) {
+				thread_snap.entrypoint_profilers.emplace_back(name, prof.GetElapsed());
+			}
+		}
+
+		new_snapshot.is_valid = true;
+
+		// Only update display snapshot every interval
+		auto now = std::chrono::steady_clock::now();
+		double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - last_display_update).count();
+
+		if (elapsed >= update_interval) {
+			last_display_update = now;
+			Instance.CleanupExpiredThreads();
+
+			std::lock_guard lock(snapshot_mutex);
+			display_snapshot = std::move(new_snapshot);
+		}
+
+		// Always reset every frame
+		for (auto& data : Instance.thread_data | views::values) {
+			for (auto& kv : data.profilers | views::values) kv.Reset();
+			for (auto& kv : data.entrypoint_profilers | views::values) kv.Reset();
+		}
+		Instance.TotalTime.Reset();
+
+		// Display from snapshot
+		DisplaySnapshot current_snapshot;
+		{
+			std::lock_guard lock(snapshot_mutex);
+			if (!display_snapshot.is_valid) {
+				return;
+			}
+			current_snapshot = display_snapshot;
+		}
 
 		ImFontManager::Push(ImFontManager::ActiveFontType::kSubText);
 
-		// Begin window with persistent collapse state
 		if (!ImGui::Begin("Profiler Report", nullptr, ImGuiWindowFlags_None)) {
 			ImGui::End();
 			ImFontManager::Pop();
 			return;
 		}
+
 		if (ImGui::IsWindowCollapsed()) {
 			ImGui::End();
 			ImFontManager::Pop();
 			return;
 		}
 
-		// Summary metrics
-		double sTotal = Instance.TotalTime.GetElapsed();
-		ImGui::Text("Total DLL Time: %.3fms", sTotal * 1000);
+		// Display summary
+		ImGui::Text("Total DLL Time: %.3fms", current_snapshot.total_time * 1000);
 		ImGui::SameLine(); ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
 		ImGui::SameLine(); ImGui::Text("Loaded Actors: %d", GtsManager::LoadedActorCount);
-		ImGui::SameLine(); ImGui::Text("Threads: %zu", Instance.thread_data.size());
+		ImGui::SameLine(); ImGui::Text("Threads: %zu", current_snapshot.threads.size());
 
-		// Settings popup
 		if (ImGui::Button("Settings")) {
 			ImGui::OpenPopup("ProfilerSettings");
 		}
+
 		if (ImGui::BeginPopup("ProfilerSettings")) {
 			float expiration = static_cast<float>(Instance.thread_expiration_time);
 			if (ImGui::SliderFloat("Thread Expiration (s)", &expiration, 5.0f, 300.0f, "%.1f")) {
 				Instance.thread_expiration_time = expiration;
+			}
+			float interval = static_cast<float>(update_interval);
+			if (ImGui::SliderFloat("Update Interval (s)", &interval, 0.1f, 2.0f, "%.2f")) {
+				update_interval = interval;
 			}
 			ImGui::EndPopup();
 		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Clear")) {
-			Instance.thread_data.clear();
-			{
-				std::lock_guard<std::mutex> lock(Instance.thread_names_mutex);
-				Instance.thread_names.clear();
-			}
+			std::lock_guard lock(snapshot_mutex);
+			display_snapshot = DisplaySnapshot{};
 		}
 
-		// Per-thread data
-		if (!Instance.thread_data.empty()) {
+		if (!current_snapshot.threads.empty()) {
 			ImGui::Separator();
 
-			// Sort threads by name
-			std::vector<std::pair<std::thread::id, ThreadProfilerData*>> sorted_threads;
-			sorted_threads.reserve(Instance.thread_data.size());
-			for (auto& [tid, data] : Instance.thread_data) {
+			std::vector<std::pair<std::thread::id, const DisplaySnapshot::ThreadSnapshot*>> sorted_threads;
+			for (auto& [tid, data] : current_snapshot.threads) {
 				sorted_threads.emplace_back(tid, &data);
 			}
 			ranges::sort(sorted_threads, [&](auto const& a, auto const& b) {
 				return Instance.GetThreadName(a.first) < Instance.GetThreadName(b.first);
 				});
 
-			// Draw each thread
 			for (auto& [tid, data] : sorted_threads) {
 				std::string name = Instance.GetThreadName(tid);
-
-				// Compute total of entrypoint profilers
-				double thread_total = 0.0;
-				for (auto& prof : data->entrypoint_profilers | views::values) {
-					thread_total += prof.GetElapsed();
-				}
-
-				// Find worst entrypoint
-				const char* worstEPName = "(none)";
-				double worstEPTime = 0.0;
-				for (auto& [n, prof] : data->entrypoint_profilers) {
-					double e = prof.GetElapsed();
-					if (e > worstEPTime) {
-						worstEPTime = e;
-						worstEPName = n.c_str();
-					}
-				}
-
-				// Find worst scoped
-				const char* worstSName = "(none)";
-				double worstSTime = 0.0;
-				for (auto& [n, prof] : data->profilers) {
-					double e = prof.GetElapsed();
-					if (e > worstSTime) {
-						worstSTime = e;
-						worstSName = n.c_str();
-					}
-				}
-
-				// Build a stable TreeNode ID
-				char header_id[128];
-				std::snprintf(header_id, sizeof(header_id), "%s##%zu", name.c_str(), std::hash<std::thread::id>{}(tid));
-				bool open = ImGui::TreeNode(header_id);
-
-				// Display timings & worst names
-				ImGui::SameLine();
-				ImGui::Text("(Total: %.3fms)", thread_total * 1000);
-				ImGui::SameLine();
-				ImGui::Text("Worst Entrypoint: %s (%.3fms)", worstEPName, worstEPTime * 1000);
-				ImGui::SameLine();
-				ImGui::Text("Worst Scoped: %s (%.3fms)", worstSName, worstSTime * 1000);
-
-				if (open) {
-					Instance.DisplayThreadTable(name, *data, sTotal);
-					ImGui::TreePop();
-				}
+				DisplayThreadTableFromSnapshot(name, tid, *data, current_snapshot.total_time);
 			}
 		}
-
-		// Reset all profilers
-		for (auto& data : Instance.thread_data | views::values) {
-			for (auto& kv : data.profilers | views::values)            kv.Reset();
-			for (auto& kv : data.entrypoint_profilers | views::values) kv.Reset();
-		}
-		Instance.TotalTime.Reset();
 
 		ImGui::End();
 		ImFontManager::Pop();
 	}
 
+	void Profilers::DisplayThreadTableFromSnapshot(const std::string& thread_name, std::thread::id tid,
+		const DisplaySnapshot::ThreadSnapshot& data, double total_time) {
 
+		double thread_total = 0.0;
+		for (const auto& t : data.entrypoint_profilers | views::values) thread_total += t;
+
+		const char* worstEPName = "(none)";
+		double worstEPTime = 0.0;
+		for (auto& [n, t] : data.entrypoint_profilers) {
+			if (t > worstEPTime) {
+				worstEPTime = t; worstEPName = n.c_str();
+			}
+		}
+
+		const char* worstSName = "(none)";
+		double worstSTime = 0.0;
+		for (auto& [n, t] : data.profilers) {
+			if (t > worstSTime) {
+				worstSTime = t; worstSName = n.c_str();
+			}
+		}
+
+		char header_id[128];
+		std::snprintf(header_id, sizeof(header_id), "%s##%zu", thread_name.c_str(), std::hash<std::thread::id>{}(tid));
+		bool open = ImGui::TreeNode(header_id);
+
+		ImGui::SameLine();
+		ImGui::Text("(Total: %.3fms)", thread_total * 1000);
+		ImGui::SameLine();
+		ImGui::Text("Worst Entrypoint: %s (%.3fms)", worstEPName, worstEPTime * 1000);
+		ImGui::SameLine();
+		ImGui::Text("Worst Scoped: %s (%.3fms)", worstSName, worstSTime * 1000);
+
+		if (!open) return;
+
+		// Entrypoints
+		if (!data.entrypoint_profilers.empty()) {
+			if (ImGui::TreeNodeEx(("Entrypoints##" + thread_name).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+				if (ImGui::BeginTable(("EntrypointTable##" + thread_name).c_str(), 3,
+					ImGuiTableFlags_Borders | ImGuiTableFlags_HighlightHoveredColumn |
+					ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_SizingFixedFit)) {
+
+					ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch);
+					ImGui::TableSetupColumn("CPU Time", ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_WidthFixed);
+					ImGui::TableSetupColumn("% Total", ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_WidthFixed);
+					ImGui::TableHeadersRow();
+
+					std::vector<std::pair<std::string, double>> entries = data.entrypoint_profilers;
+
+					if (auto specs = ImGui::TableGetSortSpecs(); specs && specs->SpecsCount > 0) {
+						auto& spec = specs->Specs[0];
+						bool asc = spec.SortDirection == ImGuiSortDirection_Ascending;
+						ranges::sort(entries, [&](auto& a, auto& b) {
+							switch (spec.ColumnIndex) {
+								case 0: return asc ? (a.first < b.first) : (a.first > b.first);
+								case 1: return asc ? (a.second < b.second) : (a.second > b.second);
+								case 2:
+								{
+									double pa = total_time > 0 ? a.second / total_time : 0.0;
+									double pb = total_time > 0 ? b.second / total_time : 0.0;
+									return asc ? (pa < pb) : (pa > pb);
+								}
+								default:break;
+							}
+							return false;
+						});
+						specs->SpecsDirty = false;
+					}
+
+					ImGuiListClipper clipper; clipper.Begin(entries.size());
+					while (clipper.Step()) {
+						for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
+							auto& [name, elapsed] = entries[i];
+							double pct = total_time > 0 ? elapsed / total_time * 100.0 : 0.0;
+
+							ImGui::TableNextRow();
+							ImGui::TableSetColumnIndex(0); ImGui::TextUnformatted(name.c_str());
+							ImGui::TableSetColumnIndex(1); ImGui::Text("%.3fms", elapsed * 1000);
+							ImGui::TableSetColumnIndex(2); ImGui::Text("%.2f%%", pct);
+						}
+					}
+					ImGui::EndTable();
+				}
+				ImGui::TreePop();
+			}
+		}
+
+		// Scoped profilers
+		if (!data.profilers.empty()) {
+			if (ImGui::TreeNode(("Scoped##" + thread_name).c_str())) {
+				if (ImGui::BeginTable(("ProfilerTable##" + thread_name).c_str(), 4,
+					ImGuiTableFlags_Borders | ImGuiTableFlags_HighlightHoveredColumn |
+					ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_SizingFixedFit)) {
+
+					ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch);
+					ImGui::TableSetupColumn("CPU Time", ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_WidthFixed);
+					ImGui::TableSetupColumn("% DLL", ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_WidthFixed);
+					ImGui::TableSetupColumn("% Frame", ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_WidthFixed);
+					ImGui::TableHeadersRow();
+
+					double current = Time::WorldTimeElapsed();
+					static double last = current;
+					double delta = current - last;
+					last = current;
+
+					std::vector<std::pair<std::string, double>> entries = data.profilers;
+
+					if (auto specs = ImGui::TableGetSortSpecs(); specs && specs->SpecsCount > 0) {
+						auto& spec = specs->Specs[0];
+						bool asc = spec.SortDirection == ImGuiSortDirection_Ascending;
+						ranges::sort(entries, [&](auto& a, auto& b) {
+							switch (spec.ColumnIndex) {
+								case 0: return asc ? (a.first < b.first) : (a.first > b.first);
+								case 1: return asc ? (a.second < b.second) : (a.second > b.second);
+								case 2:
+								{
+									double pa = total_time > 0 ? a.second / total_time : 0.0;
+									double pb = total_time > 0 ? b.second / total_time : 0.0;
+									return asc ? (pa < pb) : (pa > pb);
+								}
+								case 3:
+								{
+									double fa = delta > 0 ? a.second / delta : 0.0;
+									double fb = delta > 0 ? b.second / delta : 0.0;
+									return asc ? (fa < fb) : (fa > fb);
+								}
+								default: break;
+							}
+							return false;
+						});
+						specs->SpecsDirty = false;
+					}
+
+					ImGuiListClipper clipper; clipper.Begin(entries.size());
+					while (clipper.Step()) {
+						for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
+							auto& [name, elapsed] = entries[i];
+							double dllp = total_time > 0 ? elapsed / total_time * 100.0 : 0.0;
+							double frp = delta > 0 ? elapsed / delta * 100.0 : 0.0;
+
+							ImGui::TableNextRow();
+							ImGui::TableSetColumnIndex(0); ImGui::TextUnformatted(name.c_str());
+							ImGui::TableSetColumnIndex(1); ImGui::Text("%.3fms", elapsed * 1000);
+							ImGui::TableSetColumnIndex(2); ImGui::Text("%.2f%%", dllp);
+							ImGui::TableSetColumnIndex(3); ImGui::Text("%.2f%%", frp);
+						}
+					}
+					ImGui::EndTable();
+				}
+				ImGui::TreePop();
+			}
+		}
+		ImGui::TreePop();
+	}
 }

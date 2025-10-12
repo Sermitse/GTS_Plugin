@@ -1,13 +1,16 @@
-#include "Config/SettingsModHandler.hpp"
+#include "Config/ConfigModHandler.hpp"
 #include "Config/Config.hpp"
+
 #include "UI/ImGui/Core/ImStyleManager.hpp"
 #include "spdlog/spdlog.h"
 
 namespace GTS {
 
+	//-------------
+	// Handlers
+	//-------------
 
-	//TODO Convert to eventlistener dispatch
-	void HandleCameraTrackingReset() {
+	void ConfigModHandler::DoCameraStateReset() {
 
 		if (!Config::General.bTrackBonesDuringAnim) {
 			auto actors = find_actors();
@@ -19,8 +22,7 @@ namespace GTS {
 		}
 	}
 
-	//TODO Convert to eventlistener dispatch
-	void HandleHHReset() {
+	void ConfigModHandler::DoHighHeelStateReset() {
 
 		if (!Config::General.bHighheelsFurniture) {
 
@@ -42,31 +44,41 @@ namespace GTS {
 		}
 	}
 
-	//TODO Convert to eventlistener dispatch
-	void HandleSettingsReset() {
+	std::string ConfigModHandler::DebugName() {
+		return "::ConfigModHandler";
+	}
 
+	void ConfigModHandler::OnGameSave() {
+		logger::trace("ConfigModHandler OnGameSave");
+	}
+
+	void ConfigModHandler::OnGameLoaded() {
+
+		ImStyleManager::ApplyStyle();
+		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
+
+		DoCameraStateReset();
+		DoHighHeelStateReset();
+
+		logger::trace("ConfigModHandler OnGameLoaded");
+	}
+
+	void ConfigModHandler::OnConfigReset() {
 		Config::ResetToDefaults();
 		ImStyleManager::ApplyStyle();
-
 
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 
 		// ----- If You need to do something when settings get reset add it here.
 
-		HandleHHReset();
-		HandleCameraTrackingReset();
+		DoCameraStateReset();
+		DoHighHeelStateReset();
 
-		Notify("Mod settings have been reset");
-		logger::info("Mod Settings Reset");
-
+		Notify("Mod Settings Have Been Reset");
+		logger::info("ConfigModHandler OnConfigReset");
 	}
 
-	//TODO Convert to eventlistener dispatch
-	void HandleSettingsRefresh() {
-		ImStyleManager::ApplyStyle();
-		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
-		HandleHHReset();
-		HandleCameraTrackingReset();
-		logger::trace("Settings Refreshed");
+	void ConfigModHandler::OnConfigRefresh() {
+		OnGameLoaded();
 	}
 }

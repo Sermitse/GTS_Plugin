@@ -1,5 +1,6 @@
 #pragma once
 #include "UI/ImGui/Lib/imgui.h"
+#include "UI/ImGui/Lib/imgui_internal.h"
 
 // RAII helper to push an ID on construction and pop it on destruction
 struct ImGuiUniqueID {
@@ -41,5 +42,6 @@ namespace ImUtil {
 
     [[nodiscard]] bool ValidState() noexcept;
     [[nodiscard]] ImVec2 ScaleToViewport(float a_Percentage);
+    [[nodiscard]] ImGuiWindow* GetEffectiveFocusedWindow(ImGuiContext* a_ctx);
 }
 

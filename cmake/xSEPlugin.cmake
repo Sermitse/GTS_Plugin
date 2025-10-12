@@ -74,7 +74,7 @@ target_compile_options(
     /Zc:threadSafeInit
     /Zc:trigraphs
     /Zc:wchar_t
-    /Zc:char8_t-
+    #/Zc:char8_t- JSONCpp needs it
     /wd4200 # nonstandard extension used : zero-sized array in struct/union
     /wd4100 # 'identifier' : unreferenced formal parameter
     /wd4101 # 'identifier': unreferenced local variable

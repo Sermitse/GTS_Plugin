@@ -24,7 +24,7 @@ namespace GTS {
 
 	SplashWindow::~SplashWindow() {
 		assert(false && "Eventlistener Member Destroyed, Don't do that!!");
-		logger::debug("Running SplashWindow dtor");
+		logger::critical("Running SplashWindow dtor");
 		EventDispatcher::RemoveListener(this);
 	}
 

@@ -12,6 +12,7 @@ namespace GTS {
             kHUD,
             kSettings,
             kDebug,
+            kDebugNoInput,
             kMainMenu
         };
 

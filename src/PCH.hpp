@@ -4,7 +4,7 @@
 #define _USE_MATH_DEFINES
 
 //Project-Wide Defines
-//#define GTS_PROFILER_ENABLED
+#define GTS_PROFILER_ENABLED
 //#define GTS_DISABLE_PLUGIN
 
 
@@ -173,6 +173,7 @@ namespace RE {
 namespace logger = SKSE::log;
 
 //Own Includes
+#include "Utils/Singleton.hpp"
 #include "Config/Util/TomlRefl.hpp"
 #include "Constants.hpp"
 #include "Debug/Profiler.hpp"
@@ -181,6 +182,12 @@ namespace logger = SKSE::log;
 #include "Scale/Scale.hpp"
 #include "Scale/ModScale.hpp"
 #include "Scale/Height.hpp"
-#include "Data/Data.hpp"
+#include "Data/Persistent.hpp"
+#include "Data/Plugin.hpp"
+#include "Data/Runtime.hpp"
+#include "Data/Tasks.hpp"
+#include "Data/Time.hpp"
+#include "Data/Transient.hpp"
+#include "Data/World.hpp"
 #include "Hooks/Hooks.hpp"
 #include "RE/RE.hpp"

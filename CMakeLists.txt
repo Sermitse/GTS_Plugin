@@ -90,15 +90,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(boost_ext_reflect)
 
-FetchContent_Declare(
-    cpp-i18n
-    GIT_REPOSITORY   https://github.com/Sinan-Karakaya/cpp-i18n.git
-    GIT_SHALLOW ON
-    GIT_TAG v0.2.2
-)
-
-FetchContent_MakeAvailable(cpp-i18n)
-
 # #######################################################################################################################
 # # Find dependencies - VCPKG
 # #######################################################################################################################
@@ -110,6 +101,7 @@ find_package(xbyak CONFIG REQUIRED)
 find_package(toml11 CONFIG REQUIRED)
 find_package(nlohmann_json 3.12.0 REQUIRED)
 find_package(lunasvg CONFIG REQUIRED)
+find_package(tbb CONFIG REQUIRED)
 
 # #######################################################################################################################
 # # Non-CLib Includes
@@ -123,19 +115,18 @@ target_include_directories(
 	${CLIBUTIL_INCLUDE_DIRS}
 	${boost_ext_reflect_SOURCE_DIR}
     ${DETOURS_INCLUDE_DIRS}
-    ${cpp-i18n_SOURCE_DIR}/include
 )
 
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
     ${DETOURS_LIBRARY}
-    cpp-i18n
 	xbyak::xbyak
 	Boost::headers
 	toml11::toml11
 	lz4::lz4
     lunasvg::lunasvg
+    TBB::tbb
 	nlohmann_json::nlohmann_json
 	cmake_git_version_tracking
 )
