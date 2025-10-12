@@ -534,7 +534,7 @@ namespace GTS {
 					ImGui::TableSetupColumn("% Total", ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_WidthFixed);
 					ImGui::TableHeadersRow();
 
-					std::vector<std::pair<std::string, double>> entries = data.entrypoint_profilers;
+					tbb::concurrent_vector<std::pair<std::string, double>> entries = data.entrypoint_profilers;
 
 					if (auto specs = ImGui::TableGetSortSpecs(); specs && specs->SpecsCount > 0) {
 						auto& spec = specs->Specs[0];
@@ -592,7 +592,7 @@ namespace GTS {
 					double delta = current - last;
 					last = current;
 
-					std::vector<std::pair<std::string, double>> entries = data.profilers;
+					tbb::concurrent_vector<std::pair<std::string, double>> entries = data.profilers;
 
 					if (auto specs = ImGui::TableGetSortSpecs(); specs && specs->SpecsCount > 0) {
 						auto& spec = specs->Specs[0];

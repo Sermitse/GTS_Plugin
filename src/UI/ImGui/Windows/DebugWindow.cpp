@@ -105,9 +105,7 @@ namespace GTS {
 			ImGui::ShowIDStackToolWindow(&m_showStackWindow);
 		}
 
-		#ifdef GTS_PROFILER_ENABLED
-			Profilers::DisplayReport();
-		#endif
+		GTS_PROFILER_DISPLAY_REPORT();
 
 	}
 

@@ -1,5 +1,7 @@
 #pragma once
 #include <tbb/concurrent_unordered_map.h>
+#include <tbb/concurrent_map.h>
+#include <tbb/concurrent_vector.h>
 
 #ifdef GTS_PROFILER_ENABLED
 #define GTS_PROFILE_ENTRYPOINT_UNIQUE(name, ID) \
@@ -111,11 +113,11 @@ namespace GTS {
         // Snapshot data for display
         struct DisplaySnapshot {
             struct ThreadSnapshot {
-                std::vector<std::pair<std::string, double>> profilers;
-                std::vector<std::pair<std::string, double>> entrypoint_profilers;
+                tbb::concurrent_vector<std::pair<std::string, double>> profilers;
+                tbb::concurrent_vector<std::pair<std::string, double>> entrypoint_profilers;
                 std::chrono::time_point<std::chrono::steady_clock> last_activity;
             };
-            std::map<std::thread::id, ThreadSnapshot> threads;
+            tbb::concurrent_unordered_map<std::thread::id, ThreadSnapshot> threads;
             double total_time = 0.0;
             bool is_valid = false;
         };
