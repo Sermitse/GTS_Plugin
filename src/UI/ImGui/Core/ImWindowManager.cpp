@@ -22,6 +22,14 @@ namespace GTS {
 
     }
 
+    void ImWindowManager::CloseInputConsumers() const {
+        for (const auto& window : Windows) {
+            if (window->WantsToDraw() && window->m_windowType > ImWindow::WindowType::kWidget) {
+                window->RequestClose();
+            }
+        }
+    }
+
     ImWindow::WindowType ImWindowManager::GetHighestVisibleWindowType() const {
         ImWindow::WindowType highestType = ImWindow::WindowType::kWidget;
 

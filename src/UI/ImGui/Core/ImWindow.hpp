@@ -54,6 +54,8 @@ namespace GTS {
         virtual float GetFullAlpha() = 0;
         virtual float GetBackgroundAlpha() = 0;
 
+        virtual void RequestClose() = 0;
+
         float GetFadingAlpha() const;
         void ResetFadeState();
         void UpdateFade(float deltaTime);

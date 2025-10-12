@@ -2,11 +2,6 @@
 
 namespace GTS {
 
-	Transient& Transient::GetSingleton() noexcept {
-		static Transient Instance;
-		return Instance;
-	}
-
 	TempActorData* Transient::GetData(TESObjectREFR* a_Object) {
 
 		std::unique_lock lock(this->_Lock);

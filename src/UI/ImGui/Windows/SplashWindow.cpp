@@ -38,7 +38,7 @@ namespace GTS {
 
 			{
 				ImFontManager::Push(ImFontManager::kWidgetBody);
-				ImGui::Text("Press %s or type \"gts menu\" to open the mod's settings while in-game.", GetSettingsKeybind().c_str());
+				ImGui::Text("Press %s or type \"gts menu\" in the console to open the mod's settings while in-game.", GetSettingsKeybind().c_str());
 			}
 
 			ImFontManager::Pop(2);
@@ -81,6 +81,10 @@ namespace GTS {
 
 	std::string SplashWindow::GetWindowName() {
 		return m_name;
+	}
+
+	void SplashWindow::RequestClose() {
+		//Do nothing
 	}
 
 	std::string SplashWindow::DebugName() {

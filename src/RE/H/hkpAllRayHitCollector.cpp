@@ -1,20 +1,22 @@
 // Holds RE and dummy classes
-#include "Colliders/RE/AllRayCollector.hpp"
+#include "RE/H/hkpAllRayHitCollector.hpp"
 
 namespace RE {
-	
-	void hkpAllRayHitCollector::AddRayHit(const hkpCdBody& a_body, const hkpShapeRayCastCollectorOutput& a_hitInfo) {
-		REL::Relocation<std::uintptr_t> vtable{VTABLE_hkpAllRayHitCollector[0]};
-		const auto a_idx = 0x01;
-		const auto addr = vtable.address() + (sizeof(void *) * a_idx);
-		const auto result = *reinterpret_cast<std::uintptr_t *>(addr);
+
+	//00
+	hkpAllRayHitCollector::~hkpAllRayHitCollector() {
+		REL::Relocation<std::uintptr_t> vtable{ VTABLE_hkpAllRayHitCollector[0] };
+		constexpr auto a_idx = 0x00;
+		const auto addr = vtable.address() + (sizeof(void*) * a_idx);
+		const auto result = *reinterpret_cast<std::uintptr_t*>(addr);
 		REL::Relocation<void(hkpRayHitCollector*)> func(result);
 		func(this);
 	}
 
-	hkpAllRayHitCollector::~hkpAllRayHitCollector() {
+	//01
+	void hkpAllRayHitCollector::AddRayHit(const hkpCdBody& a_body, const hkpShapeRayCastCollectorOutput& a_hitInfo) {
 		REL::Relocation<std::uintptr_t> vtable{VTABLE_hkpAllRayHitCollector[0]};
-		const auto a_idx = 0x00;
+		constexpr auto a_idx = 0x01;
 		const auto addr = vtable.address() + (sizeof(void *) * a_idx);
 		const auto result = *reinterpret_cast<std::uintptr_t *>(addr);
 		REL::Relocation<void(hkpRayHitCollector*)> func(result);

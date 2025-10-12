@@ -28,6 +28,7 @@ namespace GTS {
         [[nodiscard]] bool HasWindows() const;
         [[nodiscard]] bool HasInputConsumers();
         [[nodiscard]] bool HasActiveWindows();
+        void CloseInputConsumers() const;
         [[nodiscard]] ImWindow::WindowType GetHighestVisibleWindowType() const;
         float GetDeltaTime() const;
 

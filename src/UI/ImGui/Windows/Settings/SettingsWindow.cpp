@@ -1,33 +1,36 @@
 ﻿#include "UI/GTSMenu.hpp"
 #include "UI/ImGui/Windows/Settings/SettingsWindow.hpp"
 #include "UI/ImGui/Lib/imgui.h"
+
 #include "UI/ImGui/Core/ImFontManager.hpp"
 #include "UI/ImGui/Core/ImStyleManager.hpp"
 #include "UI/ImGui/Core/ImUtil.hpp"
+
 #include "UI/ImGui/Controls/Button.hpp"
 #include "UI/ImGui/Controls/Misc.hpp"
+
 #include "Config/Config.hpp"
 #include "Config/Keybinds.hpp"
+
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Console/ConsoleManager.hpp"
 
 //categories
-//#include "UI/Windows/Settings/Categories/Gameplay.hpp"
-//#include "UI/Windows/Settings/Categories/Info.hpp"
-//#include "UI/Windows/Settings/Categories/Interface.hpp"
-//#include "UI/Windows/Settings/Categories/Audio.hpp"
-//#include "UI/Windows/Settings/Categories/AI.hpp"
-//#include "UI/Windows/Settings/Categories/Advanced.hpp"
-//#include "UI/Windows/Settings/Categories/Camera.hpp"
-//#include "UI/Windows/Settings/Categories/Keybinds.hpp"
-//#include "UI/Windows/Settings/Categories/General.hpp"
-//#include "UI/Windows/Settings/Categories/Balance.hpp"
-//#include "UI/Windows/Settings/Categories/Actions.hpp"
-//#include "UI/Windows/Settings/Categories/Widgets.hpp"
+//#include "UI/ImGui/ImGui/Windows/Settings/Categories/Gameplay.hpp"
+//#include "UI/ImGui/Windows/Settings/Categories/Info.hpp"
+//#include "UI/ImGui/Windows/Settings/Categories/Interface.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Audio.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/AI.hpp"
+//#include "UI/ImGui/Windows/Settings/Categories/Advanced.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Camera.hpp"
+//#include "UI/ImGui/Windows/Settings/Categories/Keybinds.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/General.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Balance.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Actions.hpp"
+//#include "UI/ImGui/Windows/Settings/Categories/Widgets.hpp"
 
 #include "Version.hpp"
 #include "git.h"
-
 
 namespace GTS {
 
@@ -115,23 +118,27 @@ namespace GTS {
 		CategoryMgr = new ImCategoryContainer();
 
 		//Add Categories, order here defines the order they'll be shown.
-		//CatMgr.AddCategory(std::make_shared<CategoryInfo>());
-		//CatMgr.AddCategory(std::make_shared<CategoryGeneral>());
-		//CatMgr.AddCategory(std::make_shared<CategoryGameplay>());
-		//CatMgr.AddCategory(std::make_shared<CategoryBalance>());
-		//CatMgr.AddCategory(std::make_shared<CategoryActions>());
-		//CatMgr.AddCategory(std::make_shared<CategoryAudio>());
-		//CatMgr.AddCategory(std::make_shared<CategoryAI>());
-		//CatMgr.AddCategory(std::make_shared<CategoryCamera>());
-		//CatMgr.AddCategory(std::make_shared<CategoryInterface>());
-		//CatMgr.AddCategory(std::make_shared<CategoryWidgets>());
-		//CatMgr.AddCategory(std::make_shared<CategoryKeybinds>());
-		//CatMgr.AddCategory(std::make_shared<CategoryAdvanced>());
+		//CategoryMgr->AddCategory(std::make_unique<CategoryInfo>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryGeneral>());
+		//CategoryMgr->AddCategory(std::make_unique<CategoryGameplay>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryBalance>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryActions>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryAudio>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryAI>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryCamera>());
+		//CategoryMgr->AddCategory(std::make_unique<CategoryInterface>());
+		//CategoryMgr->AddCategory(std::make_unique<CategoryWidgets>());
+		//CategoryMgr->AddCategory(std::make_unique<CategoryKeybinds>());
+		//CategoryMgr->AddCategory(std::make_unique<CategoryAdvanced>());
 
 		BuildFooterText();
 
 		InputManager::RegisterInputEvent("OpenModSettings", OpenSettingsKeybindCallback);
 		ConsoleManager::RegisterCommand("menu", OpenSettingsConsoleCallback,"Open the settings menu");
+	}
+
+	void SettingsWindow::RequestClose() {
+		HandleOpenClose(false);
 	}
 
 	bool SettingsWindow::WantsToDraw() {
@@ -182,7 +189,7 @@ namespace GTS {
 		else {
 
 			//If save fails don't hide self and show modal box.
-			if (SaveImpl()) {
+			if (!SaveImpl()) {
 				m_showErrorModal = true;
 				return;
 			}
@@ -229,18 +236,6 @@ namespace GTS {
 	}
 
 	void SettingsWindow::Draw() {
-
-		//Handle closing through the esc key.
-		if (!m_busy && ImGui::IsKeyReleased(ImGuiKey_Escape)) {
-			HandleOpenClose(false);
-		}
-
-		//Sectet advanced settings toggle.
-		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && 
-			ImGui::IsKeyDown(ImGuiKey_LeftAlt)  && 
-			ImGui::IsKeyDown(ImGuiKey_F12)) {
-			Config::Hidden.IKnowWhatImDoing = true;
-		}
 
 		auto& Categories = CategoryMgr->GetCategories();
 		auto& BaseSettings = GetBaseSettings();
@@ -356,6 +351,23 @@ namespace GTS {
 		}
 
 		ShowErrorModal(&m_showErrorModal);
+
+
+		//Handle closing through the esc key.
+		if (ImGui::IsKeyReleased(ImGuiKey_Escape) &&
+			!m_showErrorModal                     &&
+			!m_busy) {
+			HandleOpenClose(false);
+		}
+
+		//Sectet advanced settings toggle.
+		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) &&
+			ImGui::IsKeyDown(ImGuiKey_LeftAlt)  &&
+			ImGui::IsKeyDown(ImGuiKey_F12)      &&
+			!m_showErrorModal                   &&
+			!m_busy) {
+			Config::Hidden.IKnowWhatImDoing = true;
+		}
 
 	}
 

@@ -3,8 +3,7 @@
 #include "Utils/FindActor.hpp"
 
 #include "Magic/Effects/Common.hpp"
-#include "Colliders/Actor.hpp"
-#include "Colliders/RE/RE.hpp"
+#include "Colliders/ActorCollisionData.hpp"
 
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
@@ -23,8 +22,6 @@
 #include "Managers/Explosion.hpp"
 #include "Managers/GtsSizeManager.hpp"
 #include "Managers/HighHeel.hpp"
-
-#include "Managers/Audio/AudioObtainer.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
 
 #include "Config/Config.hpp"

@@ -147,7 +147,7 @@ namespace GTS {
 	}
 
 	void GTSMenu::SetVisibility(bool a_state) {
-		if (static UIMessageQueue* const msgQ = UIMessageQueue::GetSingleton()) {
+		if (UIMessageQueue* const msgQ = UIMessageQueue::GetSingleton()) {
 			msgQ->AddMessage(MENU_NAME, a_state ? UI_MESSAGE_TYPE::kShow : UI_MESSAGE_TYPE::kHide, nullptr);
 			m_isScaleformVisible.store(a_state, std::memory_order_relaxed);
 		}
@@ -255,6 +255,10 @@ namespace GTS {
 		}
 	}
 
+	void GTSMenu::CloseInputConsumers() {
+		WindowManager->CloseInputConsumers();
+	}
+
 	std::string GTSMenu::DebugName() {
 		return "::GTSHUDMenu";
 	}
@@ -300,7 +304,7 @@ namespace GTS {
 			mName == RE::MessageBoxMenu::MENU_NAME   ||
 			mName == RE::TweenMenu::MENU_NAME) {
 
-			//If the game switches to any of these menu's hide ours.
+			//If the game switches to any of these menus hide ours.
 			a_event->opening ? Hide(mName) : Show(mName);
 
 		}
@@ -312,6 +316,7 @@ namespace GTS {
 		}
 	}
 
+	//Imgui Update
 	void GTSMenu::AdvanceMovie(float a_interval, std::uint32_t a_currentTime) {
 
 		IMenu::AdvanceMovie(a_interval, a_currentTime);
@@ -339,6 +344,7 @@ namespace GTS {
 		m_frameReady.store(true, std::memory_order_release);
 	}
 
+	//ImGui Present
 	void GTSMenu::PostDisplay() {
 
 		IMenu::PostDisplay();

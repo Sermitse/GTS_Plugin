@@ -56,7 +56,12 @@ TOML_SERIALIZABLE(BaseEventData_t);
 //-------------------------------------------------------------------------------------------------------------------
 
 struct InputEvent_t {
-	LInputCategory_t Category;
+
+	const LInputCategory_t UICategory;
+	const bool UIHidden;
+	const std::string UIName;
+	const std::string UIDescription;
+
 	BaseEventData_t Event;
 };
 
@@ -66,11 +71,15 @@ namespace GTS {
     // EVENT LIST ----
     //----------------------------------------
 
-    inline const std::vector<InputEvent_t> DefaultEvents = {
+	//TODO Eats 21kb on the stack :skull:... Find a way to fix this...
+    inline static const std::vector<InputEvent_t> DefaultEvents = {
     	
         /* // ----- EXAMPLE
         {
-            LInputCategory_t::kDefault,
+            .UICategory = LInputCategory_t::kDefault,
+		   .UIHidden = false,
+		   .UIName = "",
+		   .UIDescription = "",
 	        {
 	            .Event = "Event",
 	            .Keys = {"A", "B"},
@@ -88,8 +97,11 @@ namespace GTS {
 	    //=======================================================
 
 	    {
-	        LInputCategory_t::kMenu,
-            {
+	        .UICategory = LInputCategory_t::kMenu,
+		    .UIHidden = false,
+		    .UIName = "",
+		    .UIDescription = "",
+            .Event = {
 		        .Event = "OpenModSettings",
 		        .Keys = {"F1"},
 		        .Trigger = "Once",
@@ -97,17 +109,35 @@ namespace GTS {
 		    }
 	    },
         {
-            LInputCategory_t::kMenu,
-            {
+			.UICategory = LInputCategory_t::kMenu,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "OpenSkillTree",
 		        .Keys = {"F4"},
 		        .Trigger = "Once",
 		        .BlockInput = "Always"
 		    }
         },
+		{
+			.UICategory = LInputCategory_t::kMenu,
+			.UIHidden = true,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
+				.Event = "OpenDebugMenu",
+				.Keys = {"F1", "F12"},
+				.Trigger = "Once",
+				.BlockInput = "Always"
+			}
+		},
         {
-            LInputCategory_t::kMenu,
-            {
+			.UICategory = LInputCategory_t::kMenu,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
                 .Event = "PartyReport",
                 .Keys = {"LCONTROL"},
                 .Duration = 1.33f,
@@ -115,16 +145,22 @@ namespace GTS {
             }
         },
         {
-            LInputCategory_t::kMenu,
-            {
+			.UICategory = LInputCategory_t::kMenu,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
                 .Event = "ShowQuickStats",
                 .Keys = {"F3"},
                 .BlockInput = "Never"
             }
         },
         {
-            LInputCategory_t::kMenu,
-            {
+			.UICategory = LInputCategory_t::kMenu,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
                 .Event = "DebugReport",
                 .Keys = {"RCONTROL"},
                 .Duration = 1.33f,
@@ -137,16 +173,22 @@ namespace GTS {
 	    //========================================================
 
 		{
-            LInputCategory_t::kVore,
-            {
+			.UICategory = LInputCategory_t::kVore,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "Vore",
 		        .Keys = {"LSHIFT", "V"},
 		        .Trigger = "Once"
 		    }
         },
         {
-            LInputCategory_t::kVore,
-            {
+			.UICategory = LInputCategory_t::kVore,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "PlayerVore",
 		        .Keys = {"LSHIFT", "V"},
 		        .Trigger = "Continuous",
@@ -161,24 +203,33 @@ namespace GTS {
 	    //========================================================
 
 		{
-            LInputCategory_t::kStomp,
-            {
+			.UICategory = LInputCategory_t::kStomp,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "RightStomp",
 		        .Keys = {"LSHIFT", "E"},
 		        .Trigger = "Release",
 		    }
         },
         {
-            LInputCategory_t::kStomp,
-            {
+			.UICategory = LInputCategory_t::kStomp,
+        	.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "LeftStomp",
 		        .Keys = {"LSHIFT", "Q"},
 		        .Trigger = "Release",
 		    }
         },
         {
-            LInputCategory_t::kStomp,
-            {
+			.UICategory = LInputCategory_t::kStomp,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "RightStomp_Strong",
 		        .Keys = {"LSHIFT", "E"},
 		        .Trigger = "Continuous",
@@ -186,8 +237,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kStomp,
-            {
+			.UICategory = LInputCategory_t::kStomp,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "LeftStomp_Strong",
 		        .Keys = {"LSHIFT", "Q"},
 		        .Trigger = "Continuous",
@@ -195,8 +249,11 @@ namespace GTS {
 		    }
         },
 		{
-            LInputCategory_t::kStomp,
-            {
+			.UICategory = LInputCategory_t::kStomp,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "TrampleRight",
 		        .Keys = {"LSHIFT", "E"},
 		        .Trigger = "Release",
@@ -204,8 +261,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kStomp,
-            {
+			.UICategory = LInputCategory_t::kStomp,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "TrampleLeft",
 		        .Keys = {"LSHIFT", "Q"},
 		        .Trigger = "Release",
@@ -219,24 +279,33 @@ namespace GTS {
 
 
         {
-            LInputCategory_t::kThighs,
-            {
+			.UICategory = LInputCategory_t::kThighs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ThighCrush",
 		        .Keys = {"LSHIFT", "W", "C"},
 		        .Exclusive = true
 		    }
         },
         {
-            LInputCategory_t::kThighs,
-            {
+			.UICategory = LInputCategory_t::kThighs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ThighCrushKill",
 		        .Keys = {"LMB"},
 		        .BlockInput = "Never"
 		    }
         },
         {
-            LInputCategory_t::kThighs,
-            {
+			.UICategory = LInputCategory_t::kThighs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ThighCrushSpare",
 		        .Keys = {"W"},
 		        .Exclusive = true,
@@ -249,16 +318,22 @@ namespace GTS {
 		//========================================================
 
         {
-            LInputCategory_t::kThighs,
-            {
+			.UICategory = LInputCategory_t::kThighs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ThighSandwichEnter",
 		        .Keys = {"LSHIFT", "C"},
 		        .Exclusive = true,
 		    }
         },
         {
-            LInputCategory_t::kThighs,
-            {
+			.UICategory = LInputCategory_t::kThighs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "PlayerThighSandwichEnter",
 		        .Keys = {"LSHIFT", "C"},
 		        .Exclusive = true,
@@ -268,8 +343,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kThighs,
-            {
+			.UICategory = LInputCategory_t::kThighs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ThighSandwichAttackHeavy",
 		        .Keys = {"LMB"},
 		        .Trigger = "Continuous",
@@ -278,8 +356,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kThighs,
-            {
+			.UICategory = LInputCategory_t::kThighs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ThighSandwichAttack",
 		        .Keys = {"LMB"},
 		        .Trigger = "Release",
@@ -287,8 +368,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kThighs,
-            {
+			.UICategory = LInputCategory_t::kThighs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ThighSandwichExit",
 		        .Keys = {"W"},
 		        .Exclusive = true,
@@ -301,24 +385,33 @@ namespace GTS {
 	    //========================================================
 
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "LightKickRight",
 		        .Keys = {"LALT", "E"},
 		        .Trigger = "Release",
 		    }
         },
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "LightKickLeft",
 		        .Keys = {"LALT", "Q"},
 		        .Trigger = "Release",
 		    }
         },
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HeavyKickRight",
 		        .Keys = {"LALT", "E"},
 		        .Trigger = "Continuous",
@@ -326,8 +419,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HeavyKickLeft",
 		        .Keys = {"LALT", "Q"},
 		        .Trigger = "Continuous",
@@ -335,8 +431,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HeavyKickRight_Low",
 		        .Keys = {"LALT", "E"},
 		        .Trigger = "Release",
@@ -344,8 +443,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HeavyKickLeft_Low",
 		        .Keys = {"LALT", "Q"},
 		        .Trigger = "Release",
@@ -358,38 +460,53 @@ namespace GTS {
 	    //========================================================
 
         {
-            LInputCategory_t::kMovement,
-            {
+			.UICategory = LInputCategory_t::kMovement,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "TogglePlayerCrawl",
 		        .Keys = {"NUMPAD1"},
 		    }
         },
         {
-            LInputCategory_t::kMovement,
-            {
+			.UICategory = LInputCategory_t::kMovement,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ToggleFollowerCrawl",
 		        .Keys = {"NUMPAD3"},
 		    }
         },
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "LightSwipeRight",
 		        .Keys = {"LALT", "E"},
 		        .Trigger = "Release",
 		    }
         },
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "LightSwipeLeft",
 		        .Keys = {"LALT", "Q"},
 		        .Trigger = "Release",
 		    }
         },
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HeavySwipeRight",
 		        .Keys = {"LALT", "E"},
 		        .Trigger = "Continuous",
@@ -397,8 +514,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kKickSwipe,
-            {
+			.UICategory = LInputCategory_t::kKickSwipe,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HeavySwipeLeft",
 		        .Keys = {"LALT", "Q"},
 		        .Trigger = "Continuous",
@@ -411,23 +531,32 @@ namespace GTS {
 	    //========================================================
 
         {
-            LInputCategory_t::kCleavage,
-            {
+			.UICategory = LInputCategory_t::kCleavage,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CleavageEnter",
 		        .Keys = {"LSHIFT", "H"},
 		    }
         },
         {
-            LInputCategory_t::kCleavage,
-            {
+			.UICategory = LInputCategory_t::kCleavage,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CleavageExit",
 		        .Keys = {"RMB"},
 		        .BlockInput = "Never"
 		    }
         },
 		{
-            LInputCategory_t::kCleavage,
-            {
+			.UICategory = LInputCategory_t::kCleavage,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CleavageLightAttack",
 		        .Keys = {"LMB"},
 		        .Exclusive = true,
@@ -436,8 +565,11 @@ namespace GTS {
 		    }
 		},
         {
-            LInputCategory_t::kCleavage,
-            {
+			.UICategory = LInputCategory_t::kCleavage,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CleavageHeavyAttack",
 		        .Keys = {"LMB"},
 		        .Exclusive = true,
@@ -447,32 +579,44 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kCleavage,
-            {
+			.UICategory = LInputCategory_t::kCleavage,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CleavageSuffocate",
 		        .Keys = {"W"},
 		        .BlockInput = "Never"
 		    }
         },
         {
-            LInputCategory_t::kCleavage,
-            {
+			.UICategory = LInputCategory_t::kCleavage,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CleavageAbsorb",
 		        .Keys = {"S"},
 		        .BlockInput = "Never"
 		    }
         },
         {
-            LInputCategory_t::kCleavage,
-            {
+			.UICategory = LInputCategory_t::kCleavage,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CleavageVore",
 		        .Keys = {"V"},
 		        .BlockInput = "Never"
 		    }
         },
         {
-            LInputCategory_t::kCleavage,
-            {
+			.UICategory = LInputCategory_t::kCleavage,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CleavageDOT",
 		        .Keys = {"E"},
 		    }
@@ -483,16 +627,22 @@ namespace GTS {
 		//========================================================
 
         {
-            LInputCategory_t::kHugs,
-            {
+			.UICategory = LInputCategory_t::kHugs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HugAttempt",
 		        .Keys = {"LSHIFT", "H"},
 		        .Trigger = "Release",
 		    }
         },
         {
-            LInputCategory_t::kHugs,
-            {
+			.UICategory = LInputCategory_t::kHugs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HugPlayer",
 		        .Keys = {"LSHIFT", "H"},
 		        .Trigger = "Continuous",
@@ -501,8 +651,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kHugs,
-            {
+			.UICategory = LInputCategory_t::kHugs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HugShrink",
 		        .Keys = {"LMB"},
 		        .Exclusive = true,
@@ -510,8 +663,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kHugs,
-            {
+			.UICategory = LInputCategory_t::kHugs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HugHeal",
 		        .Keys = {"LMB"},
 		        .Exclusive = true,
@@ -520,15 +676,21 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kHugs,
-            {
+			.UICategory = LInputCategory_t::kHugs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HugCrush",
 		        .Keys = {"S"},
 		    }
         },
         {
-            LInputCategory_t::kHugs,
-            {
+			.UICategory = LInputCategory_t::kHugs,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HugRelease",
 		        .Keys = {"RMB"},
 		        .Exclusive = true,
@@ -541,8 +703,11 @@ namespace GTS {
 	    //========================================================
 
         {
-            LInputCategory_t::kCrush,
-            {
+			.UICategory = LInputCategory_t::kCrush,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "QuickButtCrushStart",
 		        .Keys = {"LSHIFT", "B"},
 		        .Trigger = "Continuous",
@@ -550,16 +715,22 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kCrush,
-            {
+			.UICategory = LInputCategory_t::kCrush,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ButtCrushStart",
 		        .Keys = {"LSHIFT", "B"},
 		        .Trigger = "Release",
 		    }
         },
         {
-            LInputCategory_t::kCrush,
-            {
+			.UICategory = LInputCategory_t::kCrush,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ButtCrushStart_Player",
 		        .Keys = {"LSHIFT", "B"},
 		        .Trigger = "Continuous",
@@ -568,16 +739,22 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kCrush,
-            {
+			.UICategory = LInputCategory_t::kCrush,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ButtCrushGrow",
 		        .Keys = {"W"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kCrush,
-            {
+			.UICategory = LInputCategory_t::kCrush,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ButtCrushAttack",
 		        .Keys = {"LMB"},
 		        .Duration = 0.0f,
@@ -589,8 +766,11 @@ namespace GTS {
         //========================================================
 
         {
-            LInputCategory_t::kMovement,
-			{
+			.UICategory = LInputCategory_t::kMovement,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "SBO_ToggleProne",
 		        .Keys = {"X"},
 		        .Trigger = "Continuous",
@@ -599,8 +779,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kMovement,
-            {
+			.UICategory = LInputCategory_t::kMovement,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "SBO_ToggleDive_Standing",
 		        .Keys = {"W", "S"},
 		        .Trigger = "Continuous",
@@ -609,8 +792,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kMovement,
-            {
+			.UICategory = LInputCategory_t::kMovement,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "SBO_ToggleDive_Sneak",
 		        .Keys = {"W", "S"},
 		        .Trigger = "Continuous",
@@ -624,8 +810,11 @@ namespace GTS {
 	    //======================================================== 
 
         {
-            LInputCategory_t::kGrab,
-            {
+			.UICategory = LInputCategory_t::kGrab,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabOther",
 		        .Keys = {"F"},
 		        .Duration = 0.25f,
@@ -633,8 +822,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrab,
-            {
+			.UICategory = LInputCategory_t::kGrab,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlayer",
 		        .Keys = {"F"},
 		        .Trigger = "Continuous",
@@ -643,8 +835,11 @@ namespace GTS {
 		    }
         },
         {
-		    LInputCategory_t::kGrab,
-		    {
+			.UICategory = LInputCategory_t::kGrab,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 				.Event = "GrabAttack",
 		        .Keys = {"E"},
 		        .Trigger = "Continuous",
@@ -653,8 +848,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrab,
-            {
+			.UICategory = LInputCategory_t::kGrab,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabVore",
 		        .Keys = {"V"},
 		        .Trigger = "Continuous",
@@ -662,8 +860,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrab,
-            {
+			.UICategory = LInputCategory_t::kGrab,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabThrow",
 		        .Keys = {"X"},
 		        .Trigger = "Continuous",
@@ -671,23 +872,32 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrab,
-            {
+		    .UICategory = LInputCategory_t::kGrab,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabRelease",
 		        .Keys = {"RMB"},
 		    }
         },
         {
-            LInputCategory_t::kGrab,
-            {
+			.UICategory = LInputCategory_t::kGrab,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "BreastsPut",
 		        .Keys = {"LSHIFT", "B"},
 		        .Duration = 0.50f,
 		    }
         },
         {
-            LInputCategory_t::kGrab,
-		    {
+			.UICategory = LInputCategory_t::kGrab,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "BreastsRemove",
 		        .Keys = {"LSHIFT", "B"},
 		        .Duration = 0.50f,
@@ -701,8 +911,11 @@ namespace GTS {
 	    //======================================================== 
 
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_Start",
 		        .Keys = {"LSHIFT", "H"},
 		        .Trigger = "Once",
@@ -711,8 +924,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_Exit",
 		        .Keys = {"LSHIFT","H"},
 		        .Trigger = "Once",
@@ -721,8 +937,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_CrushHeavy",
 		        .Keys = {"LMB"},
 		        .Trigger = "Continuous",
@@ -731,8 +950,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_Vore",
 		        .Keys = {"V"},
 		        .Trigger = "Once",
@@ -741,8 +963,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_KissVore",
 		        .Keys = {"V"},
 		        .Trigger = "Once",
@@ -751,8 +976,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_Kiss",
 		        .Keys = {"E"},
 		        .Trigger = "Once",
@@ -761,8 +989,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_Poke",
 		        .Keys = {"LMB"},
 		        .Trigger = "Once",
@@ -771,8 +1002,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_Flick",
 		        .Keys = {"RMB"},
 		        .Trigger = "Once",
@@ -781,8 +1015,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_Sandwich",
 		        .Keys = {"S"},
 		        .Trigger = "Once",
@@ -791,8 +1028,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_GrindStart",
 		        .Keys = {"W"},
 		        .Trigger = "Once",
@@ -801,8 +1041,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kGrabPlay,
-            {
+			.UICategory = LInputCategory_t::kGrabPlay,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "GrabPlay_GrindStop",
 		        .Keys = {"W"},
 		        .Trigger = "Once",
@@ -816,56 +1059,77 @@ namespace GTS {
 	    //========================================================
 
         {
-            LInputCategory_t::kCamera,
-            {
+			.UICategory = LInputCategory_t::kCamera,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "HorizontalCameraReset",
 		        .Keys = {"RIGHT", "LEFT"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kCamera,
-            {
+			.UICategory = LInputCategory_t::kCamera,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "VerticalCameraReset",
 		        .Keys = {"UP", "DOWN"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kCamera,
-            {
+			.UICategory = LInputCategory_t::kCamera,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CameraLeft",
 		        .Keys = {"LALT", "LEFT"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kCamera,
-            {
+			.UICategory = LInputCategory_t::kCamera,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CameraRight",
 		        .Keys = {"LALT", "RIGHT"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kCamera,
-            {
+			.UICategory = LInputCategory_t::kCamera,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CameraUp",
 		        .Keys = {"LALT", "UP"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kCamera,
-            {
+			.UICategory = LInputCategory_t::kCamera,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "CameraDown",
 		        .Keys = {"LALT", "DOWN"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kCamera,
-            {
+			.UICategory = LInputCategory_t::kCamera,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "SwitchCameraMode",
 		        .Keys = {"F2"}
 		    }
@@ -876,24 +1140,33 @@ namespace GTS {
 		//========================================================
 
         {
-            LInputCategory_t::kMisc,
-            {
+			.UICategory = LInputCategory_t::kMisc,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "AnimSpeedUp",
 		        .Keys = {"LMB"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kMisc,
-            {
+			.UICategory = LInputCategory_t::kMisc,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "AnimSpeedDown",
 		        .Keys = {"RMB"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kMisc,
-            {
+			.UICategory = LInputCategory_t::kMisc,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "AnimMaxSpeed",
 		        .Keys = {"LMB", "RMB"},
 		        .Trigger = "Continuous",
@@ -905,15 +1178,21 @@ namespace GTS {
 	    //========================================================
 
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ShrinkOutburst",
 		        .Keys = {"LSHIFT", "F"},
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "SizeReserve",
 		        .Keys = {"E"},
 		        .Trigger = "Continuous",
@@ -922,8 +1201,11 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-			{
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "DisplaySizeReserve",
 		        .Keys = {"F"},
 		        .Trigger = "Continuous",
@@ -932,86 +1214,119 @@ namespace GTS {
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "RapidGrowth",
 		        .Keys = {"LSHIFT", "1"},
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "RapidShrink",
 		        .Keys = {"LSHIFT", "2"},
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ManualGrow",
 		        .Keys = {"UP", "LEFT"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ManualShrink",
 		        .Keys = {"DOWN", "LEFT"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ManualGrowOther",
 		        .Keys = {"LSHIFT", "UP", "LEFT"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ManualShrinkOther",
 		        .Keys = {"LSHIFT", "DOWN", "LEFT"},
 		        .Trigger = "Continuous",
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ManualGrowOverTime",
 		        .Keys = {"NUMPAD8"},
 		        .Trigger = "Once",
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ManualShrinkOverTime",
 		        .Keys = {"NUMPAD4"},
 		        .Trigger = "Once",
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ManualGrowOtherOverTime",
 		        .Keys = {"NUMPAD5"},
 		        .Trigger = "Once",
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ManualShrinkOtherOverTime",
 		        .Keys = {"NUMPAD2"},
 		        .Trigger = "Once",
 		    }
         },
         {
-            LInputCategory_t::kAbility,
-            {
+			.UICategory = LInputCategory_t::kAbility,
+			.UIHidden = false,
+			.UIName = "",
+			.UIDescription = "",
+			.Event = {
 		        .Event = "ProtectSmallOnes",
 		        .Keys = {"C"},
 		        .Duration = 1.0f,

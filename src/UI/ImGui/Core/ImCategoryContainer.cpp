@@ -4,11 +4,11 @@
 
 namespace GTS {
 
-	std::vector<std::shared_ptr<ImCategory>>& ImCategoryContainer::GetCategories() {
+	std::vector<std::unique_ptr<ImCategory>>& ImCategoryContainer::GetCategories() {
         return m_categories;
     }
 
-    void ImCategoryContainer::AddCategory(std::shared_ptr<ImCategory> category) {
+    void ImCategoryContainer::AddCategory(std::unique_ptr<ImCategory> category) {
         m_categories.push_back(std::move(category));
     }
 

@@ -1,9 +1,9 @@
-#include "Colliders/CharController.hpp"
-#include "Colliders/RE/RE.hpp"
+#include "Colliders/CharacterController.hpp"
 
 namespace GTS {
 
-	CharContData::CharContData(bhkCharacterController* charCont) {
+	CharacterControllerData::CharacterControllerData(bhkCharacterController* charCont) {
+
 		if (!charCont) {
 			return;
 		}
@@ -29,7 +29,8 @@ namespace GTS {
 					}
 				}
 			}
-		} else if (charRigidBodyController) {
+		}
+		else if (charRigidBodyController) {
 			// NPCs seem to use rigid body ones
 			auto& characterRigidBody = charRigidBodyController->characterRigidBody;
 			hkReferencedObject* refObject = characterRigidBody.referencedObject.get();

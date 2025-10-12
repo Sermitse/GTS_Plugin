@@ -231,7 +231,7 @@ namespace GTS {
                     // Create temporary TOML with expected structure
                     toml::ordered_value tempToml{ toml::table{} };
                     tempToml.as_table()["TempTable"] = baseData;
-                    m_baseSettings = toml::get<WindowSettingsBase_t>(tempToml.at("temp"));
+                    m_baseSettings = toml::get<WindowSettingsBase_t>(tempToml.at("TempTable"));
                 }
             }
             catch (const std::exception& e) {

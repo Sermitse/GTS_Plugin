@@ -49,6 +49,7 @@ namespace GTS {
 		static void BlurBackground(bool a_enable);
 		static void PauseGame(bool a_enable);
 		static void AlterTimeScale(bool a_enable);
+		static void CloseInputConsumers();
 
 	private:
 		void Show(const std::string& source);

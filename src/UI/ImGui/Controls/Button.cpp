@@ -42,6 +42,4 @@ namespace ImGuiEx {
 
         return res;
     }
-
-
 }

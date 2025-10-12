@@ -37,4 +37,3 @@ namespace GTS {
 void hkpClosestRayHitCollector::AddRayHit(const hkpCdBody& a_body, const hkpShapeRayCastCollectorOutput& a_hitInfo) {}
 hkpClosestRayHitCollector::~hkpClosestRayHitCollector() = default;
 ExtraDataList::ExtraDataList() = default;
-

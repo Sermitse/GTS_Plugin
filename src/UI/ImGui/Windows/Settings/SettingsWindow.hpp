@@ -13,15 +13,18 @@ namespace GTS {
         void DisableUIInteraction(bool a_disabled);
         void ShowErrorModal(bool* a_requestOpen);
 
+
 		private:
         bool LoadImpl();
         bool SaveImpl();
         void Draw() override;
         void Init() override;
+        void RequestClose() override;
         bool WantsToDraw() override;
         static void OpenSettingsKeybindCallback([[maybe_unused]] const ManagedInputEvent& a_event);
         static void OpenSettingsConsoleCallback();
         void HandleOpenClose(bool a_open);
+
 
         ImCategoryContainer* CategoryMgr = nullptr;
         std::atomic_flag m_saveLoadBusy = ATOMIC_FLAG_INIT;

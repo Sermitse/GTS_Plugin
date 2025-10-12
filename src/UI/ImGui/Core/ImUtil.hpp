@@ -28,6 +28,15 @@ namespace ImUtil {
         constexpr ImVec4 Message = { 1.0f, 0.5f, 0.0f, 1.0f };
     }
 
+    //Predefined colors {R, G, B, A} (0.0 to 1.0f)
+    namespace Format {
+        PSString F0 = "%.0f";
+        PSString F1 = "%.1f";
+        PSString F2 = "%.2f";
+        PSString F3 = "%.3f";
+        PSString F4 = "%.4f";
+    }
+
     constexpr uint32_t HeaderFlagsDefaultOpen = ImGuiTreeNodeFlags_DefaultOpen;
 
     [[nodiscard]] bool ValidState() noexcept;

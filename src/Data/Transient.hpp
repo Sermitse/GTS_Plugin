@@ -3,7 +3,6 @@
 
 namespace GTS {
 
-
 	struct TempActorData {
 
 		float BaseHeight = 0.0f;
@@ -115,12 +114,9 @@ namespace GTS {
 		}
 	};
 
-	class Transient : public EventListener {
+	class Transient : public EventListener, public CInitSingleton<Transient> {
 
 		public:
-
-			[[nodiscard]] static Transient& GetSingleton() noexcept;
-
 			TempActorData* GetData(TESObjectREFR* a_Object);
 			TempActorData* GetActorData(Actor* actor);
 			std::vector<FormID> GetForms() const;

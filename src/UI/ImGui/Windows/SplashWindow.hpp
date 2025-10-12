@@ -21,6 +21,7 @@ namespace GTS {
         float GetFullAlpha() override;
         float GetBackgroundAlpha() override;
         std::string GetWindowName() override;
+        void RequestClose() override;
 
         // Inherited via EventListener
         std::string DebugName() override;
