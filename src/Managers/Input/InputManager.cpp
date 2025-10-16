@@ -211,4 +211,8 @@ namespace GTS {
 	std::string InputManager::DebugName() {
 		return "::InputManager";
 	}
+
+	void InputManager::DataReady() {
+		Init();
+	}
 }

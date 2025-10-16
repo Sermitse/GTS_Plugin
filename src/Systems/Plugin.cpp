@@ -1,4 +1,4 @@
-#include "Data/Plugin.hpp"
+#include "Systems/Plugin.hpp"
 #include "UI/GTSMenu.hpp"
 
 namespace GTS {
@@ -89,7 +89,7 @@ namespace GTS {
 			RE::FaderMenu::MENU_NAME
 		};
 
-		if (Plugin::Ready()) {
+		if (Ready()) {
 			const auto ui = RE::UI::GetSingleton();
 			for (const auto& Menu : Menus) {
 				if (ui->IsMenuOpen(Menu)) {

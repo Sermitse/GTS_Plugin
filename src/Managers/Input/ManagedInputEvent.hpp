@@ -18,15 +18,15 @@ namespace GTS {
 		[[nodiscard]] float Duration() const;
 
 		// Will take a key list and process if the event should fire.
-		//   will return true if the events conditions are met
+		// will return true if the events conditions are met
 		[[nodiscard]] bool ShouldFire(const std::unordered_set<std::uint32_t>& keys);
 
 		// Returns true if all keys are pressed this frame
-		//  Not taking into account things like duration
+		// Not taking into account things like duration
 		[[nodiscard]] bool AllKeysPressed(const std::unordered_set<std::uint32_t>& keys) const;
 
 		// Returns true if ONLY the specicified keys are pressed this frame
-		//   Not taking into account things like duration
+		// Not taking into account things like duration
 		[[nodiscard]] bool OnlyKeysPressed(const std::unordered_set<std::uint32_t>& keys) const;
 
 		// Resets the timer and all appropiate state variables
@@ -63,7 +63,7 @@ namespace GTS {
 		unordered_set<std::uint32_t> keys = {};
 		float minDuration = 0.0f;
 
-		// If true this event won't fire unles ONLY the keys are pressed for the entire duration
+		// If true this event won't fire unless ONLY the keys are pressed for the entire duration
 		bool exclusive = false;
 		bool Disabled = false;
 		LTriggerType_t trigger = LTriggerType_t::Once;

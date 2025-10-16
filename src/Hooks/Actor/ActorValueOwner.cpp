@@ -15,7 +15,9 @@ namespace Hooks {
 			float value = func<ID>(a_owner, a_akValue);
 
 			{
-				GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorValueOwner::GetActorValue", ID);
+				//Unimportant to track gets barely called plus it
+				//gets called By a bunch of game theads and polutes the profiler UI
+				//GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorValueOwner::GetActorValue", ID);
 
 				const auto actor = skyrim_cast<Actor*>(a_owner);
 				if (actor) {

@@ -2,9 +2,11 @@
 
 #include "UI/DebugMenu.hpp"
 
-#include "Debug/Util/DebugUtil.hpp"
-#include "Debug/Util/DebugLine.hpp"
-#include "Debug/Util/ObjectBound.hpp"
+#include "Debug/DrawUtils/DebugUtil.hpp"
+#include "Debug/DrawUtils/DebugLine.hpp"
+#include "Debug/DrawUtils/ObjectBound.hpp"
+
+#include "Hooks/Other/Values.hpp"
 
 namespace GTS {
 
@@ -374,7 +376,7 @@ namespace GTS {
 
 		float zVal;
 
-		RE::NiCamera::WorldPtToScreenPt3(World::WorldToCamera().data, World::ViewPort(), niWorldLoc, screenLocOut.x, screenLocOut.y, zVal, 1e-5f);
+		RE::NiCamera::WorldPtToScreenPt3(Hooks::World::RawWorldToCamMatrix->data, *Hooks::World::RawViewPort, niWorldLoc, screenLocOut.x, screenLocOut.y, zVal, 1e-5f);
 		RE::GRectF rect = movie->GetVisibleFrameRect();
 
 		screenLocOut.x = rect.left + (rect.right - rect.left) * screenLocOut.x;

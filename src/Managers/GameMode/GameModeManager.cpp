@@ -213,12 +213,10 @@ namespace {
 		if (!ActorData) return;
 
 		Timer* IntervalTimer = &ActorData->ActionTimer;
-		if (!IntervalTimer) return;
 
 		//Set Values based on Settings and actor type.
 		if (a_Actor->formID == 0x14) {
 			const auto& Settings = Config::Gameplay.GamemodePlayer;
-
 			CurseTargetScale = Settings.fCurseTargetScale;
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
 			PowerMult = Settings.fGrowthRate + 0.030f;
@@ -236,23 +234,20 @@ namespace {
 		}
 
 		//If the target scale > than the actors max scale return
-		if (a_CurrentTargetScale >= a_MaxScale) {
+		if (a_CurrentTargetScale >= a_MaxScale || a_CurrentTargetScale >= CurseTargetScale) {
 			return;
 		}
 
 		if (IntervalTimer->ShouldRun()) {
 
-			if (a_CurrentTargetScale >= CurseTargetScale) {
-				return;
-			}
-			const float ScaleMult = abs(a_CurrentTargetScale - CurseTargetScale) + PowerMult;
-			float ModAmmount = (PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult));
-			//const float GrowthPower = std::clamp(RandomFloatGauss(0.30f, 0.1f), 0.1f, 0.5f);
-
-			if (a_CurrentTargetScale + ModAmmount >= CurseTargetScale) {
-				set_target_scale(a_Actor, CurseTargetScale);
-				return;
-			}
+			const float ScaleDiff = CurseTargetScale - a_CurrentTargetScale;
+			const float ScaleMult = std::max(ScaleDiff, PowerMult);
+			constexpr float MinStep = 0.05f; // Minimum guaranteed growth per tick
+			float ModAmmount = std::max(
+				PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult),
+				MinStep
+			);
+			ModAmmount = std::min(ModAmmount, ScaleDiff);
 
 			if (RandomBool(12.0f)) {
 				Sound_PlayMoans(a_Actor, a_CurrentTargetScale / 4, 0.14f, EmotionTriggerSource::Growth);
@@ -263,6 +258,7 @@ namespace {
 			Runtime::PlaySoundAtNode("GTSSoundGrowth", a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
 		}
 	}
+
 
 	// ---------- Curse Of Diminishing
 
@@ -279,26 +275,24 @@ namespace {
 		if (!ActorData) return;
 
 		Timer* IntervalTimer = &ActorData->ActionTimer;
-		if (!IntervalTimer) return;
 
 		//Set Values based on Settings and actor type.
 		if (a_Actor->formID == 0x14) {
 			const auto& Settings = Config::Gameplay.GamemodePlayer;
-
 			PowerMult = Settings.fShrinkRate + 0.030f;
 			CurseTargetScale = Settings.fCurseTargetScale;
 			//The larger the actor the faster they shrink
-			const float RandomDelay = Settings.fGameModeUpdateInterval / RandomFloat(1.0, a_CurrentTargetScale / 2.0f);
-			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+			const float ScaleDelay = (a_CurrentTargetScale > 2.0f) ? std::max(a_CurrentTargetScale / 2.0f, 1.0f) : 1.0f;
+			const float RandomDelay = Settings.fGameModeUpdateInterval / ScaleDelay;
+			IntervalTimer->UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else if (IsTeammate(a_Actor)) {
 			const auto& Settings = Config::Gameplay.GamemodeFollower;
-
 			PowerMult = Settings.fShrinkRate + 0.030f;
 			CurseTargetScale = Settings.fCurseTargetScale;
-			//The larger the actor the faster they shrink
-			const float RandomDelay = Settings.fGameModeUpdateInterval / RandomFloat(1.0, a_CurrentTargetScale / 2.0f);
-			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+			const float ScaleDelay = (a_CurrentTargetScale > 2.0f) ? std::max(a_CurrentTargetScale / 2.0f, 1.0f) : 1.0f;
+			const float RandomDelay = Settings.fGameModeUpdateInterval / ScaleDelay;
+			IntervalTimer->UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else {
 			return;
@@ -308,23 +302,20 @@ namespace {
 			return;
 		}
 
-		const float ScaleMult = abs(a_CurrentTargetScale - CurseTargetScale) + PowerMult;
-
 		if (IntervalTimer->ShouldRun()) {
 
-			float ModAmmount = (PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult));
+			const float ScaleDiff = a_CurrentTargetScale - CurseTargetScale;
+			const float ScaleMult = std::max(ScaleDiff, PowerMult);
+			constexpr float MinStep = 0.05f; // Minimum guaranteed shrink per tick
+			float ModAmmount = std::max(
+				PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult),
+				MinStep
+			);
+			ModAmmount = std::min(ModAmmount, ScaleDiff);
 
 			Runtime::PlaySoundAtNode("GTSSoundShrink", a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
-
-			if (a_CurrentTargetScale - ModAmmount <= CurseTargetScale) {
-				set_target_scale(a_Actor, CurseTargetScale);
-				return;
-			}
-
 			update_target_scale(a_Actor, -ModAmmount, SizeEffectType::kShrink);
-
 		}
-		
 	}
 
 }

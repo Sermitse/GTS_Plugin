@@ -1,28 +1,72 @@
-#include "UI/ImGui/Windows/DebugWindow.hpp"
+﻿#include "UI/ImGui/Windows/DebugWindow.hpp"
+#include "UI/ImGui/Controls/Button.hpp"
+#include "UI/ImGui/Controls/CheckBox.hpp"
+#include "UI/GTSMenu.hpp"
 
 #include "Config/Config.hpp"
 
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Input/ManagedInputEvent.hpp"
 
-#include "UI/GTSMenu.hpp"
-#include "UI/ImGui/Controls/CheckBox.hpp"
-#include "UI/ImGui/Controls/ComboBox.hpp"
+#include "UI/ImGui/Core/ImUtil.hpp"
 
-#include "Utils/Logger.hpp"
 
 namespace GTS {
 
 	void DebugWindow::Draw() {
 
-		ImGuiEx::CheckBox("Show Stack", &m_showStackWindow);
-		ImGuiEx::CheckBox("Show Demo", &m_showDemoWindow);
-		ImGuiEx::CheckBox("Show Metrics", &m_showMetricsWindow);
-		ImGuiEx::CheckBox("Show Overlay", &Config::Advanced.bShowOverlay);
+		ImGui::PushFont(nullptr, 18);
 
-		#ifdef GTS_PROFILER_ENABLED
+		if (ImGuiEx::Button("Close")) {
+			HandleOpenClose(false);
+		}
+
+		if (ImGui::CollapsingHeader("GTS Debug")) {
+			ImGuiEx::CheckBox("Show Overlay", &Config::Advanced.bShowOverlay);
+
+			#ifdef GTS_PROFILER_ENABLED
 			ImGuiEx::CheckBox("Show Profiler", &Profilers::DrawProfiler);
-		#endif
+			#endif
+		}
+
+		if (ImGui::CollapsingHeader("ImGui Debug Windows")) {
+			ImGuiEx::CheckBox("Show Stack", &m_showStackWindow);
+			ImGuiEx::CheckBox("Show Demo", &m_showDemoWindow);
+			ImGuiEx::CheckBox("Show Metrics", &m_showMetricsWindow);
+		}
+
+		if (ImGui::CollapsingHeader("Graphics Test")) {
+			ImGraphics::DebugDrawTest();
+			ImGui::Spacing();
+		}
+
+		//Multi-Language Font Test
+		if (ImGui::CollapsingHeader("Font Test")) {
+			ImGui::Text("This îs à fónt tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève");
+			ImGui::Text("Αυτή είναι μια δοκιμή για το σύστημα γραμματοσειράς");
+			ImGui::Text("Это тест загрузчика шрифтов");
+			ImGui::Text("これはフォントローダーのテストです");
+			ImGui::Text("이것은 폰트로더 테스트입니다");
+			ImGui::Text("这是一个字体加载器测试");
+			ImGui::Spacing();
+		}
+
+		if (ImGui::CollapsingHeader("Misc")) {
+			if (ImGuiEx::Button("Quit", "This will immediatly close the game.", false, 1.0f)) {
+				SKSE::WinAPI::TerminateProcess(SKSE::WinAPI::GetCurrentProcess(), EXIT_SUCCESS);
+			}
+
+			ImGui::SameLine();
+
+			if (ImGuiEx::Button("Trigger Crash", "This will immediatly crash the game.", false, 1.0f)) {
+				using FuncType = void(*)();
+				FuncType func = nullptr;
+				func();
+			}
+		}
+
+		ImGui::PopFont();
+		ImGui::Spacing();
 
 	}
 
@@ -54,6 +98,11 @@ namespace GTS {
 
 	void DebugWindow::OpenSettingsKeybindCallback(const ManagedInputEvent& a_event) {
 		if (auto Window = dynamic_cast<DebugWindow*>(GTSMenu::WindowManager->wDebug)) {
+
+			if (!Config::Hidden.IKnowWhatImDoing) {
+				return;
+			}
+
 			Window->HandleOpenClose(true);
 			return;
 		}
@@ -65,7 +114,7 @@ namespace GTS {
 		m_windowType = kWidget;
 
 		//m_flags;
-		m_name = "DebugWindow";
+		m_name = "Debug";
 		m_title = "Debug";
 		m_windowType = kDebug;
 		m_anchorPos = WindowAnchor::kTopLeft;
@@ -76,7 +125,7 @@ namespace GTS {
 	}
 
 	float DebugWindow::GetFullAlpha() {
-		return 0.7f;
+		return 1.0f;
 	}
 
 	float DebugWindow::GetBackgroundAlpha() {
@@ -112,7 +161,9 @@ namespace GTS {
 	bool DebugWindow::IsDebugging() {
 		return m_showStackWindow       ||
 			   m_showMetricsWindow     ||
+            #ifdef GTS_PROFILER_ENABLED
 			   Profilers::DrawProfiler ||
+            #endif
 			   m_showDemoWindow;
 	}
 }

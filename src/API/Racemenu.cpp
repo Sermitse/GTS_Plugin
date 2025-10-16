@@ -74,5 +74,15 @@ namespace GTS {
 		logger::trace("Do bodymorph update on actor {}", a_actor->formID);
 	}
 
+	bool Racemenu::Loaded() {
+		return RaceMenuInterface != nullptr;
+	}
 
+	std::string Racemenu::DebugName() {
+		return "::RacemenuAPI";
+	}
+
+	void Racemenu::OnPluginPostLoad() {
+		//Register(); // <- Disabled For Now...
+	}
 }

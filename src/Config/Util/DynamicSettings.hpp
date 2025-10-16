@@ -19,10 +19,19 @@ namespace GTS {
 
         private:
         DynamicStruct m_dynamicSettings;
+        DynamicStruct m_defaults;
 
         public:
         explicit DynamicSettingsWrapper() = default;
-        explicit DynamicSettingsWrapper(const DynamicStruct& a_defaults) : m_dynamicSettings(a_defaults) {}
+        explicit DynamicSettingsWrapper(const DynamicStruct& a_defaults) : m_dynamicSettings(a_defaults), m_defaults(a_defaults) {}
+
+        void SetDefaults(const DynamicStruct& a_defaults) {
+            m_defaults = a_defaults;
+        }
+
+        void ResetToDefaults() override {
+            m_dynamicSettings = m_defaults;
+        }
 
         DynamicStruct& GetCustomSettings() {
             return m_dynamicSettings;
@@ -40,10 +49,6 @@ namespace GTS {
         bool LoadStructFromTOML(const toml::ordered_value& a_toml) override {
             std::string sectionName = GetSectionName();
             return SettingsHandler::LoadStructFromTOML(a_toml, m_dynamicSettings, sectionName);
-        }
-
-        void ResetToDefaults() override {
-            m_dynamicSettings = DynamicStruct{};
         }
 
         std::string GetSectionName() const override {

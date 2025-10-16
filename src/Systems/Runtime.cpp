@@ -1,4 +1,4 @@
-#include "Data/Runtime.hpp"
+#include "Systems/Runtime.hpp"
 
 namespace {
 
@@ -87,11 +87,6 @@ namespace {
 
 namespace GTS {
 
-	Runtime& Runtime::GetSingleton() noexcept {
-		static Runtime instance;
-		return instance;
-	}
-
 	std::string Runtime::DebugName() {
 		return "::Runtime";
 	}
@@ -100,11 +95,11 @@ namespace GTS {
 	BSISoundDescriptor* Runtime::GetSound(const std::string_view& tag) {
 		BSISoundDescriptor* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().sounds.at(std::string(tag)).data;
+			data = GetSingleton().sounds.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			data = nullptr;
-			if (!Runtime::Logged("sond", tag)) {
+			if (!Logged("sond", tag)) {
 				//PrintMessageBox("Sound: {} not found", tag);
 				log::warn("Sound: {} not found", tag);
 			}
@@ -113,7 +108,7 @@ namespace GTS {
 	}
 
 	void Runtime::PlaySound(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const float& a_frequency) {
-		auto soundDescriptor = Runtime::GetSound(a_tag);
+		auto soundDescriptor = GetSound(a_tag);
 		if (!soundDescriptor) {
 			log::error("Sound invalid: {}", a_tag);
 			return;
@@ -147,7 +142,7 @@ namespace GTS {
 	}
 
 	void Runtime::PlaySound(const std::string_view& a_tag, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
-		auto soundDescriptor = Runtime::GetSound(a_tag);
+		auto soundDescriptor = GetSound(a_tag);
 		if (!soundDescriptor) {
 			log::error("Sound invalid: {}", a_tag);
 			return;
@@ -189,11 +184,11 @@ namespace GTS {
 	}
 
 	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
-		Runtime::PlaySoundAtNode_FallOff(a_tag, a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
+		PlaySoundAtNode_FallOff(a_tag, a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
 	}
 
 	void Runtime::PlaySoundAtNode(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_frequency) {
-		Runtime::PlaySoundAtNode(a_tag, a_volume, find_node(a_actor, a_node), a_frequency);
+		PlaySoundAtNode(a_tag, a_volume, find_node(a_actor, a_node), a_frequency);
 	}
 
 	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
@@ -203,7 +198,7 @@ namespace GTS {
 			return;
 		}
 
-		auto soundDescriptor = Runtime::GetSound(a_tag);
+		auto soundDescriptor = GetSound(a_tag);
 		if (!soundDescriptor) {
 			log::error("Sound invalid: {}", a_tag);
 			return;
@@ -237,7 +232,7 @@ namespace GTS {
 			return;
 		}
 
-		auto soundDescriptor = Runtime::GetSound(a_tag);
+		auto soundDescriptor = GetSound(a_tag);
 		if (!soundDescriptor) {
 			log::error("Sound invalid: {}", a_tag);
 			return;
@@ -266,10 +261,10 @@ namespace GTS {
 	EffectSetting* Runtime::GetMagicEffect(const std::string_view& tag) {
 		EffectSetting* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().spellEffects.at(std::string(tag)).data;
+			data = GetSingleton().spellEffects.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
-			if (!Runtime::Logged("mgef", tag)) {
+			if (!Logged("mgef", tag)) {
 				//PrintMessageBox("MagicEffect: {} not found", tag);
 				log::warn("MagicEffect: {} not found", tag);
 			}
@@ -279,14 +274,14 @@ namespace GTS {
 	}
 
 	bool Runtime::HasMagicEffect(Actor* actor, const std::string_view& tag) {
-		return Runtime::HasMagicEffectOr(actor, tag, false);
+		return HasMagicEffectOr(actor, tag, false);
 	}
 
 	bool Runtime::HasMagicEffectOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
 		if (!actor) {
 			return false;
 		}
-		auto data = Runtime::GetMagicEffect(tag);
+		auto data = GetMagicEffect(tag);
 		if (data) {
 			return actor->AsMagicTarget()->HasMagicEffect(data);
 		}
@@ -299,10 +294,10 @@ namespace GTS {
 	SpellItem* Runtime::GetSpell(const std::string_view& tag) {
 		SpellItem* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().spells.at(std::string(tag)).data;
+			data = GetSingleton().spells.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
-			if (!Runtime::Logged("spel", tag)) {
+			if (!Logged("spel", tag)) {
 				//PrintMessageBox("Spell: {} not found", tag);
 				log::warn("Spell: {} not found", tag);
 			}
@@ -312,28 +307,28 @@ namespace GTS {
 	}
 
 	void Runtime::AddSpell(Actor* actor, const std::string_view& tag) {
-		auto data = Runtime::GetSpell(tag);
+		auto data = GetSpell(tag);
 		if (data) {
-			if (!Runtime::HasSpell(actor, tag)) {
+			if (!HasSpell(actor, tag)) {
 				actor->AddSpell(data);
 			}
 		}
 	}
 	void Runtime::RemoveSpell(Actor* actor, const std::string_view& tag) {
-		auto data = Runtime::GetSpell(tag);
+		auto data = GetSpell(tag);
 		if (data) {
-			if (Runtime::HasSpell(actor, tag)) {
+			if (HasSpell(actor, tag)) {
 				actor->RemoveSpell(data);
 			}
 		}
 	}
 
 	bool Runtime::HasSpell(Actor* actor, const std::string_view& tag) {
-		return Runtime::HasSpellOr(actor, tag, false);
+		return HasSpellOr(actor, tag, false);
 	}
 
 	bool Runtime::HasSpellOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
-		auto data = Runtime::GetSpell(tag);
+		auto data = GetSpell(tag);
 		if (data) {
 			return actor->HasSpell(data);
 		}
@@ -345,7 +340,7 @@ namespace GTS {
 	void Runtime::CastSpell(Actor* caster, Actor* target, const std::string_view& tag) {
 		auto data = GetSpell(tag);
 		if (data) {
-			caster->GetMagicCaster(RE::MagicSystem::CastingSource::kInstant)->CastSpellImmediate(data, false, target, 1.00f, false, 0.0f, caster);
+			caster->GetMagicCaster(MagicSystem::CastingSource::kInstant)->CastSpellImmediate(data, false, target, 1.00f, false, 0.0f, caster);
 		}
 	}
 
@@ -353,11 +348,11 @@ namespace GTS {
 	BGSPerk* Runtime::GetPerk(const std::string_view& tag) {
 		BGSPerk* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().perks.at(std::string(tag)).data;
+			data = GetSingleton().perks.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			data = nullptr;
-			if (!Runtime::Logged("perk", tag)) {
+			if (!Logged("perk", tag)) {
 				//PrintMessageBox("Perk: {} not found", tag);
 				log::warn("Perk: {} not found", tag);
 			}
@@ -366,28 +361,28 @@ namespace GTS {
 	}
 
 	void Runtime::AddPerk(Actor* actor, const std::string_view& tag) {
-		auto data = Runtime::GetPerk(tag);
+		auto data = GetPerk(tag);
 		if (data) {
-			if (!Runtime::HasPerk(actor, tag)) {
+			if (!HasPerk(actor, tag)) {
 				actor->AddPerk(data);
 			}
 		}
 	}
 	void Runtime::RemovePerk(Actor* actor, const std::string_view& tag) {
-		auto data = Runtime::GetPerk(tag);
+		auto data = GetPerk(tag);
 		if (data) {
-			if (Runtime::HasPerk(actor, tag)) {
+			if (HasPerk(actor, tag)) {
 				actor->RemovePerk(data);
 			}
 		}
 	}
 
 	bool Runtime::HasPerk(Actor* actor, const std::string_view& tag) {
-		return Runtime::HasPerkOr(actor, tag, false);
+		return HasPerkOr(actor, tag, false);
 	}
 
 	bool Runtime::HasPerkOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
-		auto data = Runtime::GetPerk(tag);
+		auto data = GetPerk(tag);
 		if (data) {
 			return actor->HasPerk(data);
 		}
@@ -400,11 +395,11 @@ namespace GTS {
 	BGSExplosion* Runtime::GetExplosion(const std::string_view& tag) {
 		BGSExplosion* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().explosions.at(std::string(tag)).data;
+			data = GetSingleton().explosions.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			data = nullptr;
-			if (!Runtime::Logged("expl", tag)) {
+			if (!Logged("expl", tag)) {
 				//("Explosion: {} not found", tag);
 				log::warn("Explosion: {} not found", tag);
 			}
@@ -458,11 +453,11 @@ namespace GTS {
 	TESGlobal* Runtime::GetGlobal(const std::string_view& tag) {
 		TESGlobal* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().globals.at(std::string(tag)).data;
+			data = GetSingleton().globals.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			data = nullptr;
-			if (!Runtime::Logged("glob", tag)) {
+			if (!Logged("glob", tag)) {
 				//PrintMessageBox("Global: {} not found", tag);
 				log::warn("Global: {} not found", tag);
 			}
@@ -471,7 +466,7 @@ namespace GTS {
 	}
 
 	bool Runtime::GetBool(const std::string_view& tag) {
-		return Runtime::GetBoolOr(tag, false);
+		return GetBoolOr(tag, false);
 	}
 
 	bool Runtime::GetBoolOr(const std::string_view& tag, const bool& default_value) {
@@ -497,7 +492,7 @@ namespace GTS {
 	}
 
 	int Runtime::GetInt(const std::string_view& tag) {
-		return Runtime::GetIntOr(tag, false);
+		return GetIntOr(tag, false);
 	}
 
 	int Runtime::GetIntOr(const std::string_view& tag, const int& default_value) {
@@ -518,7 +513,7 @@ namespace GTS {
 	}
 
 	float Runtime::GetFloat(const std::string_view& tag) {
-		return Runtime::GetFloatOr(tag, false);
+		return GetFloatOr(tag, false);
 	}
 
 	float Runtime::GetFloatOr(const std::string_view& tag, const float& default_value) {
@@ -542,11 +537,11 @@ namespace GTS {
 	TESQuest* Runtime::GetQuest(const std::string_view& tag) {
 		TESQuest* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().quests.at(std::string(tag)).data;
+			data = GetSingleton().quests.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			data = nullptr;
-			if (!Runtime::Logged("qust", tag)) {
+			if (!Logged("qust", tag)) {
 				//PrintMessageBox("Quest: {} not found", tag);
 				log::warn("Quest: {} not found", tag);
 			}
@@ -555,7 +550,7 @@ namespace GTS {
 	}
 
 	std::uint16_t Runtime::GetStage(const std::string_view& tag) {
-		return Runtime::GetStageOr(tag, 0);
+		return GetStageOr(tag, 0);
 	}
 
 	std::uint16_t Runtime::GetStageOr(const std::string_view& tag, const std::uint16_t& default_value) {
@@ -572,7 +567,7 @@ namespace GTS {
 	TESFaction* Runtime::GetFaction(const std::string_view& tag) {
 		TESFaction* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().factions.at(std::string(tag)).data;
+			data = GetSingleton().factions.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			//PrintMessageBox("Faction: {} not found", tag);
@@ -583,7 +578,7 @@ namespace GTS {
 
 
 	bool Runtime::InFaction(Actor* actor, const std::string_view& tag) {
-		return Runtime::InFactionOr(actor, tag, false);
+		return InFactionOr(actor, tag, false);
 	}
 
 	bool Runtime::InFactionOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
@@ -600,11 +595,11 @@ namespace GTS {
 	BGSImpactDataSet* Runtime::GetImpactEffect(const std::string_view& tag) {
 		BGSImpactDataSet* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().impacts.at(std::string(tag)).data;
+			data = GetSingleton().impacts.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			data = nullptr;
-			if (!Runtime::Logged("impc", tag)) {
+			if (!Logged("impc", tag)) {
 				//PrintMessageBox("ImpactEffect: {} not found", tag);
 				log::warn("ImpactEffect: {} not found", tag);
 			}
@@ -623,11 +618,11 @@ namespace GTS {
 	TESRace* Runtime::GetRace(const std::string_view& tag) {
 		TESRace* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().races.at(std::string(tag)).data;
+			data = GetSingleton().races.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			data = nullptr;
-			if (!Runtime::Logged("impc", tag)) {
+			if (!Logged("impc", tag)) {
 				//PrintMessageBox("Race: {} not found", tag);
 				log::warn("Race: {} not found", tag);
 			}
@@ -648,11 +643,11 @@ namespace GTS {
 	BGSKeyword* Runtime::GetKeyword(const std::string_view& tag) {
 		BGSKeyword* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().keywords.at(std::string(tag)).data;
+			data = GetSingleton().keywords.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			data = nullptr;
-			if (!Runtime::Logged("kywd", tag)) {
+			if (!Logged("kywd", tag)) {
 				log::warn("Keyword: {} not found", tag);
 			}
 		}
@@ -672,11 +667,11 @@ namespace GTS {
 	TESLevItem* Runtime::GetLeveledItem(const std::string_view& tag) {
 		TESLevItem* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().levelitems.at(std::string(tag)).data;
+			data = GetSingleton().levelitems.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range&) {
 			data = nullptr;
-			if (!Runtime::Logged("cont", tag)) {
+			if (!Logged("cont", tag)) {
 				//PrintMessageBox("Item: {} not found", tag);
 				log::warn("Item: {} not found", tag);
 			}
@@ -688,11 +683,11 @@ namespace GTS {
 	TESObjectCONT* Runtime::GetContainer(const std::string_view& tag) {
 		TESObjectCONT* data = nullptr;
 		try {
-			data = Runtime::GetSingleton().containers.at(std::string(tag)).data;
+			data = GetSingleton().containers.at(std::string(tag)).data;
 		}
 		catch (const std::out_of_range& oor) {
 			data = nullptr;
-			if (!Runtime::Logged("cont", tag)) {
+			if (!Logged("cont", tag)) {
 				//PrintMessageBox("Container: {} not found", tag);
 				log::warn("Container: {} not found", tag);
 			}
@@ -760,18 +755,18 @@ namespace GTS {
 
 	// Team Functions
 	bool Runtime::HasMagicEffectTeam(Actor* actor, const std::string_view& tag) {
-		return Runtime::HasMagicEffectTeamOr(actor, tag, false);
+		return HasMagicEffectTeamOr(actor, tag, false);
 	}
 
 	bool Runtime::HasMagicEffectTeamOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
 
-		if (Runtime::HasMagicEffectOr(actor, tag, default_value)) {
+		if (HasMagicEffectOr(actor, tag, default_value)) {
 			return true;
 		}
 
 		if (IsTeammate(actor)) {
 			auto player = PlayerCharacter::GetSingleton();
-			return Runtime::HasMagicEffectOr(player, tag, default_value);
+			return HasMagicEffectOr(player, tag, default_value);
 		}
 
 		return false;
@@ -779,18 +774,18 @@ namespace GTS {
 	}
 
 	bool Runtime::HasSpellTeam(Actor* actor, const std::string_view& tag) {
-		return Runtime::HasMagicEffectTeamOr(actor, tag, false);
+		return HasMagicEffectTeamOr(actor, tag, false);
 	}
 
 	bool Runtime::HasSpellTeamOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
 
-		if (Runtime::HasSpellTeam(actor, tag)) {
+		if (HasSpellTeam(actor, tag)) {
 			return true;
 		}
 
 		if (IsTeammate(actor)) {
 			auto player = PlayerCharacter::GetSingleton();
-			return Runtime::HasSpellTeamOr(player, tag, default_value);
+			return HasSpellTeamOr(player, tag, default_value);
 		}
 
 		return default_value;
@@ -798,18 +793,18 @@ namespace GTS {
 	}
 
 	bool Runtime::HasPerkTeam(Actor* actor, const std::string_view& tag) {
-		return Runtime::HasPerkTeamOr(actor, tag, false);
+		return HasPerkTeamOr(actor, tag, false);
 	}
 
 	bool Runtime::HasPerkTeamOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
 
-		if (Runtime::HasPerk(actor, tag)) {
+		if (HasPerk(actor, tag)) {
 			return true;
 		}
 
 		if (IsTeammate(actor) || CountAsGiantess(actor)) {
 			auto player = PlayerCharacter::GetSingleton();
-			return Runtime::HasPerkOr(player, tag, default_value);
+			return HasPerkOr(player, tag, default_value);
 		}
 
 		return default_value;
@@ -817,7 +812,7 @@ namespace GTS {
 	}
 
 	bool Runtime::Logged(const std::string_view& catagory, const std::string_view& key) {
-		auto& m = Runtime::GetSingleton().logged;
+		auto& m = GetSingleton().logged;
 		std::string logKey = std::format("{}::{}", catagory, key);
 		bool shouldLog = m.find(logKey) != m.end();
 		m.emplace(logKey);
@@ -834,7 +829,7 @@ namespace GTS {
 				auto form = find_form<BGSSoundDescriptorForm>(value);
 				if (form) {
 					this->sounds.try_emplace(key, form);
-				} else if (!Runtime::Logged("sond", key)) {
+				} else if (!Logged("sond", key)) {
 					log::warn("SoundDescriptorform not found for {}", key);
 				}
 			}
@@ -843,7 +838,7 @@ namespace GTS {
 				auto form = find_form<EffectSetting>(value);
 				if (form) {
 					this->spellEffects.try_emplace(key, form);
-				} else if (!Runtime::Logged("mgef", key)) {
+				} else if (!Logged("mgef", key)) {
 					log::warn("EffectSetting form not found for {}", key);
 				}
 			}
@@ -852,7 +847,7 @@ namespace GTS {
 				auto form = find_form<SpellItem>(value);
 				if (form) {
 					this->spells.try_emplace(key, form);
-				} else if (!Runtime::Logged("spel", key)) {
+				} else if (!Logged("spel", key)) {
 					log::warn("SpellItem form not found for {}", key);
 				}
 			}
@@ -861,7 +856,7 @@ namespace GTS {
 				auto form = find_form<BGSPerk>(value);
 				if (form) {
 					this->perks.try_emplace(key, form);
-				} else if (!Runtime::Logged("perk", key)) {
+				} else if (!Logged("perk", key)) {
 					log::warn("Perk form not found for {}", key);
 				}
 			}
@@ -870,7 +865,7 @@ namespace GTS {
 				auto form = find_form<BGSExplosion>(value);
 				if (form) {
 					this->explosions.try_emplace(key, form);
-				} else if (!Runtime::Logged("expl", key)) {
+				} else if (!Logged("expl", key)) {
 					log::warn("Explosion form not found for {}", key);
 				}
 			}
@@ -879,7 +874,7 @@ namespace GTS {
 				auto form = find_form<TESGlobal>(value);
 				if (form) {
 					this->globals.try_emplace(key, form);
-				} else if (!Runtime::Logged("glob", key)) {
+				} else if (!Logged("glob", key)) {
 					log::warn("Global form not found for {}", key);
 				}
 			}
@@ -888,7 +883,7 @@ namespace GTS {
 				auto form = find_form<TESQuest>(value);
 				if (form) {
 					this->quests.try_emplace(key, form);
-				} else if (!Runtime::Logged("qust", key)) {
+				} else if (!Logged("qust", key)) {
 					log::warn("Quest form not found for {}", key);
 				}
 			}
@@ -897,7 +892,7 @@ namespace GTS {
 				auto form = find_form<TESFaction>(value);
 				if (form) {
 					this->factions.try_emplace(key, form);
-				} else if (!Runtime::Logged("facn", key)) {
+				} else if (!Logged("facn", key)) {
 					log::warn("FactionData form not found for {}", key);
 				}
 			}
@@ -906,7 +901,7 @@ namespace GTS {
 				auto form = find_form<BGSImpactDataSet>(value);
 				if (form) {
 					this->impacts.try_emplace(key, form);
-				} else if (!Runtime::Logged("impc", key)) {
+				} else if (!Logged("impc", key)) {
 					log::warn("ImpactData form not found for {}", key);
 				}
 			}
@@ -915,7 +910,7 @@ namespace GTS {
 				auto form = find_form<TESRace>(value);
 				if (form) {
 					this->races.try_emplace(key, form);
-				} else if (!Runtime::Logged("race", key)) {
+				} else if (!Logged("race", key)) {
 					log::warn("RaceData form not found for {}", key);
 				}
 			}
@@ -924,7 +919,7 @@ namespace GTS {
 				auto form = find_form<BGSKeyword>(value);
 				if (form) {
 					this->keywords.try_emplace(key, form);
-				} else if (!Runtime::Logged("kywd", key)) {
+				} else if (!Logged("kywd", key)) {
 					log::warn("Keyword form not found for {}", key);
 				}
 			}
@@ -933,7 +928,7 @@ namespace GTS {
 				auto form = find_form<TESObjectCONT>(value);
 				if (form) {
 					this->containers.try_emplace(key, form);
-				} else if (!Runtime::Logged("cont", key)) {
+				} else if (!Logged("cont", key)) {
 					log::warn("Container form not found for {}", key);
 				}
 			}
@@ -942,10 +937,13 @@ namespace GTS {
 				auto form = find_form<TESLevItem>(value);
 				if (form) {
 					this->levelitems.try_emplace(key, form);
-				} else if (!Runtime::Logged("cont", key)) {
+				} else if (!Logged("cont", key)) {
 					log::warn("Item form not found for {}", key);
 				}
 			}
+
+			CheckSoftDependencies();
+
 		}
 		catch (toml::exception &e) {
 			logger::critical("Runtime.toml load error {}", e.what());

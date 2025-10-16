@@ -15,14 +15,12 @@
 #include "Utils/MovementForce.hpp"
 #include "Config/Config.hpp"
 
-#include "Hooks/Engine/Settings.hpp"
+#include "Hooks/Other/Values.hpp"
 #include "Debug/DebugDraw.hpp"
 
 using namespace GTS;
 
 namespace {
-
-	const auto& GameplaySettings = Config::Gameplay;
 
 	constexpr float ini_adjustment = 65535.f; //High Value
 	constexpr float vanilla_interaction_range = 180.0f;

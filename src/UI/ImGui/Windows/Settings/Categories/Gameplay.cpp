@@ -10,6 +10,8 @@
 
 #include "Config/Config.hpp"
 
+#include "UI/ImGui/Controls/CollapsingTabHeader.hpp"
+
 namespace {
 
     const std::string CollossalGrowthPerk = "GTSPerkColossalGrowth"; //AKA GtsTotalSizeControl
@@ -21,7 +23,7 @@ namespace {
 
 namespace GTS {
 
-    void CategoryGameplay::GameModeOptions(const char* a_title, GameplayActorSettings_t* a_Settings, bool a_DefaultOpen) {
+    void CategoryGameplay::GameModeOptions(GameplayActorSettings_t* a_Settings) {
 
         PSString T0 = "Select the game mode\n\n"
                       "Basic:\n"
@@ -52,40 +54,27 @@ namespace GTS {
                       "The value you select is offset by +/- 10%% each time.";
 
 
-        bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), CollossalGrowthPerk);
+        ImGuiEx::ComboEx<LActiveGamemode_t>("Game Mode", a_Settings->sGameMode, T0);
 
-        const char* Reason;
-        if (Config::Balance.bBalanceMode) {
-            Reason = "Balance Mode Active";
-            HasPerk = false;
-        }
-        else {
-            Reason = "Requires \"Colossal Growth\" Perk";
-        }
+        ImGui::BeginDisabled(a_Settings->sGameMode == "kNone");
 
-        if (ImGuiEx::ConditionalHeader(a_title, Reason, HasPerk, a_DefaultOpen)) {
+        ImGui::Spacing();
+        ImGui::Text("Basic Game Modes");
 
-            ImGuiEx::ComboEx<LActiveGamemode_t>("Game Mode", a_Settings->sGameMode, T0);
+        static std::array const pTemp = { &a_Settings->fGrowthRate, &a_Settings->fShrinkRate };
 
-            ImGui::BeginDisabled(a_Settings->sGameMode == "kNone");
+        ImGuiEx::SliderF2("Grow/Shrink Rate", pTemp.at(0), 0.001f, 0.2f, T1, "%.3fx");
+        ImGuiEx::CheckBox("Multiply Rates", &a_Settings->bMultiplyGrowthrate, T4);
 
-            ImGui::Spacing();
-            ImGui::Text("Basic Game Modes");
+        ImGui::Spacing();
+        ImGui::Text("Curse Game Modes");
+        ImGuiEx::SliderF("Curse Update Interval", &a_Settings->fGameModeUpdateInterval, 1.0f, 60.0f, T6, "Every %.2f Seconds");
+        ImGuiEx::SliderF("Curse of Growth Limit", &a_Settings->fCurseGrowthSizeLimit, 1.1f, 50.0f, T3, "%.2fx");
+        ImGuiEx::SliderF("Target Scale", &a_Settings->fCurseTargetScale, 0.5f, 5.0f, T5, "%.2fx");
 
-            static std::array const pTemp = { &a_Settings->fGrowthRate, &a_Settings->fShrinkRate };
-
-            ImGuiEx::SliderF2("Grow/Shrink Rate", pTemp.at(0), 0.001f, 0.2f, T1, "%.3fx");
-            ImGuiEx::CheckBox("Multiply Rates", &a_Settings->bMultiplyGrowthrate, T4);
-
-            ImGui::Spacing();
-            ImGui::Text("Curse Game Modes");
-            ImGuiEx::SliderF("Curse Update Interval", &a_Settings->fGameModeUpdateInterval, 1.0f, 60.0f, T6, "Every %.2f Seconds");
-            ImGuiEx::SliderF("Curse of Growth Limit", &a_Settings->fCurseGrowthSizeLimit, 1.1f, 50.0f, T3, "%.2fx");
-            ImGuiEx::SliderF("Target Scale", &a_Settings->fCurseTargetScale, 1.0f, 5.0f, T5, "%.2fx");
-
-            ImGui::EndDisabled();
-            ImGui::Spacing();
-        }
+        ImGui::EndDisabled();
+        ImGui::Spacing();
+        
     }
 
     void CategoryGameplay::DrawLeft() {
@@ -191,7 +180,7 @@ namespace GTS {
 							  "Note: If Balance Mode is enabled the multiplier is locked to 1.0x. It can still be disabled however by setting it to 0.0";
 
                 PSString THelp = "Random Growth chance is decreased if your size is > than x1.5, up to 4 times decreased chance\n"
-                                    "If you have 'Breaching Growth' perk, random growth has a chance to start 'Large Growth' animation";
+                                 "If you have 'Breaching Growth' perk, random growth has a chance to start 'Large Growth' animation";
 
                 const char* FmtBalance = BalancedMode ? "Balance Mode (1.0x)" : "%.2fx";
 
@@ -215,13 +204,40 @@ namespace GTS {
 
     void CategoryGameplay::DrawRight() {
 
-    	//----------- Game Modes
-        ImUtil_Unique {
-            GameModeOptions("Gamemode Player", &Config::Gameplay.GamemodePlayer, true);
+        static ImGuiEx::CollapsingTabHeader GameModeSettingsHeader(
+            "Alternative Gamemodes",
+            {
+                "Player",
+                "Followers"
+            }
+        );
+
+        bool shouldDisable = false;
+        std::string Reason = "";
+        if (Config::Balance.bBalanceMode) {
+            shouldDisable = true;
+            Reason = "Balance Mode Active";
+        }
+        else if (!Runtime::HasPerk(PlayerCharacter::GetSingleton(), CollossalGrowthPerk)) {
+            shouldDisable = true;
+            Reason = "Missing Perk: \"Colossal Growth\"";
         }
 
-        ImUtil_Unique {
-            GameModeOptions("Gamemode Followers", &Config::Gameplay.GamemodeFollower, true);
+        {
+            GameModeSettingsHeader.SetExtraInfo(Reason);
+            GameModeSettingsHeader.SetDisabledState(shouldDisable);
+
+            if (ImGuiEx::BeginCollapsingTabHeader(GameModeSettingsHeader)) {
+                // Content based on active tab
+                switch (GameModeSettingsHeader.GetActiveTab()) {
+                    case 0: GameModeOptions(&Config::Gameplay.GamemodePlayer);   break;
+                    case 1: GameModeOptions(&Config::Gameplay.GamemodeFollower); break;
+                    default:                                                     break;
+                }
+            }
+
+            ImGuiEx::EndCollapsingTabHeader(GameModeSettingsHeader);
         }
+
     }
 }

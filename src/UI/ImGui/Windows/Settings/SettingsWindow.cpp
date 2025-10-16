@@ -115,6 +115,18 @@ namespace GTS {
 				  ImGuiWindowFlags_NoScrollbar       | 
 				  ImGuiWindowFlags_NoScrollWithMouse;
 
+
+		//Construct Base defaults for this Window
+		m_settingsHolder->SetBaseDefaults({
+			.bLock = true,
+			.f2Position = { 0.0f, 0.0f },
+			.sAnchor = "kCenter",
+			.fAlpha = 0.9f,
+			.fBGAlphaMult = 0.7f,
+			.fWindowSizePercent = 90.0f
+		});
+
+
 		CategoryMgr = new ImCategoryContainer();
 
 		//Add Categories, order here defines the order they'll be shown.

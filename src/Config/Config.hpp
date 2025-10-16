@@ -12,8 +12,6 @@
 #include "Config/Settings/SettingsHidden.hpp"
 #include "Config/Settings/SettingsUI.hpp"
 
-#include "Events/Events.hpp"
-
 namespace GTS {
 
     class Config : public CInitSingleton<Config>, public SettingsHandler, public EventListener {

@@ -57,12 +57,11 @@ namespace GTS {
 		TESLevItem* data;
 	};
 
-	class Runtime : public EventListener {
+	class Runtime : public EventListener, public CInitSingleton<Runtime> {
 		public:
-			[[nodiscard]] static Runtime& GetSingleton() noexcept;
-
 			virtual std::string DebugName() override;
 			virtual void DataReady() override;
+
 			static BSISoundDescriptor* GetSound(const std::string_view& tag);
 			static void PlaySound(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const float& a_frequency = 1.0f);
 			static void PlaySound(const std::string_view& a_tag, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency = 1.0f);

@@ -4,7 +4,7 @@
 #define _USE_MATH_DEFINES
 
 //Project-Wide Defines
-#define GTS_PROFILER_ENABLED
+//#define GTS_PROFILER_ENABLED
 //#define GTS_DISABLE_PLUGIN
 
 
@@ -134,6 +134,12 @@
 #include <magic_enum/magic_enum.hpp>    //https://github.com/Neargye/magic_enum
 #include <lz4.h>
 
+//Tbb
+#include <tbb/concurrent_vector.h>
+#include <tbb/concurrent_map.h>
+#include <tbb/concurrent_unordered_map.h>
+#include <tbb/parallel_for_each.h>
+
 using namespace std::literals;
 using namespace REL::literals;
 
@@ -173,21 +179,26 @@ namespace RE {
 namespace logger = SKSE::log;
 
 //Own Includes
-#include "Utils/Singleton.hpp"
-#include "Config/Util/TomlRefl.hpp"
 #include "Constants.hpp"
-#include "Debug/Profiler.hpp"
-#include "Events/Events.hpp"
+
+#include "Utils/Singleton.hpp"
+
+#include "Debug/Profilers.hpp"
+
+#include "Systems/Events/EventListener.hpp"
+#include "Systems/Events/EventDispatcher.hpp"
+#include "Systems/Plugin.hpp"
+#include "Systems/Runtime.hpp"
+#include "Systems/Tasks.hpp"
+#include "Systems/Time.hpp"
+
 #include "Utils/Utils.hpp"
+
 #include "Scale/Scale.hpp"
 #include "Scale/ModScale.hpp"
 #include "Scale/Height.hpp"
+
 #include "Data/Persistent.hpp"
-#include "Data/Plugin.hpp"
-#include "Data/Runtime.hpp"
-#include "Data/Tasks.hpp"
-#include "Data/Time.hpp"
 #include "Data/Transient.hpp"
-#include "Data/World.hpp"
-#include "Hooks/Hooks.hpp"
+
 #include "RE/RE.hpp"

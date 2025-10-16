@@ -25,8 +25,16 @@ namespace GTS {
 
         if (!err.has_value() || *err != TRAINWRECK_ERROR_OK) {
             logger::warn("Could not register trainwreck section");
+            return;
         }
         logger::info("Registered TrainWreck section");
     }
 
+    std::string TrainWreck::DebugName() {
+        return "::TrainwreckAPI";
+    }
+
+    void TrainWreck::OnPluginPostLoad() {
+        Install();
+    }
 }

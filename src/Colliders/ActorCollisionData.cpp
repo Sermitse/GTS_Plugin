@@ -6,8 +6,8 @@ namespace GTS {
 
 	std::vector<ColliderData*> ActorCollisionData::GetChildren() {
 		return {
-		        &this->charCont,
-		        &this->ragdoll
+	        &this->charCont,
+	        &this->ragdoll
 		};
 	}
 }

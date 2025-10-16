@@ -57,9 +57,6 @@ namespace GTS {
 			// This pressumably happens because after fininshing loading post cell transition the tracked actor's 3d is not yet loaded causing a nullptr dereference
 			// meanwhile the player's 3d data appears to always be valid from testing.
 
-			// TODO This could potentialy be improved by running the check earlier. Event listener update callbacks are updated
-			// TODO at the end of the main game update through a hook and thus will always be applied at the end of whatever happend before the frame is presented (i think).
-
 			if (!currentCameraTarget->Is3DLoaded() || !currentCameraTarget->Get3D() || !currentCameraTarget->Get3D1(false)) {
 
 				// Only temporarily reset to the player without changing Target

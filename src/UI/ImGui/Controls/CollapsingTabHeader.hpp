@@ -16,11 +16,14 @@ namespace ImGuiEx {
         };
 
         private:
-        std::vector<TabData> tabs;
+        std::vector<TabData> tabs = {};
         int activeTab = 0;
         bool isOpen = false;
+        bool isDisabled = false;
         std::string headerLabel;
+        std::string headerLabelExtra;
         ImGuiID id;
+
 
 		public:
 
@@ -34,6 +37,9 @@ namespace ImGuiEx {
         void SetActiveTab(int a_index);
         int GetActiveTab() const;
         const std::string& GetActiveTabLabel() const;
+
+        void SetExtraInfo(const std::string& a_infoText);
+        void SetDisabledState(bool a_disabled);
 
         bool Begin();
         static void End();

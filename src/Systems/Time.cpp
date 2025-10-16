@@ -1,4 +1,4 @@
-#include "Data/Time.hpp"
+#include "Systems/Time.hpp"
 
 namespace {
 	inline static float* g_delta_time = (float*)REL::RelocationID(523660, 410199).address();
@@ -6,6 +6,7 @@ namespace {
 }
 
 namespace GTS {
+
 	Time& Time::GetSingleton() noexcept {
 		static Time instance;
 		return instance;

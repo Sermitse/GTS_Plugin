@@ -1,7 +1,7 @@
 #include "Managers/Cameras/CamUtil.hpp"
 #include "TPState.hpp"
 #include "Config/Config.hpp"
-#include "Hooks/Engine/Settings.hpp"
+#include "Hooks/Other/Values.hpp"
 #include "Managers/Camera.hpp"
 #include "Rays/raycast.hpp"
 #include "Debug/DebugDraw.hpp"

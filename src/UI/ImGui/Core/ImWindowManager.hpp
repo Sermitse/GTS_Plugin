@@ -22,9 +22,6 @@ namespace GTS {
         ImWindow* wPlayerWidget = nullptr;
         ImWindow* wDebug = nullptr;
 
-        //TODO Follower Ones Will be runtime created for each follower
-        //If that wont work out then just make a fixed amount of them
-
         [[nodiscard]] ImWindow* GetWindowByName(const std::string& a_name) const;
         [[nodiscard]] bool HasWindows() const;
         [[nodiscard]] bool HasInputConsumers();

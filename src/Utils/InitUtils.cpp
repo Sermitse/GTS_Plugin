@@ -18,10 +18,10 @@ namespace GTS {
 		Cprint("\t -- SHA1: {}", git_CommitSHA1());
 		Cprint("\t -- Date: {}", git_CommitDate());
 		Cprint("\t -- Uncommited Changes: {}", git_AnyUncommittedChanges() ? "Yes" : "No");
-		Cprint("!---READ INFO BELOW---!");
-		Cprint("!---Giantess mod got rid of MCM menu after version 3.0.0.0!");
-		Cprint("!---To open mod settings, type GTS MENU into the console when in game or press F1 (keybind can be changed)");
-		Cprint("!---Command can be entered like gts menu or GTS MENU");
+		Cprint("!---README BELOW---!");
+		Cprint("!---Versions after 3.0 no longer have a MCM menu.!");
+		Cprint("!---To open the mod's settings, either type \"gts menu\" (case insensitive) into the console when in-game or press F1 (by default)");
+
 	}
 
 	void LogPrintPluginInfo() {

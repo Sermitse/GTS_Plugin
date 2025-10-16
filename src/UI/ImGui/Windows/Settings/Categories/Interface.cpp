@@ -19,36 +19,39 @@ namespace GTS {
 
 	void CategoryInterface::DrawLeft(){
 
-		//TODO UNSAFE
-		static auto& Settings = dynamic_cast<SettingsWindow*>(GTSMenu::WindowManager->wSettings)->GetBaseSettings();
+		const auto Window = dynamic_cast<SettingsWindow*>(GTSMenu::WindowManager->wSettings);
+		if (!Window) return;
+	
+		WindowSettingsBase_t* Settings = &Window->GetBaseSettings();
+		if (!Settings) return;
 
 		//------------  Config Window
 
 		ImUtil_Unique {
 
 			PSString T0 = "Automatically handle positioning for this window.\n"
-							 "Disabling this allows you to move and resize the settings window manually.\n"
-							 "Otherwise, if left enabled you can adjust the position and window scale below.";
+						  "Disabling this allows you to move and resize the settings window manually.\n"
+						  "Otherwise, if left enabled you can adjust the position and window scale below.";
 
 			PSString T1 = "Adjust the window size as a percentage of the screen.";
 			PSString T2 = "Choose where to align the window on screen.";
 			PSString T3 = "Adjust the offset relative to the selected anchor point.\n"
-							 "Left/Right | Up/Down";
+						  "Left/Right | Up/Down";
 
 			PSString T5 = "Adjust the opacity of the stats window.";
 			PSString T6 = "Adjust the opacity of the stats window's backround.";
 
 			if (ImGui::CollapsingHeader("Config Window", ImUtil::HeaderFlagsDefaultOpen)) {
 
-				ImGuiEx::CheckBox("Lock Config Window Position", &Settings.bLock, T0);
-				ImGui::BeginDisabled(!Settings.bLock);
+				ImGuiEx::CheckBox("Lock Config Window Position", &Settings->bLock, T0);
+				ImGui::BeginDisabled(!Settings->bLock);
 
 				{
-					ImGuiEx::SliderF("Window Size", &Settings.fWindowSizePercent, 60.0f, 100.0f, T1,"%.0f%%");
-					ImGuiEx::ComboEx<ImWindow::WindowAnchor>("Anchor", Settings.sAnchor, T2);
-					ImGui::BeginDisabled(Settings.sAnchor == "kCenter");
+					ImGuiEx::SliderF("Window Size", &Settings->fWindowSizePercent, 60.0f, 100.0f, T1,"%.0f%%");
+					ImGuiEx::ComboEx<ImWindow::WindowAnchor>("Anchor", Settings->sAnchor, T2);
+					ImGui::BeginDisabled(Settings->sAnchor == "kCenter");
 
-					ImGuiEx::SliderF2("Anchor Offsets", &Settings.f2Position.at(0), 0.0f, 1280.f, T3, "%.1f");
+					ImGuiEx::SliderF2("Anchor Offsets", &Settings->f2Position.at(0), 0.0f, 1280.f, T3, "%.1f");
 
 
 					ImGui::EndDisabled();
@@ -58,8 +61,8 @@ namespace GTS {
 
 				ImGui::Spacing();
 
-				ImGuiEx::SliderF("Window Alpha", &Settings.fAlpha, 0.2f, 1.0f, T5, "%.1fx");
-				ImGuiEx::SliderF("Background Alpha", &Settings.fBGAlphaMult, 0.2f, 1.0f, T6, "%.1fx");
+				ImGuiEx::SliderF("Window Alpha", &Settings->fAlpha, 0.2f, 1.0f, T5, "%.1fx");
+				ImGuiEx::SliderF("Background Alpha", &Settings->fBGAlphaMult, 0.2f, 1.0f, T6, "%.1fx");
 
 				ImGui::Spacing();
 			}
@@ -115,29 +118,14 @@ namespace GTS {
 	                ImGui::SetTooltip(T2);
 	            }
 
+				ImGui::Spacing();
+
 				ImGuiEx::CheckBox("Pause Game", &Config::UI.bDoPause, T3);
 				ImGui::SameLine();
 				ImGuiEx::CheckBox("Blur Backround", &Config::UI.bDoBGBlur, T4);
 				ImGuiEx::SliderF("GameTime Mult", &Config::UI.fSGTMMult, 0.05f, 1.0f, T5, "%.2fx", Config::UI.bDoPause);
 
-
-	            ImGui::Spacing();
 	        }
 	    }
-
-		ImUtil_Unique
-		{
-
-			
-
-			if (ImGui::CollapsingHeader("Pause",ImUtil::HeaderFlagsDefaultOpen)) {
-
-				
-
-				ImGui::Spacing();
-
-			}
-
-		}
 	}
 }

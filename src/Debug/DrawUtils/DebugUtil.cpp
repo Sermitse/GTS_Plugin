@@ -1,4 +1,5 @@
-#include "DebugUtil.hpp"
+#include "Debug/DrawUtils/DebugUtil.hpp"
+#include "Hooks/Other/Values.hpp"
 
 namespace DebugUtil {
 
@@ -11,7 +12,7 @@ namespace DebugUtil {
 	}
 
 	glm::vec3 HkToGlm(const RE::hkVector4& vec) {
-		return HkVecToGlmVec(vec) * World::WorldScaleInverse();
+		return HkVecToGlmVec(vec) * *Hooks::World::RawWorldScale;
 	}
 
 	glm::mat3 HkToGlm(const RE::hkRotation& mat) {

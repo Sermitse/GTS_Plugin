@@ -1,6 +1,4 @@
 #include "Hooks/Engine/Main.hpp"
-#include "Data/Time.hpp"
-#include "Data/Plugin.hpp"
 #include "Hooks/Util/HookUtil.hpp"
 
 namespace Hooks {
@@ -16,7 +14,6 @@ namespace Hooks {
 			{
 				GTS_PROFILE_ENTRYPOINT("EngineMain::MainUpdatePost");
 
-				
 				Plugin::SetOnMainThread(true);
 
 				if (Plugin::Live()) {

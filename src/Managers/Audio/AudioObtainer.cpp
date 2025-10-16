@@ -80,7 +80,6 @@ namespace GTS {
 	// Function that builds the string based on the given index and a random suffix.
     std::string ObtainSLMoanSound(uint8_t index) {
 
-        //TODO Unhardcode this later
         constexpr int OuterBoundF = 8;
 
         if (index > OuterBoundF) {

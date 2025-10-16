@@ -1,4 +1,5 @@
 #pragma once
+#include "Config/Util/TomlRefl.hpp"
 
 //-------------------------------------------------------------------------------------------------------------------
 //  ENUMS ----- Assumed to be the reference values 
@@ -127,7 +128,7 @@ namespace GTS {
 			.UIDescription = "",
 			.Event = {
 				.Event = "OpenDebugMenu",
-				.Keys = {"F1", "F12"},
+				.Keys = {"LCONTROL", "LSHIFT", "F12"},
 				.Trigger = "Once",
 				.BlockInput = "Always"
 			}

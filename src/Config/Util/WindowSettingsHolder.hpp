@@ -25,12 +25,13 @@ namespace GTS {
         std::string m_windowTypeName;
         std::string m_instanceName;  // Meaningful instance name instead of ID
         std::string m_basePrefix;    // e.g., "UI" for UI windows
+        WindowSettingsBase_t m_baseDefaults;
 
         //Name of the per class definable extra settings struct
         static constexpr const char* const m_extraSectionName = ".Extra";
 
         public:
-        explicit WindowSettingsHolder(const std::string& a_instanceName, const std::string& a_basePreffix) : m_instanceName(a_instanceName), m_basePrefix(a_basePreffix) {
+        explicit WindowSettingsHolder(const std::string& a_instanceName, const std::string& a_basePreffix) : m_instanceName(a_instanceName), m_basePrefix(a_basePreffix), m_baseDefaults(WindowSettingsBase_t{}) {
         	m_windowTypeName = typeid(WindowType).name();
 
         	// Clean up the type name for readability
@@ -40,7 +41,8 @@ namespace GTS {
             }
         }
 
-        explicit WindowSettingsHolder(const WindowSettingsBase_t& a_baseDefaults, const std::string& a_instanceName, const std::string& a_basePreffix) : m_baseSettings(a_baseDefaults), m_instanceName(a_instanceName), m_basePrefix(a_basePreffix) {
+        explicit WindowSettingsHolder(const WindowSettingsBase_t& a_baseDefaults, const std::string& a_instanceName, const std::string& a_basePreffix)
+            : m_baseSettings(a_baseDefaults), m_instanceName(a_instanceName), m_basePrefix(a_basePreffix), m_baseDefaults(a_baseDefaults) {
             m_windowTypeName = typeid(WindowType).name();
             size_t pos = m_windowTypeName.find_last_of(':');
             if (pos != std::string::npos) {
@@ -55,6 +57,25 @@ namespace GTS {
                 tableName += "." + m_instanceName;
             }
             return tableName;
+        }
+
+        void SetBaseDefaults(const WindowSettingsBase_t& a_defaults) {
+            m_baseDefaults = a_defaults;
+        }
+
+        template<typename CustomStruct>
+        void SetCustomDefaults(const CustomStruct& a_defaults) {
+            auto wrapper = dynamic_cast<DynamicSettingsWrapper<CustomStruct>*>(m_customSettings.get());
+            if (wrapper) {
+                wrapper->SetDefaults(a_defaults);
+            }
+        }
+
+        virtual void ResetToDefaults() {
+            m_baseSettings = m_baseDefaults;
+            if (m_customSettings) {
+                m_customSettings->ResetToDefaults();
+            }
         }
 
         std::string GetInstanceName() const {
@@ -84,6 +105,7 @@ namespace GTS {
         WindowSettingsBase_t& GetBaseSettings() {
             return m_baseSettings;
         }
+
         const WindowSettingsBase_t& GetBaseSettings() const {
             return m_baseSettings;
         }
@@ -261,13 +283,6 @@ namespace GTS {
             }
 
             return result;
-        }
-
-        virtual void ResetToDefaults() {
-            m_baseSettings = WindowSettingsBase_t{};
-            if (m_customSettings) {
-                m_customSettings->ResetToDefaults();
-            }
         }
 
         virtual std::string GetWindowTypeName() const {

@@ -6,8 +6,16 @@
 
 #include "Animation/Utils/CooldownManager.hpp"
 
+#include "API/Racemenu.hpp"
+#include "API/SmoothCam.hpp"
+#include "API/TrainWreck.hpp"
+
 #include "Config/ConfigModHandler.hpp"
 #include "Config/Keybinds.hpp"
+
+#include "Console/ConsoleManager.hpp"
+
+#include "Input/InputManager.hpp"
 
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/BoobCrush.hpp"
@@ -52,6 +60,8 @@ namespace GTS {
 
 	void RegisterManagers() {
 
+		EventDispatcher::AddListener(&Racemenu::GetSingleton());
+		EventDispatcher::AddListener(&TrainWreck::GetSingleton());
 		EventDispatcher::AddListener(&Runtime::GetSingleton());                 // Stores spells, globals and other important data
 		EventDispatcher::AddListener(&Persistent::GetSingleton());
 		EventDispatcher::AddListener(&Transient::GetSingleton());
@@ -60,7 +70,9 @@ namespace GTS {
 		EventDispatcher::AddListener(&SpringManager::GetSingleton());
 		EventDispatcher::AddListener(&Config::GetSingleton());
 		EventDispatcher::AddListener(&Keybinds::GetSingleton());
-
+		EventDispatcher::AddListener(&InputManager::GetSingleton());
+		EventDispatcher::AddListener(&ConsoleManager::GetSingleton());
+		EventDispatcher::AddListener(&SmoothCam::GetSingleton());
 		EventDispatcher::AddListener(&GameModeManager::GetSingleton());         // Manages Game Modes
 		EventDispatcher::AddListener(&GtsManager::GetSingleton());              // Manages smooth size increase and animation & movement speed
 		EventDispatcher::AddListener(&PerkHandler::GetSingleton());             // Manages some perk updates

@@ -2,19 +2,14 @@
 
 namespace GTS {
 
-	//Construct the Managed Input Event...
-
-	//TODO Patched together from old code, should really be rewritten entirely...
-
 	ManagedInputEvent::ManagedInputEvent(const BaseEventData_t& a_event) {
 
 		this->Disabled = a_event.Disabled;
 		this->name = a_event.Event;
-		float duration = a_event.Duration;
 		this->exclusive = a_event.Exclusive;
 		this->trigger = StringToEnum<LTriggerType_t>(a_event.Trigger);
 		this->blockinput = StringToEnum<LBlockInputTypes_t>(a_event.BlockInput);
-		this->minDuration = duration;
+		this->minDuration = a_event.Duration;
 		this->startTime = 0.0;
 		this->keys = {};
 

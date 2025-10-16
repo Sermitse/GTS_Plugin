@@ -1,8 +1,6 @@
 #include "API/TrainWreck.hpp"
-#include "API/SmoothCam.hpp"
 
-#include "Config/Config.hpp"
-#include "Config/Keybinds.hpp"
+
 
 #include "Hooks/Hooks.hpp"
 #include "Papyrus/Papyrus.hpp"
@@ -10,9 +8,7 @@
 #include "Utils/InitUtils.hpp"
 
 #include "Managers/Register.hpp"
-#include "Managers/Input/InputManager.hpp"
-#include "Managers/Animation/Utils/CooldownManager.hpp"
-#include "Managers/Console/ConsoleManager.hpp"
+
 
 #include "Utils/Logger.hpp"
 
@@ -30,19 +26,13 @@ namespace {
 
 				// Called after all kPostLoad message handlers have run.
 				case MessagingInterface::kPostPostLoad: {
-					//Racemenu::Register(); // <- Disabled For Now...
+					EventDispatcher::DoPluginPostLoad();
 					break;
 				}
 
 				// All ESM/ESL/ESP plugins have loaded, main menu is now active.
 				case MessagingInterface::kDataLoaded: {
-
 					EventDispatcher::DoDataReady();
-					InputManager::GetSingleton().Init();
-					ConsoleManager::Init();
-					SmoothCam::Register();
-					Runtime::CheckSoftDependencies();
-
 					CPrintPluginInfo();
 					break;
 				}
@@ -79,11 +69,9 @@ namespace {
 	}
 
 	void InitializeSerialization() {
-		log::trace("Initializing cosave serialization...");
 
 		auto* serde = GetSerializationInterface();
 		serde->SetUniqueID(_byteswap_ulong('GTSP'));
-
 		serde->SetSaveCallback(Persistent::OnGameSaved);
 		serde->SetRevertCallback(Persistent::OnRevert);
 		serde->SetLoadCallback(Persistent::OnGameLoaded);
@@ -93,26 +81,20 @@ namespace {
 
 	void InitializePapyrus() {
 
-		log::trace("Initializing Papyrus bindings...");
-
 		if (GetPapyrusInterface()->Register(GTS::register_papyrus)) {
 			log::info("Papyrus functions bound.");
+			return;
 		}
-		else {
-			ReportAndExit("Failure to register Papyrus bindings.");
-		}
+		ReportAndExit("Failure to register Papyrus bindings.");
 	}
 }
 
-SKSEPluginLoad(const LoadInterface * a_skse){
-
-	Config::CopyLegacySettings();
+SKSEPluginLoad(const LoadInterface* a_skse){
 
 	Init(a_skse);
 	logger::Initialize();
-	TrainWreck::Install();
 
-#ifndef GTS_DISABLE_PLUGIN
+	#ifndef GTS_DISABLE_PLUGIN
 
 	LogPrintPluginInfo();
 	VersionCheck(a_skse);
@@ -121,7 +103,7 @@ SKSEPluginLoad(const LoadInterface * a_skse){
 	InitializePapyrus();
 	RegisterManagers();
 
-#endif
+	#endif
 
 	InitializeSerialization();
 

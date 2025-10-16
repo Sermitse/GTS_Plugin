@@ -1,5 +1,5 @@
-#include "TES.hpp"
-#include "TESObjectCELL.hpp"
+#include "RE/T/TES.hpp"
+#include "RE/T/TESObjectCELL.hpp"
 
 namespace RE {
 

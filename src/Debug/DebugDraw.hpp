@@ -3,8 +3,8 @@
 #include <glm/ext.hpp>
 #include <glm/glm.hpp>
 
-#include "Debug/Util/DebugLine.hpp"
-#include "Debug/Util/ObjectBound.hpp"
+#include "Debug/DrawUtils/DebugLine.hpp"
+#include "Debug/DrawUtils/ObjectBound.hpp"
 
 namespace GTS {
 
@@ -47,9 +47,6 @@ namespace GTS {
 		static void CacheMenuData();
 
 		private:
-		static float ConvertComponentR(float value);
-		static float ConvertComponentG(float value);
-		static float ConvertComponentB(float value);
 		static DebugUtil::DebugLine* GetExistingLine(const glm::vec3& from, const glm::vec3& to, const glm::vec4& color, float lineThickness);
 	};
 }

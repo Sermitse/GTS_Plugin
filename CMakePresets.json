@@ -130,50 +130,14 @@
       }
     },
     {
-      "name": "config-relwithdebinfo",
-      "displayName": "RelWithDebInfo (Default)",
-      "description": "Configure release build with SSE4.2 and more debugging information than standard release builds.",
-      "inherits": "base-config",
-      "binaryDir": "${sourceDir}/build/RelWithDebInfo",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "CMAKE_C_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
-        "CMAKE_CXX_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
-        "CMAKE_C_FLAGS_RELWITHDEBINFO": "/arch:SSE4.2 /O2 /Ob3 /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
-        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/arch:SSE4.2 /O2 /Ob3 /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
-        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO"
-      }
-    },
-    {
-      "name": "config-relwithdebinfo-avx",
-      "displayName": "RelWithDebInfo (Default)",
-      "description": "Configure release build with AVX and more debugging information than standard release builds.",
-      "inherits": "base-config",
-      "binaryDir": "${sourceDir}/build/RelWithDebInfo-AVX",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "CMAKE_C_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
-        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
-        "CMAKE_C_FLAGS_RELWITHDEBINFO": "/arch:AVX /O2 /Ob3 /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
-        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/arch:AVX /O2 /Ob3 /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
-        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO"
-      }
-    },
-    {
-      "name": "config-release-avx",
+      "name": "config-release-avx2",
       "displayName": "Release (AVX)",
       "description": "Configure release build with AVX.",
       "inherits": "base-config",
-      "binaryDir": "${sourceDir}/build/Release-AVX",
+      "binaryDir": "${sourceDir}/build/Release-AVX2",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_C_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
+        "CMAKE_C_FLAGS": "/arch:AVX2 /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
         "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob3 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
         "CMAKE_C_FLAGS_RELEASE": "/arch:AVX /O2 /Ob3 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
         "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob3 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
@@ -209,22 +173,10 @@
       "description": "Compile an optimized release build (SSE4.2)."
     },
     {
-      "name": "build-release-avx",
-      "displayName": "Build AE/SE (Release AVX)",
-      "configurePreset": "config-release-avx",
-      "description": "Compile an optimized release build (AVX)."
-    },
-    {
-      "name": "build-relwithdebinfo",
-      "displayName": "Build AE/SE (RelWithDebInfo)",
-      "configurePreset": "config-relwithdebinfo",
-      "description": "Compile an optimized release build (SSE4.2)."
-    },
-    {
-      "name": "build-relwithdebinfo-avx",
-      "displayName": "Build AE/SE (RelWithDebInfo AVX)",
-      "configurePreset": "config-relwithdebinfo-avx",
-      "description": "Compile an optimized release build (AVX)."
+      "name": "build-release-avx2",
+      "displayName": "Build AE/SE (Release AVX2)",
+      "configurePreset": "config-release-avx2",
+      "description": "Compile an optimized release build (AVX2)."
     },
     {
       "name": "build-strict",

@@ -53,7 +53,6 @@ namespace GTS {
 				ImGui::Spacing();
 
 			}
-
         }
 
         ImUtil_Unique {
@@ -121,71 +120,6 @@ namespace GTS {
 
 	            ImGui::Spacing();
 	        }
-        }
-
-        ImUtil_Unique {
-
-            //ImGui Debug
-            if (ImGui::CollapsingHeader("ImGui Debug",ImUtil::HeaderFlagsDefaultOpen)) {
-                {
-                    PSString T0 = "Show ImGui's Metrics Window";
-                    PSString T1 = "Show ImGui's Stack Window";
-                    PSString T2 = "Show ImGui's Demo Window";
-
-                    //ImUtil::CheckBox("Show Metrics", &UIManager::WindowManager->ShowMetrics,T0);
-                    ImGui::SameLine();
-                    //ImUtil::CheckBox("Show Stack", &UIManager::WindowManager->ShowStack,T1);
-                    //ImUtil::CheckBox("Show Demo Window", &UIManager::WindowManager->ShowDemoWindow, T2);
-                }
-
-                if (ImGuiEx::Button("Quit", "This will immediatly close the game.", false, 1.0f)) {
-                    SKSE::WinAPI::TerminateProcess(SKSE::WinAPI::GetCurrentProcess(), EXIT_SUCCESS);
-                }
-
-                ImGui::SameLine();
-
-                if (ImGuiEx::Button("Trigger Crash", "This will immediatly crash the game.", false, 1.0f)) {
-                    using FuncType = void(*)();
-                    FuncType func = nullptr;
-                    func();
-                }
-
-                ImGui::Spacing();
-            }
-        }
-
-        ImUtil_Unique {
-            if (ImGui::CollapsingHeader("Graphics Test")) {
-                ImGraphics::DebugDrawTest();
-                ImGui::Spacing();
-            }
-        }
-
-        ImUtil_Unique {
-
-            //Multi-Language Font Test
-            if (ImGui::CollapsingHeader("Font Test")) {
-
-                {
-                    ImGui::Text("This îs à fónt tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève");
-                    ImGui::Text("Αυτή είναι μια δοκιμή για το συστυμα γραμματοσειράς");
-                    ImGui::Text("Это тест загрузчика шрифтов");
-                }
-
-                {
-                    ImGui::Text("これはフォントローダーのテストです");
-                }
-
-                {
-                    ImGui::Text("이것은 폰트로더 테스트입니다");
-                }
-
-                {
-                    ImGui::Text("这是一个字体加载器测试");
-                }
-
-                ImGui::Spacing();
-            }
         }
 
         ImUtil_Unique {

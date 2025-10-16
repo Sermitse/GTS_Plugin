@@ -67,6 +67,14 @@ namespace GTS {
 		return true;
 	}
 
+	std::string ConsoleManager::DebugName() {
+		return "::ConsoleManager";
+	}
+
+	void ConsoleManager::DataReady() {
+		Init();
+	}
+
 	void ConsoleManager::CMD_Help() {
 		auto& me = GetSingleton();
 		Cprint("--- List of available commands ---");
@@ -94,6 +102,13 @@ namespace GTS {
 				Cprint("You need to obtain Colossal Growth perk to use this command");
 			}
 		}
+	}
+
+	void ConsoleManager::Init() {
+		logger::info("Loading Default Command List");
+		RegisterCommand("help", CMD_Help, "Show this list");
+		RegisterCommand("version", CMD_Version, "Show plugin version");
+		RegisterCommand("unlimited", CMD_Unlimited, "Unlocks max size sliders");
 	}
 }
 

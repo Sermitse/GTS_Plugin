@@ -16,6 +16,8 @@
 
 #include "Config/Keybinds.hpp"
 
+#include "Config/Config.hpp"
+
 #include "UI/GTSMenu.hpp"
 
 namespace {
@@ -80,8 +82,6 @@ namespace GTS {
 
 	void CategoryKeybinds::DrawOptions() {
 
-
-
 		ImGui::BeginChild("Options", { -FLT_MIN, 0.0f }, ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
         {
             ImGui::BeginDisabled(RebindIndex > 0);
@@ -94,15 +94,15 @@ namespace GTS {
                 ImGui::SameLine();
 
                 static bool constinit singleColumn = false;
-                ImGuiEx::CheckBox("Single Column", &singleColumn, "List all keybinds in a single column");
+                ImGuiEx::CheckBox("Compact", &singleColumn, "List all keybinds in a single column");
                 Div = 2 - singleColumn;
 
                 ImGuiEx::SeperatorV();
 
                 // Right-align the Reset button
                 float avail = ImGui::GetContentRegionAvail().x;
-                float buttonWidth = 18.0f + ImGui::GetStyle().FramePadding.x * 2; // match your button size
-                ImGui::SetCursorPosX(avail - buttonWidth);
+                float buttonWidth = 18.0f + ImGui::GetStyle().FramePadding.x * 2;
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + avail - buttonWidth);
                 if (ImGuiEx::ImageButton("Reset", "generic_reset", 18, TH1)) {
                     Keybinds::ResetKeybinds();
                 }
@@ -130,9 +130,25 @@ namespace GTS {
                 return m;
             }();
 
+            static const auto hiddenMap = [] {
+                std::unordered_map<std::string, bool> m;
+                for (auto const& ce : DefaultEvents) {
+                    m.emplace(ce.Event.Event, ce.UIHidden);
+                }
+                return m;
+            }();
+
             std::unordered_map<LInputCategory_t, std::vector<BaseEventData_t*>> groups;
 
             for (auto& ev : Keybinds::InputEvents) {
+
+                // Check if hidden (skip if not in advanced mode)
+                if (!Config::Hidden.IKnowWhatImDoing) {
+                    auto hit = hiddenMap.find(ev.Event);
+                    if (hit != hiddenMap.end() && hit->second) {
+                        continue;
+                    }
+                }
 
                 // filter by search
                 if (!ContainsString(HumanizeString(ev.Event), SearchRes)) {
