@@ -17,6 +17,10 @@
 
 namespace GTS {
 
+	CategoryInterface::CategoryInterface() {
+		m_name = "Interface";
+	}
+
 	void CategoryInterface::DrawLeft(){
 
 		const auto Window = dynamic_cast<SettingsWindow*>(GTSMenu::WindowManager->wSettings);
@@ -61,8 +65,8 @@ namespace GTS {
 
 				ImGui::Spacing();
 
-				ImGuiEx::SliderF("Window Alpha", &Settings->fAlpha, 0.2f, 1.0f, T5, "%.1fx");
-				ImGuiEx::SliderF("Background Alpha", &Settings->fBGAlphaMult, 0.2f, 1.0f, T6, "%.1fx");
+				ImGuiEx::SliderF("Window Alpha", &Settings->fAlpha, 0.2f, 1.0f, T5, "%.2fx");
+				ImGuiEx::SliderF("Background Alpha", &Settings->fBGAlphaMult, 0.2f, 1.0f, T6, "%.2fx");
 
 				ImGui::Spacing();
 			}

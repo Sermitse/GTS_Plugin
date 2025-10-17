@@ -7,11 +7,7 @@ namespace GTS {
     class CategoryGeneral final : public ImCategorySplit {
 
         public:
-
-        CategoryGeneral(){
-            m_name = "General";
-        }
-
+        CategoryGeneral();
         void DrawLeft() override;
         void DrawRight() override;
 

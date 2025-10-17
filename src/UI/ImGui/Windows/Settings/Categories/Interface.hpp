@@ -6,10 +6,7 @@ namespace GTS {
 
     class CategoryInterface final : public ImCategorySplit {
         public:
-        CategoryInterface(){
-            m_name = "Interface";
-        }
-
+        CategoryInterface();
         void DrawLeft() override;
         void DrawRight() override;
     };

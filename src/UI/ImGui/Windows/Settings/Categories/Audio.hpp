@@ -6,11 +6,7 @@ namespace GTS {
 
     class CategoryAudio final : public ImCategorySplit {
         public:
-
-        CategoryAudio(){
-            m_name = "Audio";
-        }
-
+        CategoryAudio();
         void DrawLeft() override;
         void DrawRight() override;
 

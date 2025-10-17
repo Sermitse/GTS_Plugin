@@ -7,11 +7,7 @@ namespace GTS{
     class CategoryAI : public ImCategorySplit {
 
         public:
-
-        CategoryAI(){
-            m_name = "AI";
-        }
-
+        CategoryAI();
         void DrawLeft() override;
         void DrawRight() override;
 

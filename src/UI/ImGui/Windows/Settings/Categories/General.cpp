@@ -126,6 +126,10 @@ namespace {
 
 namespace GTS {
 
+	CategoryGeneral::CategoryGeneral() {
+		m_name = "General";
+	}
+
 	void CategoryGeneral::DrawLeft() {
 
 		// ----- Animation Check

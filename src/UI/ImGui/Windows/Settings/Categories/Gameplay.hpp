@@ -7,11 +7,7 @@ namespace GTS {
 
     class CategoryGameplay final : public ImCategorySplit {
         public:
-
-        CategoryGameplay(){
-            m_name = "Gameplay";
-        }
-
+        CategoryGameplay();
         void DrawLeft() override;
         void DrawRight() override;
 

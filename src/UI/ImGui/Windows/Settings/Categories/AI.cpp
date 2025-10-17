@@ -242,6 +242,10 @@ namespace {
 
 namespace GTS {
 
+	CategoryAI::CategoryAI() {
+		m_name = "AI";
+	}
+
     void CategoryAI::DrawLeft() {
 
         ImUtil_Unique {
@@ -331,8 +335,6 @@ namespace GTS {
 
     void CategoryAI::DrawRight() {
 
-        ImGui::BeginDisabled(!Config::AI.bEnableActionAI);
-
 		static ImGuiEx::CollapsingTabHeader ActionHeader (
             "AI Action Settings",
 			{
@@ -346,6 +348,8 @@ namespace GTS {
                 "Grabs",
 			}
         );
+
+        ActionHeader.SetDisabledState(!Config::AI.bEnableActionAI);
 
         if (ImGuiEx::BeginCollapsingTabHeader(ActionHeader)) {
             // Content based on active tab
@@ -362,6 +366,5 @@ namespace GTS {
             }
         }
         ImGuiEx::EndCollapsingTabHeader(ActionHeader);
-        ImGui::EndDisabled();
     }
 }

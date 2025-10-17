@@ -6,11 +6,7 @@ namespace GTS {
 
     class CategoryBalance final : public ImCategorySplit {
         public:
-
-        CategoryBalance(){
-            m_name = "Balance";
-        }
-
+        CategoryBalance();
         void DrawLeft() override;
         void DrawRight() override;
 

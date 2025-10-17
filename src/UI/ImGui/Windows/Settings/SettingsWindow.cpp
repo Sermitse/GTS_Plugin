@@ -17,7 +17,7 @@
 
 //categories
 #include "UI/ImGui/Windows/Settings/Categories/Gameplay.hpp"
-//#include "UI/ImGui/Windows/Settings/Categories/Info.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Stats.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/Interface.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/Audio.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/AI.hpp"
@@ -130,7 +130,7 @@ namespace GTS {
 		CategoryMgr = new ImCategoryContainer();
 
 		//Add Categories, order here defines the order they'll be shown.
-		//CategoryMgr->AddCategory(std::make_unique<CategoryInfo>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryStats>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryGeneral>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryGameplay>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryBalance>());
@@ -316,7 +316,7 @@ namespace GTS {
 				if (!category) continue;
 				if (!category->IsVisible()) continue;
 
-				if (ImGui::Selectable(category->GetTitle().c_str(), CategoryMgr->m_activeIndex == i)) {
+				if (ImGui::Selectable(category->GetTitle().c_str(), CategoryMgr->m_activeIndex == i,ImGuiSelectableFlags_SpanAvailWidth)) {
 					CategoryMgr->m_activeIndex = i;
 				}
 

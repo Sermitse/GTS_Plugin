@@ -72,6 +72,10 @@ namespace GTS {
 	    }
 	}
 
+	CategoryCamera::CategoryCamera() {
+		m_name = "Camera";
+	}
+
 	void CategoryCamera::DrawLeft() {
 
 	    ImUtil_Unique {

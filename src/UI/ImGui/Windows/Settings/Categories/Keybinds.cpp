@@ -19,6 +19,7 @@
 #include "Config/Config.hpp"
 
 #include "UI/GTSMenu.hpp"
+#include "UI/ImGui/Controls/Text.hpp"
 
 namespace {
 
@@ -81,6 +82,8 @@ namespace GTS {
 	}
 
 	void CategoryKeybinds::DrawOptions() {
+
+        ImGui::SetNextWindowBgAlpha(0.1f);
 
 		ImGui::BeginChild("Options", { -FLT_MIN, 0.0f }, ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
         {
@@ -277,15 +280,9 @@ namespace GTS {
 
                     ImGui::PushFont(nullptr, 21.0f);
                     {
-                        if (Event.Disabled) {
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImUtil::Colors::Disabled);
-                            ImGui::SetNextItemWidth(nameColWidth);
-                            ImGui::Text("%s", a_name.c_str());
-                            ImGui::PopStyleColor();
-                        }
-                        else {
-                            ImGui::Text("%s", a_name.c_str());
-                        }
+
+                    	ImGuiEx::TextColorShadow(Event.Disabled ? ImUtil::Colors::Message : ImGui::GetStyle().Colors[ImGuiCol_Text] ,"%s", a_name.c_str());
+
                     }
                     ImGui::PopFont();
 

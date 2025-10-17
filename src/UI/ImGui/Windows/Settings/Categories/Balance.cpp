@@ -18,6 +18,10 @@ namespace {
 
 namespace GTS {
 
+	CategoryBalance::CategoryBalance() {
+		m_name = "Balance";
+	}
+
     void CategoryBalance::DrawLeft() {
 
         ImUtil_Unique {

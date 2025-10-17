@@ -6,10 +6,7 @@ namespace GTS {
 
     class CategoryCamera: public ImCategorySplit {
         public:
-        CategoryCamera(){
-            m_name = "Camera";
-        }
-
+        CategoryCamera();
         void DrawLeft() override;
         void DrawRight() override;
 

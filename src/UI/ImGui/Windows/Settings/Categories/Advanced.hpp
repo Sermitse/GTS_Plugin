@@ -8,11 +8,10 @@ namespace GTS {
     class CategoryAdvanced final : public ImCategorySplit {
 
         public:
-        CategoryAdvanced();
 
+        CategoryAdvanced();
         bool IsVisible() const override;
         void SetVisible(bool a_visible) override;
-
         void DrawLeft() override;
         void DrawRight() override;
 

@@ -12,8 +12,9 @@ namespace GTS {
         static void SetupStyleImpl();
         static ImVec4 CalculateContrastColor(const ImVec4& background);
         static ImVec4 AdjustAlpha(const ImVec4& color, float alpha);
+        static ImVec4 AdjustLightness(const ImVec4& color, float factor);
 
-		public:
+    public:
         [[nodiscard]] static float GetScale();
         static void ApplyStyle();
     };

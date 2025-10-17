@@ -1,4 +1,4 @@
-#include "Audio.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Audio.hpp"
 
 #include "Config/Config.hpp"
 
@@ -49,6 +49,10 @@ namespace {
 }
 
 namespace GTS {
+
+	CategoryAudio::CategoryAudio() {
+		m_name = "Audio";
+	}
 
 	void CategoryAudio::DrawLeft(){
 

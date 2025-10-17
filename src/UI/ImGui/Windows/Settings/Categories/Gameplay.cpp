@@ -77,6 +77,10 @@ namespace GTS {
         
     }
 
+    CategoryGameplay::CategoryGameplay() {
+	    m_name = "Gameplay";
+    }
+
     void CategoryGameplay::DrawLeft() {
 
 
