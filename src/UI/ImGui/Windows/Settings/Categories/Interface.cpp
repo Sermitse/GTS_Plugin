@@ -107,7 +107,7 @@ namespace GTS {
 				PSString T5 = "Multiply game speed by this value when the settings menu is open.\n"
 				              "Only works if \"Pause game\" is disabled.";
 
-				ImGuiEx::SliderF("UI Scale", &Config::UI.fScale, 0.7f, 1.8f, T0,"%.1fx");
+				ImGuiEx::SliderF("UI Scale", &Config::UI.fScale, 0.5f, 2.0f, T0,"%.1fx");
 	            if (ImGui::IsItemDeactivatedAfterEdit()) {
 					ImStyleManager::ApplyStyle();
 	            }

@@ -99,7 +99,7 @@ namespace GTS {
 
         constexpr ImVec4 iElemBase = ToImVec4(0, 0, 0, 132);
         constexpr ImVec4 iElemHover = ToImVec4(48, 48, 48, 132);
-        //constexpr ImVec4 iElemSelect = ToImVec4(24, 24, 24, 132);
+        constexpr ImVec4 iElemSelect = ToImVec4(24, 24, 24, 132);
 
         ImVec4 iCheckbox = EnforceMinValueHSV(accentColor, 0.2f);
         ImVec4 iSliderGrab = EnforceMinValueHSV(accentColor, 0.3f);
@@ -126,10 +126,10 @@ namespace GTS {
         // Frames & Buttons
         colors[ImGuiCol_FrameBg] = iElemBase;
         colors[ImGuiCol_FrameBgHovered] = iElemHover;
-        colors[ImGuiCol_FrameBgActive] = AdjustAlpha(iSliderGrab, 0.45f);
+        colors[ImGuiCol_FrameBgActive] = iElemSelect;
         colors[ImGuiCol_Button] = iElemBase;
         colors[ImGuiCol_ButtonHovered] = iElemHover;
-        colors[ImGuiCol_ButtonActive] = AdjustAlpha(iSliderGrab, 0.45f);;
+        colors[ImGuiCol_ButtonActive] = AdjustAlpha(accentColor, 0.55f);;
 
         // Tabs
         colors[ImGuiCol_Tab] = iElemBase;
@@ -148,9 +148,9 @@ namespace GTS {
         // Accent-colored elements
         colors[ImGuiCol_CheckMark] = iCheckbox;
         colors[ImGuiCol_PlotHistogram] = AdjustAlpha(accentColor, 0.7f);
-        colors[ImGuiCol_Header] = AdjustAlpha(accentColor, 0.2f);
-        colors[ImGuiCol_HeaderHovered] = AdjustLightness(colors[ImGuiCol_Header], 1.2f);
-        colors[ImGuiCol_HeaderActive] = AdjustLightness(colors[ImGuiCol_Header], 1.1f);
+        colors[ImGuiCol_Header] = AdjustLightness(AdjustAlpha(accentColor, 0.4f), 0.8f);
+        colors[ImGuiCol_HeaderHovered] = AdjustLightness(colors[ImGuiCol_Header], 1.0f);
+        colors[ImGuiCol_HeaderActive] = AdjustLightness(colors[ImGuiCol_Header], 1.2f);
 
         // Scrollbars
         colors[ImGuiCol_ScrollbarGrab] = AdjustAlpha(AdjustLightness(accentColor, 0.8f), 0.5f);
@@ -180,8 +180,7 @@ namespace GTS {
 	    const float luminance = 0.2126f * background.x + 
 		    0.7152f * background.y + 
 		    0.0722f * background.z;
-	    return (luminance > 0.5f) ? ImVec4(0.0f, 0.0f, 0.0f, 1.0f) 
-		           : ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	    return (luminance > 0.5f) ? ImVec4(0.0f, 0.0f, 0.0f, 1.0f) : ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     ImVec4 ImStyleManager::AdjustAlpha(const ImVec4& color, float alpha) {

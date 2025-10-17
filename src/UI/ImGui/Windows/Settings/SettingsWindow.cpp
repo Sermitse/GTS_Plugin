@@ -316,7 +316,14 @@ namespace GTS {
 				if (!category) continue;
 				if (!category->IsVisible()) continue;
 
-				if (ImGui::Selectable(category->GetTitle().c_str(), CategoryMgr->m_activeIndex == i,ImGuiSelectableFlags_SpanAvailWidth)) {
+				constexpr float paddingX = 16.0f;
+				const float fullWidth = ImGui::GetContentRegionAvail().x;
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + paddingX);
+
+				if (ImGui::Selectable(category->GetTitle().c_str(),
+					CategoryMgr->m_activeIndex == i,
+					0,
+					ImVec2(fullWidth - paddingX, 0))) {
 					CategoryMgr->m_activeIndex = i;
 				}
 
