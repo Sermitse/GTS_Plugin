@@ -134,8 +134,18 @@ namespace GTS {
         	const bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), CollossalGrowthPerk);
             const bool Unlock = Persistent::GetSingleton().UnlockMaxSizeSliders.value;
 
-			const std::string HeaderHelpText = Config::Balance.bBalanceMode ? "Balance Mode Active" : "Requires \"Colossal Growth\" Perk and \"gts unlimited\" console command";
-            if (ImGuiEx::ConditionalHeader("Size Limits", HeaderHelpText, HasPerk && Unlock && !Config::Balance.bBalanceMode)) {
+            std::string DisableReason = "";
+            if (Config::Balance.bBalanceMode) {
+                DisableReason += "Balance Mode Active";
+            }
+            else if (!HasPerk) {
+                DisableReason += "Missing Perk: \"Colossal Growth\"";
+            }
+            else if (!Unlock) {
+                DisableReason += "Unlimited Mode Required";
+            }
+
+            if (ImGuiEx::ConditionalHeader("Size Limits", DisableReason, HasPerk && Unlock && !Config::Balance.bBalanceMode)) {
 	            constexpr float Max = 255.0f;
 	            constexpr float Min = 0.0;
 

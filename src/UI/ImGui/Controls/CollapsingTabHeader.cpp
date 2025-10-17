@@ -62,12 +62,12 @@ namespace ImGuiEx {
 	}
 
     bool CollapsingTabHeader::Begin() {
+
         if (isDisabled) {
             isOpen = false;
         }
 
         ImGui::BeginDisabled(isDisabled);
-
         ImGui::PushID(id);
 
         // Sizes and style
@@ -81,7 +81,11 @@ namespace ImGuiEx {
         std::vector<float> tabWidths;
         float totalTabWidth = 0.0f;
         for (const auto& tab : tabs) {
-            if (!tab.visible) continue;
+
+            if (!tab.visible) {
+	            continue;
+            }
+
             const float textWidth = ImGui::CalcTextSize(tab.label.c_str()).x;
             const float width = textWidth + style.FramePadding.x * 4.0f;
             tabWidths.push_back(width);
@@ -125,14 +129,20 @@ namespace ImGuiEx {
         // Draw header background
         const float rounding = style.FrameRounding;
         drawList->AddRectFilled(headerMin, headerMax, headerTitleHovered ? headerBgHoveredColor : headerBgColor, rounding);
-        if (style.FrameBorderSize > 0.0f)
-            drawList->AddRect(headerMin, headerMax, borderColor, rounding, 0, style.FrameBorderSize);
+
+        if (style.FrameBorderSize > 0.0f) {
+	        drawList->AddRect(headerMin, headerMax, borderColor, rounding, 0, style.FrameBorderSize);
+        }
 
         // Header click for expand/collapse
         ImGui::SetCursorScreenPos(headerPos);
         ImGui::BeginDisabled(isDisabled);
+
         ImGui::InvisibleButton("##header_title", ImVec2(contentRegion.x, baseHeaderHeight));
-        if (ImGui::IsItemClicked()) isOpen = !isOpen;
+        if (ImGui::IsItemClicked()) {
+	        isOpen = !isOpen;
+        }
+
         ImGui::EndDisabled();
 
         // Header arrow and text
@@ -141,7 +151,7 @@ namespace ImGuiEx {
         const float text_offset_x = g.FontSize + padding.x * 4.0f;
         const float text_offset_y = ImMax(padding.y, ImGui::GetCurrentWindow()->DC.CurrLineTextBaseOffset);
         const ImVec2 text_pos(headerPos.x + text_offset_x, headerPos.y + text_offset_y);
-        const ImVec2 arrow_pos(headerPos.x + (padding.x * 2.0f), text_pos.y + g.FontSize * 0.15f);
+        const ImVec2 arrow_pos(headerPos.x + (padding.x * 2.0f), text_pos.y);
         const ImU32 text_col = ImGui::GetColorU32(ImGuiCol_Text);
         ImGui::RenderArrow(drawList, arrow_pos, text_col, isOpen ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
 
@@ -162,7 +172,9 @@ namespace ImGuiEx {
 
                 for (int i = 0; i < static_cast<int>(tabs.size()); ++i) {
 
-                    if (!tabs[i].visible) continue;
+                    if (!tabs[i].visible) {
+	                    continue;
+                    }
 
                     const float tabWidth = tabWidths[visibleTabIndex];
 
@@ -182,12 +194,14 @@ namespace ImGuiEx {
                     else tabColor = ImGui::GetColorU32(ImGuiCol_Tab);
 
                     drawList->AddRectFilled(tabMin, tabMax, tabColor, tabRounding);
-                    if (style.FrameBorderSize > 0.0f)
-                        drawList->AddRect(tabMin, tabMax, ImGui::GetColorU32(ImGuiCol_Border), tabRounding, 0, style.FrameBorderSize);
+                    if (style.FrameBorderSize > 0.0f) {
+	                    drawList->AddRect(tabMin, tabMax, ImGui::GetColorU32(ImGuiCol_Border), tabRounding, 0, style.FrameBorderSize);
+                    }
 
                     ImGui::SetCursorScreenPos(tabMin);
-                    if (ImGui::InvisibleButton(("##tab" + std::to_string(i)).c_str(), ImVec2(tabMax.x - tabMin.x, tabMax.y - tabMin.y)))
-                        activeTab = i;
+                    if (ImGui::InvisibleButton(("##tab" + std::to_string(i)).c_str(), ImVec2(tabMax.x - tabMin.x, tabMax.y - tabMin.y))) {
+	                    activeTab = i;
+                    }
 
                     const ImVec2 textSize = ImGui::CalcTextSize(tabs[i].label.c_str());
                     const ImVec2 tabTextPos = {
