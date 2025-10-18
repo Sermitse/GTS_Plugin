@@ -336,6 +336,7 @@ namespace GTS {
 		ImGui_ImplWin32_NewFrame();
 		ImGui_ImplDX11_NewFrame();
 		ImGui::NewFrame();
+		ImGraphics::ClearTransformedTextureCache();
 
 		Input->ProcessInputEventQueue();
 		WindowManager->Update();

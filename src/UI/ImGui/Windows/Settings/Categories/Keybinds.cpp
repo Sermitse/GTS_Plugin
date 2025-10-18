@@ -280,9 +280,7 @@ namespace GTS {
 
                     ImGui::PushFont(nullptr, 21.0f);
                     {
-
                     	ImGuiEx::TextColorShadow(Event.Disabled ? ImUtil::Colors::Message : ImGui::GetStyle().Colors[ImGuiCol_Text] ,"%s", a_name.c_str());
-
                     }
                     ImGui::PopFont();
 

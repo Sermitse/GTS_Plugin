@@ -4,7 +4,7 @@
 #include "Config/Config.hpp"
 
 #include "UI/ImGui/Controls/CheckBox.hpp"
-#include "UI/ImGui/Controls/InfoCard.hpp"
+#include "UI/ImGui/Controls/ActorInfoCard.hpp"
 #include "UI/ImGui/Controls/Slider.hpp"
 #include "UI/ImGui/Controls/ToolTip.hpp"
 #include "UI/ImGui/Lib/imgui.h"
@@ -23,8 +23,8 @@ namespace GTS {
 	}
 
 	void CategoryStats::Draw() {
-		static ImGuiEx::InfoCard card;
-		card.Render("card_1");
+		static ImGuiEx::ActorInfoCard card;
+		card.Draw(PlayerCharacter::GetSingleton());
 	}
 
 }

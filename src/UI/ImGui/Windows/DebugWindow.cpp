@@ -40,6 +40,75 @@ namespace GTS {
 			ImGui::Spacing();
 		}
 
+		if (ImGui::CollapsingHeader("Graphics Transform Test")) {
+
+			// Create a transformation with continuously changing values
+			static ImGraphics::ImageTransform transform;
+			static ImGraphics::ImageTransform transform2;
+			static ImGraphics::ImageTransform transform3;
+			static ImGraphics::ImageTransform transform4;
+
+			static float time = 0.0f;
+
+			// Increment time
+			time += ImGui::GetIO().DeltaTime;
+
+			// Oscillating recolor through RGB spectrum
+			transform.recolorEnabled = true;
+			float hue = std::fmod(time * 0.3f, 1.0f); // Cycle through hue every ~3.3 seconds
+			float r = std::abs(std::sin(hue * std::numbers::pi * 2.0f));
+			float g = std::abs(std::sin((hue + 0.333f) * std::numbers::pi * 2.0f));
+			float b = std::abs(std::sin((hue + 0.666f) * std::numbers::pi * 2.0f));
+			transform.targetColor = { r, g, b, 1.0f };
+
+			// Continuous rotation (full rotation every 4 seconds)
+			transform2.affine.rotation = time * (std::numbers::pi / 2.0f);
+
+			// Pulsing scale (between 0.8x and 1.8x)
+			float scaleValue = 1.3f + 0.5f * std::sin(time * 2.0f);
+			transform.affine.scale = { scaleValue, scaleValue };
+
+			// Oscillating translation
+			transform3.affine.translation.x = 10.0f * std::sin(time * 1.5f);
+			transform3.affine.translation.y = 10.0f * std::cos(time * 1.5f);
+
+			// Flip every 2 seconds
+			transform3.affine.flipHorizontal = static_cast<int>(time / 2.0f) % 2 == 0;
+			transform3.affine.flipVertical = static_cast<int>(time / 3.0f) % 2 == 0;
+
+			// Cycling cutoff direction every 5 seconds
+			int dirIndex = static_cast<int>(time / 5.0f) % 4;
+			switch (dirIndex) {
+				case 0: transform4.cutoffDir = ImGraphics::CutoffDirection::LeftToRight; break;
+				case 1: transform4.cutoffDir = ImGraphics::CutoffDirection::RightToLeft; break;
+				case 2: transform4.cutoffDir = ImGraphics::CutoffDirection::TopToBottom; break;
+				case 3: transform4.cutoffDir = ImGraphics::CutoffDirection::BottomToTop; break;
+			}
+
+			// Oscillating cutoff percentage (0% to 100% and back)
+			transform4.cutoffPercent = 0.5f + 0.5f * std::sin(time);
+
+			// Optional: Display current values for debugging
+			ImGui::Text("Time: %.2f", time);
+			ImGui::Text("Color: R:%.2f G:%.2f B:%.2f", r, g, b);
+			ImGui::Text("Rotation: %.2f rad (%.1f deg)", transform2.affine.rotation, transform2.affine.rotation * 180.0f / std::numbers::pi);
+			ImGui::Text("Scale: %.2f", scaleValue);
+			ImGui::Text("Cutoff: %s %.1f%%", dirIndex == 0 ? "L->R" : dirIndex == 1 ? "R->L" : dirIndex == 2 ? "T->B" : "B->T", transform4.cutoffPercent * 100.0f);
+
+			ImGraphics::RenderTransformed("export_cleanup", transform, { 64, 64 }); // Render with transformations
+			ImGraphics::RenderTransformed("export_cleanup", transform2, { 64, 64 }); // Render with transformations
+			ImGraphics::RenderTransformed("export_cleanup", transform3, { 64, 64 }); // Render with transformations
+			ImGraphics::RenderTransformed("export_cleanup", transform4, { 64, 64 }); // Render with transformations
+
+			ImGui::Spacing();
+		}
+
+		
+
+
+
+		
+
 		//Multi-Language Font Test
 		if (ImGui::CollapsingHeader("Font Test")) {
 			ImGui::Text("This îs à fónt tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève");

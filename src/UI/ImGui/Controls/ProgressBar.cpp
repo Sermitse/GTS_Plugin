@@ -4,7 +4,7 @@
 namespace ImGuiEx {
 
     void ProgressBar(float a_fraction, const ImVec2& a_size, const char* a_ovlText, 
-        imGuiEx_ProgressBarFlags a_flags, float a_heightMult, float a_borderThickness, 
+        ImU32 a_flags, float a_heightMult, float a_borderThickness,
         float a_gradDarkFactor, float a_gradLightFactor, ImU32 a_gradCol1, ImU32 a_gradCol2) {
 
         const ImGuiWindow* window = ImGui::GetCurrentWindow();

@@ -15,7 +15,7 @@ namespace ImGuiEx {
         float a_fraction, 
         const ImVec2& a_size, 
         const char* a_ovlText,
-        imGuiEx_ProgressBarFlags a_flags = ImGuiExProgresbarFlag_None,
+        ImU32 a_flags = ImGuiExProgresbarFlag_None,
         float a_heightMult = 1.0f,
         float a_borderThickness = 1.0f,
         float a_gradDarkFactor = 0.7f,
