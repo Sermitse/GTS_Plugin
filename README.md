@@ -37,7 +37,7 @@ If successfull a `Package-Release` folder should exist within the `distribution`
 > Direct downloads from GitHub (ZIP files) will **not** compile due to missing git data which the build process depends on.
 
 
-## Current weature wishlist
+## Current feature wishlist
 
 - [ ] [1] Blood feet/hands after crushing.
 - [ ] [2] Quest progression UI.
