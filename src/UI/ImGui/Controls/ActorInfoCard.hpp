@@ -1,8 +1,7 @@
 #pragma once
 
-#include "UI/ImGui/Controls/Button.hpp"
 #include "UI/ImGui/Lib/imgui.h"
-
+#include "Utils/KillDataUtils.hpp"
 #include "Utils/UnitConverter.hpp"
 
 namespace ImGuiEx {
@@ -66,11 +65,6 @@ namespace ImGuiEx {
 
         };
 
-
-
-
-
-
         public:
         enum class Section {
             kNone,
@@ -79,17 +73,17 @@ namespace ImGuiEx {
         };
 
         ActorInfoCard();
-
-        void Draw(RE::Actor* a_actor, const ImVec2& card_size = { 400, -FLT_MIN });
-
+        void Draw(RE::Actor* a_actor, const ImVec2& card_size = { 400, 0 });
         // Override these to customize card content
-        virtual void RenderMainContent(const ActorInfo& Data);
+        void RenderMainContent(const ActorInfo& Data);
+        void RenderSection1(const ActorInfo&);
 
-        virtual void RenderSection1(const ActorInfo&);
+		private:
+		void DrawSpectateButton(RE::Actor* a_actor) const;
+        static void DrawKillStat(RE::Actor* a_actor, const char* a_name, GTS::SizeKillType a_type, const char* a_toolTip = nullptr);
+        static void DrawKillData(RE::Actor* a_actor);
 
-        virtual void RenderSection2(RE::Actor* a_actor);
 
-    private:
         Section expanded_section_;
 
         ImU32 m_wChildFlags = ImGuiChildFlags_None;

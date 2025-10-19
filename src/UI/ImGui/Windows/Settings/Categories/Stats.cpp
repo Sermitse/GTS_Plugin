@@ -1,20 +1,7 @@
 
 #include "UI/ImGui/Windows/Settings/Categories/Stats.hpp"
-
-#include "Config/Config.hpp"
-
-#include "UI/ImGui/Controls/CheckBox.hpp"
 #include "UI/ImGui/Controls/ActorInfoCard.hpp"
-#include "UI/ImGui/Controls/Slider.hpp"
-#include "UI/ImGui/Controls/ToolTip.hpp"
 #include "UI/ImGui/Lib/imgui.h"
-#include "UI/ImGui/Core/ImUtil.hpp"
-
-using namespace GTS;
-
-namespace {
-
-}
 
 namespace GTS {
 
@@ -23,8 +10,16 @@ namespace GTS {
 	}
 
 	void CategoryStats::Draw() {
-		static ImGuiEx::ActorInfoCard card;
-		card.Draw(PlayerCharacter::GetSingleton());
-	}
 
+        static ImGuiEx::ActorInfoCard playerCard;
+        playerCard.Draw(PlayerCharacter::GetSingleton());
+
+        // Draw cards for current teammates
+        for (const auto& actor : FindTeammates()) {
+            if (const auto& Data = Transient::GetSingleton().GetActorData(actor)) {
+                ImGui::SameLine();
+                Data->InfoCard.Draw(actor);
+            }
+        }
+	}
 }

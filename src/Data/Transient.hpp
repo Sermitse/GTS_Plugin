@@ -1,4 +1,6 @@
 #pragma once
+
+#include "UI/ImGui/Controls/ActorInfoCard.hpp"
 // Module that holds data that is not persistent across saves
 
 namespace GTS {
@@ -104,6 +106,8 @@ namespace GTS {
 		Timer ActionTimer = Timer(0);
 
 		std::vector<Actor*> shrinkies;
+
+		ImGuiEx::ActorInfoCard InfoCard = {};
 
 		explicit TempActorData(Actor* a_Actor) {
 			const auto _BoundValues = get_bound_values(a_Actor);

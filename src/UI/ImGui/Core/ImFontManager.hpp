@@ -33,14 +33,14 @@ namespace GTS {
 
         enum ActiveFontType {
             kDefault,
-            kSidebar,
-            kTitle,
-            kFooter,
-            kText,
-            kLargeText,
-            kSubText,
-            kWidgetBody,
-            kWidgetTitle
+            kSidebar,        //{ kSidebar,     TextType(&FontSet_Regular, 28.0f) },
+            kTitle,          //{ kTitle,       TextType(&FontSet_Medium,  48.0f) },
+            kFooter,         //{ kFooter,      TextType(&FontSet_Medium,  28.0f) },
+            kText,           //{ kText,        TextType(&FontSet_Regular, 18.0f) },
+            kLargeText,      //{ kLargeText,   TextType(&FontSet_Regular, 22.0f) },
+            kSubText,        //{ kSubText,     TextType(&FontSet_Regular, 16.0f) },
+            kWidgetBody,     //{ kWidgetBody,  TextType(&FontSet_Regular, 20.0f) },
+            kWidgetTitle     //{ kWidgetTitle, TextType(&FontSet_Light,   32.0f) },
         };
 
         typedef struct Font2 {

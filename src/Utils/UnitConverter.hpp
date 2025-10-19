@@ -6,27 +6,27 @@ namespace GTS {
 
     //Metric -> Imperial
 
-    const inline double KiloToPound(const double a_kg){
+    inline double KiloToPound(const double a_kg) {
         return a_kg / 0.45359237;
     }
 
-    const inline double MetersToFeet(const double a_meter){
+    inline double MetersToFeet(const double a_meter) {
         return a_meter * 3.28084;
     }
 
     //Metric -> Mammoth (Because memes)
 
-    const inline double MetersToMammoth(const double a_meter){
+    inline double MetersToMammoth(const double a_meter) {
         return a_meter / 3.04; //<--- Value probably needs tweaking...
     }
 
-    const inline double KiloToMammoth(const double a_kg){
+    inline double KiloToMammoth(const double a_kg) {
         return a_kg / 5113.01; //<--- Value probably needs tweaking...
     }
 
     // Formaters
 
-    const inline std::string FormatMetricHeight(const double a_meter){
+    inline std::string FormatMetricHeight(const double a_meter) {
 
         if(a_meter < 1.0f)
             return fmt::format("{:.0f} cm",a_meter * 100.f);
@@ -37,7 +37,7 @@ namespace GTS {
         return fmt::format("{:.2f} m", a_meter);
     }
 
-    const inline std::string FormatImperialHeight(const double a_feet) {
+	inline std::string FormatImperialHeight(const double a_feet) {
         // Get the integer part for feet.
         int feet = static_cast<int>(a_feet);
         // Get the fractional part and convert it to inches.
@@ -60,11 +60,11 @@ namespace GTS {
         return fmt::format("{}'{}\"", feet, inches);
     }
 
-    const inline std::string FormatMammothHeight(const double a_mammoth){
+    inline std::string FormatMammothHeight(const double a_mammoth){
         return fmt::format("{:.2f} Mammoths", a_mammoth);
     }
 
-    const inline std::string FormatMetricWeight(const double a_kg){
+    inline std::string FormatMetricWeight(const double a_kg){
         if(a_kg < 1.0f)
             return fmt::format("{:.0f} g",a_kg * 100.f);
 
@@ -78,7 +78,7 @@ namespace GTS {
         return fmt::format("{:.2f} kg", a_kg);
     }
 
-    const inline std::string FormatImperialWeight(const double a_lb){
+    inline std::string FormatImperialWeight(const double a_lb){
         if(a_lb < 1.0)
             return fmt::format("{:.0f} oz", a_lb * 16.0);
 
@@ -91,11 +91,11 @@ namespace GTS {
         return fmt::format("{:.2f} lb", a_lb);
     }
 
-    const inline std::string FormatMammothWeight(const double a_mammoth){
+    inline std::string FormatMammothWeight(const double a_mammoth){
         return fmt::format("{:.2f} Mammoths", a_mammoth);
     }
 
-    const inline std::string GetFormatedWeight(RE::Actor* a_Actor){
+    inline std::string GetFormatedWeight(RE::Actor* a_Actor){
         std::string displayUnits = Config::UI.sDisplayUnits;
         if (displayUnits == "kImperial") 
             return FormatImperialWeight(KiloToPound(GetActorGTSWeight(a_Actor)));
@@ -107,7 +107,7 @@ namespace GTS {
             return FormatMetricWeight(GetActorGTSWeight(a_Actor));
     }
 
-    const inline std::string GetFormatedHeight(RE::Actor* a_Actor){
+    inline std::string GetFormatedHeight(RE::Actor* a_Actor){
         std::string displayUnits = Config::UI.sDisplayUnits;
         if (displayUnits == "kImperial") 
             return FormatImperialHeight(MetersToFeet(GetActorGTSHeight(a_Actor)));
@@ -119,7 +119,7 @@ namespace GTS {
             return FormatMetricHeight(GetActorGTSHeight(a_Actor));
     }
 
-    const inline std::string GetFormatedHeight(const float Value) {
+    inline std::string GetFormatedHeight(const float Value) {
         std::string displayUnits = Config::UI.sDisplayUnits;
         if (displayUnits == "kImperial")
             return FormatImperialHeight(MetersToFeet(Value));
