@@ -4,7 +4,7 @@
 
 This is the source for the [Gianttess Mod - Size matters NG](https://www.nexusmods.com/skyrimspecialedition/mods/37823?tab=description) SKSE plugin.
 
-## Building Requirements
+## Building requirements
 
 Before building, ensure the following tools are installed and properly configured:
 
@@ -12,12 +12,12 @@ Before building, ensure the following tools are installed and properly configure
 - [**CMake**](https://cmake.org/download/) — add cmake to your system PATH.
 - [**vcpkg**](https://github.com/microsoft/vcpkg) — set the VCPKG_ROOT environment variable to your vcpkg installation directory.
 - [**Visual Studio 2022 or newer**](https://visualstudio.microsoft.com/vs/) — install with the Desktop development with C++ workload.
-- [**Ninja**](https://ninja-build.org/) (optional) — can be installed via the Visual Studio Installer or with:
+- [**Ninja**](https://ninja-build.org/) — can be installed via the Visual Studio Installer or with:
 ```
 winget install --id=Ninja-build.Ninja -e
 ```
 
-## Building the Project
+## Building the project
 
 This is a standard **CMake**-based project. Once all requirements are met, you can build in one of two ways:
 
@@ -29,14 +29,14 @@ This is a standard **CMake**-based project. Once all requirements are met, you c
 ### Option 2 — Command Line (Recommended)
 Simply run the provided batch file:
 ```
-BuildAndPackage.bat
+CompileDLL.bat
 ```
 > **Note:**  
 > You must clone the repository using Git.  
 > Direct downloads from GitHub (ZIP files) will **not** compile due to missing git data which the build process depends on.
 
 
-## Feature Wishlist
+## Current weature wishlist
 
 - [ ] [1] Blood feet/hands after crushing.
 - [ ] [2] Quest progression UI.
@@ -52,7 +52,7 @@ BuildAndPackage.bat
 - Vore Stacks (passive);
 - On The Edge (Perk);
 
-## Implemented Features That Need Improving
+## Implemented features that need improving
 - [X] [1] Correct Collider Scaling (Currently done through Side-Mod)
 - [X] [2] Affect detection based on scale (Partially done)
 
