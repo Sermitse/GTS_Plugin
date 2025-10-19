@@ -31,6 +31,7 @@ Simply run the provided batch file:
 ```
 CompileDLL.bat
 ```
+If successfull a `Package-Release` folder should exist within the `distribution` folder.
 > **Note:**  
 > You must clone the repository using Git.  
 > Direct downloads from GitHub (ZIP files) will **not** compile due to missing git data which the build process depends on.
