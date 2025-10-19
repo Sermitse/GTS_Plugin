@@ -64,19 +64,19 @@ namespace ImGuiEx {
 
 		bool section1_active = expanded_section_ == Section::kSectionExtra;
 		if (section1_active) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-		if (ImageButton("##ExtraInfo", "extra_info", 32, "Show Extended Info")) {
+		if (ImageButton("##ExtraInfo", "extra_info", m_baseIconSize, "Show Extended Info")) {
 			expanded_section_ = section1_active ? Section::kNone : Section::kSectionExtra;
 		}
 		if (section1_active) ImGui::PopStyleColor();
 
 		bool section2_active = expanded_section_ == Section::kSectionKillInfo;
 		if (section2_active) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-		if (ImageButton("##KillInfo", "extra_kill_info", 32, "Show Kill Count Info")) {
+		if (ImageButton("##KillInfo", "extra_kill_info", m_baseIconSize, "Show Kill Count Info")) {
 			expanded_section_ = section2_active ? Section::kNone : Section::kSectionKillInfo;
 		}
 		if (section2_active) ImGui::PopStyleColor();
 
-		if (ImageButton("##Spectate", "spectate_camera", 32, "Spectate NPC")) {
+		if (ImageButton("##Spectate", "spectate_camera", m_baseIconSize, "Spectate NPC")) {
 			// Placeholder
 		}
 
