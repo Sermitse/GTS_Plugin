@@ -28,35 +28,36 @@ namespace {
 
 	// ------- Tooltips -------
 
-	PSString TDamageResist = "This is your damage resistance in percentage. Some GTS perks may further increase it.";
-	PSString TDamageBonus = "This is your non-size related damage multiplier. It affects both Physical and Magic damage.";
+	PSString TDamageResist = "Total damage resistance in percent.\n"
+						     "Effectively increases total HP.";
+
+	PSString TDamageBonus = "Non-size related damage multiplier. Affects both Physical and Magic damage.";
 	PSString THHDamage = "Extra foot damage multiplier when wearing high heels.";
-	PSString TShrinkResist = "Shrink Resistance reduces the effectiveness of any shrinking spell and/or effect on you.";
+	PSString TShrinkResist = "Shrink Resistance reduces the effectiveness of any shrinking spell and/or effect.";
 	PSString TAbsorbedAttributesCap = "Absorbed Attributes cannot exceed this number";
 
-	PSString TOnTheEdge = "When your health drops below 60%%:\n"
-					      "- All growth gained becomes stronger the less health you have.\n"
-					      "- Hostile shrinking is less effective the less health you have.\n\n"
-					      "Maximum effect is achieved at 10%% HP remaining or lower.";
+	PSString TOnTheEdge = "When health drops below 60%%:\n"
+					      "- All growth gained becomes stronger the less health there is.\n"
+					      "- Hostile shrinking is less effective the less health there is.\n\n"
+					      "The effect is strongest when 10%% (or less) HP remains.";
 
-	PSString TSizeReserve = "This is the amount of size stored by the size reserve perk.\n"
-		                    "You gain size reserve by eating/absorbing/crushing others";
+	PSString TSizeReserve = "Total size size stored from the size reserve perk.\n"
+		                    "Gained by eating/absorbing/crushing others";
 
 	PSString TAspectOfGTS = "This is the strength of Aspect of the Giantess enchantment\n"
 							"Aspect Of Giantess affects:\n"
-							"- Maximal Size, power of Shrink and Size Steal spells\n"
-							"- Size-Related damage, minimal shrink threshold from quest/balance mode\n"
-							"- Growth Rate and Growth Chance from Random Growth\n"
-							"- Power of Shrink Outburst and Hit Growth size gain\n"
-							"- Shrink resistance towards hostile shrink sources\n\n"
-							"Enchantment can be obtained from 'Amulet of Giants', which can be randomly found inside boss chests.";
+							"- Maximum Size, genral shrink power and the strength of size steal spells\n"
+							"- Size-Related damage, mimimum shrink threshold from quest/balance mode\n"
+							"- Growth rate and growth chance from random growth\n"
+							"- The stregth of the shrink outburst power and the amount of growth gained on hit\n"
+							"- Shrink resistance towards all hostile shrink sources\n\n"
+							"The enchantment can be obtained from the 'Amulet of Giants', which will randomly in end of dungeon hests.";
 
-	PSString TStoredAttributes = "Stored Attributes are permanent Health/Magicka/Stamina attribute boosts that weren't absorbed by you yet\n"
-						         "They'll be randomly distributed between your three main attributes\n"
-						         "Complete perk requirements to fully absorb them and convert to Absorbed Attributes";
+	PSString TStoredAttributes = "Stored Attributes are permanent increases to either Health, Magicka or Stamina, that have not been absorbed yet.\n"
+						         "They'll be randomly distributed between the three main attributes\n"
+						         "Complete perk the requirements to fully utilize them and convert them to absorbed attributes";
 
-	PSString TAbsorbedAttributes = "Absorbed Attributes are permanent Health/Magicka/Stamina attribute boosts of your character\n"
-								   "They're coming from 'Full Assimilation' perk";
+	PSString TAbsorbedAttributes = "Absorbed attributes are permanent a permantent increase to Health, Magicka or Stamina";
 
 }
 
@@ -355,7 +356,7 @@ namespace ImGuiEx {
 					{ ImGui::GetContentRegionAvail().x, 0.0f },
 					Data.sFmtScale.c_str(),
 					ImGuiExProgresbarFlag_Gradient | ImGuiExProgresbarFlag_Rounding,
-					1.25f, 1.0f, 0.7f, 1.3f,
+					1.45f, 1.0f, 0.7f, 1.3f,
 					ImUtil::Colors::fRGBToU32(Config::UI.f3AccentColor)
 				);
 
@@ -390,9 +391,9 @@ namespace ImGuiEx {
 					"Potion Of Heights: +{:.0f}%%\n"
 					"Aspect Of Giantess: +{:.0f}%%\n"
 					"Overkills & C.Growth: +{:.2f}x\n\n"
-					"- Size Essence Increases your maximum achievable size when the size limit cap is set to \"Skill Based\"\n"
-					"- If Size Gain mode is in \"Mass Mode\", then Essence Bonus is reduced by {:.0f}%% \n"
-					"- You can gain Essence by killing and absorbing dragons when you have the correct perk\n"
+					"- Size Essence Increases the maximum achievable size when the size limit cap is set to \"Skill Based\"\n"
+					"- If Size Gain mode is set to \"Mass Mode\", then Essence Bonus is reduced by {:.0f}%% \n"
+					"- Essence is gained by killing and absorbing dragons while having the correct perk.\n"
 					"- Or by consuming specific potions found all around the world."
 				),
 				bMassModeEnabled ? BonusSize_EssenceAndDragons * MassMode_ElixirPowerMultiplier : BonusSize_EssenceAndDragons * 1.0f,
@@ -517,13 +518,13 @@ namespace ImGuiEx {
 
 		// 'X' button appears if this actor is targeted OR if this is the player and camera is NOT on player
 		if ((isTargeted && !isPlayer) || (isPlayer && !isCameraOnPlayer)) {
-			if (ImageButton("##Spectate", "generic_x", m_baseIconSize, "Revert Camera To Player")) {
+			if (ImageButton("##Spectate", "generic_x", m_baseIconSize, "Revert the camera back to the player character.")) {
 				SpectatorManager::ResetTarget(true);
 			}
 		}
 		// "Spectate" button appears for non-player actors that are not targeted
 		else if (!isPlayer) {
-			if (ImageButton("##Spectate", "infocard_spectate", m_baseIconSize, "Spectate This NPC")) {
+			if (ImageButton("##Spectate", "infocard_spectate", m_baseIconSize, "Spectate this NPC.")) {
 				SpectatorManager::SetCameraTarget(a_actor, false);
 			}
 		}
