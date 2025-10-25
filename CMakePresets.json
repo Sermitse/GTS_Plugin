@@ -96,7 +96,7 @@
     {
       "name": "config-fakedebug",
       "displayName": "Debug (Fake)",
-      "description": "Fake debug build using RelWithDebInfo and debug flags to bypass the broken true debug builds.",
+      "description": "Fake debug build using RelWithDebInfo and debug flags. This builds the project with full debug info but builds all deps as RelWithDebInfo, Commonlib Bugs out and corrupts the stack if it gets built as debug.",
       "inherits": "base-config",
       "binaryDir": "${sourceDir}/build/Debug",
       "cacheVariables": {

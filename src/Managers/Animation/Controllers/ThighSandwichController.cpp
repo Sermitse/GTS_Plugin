@@ -20,7 +20,7 @@ namespace {
 	constexpr float SANDWICH_ANGLE = 60;
 	constexpr float PI = std::numbers::pi_v<float>;
 
-	constexpr string rune_node = "GiantessRune";
+	const string rune_node = "GiantessRune";
 
 	void CantThighSandwichPlayerMessage(Actor* giant, Actor* tiny, float sizedifference) {
 		if (sizedifference < Action_Sandwich) {

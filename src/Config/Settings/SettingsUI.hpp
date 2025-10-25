@@ -137,7 +137,9 @@ struct SettingsUI_t {
 
     // Red: 0.273f, 0.0106f, 0.0106f
 	// White: 0.81834f, 0.797923f, 0.834302f
-    std::array<float, 3> f3AccentColor = { 0.81834f, 0.797923f, 0.834302f }; // Default Menu UI Color
+    std::array<float, 3> f3AccentColor = { 0.273f, 0.0106f, 0.0106f }; // Default Menu UI Color
+    std::array<float, 3> f3IconOverflowColor = { 0.273f, 0.0106f, 0.0106f };
+
 
 };
 TOML_SERIALIZABLE(SettingsUI_t);

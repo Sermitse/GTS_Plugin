@@ -43,5 +43,8 @@ namespace ImUtil {
     [[nodiscard]] bool ValidState() noexcept;
     [[nodiscard]] ImVec2 ScaleToViewport(float a_Percentage);
     [[nodiscard]] ImGuiWindow* GetEffectiveFocusedWindow(ImGuiContext* a_ctx);
+    [[nodiscard]] ImVec2 GetCenteredTextPos(const ImVec2& a_iconPos, const ImVec2& a_iconSize, const char* a_text);
+    void AdvanceCursorInline(float& a_startposX, float a_startPosY, uint32_t a_iconSize, float a_spacing = 4.0f);
+
 }
 

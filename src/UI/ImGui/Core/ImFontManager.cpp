@@ -22,6 +22,7 @@ namespace GTS {
 		    { kLargeText,   TextType(&FontSet_Regular, 22.0f) },
 		    { kWidgetBody,  TextType(&FontSet_Regular, 20.0f) },
 		    { kWidgetTitle, TextType(&FontSet_Light,   32.0f) },
+            { kIconText,    TextType(&FontSet_Medium,  16.0f) },
         };
 
     }

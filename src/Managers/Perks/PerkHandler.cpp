@@ -74,9 +74,6 @@ namespace {
 
     void ManageSpellPerks(const AddPerkEvent& evt) {
         if (evt.actor->formID == 0x14) {
-            /*if (evt.perk == Runtime::GetPerk("GTSPerkColossalGrowth")) {
-                PrintMessageBox("You've learned to rapidly change the size of yourself and your followers, as well as unlocked an ability to set size limit to any value. To change it, Open the settings and go to the balance page.");
-            }*/
             if (evt.perk == Runtime::GetPerk("GTSPerkGrowthDesireAug")) {
                 PrintMessageBox("You're now able to grow and shrink yourself manually at will. By default, press L.Shift + 1 or 2. You can affect followers by pressing L.Shift + Left Arrow + Arrow Up, and can also affect self by pressing Left Arrow + Arrow Up");
             }

@@ -40,7 +40,8 @@ namespace GTS {
             kLargeText,      //{ kLargeText,   TextType(&FontSet_Regular, 22.0f) },
             kSubText,        //{ kSubText,     TextType(&FontSet_Regular, 16.0f) },
             kWidgetBody,     //{ kWidgetBody,  TextType(&FontSet_Regular, 20.0f) },
-            kWidgetTitle     //{ kWidgetTitle, TextType(&FontSet_Light,   32.0f) },
+            kWidgetTitle,    //{ kWidgetTitle, TextType(&FontSet_Light,   32.0f) },
+            kIconText     //{ kWidgetTitle, TextType(&FontSet_Light,   32.0f) },
         };
 
         typedef struct Font2 {

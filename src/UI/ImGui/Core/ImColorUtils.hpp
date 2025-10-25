@@ -8,6 +8,7 @@ namespace ImUtil::Colors {
     ImVec4 CalculateContrastColor(const ImVec4& background);
     ImVec4 RGBAToImVec4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept;
     ImU32 fRGBToU32(std::array<float, 3> a_rgb);
+    ImVec4 fRGBToImVec4(std::array<float, 3> a_rgb);
 
     std::array<float, 3> RGBToLinear(float r, float g, float b);
     std::array<float, 3> LinearToRGB(float r, float g, float b);

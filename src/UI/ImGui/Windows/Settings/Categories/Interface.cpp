@@ -122,6 +122,8 @@ namespace GTS {
 	                ImGui::SetTooltip(T2);
 	            }
 
+				ImGui::ColorEdit3("Icon Overflow Color", Config::UI.f3IconOverflowColor.data(), ImGuiColorEditFlags_DisplayHSV);
+
 				ImGui::Spacing();
 
 				ImGuiEx::CheckBox("Pause Game", &Config::UI.bDoPause, T3);

@@ -1,0 +1,12 @@
+#pragma once
+#include "UI/ImGui/Controls/BuffIcons/IDynIcon.hpp"
+
+namespace ImGuiEx {
+
+	class DynIconLifeabsorbStacks final : IDynIcon {
+		public:
+		explicit DynIconLifeabsorbStacks(uint32_t a_size);
+		bool Draw(int a_stacks) const;
+	};
+
+}

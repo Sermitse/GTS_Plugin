@@ -1,7 +1,11 @@
-#include "UI/ImGui/Lib/imgui.h"
+﻿#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/Lib/imgui_internal.h"
 
 #include "UI/ImGui/Controls/ActorInfoCard.hpp"
+
+#include "Managers/MaxSizeManager.hpp"
+#include "Managers/Attributes.hpp"
+
 #include "UI/ImGui/Controls/Button.hpp"
 #include "UI/ImGui/Controls/Misc.hpp"
 #include "UI/ImGui/Controls/ToolTip.hpp"
@@ -14,20 +18,133 @@
 #include "Utils/KillDataUtils.hpp"
 #include "Managers/SpectatorManager.hpp"
 
+#include "UI/ImGui/Controls/BuffIcons/DynIcon_LifeAbsorbStacks.hpp"
+#include "UI/ImGui/Core/ImUtil.hpp"
+
+#include "Utils/UnitConverter.hpp"
+
+
+namespace {
+
+	// ------- Tooltips -------
+
+	PSString TDamageResist = "This is your damage resistance in percentage. Some GTS perks may further increase it.";
+	PSString TDamageBonus = "This is your non-size related damage multiplier. It affects both Physical and Magic damage.";
+	PSString THHDamage = "Extra foot damage multiplier when wearing high heels.";
+	PSString TShrinkResist = "Shrink Resistance reduces the effectiveness of any shrinking spell and/or effect on you.";
+	PSString TAbsorbedAttributesCap = "Absorbed Attributes cannot exceed this number";
+
+	PSString TOnTheEdge = "When your health drops below 60%%:\n"
+					      "- All growth gained becomes stronger the less health you have.\n"
+					      "- Hostile shrinking is less effective the less health you have.\n\n"
+					      "Maximum effect is achieved at 10%% HP remaining or lower.";
+
+	PSString TSizeReserve = "This is the amount of size stored by the size reserve perk.\n"
+		                    "You gain size reserve by eating/absorbing/crushing others";
+
+	PSString TAspectOfGTS = "This is the strength of Aspect of the Giantess enchantment\n"
+							"Aspect Of Giantess affects:\n"
+							"- Maximal Size, power of Shrink and Size Steal spells\n"
+							"- Size-Related damage, minimal shrink threshold from quest/balance mode\n"
+							"- Growth Rate and Growth Chance from Random Growth\n"
+							"- Power of Shrink Outburst and Hit Growth size gain\n"
+							"- Shrink resistance towards hostile shrink sources\n\n"
+							"Enchantment can be obtained from 'Amulet of Giants', which can be randomly found inside boss chests.";
+
+	PSString TStoredAttributes = "Stored Attributes are permanent Health/Magicka/Stamina attribute boosts that weren't absorbed by you yet\n"
+						         "They'll be randomly distributed between your three main attributes\n"
+						         "Complete perk requirements to fully absorb them and convert to Absorbed Attributes";
+
+	PSString TAbsorbedAttributes = "Absorbed Attributes are permanent Health/Magicka/Stamina attribute boosts of your character\n"
+								   "They're coming from 'Full Assimilation' perk";
+
+}
+
 namespace ImGuiEx {
 
 	using namespace GTS;
 
-	ActorInfoCard::ActorInfoCard(): expanded_section_(Section::kNone) {
+	std::optional<ActorInfoCard::ActorInfo> ActorInfoCard::ActorInfo::GetData(Actor* a_actor) {
+
+		auto I = ActorInfo{};
+
+		if (!a_actor) return std::nullopt;
+		if (!a_actor->Get3D(false)) return std::nullopt;
+
+		const auto& P = Persistent::GetSingleton().GetActorData(a_actor);
+		const auto& T = Transient::GetSingleton().GetActorData(a_actor);
+		if (!T || !P)  return std::nullopt;
+
+		I.Name =                    a_actor->GetName();
+
+		//Scale
+		I.fScaleCurrent =           get_visual_scale(a_actor);
+		I.fScaleMax =               get_max_scale(a_actor);
+		I.fScaleNatural =           get_natural_scale(a_actor);
+		I.fMassModeScaleMax =       MassMode_GetValuesForMenu(a_actor);
+		I.fScaleProgress =          I.fScaleMax < 250.0f ? I.fScaleCurrent / I.fScaleMax : -1.0f;
+
+		//Perks
+		I.iLifeAbsorbStacks =       T->Stacks_Perk_LifeForce;
+		I.iVoreStacks =             T->Stacks_Perk_CataclysmicStomp;
+		I.fSizeReserve =            P->SizeReserve;
+		I.fOnTheEdge =              (GetPerkBonus_OnTheEdge(a_actor, 0.01f) - 1.0f) * 100.f;
+
+		//Bonuses
+		I.fScaleBonus =				T->PotionMaxSize;
+		I.fShrinkResistance =       (1.0f - 1.0f * Potion_GetShrinkResistance(a_actor) * Perk_GetSprintShrinkReduction(a_actor)) * 100.f;
+		I.fGTSAspect =              Ench_Aspect_GetPower(a_actor) * 100.0f;
+		I.fHighHeelDamageBonus =    (GetHighHeelsBonusDamage(a_actor, true) - 1.0f) * 100.0f;
+
+		//Stats
+		I.fDamageResist =           (1.0f - AttributeManager::GetAttributeBonus(a_actor, ActorValue::kHealth)) * 100.f;
+		I.fSpeedMult =              (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kSpeedMult) - 1.0f) * 100.f;
+		I.fJumpMult =               (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kJumpingBonus) - 1.0f) * 100.0f;
+		I.fDamageBonus =            (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kAttackDamageMult) - 1.0f) * 100.0f;
+
+		//Stolen Attributes
+		I.fStolenAtributes =        P->stolen_attributes;
+		I.fStolenHealth =           GetStolenAttributes_Values(a_actor, ActorValue::kHealth);
+		I.fStolenMagicka =          GetStolenAttributes_Values(a_actor, ActorValue::kMagicka);
+		I.fStolenStamina =          GetStolenAttributes_Values(a_actor, ActorValue::kStamina);
+		I.fStolenCap =              GetStolenAttributeCap(a_actor);
+
+		//Player Only
+		if (a_actor->IsPlayerRef()) {
+			I.bIsPlayer = true;
+			I.fSizeEssence =        Persistent::GetSingleton().PlayerExtraPotionSize.value;
+		}
+
+		//Other
+		I.iTotalKills =             GetKillCount(a_actor, SizeKillType::kTotalKills);
+
+		//Formated
+		I.sFmtScale =               fmt::format("{} ({:.2f}x)", GetFormatedHeight(a_actor), I.fScaleCurrent);
+		I.sFmtWeight =              GetFormatedWeight(a_actor).c_str();
+
+		//Perk Check
+		I.bHasPerk_GTSFullAssimilation = Runtime::HasPerk(a_actor, "GTSPerkFullAssimilation");
+
+		return std::move(I);
+
+	}
+
+	ActorInfoCard::ActorInfoCard(): m_expandedSec(Section::kSectionExtra) {
 
 		m_wChildFlags = ImGuiChildFlags_Borders           |
-						ImGuiChildFlags_FrameStyle        |
 						ImGuiChildFlags_NavFlattened      |
 						ImGuiChildFlags_AutoResizeY       |
 						ImGuiChildFlags_AlwaysAutoResize;
 
 		m_wWindowFlags = ImGuiWindowFlags_NoSavedSettings;
 
+		//Init Icons
+		m_lifeAbsorbIcon = std::make_unique<DynIconLifeabsorbStacks>(m_buffIconSize);
+		m_damageReductionIcon = std::make_unique<DynIconDamageReduction>(m_buffIconSize);
+		m_enchantmentIcon = std::make_unique<DynIconEnchantment>(m_buffIconSize);
+		m_sizeReserveIcon = std::make_unique<DynIconSizeReserve>(m_buffIconSize);
+		m_onTheEdgeIcon = std::make_unique<DynIconOnTheEdge>(m_buffIconSize);
+		m_CataclysmicVoreStacksIcon = std::make_unique<DynIconCataclysmicVoreStacks>(m_buffIconSize);
 
 	}
 
@@ -39,6 +156,11 @@ namespace ImGuiEx {
 
 		auto Data = ActorInfo::GetData(a_actor);
 		if (!Data.has_value()) return;
+
+
+		//Update Vars
+		bMassModeEnabled = Config::Balance.sSizeMode == "kMassBased";
+		bIsPlayerMassMode = a_actor->IsPlayerRef() && bMassModeEnabled;
 
 		ImGui::PushID(a_actor);
 
@@ -53,16 +175,16 @@ namespace ImGuiEx {
 			ImGuiChildFlags_NavFlattened      |
 			ImGuiChildFlags_AutoResizeY       |
 			ImGuiChildFlags_AlwaysAutoResize,
-			m_wWindowFlags
+			m_wWindowFlags | ImGuiWindowFlags_NoBackground
 		);
-		RenderMainContent(Data.value());
+		DrawMainContent(Data.value());
 
 		// Expanded sections
-		if (expanded_section_ == Section::kSectionExtra) {
+		if (m_expandedSec == Section::kSectionExtra) {
 			ImGui::Separator();
-			RenderSection1(Data.value());
+			DrawExtraStats(Data.value());
 		}
-		else if (expanded_section_ == Section::kSectionKillInfo) {
+		else if (m_expandedSec == Section::kSectionKillInfo) {
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			DrawKillData(a_actor);
 		}
@@ -73,17 +195,19 @@ namespace ImGuiEx {
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 
-		bool section1_active = expanded_section_ == Section::kSectionExtra;
+		const bool section1_active = m_expandedSec == Section::kSectionExtra;
+		const bool section2_active = m_expandedSec == Section::kSectionKillInfo;
+
 		if (section1_active) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-		if (ImageButton("##ExtraInfo", "extra_info", m_baseIconSize, "Show Extended Info")) {
-			expanded_section_ = section1_active ? Section::kNone : Section::kSectionExtra;
+		if (ImageButton("##ExtraInfo", "infocard_extra", m_baseIconSize, "Show Extended Info")) {
+			m_expandedSec = section1_active ? Section::kNone : Section::kSectionExtra;
 		}
 		if (section1_active) ImGui::PopStyleColor();
-
-		bool section2_active = expanded_section_ == Section::kSectionKillInfo;
-		if (section2_active) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-		if (ImageButton("##KillInfo", "extra_kill_info", m_baseIconSize, "Show Kill Count Info")) {
-			expanded_section_ = section2_active ? Section::kNone : Section::kSectionKillInfo;
+		
+		if (section2_active)
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+		if (ImageButton("##KillInfo", "infocard_kills", m_baseIconSize, "Show Kill Count Info")) {
+			m_expandedSec = section2_active ? Section::kNone : Section::kSectionKillInfo;
 		}
 		if (section2_active) ImGui::PopStyleColor();
 
@@ -94,7 +218,130 @@ namespace ImGuiEx {
 		ImGui::PopID();
 	}
 
-	void ActorInfoCard::RenderMainContent(const ActorInfo& Data) {
+	void ActorInfoCard::DrawBuffIcons(const ActorInfo& Data) const {
+
+		ImVec2 Size = { ImGui::GetContentRegionAvail().x, m_buffIconSize + (ImGui::GetStyle().FramePadding.y * 2.0f) };
+
+		ImGui::BeginChild("##BuffIcons", Size,
+			ImGuiChildFlags_Borders |
+			ImGuiChildFlags_FrameStyle |
+			ImGuiChildFlags_NavFlattened,
+			m_wWindowFlags | ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoScrollWithMouse |
+			ImGuiWindowFlags_NoNav
+		);
+
+		constexpr float padding = 8.0f;
+		const float RowY = ImGui::GetCursorPosY();
+		float cursorX = ImGui::GetCursorPosX();
+		uint8_t drawnIcons = 0;
+
+		//m_damageReductionIcon
+		if (m_damageReductionIcon->Draw(Data.fDamageResist)) {
+			ImGuiEx::Tooltip(TDamageResist, true);
+			ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
+			drawnIcons++;
+		}
+
+		//m_lifeAbsorbIcon
+		if (m_lifeAbsorbIcon->Draw(Data.iLifeAbsorbStacks)) {
+			//TODO Tooltip
+			//ImGuiEx::Tooltip(TLifeAbsorb, true);
+			ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
+			drawnIcons++;
+		}
+
+		//m_enchantmentIcon
+		if (m_enchantmentIcon->Draw(Data.fGTSAspect)) {
+			ImGuiEx::Tooltip(TAspectOfGTS, true);
+			ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
+			drawnIcons++;
+		}
+
+		//m_CataclysmicVoreStacksIcon
+		if (m_CataclysmicVoreStacksIcon->Draw(Data.iVoreStacks)) {
+			//TODO Tooltip
+			//ImGuiEx::Tooltip(TVoreStacks, true);
+			ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
+			drawnIcons++;
+		}
+
+		
+		if (Data.bIsPlayer) {
+
+			//m_sizeReserveIcon
+			if (m_sizeReserveIcon->Draw(Data.fSizeReserve)) {
+				ImGuiEx::Tooltip(TSizeReserve, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
+				drawnIcons++;
+			}
+
+			//m_onTheEdgeIcon
+			if (m_onTheEdgeIcon->Draw(Data.fOnTheEdge)) {
+				ImGuiEx::Tooltip(TOnTheEdge, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
+				drawnIcons++;
+			}
+
+		}
+
+		if (drawnIcons == 0) {
+			const char* txt = "No Buffs Active";
+			const ImVec2 textSize = ImGui::CalcTextSize(txt);
+			ImGui::SetCursorPos({
+				Size.x *.5f - (textSize.x * .5f),
+				Size.y *.5f - (textSize.y * .5f)
+			});
+			ImGui::Text(txt);
+		}
+
+		ImGui::Dummy({});
+		ImGui::EndChild();
+	}
+
+	void ActorInfoCard::DrawBaseInfoTable(const ActorInfo& Data) const {
+
+		ImFontManager::Push(ImFontManager::ActiveFontType::kLargeText);
+
+		if (ImGui::BeginTable("##MainStatsTable", 2,
+			ImGuiTableFlags_NoSavedSettings |
+			ImGuiTableFlags_NoBordersInBody |
+			ImGuiTableFlags_Hideable,
+			{ ImGui::GetContentRegionAvail().x, 0.0f })) {
+
+			// --------------------------------- Max Size
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Max Size:");
+			ImGui::TableSetColumnIndex(1);
+
+			if (Data.fScaleMax > 250.f) {
+				ImGui::Text("∞");
+			}
+			else {
+				if (bMassModeEnabled) {
+					ImGui::Text("%.2fx out of %.2fx", Data.fScaleMax, Data.fMassModeScaleMax);
+				}
+				else {
+					ImGui::Text("%.2fx", Data.fScaleMax);
+				}
+			}
+
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Kills:");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%u", Data.iTotalKills);
+
+			ImGui::EndTable();
+
+		}
+
+		ImFontManager::Pop();
+
+	}
+
+	void ActorInfoCard::DrawMainContent(const ActorInfo& Data) const {
 
 		ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetTitle);
 		{
@@ -104,33 +351,160 @@ namespace ImGuiEx {
 				ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetBody);
 
 				ProgressBar(
-					Data.fScaleProgress,
+					Data.fScaleProgress == -1.0f ? 1.0f : Data.fScaleProgress,
 					{ ImGui::GetContentRegionAvail().x, 0.0f },
 					Data.sFmtScale.c_str(),
 					ImGuiExProgresbarFlag_Gradient | ImGuiExProgresbarFlag_Rounding,
-					1.0f, 1.0f, 0.7f, 1.3f,
+					1.25f, 1.0f, 0.7f, 1.3f,
 					ImUtil::Colors::fRGBToU32(Config::UI.f3AccentColor)
 				);
 
-				//TODO: Buff Icon Draw Code goes here
-				//
-				//-----------------
+				DrawBuffIcons(Data);
+				DrawBaseInfoTable(Data);
 
-				//Max size
-				//Weight
-				//
-
-
-
-				ImGui::Spacing();
 			}
 		}
 		ImFontManager::Pop(2);
 	}
 
-	void ActorInfoCard::RenderSection1(const ActorInfo&) {
-		ImGui::Text("Section 1 Content");
-		ImGui::Text("Override RenderSection1()");
+	void ActorInfoCard::DrawExtraStats(const ActorInfo& Data) const {
+
+
+		if (ImGui::BeginTable("##MainStatsTable", 2,
+			ImGuiTableFlags_NoSavedSettings |
+			ImGuiTableFlags_NoBordersInBody |
+			ImGuiTableFlags_Hideable, 
+			{ ImGui::GetContentRegionAvail().x, 0.0f })) {
+
+			//---------Total Max Size Calculation and Text Formating
+			const float BonusSize_EssenceAndDragons =    Data.fSizeEssence;
+			const float BonusSize_TempPotionBoost =      Data.fScaleBonus * 100.0f;
+			const float BonusSize_AspectOfGiantess =     Data.fGTSAspect;
+			const float BonusSize_Overkills =            Data.fOverkills;
+			const float BonusSize_Overkills_Multiplier = Data.fOverkillMult;
+
+			const std::string TotalSizeBonusCalculation = fmt::format(
+				fmt::runtime(
+					"Size Essence & Absorbed Dragons: +{:.2f}x\n"
+					"Colossal Growth: +{:.2f}x\n"
+					"Potion Of Heights: +{:.0f}%%\n"
+					"Aspect Of Giantess: +{:.0f}%%\n"
+					"Overkills & C.Growth: +{:.2f}x\n\n"
+					"- Size Essence Increases your maximum achievable size when the size limit cap is set to \"Skill Based\"\n"
+					"- If Size Gain mode is in \"Mass Mode\", then Essence Bonus is reduced by {:.0f}%% \n"
+					"- You can gain Essence by killing and absorbing dragons when you have the correct perk\n"
+					"- Or by consuming specific potions found all around the world."
+				),
+				bMassModeEnabled ? BonusSize_EssenceAndDragons * MassMode_ElixirPowerMultiplier : BonusSize_EssenceAndDragons * 1.0f,
+				BonusSize_Overkills,
+				BonusSize_TempPotionBoost,
+				BonusSize_AspectOfGiantess,
+				BonusSize_Overkills_Multiplier,
+				(1.0f - MassMode_ElixirPowerMultiplier) * 100.0f
+			);
+
+			// --------------------------------- Player Only Stuff 
+			if (Data.bIsPlayer) {
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Shrink Resistance:");
+				ImGuiEx::Tooltip(TShrinkResist, true);
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%.1f%%", Data.fShrinkResistance);
+
+			}
+
+			// --------------------------------- Weight
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Weight:");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text(Data.sFmtWeight.c_str());
+
+
+			// --------------------------------- Bonus Size
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Bonus Size:");
+			ImGuiEx::Tooltip(TotalSizeBonusCalculation.c_str(), true);
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text(
+				bIsPlayerMassMode ? "%.0f%% + [%.2F + %.2Fx possible]" : "%.0f%% + %.2F + %.2Fx",
+				(Data.fScaleBonus * 100.0f) + Data.fGTSAspect,
+				bMassModeEnabled ? (Data.fSizeEssence * MassMode_ElixirPowerMultiplier) + BonusSize_Overkills : (Data.fSizeEssence * 1.0f) + BonusSize_Overkills,
+				std::clamp(BonusSize_Overkills_Multiplier, 1.0f, 999999.0f)
+			);
+
+			// ---------------------------------  High Heel Damage
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("High Heel Damage:");
+			ImGuiEx::Tooltip(THHDamage, true);
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("+%.0f%%", Data.fHighHeelDamageBonus);
+
+
+			// ---------------------------------  Damage Multiplier
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Bonus Damage:");
+			ImGuiEx::Tooltip(TDamageBonus, true);
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.1f%%", Data.fDamageBonus);
+
+
+			// --------------------------------- Carry Weight
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Bonus Carry Weight:");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.1f", Data.fCarryWeightBonus);
+
+
+			// --------------------------------- Speed Multiplier
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Bonus Speed:");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.1f%%", Data.fSpeedMult);
+
+
+			// ---------------------------------  Jump Multiplier
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Bonus Jump Height:");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.1f%%", Data.fJumpMult);
+
+			// --------------------------------- Perk Related
+
+			if (Data.bHasPerk_GTSFullAssimilation) {
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Stored Attributes:");
+				ImGuiEx::Tooltip(TStoredAttributes, true);
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("+%.2f", Data.fStolenAtributes);
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Absorbed Attributes:");
+				ImGuiEx::Tooltip(TAbsorbedAttributes, true);
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("HP: +%.2f, MP: +%.2f, SP: +%.2f", Data.fStolenHealth, Data.fStolenMagicka, Data.fStolenStamina);
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Max Attributes:");
+				ImGuiEx::Tooltip(TAbsorbedAttributesCap, true);
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%.2f", Data.fStolenCap);
+
+			}
+			ImGui::EndTable();
+		}
 	}
 
 	void ActorInfoCard::DrawSpectateButton(Actor* a_actor) const {
@@ -149,83 +523,68 @@ namespace ImGuiEx {
 		}
 		// "Spectate" button appears for non-player actors that are not targeted
 		else if (!isPlayer) {
-			if (ImageButton("##Spectate", "spectate", m_baseIconSize, "Spectate This NPC")) {
+			if (ImageButton("##Spectate", "infocard_spectate", m_baseIconSize, "Spectate This NPC")) {
 				SpectatorManager::SetCameraTarget(a_actor, false);
 			}
 		}
 	}
 
-	void ActorInfoCard::DrawKillStat(RE::Actor* a_actor, const char* a_name, SizeKillType a_type, const char* a_toolTip) {
+	void ActorInfoCard::DrawKillStat(Actor* a_actor, const char* a_name, SizeKillType a_type, uint8_t a_colOffset, const char* a_toolTip) {
 
 		if (!a_actor) return;
 
-		ImGui::TableNextRow();
+		if (a_colOffset == 0) {
+			ImGui::TableNextRow();
+		}
 
-		ImGui::TableSetColumnIndex(0);
+		ImGui::TableSetColumnIndex(0 + a_colOffset);
 		ImGui::Text(a_name);
 		if (a_toolTip) {
 			ImGuiEx::Tooltip(a_toolTip, true);
 		}
 
-		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%d", GetKillCount(a_actor, a_type));
-		
-		if (a_toolTip) {
-			ImGuiEx::Tooltip(a_toolTip, true);
-		}
+		ImGui::TableSetColumnIndex(1 + a_colOffset);
+		ImGui::Text("%u", GetKillCount(a_actor, a_type));
 
 	}
 
-	void ActorInfoCard::DrawKillData(RE::Actor* a_actor) {
+	void ActorInfoCard::DrawKillData(Actor* a_actor) {
 
 		if (!a_actor) return;
 
 		ImGui::Spacing();
 
-		ImFontManager::Push(ImFontManager::kWidgetTitle);
-		ImGui::Text("Kills");
-		ImFontManager::Pop();
-
-		if (ImGui::BeginTable("##KillCountTable", 2, 
+		if (ImGui::BeginTable("##KillCountTable", 4, 
 			ImGuiTableFlags_NoSavedSettings | 
 			ImGuiTableFlags_NoBordersInBody | 
-			ImGuiTableFlags_Hideable)) {
+			ImGuiTableFlags_Hideable, 
+			{ ImGui::GetContentRegionAvail().x, 0.0f })) {
 
-			DrawKillStat(a_actor, "Erased From Existence:", SizeKillType::kErasedFromExistence);
-			DrawKillStat(a_actor, "Shrunk To Nothing:",     SizeKillType::kShrunkToNothing);
-			DrawKillStat(a_actor, "Breast Suffocated:",     SizeKillType::kBreastSuffocated);
-			DrawKillStat(a_actor, "Breast Absorbed:",       SizeKillType::kBreastAbsorbed);
-			DrawKillStat(a_actor, "Breast Crushed:",        SizeKillType::kBreastCrushed);
+			//The Row Draws Must be interleaved, as we have 4 columns, a_colOffset > 0 Prevents moving to then next row.
 
-			//ImGui::TableNextRow(); //used as new line
-
-			DrawKillStat(a_actor, "Thigh Suffocated:",      SizeKillType::kThighSuffocated);
-			DrawKillStat(a_actor, "Thigh Sandwiched:",      SizeKillType::kThighSandwiched);
-			DrawKillStat(a_actor, "Thigh Crushed:",         SizeKillType::kThighCrushed);
-
-			//ImGui::TableNextRow();
-
-			DrawKillStat(a_actor, "Grind Crushed:",         SizeKillType::kGrinded);
-			DrawKillStat(a_actor, "Kick Crushed:",          SizeKillType::kKicked);
-
-			//ImGui::TableNextRow();
-
-			DrawKillStat(a_actor, "Finger Crushed:",        SizeKillType::kFingerCrushed);
-			DrawKillStat(a_actor, "Grab Crushed:",          SizeKillType::kGrabCrushed);
-			DrawKillStat(a_actor, "Butt Crushed:",          SizeKillType::kButtCrushed);
-			DrawKillStat(a_actor, "Hug Crushed:",           SizeKillType::kHugCrushed);
-			DrawKillStat(a_actor, "Crushed:",               SizeKillType::kCrushed);
-
-			//ImGui::TableNextRow();
-
-			DrawKillStat(a_actor, "Eaten:",                 SizeKillType::kEaten);
-			DrawKillStat(a_actor, "Other Sources:",         SizeKillType::kOtherSources, 
+			DrawKillStat(a_actor, "Erased From Existence:", SizeKillType::kErasedFromExistence, 0 );
+			DrawKillStat(a_actor, "Finger Crushed:",        SizeKillType::kFingerCrushed,       2 );
+			DrawKillStat(a_actor, "Shrunk To Nothing:",     SizeKillType::kShrunkToNothing ,    0 );
+			DrawKillStat(a_actor, "Grab Crushed:",          SizeKillType::kGrabCrushed,         2 );
+			DrawKillStat(a_actor, "Breast Suffocated:",     SizeKillType::kBreastSuffocated,    0 );
+			DrawKillStat(a_actor, "Butt Crushed:",          SizeKillType::kButtCrushed,         2 );
+			DrawKillStat(a_actor, "Breast Absorbed:",       SizeKillType::kBreastAbsorbed,      0 );
+			DrawKillStat(a_actor, "Hug Crushed:",           SizeKillType::kHugCrushed,          2 );
+			DrawKillStat(a_actor, "Breast Crushed:",        SizeKillType::kBreastCrushed,       0 );
+			DrawKillStat(a_actor, "Crushed:",               SizeKillType::kCrushed,             2 );
+			DrawKillStat(a_actor, "Thigh Suffocated:",      SizeKillType::kThighSuffocated,     0 );
+			DrawKillStat(a_actor, "Eaten:",                 SizeKillType::kEaten,               2 );
+			DrawKillStat(a_actor, "Thigh Sandwiched:",      SizeKillType::kThighSandwiched,     0 );
+			DrawKillStat(a_actor, "Other Sources:",         SizeKillType::kOtherSources,        2,
 				"Other Sources are:\n"
 				"- Shockwave deaths\n"
 				"- Tiny calamity collision deaths\n"
 				"- Tiny death while grabbed with no action happening\n"
 				"- Overkill weapon damage when large\n"
 			);
+			DrawKillStat(a_actor, "Thigh Crushed:",         SizeKillType::kThighCrushed);
+			DrawKillStat(a_actor, "Grind Crushed:",         SizeKillType::kGrinded);
+			DrawKillStat(a_actor, "Kick Crushed:",          SizeKillType::kKicked);
 
 			ImGui::EndTable();
 		}

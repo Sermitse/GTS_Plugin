@@ -82,6 +82,11 @@ namespace ImUtil::Colors {
         return IM_COL32(r, g, b, 255); // full alpha
     }
 
+
+    ImVec4 fRGBToImVec4(std::array<float, 3> a_rgb) {
+        return { a_rgb[0], a_rgb[1], a_rgb[2], 1.0f }; // full alpha
+    }
+
     std::array<float, 3> RGBToLinear(float r, float g, float b) {
         alignas(16) float rgb[4] = { r, g, b, 0.0f };
         __m128 v = _mm_load_ps(rgb);
