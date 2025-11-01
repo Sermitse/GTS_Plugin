@@ -18,10 +18,12 @@ namespace ImGuiEx {
         ImU32 a_flags = ImGuiExProgresbarFlag_None,
         float a_heightMult = 1.0f,
         float a_borderThickness = 1.0f,
+        float a_roundingScale = 5.0f,
         float a_gradDarkFactor = 0.7f,
         float a_gradLightFactor = 1.3f,
         ImU32 a_gradCol1 = IM_COL32(255, 0, 0, 255),
-        ImU32 a_gradCol2 = IM_COL32(0, 255, 0, 255)
+        ImU32 a_gradCol2 = IM_COL32(0, 255, 0, 255),
+		ImU32 a_borderCol = IM_COL32(128, 128, 128, 192)
         );
 
 }

@@ -31,14 +31,18 @@ namespace GTS {
         static constexpr const char* const m_extraSectionName = ".Extra";
 
         public:
-        explicit WindowSettingsHolder(const std::string& a_instanceName, const std::string& a_basePreffix) : m_instanceName(a_instanceName), m_basePrefix(a_basePreffix), m_baseDefaults(WindowSettingsBase_t{}) {
-        	m_windowTypeName = typeid(WindowType).name();
+        explicit WindowSettingsHolder(const std::string& a_instanceName, const std::string& a_basePreffix) :
+    	m_baseSettings(WindowSettingsBase_t{}),
+    	m_instanceName(a_instanceName),
+    	m_basePrefix(a_basePreffix),
+    	m_baseDefaults(WindowSettingsBase_t{}) {
 
-        	// Clean up the type name for readability
+            m_windowTypeName = typeid(WindowType).name();
             size_t pos = m_windowTypeName.find_last_of(':');
             if (pos != std::string::npos) {
                 m_windowTypeName = m_windowTypeName.substr(pos + 1);
             }
+
         }
 
         explicit WindowSettingsHolder(const WindowSettingsBase_t& a_baseDefaults, const std::string& a_instanceName, const std::string& a_basePreffix)
@@ -136,7 +140,6 @@ namespace GTS {
 
         // Helper function to create nested tables from dot-separated path
         static void CreateNestedTable(toml::ordered_value& a_toml, const std::string& a_tablePath, const toml::ordered_value& a_data) {
-            // Ensure the root is a table
             if (!a_toml.is_table()) {
                 a_toml = toml::ordered_table{};
             }
@@ -147,23 +150,34 @@ namespace GTS {
 
             logger::info("Constructing Nested Table: {}", a_tablePath);
 
-            // Split the path by dots
             while (std::getline(ss, part, '.')) {
                 logger::trace("Part {}", part);
                 parts.push_back(part);
             }
 
-            // Navigate/create the nested structure
+            if (parts.empty()) return;
+
+            // Navigate/create the nested structure, but don't create empty leaf tables
             toml::ordered_value* current = &a_toml;
             for (size_t i = 0; i < parts.size() - 1; ++i) {
                 if (!current->contains(parts[i])) {
                     current->as_table()[parts[i]] = toml::ordered_table{};
                 }
-                current = &current->as_table()[parts[i]];
+                // Only navigate if the next level exists or we're creating it
+                auto& next = current->as_table()[parts[i]];
+                if (next.is_table()) {
+                    current = &next;
+                }
+                else {
+                    logger::error("Path conflict at {}: expected table but found value", parts[i]);
+                    return;
+                }
             }
 
-            // Set the final value
-            current->as_table()[parts.back()] = a_data;
+            // Only set the final value if a_data is not an empty table
+            if (!a_data.is_table() || !a_data.as_table().empty()) {
+                current->as_table()[parts.back()] = a_data;
+            }
         }
 
         // Helper function to get nested table from dot-separated path
@@ -243,6 +257,7 @@ namespace GTS {
         }
 
         virtual bool LoadStructFromTOML(const toml::ordered_value& toml) {
+
             bool result = true;
             std::string baseTableName = GetBaseTableName();
 
@@ -250,14 +265,18 @@ namespace GTS {
             try {
                 toml::ordered_value baseData;
                 if (GetNestedTable(toml, baseTableName, baseData)) {
-                    // Create temporary TOML with expected structure
                     toml::ordered_value tempToml{ toml::table{} };
                     tempToml.as_table()["TempTable"] = baseData;
                     m_baseSettings = toml::get<WindowSettingsBase_t>(tempToml.at("TempTable"));
                 }
+                else {
+                    // Settings don't exist in TOML - apply defaults
+                    m_baseSettings = m_baseDefaults;
+                }
             }
             catch (const std::exception& e) {
-                logger::warn("Failed to load base settings for {}: {}", baseTableName, e.what());
+                logger::warn("Failed to load base settings for {}: {} - using defaults", baseTableName, e.what());
+                m_baseSettings = m_baseDefaults;
             }
 
             // Load custom settings if they exist
@@ -267,18 +286,23 @@ namespace GTS {
                     toml::ordered_value customData;
 
                     if (GetNestedTable(toml, customTableName, customData)) {
-                        // Create a temporary TOML with the expected section name
                         toml::ordered_value tempToml{ toml::table{} };
                         std::string originalSectionName = m_customSettings->GetSectionName();
                         tempToml.as_table()[originalSectionName] = customData;
 
                         if (!m_customSettings->LoadStructFromTOML(tempToml)) {
-                            logger::warn("Failed to load custom settings for {}", customTableName);
+                            logger::warn("Failed to load custom settings for {} - using defaults", customTableName);
+                            m_customSettings->ResetToDefaults();
                         }
+                    }
+                    else {
+                        // Custom settings don't exist - use defaults
+                        m_customSettings->ResetToDefaults();
                     }
                 }
                 catch (const std::exception& e) {
-                    logger::warn("Exception loading custom settings for {}: {}", baseTableName, e.what());
+                    logger::warn("Exception loading custom settings for {}: {} - using defaults", baseTableName, e.what());
+                    m_customSettings->ResetToDefaults();
                 }
             }
 

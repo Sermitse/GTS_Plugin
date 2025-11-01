@@ -4,8 +4,10 @@
 #include "config/Config.hpp"
 
 #include "UI/ImGui/Controls/ActorInfoCard.hpp"
+#include "UI/ImGui/Controls/Misc.hpp"
 #include "UI/ImGui/Core/ImColorUtils.hpp"
 #include "UI/ImGui/Lib/imgui.h"
+#include "UI/ImGui/Lib/imgui_internal.h"
 
 namespace GTS {
 
@@ -15,20 +17,23 @@ namespace GTS {
 
     
     void CategoryStats::Draw() {
+
         const float Width = (ImGui::GetContentRegionAvail().x / 3.0f - ImGui::GetStyle().ItemSpacing.x - ImGui::GetStyle().CellPadding.x);
-        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize,  1.0f);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize,  1.0f);
         ImGui::PushStyleColor(ImGuiCol_ChildBg,
             ImUtil::Colors::AdjustLightness(
                 ImVec4(Config::UI.f3AccentColor[0], Config::UI.f3AccentColor[1], Config::UI.f3AccentColor[2], ImGui::GetStyle().Colors[ImGuiCol_FrameBg].w),
                 0.7
             )
         );
+
         // Draw player card
         if (const auto& Data = Transient::GetSingleton().GetActorData(PlayerCharacter::GetSingleton())) {
             Data->InfoCard.Draw(PlayerCharacter::GetSingleton(), { Width, 0 });
         }
 
-        ImGui::SameLine();
+        ImGuiEx::SeperatorVFullLength();
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
 
@@ -55,17 +60,20 @@ namespace GTS {
                 }
 
                 // Paging controls
+                std::string text = fmt::format("Page {:d} / {:d}", currentPage + 1, totalPages);
                 ImGui::SetCursorPosY(ImGui::GetWindowHeight() - ImGui::GetFrameHeightWithSpacing());
                 float buttonWidth = ImGui::CalcTextSize("<").x + ImGui::GetStyle().FramePadding.x * 2;
-                float textWidth = ImGui::CalcTextSize("Page 999 / 999").x;
+                float textWidth = ImGui::CalcTextSize(text.c_str()).x;
                 ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (buttonWidth * 2 + textWidth + ImGui::GetStyle().ItemSpacing.x * 2));
 
                 if (ImGui::Button("<") && currentPage > 0) {
                     currentPage--;
                 }
+
                 ImGui::SameLine();
-                ImGui::Text("Page %d / %d", currentPage + 1, totalPages);
+                ImGui::Text(text.c_str());
                 ImGui::SameLine();
+
                 if (ImGui::Button(">") && currentPage < totalPages - 1) {
                     currentPage++;
                 }

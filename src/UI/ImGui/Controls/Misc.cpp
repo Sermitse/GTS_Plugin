@@ -16,4 +16,19 @@ namespace ImGuiEx {
         ImGui::SameLine();
     }
 
+    void SeperatorVFullLength() {
+
+        ImGui::SameLine();
+
+        const float height = ImGui::GetContentRegionAvail().y;
+        const ImVec2 start = ImGui::GetCursorScreenPos();
+        const ImVec2 end = { start.x, start.y + height };
+        ImGui::GetWindowDrawList()->AddLine(start, end, ImGui::GetColorU32(ImGuiCol_Separator));
+
+        // maintain layout
+        ImGui::Dummy({ 1.0f, height });
+
+        ImGui::SameLine();
+    }
+
 }

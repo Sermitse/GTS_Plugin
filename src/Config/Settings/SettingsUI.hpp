@@ -157,38 +157,57 @@ struct WindowSettingsBase_t {
 TOML_SERIALIZABLE(WindowSettingsBase_t);
 TOML_REGISTER_NAME(WindowSettingsBase_t, "Window");
 
-struct WindowSettingsStatsWidget_t {
+//Defaults are set in the Window Init for that particular window
+struct WindowSettingsSizeBar_t {
     bool bVisible = true;
     bool bEnableFade = true;
+    bool bShowName = false;
+    bool bShowScale = true;
+    bool bShowSize = true;
     float fFadeAfter = 1.0f;
-    float fFixedWidth = 100.0f;
-    float fProgressBarHeightMult = 1.0f;
-    float fFadeDelta = 0.0f;
+    float fFadeDelta = 0.01f;
+    float fBorderThickness = 1.0f;
+    float fBorderLightness = 1.0f;
+    float fRounding = 5.0f;
+    float fBorderAlpha = 1.0f;
+    std::array<float, 2> f2GradientRange = { 1.0f, 1.0f };
     std::array<float, 3> f3ColorA = { 1.0f, 1.0f, 1.0f };
     std::array<float, 3> f3ColorB = { 1.0f, 1.0f, 1.0f };
-    uint64_t iFlags;
+	std::array<float, 2> f2Size = { 150.0f, 1.0f };
+    uint16_t iFlags = 0;
 };
-TOML_SERIALIZABLE(WindowSettingsStatsWidget_t);
-TOML_REGISTER_NAME(WindowSettingsStatsWidget_t, "StatsWidget");
+TOML_SERIALIZABLE(WindowSettingsSizeBar_t);
+TOML_REGISTER_NAME(WindowSettingsSizeBar_t, "SizeBar");
 
+//Defaults are set in the Window Init for that particular window
+struct WindowSettingsUnderstompBar_t {
+    bool bVisible = true;
+    bool bEnableFade = true;
+    bool bShowScale = true;
+    bool bShowAbsoluteAngle = false;
+    float fFadeAfter = 1.0f;
+    float fFadeDelta = 0.01f;
+    float fBorderThickness = 1.0f;
+    float fBorderLightness = 1.0f;
+    float fRounding = 5.0f;
+    float fBorderAlpha = 1.0f;
+    std::array<float, 2> f2GradientRange;
+    std::array<float, 3> f3ColorA;
+    std::array<float, 3> f3ColorB;
+    std::array<float, 2> f2Size;
+    uint16_t iFlags = 0;
+};
+TOML_SERIALIZABLE(WindowSettingsUnderstompBar_t);
+TOML_REGISTER_NAME(WindowSettingsUnderstompBar_t, "SizeBar");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//Defaults are set in the Window Init for that particular window
+struct WindowSettingsStatusBar_t {
+    bool bVisible = true;
+    bool bEnableFade = true;
+    float fFadeAfter = 2.5f;
+    float fFadeDelta = 0.01f;
+    uint16_t iIconSize = 48;
+    uint16_t iFlags = 0;
+};
+TOML_SERIALIZABLE(WindowSettingsStatusBar_t);
+TOML_REGISTER_NAME(WindowSettingsStatusBar_t, "StatusBar");

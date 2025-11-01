@@ -46,7 +46,7 @@ namespace GTS {
 	}
 
 	bool SplashWindow::WantsToDraw() {
-		return m_isInMainMenu;
+		return m_isInMainMenu && Config::Persistent.bShowSplashScreen;
 	}
 
 	void SplashWindow::Init() {

@@ -27,6 +27,9 @@ namespace ImGuiEx {
 
 		public:
 
+    	void RenameTab(size_t index, std::string_view newLabel);
+        void RenameTab(std::string_view oldLabel, std::string_view newLabel);
+
         CollapsingTabHeader(const std::string& a_label, bool a_defaultOpen = true);
         CollapsingTabHeader(const std::string& a_label, const std::vector<std::string>& a_categories, bool a_defaultOpen = true);
         CollapsingTabHeader(const std::string& a_label, std::initializer_list<std::string> a_categories, bool a_defaultOpen = true);

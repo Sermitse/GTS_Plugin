@@ -15,4 +15,12 @@ namespace ImUtil::Colors {
     std::array<float, 3> LinearToOKLab(float r, float g, float b);
     std::array<float, 3> OKLabToLinear(float L, float a, float b);
     ImVec4 CompensateForDarkColors(const ImVec4& c, float minL);
+
+    std::array<float, 3> HSVtoRGB(const std::array<float, 3>& hsv);
+    std::array<float, 3> RGBtoHSV(const std::array<float, 3>& rgb);
+    
+    std::array<float, 3> ShiftHue(const std::array<float, 3>& hsv, float hueShift);
+
+    ImU32 fRGBAToU32(std::array<float, 4> a_rgba);
+    ImU32 AdjustGrayScaleLightness(float a_grayScale, float a_alpha);
 }

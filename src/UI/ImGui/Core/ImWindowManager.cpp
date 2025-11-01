@@ -2,9 +2,12 @@
 #include "UI/ImGui/Core/ImFontManager.hpp"
 #include "UI/ImGui/Core/ImStyleManager.hpp"
 #include "UI/ImGui/Core/ImUtil.hpp"
-#include "UI/ImGui/Windows/DebugWindow.hpp"
 
+#include "UI/ImGui/Windows/DebugWindow.hpp"
+#include "UI/ImGui/Windows/SizeBarWindow.hpp"
 #include "UI/ImGui/Windows/SplashWindow.hpp"
+#include "UI/ImGui/Windows/StatusBarWindow.hpp"
+#include "UI/ImGui/Windows/USBarWindow.hpp"
 #include "UI/ImGui/Windows/Settings/SettingsWindow.hpp"
 
 namespace GTS {
@@ -90,12 +93,15 @@ namespace GTS {
        
     }
 
-    void ImWindowManager::Update() const {
+    void ImWindowManager::Update() {
         GTS_PROFILE_SCOPE("ImWindowManager Update");
 
         if (!HasWindows()) [[unlikely]] {
             return;
         }
+
+		// Update cached teammate count once per update.
+        m_cachedTeamMateList = FindTeammates();
 
         float deltaTime = GetDeltaTime();
         bool isDebugging = false;
@@ -152,6 +158,10 @@ namespace GTS {
         return deltaTime;
     }
 
+    const std::vector<std::unique_ptr<ImWindow>>& ImWindowManager::GetWindows() const {
+        return Windows;
+    }
+
     void ImWindowManager::Init() {
 
         logger::info("ImContextManager Init");
@@ -163,9 +173,19 @@ namespace GTS {
         logger::info("ImStyleManager Init");
         ImStyleManager::ApplyStyle();
 
-        AddWindow(std::make_unique<SplashWindow>(), &wSplash);
-        AddWindow(std::make_unique<SettingsWindow>(), &wSettings);
-        AddWindow(std::make_unique<DebugWindow>(), &wDebug);
+        AddWindow(std::make_unique<SplashWindow>(),    &wSplash);
+        AddWindow(std::make_unique<SettingsWindow>(),  &wSettings);
+        AddWindow(std::make_unique<DebugWindow>(),     &wDebug);
+        AddWindow(std::make_unique<USBarWindow>(),     &wUBar);
+        AddWindow(std::make_unique<StatusBarWindow>(), &wBBar);
+
+        //Size Bar Windows
+        AddWindow(std::make_unique<SizeBarWindow>("WSBarP"),   &wSBarP );
+        AddWindow(std::make_unique<SizeBarWindow>("WSBarF1"),  &wSBarF1);
+        AddWindow(std::make_unique<SizeBarWindow>("WSBarF2"),  &wSBarF2);
+        AddWindow(std::make_unique<SizeBarWindow>("WSBarF3"),  &wSBarF3);
+        AddWindow(std::make_unique<SizeBarWindow>("WSBarF4"),  &wSBarF4);
+        AddWindow(std::make_unique<SizeBarWindow>("WSBarF5"),  &wSBarF5);
 
         logger::info("ImWindowManager Init OK");
 
@@ -179,7 +199,11 @@ namespace GTS {
         return Context->GetCurrentConfig().cursorEnabled;
     }
 
-    ImWindow* ImWindowManager::GetWindowByName(const std::string& a_name) const {
+    std::vector<Actor*> ImWindowManager::GetCachedTeamMateList(){
+    	return m_cachedTeamMateList;
+    }
+
+	ImWindow* ImWindowManager::GetWindowByName(const std::string& a_name) const {
         for (const auto& window : Windows) {
             if (window->GetWindowName() == a_name) {
                 return window.get();

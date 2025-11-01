@@ -35,4 +35,16 @@ namespace ImUtil {
         a_startposX += a_iconSize + a_spacing;
         ImGui::SetCursorPos({ a_startposX, a_startPosY });
     }
+
+
+    void ToggleFlag(uint16_t& flags, uint32_t flag, bool state) {
+        if (state) flags |= flag;
+        else flags &= ~flag;
+    }
+
+    void ToggleFlag(uint32_t& flags, uint32_t flag, bool state) {
+        if (state) flags |= flag;
+        else flags &= ~flag;
+    }
+
 }

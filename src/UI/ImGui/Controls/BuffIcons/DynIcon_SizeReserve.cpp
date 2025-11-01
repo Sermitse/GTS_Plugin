@@ -18,7 +18,7 @@ namespace ImGuiEx {
 
 		if (a_amount <= 0) return false;
 
-		GTS::ImFontManager::Push(GTS::ImFontManager::kIconText);
+		GTS::ImFontManager::Push(GTS::ImFontManager::kIconText, m_size / 64.0f);
 		{
 			constexpr float overflow = 10.0f;
 			m_transform->targetColor = a_amount > overflow ? ImUtil::Colors::fRGBToImVec4(GTS::Config::UI.f3IconOverflowColor) : ImVec4{ 1.0f, 1.0f, 1.0f, 1.0f };

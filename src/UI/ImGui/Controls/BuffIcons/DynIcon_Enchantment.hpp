@@ -4,7 +4,7 @@
 
 namespace ImGuiEx {
 
-	class DynIconEnchantment final : IDynIcon {
+	class DynIconEnchantment final : public IDynIcon {
 	public:
 		explicit DynIconEnchantment(uint32_t a_size);
 		bool Draw(float a_percent) const;

@@ -36,6 +36,8 @@ namespace GTS {
         a_style.FramePadding =            { 4.0f, 4.0f };
         a_style.CellPadding =             { 4.0f, 4.0f };
 
+        a_style.ImageBorderSize =         0;
+
 
     }
 

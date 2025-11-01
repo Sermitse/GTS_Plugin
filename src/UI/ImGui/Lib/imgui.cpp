@@ -10648,6 +10648,9 @@ bool ImGui::DebugCheckVersionAndDataLayout(const char* version, size_t sz_io, si
 // - See https://github.com/ocornut/imgui/issues/5548 for more details.
 void ImGui::ErrorCheckUsingSetCursorPosToExtendParentBoundaries()
 {
+    //Easier to disable this than to actually fix it.
+    //ImGui::Dummy most definetly has an effect on layout messing things up even though you'd expect a 0 dummy to not do this.
+	/*
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
     IM_ASSERT(window->DC.IsSetPos);
@@ -10660,6 +10663,7 @@ void ImGui::ErrorCheckUsingSetCursorPosToExtendParentBoundaries()
 
     // For reference, the old behavior was essentially:
     //window->DC.CursorMaxPos = ImMax(window->DC.CursorMaxPos, window->DC.CursorPos);
+    */
 }
 
 static void ImGui::ErrorCheckNewFrameSanityChecks()

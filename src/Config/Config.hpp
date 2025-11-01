@@ -12,15 +12,20 @@
 #include "Config/Settings/SettingsHidden.hpp"
 #include "Config/Settings/SettingsUI.hpp"
 
+#include "Settings/SettingsPersistent.hpp"
+
 namespace GTS {
 
     class Config : public CInitSingleton<Config>, public SettingsHandler, public EventListener {
 
         private:
         static constexpr const char* _LegacyConfigFile = "Settings.toml";
+        static constexpr const char* _PersistentConfigFile = "Persistent.toml";
         static inline std::filesystem::path LegacyConfigFilePath = FileUtils::_basePath / _LegacyConfigFile;
+        static inline std::filesystem::path PersistentFilePath = FileUtils::_basePath / _PersistentConfigFile;
         static inline FileUtils _fileManager = {};
         static inline toml::ordered_value TomlData = {};
+		static inline toml::ordered_value PersistentTomlData = {};
 
         public:
         static inline SettingsHidden_t Hidden = {};
@@ -32,16 +37,20 @@ namespace GTS {
         static inline SettingsAI_t AI = {};
         static inline SettingsCamera_t Camera = {};
         static inline SettingsUI_t UI = {};
+        static inline SettingsPersistent_t Persistent = {};
 
         void DataReady() override;
         std::string DebugName() override;
         void OnGameLoaded() override;
 
+        static bool LoadPersistentToml();
+        static bool SavePersistentToml();
+
         static bool SerializeStructsToTOML();
         static bool DeserializeStructsFromTOML();
         static void ResetToDefaults();
-        static bool LoadSettingsFromString();
-        static bool SaveSettingsToString();
+        static bool LoadSettings();
+        static bool SaveSettings();
         static bool ExportSettings();
         static bool LoadFromExport(const std::filesystem::path& exportPath);
         static std::vector<std::filesystem::path> GetExportedFiles();

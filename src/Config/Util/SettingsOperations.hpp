@@ -40,6 +40,9 @@ namespace GTS {
                     if (!windowRes) {
                         logger::error("One or more window settings could not be serialized to TOML");
                     }
+
+                    // Clean up empty intermediate tables
+                    WindowSettingsRegistry::RemoveEmptyTables(a_toml);
                 }
 
                 if (!updateRes) {

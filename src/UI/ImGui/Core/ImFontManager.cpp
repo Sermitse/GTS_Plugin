@@ -27,9 +27,9 @@ namespace GTS {
 
     }
 
-    void ImFontManager::Push(ActiveFontType a_ActiveFontType) {
+    void ImFontManager::Push(ActiveFontType a_ActiveFontType, float a_scaleOverride_mult) {
     	const auto& Type = TextTypeMap.find(a_ActiveFontType)->second;
-        ImGui::PushFont(Type.FontSet->EN, Type.Scale);
+        ImGui::PushFont(Type.FontSet->EN, Type.Scale * a_scaleOverride_mult);
     }
 
     void ImFontManager::Pop() {

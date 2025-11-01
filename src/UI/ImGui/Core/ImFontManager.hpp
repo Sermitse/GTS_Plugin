@@ -41,7 +41,7 @@ namespace GTS {
             kSubText,        //{ kSubText,     TextType(&FontSet_Regular, 16.0f) },
             kWidgetBody,     //{ kWidgetBody,  TextType(&FontSet_Regular, 20.0f) },
             kWidgetTitle,    //{ kWidgetTitle, TextType(&FontSet_Light,   32.0f) },
-            kIconText     //{ kWidgetTitle, TextType(&FontSet_Light,   32.0f) },
+            kIconText        //{ kIconText,    TextType(&FontSet_Medium,  16.0f) },
         };
 
         typedef struct Font2 {
@@ -91,7 +91,7 @@ namespace GTS {
         ~ImFontManager() = default;
 
         static void Init();
-        static void Push(ActiveFontType a_ActiveFontType);
+        static void Push(ActiveFontType a_ActiveFontType, float a_scaleOverride_mult = 1.0f);
         static void Pop();
         static void Pop(size_t a_amt);
 

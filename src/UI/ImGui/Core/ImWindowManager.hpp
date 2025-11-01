@@ -10,10 +10,10 @@ namespace GTS {
 		private:
         std::vector<std::unique_ptr<ImWindow>> Windows;
         ImContextManager* Context = nullptr;
-
         float m_lastFrameTime = 0.0f;
+        vector<Actor*> m_cachedTeamMateList;
 
-        public:
+		public:
 		// Accessors for common windows
         ImWindow* wSplash = nullptr;
         ImWindow* wSettings = nullptr;
@@ -22,6 +22,18 @@ namespace GTS {
         ImWindow* wPlayerWidget = nullptr;
         ImWindow* wDebug = nullptr;
 
+        //Widgets
+        ImWindow* wUBar = nullptr;
+        ImWindow* wBBar = nullptr;
+
+		// Size Bars
+        ImWindow* wSBarP = nullptr;
+        ImWindow* wSBarF1 = nullptr;
+        ImWindow* wSBarF2 = nullptr;
+        ImWindow* wSBarF3 = nullptr;
+        ImWindow* wSBarF4 = nullptr;
+        ImWindow* wSBarF5 = nullptr;
+
         [[nodiscard]] ImWindow* GetWindowByName(const std::string& a_name) const;
         [[nodiscard]] bool HasWindows() const;
         [[nodiscard]] bool HasInputConsumers();
@@ -29,12 +41,13 @@ namespace GTS {
         bool CloseInputConsumers() const;
         [[nodiscard]] ImWindow::WindowType GetHighestVisibleWindowType() const;
         float GetDeltaTime() const;
-
+        const std::vector<std::unique_ptr<ImWindow>>& GetWindows() const;
         void AddWindow(std::unique_ptr<ImWindow> a_window, ImWindow** a_accessor = nullptr);
-        void Update() const;
+        void Update();
         void Init();
         int8_t GetDesiredPriority() const;
         bool GetDesiredCursorState() const;
+        [[nodiscard]] std::vector<RE::Actor*> GetCachedTeamMateList();
 
     };
 

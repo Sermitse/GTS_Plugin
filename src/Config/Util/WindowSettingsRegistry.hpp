@@ -195,5 +195,27 @@ namespace GTS {
         size_t GetRegisteredWindowCount() const {
             return m_settingsHolders.size();
         }
+
+        // Remove empty tables from TOML (called after all serialization)
+        static void RemoveEmptyTables(toml::ordered_value& a_toml) {
+            if (!a_toml.is_table()) return;
+
+            auto& table = a_toml.as_table();
+            std::vector<std::string> keysToRemove;
+
+            for (auto& [key, value] : table) {
+                if (value.is_table()) {
+                    RemoveEmptyTables(value);
+                    if (value.as_table().empty()) {
+                        keysToRemove.push_back(key);
+                    }
+                }
+            }
+
+            for (const auto& key : keysToRemove) {
+                table.erase(key);
+            }
+        }
+
     };
 }

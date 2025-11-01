@@ -27,7 +27,7 @@
 #include "UI/ImGui/Windows/Settings/Categories/General.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/Balance.hpp"
 #include "UI/ImGui/Windows/Settings/Categories/Actions.hpp"
-//#include "UI/ImGui/Windows/Settings/Categories/Widgets.hpp"
+#include "UI/ImGui/Windows/Settings/Categories/Widgets.hpp"
 
 #include "Version.hpp"
 #include "git.h"
@@ -46,7 +46,7 @@ namespace GTS {
 
 		try {
 
-			if (!Config::LoadSettingsFromString()) {
+			if (!Config::LoadSettings()) {
 				logger::error("SettingsWindow::LoadSettingsFromString Error");
 				return false;
 			}
@@ -78,7 +78,7 @@ namespace GTS {
 
 		try {
 
-			if (!Config::SaveSettingsToString()) {
+			if (!Config::SaveSettings()) {
 				logger::error("SettingsWindow::SaveSettings Error");
 				return false;
 			}
@@ -113,7 +113,8 @@ namespace GTS {
 				  ImGuiWindowFlags_NoNavFocus        | 
 				  ImGuiWindowFlags_NoNavInputs       | 
 				  ImGuiWindowFlags_NoScrollbar       | 
-				  ImGuiWindowFlags_NoScrollWithMouse;
+				  ImGuiWindowFlags_NoScrollWithMouse |
+			      ImGuiWindowFlags_NoSavedSettings;
 
 
 		//Construct Base defaults for this Window
@@ -139,7 +140,7 @@ namespace GTS {
 		CategoryMgr->AddCategory(std::make_unique<CategoryAI>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryCamera>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryInterface>());
-		//CategoryMgr->AddCategory(std::make_unique<CategoryWidgets>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryWidgets>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryKeybinds>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryAdvanced>());
 
@@ -326,7 +327,7 @@ namespace GTS {
 					ImVec2(fullWidth - paddingX, 0))) {
 					CategoryMgr->m_activeIndex = i;
 				}
-
+				
 			}
 
 			ImFontManager::Pop();
@@ -343,6 +344,7 @@ namespace GTS {
 			// Validate selectedCategory to ensure it's within bounds
 			if (CategoryMgr->m_activeIndex < Categories.size()) {
 				ImCategory* selected = Categories[CategoryMgr->m_activeIndex].get();
+				m_isConfiguringWidgets = selected->GetTitle() == "Widgets"; // Used to force show widget windows
 				selected->Draw(); // Call the Draw method of the selected category
 			}
 			else {

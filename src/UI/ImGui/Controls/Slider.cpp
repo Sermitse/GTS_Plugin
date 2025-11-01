@@ -67,6 +67,22 @@ namespace ImGuiEx {
         return res;
     }
 
-    
+    bool SliderU16(const char* a_label, uint16_t* a_value, uint16_t a_min, uint16_t a_max, const char* a_tooltip, const char* a_cfmt, bool a_disabled, bool a_alwaysClamp) {
+        ImGui::BeginDisabled(a_disabled);
+
+        auto flags = GTS::Config::Advanced.bEnforceUIClamps ? ImGuiSliderFlags_AlwaysClamp : 0;
+
+        if (a_alwaysClamp && flags) {
+            *a_value = std::clamp(*a_value, a_min, a_max);
+        }
+
+        const bool res = ImGui::SliderScalar(a_label, ImGuiDataType_U16, a_value, &a_min, &a_max, a_cfmt, flags);
+
+        Tooltip(a_tooltip);
+
+        ImGui::EndDisabled();
+
+        return res;
+    }
     
 }

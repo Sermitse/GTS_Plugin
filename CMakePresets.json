@@ -131,7 +131,7 @@
     },
     {
       "name": "config-release-avx2",
-      "displayName": "Release (AVX)",
+      "displayName": "Release (AVX2)",
       "description": "Configure release build with AVX.",
       "inherits": "base-config",
       "binaryDir": "${sourceDir}/build/Release-AVX2",

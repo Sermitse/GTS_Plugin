@@ -1,11 +1,6 @@
 #pragma once
 
-#include "UI/ImGui/Controls/BuffIcons/DynIcon_CataclysmicVoreStacks.hpp"
-#include "UI/ImGui/Controls/BuffIcons/DynIcon_LifeAbsorbStacks.hpp"
-#include "UI/ImGui/Controls/BuffIcons/DynIcon_DamageReduction.hpp"
-#include "UI/ImGui/Controls/BuffIcons/DynIcon_Enchantment.hpp"
-#include "UI/ImGui/Controls/BuffIcons/DynIcon_OnTheEdge.hpp"
-#include "UI/ImGui/Controls/BuffIcons/DynIcon_SizeReserve.hpp"
+#include "UI/ImGui/Controls/StatusBar.hpp"
 
 #include "UI/ImGui/Lib/imgui.h"
 #include "Utils/KillDataUtils.hpp"
@@ -25,22 +20,19 @@ namespace ImGuiEx {
 			float fMassModeScaleMax = {};
             float fScaleProgress = {};  //Normalized Value from 0 to 1
 
-			int iLifeAbsorbStacks = {};
             int iTotalKills = {};
-            int iVoreStacks = {};
 
             float fOverkills = {};
             float fOverkillMult = {};
 
             //Bonuses
             float fScaleBonus = {};
-            float fGTSAspect = {};
-            float fDamageResist = {};
             float fDamageBonus = {};
             float fHighHeelDamageBonus = {};
             float fCarryWeightBonus = {};
             float fSpeedMult = {};
             float fJumpMult = {};
+            float fGTSAspect = {};
 
             float fStolenAtributes = {};
             float fStolenAtributesCap = {};
@@ -52,8 +44,6 @@ namespace ImGuiEx {
             //Player Only
             bool bIsPlayer = {};
             float fShrinkResistance = {};
-            float fOnTheEdge = {};
-            float fSizeReserve = {};
             float fSizeEssence = {};
 
             //Formated
@@ -63,6 +53,7 @@ namespace ImGuiEx {
             //Perk Check
             bool bHasPerk_GTSFullAssimilation = {};
 
+            RE::ActorHandle pTargetActor = {};
 
             static std::optional<ActorInfo> GetData(RE::Actor* a_actor);
         };
@@ -86,7 +77,6 @@ namespace ImGuiEx {
         void DrawMainContent(const ActorInfo& Data) const;
         void DrawExtraStats(const ActorInfo& Data) const;
 
-
         //Other UI Data
         bool bMassModeEnabled = false;
         bool bIsPlayerMassMode = false;
@@ -96,14 +86,7 @@ namespace ImGuiEx {
         ImU32 m_wWindowFlags = ImGuiWindowFlags_None;
         const uint32_t m_baseIconSize = 32;
         const uint32_t m_buffIconSize = 64;
-
-        //Icon Instances
-		std::unique_ptr<DynIconLifeabsorbStacks> m_lifeAbsorbIcon;
-        std::unique_ptr<DynIconDamageReduction> m_damageReductionIcon;
-        std::unique_ptr<DynIconEnchantment> m_enchantmentIcon;
-        std::unique_ptr<DynIconSizeReserve> m_sizeReserveIcon;
-        std::unique_ptr<DynIconOnTheEdge> m_onTheEdgeIcon;
-        std::unique_ptr<DynIconCataclysmicVoreStacks> m_CataclysmicVoreStacksIcon;
+        std::unique_ptr<StatusBar> m_buffs;
    
     };
 }

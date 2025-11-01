@@ -4,7 +4,7 @@
 
 namespace ImGuiEx {
 
-	class DynIconSizeReserve final : IDynIcon {
+	class DynIconSizeReserve final : public IDynIcon {
 	public:
 		explicit DynIconSizeReserve(uint32_t a_size);
 		bool Draw(float a_amount) const;

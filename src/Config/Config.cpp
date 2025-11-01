@@ -8,6 +8,7 @@ namespace GTS {
     }
 
     void Config::DataReady() {
+        LoadPersistentToml();
         CopyLegacySettings();
     }
 
@@ -25,7 +26,7 @@ namespace GTS {
         TomlData = toml::ordered_table();
     }
 
-    bool Config::LoadSettingsFromString() {
+    bool Config::LoadSettings() {
 
         const auto Sett = &Persistent::ModSettings.value;
         if (Sett->empty()) {
@@ -55,9 +56,15 @@ namespace GTS {
         return DeserializeStructsFromTOML();
     }
 
-    bool Config::SaveSettingsToString() {
+    bool Config::SaveSettings() {
+
+        if (!SavePersistentToml()) {
+            logger::error("Failed to save persistent TOML");
+            return false;
+        }
 
         if (!SerializeStructsToTOML()) {
+			logger::error("Failed to serialize settings for save");
             return false;
         }
         return SaveTOMLToString(TomlData);
@@ -132,7 +139,80 @@ namespace GTS {
     }
 
     void Config::OnGameLoaded() {
-        LoadSettingsFromString();
+        LoadSettings();
         spdlog::set_level(spdlog::level::from_str(Advanced.sLogLevel));
+    }
+
+    bool Config::LoadPersistentToml() {
+        try {
+            if (!_fileManager.CheckOrCreateFile(PersistentFilePath)) {
+                logger::error("Could not check or create persistent file");
+                return false;
+            }
+
+            if (std::filesystem::file_size(PersistentFilePath) > 0) {
+                PersistentTomlData = toml::parse<toml::ordered_type_config>(PersistentFilePath.string());
+
+                // Load the Persistent struct from the TOML
+                if (!LoadStructFromTOML(PersistentTomlData, Persistent, "Persistent")) {
+                    logger::warn("Failed to load Persistent struct, using defaults");
+                    Persistent = SettingsPersistent_t{};
+                    return false;
+                }
+
+                logger::info("Persistent settings loaded successfully");
+                return true;
+            }
+
+            // File is empty, use defaults
+            logger::info("Persistent file is empty, using defaults");
+            Persistent = SettingsPersistent_t{};
+            return true;
+            
+        }
+        catch (const toml::exception& e) {
+            logger::error("TOML exception loading persistent settings: {}", e.what());
+            Persistent = SettingsPersistent_t{};
+            return false;
+        }
+        catch (const std::exception& e) {
+            logger::error("Exception loading persistent settings: {}", e.what());
+            Persistent = SettingsPersistent_t{};
+            return false;
+        }
+    }
+
+    bool Config::SavePersistentToml() {
+        try {
+            if (!_fileManager.CheckOrCreateFile(PersistentFilePath)) {
+                logger::error("Could not check or create persistent file");
+                return false;
+            }
+
+            PersistentTomlData = toml::ordered_table();
+
+            // Serialize the Persistent struct into TOML
+            if (!UpdateTOMLFromStruct(PersistentTomlData, Persistent, "Persistent")) {
+                logger::error("Failed to serialize Persistent struct to TOML");
+                return false;
+            }
+
+            // Save to file
+            if (!SaveTOMLToFile(PersistentTomlData, PersistentFilePath)) {
+                logger::error("Failed to save persistent TOML to file");
+                return false;
+            }
+
+            logger::info("Persistent settings saved successfully");
+            return true;
+        }
+        catch (const toml::exception& e) {
+            logger::error("TOML exception saving persistent settings: {}", e.what());
+            return false;
+        }
+        catch (const std::exception& e) {
+            logger::error("Exception saving persistent settings: {}", e.what());
+            return false;
+        }
     }
 }

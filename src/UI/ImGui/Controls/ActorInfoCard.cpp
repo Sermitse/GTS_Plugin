@@ -1,57 +1,30 @@
-﻿#include "UI/ImGui/Lib/imgui.h"
+﻿#include "UI/ImGui/Controls/ActorInfoCard.hpp"
+
+#include "UI/ImGui/Lib/imgui.h"
 #include "UI/ImGui/Lib/imgui_internal.h"
-
-#include "UI/ImGui/Controls/ActorInfoCard.hpp"
-
-#include "Managers/MaxSizeManager.hpp"
-#include "Managers/Attributes.hpp"
-
-#include "UI/ImGui/Controls/Button.hpp"
-#include "UI/ImGui/Controls/Misc.hpp"
-#include "UI/ImGui/Controls/ToolTip.hpp"
-#include "UI/ImGui/Controls/Text.hpp"
-#include "UI/ImGui/Controls/ProgressBar.hpp"
 
 #include "UI/ImGui/Core/ImColorUtils.hpp"
 #include "UI/ImGui/Core/ImFontManager.hpp"
 
-#include "Utils/KillDataUtils.hpp"
+#include "UI/ImGui/Controls/Button.hpp"
+#include "UI/ImGui/Controls/ToolTip.hpp"
+#include "UI/ImGui/Controls/ProgressBar.hpp"
+
 #include "Managers/SpectatorManager.hpp"
+#include "Managers/MaxSizeManager.hpp"
+#include "Managers/Attributes.hpp"
 
-#include "UI/ImGui/Controls/BuffIcons/DynIcon_LifeAbsorbStacks.hpp"
-#include "UI/ImGui/Core/ImUtil.hpp"
-
+#include "Utils/KillDataUtils.hpp"
 #include "Utils/UnitConverter.hpp"
-
 
 namespace {
 
 	// ------- Tooltips -------
 
-	PSString TDamageResist = "Total damage resistance in percent.\n"
-						     "Effectively increases total HP.";
-
 	PSString TDamageBonus = "Non-size related damage multiplier. Affects both Physical and Magic damage.";
 	PSString THHDamage = "Extra foot damage multiplier when wearing high heels.";
 	PSString TShrinkResist = "Shrink Resistance reduces the effectiveness of any shrinking spell and/or effect.";
 	PSString TAbsorbedAttributesCap = "Absorbed Attributes cannot exceed this number";
-
-	PSString TOnTheEdge = "When health drops below 60%%:\n"
-					      "- All growth gained becomes stronger the less health there is.\n"
-					      "- Hostile shrinking is less effective the less health there is.\n\n"
-					      "The effect is strongest when 10%% (or less) HP remains.";
-
-	PSString TSizeReserve = "Total size size stored from the size reserve perk.\n"
-		                    "Gained by eating/absorbing/crushing others";
-
-	PSString TAspectOfGTS = "This is the strength of Aspect of the Giantess enchantment\n"
-							"Aspect Of Giantess affects:\n"
-							"- Maximum Size, genral shrink power and the strength of size steal spells\n"
-							"- Size-Related damage, mimimum shrink threshold from quest/balance mode\n"
-							"- Growth rate and growth chance from random growth\n"
-							"- The stregth of the shrink outburst power and the amount of growth gained on hit\n"
-							"- Shrink resistance towards all hostile shrink sources\n\n"
-							"The enchantment can be obtained from the 'Amulet of Giants', which will randomly in end of dungeon hests.";
 
 	PSString TStoredAttributes = "Stored Attributes are permanent increases to either Health, Magicka or Stamina, that have not been absorbed yet.\n"
 						         "They'll be randomly distributed between the three main attributes\n"
@@ -76,6 +49,7 @@ namespace ImGuiEx {
 		const auto& T = Transient::GetSingleton().GetActorData(a_actor);
 		if (!T || !P)  return std::nullopt;
 
+		I.pTargetActor =            a_actor->CreateRefHandle();
 		I.Name =                    a_actor->GetName();
 
 		//Scale
@@ -85,20 +59,13 @@ namespace ImGuiEx {
 		I.fMassModeScaleMax =       MassMode_GetValuesForMenu(a_actor);
 		I.fScaleProgress =          I.fScaleMax < 250.0f ? I.fScaleCurrent / I.fScaleMax : -1.0f;
 
-		//Perks
-		I.iLifeAbsorbStacks =       T->Stacks_Perk_LifeForce;
-		I.iVoreStacks =             T->Stacks_Perk_CataclysmicStomp;
-		I.fSizeReserve =            P->SizeReserve;
-		I.fOnTheEdge =              (GetPerkBonus_OnTheEdge(a_actor, 0.01f) - 1.0f) * 100.f;
-
 		//Bonuses
 		I.fScaleBonus =				T->PotionMaxSize;
 		I.fShrinkResistance =       (1.0f - 1.0f * Potion_GetShrinkResistance(a_actor) * Perk_GetSprintShrinkReduction(a_actor)) * 100.f;
-		I.fGTSAspect =              Ench_Aspect_GetPower(a_actor) * 100.0f;
 		I.fHighHeelDamageBonus =    (GetHighHeelsBonusDamage(a_actor, true) - 1.0f) * 100.0f;
+		I.fGTSAspect =              Ench_Aspect_GetPower(a_actor) * 100.0f;
 
 		//Stats
-		I.fDamageResist =           (1.0f - AttributeManager::GetAttributeBonus(a_actor, ActorValue::kHealth)) * 100.f;
 		I.fSpeedMult =              (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kSpeedMult) - 1.0f) * 100.f;
 		I.fJumpMult =               (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kJumpingBonus) - 1.0f) * 100.0f;
 		I.fDamageBonus =            (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kAttackDamageMult) - 1.0f) * 100.0f;
@@ -139,13 +106,9 @@ namespace ImGuiEx {
 
 		m_wWindowFlags = ImGuiWindowFlags_NoSavedSettings;
 
-		//Init Icons
-		m_lifeAbsorbIcon = std::make_unique<DynIconLifeabsorbStacks>(m_buffIconSize);
-		m_damageReductionIcon = std::make_unique<DynIconDamageReduction>(m_buffIconSize);
-		m_enchantmentIcon = std::make_unique<DynIconEnchantment>(m_buffIconSize);
-		m_sizeReserveIcon = std::make_unique<DynIconSizeReserve>(m_buffIconSize);
-		m_onTheEdgeIcon = std::make_unique<DynIconOnTheEdge>(m_buffIconSize);
-		m_CataclysmicVoreStacksIcon = std::make_unique<DynIconCataclysmicVoreStacks>(m_buffIconSize);
+
+		m_buffs = std::make_unique<StatusBar>(m_buffIconSize, true);
+
 
 	}
 
@@ -157,7 +120,6 @@ namespace ImGuiEx {
 
 		auto Data = ActorInfo::GetData(a_actor);
 		if (!Data.has_value()) return;
-
 
 		//Update Vars
 		bMassModeEnabled = Config::Balance.sSizeMode == "kMassBased";
@@ -232,59 +194,7 @@ namespace ImGuiEx {
 			ImGuiWindowFlags_NoNav
 		);
 
-		constexpr float padding = 8.0f;
-		const float RowY = ImGui::GetCursorPosY();
-		float cursorX = ImGui::GetCursorPosX();
-		uint8_t drawnIcons = 0;
-
-		//m_damageReductionIcon
-		if (m_damageReductionIcon->Draw(Data.fDamageResist)) {
-			ImGuiEx::Tooltip(TDamageResist, true);
-			ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
-			drawnIcons++;
-		}
-
-		//m_lifeAbsorbIcon
-		if (m_lifeAbsorbIcon->Draw(Data.iLifeAbsorbStacks)) {
-			//TODO Tooltip
-			//ImGuiEx::Tooltip(TLifeAbsorb, true);
-			ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
-			drawnIcons++;
-		}
-
-		//m_enchantmentIcon
-		if (m_enchantmentIcon->Draw(Data.fGTSAspect)) {
-			ImGuiEx::Tooltip(TAspectOfGTS, true);
-			ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
-			drawnIcons++;
-		}
-
-		//m_CataclysmicVoreStacksIcon
-		if (m_CataclysmicVoreStacksIcon->Draw(Data.iVoreStacks)) {
-			//TODO Tooltip
-			//ImGuiEx::Tooltip(TVoreStacks, true);
-			ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
-			drawnIcons++;
-		}
-
-		
-		if (Data.bIsPlayer) {
-
-			//m_sizeReserveIcon
-			if (m_sizeReserveIcon->Draw(Data.fSizeReserve)) {
-				ImGuiEx::Tooltip(TSizeReserve, true);
-				ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
-				drawnIcons++;
-			}
-
-			//m_onTheEdgeIcon
-			if (m_onTheEdgeIcon->Draw(Data.fOnTheEdge)) {
-				ImGuiEx::Tooltip(TOnTheEdge, true);
-				ImUtil::AdvanceCursorInline(cursorX, RowY, m_buffIconSize, padding);
-				drawnIcons++;
-			}
-
-		}
+		uint32_t drawnIcons = m_buffs->Draw(Data.pTargetActor.get().get());
 
 		if (drawnIcons == 0) {
 			const char* txt = "No Buffs Active";
@@ -356,7 +266,8 @@ namespace ImGuiEx {
 					{ ImGui::GetContentRegionAvail().x, 0.0f },
 					Data.sFmtScale.c_str(),
 					ImGuiExProgresbarFlag_Gradient | ImGuiExProgresbarFlag_Rounding,
-					1.45f, 1.0f, 0.7f, 1.3f,
+					//Height, Border Thickness, Rounding, DarkFactor, LightFactor
+					1.45f, 0.5f, 5.0f, 0.7f, 1.3f,
 					ImUtil::Colors::fRGBToU32(Config::UI.f3AccentColor)
 				);
 

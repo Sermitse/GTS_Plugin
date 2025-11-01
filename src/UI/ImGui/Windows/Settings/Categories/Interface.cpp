@@ -31,7 +31,8 @@ namespace GTS {
 
 		//------------  Config Window
 
-		ImUtil_Unique {
+		ImUtil_Unique
+		{
 
 			PSString T0 = "Automatically handle positioning for this window.\n"
 						  "Disabling this allows you to move and resize the settings window manually.\n"
@@ -77,7 +78,8 @@ namespace GTS {
 
 		// -----  Misc Settings
 
-	    ImUtil_Unique {
+	    ImUtil_Unique
+		{
 
 	        PSString T0 = "Choose which type of measurement units to display.";
 
@@ -90,7 +92,8 @@ namespace GTS {
 
 		// -----  UI Settings
 
-	    ImUtil_Unique {
+	    ImUtil_Unique
+		{
 
 	        if(ImGui::CollapsingHeader("UI Settings",ImUtil::HeaderFlagsDefaultOpen)){
 
@@ -133,5 +136,14 @@ namespace GTS {
 
 	        }
 	    }
+
+		ImUtil_Unique
+		{
+			PSString T0 = "Enable/Disable the info window shown in the main menu.";
+
+			if (ImGui::CollapsingHeader("Miscelaneous" ,ImUtil::HeaderFlagsDefaultOpen)) {
+				ImGuiEx::CheckBox("Show Splash Window", &Config::Persistent.bShowSplashScreen, T0);
+			}
+		}
 	}
 }

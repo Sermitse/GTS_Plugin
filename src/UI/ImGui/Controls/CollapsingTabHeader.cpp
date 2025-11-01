@@ -8,6 +8,21 @@ namespace ImGuiEx {
 
 	CollapsingTabHeader::TabData::TabData(const std::string& a_lbl): label(a_lbl) {}
 
+	void CollapsingTabHeader::RenameTab(size_t index, std::string_view newLabel) {
+		if (index < tabs.size() - 1) {
+			tabs[index].label = newLabel;
+		}
+	}
+
+	void CollapsingTabHeader::RenameTab(std::string_view oldLabel, std::string_view newLabel) {
+		for (auto& tab : tabs) {
+			if (tab.label == oldLabel) {
+				tab.label = newLabel;
+				break;
+			}
+		}
+	}
+
 	CollapsingTabHeader::CollapsingTabHeader(const std::string& a_label, const bool a_defaultOpen): isOpen(a_defaultOpen), headerLabel(a_label) {
 		id = ImGui::GetID(a_label.c_str());
 	}

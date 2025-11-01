@@ -4,6 +4,64 @@
 
 namespace ImUtil::Colors {
 
+
+    std::array<float, 3> HSVtoRGB(const std::array<float, 3>& hsv) {
+        float H = hsv[0], S = hsv[1], V = hsv[2];
+        float r = 0, g = 0, b = 0;
+
+        int i = static_cast<int>(H * 6.0f);
+        float f = H * 6.0f - i;
+        float p = V * (1.0f - S);
+        float q = V * (1.0f - f * S);
+        float t = V * (1.0f - (1.0f - f) * S);
+
+        switch (i % 6) {
+	        case 0: r = V; g = t; b = p; break;
+	        case 1: r = q; g = V; b = p; break;
+	        case 2: r = p; g = V; b = t; break;
+	        case 3: r = p; g = q; b = V; break;
+	        case 4: r = t; g = p; b = V; break;
+	        case 5: r = V; g = p; b = q; break;
+        }
+        return { r,g,b };
+    }
+
+    std::array<float, 3> RGBtoHSV(const std::array<float, 3>& rgb) {
+        float r = rgb[0], g = rgb[1], b = rgb[2];
+        float maxC = std::max({ r,g,b });
+        float minC = std::min({ r,g,b });
+        float delta = maxC - minC;
+
+        float H = 0.0f, S = 0.0f, V = maxC;
+
+        if (delta > 1e-6f) {
+            S = delta / maxC;
+            if (maxC == r)      H = (g - b) / delta;
+            else if (maxC == g) H = 2.0f + (b - r) / delta;
+            else                H = 4.0f + (r - g) / delta;
+
+            H /= 6.0f;
+            if (H < 0.0f) H += 1.0f;
+        }
+        return { H, S, V };
+    }
+
+    std::array<float, 3> ShiftHue(const std::array<float, 3>& hsv, float hueShift) {
+        __m128 hsv_vec = _mm_set_ps(0.0f, hsv[2], hsv[1], hsv[0]); // [x, V, S, H]
+        __m128 shift_vec = _mm_set_ps(0.0f, 0.0f, 0.0f, hueShift);
+        __m128 shifted = _mm_add_ps(hsv_vec, shift_vec);
+
+        // Wrap hue
+        float H = fmod(_mm_cvtss_f32(shifted), 1.0f);
+        if (H < 0.0f) H += 1.0f;
+
+        // Saturation and value stay the same
+        float S = _mm_cvtss_f32(_mm_shuffle_ps(shifted, shifted, _MM_SHUFFLE(1, 1, 1, 1)));
+        float V = _mm_cvtss_f32(_mm_shuffle_ps(shifted, shifted, _MM_SHUFFLE(2, 2, 2, 2)));
+
+        return HSVtoRGB({ H, S, V });
+    }
+
     ImVec4 AdjustAlpha(const ImVec4& color, float alpha) {
         return { color.x, color.y, color.z, alpha };
     }
@@ -80,6 +138,23 @@ namespace ImUtil::Colors {
         int b = clamp(a_rgb[2]);
 
         return IM_COL32(r, g, b, 255); // full alpha
+    }
+
+    ImU32 fRGBAToU32(std::array<float, 4> a_rgba) {
+
+        auto clamp = [](float v) -> int {
+            int iv = static_cast<int>(v * 255.0f);
+            if (iv < 0) iv = 0;
+            if (iv > 255) iv = 255;
+            return iv;
+        };
+
+        int r = clamp(a_rgba[0]);
+        int g = clamp(a_rgba[1]);
+        int b = clamp(a_rgba[2]);
+        int a = clamp(a_rgba[3]);
+
+        return IM_COL32(r, g, b, a); // full alpha
     }
 
 
@@ -170,4 +245,9 @@ namespace ImUtil::Colors {
 
         return { r, g, b, c.w };
     }
+
+    ImU32 AdjustGrayScaleLightness(float a_grayScale, float a_alpha) {
+        return fRGBAToU32({ a_grayScale ,a_grayScale ,a_grayScale, a_alpha });
+    }
+
 }

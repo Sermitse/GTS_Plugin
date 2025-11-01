@@ -14,6 +14,8 @@ namespace GTS {
         void ShowErrorModal(bool* a_requestOpen);
         bool m_busy = false;
         bool m_disableUIInteraction = false;
+        bool m_isConfiguringWidgets = false;
+        bool m_show = false;
 
 		private:
         bool LoadImpl();
@@ -28,9 +30,7 @@ namespace GTS {
 
         ImCategoryContainer* CategoryMgr = nullptr;
         std::atomic_flag m_saveLoadBusy = ATOMIC_FLAG_INIT;
-
         std::string m_footerText;
-        bool m_show = false;
         bool m_showErrorModal = false;
-    }; 
+    };
 }
