@@ -69,10 +69,17 @@ namespace GTS {
 			}
 
 			if (Config::AI.bAlwaysDisableAttacks) { // If this option is on, always prevent attacks past 2.5x scale
-				const float SizeDiff = get_visual_scale(a_Giant);
+				const float VisualScale = get_visual_scale(a_Giant);
 				const float Threshold = 2.5f;
-				DisableAttacks_Melee(a_Giant, SizeDiff, Threshold, false);
-				DisableAttacks_Magic(a_Giant, SizeDiff, Threshold, false);
+				if (VisualScale >= Threshold) {
+					// past threshold, disable all attacks
+					a_Giant->GetActorRuntimeData().boolFlags.set(Actor::BOOL_FLAGS::kAttackingDisabled);
+					a_Giant->GetActorRuntimeData().boolFlags.set(Actor::BOOL_FLAGS::kCastingDisabled);
+				} else {
+					// let RNG decide
+					DisableAttacks_Melee(a_Giant, VisualScale, Threshold, false);
+					DisableAttacks_Magic(a_Giant, VisualScale, Threshold, false);
+				}
 				return;
 			}
 
