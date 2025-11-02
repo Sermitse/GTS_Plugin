@@ -140,6 +140,8 @@
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/parallel_for_each.h>
 
+#pragma hdrstop  // Everything after this is NOT precompiled
+
 using namespace std::literals;
 using namespace REL::literals;
 

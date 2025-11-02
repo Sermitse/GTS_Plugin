@@ -5,6 +5,43 @@
 #include <wincodec.h>
 #include <wrl/client.h>
 
+namespace ImageList {
+
+    PSString PlaceHolder               = "placeholder";
+    PSString Dummy                     = "dummy";              //Doesn't exist. meant as a fallback to the missing texture pattern.
+
+    PSString Keybind_ShowAdvanced     = "keybind_showadv";
+    PSString Keybind_EditKeybind      = "keybind_dokeyrebind";
+
+    PSString Infocard_Spectate        = "infocard_spectate";
+    PSString Infocard_Kills           = "infocard_kills";
+    PSString Infocard_ExtraInfo       = "infocard_extra";
+
+    PSString Export_Cleanup           = "export_cleanup";
+    PSString Export_Delete            = "export_delete";
+    PSString Export_Load              = "export_load";
+    PSString Export_Save              = "export_save";
+
+    PSString Generic_OK               = "generic_tick";
+    PSString Generic_X                = "generic_x";
+    PSString Generic_Reset            = "generic_reset";
+    PSString Generic_Square           = "generic_square";
+
+    PSString BuffIcon_VoreStacks         = PlaceHolder;
+    PSString BuffIcon_DamageReduction    = PlaceHolder;
+    PSString BuffIcon_GTSAspect          = PlaceHolder;
+    PSString BuffIcon_LifeAbsorbStacks   = PlaceHolder;
+    PSString BuffIcon_OnTheEdge          = PlaceHolder;
+    PSString BuffIcon_SizeReserve        = PlaceHolder;
+
+
+
+
+
+
+
+}
+
 namespace GTS {
 
     class ImGraphics {

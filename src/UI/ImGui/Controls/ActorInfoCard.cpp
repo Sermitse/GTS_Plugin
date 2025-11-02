@@ -162,14 +162,14 @@ namespace ImGuiEx {
 		const bool section2_active = m_expandedSec == Section::kSectionKillInfo;
 
 		if (section1_active) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-		if (ImageButton("##ExtraInfo", "infocard_extra", m_baseIconSize, "Show Extended Info")) {
+		if (ImageButton("##ExtraInfo", ImageList::Infocard_ExtraInfo, m_baseIconSize, "Show Extended Info")) {
 			m_expandedSec = section1_active ? Section::kNone : Section::kSectionExtra;
 		}
 		if (section1_active) ImGui::PopStyleColor();
 		
 		if (section2_active)
 		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-		if (ImageButton("##KillInfo", "infocard_kills", m_baseIconSize, "Show Kill Count Info")) {
+		if (ImageButton("##KillInfo", ImageList::Infocard_Kills, m_baseIconSize, "Show Kill Count Info")) {
 			m_expandedSec = section2_active ? Section::kNone : Section::kSectionKillInfo;
 		}
 		if (section2_active) ImGui::PopStyleColor();
@@ -429,13 +429,13 @@ namespace ImGuiEx {
 
 		// 'X' button appears if this actor is targeted OR if this is the player and camera is NOT on player
 		if ((isTargeted && !isPlayer) || (isPlayer && !isCameraOnPlayer)) {
-			if (ImageButton("##Spectate", "generic_x", m_baseIconSize, "Revert the camera back to the player character.")) {
+			if (ImageButton("##Spectate", ImageList::Generic_X, m_baseIconSize, "Revert the camera back to the player character.")) {
 				SpectatorManager::ResetTarget(true);
 			}
 		}
 		// "Spectate" button appears for non-player actors that are not targeted
 		else if (!isPlayer) {
-			if (ImageButton("##Spectate", "infocard_spectate", m_baseIconSize, "Spectate this NPC.")) {
+			if (ImageButton("##Spectate", ImageList::Infocard_Spectate, m_baseIconSize, "Spectate this NPC.")) {
 				SpectatorManager::SetCameraTarget(a_actor, false);
 			}
 		}

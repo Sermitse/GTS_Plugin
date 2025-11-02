@@ -8,7 +8,7 @@
 
 namespace ImGuiEx {
 
-	DynIconSizeReserve::DynIconSizeReserve(uint32_t a_size) : IDynIcon("placeholder", a_size) {
+	DynIconSizeReserve::DynIconSizeReserve(uint32_t a_size) : IDynIcon(ImageList::BuffIcon_SizeReserve, a_size) {
 		m_transform = std::make_unique<GTS::ImGraphics::ImageTransform>();
 		m_transform->cutoffDir = GTS::ImGraphics::CutoffDirection::BottomToTop;
 		m_transform->recolorEnabled = true;

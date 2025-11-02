@@ -8,7 +8,7 @@
 
 namespace ImGuiEx {
 
-	DynIconLifeabsorbStacks::DynIconLifeabsorbStacks(uint32_t a_size) : IDynIcon("placeholder", a_size) {
+	DynIconLifeabsorbStacks::DynIconLifeabsorbStacks(uint32_t a_size) : IDynIcon(ImageList::BuffIcon_LifeAbsorbStacks, a_size) {
 		m_transform = std::make_unique<GTS::ImGraphics::ImageTransform>();
 		m_transform->cutoffDir = GTS::ImGraphics::CutoffDirection::BottomToTop;
 		m_transform->recolorEnabled = true;

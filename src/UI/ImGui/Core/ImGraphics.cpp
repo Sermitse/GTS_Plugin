@@ -349,7 +349,7 @@ namespace GTS {
 		constexpr int split = 12;
 		int amtDrawn = 0;
 
-		Render("dummy", { 32, 32 });
+		Render(ImageList::Dummy, { 32, 32 });
 
 		ImGui::SameLine();
 

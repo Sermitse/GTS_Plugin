@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+﻿cmake_minimum_required(VERSION 3.21)
 cmake_policy(VERSION 3.21...3.31)
 
 # #######################################################################################################################
@@ -17,8 +17,7 @@ set(PROJECT_COPYRIGHT "Apache License 2.0")
 set(PROJECT_DESCRIPTION "${PROJECT_DESCRIPTION}")
 set(PROJECT_NAME "${PROJECT_NAME}")
 set(PROJECT_FRIENDLY_NAME "${PROJECT_NAME}")
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
+#set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Options
 option(GTS_STRICT_COMPILE "Enable strict compilation flags (treat warnings as errors)" OFF)
 option(GTS_DEPLOY_TO_FOLDER "Copy The Built DLL and PDB to the EnvVar Defined Target location" ON)
@@ -28,10 +27,9 @@ option(GTS_BUILD_DISTRIBUTION "Construct a distribution folder after each build"
 # # Flags
 # #######################################################################################################################
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_compile_definitions(_ENABLE_EXTENDED_ALIGNED_STORAGE)
+add_compile_definitions(_DISABLE_EXTENDED_ALIGNED_STORAGE)
 
 # Check if MSVC is the compiler
 if(MSVC)
@@ -137,6 +135,7 @@ target_link_libraries(
 include(Package)
 
 # ----- debug
+message(STATUS "Using toolchain file:                   ${CMAKE_TOOLCHAIN_FILE}.")
 message(STATUS "CMAKE_CXX_FLAGS:                        ${CMAKE_CXX_FLAGS}")
 message(STATUS "CMAKE_CXX_FLAGS_DEBUG:                  ${CMAKE_CXX_FLAGS_DEBUG}")
 message(STATUS "CMAKE_CXX_FLAGS_RELEASE:                ${CMAKE_CXX_FLAGS_RELEASE}")
@@ -151,4 +150,3 @@ message(STATUS "GtsPlugin COMPILE_OPTIONS:      ${compile_flags}")
 
 get_target_property(link_flags GtsPlugin LINK_OPTIONS)
 message(STATUS "GtsPlugin LINK_OPTIONS:         ${link_flags}")
-

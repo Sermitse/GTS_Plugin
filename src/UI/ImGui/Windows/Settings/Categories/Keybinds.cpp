@@ -106,7 +106,7 @@ namespace GTS {
                 float avail = ImGui::GetContentRegionAvail().x;
                 float buttonWidth = 18.0f + ImGui::GetStyle().FramePadding.x * 2;
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + avail - buttonWidth);
-                if (ImGuiEx::ImageButton("Reset", "generic_reset", 18, TH1)) {
+                if (ImGuiEx::ImageButton("Reset", ImageList::Generic_Reset, 18, TH1)) {
                     Keybinds::ResetKeybinds();
                 }
 
@@ -309,7 +309,7 @@ namespace GTS {
 
                     ImGui::BeginDisabled((TempKeys.empty() && IsRebinding) || Event.Disabled);
                     {
-                        if (ImGuiEx::ImageButton(("Rebind##" + std::to_string(CurEventIndex)).c_str(), IsRebinding ? "generic_tick" : "keybind_dokeyrebind", 18, T5)) {
+                        if (ImGuiEx::ImageButton(("Rebind##" + std::to_string(CurEventIndex)).c_str(), IsRebinding ? ImageList::Generic_OK : ImageList::Keybind_EditKeybind, 18, T5)) {
                             RebindIndex = CurEventIndex;
                             if (IsRebinding) {
                                 if (!TempKeys.empty()) {
@@ -325,7 +325,7 @@ namespace GTS {
                     // Column 4: Options Button
                     ImGui::BeginDisabled(IsRebinding);
                     ImGui::TableNextColumn();
-				    if (ImGuiEx::ImageButton(("Options##" + std::to_string(CurEventIndex)).c_str(), "keybind_showadv", 18, T6)) {
+				    if (ImGuiEx::ImageButton(("Options##" + std::to_string(CurEventIndex)).c_str(), ImageList::Keybind_ShowAdvanced, 18, T6)) {
                         ImGui::OpenPopup(("Options##" + std::to_string(CurEventIndex)).c_str());
 				    }
                     ImGui::EndDisabled();

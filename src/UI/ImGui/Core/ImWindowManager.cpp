@@ -177,7 +177,7 @@ namespace GTS {
         AddWindow(std::make_unique<SettingsWindow>(),  &wSettings);
         AddWindow(std::make_unique<DebugWindow>(),     &wDebug);
         AddWindow(std::make_unique<USBarWindow>(),     &wUBar);
-        AddWindow(std::make_unique<StatusBarWindow>(), &wBBar);
+        AddWindow(std::make_unique<StatusBarWindow>(), &wStatusBar);
 
         //Size Bar Windows
         AddWindow(std::make_unique<SizeBarWindow>("WSBarP"),   &wSBarP );

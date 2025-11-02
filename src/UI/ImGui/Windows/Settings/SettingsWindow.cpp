@@ -282,7 +282,7 @@ namespace GTS {
 
 			const ImVec2 pos = ImVec2(ImGui::GetContentRegionAvail().x - (ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetStyle().CellPadding.x), ImGui::GetStyle().FramePadding.y * 2 + ImGui::GetStyle().CellPadding.y);
 			ImGui::SetCursorPos(pos);
-			if (ImGuiEx::ImageButton("Close##", "generic_x", 18, "Close")) {
+			if (ImGuiEx::ImageButton("Close##", ImageList::Generic_X, 18, "Close")) {
 				HandleOpenClose(false);
 			}
 

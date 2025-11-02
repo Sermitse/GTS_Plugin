@@ -42,4 +42,13 @@ namespace ImGuiEx {
 
         return res;
     }
+
+    bool ImageButtonTransform(const char* a_label, const std::string& a_TexName, const GTS::ImGraphics::ImageTransform& a_transform, uint16_t a_size, const char* a_Tooltip, const bool a_disabled) {
+
+        const float size = a_size * ImGui::GetStyle().FontScaleMain;
+        const auto [texID, _] = GTS::ImGraphics::GetAsImGuiTextureTransformed(a_TexName, a_transform);
+        const bool res = ImageButtonEx(a_label, texID, a_Tooltip, a_disabled, { size, size });
+
+        return res;
+    }
 }

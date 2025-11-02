@@ -24,7 +24,7 @@ namespace GTS {
 
         //Widgets
         ImWindow* wUBar = nullptr;
-        ImWindow* wBBar = nullptr;
+        ImWindow* wStatusBar = nullptr;
 
 		// Size Bars
         ImWindow* wSBarP = nullptr;

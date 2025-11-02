@@ -40,7 +40,7 @@ namespace {
 		}
 
 		// Export section
-		if (ImGuiEx::ImageButton("##Export","export_save", 32, T_Export)) {
+		if (ImGuiEx::ImageButton("##Export", ImageList::Export_Save, 32, T_Export)) {
 			if (GTS::Config::ExportSettings()) {
 				auto files = GTS::Config::GetExportedFiles();
 				if (!files.empty()) {
@@ -51,7 +51,7 @@ namespace {
 
 		ImGui::SameLine();
 
-		if (ImGuiEx::ImageButton("##Import", "export_load", 32, T_Import)) {
+		if (ImGuiEx::ImageButton("##Import", ImageList::Export_Load, 32, T_Import)) {
 			if(selectedExportIndex < 0) {
 				statusText = fmt::format("Select an export first", fileNames[selectedExportIndex]);
 			}
@@ -68,7 +68,7 @@ namespace {
 
 		ImGui::SameLine();
 
-		if (ImGuiEx::ImageButton("##Delete", "export_delete", 32, T_Delete)) {
+		if (ImGuiEx::ImageButton("##Delete", ImageList::Export_Delete, 32, T_Delete)) {
 
 			if (selectedExportIndex < 0) {
 				statusText = fmt::format("Select an export first", fileNames[selectedExportIndex]);
@@ -82,14 +82,14 @@ namespace {
 
 		ImGui::SameLine();
 
-		if (ImGuiEx::ImageButton("##Cleaunup", "export_cleanup", 32, T_Cleanup)) {
+		if (ImGuiEx::ImageButton("##Cleaunup", ImageList::Export_Cleanup, 32, T_Cleanup)) {
 			GTS::Config::CleanOldExports(keepCount);
 			statusText = fmt::format("✓ Removed old exports [Kept {0} most recent]", keepCount);
 		}
 
 		ImGuiEx::SeperatorV();
 
-		if (ImGuiEx::ImageButton("##Reset", "generic_reset", 32, T_Reset)) {
+		if (ImGuiEx::ImageButton("##Reset", ImageList::Generic_Reset, 32, T_Reset)) {
 			GTS::EventDispatcher::DoConfigResetEvent();
 			statusText = fmt::format("✓ Mod settings have been reset");
 		}

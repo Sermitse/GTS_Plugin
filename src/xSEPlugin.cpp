@@ -1,15 +1,7 @@
-#include "API/TrainWreck.hpp"
-
-
-
 #include "Hooks/Hooks.hpp"
-#include "Papyrus/Papyrus.hpp"
-#include "Debug/DebugDraw.hpp"
-#include "Utils/InitUtils.hpp"
-
 #include "Managers/Register.hpp"
-
-
+#include "Papyrus/Papyrus.hpp"
+#include "Utils/InitUtils.hpp"
 #include "Utils/Logger.hpp"
 
 using namespace SKSE;

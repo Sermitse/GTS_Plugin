@@ -95,10 +95,10 @@ namespace GTS {
 			ImGui::Text("Scale: %.2f", scaleValue);
 			ImGui::Text("Cutoff: %s %.1f%%", dirIndex == 0 ? "L->R" : dirIndex == 1 ? "R->L" : dirIndex == 2 ? "T->B" : "B->T", transform4.cutoffPercent * 100.0f);
 
-			ImGraphics::RenderTransformed("export_cleanup", transform, { 64, 64 }); // Render with transformations
-			ImGraphics::RenderTransformed("export_cleanup", transform2, { 64, 64 }); // Render with transformations
-			ImGraphics::RenderTransformed("export_cleanup", transform3, { 64, 64 }); // Render with transformations
-			ImGraphics::RenderTransformed("export_cleanup", transform4, { 64, 64 }); // Render with transformations
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform,  { 64, 64 }); // Render with transformations
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform2, { 64, 64 }); // Render with transformations
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform3, { 64, 64 }); // Render with transformations
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform4, { 64, 64 }); // Render with transformations
 
 			ImGui::Spacing();
 		}
