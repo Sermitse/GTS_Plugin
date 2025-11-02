@@ -8,7 +8,7 @@
 #include "Managers/Audio/Footstep.hpp"
 #include "Managers/Rumble.hpp"
 
-#include "Rays/Raycast.hpp"
+#include "Systems/Rays/Raycast.hpp"
 #include "Utils/MovementForce.hpp"
 #include "Debug/DebugDraw.hpp"
 
@@ -89,10 +89,10 @@ namespace GTS {
 		if (scale >= minimal_scale && !actor->AsActorState()->IsSwimming()) {
 			NiPoint3 node_location = node->world.translate;
 
-			NiPoint3 ray_start = node_location + NiPoint3(0.0f, 0.0f, meter_to_unit(-0.05f*scale)); // Shift up a little
+			NiPoint3 ray_start = node_location + NiPoint3(0.0f, 0.0f, MeterToGameUnit(-0.05f*scale)); // Shift up a little
 			NiPoint3 ray_direction(0.0f, 0.0f, -1.0f);
 			bool success = false;
-			float ray_length = meter_to_unit(std::max(1.05f*scale, 1.05f));
+			float ray_length = MeterToGameUnit(std::max(1.05f*scale, 1.05f));
 			NiPoint3 explosion_pos = CastRay(actor, ray_start, ray_direction, ray_length, success);
 
 			if (!success) {

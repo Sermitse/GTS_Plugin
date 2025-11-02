@@ -1,0 +1,22 @@
+#pragma once
+
+#include "UI/Core/ImCategory.hpp"
+
+namespace GTS {
+
+ class ImCategoryContainer {
+
+        private:
+        std::vector<std::unique_ptr<ImCategory>> m_categories;
+
+        public:
+        uint8_t m_activeIndex;
+        ~ImCategoryContainer() = default;
+
+        [[nodiscard]] std::vector<std::unique_ptr<ImCategory>>& GetCategories();
+        [[nodiscard]] float GetLongestCategory() const;
+
+        void AddCategory(std::unique_ptr<ImCategory> category);
+
+    };
+}

@@ -120,7 +120,6 @@ namespace GTS {
 			return {};
 		}
 		auto model = actor->Get3D();
-		auto &name = model->name;
 
 		std::deque<NiAVObject*> queue;
 		std::vector<NiAVObject*> nodes = {};
@@ -432,10 +431,10 @@ namespace GTS {
 		return nullptr;
 	}
 
-	NiAVObject* find_node_any(Actor* actor, std::string_view name) {
+	NiAVObject* find_node_any(Actor* actor, std::string_view node_name) {
 		NiAVObject* result = nullptr;
 		for (auto person: {false, true}) {
-			result = find_node(actor, name, person);
+			result = find_node(actor, node_name, person);
 			if (result) {
 				break;
 			}
@@ -628,7 +627,7 @@ namespace GTS {
 
 	void update_node(NiAVObject* node) {
 		if (node) {
-			if (Plugin::OnMainThread()) {
+			if (State::OnMainThread()) {
 				NiUpdateData ctx;
 				node->UpdateWorldData(&ctx);
 			} else {

@@ -40,7 +40,7 @@ namespace GTS {
 	}
 
 	void SpectatorManager::Update() {
-		if (Plugin::Live()) {
+		if (State::Live()) {
 
 			auto currentCameraTarget = GetCameraActor();
 

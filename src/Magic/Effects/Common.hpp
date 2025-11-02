@@ -1,7 +1,5 @@
 #pragma once
 
-#include <algorithm>
-
 #include "Config/Config.hpp"
 
 #include "Managers/ShrinkToNothingManager.hpp"

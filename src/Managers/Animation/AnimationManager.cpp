@@ -346,7 +346,7 @@ namespace GTS {
 		}
 
 		if (giant.formID == 0x14) {
-			if (IsFirstPerson() || Plugin::IsInRaceMenu()) { 
+			if (IsFirstPerson() || State::IsInRaceMenu()) { 
 				//Time::WorldTimeElapsed() > 1.0
 				//ForceThirdPerson(&giant);
 				// It kinda works in fp that way, but it introduces some issues with animations such as Hugs and Butt Crush.

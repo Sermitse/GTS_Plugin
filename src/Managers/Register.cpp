@@ -67,7 +67,7 @@ namespace GTS {
 		EventDispatcher::AddListener(&Transient::GetSingleton());
 		EventDispatcher::AddListener(&CooldownManager::GetSingleton());
 		EventDispatcher::AddListener(&TaskManager::GetSingleton());
-		EventDispatcher::AddListener(&SpringManager::GetSingleton());
+		EventDispatcher::AddListener(&SpringHolder::GetSingleton());
 		EventDispatcher::AddListener(&Config::GetSingleton());
 		EventDispatcher::AddListener(&Keybinds::GetSingleton());
 		EventDispatcher::AddListener(&InputManager::GetSingleton());

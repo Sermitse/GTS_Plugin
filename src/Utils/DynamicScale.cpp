@@ -1,5 +1,5 @@
 #include "Utils/DynamicScale.hpp"
-#include "Rays/Raycast.hpp"
+#include "Systems/Rays/Raycast.hpp"
 #include "Debug/DebugDraw.hpp"
 
 namespace GTS {
@@ -134,7 +134,7 @@ namespace GTS {
 
 		// Room height
 		float room_height = fabs(ceiling - floor);
-		float room_height_m = unit_to_meter(room_height);
+		float room_height_m = GameUnitToMeter(room_height);
 
 		return room_height_m;
 	}

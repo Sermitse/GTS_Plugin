@@ -1,7 +1,4 @@
 // Module that handles rumbling
-
-#include <algorithm>
-
 #include "Managers/Rumble.hpp"
 
 #include "Config/Config.hpp"

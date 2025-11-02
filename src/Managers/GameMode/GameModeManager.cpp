@@ -412,7 +412,7 @@ namespace GTS {
 			return;
 		}
 
-		if (!Plugin::Live()) {
+		if (!State::Live()) {
 			return;
 		}
 

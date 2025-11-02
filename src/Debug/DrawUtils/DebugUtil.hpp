@@ -1,8 +1,5 @@
 #pragma once
 
-#include <glm/ext.hpp>
-#include <glm/glm.hpp>
-
 namespace DebugUtil {
 
 	glm::vec3 CompMult(const glm::vec3& a, const glm::vec3& b);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "API/Impl/SmoothCamAPI.hpp"
+#include "API/External/SmoothCamAPI.hpp"
 
 namespace GTS {
 

@@ -2,8 +2,8 @@
 
 #include "Managers/GtsManager.hpp"
 
-#include "UI/ImGui/Lib/imgui.h"
-#include "UI/ImGui/Core/ImFontManager.hpp"
+#include "UI/Lib/imgui.h"
+#include "UI/Core/ImFontManager.hpp"
 #include "UI/GTSMenu.hpp"
 
 #ifdef GTS_PROFILER_ENABLED

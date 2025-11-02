@@ -1,5 +1,4 @@
 #pragma once
-#include <detours/detours.h>
 
 //Boilerplate
 #define FUNCTYPE_DETOUR static inline constinit decltype(thunk)*

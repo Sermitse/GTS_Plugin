@@ -52,7 +52,7 @@ namespace {
 
 		TaskManager::Run(TaskName, [=](auto& progressData) {
 
-			if (!Plugin::Live()) return false;
+			if (!State::Live()) return false;
 
 			const auto& ThighSettings = Config::AI.ThighCrush;
 

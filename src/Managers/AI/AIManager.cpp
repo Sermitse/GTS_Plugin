@@ -256,7 +256,7 @@ namespace GTS {
 
 	void AIManager::Update() {
 
-		if (!Plugin::Live()) {
+		if (!State::Live()) {
 			return;
 		}
 

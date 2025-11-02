@@ -1,8 +1,8 @@
 #pragma once
 
-#include "UI/ImGui/Core/ImGraphics.hpp"
-#include "UI/ImGui/Core/ImInput.hpp"
-#include "UI/ImGui/Core/ImWindowManager.hpp"
+#include "UI/Core/ImGraphics.hpp"
+#include "UI/Core/ImInput.hpp"
+#include "UI/Core/ImWindowManager.hpp"
 
 namespace GTS {
 

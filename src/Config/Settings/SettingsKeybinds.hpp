@@ -53,7 +53,7 @@ TOML_SERIALIZABLE(BaseEventData_t);
 
 //-------------------------------------------------------------------------------------------------------------------
 //  InputEvent_t Struct ----- Wrapper around the base input event.
-//  Can hold static data that does not need to be serialized
+//  Can hold static data that does not need to be serialized/saved.
 //-------------------------------------------------------------------------------------------------------------------
 
 struct InputEvent_t {

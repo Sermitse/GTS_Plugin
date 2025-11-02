@@ -32,14 +32,14 @@ namespace {
 				// Skyrim game events.
 				// Player's selected save game has finished loading.
 				case MessagingInterface::kPostLoadGame: {
-					Plugin::SetInGame(true);
+					State::SetInGame(true);
 					Cprint("[GTSPlugin.dll]: [ Succesfully initialized and loaded ]");
 					break;
 				}
 
 				// Player starts a new game from main menu.
 				case MessagingInterface::kNewGame: {
-					Plugin::SetInGame(true);
+					State::SetInGame(true);
 					EventDispatcher::DoReset();
 					Cprint("[GTSPlugin.dll]: [ Succesfully initialized and loaded ]");
 					break;
@@ -48,7 +48,7 @@ namespace {
 				// Player selected a game to load, but it hasn't loaded yet.
 				// Data will be the name of the loaded save.
 				case MessagingInterface::kPreLoadGame: {
-					Plugin::SetInGame(false);
+					State::SetInGame(false);
 					EventDispatcher::DoReset();
 					break;
 				}

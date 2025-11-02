@@ -1,6 +1,6 @@
 #pragma once
 
-#include "API/Impl/SKEEBodyMorphInterface.hpp"
+#include "API/External/SKEEBodyMorphInterface.hpp"
 
 namespace GTS {
 

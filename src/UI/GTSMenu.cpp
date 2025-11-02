@@ -2,11 +2,9 @@
 
 #include "Config/Config.hpp"
 
-#include "ImGui/Core/ImStyleManager.hpp"
-
-#include "UI/ImGui/Lib/imgui.h"
-#include "UI/ImGui/Lib/imgui_impl_dx11.h"
-#include "UI/ImGui/Lib/imgui_impl_win32.h"
+#include "UI/Lib/imgui.h"
+#include "UI/Lib/imgui_impl_dx11.h"
+#include "UI/Lib/imgui_impl_win32.h"
 
 #include "UI/Util/ScaleformLogger.hpp"
 

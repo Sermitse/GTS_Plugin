@@ -139,7 +139,7 @@ namespace GTS {
 				if (auto AITransientData = Transient::GetSingleton().GetData(GiantRef)) {
 					AITransientData->ActionTimer.UpdateDelta(Config::AI.ThighSandwich.fInterval);
 
-					if (!Plugin::Live()) return;
+					if (!State::Live()) return;
 
 					if (GetPlayerOrControlled()->formID == 0x14 && AITransientData->ActionTimer.ShouldRunFrame()) {
 						ThighSandwichAI_DecideAction(GiantRef, tinies.size() > 0);

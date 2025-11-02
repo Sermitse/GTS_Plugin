@@ -1,7 +1,7 @@
 #include "Config/ConfigModHandler.hpp"
 #include "Config/Config.hpp"
 
-#include "UI/ImGui/Core/ImStyleManager.hpp"
+#include "UI/Core/ImStyleManager.hpp"
 #include "spdlog/spdlog.h"
 
 namespace GTS {

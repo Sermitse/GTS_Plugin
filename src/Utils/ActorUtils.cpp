@@ -3,7 +3,7 @@
 #include "Utils/FindActor.hpp"
 
 #include "Magic/Effects/Common.hpp"
-#include "Colliders/ActorCollisionData.hpp"
+#include "Systems/Colliders/ActorCollisionData.hpp"
 
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
@@ -3590,7 +3590,7 @@ namespace GTS {
 
 	float Sound_GetFallOff(NiAVObject* source, float mult) {
 		if (source) {
-			float distance_to_camera = unit_to_meter(get_distance_to_camera(source));
+			float distance_to_camera = GameUnitToMeter(get_distance_to_camera(source));
 			// Camera distance based volume falloff
 			return soft_core(distance_to_camera, 0.024f / mult, 2.0f, 0.8f, 0.0f, 0.0f);
 		}

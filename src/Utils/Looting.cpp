@@ -3,7 +3,7 @@
 #include "Config/Config.hpp"
 
 #include "Managers/AI/AIFunctions.hpp"
-#include "Rays/Raycast.hpp"
+#include "Systems/Rays/Raycast.hpp"
 #include "Debug/DebugDraw.hpp"
 
 using namespace GTS;

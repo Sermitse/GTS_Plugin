@@ -1,5 +1,5 @@
-#include "TrainWreck.hpp"
-#include "Impl/TrainWreckAPI.hpp"
+#include "API/TrainWreck.hpp"
+#include "API/External/TrainWreckAPI.hpp"
 #include "Version.hpp"
 #include "git.h"
 

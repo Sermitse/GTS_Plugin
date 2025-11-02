@@ -1,7 +1,8 @@
 #include "Scale/Scale.hpp"
 
 namespace {
-	constexpr float EPS = std::numeric_limits<float>::epsilon();
+	//constexpr float EPS = std::numeric_limits<float>::epsilon();
+	constexpr float EPS = 1e-5;
 }
 
 namespace GTS {

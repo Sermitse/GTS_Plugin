@@ -25,9 +25,9 @@ Reflection based serializer limitations:
 //-------------------------------------------------------------------------------------------------------------------
 //  BASE STRUCT
 //  (Directly Serialized)
+//  Note: This struct is loaded at the main menu and its settings are independent of the currently loaded save.
 //-------------------------------------------------------------------------------------------------------------------
 
-// Persistent Settings, Gets saved to Persistent.toml and is save-independent.
 struct SettingsPersistent_t {
 	bool bShowSplashScreen = true;
 };

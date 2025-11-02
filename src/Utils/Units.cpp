@@ -1,40 +1,133 @@
 #include "Utils/Units.hpp"
+#include "Config/Config.hpp"
 
 namespace {
+    // The game reports that the height of a slaughterfish is ~0.31861934.
+	// From inspecting the bounding box of the slaughterfish and applying the base actor scales a unit height becomes 22.300568.
+	// Assuming that 0.31861934 equates to one meter and that the bouding box is in model unit space then the conversion factor would be 70.
+	// A Slaughterfish was chosen as the reference because it has a game scale of 1.0 (and happened to be near when testing).
+	// The scaling factor of 70 also applies to NPC height not accounting race specific scaling.
 	constexpr float CONVERSION_FACTOR = 70.0f;
 }
 
 namespace GTS {
 
-	float unit_to_meter(const float& unit) {
-		// Game reports that the height of a slaughterfish is 0.31861934
-		// From inspecting the bounding box of the slaughterfish and applying
-		// base actor scales the unit height is 22.300568
-		// Assuming 0.31861934 is meters and that bouding box is in model unit space
-		// then the conversion factor is 70
-		// Slaughterfish was chosen because it has scales of 1.0 (and was in my worldspace)
-		// The scaling factor of 70 also applies to actor heights (once you remove)
-		// race specific height scaling
+    //Metric -> Imperial
+    double KiloToPound(const double a_kg) {
+        return a_kg / 0.45359237;
+    }
+
+    double MetersToFeet(const double a_meter) {
+        return a_meter * 3.28084;
+    }
+
+    //Metric -> Mammoth (Because funny)
+    double MetersToMammoth(const double a_meter) {
+        return a_meter / 3.04; 
+    }
+
+    double KiloToMammoth(const double a_kg) {
+        return a_kg / 5113.01;
+    }
+
+    // Formaters
+    std::string FormatMetricHeight(const double a_meter) {
+
+        if (a_meter < 1.0f)   return fmt::format("{:.0f} cm", a_meter * 100.f);
+        if (a_meter > 500.0f) return fmt::format("{:.2f} Km", a_meter / 1000.f);
+
+        return fmt::format("{:.2f} m", a_meter);
+    }
+
+    std::string FormatImperialHeight(const double a_feet) {
+        // Get the integer part for feet.
+        int feet = static_cast<int>(a_feet);
+        // Get the fractional part and convert it to inches.
+        double fraction = a_feet - feet;
+        int inches = static_cast<int>(std::round(fraction * 12));
+
+        // Handle the case where rounding makes inches equal to 12.
+        if (inches == 12) {
+            feet += 1;
+            inches = 0;
+        }
+
+        if (a_feet < 1.0)    return fmt::format("{}\"", inches);
+        if (a_feet > 2000.0) return fmt::format("{:.2f} mi", a_feet / 5280);
+
+        return fmt::format("{}'{}\"", feet, inches);
+    }
+
+    std::string FormatMammothHeight(const double a_mammoth) {
+        return fmt::format("{:.2f} Mammoths", a_mammoth);
+    }
+
+    std::string FormatMetricWeight(const double a_kg) {
+        if (a_kg < 1.0f)      return fmt::format("{:.0f} g", a_kg * 100.f);
+        if (a_kg > 300000.0f) return fmt::format("{:.2f} kt", a_kg / 1000000.f);
+        if (a_kg > 30000.0f)  return fmt::format("{:.2f} t", a_kg / 1000.f);
+
+        return fmt::format("{:.2f} kg", a_kg);
+    }
+
+    std::string FormatImperialWeight(const double a_lb) {
+        if (a_lb < 1.0)        return fmt::format("{:.0f} oz", a_lb * 16.0);
+        if (a_lb > 2000000.0)  return fmt::format("{:.2f} kt", a_lb / 2000000.0);
+        if (a_lb > 2000.0)     return fmt::format("{:.2f} t", a_lb / 2000.0);
+
+        return fmt::format("{:.2f} lb", a_lb);
+    }
+
+    std::string FormatMammothWeight(const double a_mammoth) {
+        return fmt::format("{:.2f} Mammoths", a_mammoth);
+    }
+
+    std::string GetFormatedWeight(RE::Actor* a_Actor) {
+        std::string displayUnits = Config::UI.sDisplayUnits;
+        if (displayUnits == "kImperial")
+            return FormatImperialWeight(KiloToPound(GetActorGTSWeight(a_Actor)));
+
+        if (displayUnits == "kMammoth")
+            return FormatMammothWeight(KiloToMammoth(GetActorGTSWeight(a_Actor)));
+
+    	return FormatMetricWeight(GetActorGTSWeight(a_Actor));
+    }
+
+    std::string GetFormatedHeight(RE::Actor* a_Actor) {
+        std::string displayUnits = Config::UI.sDisplayUnits;
+        if (displayUnits == "kImperial")
+            return FormatImperialHeight(MetersToFeet(GetActorGTSHeight(a_Actor)));
+
+        if (displayUnits == "kMammoth")
+            return FormatMammothHeight(MetersToMammoth(GetActorGTSHeight(a_Actor)));
+
+    	return FormatMetricHeight(GetActorGTSHeight(a_Actor));
+    }
+
+    std::string GetFormatedHeight(const float Value) {
+        std::string displayUnits = Config::UI.sDisplayUnits;
+        if (displayUnits == "kImperial")
+            return FormatImperialHeight(MetersToFeet(Value));
+
+        if (displayUnits == "kMammoth")
+            return FormatMammothHeight(MetersToMammoth(Value));
+
+    	return FormatMetricHeight(Value);
+    }
+
+	float GameUnitToMeter(const float& unit) {
 		return unit / CONVERSION_FACTOR;
 	}
 
-	float meter_to_unit(const float& meter) {
-		// Game reports that the height of a slaughterfish is 0.31861934
-		// From inspecting the bounding box of the slaughterfish and applying
-		// base actor scales the unit height is 22.300568
-		// Assuming 0.31861934 is meters and that bouding box is in model unit space
-		// then the conversion factor is 70
-		// Slaughterfish was chosen because it has scales of 1.0 (and was in my worldspace)
-		// The scaling factor of 70 also applies to actor heights (once you remove)
-		// race specific height scaling
+	float MeterToGameUnit(const float& meter) {
 		return meter * CONVERSION_FACTOR;
 	}
 
-	NiPoint3 unit_to_meter(const NiPoint3& unit) {
+	NiPoint3 GameUnitToMeter(const NiPoint3& unit) {
 		return unit / CONVERSION_FACTOR;
 	}
 
-	NiPoint3 meter_to_unit(const NiPoint3& meter) {
+	NiPoint3 MeterToGameUnit(const NiPoint3& meter) {
 		return meter * CONVERSION_FACTOR;
 	}
 }

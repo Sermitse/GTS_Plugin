@@ -1,38 +1,13 @@
 #pragma once
 
-//stdlib Defines
-#define _USE_MATH_DEFINES
-
 //Project-Wide Defines
 //#define GTS_PROFILER_ENABLED
 //#define GTS_DISABLE_PLUGIN
-
 
 //Imgui Defines
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#include <cassert>
-#include <cctype>
-#include <cerrno>
-#include <cfenv>
-#include <cfloat>
-#include <cinttypes>
-#include <climits>
-#include <clocale>
-#include <cmath>
-#include <csetjmp>
-#include <csignal>
-#include <cstdarg>
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <cuchar>
-#include <cwchar>
-#include <cwctype>
 #include <algorithm>
 #include <any>
 #include <array>
@@ -40,13 +15,36 @@
 #include <barrier>
 #include <bit>
 #include <bitset>
+#include <cassert>
+#include <cctype>
+#include <cerrno>
+#include <cfenv>
+#include <cfloat>
 #include <charconv>
 #include <chrono>
+#include <cinttypes>
+#include <climits>
+#include <clocale>
+#include <cmath>
 #include <compare>
 #include <complex>
 #include <concepts>
 #include <condition_variable>
+#include <csetjmp>
+#include <csignal>
+#include <cstdarg>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <cuchar>
+#include <cwchar>
+#include <cwctype>
+#include <d3d11.h>
 #include <deque>
+#include <ehdata.h>
 #include <exception>
 #include <execution>
 #include <filesystem>
@@ -57,8 +55,8 @@
 #include <future>
 #include <initializer_list>
 #include <iomanip>
-#include <iosfwd>
 #include <ios>
+#include <iosfwd>
 #include <iostream>
 #include <istream>
 #include <iterator>
@@ -77,8 +75,9 @@
 #include <queue>
 #include <random>
 #include <ranges>
-#include <regex>
 #include <ratio>
+#include <regex>
+#include <rttidata.h>
 #include <scoped_allocator>
 #include <semaphore>
 #include <set>
@@ -95,9 +94,9 @@
 #include <system_error>
 #include <thread>
 #include <tuple>
+#include <type_traits>
 #include <typeindex>
 #include <typeinfo>
-#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -105,34 +104,37 @@
 #include <variant>
 #include <vector>
 #include <version>
-#include <d3d11.h>
-#include <ehdata.h>
-#include <rttidata.h>
+#include <wincodec.h>
+#include <wrl/client.h>
 
 #include <RE/Skyrim.h>
-#include <SKSE/SKSE.h>
 #include <REL/Relocation.h>
+#include <SKSE/SKSE.h>
 
-#include <ShlObj_core.h>
-#include <Windows.h>
 #include <Psapi.h>
+#include <ShlObj_core.h>
 #include <tchar.h>
+#include <Windows.h>
 
 //WinAPI Fix
 #undef PlaySound 
 #undef DeleteFile
 #undef LoadImage
-
 // For console sink
 
 #include <spdlog/sinks/msvc_sink.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+#include <lunasvg.h>					//https://github.com/sammycage/lunasvg
 #include <reflect>                      //https://github.com/qlibs/reflect
 #include <toml.hpp>                     //https://github.com/ToruNiina/toml11
 #include <magic_enum/magic_enum.hpp>    //https://github.com/Neargye/magic_enum
-#include <lz4.h>
+#include <lz4.h>						//https://github.com/lz4/lz4
+#include <glm/ext.hpp>					//https://github.com/g-truc/glm
+#include <glm/glm.hpp>
+#include <detours/detours.h>			//https://github.com/microsoft/Detours
+#include <nlohmann/json.hpp>			//https://github.com/nlohmann/json
 
 //Tbb
 #include <tbb/concurrent_vector.h>
@@ -180,19 +182,35 @@ namespace RE {
 
 namespace logger = SKSE::log;
 
+//TODO Place Includes that will rarely if ever be modified here
+//VVVVVVV
+
 //Own Includes
 #include "Constants.hpp"
 
 #include "Utils/Singleton.hpp"
+#include "Utils/Input/DInput.hpp"
+#include "Utils/Win32/Messagebox.hpp"
+
+#include "Utils/Text/Text.hpp"
+#include "Utils/Text/Format.hpp"
 
 #include "Debug/Profilers.hpp"
 
+
 #include "Systems/Events/EventListener.hpp"
 #include "Systems/Events/EventDispatcher.hpp"
-#include "Systems/Plugin.hpp"
+
+#include "Systems/Motion/Spring.hpp"
+#include "Systems/Motion/Smooth.hpp"
+
+#include "Systems/Misc/State.hpp"
+#include "Systems/Misc/Tasks.hpp"
+#include "Systems/Misc/Time.hpp"
+#include "Systems/Misc/Timer.hpp"
+
 #include "Systems/Runtime.hpp"
-#include "Systems/Tasks.hpp"
-#include "Systems/Time.hpp"
+
 
 #include "Utils/Utils.hpp"
 

@@ -1,5 +1,4 @@
 #include "Utils/InputFunctions.hpp"
-#include "Utils/UnitConverter.hpp"
 #include "Utils/InputConditions.hpp"
 
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
@@ -626,7 +625,7 @@ namespace {
 		auto UI = UI::GetSingleton();
 		if (!UI) return;
 
-		if (!Plugin::IsInBlockingMenu() && !UI->IsMenuOpen(DialogueMenu::MENU_NAME) && UI->IsMenuOpen(Console::MENU_NAME)) {
+		if (!State::IsInBlockingMenu() && !UI->IsMenuOpen(DialogueMenu::MENU_NAME) && UI->IsMenuOpen(Console::MENU_NAME)) {
 			Notify("Close all menu's first before opening the skill tree");
 			return;
 		}

@@ -14,16 +14,16 @@ namespace Hooks {
 			{
 				GTS_PROFILE_ENTRYPOINT("EngineMain::MainUpdatePost");
 
-				Plugin::SetOnMainThread(true);
+				State::SetOnMainThread(true);
 
-				if (Plugin::Live()) {
+				if (State::Live()) {
 
 					//Cache all currently loaded Actors
 					// We are not loading or in the mainmenu
 					// Player loaded and not paused
 					if (started.exchange(true)) {
 						// Not first updated
-						Time::GetSingleton().Update();
+						Time::Update();
 						EventDispatcher::DoUpdate();
 					}
 					else {
@@ -31,11 +31,11 @@ namespace Hooks {
 						EventDispatcher::DoStart();
 					}
 				}
-				else if (!Plugin::InGame()) {
+				else if (!State::InGame()) {
 					// Loading or in main menu
 					started.store(false);
 				}
-				Plugin::SetOnMainThread(false);
+				State::SetOnMainThread(false);
 			}
 
 		}

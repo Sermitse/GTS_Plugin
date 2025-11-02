@@ -1,6 +1,7 @@
-#include "Logger.hpp"
+#include "Utils/Logger.hpp"
+#include "Utils/Text/Text.hpp"
+
 #include "Config/Config.hpp"
-#include "Utils/Text.hpp"
 
 namespace {
 
@@ -121,5 +122,9 @@ namespace SKSE::log {
 			logger::critical("Could not load spdlog settings from config", e.what());
 			GTS::ReportAndExit("Could not load spdlog settings from config");
 		}
+	}
+
+	bool HasConsole() {
+		return GetConsoleWindow() != nullptr;
 	}
 }

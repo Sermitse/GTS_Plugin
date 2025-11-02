@@ -91,7 +91,7 @@ namespace GTS {
 
 	void RandomGrowth::Update() {
 		static Timer GrowthTimer = Timer(1.0);
-		if (!Plugin::Live()) {
+		if (!State::Live()) {
 			return;
 		}
 		if (GrowthTimer.ShouldRunFrame()) {
@@ -128,7 +128,7 @@ namespace GTS {
 											if (!gianthandle) {
 												return false;
 											}
-											if (!Plugin::Live()) {
+											if (!State::Live()) {
 												return true; // Pause task while game is paused
 											}
 

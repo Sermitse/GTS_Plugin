@@ -1,5 +1,4 @@
 #pragma once
-#include "Utils/MessageboxUtil.hpp"
 
 /*
     TOML11 Reflection Macro & Templates. Based on https://github.com/ToruNiina/toml11/blob/main/examples/reflect/reflect.hpp

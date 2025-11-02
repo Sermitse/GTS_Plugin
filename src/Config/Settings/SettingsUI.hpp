@@ -34,92 +34,6 @@ enum class LDisplayUnit_t : uint8_t {
 };
 
 //-------------------------------------------------------------------------------------------------------------------
-//  CHILD STRUCTS 
-//  (Not Directly Serialized, but used within other structs)
-//-------------------------------------------------------------------------------------------------------------------
-
-//struct WindowConfWidget_t {
-//    // Window lock and visibility
-//    bool bLock = true;
-//    bool bVisible = false;
-//
-//    // Positioning and appearance
-//    std::array<float, 2> f2Offset = { 20.0f, 20.0f };
-//    std::array<float, 3> f3ColorA = { 1.0f, 1.0f, 1.0f };
-//    std::array<float, 3> f3ColorB = { 1.0f, 1.0f, 1.0f };
-//    bool bEnableRounding = true;
-//    bool bUseCustomGradientColors = false;
-//    bool bUseGradient = true;
-//    bool bFlipGradientDirection = false;
-//    float fNormalGradientLightMult = 1.5f;
-//    float fNormalGradientDarkMult = 1.0f;
-//    float fBorderThickness = 2.0f;
-//    float fBorderLightness = 0.15f;
-//    float fBorderAlpha = 0.50f;
-//
-//
-//    std::string sAnchor = "kTopRight";
-//    float fAlpha = 1.0f;
-//    float fBGAlphaMult = 1.0f;
-//
-//    bool bEnableFade = true;
-//    float fFadeAfter = 1.0f;
-//    float fFixedWidth = 100.0f;
-//    float fSizeBarHeightMult = 1.0f;
-//    float fFadeDelta = 0.0f;
-//    // Display control
-//    uint32_t iFlags = 0;
-//};
-//TOML_SERIALIZABLE(WindowConfWidget_t);
-//
-//struct WindowConfSettings_t {
-//    bool bLock = true;
-//    std::array<float, 2> f2Offset = { 0.0f, 0.0f };
-//    std::string sAnchor = "kCenter";
-//    float fWindowSize = 90.f;
-//    float fAlpha = 1.0f;
-//    float fBGAlphaMult = 0.45f;
-//};
-//TOML_SERIALIZABLE(WindowConfSettings_t);
-
-
-    //WindowConfSettings_t SettingsWindow{};
-
-    //WindowConfWidget_t StatusWindow = {
-    //    .bLock = true,
-    //    .bVisible = true,
-    //    .f2Offset = {0.0f, 28.5f},
-    //    .f3ColorA = StatusAccentColor,
-    //    .f3ColorB = StatusAccentColor,
-    //    .sAnchor = "kCenter",
-    //    .fAlpha = 1.0f,
-    //    .fBGAlphaMult = 0.0f,
-    //    .bEnableFade = true,
-    //    .fFadeAfter = 1.8f,
-    //    .fFixedWidth = 150.0f,
-    //    .fSizeBarHeightMult = 0.1f,
-    //    .fFadeDelta = 0.01f,
-    //    .iFlags = 3,
-    //};
-
-    //WindowConfWidget_t UnderstompWindow = {
-    //    .bLock = true,
-    //    .bVisible = true,
-    //    .f2Offset = {0.0f, 60.0f},
-    //    .f3ColorA = UnderStompAccentColor,
-    //    .f3ColorB = UnderStompAccentColor,
-    //    .sAnchor = "kCenter",
-    //    .fAlpha = 1.0f,
-    //    .fBGAlphaMult = 0.0f,
-    //    .bEnableFade = true,
-    //    .fFadeAfter = 1.8f,
-    //    .fFixedWidth = 120.0f,
-    //    .fSizeBarHeightMult = 0.01f,
-    //    .fFadeDelta = 0.05f,
-    //    .iFlags = 1,
-    //};
-
-//-------------------------------------------------------------------------------------------------------------------
 //  BASE STRUCT
 //  (Directly Serialized)
 //-------------------------------------------------------------------------------------------------------------------
@@ -145,7 +59,14 @@ struct SettingsUI_t {
 TOML_SERIALIZABLE(SettingsUI_t);
 TOML_REGISTER_NAME(SettingsUI_t, "UI");
 
+//-------------------------------------------------------------------------------------------------------------------
+//  Dynamics
+//  (Used by ImConfigurableWindow)
+//  Note: Most defaults are set in the Window Init for that particular window instead of here
+//-------------------------------------------------------------------------------------------------------------------
+
 // Base window settings that all windows inherit
+// This Type is always known
 struct WindowSettingsBase_t {
     bool bLock = true;
     std::array<float, 2> f2Position = { 0.0f, 0.0f };
@@ -157,7 +78,7 @@ struct WindowSettingsBase_t {
 TOML_SERIALIZABLE(WindowSettingsBase_t);
 TOML_REGISTER_NAME(WindowSettingsBase_t, "Window");
 
-//Defaults are set in the Window Init for that particular window
+//Extended settings for the sizebars
 struct WindowSettingsSizeBar_t {
     bool bVisible = true;
     bool bEnableFade = true;
@@ -179,7 +100,7 @@ struct WindowSettingsSizeBar_t {
 TOML_SERIALIZABLE(WindowSettingsSizeBar_t);
 TOML_REGISTER_NAME(WindowSettingsSizeBar_t, "SizeBar");
 
-//Defaults are set in the Window Init for that particular window
+//Extended settings for the understomp bar, mostly a copy of the above one.
 struct WindowSettingsUnderstompBar_t {
     bool bVisible = true;
     bool bEnableFade = true;
@@ -198,9 +119,9 @@ struct WindowSettingsUnderstompBar_t {
     uint16_t iFlags = 0;
 };
 TOML_SERIALIZABLE(WindowSettingsUnderstompBar_t);
-TOML_REGISTER_NAME(WindowSettingsUnderstompBar_t, "SizeBar");
+TOML_REGISTER_NAME(WindowSettingsUnderstompBar_t, "USBar");
 
-//Defaults are set in the Window Init for that particular window
+//Extended settings for the status/buff/icons bar
 struct WindowSettingsStatusBar_t {
     bool bVisible = true;
     bool bEnableFade = true;

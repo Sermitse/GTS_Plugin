@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UI/ImGui/Controls/ActorInfoCard.hpp"
+#include "UI/Controls/ActorInfoCard.hpp"
 // Module that holds data that is not persistent across saves
 
 namespace GTS {
@@ -113,7 +113,7 @@ namespace GTS {
 			const auto _BoundValues = get_bound_values(a_Actor);
 			const auto _Scale = get_scale(a_Actor);
 
-			BaseHeight = unit_to_meter(_BoundValues[2] * _Scale);
+			BaseHeight = GameUnitToMeter(_BoundValues[2] * _Scale);
 			BoundingBoxCache = _BoundValues;
 		}
 	};
