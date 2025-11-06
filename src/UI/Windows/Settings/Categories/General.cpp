@@ -7,6 +7,7 @@
 #include "UI/Controls/CheckBox.hpp"
 #include "UI/Controls/Misc.hpp"
 #include "UI/Controls/Slider.hpp"
+#include "UI/Controls/ToolTip.hpp"
 #include "UI/Core/ImFontManager.hpp"
 #include "UI/GTSMenu.hpp"
 
@@ -25,6 +26,9 @@ namespace {
 
 	PSString T_Reset = "Reset all settings, this does not reset any modified action keybinds.\n"
 	                   "If you want to reset those press the reset button on its page instead.";
+
+	PSString T_PandoraWarn = "WARNING: Pandora is not fully compatible with nemesis based behavior mods\n"
+		                     "You WILL experience odd/delayed/bugged animations If you continue to use pandora with this mod.\n";
 
 	void DrawImportExport(){
 
@@ -145,10 +149,19 @@ namespace GTS {
 				const auto Player = PlayerCharacter::GetSingleton();
 				const bool WorkingAnims = AnimationsInstalled(Player);
 
+				bool IsPandoraGenerated = false;
+				bool IsNemesisGenerated = false;
+				Player->GetGraphVariableBool("bIsPandoraGenerated", IsPandoraGenerated);
+				Player->GetGraphVariableBool("bIsNemesisGenerated", IsNemesisGenerated);
+
 				ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetTitle);
 
 				ImGui::Text("Animations Installed: ");
-				if (WorkingAnims) {
+				if (WorkingAnims && IsPandoraGenerated) {
+					ImGui::SameLine(0);
+					ImGui::TextColored(ImUtil::Colors::Message, "Yes (Warning)");
+				}
+				else if (WorkingAnims) {
 					ImGui::SameLine(0,1);
 					ImGui::TextColored(ImUtil::Colors::OK,"Yes");
 				}
@@ -158,6 +171,26 @@ namespace GTS {
 				}
 
 				ImFontManager::Pop();
+
+				if (IsPandoraGenerated) {
+					ImGuiEx::Tooltip(T_PandoraWarn, true);
+				}
+
+				ImGui::Text("Behavior Generator: ");
+				if (IsPandoraGenerated) {
+					ImGui::SameLine(0);
+					ImGui::TextColored(ImUtil::Colors::Error, "Pandora");
+					ImGuiEx::Tooltip(T_PandoraWarn, true);
+				}
+				else if (IsNemesisGenerated) {
+					ImGui::SameLine(0);
+					ImGui::TextColored(ImUtil::Colors::OK, "Nemesis");
+				}
+
+				else {
+					ImGui::SameLine(0);
+					ImGui::TextColored(ImUtil::Colors::Error, "None/Other (WARNING)");
+				}
 
 				if (ImGuiEx::Button("Manualy Test Animations", T0)) {
 
@@ -173,10 +206,10 @@ namespace GTS {
 							if (progressData.runtime > 0.5) {
 
 								if (IsGtsBusy(Player)) {
-									Notify("Animations are working.");
+									PrintMessageBox("Animations should be working.");
 								}
 								else {
-									Notify("Animations are NOT working.");
+									PrintMessageBox("Animation did not start.");
 								}
 								return false;
 							}
