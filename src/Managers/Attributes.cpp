@@ -41,7 +41,7 @@ namespace {
 	}
 
 	float GetMovementSlowdown(Actor* tiny) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			return transient->MovementSlowdown;
 		}
@@ -133,9 +133,9 @@ namespace GTS {
 	}
 
 	void AttributeManager::OverrideSMTBonus(float Value) {
-		auto ActorAttributes = Persistent::GetSingleton().GetData(PlayerCharacter::GetSingleton());
+		auto ActorAttributes = Persistent::GetActorData(PlayerCharacter::GetSingleton());
 		if (ActorAttributes) {
-			ActorAttributes->smt_run_speed = Value;
+			ActorAttributes->fSMTRunSpeed = Value;
 		}
 	}
 
@@ -197,12 +197,12 @@ namespace GTS {
 			}
 
 			case ActorValue::kSpeedMult: {
-				auto actorData = Persistent::GetSingleton().GetData(actor);
+				auto actorData = Persistent::GetActorData(actor);
 				float MovementDebuff = GetMovementSlowdown(actor);
 				float smt_speed = 1.0f;
 
 				if (actorData) {
-					smt_speed = actorData->smt_run_speed;
+					smt_speed = actorData->fSMTRunSpeed;
 				}
 				bool AlternativeSpeed = Config::General.bAlternativeSpeedFormula;
 				float MovementSpeed = AlternativeSpeed ? 
@@ -250,7 +250,7 @@ namespace GTS {
 		switch (av) {
 			case ActorValue::kCarryWeight: {
 				const float bonus = AttributeManager::GetAttributeBonus(actor, av);
-				auto transient = Transient::GetSingleton().GetData(actor);
+				auto transient = Transient::GetActorData(actor);
 				if (transient != nullptr) {
 					transient->CarryWeightBoost = (originalValue * bonus) - originalValue;
 				}
@@ -270,7 +270,7 @@ namespace GTS {
 
 				float perkbonus = GetStolenAttributes_Values(actor, ActorValue::kHealth); // calc health from the perk bonuses
 				float finalValue = originalValue + perkbonus; // add flat health on top
-				auto transient = Transient::GetSingleton().GetData(actor);
+				auto transient = Transient::GetActorData(actor);
 				if (transient) {
 					transient->HealthBoost = finalValue - originalValue;
 				}
@@ -295,7 +295,7 @@ namespace GTS {
 		switch (av) {
 
 			case ActorValue::kHealth: {
-				auto transient = Transient::GetSingleton().GetData(actor);
+				auto transient = Transient::GetActorData(actor);
 				if (transient) {
 					float lastEdit = transient->HealthBoost;
 					if (originalValue - lastEdit > 0.0f) {

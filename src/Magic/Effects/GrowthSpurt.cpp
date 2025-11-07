@@ -90,9 +90,9 @@ namespace GTS {
 			return;
 		}
 
-		if (!Persistent::GetSingleton().MSGSeenGrowthSpurt.value) {
+		if (!Persistent::MSGSeenGrowthSpurt.value) {
 			PrintMessageBox(GrowthSpurtMessage);
-			Persistent::GetSingleton().MSGSeenGrowthSpurt.value = true;
+			Persistent::MSGSeenGrowthSpurt.value = true;
 		}
 
 		this->AllowStacking = true;

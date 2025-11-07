@@ -132,7 +132,7 @@ namespace GTS {
                              "- Natural Size";
 
         	const bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), CollossalGrowthPerk);
-            const bool Unlock = Persistent::GetSingleton().UnlockMaxSizeSliders.value;
+            const bool Unlock = Persistent::UnlockMaxSizeSliders.value;
 
             std::string DisableReason = "";
             if (Config::Balance.bBalanceMode) {
@@ -215,7 +215,7 @@ namespace GTS {
                     }
                     else if (ShouldBeAuto) {
 
-                        const float PlayersLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
+                        const float PlayersLimit = Persistent::GlobalSizeLimit.value;
 
                         if (PlayersLimit >= 250.01f) {
                             _Frmt = fmt::format("Based on Player [Infinite]", PlayersLimit);
@@ -256,7 +256,7 @@ namespace GTS {
                     }
                     else if (ShouldBeAuto) {
 
-                        const float NPCsLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
+                        const float NPCsLimit = Persistent::GlobalSizeLimit.value;
 
                         if (NPCsLimit >= 250.01f) {
                             _Frmt = fmt::format("Based on Player [Infinite]", NPCsLimit);

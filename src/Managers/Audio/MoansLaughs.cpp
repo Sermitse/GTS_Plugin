@@ -12,11 +12,11 @@ using namespace GTS;
 namespace {
 
     bool PlaySexLabMoans(Actor* actor, float volume, float FallOff) {
-        const auto ActorData = Persistent::GetSingleton().GetData(actor);
+        const auto ActorData = Persistent::GetActorData(actor);
         uint8_t CustomSoundIndex = 0;
 
         if (Runtime::IsSexlabInstalled() && ActorData) {
-            CustomSoundIndex = ActorData->MoanSoundDescriptorIndex;
+            CustomSoundIndex = ActorData->iVoiceBankIndex;
         }
 
         //0 Refer's to the built in one effectively disabling the feature

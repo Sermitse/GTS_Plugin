@@ -1,11 +1,12 @@
 #pragma once
 
-#include "UI/Controls/ActorInfoCard.hpp"
-// Module that holds data that is not persistent across saves
+namespace ImGuiEx {
+	struct ActorInfoCard;
+}
 
 namespace GTS {
 
-	struct TempActorData {
+	struct TransientActorData {
 
 		float BaseHeight = 0.0f;
 		float SMTBonusDuration = 0.0f;
@@ -34,18 +35,19 @@ namespace GTS {
 		float PerkLifeForceStolen = 0.0f;
 		float ClothRipLastScale = -1.0f;
 		float ClothRipOffset = -1.0f;
-		bool TemporaryDamageImmunity = false;
 		float ShrinkUntil = 0.0f;
 		float BreastSizeBuff = 0.0f;
 		float FurnitureScale = 1.0f;
-
 		float OverkillSizeBonus = 1.0f;
 		float Overkills = 0.0f;
+		float FootVelocity_R = 0.0f;
+		float FootVelocity_L = 0.0f;
+		float HandVelocity_R = 0.0f;
+		float HandVelocity_L = 0.0f;
 
 		int Stacks_Perk_CataclysmicStomp = 0;
 		int Stacks_Perk_LifeForce = 0;
 		int CrushSound_Calc_CrushedTinies = 0;
-		
 
 		bool ThrowWasThrown = false;
 		bool CanDoVore = true;
@@ -70,20 +72,13 @@ namespace GTS {
 		bool EmotionPhonemeBusy = false;
 		bool ImmuneToBreastOneShot = true;
 		bool IsSlowGrowing = false;
-
+		bool TemporaryDamageImmunity = false;
 		bool UsingFurniture = false;
-
 		bool ReattachingTiny = false;
 		bool KissVoring = false;
 
-		float FootVelocity_R = 0.0f;
-		float FootVelocity_L = 0.0f;
-		float HandVelocity_R = 0.0f;
-		float HandVelocity_L = 0.0f;
-		
-
 		NiPoint3 BoundingBoxCache = { 0.0f, 0.0f, 0.0f };
-		
+
 		NiPoint3 POSCurrentLegL = { 0.0f, 0.0f, 0.0f };
 		NiPoint3 POSCurrentLegR = { 0.0f, 0.0f, 0.0f };
 		NiPoint3 POSCurrentHandL = { 0.0f, 0.0f, 0.0f };
@@ -107,34 +102,12 @@ namespace GTS {
 
 		std::vector<Actor*> shrinkies;
 
-		ImGuiEx::ActorInfoCard InfoCard = {};
-
-		explicit TempActorData(Actor* a_Actor) {
+		explicit TransientActorData(Actor* a_Actor) {
 			const auto _BoundValues = get_bound_values(a_Actor);
 			const auto _Scale = get_scale(a_Actor);
 
 			BaseHeight = GameUnitToMeter(_BoundValues[2] * _Scale);
 			BoundingBoxCache = _BoundValues;
 		}
-	};
-
-	class Transient : public EventListener, public CInitSingleton<Transient> {
-
-		public:
-			TempActorData* GetData(TESObjectREFR* a_Object);
-			TempActorData* GetActorData(Actor* actor);
-			std::vector<FormID> GetForms() const;
-
-			virtual std::string DebugName() override;
-			virtual void ActorLoaded(RE::Actor* actor) override;
-			virtual void Reset() override;
-
-			virtual void ResetActor(Actor* actor) override;
-			void EraseUnloadedTransientData();
-
-		private:
-
-			mutable std::mutex _Lock;
-			std::unordered_map<FormID, TempActorData> TempActorDataMap;
 	};
 }

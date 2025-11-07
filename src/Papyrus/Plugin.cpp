@@ -1,7 +1,5 @@
 #include "Papyrus/Plugin.hpp"
-#include "Data/Transient.hpp"
 #include "Magic/Effects/Common.hpp"
-#include "Managers/Gamemode/GameModeManager.hpp"
 #include "Utils/VoreUtils.hpp"
 
 using namespace GTS;
@@ -21,7 +19,7 @@ namespace {
 
 	bool WasDragonEaten(StaticFunctionTag*) {
 		auto pc = PlayerCharacter::GetSingleton();
-		auto transient = Transient::GetSingleton().GetData(pc);
+		auto transient = Transient::GetActorData(pc);
 		if (transient) {
 			return transient->DragonWasEaten;
 		}

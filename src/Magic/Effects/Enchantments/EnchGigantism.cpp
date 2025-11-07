@@ -17,9 +17,9 @@ namespace GTS {
 		float GigantismPower = this->magnitude;
 		SizeManager::GetSingleton().ModEnchantmentBonus(caster, GigantismPower);
 
-		if (!Persistent::GetSingleton().MSGSeenAspectOfGTS.value) {
+		if (!Persistent::MSGSeenAspectOfGTS.value) {
 			PrintMessageBox(AOGGuide);
-			Persistent::GetSingleton().MSGSeenAspectOfGTS.value = true;
+			Persistent::MSGSeenAspectOfGTS.value = true;
 		}
 
 	}

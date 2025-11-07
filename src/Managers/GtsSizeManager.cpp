@@ -41,7 +41,7 @@ namespace {
 
 	float Get_LifeForceBonus(Actor* giant) {
 		float bonus = 0.0f;
-		auto data = Transient::GetSingleton().GetActorData(giant);
+		auto data = Transient::GetActorData(giant);
 		if (data) {
 			bonus = data->PerkLifeForceStolen;
 		}
@@ -132,20 +132,20 @@ namespace GTS {
 		if (!actor) {
 			return;
 		}
-		auto Persistent = Persistent::GetSingleton().GetData(actor);
+		auto Persistent = Persistent::GetActorData(actor);
 		if (Persistent) {
 			switch (attribute) {
 				case SizeAttribute::Normal:
-					Persistent->NormalDamage = amt;
+					Persistent->fNormalDamage = amt;
 				break;
 				case SizeAttribute::Sprint:
-					Persistent->SprintDamage = amt;
+					Persistent->fSprintDamage = amt;
 				break;
 				case SizeAttribute::JumpFall: 
-					Persistent->FallDamage = amt;
+					Persistent->fFallDamage = amt;
 				break;
 				case SizeAttribute::HighHeel:
-					Persistent->HHDamage = amt;
+					Persistent->fHHDamage = amt;
 				break;
 			}
 		}
@@ -155,12 +155,12 @@ namespace GTS {
 		if (!actor) {
 			return 1.0f;
 		}
-		auto Persistent = Persistent::GetSingleton().GetData(actor);
+		auto Persistent = Persistent::GetActorData(actor);
 		if (Persistent) {
-			float Normal = clamp (1.0f, 1000000.0f, Persistent->NormalDamage);
-			float Sprint = clamp (1.0f, 1000000.0f, Persistent->SprintDamage);
-			float Fall = clamp (1.0f, 1000000.0f, Persistent->FallDamage);
-			float HH = clamp (1.0f, 1000000.0f, Persistent->HHDamage);
+			float Normal = clamp (1.0f, 1000000.0f, Persistent->fNormalDamage);
+			float Sprint = clamp (1.0f, 1000000.0f, Persistent->fSprintDamage);
+			float Fall = clamp (1.0f, 1000000.0f, Persistent->fFallDamage);
+			float HH = clamp (1.0f, 1000000.0f, Persistent->fHHDamage);
 			switch (attribute) {
 				case SizeAttribute::Normal: 
 					return Normal;
@@ -186,7 +186,7 @@ namespace GTS {
 
 	void SizeManager::SetSizeVulnerability(Actor* actor, float amt) {
 		if (actor) {
-			auto Transient = Transient::GetSingleton().GetData(actor);
+			auto Transient = Transient::GetActorData(actor);
 			if (Transient) {
 				Transient->SizeVulnerability = amt;
 			}
@@ -195,7 +195,7 @@ namespace GTS {
 
 	float SizeManager::GetSizeVulnerability(Actor* actor) {
 		if (actor) {
-			auto Transient = Transient::GetSingleton().GetData(actor);
+			auto Transient = Transient::GetActorData(actor);
 			if (Transient) {
 				return std::clamp(Transient->SizeVulnerability, 0.0f, 0.35f);
 			}
@@ -205,7 +205,7 @@ namespace GTS {
 
 	void SizeManager::ModSizeVulnerability(Actor* actor, float amt) {
 		if (actor) {
-			auto Transient = Transient::GetSingleton().GetData(actor);
+			auto Transient = Transient::GetActorData(actor);
 			if (Transient) {
 				if (Transient->SizeVulnerability < 0.35f) {
 					Transient->SizeVulnerability += amt;

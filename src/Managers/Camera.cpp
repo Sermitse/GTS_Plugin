@@ -44,7 +44,7 @@ namespace {
 	}
 
 	void SwitchCameraMode(const ManagedInputEvent& data) {
-		int& Mode = Persistent::GetSingleton().TrackedCameraState.value;
+		int& Mode = Persistent::TrackedCameraState.value;
 
 		// Increment by 1 and wrap around if we exceed the enum range
 		constexpr int totalModes = static_cast<int>(magic_enum::enum_count<LCameraMode_t>());
@@ -199,7 +199,7 @@ namespace GTS {
 
 	CameraState* CameraManager::GetCameraStateTP() {
 
-		auto Mode = static_cast<LCameraMode_t>(Persistent::GetSingleton().TrackedCameraState.value);
+		auto Mode = static_cast<LCameraMode_t>(Persistent::TrackedCameraState.value);
 
 		switch (Mode) {
 

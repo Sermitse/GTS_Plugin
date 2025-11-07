@@ -27,7 +27,7 @@ using namespace std;
 
 namespace Grab_Fixes {
 	void FixKissVoreTinyOffset(Actor* giant, bool Fix) {
-		auto Transient = Transient::GetSingleton().GetActorData(giant);
+		auto Transient = Transient::GetActorData(giant);
 		if (Transient) {
 			Transient->KissVoring = Fix; // Fix slight .Z offset when kiss voring, else Tiny will be below mouth
 		}

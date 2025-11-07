@@ -470,7 +470,7 @@ namespace {
             return;
         }
 
-        auto transient = Transient::GetSingleton().GetActorData(giant);
+        auto transient = Transient::GetActorData(giant);
         double startTime = Time::WorldTimeElapsed();
 
         float duration = 3.0f;

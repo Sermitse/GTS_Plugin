@@ -9,8 +9,11 @@ namespace GTS {
 	class EventDispatcher {
 
 		public:
+
 		static void AddListener(EventListener* a_listener);
 		static void RemoveListener(EventListener* a_listener);
+		static void Compact();
+
 		static void DoUpdate();
 		static void DoPapyrusUpdate();
 		static void DoHavokUpdate();
@@ -34,11 +37,11 @@ namespace GTS {
 		static void DoActorAnimEvent(RE::Actor* actor, const RE::BSFixedString& a_tag, const RE::BSFixedString& a_payload);
 		static void DoSerdePreSaveEvent();
 		static void DoSerdePostLoadEvent();
+		static void DoSerdeRevert();
 		static void DoConfigResetEvent();
 		static void DoConfigRefreshEvent();
 		static void DoPluginPostLoad();
 		static void DoFurnitureEvent(const TESFurnitureEvent* a_event);
-		static void Compact();
 
 		private:
 

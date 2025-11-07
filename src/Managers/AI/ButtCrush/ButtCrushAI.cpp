@@ -58,7 +58,7 @@ namespace {
 
 		const auto PerformerHandle = a_Performer->CreateRefHandle();
 		const auto BeginTime = Time::WorldTimeElapsed();
-		const auto& ActorTransient = Transient::GetSingleton().GetData(a_Performer);
+		const auto& ActorTransient = Transient::GetActorData(a_Performer);
 
 		TaskManager::Run(TaskName, [=](auto& progressData) {
 

@@ -10,7 +10,7 @@ namespace GTS {
 
 		if (giant->formID == 0x14 || IsTeammate(giant)) {
 
-			KillCountData* KillData = Persistent::GetSingleton().GetKillCountData(giant);
+			PersistentKillCountData* KillData = Persistent::GetKillCountData(giant);
 
 			if (KillData) {
 
@@ -49,7 +49,7 @@ namespace GTS {
 
 		if (giant->formID == 0x14 || IsTeammate(giant)) {
 
-			KillCountData* KillData = Persistent::GetSingleton().GetKillCountData(giant);
+			PersistentKillCountData* KillData = Persistent::GetKillCountData(giant);
 
 			if (KillData) {
 

@@ -7,7 +7,7 @@ using namespace GTS;
 namespace {
 
 	float Animation_GetSpeedCorrection(Actor* actor) { // Fixes Hug animation de-sync by copying Gts anim speed to Tiny
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			if (transient->HugAnimationSpeed < 1.0f) {
 				return transient->HugAnimationSpeed;
@@ -17,7 +17,7 @@ namespace {
 	}
 
 	void AffectByPerk(Actor* giant, float& anim_speed) {
-		auto data = Transient::GetSingleton().GetActorData(giant);
+		auto data = Transient::GetActorData(giant);
 		if (data) {
 			float speed = data->PerkBonusSpeed;
 			if (speed > 1.0f) {

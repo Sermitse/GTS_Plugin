@@ -181,12 +181,12 @@ namespace GTS {
         AddWindow(std::make_unique<StatusBarWindow>(), &wStatusBar);
 
         //Size Bar Windows
-        AddWindow(std::make_unique<SizeBarWindow>("WSBarP"),   &wSBarP );
-        AddWindow(std::make_unique<SizeBarWindow>("WSBarF1"),  &wSBarF1);
-        AddWindow(std::make_unique<SizeBarWindow>("WSBarF2"),  &wSBarF2);
-        AddWindow(std::make_unique<SizeBarWindow>("WSBarF3"),  &wSBarF3);
-        AddWindow(std::make_unique<SizeBarWindow>("WSBarF4"),  &wSBarF4);
-        AddWindow(std::make_unique<SizeBarWindow>("WSBarF5"),  &wSBarF5);
+        AddWindow(std::make_unique<SizeBarWindow>("P"),   &wSBarP );
+        AddWindow(std::make_unique<SizeBarWindow>("F1"),  &wSBarF1);
+        AddWindow(std::make_unique<SizeBarWindow>("F2"),  &wSBarF2);
+        AddWindow(std::make_unique<SizeBarWindow>("F3"),  &wSBarF3);
+        AddWindow(std::make_unique<SizeBarWindow>("F4"),  &wSBarF4);
+        AddWindow(std::make_unique<SizeBarWindow>("F5"),  &wSBarF5);
 
         logger::info("ImWindowManager Init OK");
 

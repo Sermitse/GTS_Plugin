@@ -1,4 +1,5 @@
 #pragma once
+#include "UI/Core/ImGraphics.hpp"
 #include "UI/Lib/imgui.h"
 
 namespace ImGuiEx {

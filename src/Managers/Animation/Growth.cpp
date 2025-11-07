@@ -12,20 +12,6 @@ using namespace GTS;
 
 namespace {
 
-	void SetHalfLife(Actor* actor, float value) {
-		auto& Persist = Persistent::GetSingleton();
-		auto actor_data = Persist.GetData(actor);
-		if (actor_data) {
-			actor_data->half_life = value;
-		}
-	}
-
-	void CancelGrowth(Actor* actor) {
-		std::string name = std::format("ManualGrowth_{}", actor->formID);
-		TaskManager::Cancel(name);
-		//SetHalfLife(actor, 1.0f);
-	}
-
 	void DelayedMoan(Actor* actor) { // Have to do it this way since Animator forgot annotations
 		if (actor) {
 			double Start = Time::WorldTimeElapsed();

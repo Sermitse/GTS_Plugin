@@ -22,7 +22,7 @@ namespace GTS {
 			return false;
 		}
 
-		const auto Transient = Transient::GetSingleton().GetData(a_Prey);
+		const auto Transient = Transient::GetActorData(a_Prey);
 		if (Transient) {
 			if (Transient->CanBeVored == false) {
 				return false;

@@ -46,9 +46,6 @@ namespace GTS {
 			return;
 		}
 
-		auto& sizemanager = SizeManager::GetSingleton();
-		auto& Persist = Persistent::GetSingleton();
-
 		auto HitIdForm = a_event->source;
 		auto HitId = TESForm::LookupByID(HitIdForm);
 

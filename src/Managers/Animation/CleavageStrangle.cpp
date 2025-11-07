@@ -79,7 +79,7 @@ namespace {
         ActorHandle gianthandle = giant->CreateRefHandle();
         ActorHandle tinyhandle = tiny->CreateRefHandle();
 
-        auto data = Transient::GetSingleton().GetActorData(tiny);
+        auto data = Transient::GetActorData(tiny);
         float damage_Setting = GetDifficultyMultiplier(giant, tiny);
         float threshold = 0.075f;
 

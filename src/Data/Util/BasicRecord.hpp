@@ -1,6 +1,6 @@
 #pragma once
 
-namespace GTS {
+namespace Serialization {
 
 	template<typename T>
 	bool CheckFloat(T& value) {

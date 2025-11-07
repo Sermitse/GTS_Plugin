@@ -1,25 +1,27 @@
 #pragma once
+#include "Data/Util/BasicRecord.hpp"
 
-namespace GTS {
+namespace Serialization {
 
     // Helper functions for compression/decompression using LZ4
     namespace Compression {
 
         static bool Compress(const void* a_src, size_t a_srclen, std::vector<unsigned char>& a_dst) {
+
             if (a_srclen == 0) {
                 a_dst.clear();
                 return true;
             }
 
             // Get maximum compressed size needed for worst case
-            int maxCompressedSize = LZ4_compressBound(static_cast<int>(a_srclen));
+            int32_t maxCompressedSize = LZ4_compressBound(static_cast<int32_t>(a_srclen));
             a_dst.resize(maxCompressedSize);
 
             // Compress the data
-            int compressedSize = LZ4_compress_default(
+            int32_t compressedSize = LZ4_compress_default(
                 static_cast<const char*>(a_src),
                 reinterpret_cast<char*>(a_dst.data()),
-                static_cast<int>(a_srclen),
+                static_cast<int32_t>(a_srclen),
                 maxCompressedSize
             );
 
@@ -41,11 +43,11 @@ namespace GTS {
 
             a_dst.resize(a_dstlen);
 
-            int decompressedSize = LZ4_decompress_safe(
+            int32_t decompressedSize = LZ4_decompress_safe(
                 static_cast<const char*>(a_src),
                 reinterpret_cast<char*>(a_dst.data()),
-                static_cast<int>(a_srclen),
-                static_cast<int>(a_dstlen)
+                static_cast<int32_t>(a_srclen),
+                static_cast<int32_t>(a_dstlen)
             );
 
             if (decompressedSize <= 0 || static_cast<size_t>(decompressedSize) != a_dstlen) {

@@ -54,7 +54,7 @@ namespace {
 	}
 
 	void Throw_RegisterForThrowDamage(Actor* giant, Actor* tiny, float speed) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			//Throw_RayCastTask(giant, tiny, speed);
 			transient->ThrowWasThrown = true;

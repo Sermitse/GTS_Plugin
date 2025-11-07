@@ -284,10 +284,10 @@ namespace GTS {
 
 		if (actor) {
 
-			auto saved_data = GTS::Persistent::GetSingleton().GetData(actor);
+			auto saved_data = GTS::Persistent::GetActorData(actor);
 			if (saved_data) {
-				if (saved_data->anim_speed > 0.0f) {
-					speed *= saved_data->anim_speed;
+				if (saved_data->fAnimSpeed > 0.0f) {
+					speed *= saved_data->fAnimSpeed;
 				}
 			}
 

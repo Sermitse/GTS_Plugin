@@ -9,10 +9,9 @@ using namespace GTS;
 namespace {
 
 	void SetHalfLife(Actor* actor, float value) {
-		auto& Persist = Persistent::GetSingleton();
-		auto actor_data = Persist.GetData(actor);
+		auto actor_data = Persistent::GetActorData(actor);
 		if (actor_data) {
-			actor_data->half_life = value;
+			actor_data->fHalfLife = value;
 		}
 	}
 

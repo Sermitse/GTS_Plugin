@@ -8,7 +8,7 @@ namespace {
     float GetPushMult(Actor* giant) {
 		float result = 1.0f;
 		if (giant->formID == 0x14 || IsTeammate(giant)) {
-			auto tranData = Transient::GetSingleton().GetData(giant);
+			auto tranData = Transient::GetActorData(giant);
 			if (tranData) {
 				result = tranData->PushForce;
 			} else {

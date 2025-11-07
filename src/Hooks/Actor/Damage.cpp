@@ -17,7 +17,7 @@ namespace {
 
 namespace GTS {
 
-	void CameraFOVTask_TP(Actor* actor, PlayerCamera* camera, TempActorData* data, bool AllowEdits) {
+	void CameraFOVTask_TP(Actor* actor, PlayerCamera* camera, TransientActorData* data, bool AllowEdits) {
 		std::string name = std::format("CheatDeath_TP_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();
 
@@ -51,7 +51,7 @@ namespace GTS {
 		});
 	}
 
-	void CameraFOVTask_FP(Actor* actor, PlayerCamera* camera, TempActorData* data, bool AllowEdits) {
+	void CameraFOVTask_FP(Actor* actor, PlayerCamera* camera, TransientActorData* data, bool AllowEdits) {
 		std::string name = std::format("CheatDeath_FP_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();
 
@@ -84,7 +84,7 @@ namespace GTS {
 		});
 	}
 
-	void DamageImmunityTask(Actor* actor, TempActorData* data) {
+	void DamageImmunityTask(Actor* actor, TransientActorData* data) {
 		std::string name = std::format("CheatDeath_Task_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();
 
@@ -117,7 +117,7 @@ namespace GTS {
 			}
 			auto AllowEdits = Config::General.bEnableFOVEdits;
 
-			auto tranData = Transient::GetSingleton().GetData(actor);
+			auto tranData = Transient::GetActorData(actor);
 			bool TP = camera->IsInThirdPerson();
 			bool FP = camera->IsInFirstPerson();
 			if (tranData) {
@@ -247,7 +247,7 @@ namespace GTS {
 	float GetTotalDamageResistance(Actor* receiver, Actor* aggressor) {
 		float receiver_resistance = GetDamageResistance(receiver) * GetHugDamageResistance(receiver) * GetGrowthDamageResistance(receiver);
 		float attacker_multiplier = GetDamageMultiplier(aggressor) / game_getactorscale(aggressor); // take GetScale into account since it boosts damage as well
-		auto transient = Transient::GetSingleton().GetData(receiver);
+		auto transient = Transient::GetActorData(receiver);
 		float tiny_resistance = 1.0f; // Tiny in hands takes portion of damage (25%) instead of GTS
 		bool DamageImmunity = false;
 		
@@ -271,7 +271,7 @@ namespace GTS {
 
 	void RecordPushForce(Actor* giant, Actor* tiny) {
 		// Damage itself is called earlier than the push so we can just record that
-		auto tranData = Transient::GetSingleton().GetData(giant);
+		auto tranData = Transient::GetActorData(giant);
 
         if (tranData) {
 			float tiny_scale = get_visual_scale(tiny);

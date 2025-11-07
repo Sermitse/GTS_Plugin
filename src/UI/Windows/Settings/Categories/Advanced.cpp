@@ -133,7 +133,7 @@ namespace GTS {
                 if (ImGuiEx::Button("Erase Persistent", "Clear out all data in persistent", false, 1.0f)) {
                 	TES::GetSingleton()->PurgeBufferedCells();
                     logger::critical("Purged cell buffers in preperation of persistent erase.");
-                	Persistent::GetSingleton().EraseUnloadedPersistentData();
+                	Persistent::EraseUnloadedData();
                 }
 
                 ImGui::SameLine();
@@ -141,7 +141,7 @@ namespace GTS {
                 if (ImGuiEx::Button("Erase Transient", "Clear out all data in Transient", false, 1.0f)) {
                     TES::GetSingleton()->PurgeBufferedCells();
                     logger::critical("Purged cell buffers in preperation of transient erase.");
-                    Transient::GetSingleton().EraseUnloadedTransientData();
+                    Transient::EraseUnloadedData();
                 }
 
                 ImGui::SameLine();

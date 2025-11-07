@@ -93,7 +93,7 @@ namespace {
         Actor* actor = evt.actor;
         if (actor) {
             if (actor->formID == 0x14 || IsTeammate(actor)) {
-                auto data = Transient::GetSingleton().GetActorData(actor);
+                auto data = Transient::GetActorData(actor);
                 if (data) {
                     if (evt.perk == Runtime::GetPerk("GTSPerkAcceleration")) {
                         data->PerkBonusSpeed = Perk_Acceleration_GetBonus(actor);
@@ -103,13 +103,13 @@ namespace {
         }
     }
 
-    void Perks_UpdateAccelerationPerk(TempActorData* data, Actor* giant) {
+    void Perks_UpdateAccelerationPerk(TransientActorData* data, Actor* giant) {
         if (data && Runtime::HasPerkTeam(giant, "GTSPerkAcceleration")) {
             data->PerkBonusSpeed = Perk_Acceleration_GetBonus(giant);
         }
     }
 
-    void StartStackDecayTask(Actor* giant, float stack_power, TempActorData* data) {
+    void StartStackDecayTask(Actor* giant, float stack_power, TransientActorData* data) {
         std::string name = std::format("StackDecay_{}_{}", giant->formID, Time::WorldTimeElapsed());
         ActorHandle gianthandle = giant->CreateRefHandle();
         double Start = Time::WorldTimeElapsed();
@@ -152,7 +152,7 @@ namespace {
     }
 
 
-    void Perks_UpdateLifeForceAbsorptionPerk(TempActorData* data, Actor* giant) {
+    void Perks_UpdateLifeForceAbsorptionPerk(TransientActorData* data, Actor* giant) {
         if (giant) {
             if (Runtime::HasPerkTeam(giant, "GTSPerkLifeAbsorption")) {
                 int stack_limit = 25;
@@ -198,7 +198,7 @@ namespace GTS {
         Actor* actor = evt.actor;
         if (actor) {
             if (actor->formID == 0x14 || IsTeammate(actor)) {
-                auto data = Transient::GetSingleton().GetActorData(actor);
+                auto data = Transient::GetActorData(actor);
                 if (data) {
                     if (evt.perk == Runtime::GetPerk("GTSPerkAcceleration")) {
                         data->PerkBonusSpeed = 1.0f;
@@ -212,7 +212,7 @@ namespace GTS {
         }
     }
     bool PerkHandler::Perks_Cataclysmic_HasStacks(Actor* giant) {
-        auto transient = Transient::GetSingleton().GetActorData(giant);
+        auto transient = Transient::GetActorData(giant);
 		if (transient) {
             bool HasPerk = Runtime::HasPerkTeam(giant, "GTSPerkCataclysmicStomp");
             return HasPerk && transient->Stacks_Perk_CataclysmicStomp > 0;
@@ -221,7 +221,7 @@ namespace GTS {
     }
 
     void PerkHandler::Perks_Cataclysmic_ManageStacks(Actor* giant, PerkAction action) {
-		auto transient = Transient::GetSingleton().GetActorData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
             bool HasPerk = Runtime::HasPerkTeam(giant, "GTSPerkCataclysmicStomp");
             int current_stacks = transient->Stacks_Perk_CataclysmicStomp;
@@ -271,7 +271,7 @@ namespace GTS {
 
     void PerkHandler::UpdatePerkValues(Actor* giant, PerkUpdate Type) {
         if (giant) {
-            auto data = Transient::GetSingleton().GetActorData(giant);
+            auto data = Transient::GetActorData(giant);
             switch (Type) {
                 case PerkUpdate::Perk_Acceleration: 
                     Perks_UpdateAccelerationPerk(data, giant);

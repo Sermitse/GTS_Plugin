@@ -39,7 +39,7 @@ namespace {
 	}
 
 	float GetRacemenuScale(Actor* giant) { // Used only on NPC's since we don't want to apply Natural Scale to them
-		auto actor_data = Transient::GetSingleton().GetData(giant);
+		auto actor_data = Transient::GetActorData(giant);
 		if (actor_data) {
 			return actor_data->OtherScales;
 		}
@@ -115,7 +115,7 @@ namespace {
 			log::info("Natural + GameScale: {}, raw Natural Scale: {}", get_natural_scale(giant, true), get_natural_scale(giant, false));
 			log::info("Game Scale: {}, npc node scale: {}", game_getactorscale(giant), get_npcnode_scale(giant));
 
-			auto actor_data = Transient::GetSingleton().GetData(giant);
+			auto actor_data = Transient::GetActorData(giant);
 			if (actor_data) {
 				log::info("Initial Scale: {}, Other Scale: {}", actor_data->OtherScales, GetInitialScale(giant));
 				log::info("Racemenu Scale: {}", GetRacemenuScale(giant));

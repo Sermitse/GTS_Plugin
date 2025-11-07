@@ -42,13 +42,13 @@ namespace {
 	}
 
 	void ResetMovementSlowdown(Actor* tiny) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			transient->MovementSlowdown = 1.0f;
 		}
 	}
 	void SetMovementSlowdown(Actor* giant, Actor* tiny) { 
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			float slow = 0.50f;
 			if (Runtime::HasPerkTeam(giant, "GTSPerkShrinkAdept")) {

@@ -69,7 +69,6 @@ namespace GTS {
 
 
             if (ImGui::CollapsingHeader("Sneaking/Crawling", ImUtil::HeaderFlagsDefaultOpen)) {
-                auto& Persi = Persistent::GetSingleton();
 
                 bool PlayerBusy = IsTransitioning(PlayerCharacter::GetSingleton());
                 bool FollowersBusy = false;
@@ -84,9 +83,9 @@ namespace GTS {
                 }
 
                 ImGui::Text("Replace Sneaking With Crawling");
-                ImGuiEx::CheckBox("Player##CrawlToggle", &Persi.EnableCrawlPlayer.value, T1, PlayerBusy);
+                ImGuiEx::CheckBox("Player##CrawlToggle", &Persistent::EnableCrawlPlayer.value, T1, PlayerBusy);
                 ImGui::SameLine();
-                ImGuiEx::CheckBox("Follower##CrawlToggle", &Persi.EnableCrawlFollower.value, T2, FollowersBusy);
+                ImGuiEx::CheckBox("Follower##CrawlToggle", &Persistent::EnableCrawlFollower.value, T2, FollowersBusy);
 
                 ImGui::Spacing();
 

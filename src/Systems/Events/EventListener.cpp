@@ -76,13 +76,16 @@ namespace GTS {
 	//Fires After Cosave Deserialization
 	void EventListener::OnGameLoaded() {}
 
+	//Fires After Cosave Deserialization
+	void EventListener::OnGameRevert() {}
+
 	//Fires If Config settings are reset.
 	void EventListener::OnConfigReset() {}
 
-	//Fires If Config settings are reset.
+	//Fires when a config refresh is requested.
 	void EventListener::OnConfigRefresh() {}
 
-	//Fires If Config settings are reset.
+	//Fires On SKSE PostLoad event
 	void EventListener::OnPluginPostLoad() {}
 
 }

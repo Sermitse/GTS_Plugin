@@ -110,7 +110,7 @@ namespace GTS {
 		std::unique_lock lock(_lock);
 		for (auto& [key, tinyref]: this->tinies) {
 			auto tiny = tinyref.get().get();
-			auto transient = Transient::GetSingleton().GetData(tiny);
+			auto transient = Transient::GetActorData(tiny);
 			if (transient) {
 				transient->CanBeVored = allow;
 			}
@@ -277,7 +277,7 @@ namespace GTS {
 			return false;
 		}
 
-		auto transient = Transient::GetSingleton().GetData(prey);
+		auto transient = Transient::GetActorData(prey);
 		if (prey->IsDead()) {
 			return false;
 		}
@@ -403,14 +403,14 @@ namespace GTS {
 	}
 
 	void VoreController::RecordOriginalScale(Actor* tiny) {
-		auto Data = Transient::GetSingleton().GetData(tiny);
+		auto Data = Transient::GetActorData(tiny);
 		if (Data) {
 			Data->VoreRecordedScale = std::clamp(get_visual_scale(tiny), 0.02f, 1000000.0f);
 		}
 	}
 
 	float VoreController::ReadOriginalScale(Actor* tiny) {
-		auto Data = Transient::GetSingleton().GetData(tiny);
+		auto Data = Transient::GetActorData(tiny);
 		if (Data) {
 			return Data->VoreRecordedScale;
 		}

@@ -7,7 +7,7 @@ using namespace GTS;
 namespace {
 
 	float GetSMTBonus(Actor* actor) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			return transient->SMTBonusDuration;
 		}
@@ -15,7 +15,7 @@ namespace {
 	}
 
 	float GetSMTPenalty(Actor* actor) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			return transient->SMTPenaltyDuration;
 		}
@@ -23,7 +23,7 @@ namespace {
 	}
 
 	void NullifySMTDuration(Actor* actor) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			transient->SMTBonusDuration = 0.0f;
 			transient->SMTPenaltyDuration = 0.0f;
@@ -50,9 +50,9 @@ namespace GTS {
 
 	void TinyCalamity::OnStart() {
 
-		if (!Persistent::GetSingleton().MSGSeenTinyCamity.value) {
+		if (!Persistent::MSGSeenTinyCamity.value) {
 			PrintMessageBox(TinyCalamityMessage);
-			Persistent::GetSingleton().MSGSeenTinyCamity.value = true;
+			Persistent::MSGSeenTinyCamity.value = true;
 		}
 
 		auto caster = GetCaster();

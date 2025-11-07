@@ -7,9 +7,11 @@
 #include "UI/Controls/Misc.hpp"
 #include "UI/Core/ImColorUtils.hpp"
 #include "UI/Lib/imgui.h"
-#include "UI/Lib/imgui_internal.h"
+
 
 namespace GTS {
+
+    std::unordered_map<FormID, std::unique_ptr<ImGuiEx::ActorInfoCard>> Cards = {};
 
 	CategoryStats::CategoryStats() {
 		m_name = "Stats";
@@ -28,9 +30,12 @@ namespace GTS {
             )
         );
 
-        // Draw player card
-        if (const auto& Data = Transient::GetSingleton().GetActorData(PlayerCharacter::GetSingleton())) {
-            Data->InfoCard.Draw(PlayerCharacter::GetSingleton(), { Width, 0 });
+        const Actor* Player = PlayerCharacter::GetSingleton();
+        if (!Cards.contains(Player->formID)) {
+            Cards.try_emplace(Player->formID, std::make_unique<ImGuiEx::ActorInfoCard>());
+        }
+        else {
+            Cards[Player->formID]->Draw(PlayerCharacter::GetSingleton(), { Width, 0 });
         }
 
         ImGuiEx::SeperatorVFullLength();
@@ -53,9 +58,15 @@ namespace GTS {
                 const int startIdx = currentPage * cardsPerPage;
                 const int endIdx = std::min(startIdx + cardsPerPage, static_cast<int>(teammates.size()));
                 for (int idx = startIdx; idx < endIdx; ++idx) {
-                    if (const auto& Data = Transient::GetSingleton().GetActorData(teammates[idx])) {
-                        if (idx != startIdx) ImGui::SameLine();
-                        Data->InfoCard.Draw(teammates[idx], { Width, 0 });
+                    if (teammates[idx]) {
+
+                        if (!Cards.contains(teammates[idx]->formID)) {
+                            Cards.try_emplace(teammates[idx]->formID, std::make_unique<ImGuiEx::ActorInfoCard>());
+                        }
+                        else {
+                            if (idx != startIdx) ImGui::SameLine();
+                            Cards[teammates[idx]->formID]->Draw(teammates[idx], { Width, 0 });
+                        }
                     }
                 }
 

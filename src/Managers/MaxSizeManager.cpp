@@ -6,7 +6,7 @@ using namespace GTS;
 
 namespace SizeOverride {
 	bool SizeOverrideEnabled() {
-		return !Config::Balance.bBalanceMode && Persistent::GetSingleton().UnlockMaxSizeSliders.value;
+		return !Config::Balance.bBalanceMode && Persistent::UnlockMaxSizeSliders.value;
 	}
 	void MassMode_ApplySizeOverride(float& GetLimit) {
 		if (SizeOverrideEnabled()) {
@@ -24,14 +24,14 @@ namespace {
 
 	const bool IsSizeUnlocked() {
 		// Reports true when player has ColossalGrowth perk and used gts unlimited command, else it's false
-		if (Persistent::GetSingleton().UnlockMaxSizeSliders.value) {
+		if (Persistent::UnlockMaxSizeSliders.value) {
 			const bool Unlocked = Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth");
 			return Unlocked;
 		}
 		return false;
 	}
 
-	void RecordOverkillSize_Transient(TempActorData* Data, float value, float kills) {
+	void RecordOverkillSize_Transient(TransientActorData* Data, float value, float kills) {
 		if (Data) {
 			Data->OverkillSizeBonus = value;
 			Data->Overkills = kills;
@@ -60,7 +60,7 @@ namespace {
     float get_endless_height(Actor* actor) {
 		float endless = 0.0f;
 
-		if (Runtime::HasPerk(actor, "GTSPerkColossalGrowth") && Persistent::GetSingleton().UnlockMaxSizeSliders.value) {
+		if (Runtime::HasPerk(actor, "GTSPerkColossalGrowth") && Persistent::UnlockMaxSizeSliders.value) {
 			endless = DEFAULT_MAX;
 		}
 
@@ -75,11 +75,11 @@ namespace {
     }
 
     float get_mass_based_limit(Actor* actor, float NaturalScale) { // gets mass based size limit for Player if using Mass Based mode
-        float MaxSize = Persistent::GetSingleton().GlobalSizeLimit.value; // Cap max size through normal size rules
+        float MaxSize = Persistent::GlobalSizeLimit.value; // Cap max size through normal size rules
 		
-    	const float PotionSize = Persistent::GetSingleton().PlayerExtraPotionSize.value * MassMode_ElixirPowerMultiplier;
+    	const float PotionSize = Persistent::PlayerExtraPotionSize.value * MassMode_ElixirPowerMultiplier;
 
-        float size_calc = NaturalScale + Persistent::GetSingleton().GlobalMassBasedSizeLimit.value + PotionSize;
+        float size_calc = NaturalScale + Persistent::GlobalMassBasedSizeLimit.value + PotionSize;
 		// Multiplying MassBasedSizeLimit by Natural Scale is a bad idea, it messes up max scaling with level 100 perk, displays 32x out of 34x
 
         float GetLimit = std::clamp(size_calc, NaturalScale, MaxSize);
@@ -115,7 +115,7 @@ namespace GTS {
 		const float QuestStage = Runtime::GetStage("GTSQuestProgression");
 
 		// -------------------------------------------------------------------------------------------------
-		const float GlobalLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
+		const float GlobalLimit = Persistent::GlobalSizeLimit.value;
 		const float FollowerLimit = SizeUnlocked ? Config::Balance.fMaxFollowerSize : GlobalLimit;
 		const float NPCLimit = SizeUnlocked ? Config::Balance.fMaxOtherSize : GlobalLimit;
 		// Apply custom limits only if player has Perk and gts unlimited command was executed, else use GlobalLimit
@@ -155,7 +155,7 @@ namespace GTS {
 		const bool IsMassBased = Config::Balance.sSizeMode == "kMassBased";
 
 		const float LevelBonus = 1.0f + GetGtsSkillLevel(a_Actor) * 0.006f;
-		const float PotionSize = Persistent::GetSingleton().PlayerExtraPotionSize.value * (IsMassBased ? MassMode_ElixirPowerMultiplier : 1.0f);
+		const float PotionSize = Persistent::PlayerExtraPotionSize.value * (IsMassBased ? MassMode_ElixirPowerMultiplier : 1.0f);
 		float Colossal_kills = 0.0f;
 		float Colossal_lvl = 1.0f;
 
@@ -169,7 +169,7 @@ namespace GTS {
 			return 1.0f;
 		}
 
-		auto Transient = Transient::GetSingleton().GetActorData(a_Actor);
+		auto Transient = Transient::GetActorData(a_Actor);
 
 		//Each stage after 20 adds 0.04f in steps of 10 stages
 		//Base value + Current Stage - 20 / 10
@@ -177,7 +177,7 @@ namespace GTS {
 		if (Stage >= 80) QuestMult = 0.60f;
 
 		if (Runtime::HasPerk(a_Actor,"GTSPerkColossalGrowth")) { //Total Size Control Perk
-			auto Persistent = Persistent::GetSingleton().GetKillCountData(a_Actor);
+			auto Persistent = Persistent::GetKillCountData(a_Actor);
 			Colossal_lvl = 1.15f;
 
 			if (Persistent) {
@@ -208,7 +208,7 @@ namespace GTS {
     //Ported From Papyrus
 	void UpdateGlobalSizeLimit() {
 		if (const auto Player = PlayerCharacter::GetSingleton()) {
-			Persistent::GetSingleton().GlobalSizeLimit.value = GetExpectedMaxSize(Player);
+			Persistent::GlobalSizeLimit.value = GetExpectedMaxSize(Player);
 		}
 	}
 
@@ -237,7 +237,7 @@ namespace GTS {
 
 	float MassMode_GetValuesForMenu(Actor* actor) {
 		if (actor) {
-			float MassModeScale = Persistent::GetSingleton().GlobalSizeLimit.value;
+			float MassModeScale = Persistent::GlobalSizeLimit.value;
 			Ench_Potions_ApplyBonuses(actor, MassModeScale);
 			
 			return MassModeScale;

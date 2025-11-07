@@ -50,14 +50,14 @@ namespace ImGuiEx {
 		if (!a_actor) return 0;
 		if (!a_actor->Get3D(false)) return 0;
 
-		const auto& P = GTS::Persistent::GetSingleton().GetActorData(a_actor);
-		const auto& T = GTS::Transient::GetSingleton().GetActorData(a_actor);
+		const auto& P = GTS::Persistent::GetActorData(a_actor);
+		const auto& T = GTS::Transient::GetActorData(a_actor);
 		if (!T || !P)  return 0;
 
 		// ----- Vars
 		float fDamageResist = (1.0f - GTS::AttributeManager::GetAttributeBonus(a_actor, RE::ActorValue::kHealth)) * 100.f;
 		float fGTSAspect =  GTS::Ench_Aspect_GetPower(a_actor) * 100.0f;
-		float fSizeReserve = P->SizeReserve;
+		float fSizeReserve = P->fSizeReserve;
 		float fOnTheEdge = (GTS::GetPerkBonus_OnTheEdge(a_actor, 0.01f) - 1.0f) * 100.f;
 		int iLifeAbsorbStacks = T->Stacks_Perk_LifeForce;
 		int iVoreStacks = T->Stacks_Perk_CataclysmicStomp;

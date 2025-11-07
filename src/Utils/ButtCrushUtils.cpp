@@ -3,7 +3,7 @@
 namespace GTS {
 
 	float GetButtCrushSize(Actor* giant) {
-		auto saved_data = Transient::GetSingleton().GetData(giant);
+		auto saved_data = Transient::GetActorData(giant);
 		if (saved_data) {
 			float butt_crush_size = std::clamp(saved_data->ButtCrushMaxSize, 0.0f, 1000000.0f);
 			return butt_crush_size;
@@ -12,7 +12,7 @@ namespace GTS {
 	}
 
 	float GetGrowthCount(Actor* giant) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			return transient->ButtCrushGrowthAmount;
 		}
@@ -46,7 +46,7 @@ namespace GTS {
 	}
 
 	void ModGrowthCount(Actor* giant, float value, bool reset) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			transient->ButtCrushGrowthAmount += value;
 			if (reset) {
@@ -56,14 +56,14 @@ namespace GTS {
 	}
 
 	void RecordStartButtCrushSize(Actor* giant) {
-		auto saved_data = Transient::GetSingleton().GetData(giant);
+		auto saved_data = Transient::GetActorData(giant);
 		if (saved_data) {
 			saved_data->ButtCrushStartScale = get_target_scale(giant);
 		}
 	}
 
 	void SetButtCrushSize(Actor* giant, float value, bool reset) {
-		auto saved_data = Transient::GetSingleton().GetData(giant);
+		auto saved_data = Transient::GetActorData(giant);
 		if (saved_data) {
 			float scale = game_getactorscale(giant);
 			saved_data->ButtCrushMaxSize += value * scale;

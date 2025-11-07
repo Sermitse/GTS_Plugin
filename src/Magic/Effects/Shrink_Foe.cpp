@@ -8,13 +8,13 @@ using namespace GTS;
 namespace {
 
 	void ResetMovementSlowdown(Actor* tiny) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			transient->MovementSlowdown = 1.0f;
 		}
 	}
 	void SetMovementSlowdown(Actor* giant, Actor* tiny) { 
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			float slow = 0.75f;
 			if (Runtime::HasPerkTeam(giant, "GTSPerkShrinkAdept")) {
@@ -108,27 +108,26 @@ namespace GTS {
 			return; // Disallow shrinking Essentials
 		}
 
-		auto& Persist = Persistent::GetSingleton();
 		float SizeDifference = 1.0f;
 		float bonus = 1.0f;
 		float balancemodebonus = 1.0f;
 		float shrink = this->power * 3.2f;
 		float gainpower = this->efficiency;
-		auto actor_data = Persist.GetData(target);
+		auto actor_data = Persistent::GetActorData(target);
 		
 		if (this->power >= 18.00f) {
 			if (actor_data) {
-				actor_data->half_life = 0.25f; // Faster shrink, less smooth.
+				actor_data->fHalfLife = 0.25f; // Faster shrink, less smooth.
 			}
 			SizeDifference = 1.0f / std::clamp((get_visual_scale(target) * GetSizeFromBoundingBox(target)), 0.25f, 1.0f);
 		} else if (this->power >= 10.0f) {
 			if (actor_data) {
-				actor_data->half_life = 0.50f; // Faster shrink, less smooth.
+				actor_data->fHalfLife = 0.50f; // Faster shrink, less smooth.
 			}
 			SizeDifference = 1.0f / std::clamp((get_visual_scale(target) * GetSizeFromBoundingBox(target)), 0.50f, 1.0f);
 		} else {
 			if (actor_data) {
-				actor_data->half_life = 1.0f;
+				actor_data->fHalfLife = 1.0f;
 			}
 		}
 

@@ -176,7 +176,7 @@ namespace GTS {
 	bool IsProning(Actor* actor) {
 		bool prone = false;
 		if (actor) {
-			auto transient = Transient::GetSingleton().GetData(actor);
+			auto transient = Transient::GetActorData(actor);
 			actor->GetGraphVariableBool("GTS_IsProne", prone);
 			if (actor->formID == 0x14 && actor->IsSneaking() && IsFirstPerson() && transient) {
 				return transient->FPProning; // Because we have no FP behaviors, 
@@ -189,7 +189,7 @@ namespace GTS {
 	bool IsCrawling(Actor* actor) {
 		bool crawl = false;
 		if (actor) {
-			auto transient = Transient::GetSingleton().GetData(actor);
+			auto transient = Transient::GetActorData(actor);
 			actor->GetGraphVariableBool("GTS_IsCrawling", crawl);
 			if (actor->formID == 0x14 && actor->IsSneaking() && IsFirstPerson() && transient) {
 				return transient->FPCrawling; // Needed to fix crawling being applied to FP even when Prone is off
@@ -254,7 +254,7 @@ namespace GTS {
 			}
 		}
 		
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			return transient->being_held && !tiny->IsDead();
 		}
@@ -262,7 +262,7 @@ namespace GTS {
 	}
 
 	bool IsBetweenBreasts(Actor* actor) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			return transient->is_between_breasts;
 		}
@@ -307,7 +307,7 @@ namespace GTS {
 	}
 
 	bool IsBeingEaten(Actor* tiny) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			return transient->about_to_be_eaten;
 		}
@@ -393,7 +393,7 @@ namespace GTS {
 	}
 
 	bool ButtCrush_IsAbleToGrow(Actor* actor, float limit) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		float stamina = GetAV(actor, ActorValue::kStamina);
 		if (stamina <= 4.0f) {
 			return false;
@@ -405,7 +405,7 @@ namespace GTS {
 	}
 
 	bool IsBeingGrinded(Actor* actor) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		bool grinded = false;
 		actor->GetGraphVariableBool("GTS_BeingGrinded", grinded);
 		if (transient) {
@@ -438,7 +438,7 @@ namespace GTS {
 
 	bool GetCameraOverride(Actor* actor) {
 		if (actor->formID == 0x14) {
-			auto transient = Transient::GetSingleton().GetData(actor);
+			auto transient = Transient::GetActorData(actor);
 			if (transient) {
 				return transient->OverrideCamera;
 			}
@@ -480,9 +480,9 @@ namespace GTS {
 	}
 
 	bool AllowStagger(Actor* giant, Actor* tiny) {
-		if (Persistent::GetSingleton().allow_stagger == true) {
+		if (Persistent::allow_stagger == true) {
 			return true; // Allow it
-		} else if (Persistent::GetSingleton().allow_stagger == false) {
+		} else if (Persistent::allow_stagger == false) {
 			bool ProtectGTS = giant->formID == 0x14 || IsTeammate(giant);
 			bool ProtectTiny = tiny->formID == 0x14 || IsTeammate(tiny);
 			//log::info("GTS {}: {}", giant->GetDisplayFullName(), ProtectGTS);

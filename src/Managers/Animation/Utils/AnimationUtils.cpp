@@ -118,7 +118,7 @@ namespace GTS {
     }
 
 	void Anims_FixAnimationDesync(Actor* giant, Actor* tiny, bool reset) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			float& animspeed = transient->HugAnimationSpeed;
 			if (!reset) {
@@ -452,14 +452,14 @@ namespace GTS {
 	}
 
 	void AllowToDoVore(Actor* actor, bool toggle) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			transient->CanDoVore = toggle;
 		}
 	}
 
 	void AllowToBeCrushed(Actor* actor, bool toggle) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			transient->CanBeCrushed = toggle;
 		}
@@ -1862,7 +1862,7 @@ namespace GTS {
 		}
 
 		bool PrevState = false;
-		if (auto transient = Transient::GetSingleton().GetData(a_actor)) {
+		if (auto transient = Transient::GetActorData(a_actor)) {
 			transient->FPCrawling = a_state;
 		}
 

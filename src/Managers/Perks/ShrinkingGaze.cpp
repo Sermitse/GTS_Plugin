@@ -51,7 +51,7 @@ namespace {
 		}
 	}
 
-	void ShrinkTheTargetOr(Actor* giant, Actor* otherActor, float stare_threshold, float tiny_size, float difference, TempActorData* data) {
+	void ShrinkTheTargetOr(Actor* giant, Actor* otherActor, float stare_threshold, float tiny_size, float difference, TransientActorData* data) {
 		SpawnParticle(otherActor, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), otherActor->GetPosition(), tiny_size * 4.5f, 7, nullptr); 
 		SpawnCustomParticle(otherActor, ParticleType::Red, otherActor->GetPosition(), "NPC Root [Root]", tiny_size);
 
@@ -94,7 +94,7 @@ namespace {
 					for (auto otherActor: find_actors()) {
 						if (otherActor != giant && IsHostile(giant, otherActor) && !IsEssential(giant, otherActor)) {
 							if (!IsBetweenBreasts(otherActor) && !IsBeingHeld(giant, otherActor)) {
-								auto data = Transient::GetSingleton().GetActorData(otherActor);
+								auto data = Transient::GetActorData(otherActor);
 								if (data) {
 									NiPoint3 actorLocation = otherActor->GetPosition();
 									if ((actorLocation-giantLocation).Length() <= checkDistance) {

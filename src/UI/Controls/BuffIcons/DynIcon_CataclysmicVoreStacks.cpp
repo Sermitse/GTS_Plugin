@@ -1,5 +1,4 @@
-#include "UI/Controls/BuffIcons/DynIcon_LifeAbsorbStacks.hpp"
-
+#include "UI/Controls/BuffIcons/DynIcon_CataclysmicVoreStacks.hpp"
 #include "UI/Controls/Text.hpp"
 #include "UI/Core/ImColorUtils.hpp"
 #include "UI/Core/ImFontManager.hpp"

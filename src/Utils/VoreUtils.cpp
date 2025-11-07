@@ -234,7 +234,7 @@ namespace GTS {
 
 	void Devourment_Compatibility(Actor* Pred, Actor* Prey, bool Digested) { // Called from the GtsManagerQuest script, takes priority over GTS Vore
 		if (Pred && Prey) {
-			auto Data = Transient::GetSingleton().GetData(Prey);
+			auto Data = Transient::GetActorData(Prey);
 			if (Data) {
 				bool& Devoured = Data->DevourmentDevoured;
 				bool& Eaten = Data->DevourmentEaten;

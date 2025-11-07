@@ -77,7 +77,7 @@ namespace {
     }
 
     void FullSpeed_ApplyEffect(Actor* giant, float speed) {
-        auto transient = Transient::GetSingleton().GetData(giant);
+        auto transient = Transient::GetActorData(giant);
 		if (transient) {
             bool& CanApplyEffect = transient->SMTReachedMaxSpeed;
             if (speed < 1.0f) {
@@ -352,9 +352,9 @@ namespace GTS {
         if (IsBeingHeld(giant, tiny)) { // Don't explode the ones in our hand
             return;
         }
-		auto& persistent = Persistent::GetSingleton();
-		if (persistent.GetData(giant)) {
-			if (persistent.GetData(giant)->smt_run_speed >= 1.0f) {
+
+		if (const auto& Data = Persistent::GetActorData(giant)) {
+			if (Data->fSMTRunSpeed >= 1.0f) {
                 float giantHp = GetAV(giant, ActorValue::kHealth);
 
 				if (giantHp <= 0) {
@@ -374,14 +374,14 @@ namespace GTS {
 
     // Manages SMT bonus speed
     void TinyCalamity_BonusSpeed(Actor* giant) {
-		auto Attributes = Persistent::GetSingleton().GetData(giant);
+		auto Attributes = Persistent::GetActorData(giant);
 		float Gigantism = 1.0f + (Ench_Aspect_GetPower(giant) * 0.25f);
 
         float speed = 1.0f; 
         float decay = 1.0f;
         float cap = 1.0f;
 
-		float& currentspeed = Attributes->smt_run_speed;
+		float& currentspeed = Attributes->fSMTRunSpeed;
         // SMT Active and sprinting
 		if (giant->AsActorState()->IsSprinting() && HasSMT(giant)) {
 

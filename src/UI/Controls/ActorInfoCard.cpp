@@ -44,8 +44,8 @@ namespace ImGuiEx {
 		if (!a_actor) return std::nullopt;
 		if (!a_actor->Get3D(false)) return std::nullopt;
 
-		const auto& P = Persistent::GetSingleton().GetActorData(a_actor);
-		const auto& T = Transient::GetSingleton().GetActorData(a_actor);
+		const auto& P = Persistent::GetActorData(a_actor);
+		const auto& T = Transient::GetActorData(a_actor);
 		if (!T || !P)  return std::nullopt;
 
 		I.pTargetActor =            a_actor->CreateRefHandle();
@@ -70,7 +70,7 @@ namespace ImGuiEx {
 		I.fDamageBonus =            (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kAttackDamageMult) - 1.0f) * 100.0f;
 
 		//Stolen Attributes
-		I.fStolenAtributes =        P->stolen_attributes;
+		I.fStolenAtributes =        P->fStolenAttibutes;
 		I.fStolenHealth =           GetStolenAttributes_Values(a_actor, ActorValue::kHealth);
 		I.fStolenMagicka =          GetStolenAttributes_Values(a_actor, ActorValue::kMagicka);
 		I.fStolenStamina =          GetStolenAttributes_Values(a_actor, ActorValue::kStamina);
@@ -79,7 +79,7 @@ namespace ImGuiEx {
 		//Player Only
 		if (a_actor->IsPlayerRef()) {
 			I.bIsPlayer = true;
-			I.fSizeEssence =        Persistent::GetSingleton().PlayerExtraPotionSize.value;
+			I.fSizeEssence =        Persistent::PlayerExtraPotionSize.value;
 		}
 
 		//Other

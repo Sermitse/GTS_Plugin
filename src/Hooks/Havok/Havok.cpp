@@ -74,24 +74,26 @@ namespace {
 		if (!otherActor) {
 			return false;
 		}
-		auto tranDataA = Transient::GetSingleton().GetData(actor);
-		if (tranDataA) {
-			if (tranDataA->DisableColissionWith == otherActor) {
-				return true;
-			}
-		}
 
-		auto tranDataB = Transient::GetSingleton().GetData(otherActor);
-		if (tranDataB) {
-			if (tranDataB->DisableColissionWith == actor) {
-				return true;
-			}
-		}
 
 		Actor* actor_a = skyrim_cast<Actor*>(actor);
 		Actor* actor_b = skyrim_cast<Actor*>(otherActor);
 
 		if (actor_a && actor_b) {
+
+			auto tranDataA = Transient::GetActorData(actor_a);
+			if (tranDataA) {
+				if (tranDataA->DisableColissionWith == otherActor) {
+					return true;
+				}
+			}
+
+			auto tranDataB = Transient::GetActorData(actor_b);
+			if (tranDataB) {
+				if (tranDataB->DisableColissionWith == actor) {
+					return true;
+				}
+			}
 
 			float gts_scale = get_visual_scale(actor_a);
 			float tiny_scale = get_visual_scale(actor_b);
@@ -196,45 +198,6 @@ namespace {
 					OverkillManager::GetSingleton().Overkill(giant, tiny);
 				}
 			});
-		}
-	}
-
-	void Throw_ThrowCheck(TESObjectREFR* objA, TESObjectREFR* objB, COL_LAYER Layer_A, COL_LAYER Layer_B) {
-		if (!objA) {
-			return;
-		}
-		if (!objB) {
-			return;
-		}
-
-		log::info("Throw check running");
-
-		if (Layer_A == COL_LAYER::kStatic || Layer_B == COL_LAYER::kStatic) {
-			
-			log::info("Throw check passed");
-			log::info("{} collides with {}", objA->GetDisplayFullName(), objB->GetDisplayFullName());
-
-			auto tranDataA = Transient::GetSingleton().GetData(objA);
-			if (tranDataA) {
-				if (tranDataA->ThrowOffender) {
-					Throw_DoDamage(objA, tranDataA->ThrowOffender, tranDataA->ThrowSpeed);
-					tranDataA->ThrowWasThrown = false;
-					tranDataA->ThrowOffender = nullptr;
-					tranDataA->ThrowSpeed = 0.0f;
-					return;
-				}
-			}
-
-			auto tranDataB = Transient::GetSingleton().GetData(objB);
-			if (tranDataB) {
-				if (tranDataB->ThrowOffender) {
-					Throw_DoDamage(objB, tranDataB->ThrowOffender, tranDataB->ThrowSpeed);
-					tranDataB->ThrowWasThrown = false;
-					tranDataB->ThrowOffender = nullptr;
-					tranDataB->ThrowSpeed = 0.0f;
-					return;
-				}
-			}
 		}
 	}
 }

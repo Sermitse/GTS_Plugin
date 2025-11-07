@@ -102,7 +102,7 @@ namespace {
 	void UpdateFalling() {
 		Actor* player = PlayerCharacter::GetSingleton(); 
 		if (player && player->IsInMidair()) {
-			auto transient = Transient::GetSingleton().GetData(player);
+			auto transient = Transient::GetActorData(player);
 			if (Runtime::HasPerkTeam(player, "GTSPerkCruelFall")) {
 				auto charCont = player->GetCharController();
 				if (charCont) {
@@ -157,7 +157,7 @@ namespace {
 
 		const auto& Settings = Config::General;
 		const bool DoRayCast = (actor->formID == 0x14) ? Settings.bDynamicSizePlayer : Settings.bDynamicSizeFollowers;
-		/*auto data = Transient::GetSingleton().GetActorData(actor);
+		/*auto data = Transient::GetActorData(actor);
 		if (data->UsingFurniture) { 
 			target_scale = data->FurnitureScale;
 			return;
@@ -179,7 +179,7 @@ namespace {
 		}
 	}
 
-	void update_height(Actor* actor, ActorData* persi_actor_data, TempActorData* trans_actor_data) {
+	void update_height(Actor* actor, PersistentActorData* persi_actor_data, TransientActorData* trans_actor_data) {
 		GTS_PROFILE_SCOPE("GTSManager: UpdateHeight");
 
 		if (!actor) {
@@ -200,8 +200,8 @@ namespace {
 		trans_actor_data->OtherScales = currentOtherScale;
 
 		const float natural_scale = get_natural_scale(actor, false);
-		float target_scale = persi_actor_data->target_scale;
-		const float max_scale = persi_actor_data->max_scale / natural_scale;
+		float target_scale = persi_actor_data->fTargetScale;
+		const float max_scale = persi_actor_data->fMaxScale / natural_scale;
 
 		
 
@@ -214,20 +214,20 @@ namespace {
 
 			if (fabs(target_scale - max_scale) < minimum_scale_delta) {
 				float target = max_scale;
-				persi_actor_data->target_scale = target;
-				persi_actor_data->target_scale_v = 0.0f;
+				persi_actor_data->fTargetScale = target;
+				persi_actor_data->fTargetScaleV = 0.0f;
 			} else {
 				critically_damped(
-					persi_actor_data->target_scale,
-					persi_actor_data->target_scale_v,
+					persi_actor_data->fTargetScale,
+					persi_actor_data->fTargetScaleV,
 					max_scale,
-					persi_actor_data->half_life*1.5f,
+					persi_actor_data->fHalfLife*1.5f,
 					Time::WorldTimeDelta()
 				);
 			}
 		}
 		else {
-			persi_actor_data->target_scale_v = 0.0f;
+			persi_actor_data->fTargetScaleV = 0.0f;
 		}
 
 		// Room Size adjustments
@@ -235,24 +235,24 @@ namespace {
 		// and if enabled in the mcm
 		PerformRoofRaycastAdjustments(actor, target_scale, currentOtherScale);
 		
-		if (fabs(target_scale - persi_actor_data->visual_scale) > 1e-5) {
+		if (fabs(target_scale - persi_actor_data->fVisualScale) > 1e-5) {
 			float minimum_scale_delta = 0.000005f; // 0.00005f
-			if (fabs(target_scale - persi_actor_data->visual_scale) < minimum_scale_delta) {
-				persi_actor_data->visual_scale = target_scale;
-				persi_actor_data->visual_scale_v = 0.0f;
+			if (fabs(target_scale - persi_actor_data->fVisualScale) < minimum_scale_delta) {
+				persi_actor_data->fVisualScale = target_scale;
+				persi_actor_data->fVisualScaleV = 0.0f;
 			} else {
 				critically_damped(
-					persi_actor_data->visual_scale,
-					persi_actor_data->visual_scale_v,
+					persi_actor_data->fVisualScale,
+					persi_actor_data->fVisualScaleV,
 					target_scale,
-					persi_actor_data->half_life / TimeScale(),
+					persi_actor_data->fHalfLife / TimeScale(),
 					Time::WorldTimeDelta()
 				);
 			}
 		}
 	}
 
-	void apply_height(Actor* actor, ActorData* persi_actor_data, TempActorData* trans_actor_data, bool force = false) {
+	void apply_height(Actor* actor, PersistentActorData* persi_actor_data, TransientActorData* trans_actor_data, bool force = false) {
 
 		GTS_PROFILE_SCOPE("GTSManager: ApplyHeight");
 
@@ -277,7 +277,7 @@ namespace {
 		if (scale < 0.0f) {
 			return;
 		}
-		float visual_scale = persi_actor_data->visual_scale;
+		float visual_scale = persi_actor_data->fVisualScale;
 
 		if(actor->formID == 0x14) {
 			if (IsFirstPerson()) {
@@ -300,7 +300,7 @@ namespace {
 		update_model_visuals(actor, visual_scale * initialScale * GameScale); // We've set the values, now update model size based on them
 	}
 
-	void apply_speed(Actor* actor, ActorData* persi_actor_data, TempActorData* trans_actor_data, bool force = false) {
+	void apply_speed(Actor* actor, PersistentActorData* persi_actor_data, TransientActorData* trans_actor_data, bool force = false) {
 		GTS_PROFILE_SCOPE("GTSManager: ApplySpeed");
 		if (!Config::General.bDynamicAnimspeed) {
 			return;
@@ -331,20 +331,20 @@ namespace {
 
 			// Copy player speed onto the actor
 			if (IsInSexlabAnim(actor, Player)) {
-				persi_actor_data->anim_speed = GetAnimationSlowdown(Player);
+				persi_actor_data->fAnimSpeed = GetAnimationSlowdown(Player);
 				return;
 			}
 		}
 		
-		persi_actor_data->anim_speed = GetAnimationSlowdown(actor); // else behave as usual
+		persi_actor_data->fAnimSpeed = GetAnimationSlowdown(actor); // else behave as usual
 	}
 
 	void update_actor(Actor* actor) {
 
 		GTS_PROFILE_SCOPE("GTSManager: UpdateActor");
 
-		auto temp_data = Transient::GetSingleton().GetActorData(actor);
-		auto saved_data = Persistent::GetSingleton().GetActorData(actor);
+		auto temp_data = Transient::GetActorData(actor);
+		auto saved_data = Persistent::GetActorData(actor);
 		update_height(actor, saved_data, temp_data);
 	}
 
@@ -352,8 +352,8 @@ namespace {
 
 		GTS_PROFILE_SCOPE("GTSManager: ApplyActor");
 
-		auto temp_data = Transient::GetSingleton().GetData(actor);
-		auto saved_data = Persistent::GetSingleton().GetData(actor);
+		auto temp_data = Transient::GetActorData(actor);
+		auto saved_data = Persistent::GetActorData(actor);
 		apply_height(actor, saved_data, temp_data, force);
 		apply_speed(actor, saved_data, temp_data, force);
 	}

@@ -164,8 +164,8 @@ namespace GTS {
 
 			if (!Target || !Target->Get3D(false)) return;
 
-			const auto& P = Persistent::GetSingleton().GetActorData(Target);
-			const auto& T = Transient::GetSingleton().GetActorData(Target);
+			const auto& P = Persistent::GetActorData(Target);
+			const auto& T = Transient::GetActorData(Target);
 			if (!P || !T) return;
 
 			sName = Target->GetName();

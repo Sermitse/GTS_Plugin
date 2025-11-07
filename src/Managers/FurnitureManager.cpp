@@ -4,7 +4,6 @@
 #include "Managers/FurnitureManager.hpp"
 #include "Utils/ButtCrushUtils.hpp"
 #include "Managers/Rumble.hpp"
-#include "Data/Transient.hpp"
 
 using namespace GTS;
 
@@ -126,7 +125,7 @@ namespace GTS {
         // - Problem: player is fixed, but NPC's shift forward instead (ty Todd)
         // - Unused atm.
         // [ Search for these data-> stuff and uncommend them if you want to experiment with it ]
-        auto data = Transient::GetSingleton().GetActorData(activator);
+        auto data = Transient::GetActorData(activator);
         if (data) {
             data->FurnitureScale = object->GetScale() / get_natural_scale(activator, true);
             data->UsingFurniture = enter;

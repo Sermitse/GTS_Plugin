@@ -407,9 +407,9 @@ namespace {
 
 	void SizeReserveEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		auto Cache = Persistent::GetSingleton().GetData(player);
+		auto Cache = Persistent::GetActorData(player);
 		if (Cache) {
-			if (Cache->SizeReserve > 0.0f) {
+			if (Cache->fSizeReserve > 0.0f) {
 				bool Attacking = false;
 				player->GetGraphVariableBool("GTS_IsGrabAttacking", Attacking);
 
@@ -423,23 +423,23 @@ namespace {
 							if (!HandsBusy) {
 								float SizeCalculation = duration - 1.2f;
 								float gigantism = 1.0f + Ench_Aspect_GetPower(player);
-								float Volume = std::clamp(get_visual_scale(player) * Cache->SizeReserve/10.0f, 0.10f, 2.0f);
+								float Volume = std::clamp(get_visual_scale(player) * Cache->fSizeReserve/10.0f, 0.10f, 2.0f);
 								static Timer timergrowth = Timer(3.00);
 								if (timergrowth.ShouldRunFrame()) {
-									Runtime::PlaySoundAtNode("GTSSoundGrowth", player, Cache->SizeReserve/50 * duration, "NPC Pelvis [Pelv]");
+									Runtime::PlaySoundAtNode("GTSSoundGrowth", player, Cache->fSizeReserve/50 * duration, "NPC Pelvis [Pelv]");
 									Task_FacialEmotionTask_Moan(player, 2.0f, "SizeReserve");
 									Sound_PlayMoans(player, 0.8f, 0.14f, EmotionTriggerSource::Growth);
 								}
 
-								float shake_power = std::clamp(Cache->SizeReserve/15 * duration, 0.0f, 2.0f);
+								float shake_power = std::clamp(Cache->fSizeReserve/15 * duration, 0.0f, 2.0f);
 								Rumbling::Once("SizeReserve", player, shake_power, 0.05f);
 
 								update_target_scale(player, (SizeCalculation/80) * gigantism, SizeEffectType::kNeutral);
 								regenerate_health(player, (SizeCalculation/80) * gigantism);
 
-								Cache->SizeReserve -= SizeCalculation/80;
-								if (Cache->SizeReserve <= 0) {
-									Cache->SizeReserve = 0.0f; // Protect against negative values.
+								Cache->fSizeReserve -= SizeCalculation/80;
+								if (Cache->fSizeReserve <= 0) {
+									Cache->fSizeReserve = 0.0f; // Protect against negative values.
 								}
 							}
 						}
@@ -451,11 +451,11 @@ namespace {
 
 	void DisplaySizeReserveEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		auto Cache = Persistent::GetSingleton().GetData(player);
+		auto Cache = Persistent::GetActorData(player);
 		if (Cache) {
 			if (Runtime::HasPerk(player, "GTSPerkSizeReserve")) {
 				float gigantism = 1.0f + Ench_Aspect_GetPower(player);
-				float Value = Cache->SizeReserve * gigantism;
+				float Value = Cache->fSizeReserve * gigantism;
 				Notify("Size Reserve: {:.2f}", Value);
 			}
 		}
@@ -562,22 +562,17 @@ namespace {
 
 	//True for player false for fol;
 	void ToggleCrawlImpl(const bool a_IsPlayer) {
-		auto& Persi = Persistent::GetSingleton();
 
 		if (a_IsPlayer) {
 			/// XOR Bit flip to toggle
-			Persi.EnableCrawlPlayer.value ^= true;
-
-			const std::string Msg = fmt::format("Player Crawl: {}", Persi.EnableCrawlPlayer.value ? "Enabled" : "Disabled");
-
-			
-
+			Persistent::EnableCrawlPlayer.value ^= true;
+			const std::string Msg = fmt::format("Player Crawl: {}", Persistent::EnableCrawlPlayer.value ? "Enabled" : "Disabled");
 			RE::DebugNotification(Msg.c_str(),nullptr,false);
 		}
 		else {
 			/// XOR Bit flip to toggle
-			Persi.EnableCrawlFollower.value ^= true;
-			const std::string Msg = fmt::format("Follower Crawl: {}", Persi.EnableCrawlPlayer.value ? "Enabled" : "Disabled");
+			Persistent::EnableCrawlFollower.value ^= true;
+			const std::string Msg = fmt::format("Follower Crawl: {}", Persistent::EnableCrawlPlayer.value ? "Enabled" : "Disabled");
 			RE::DebugNotification(Msg.c_str(),nullptr, false);
 		}
 

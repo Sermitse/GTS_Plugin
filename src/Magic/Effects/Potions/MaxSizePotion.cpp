@@ -8,7 +8,7 @@ using namespace GTS;
 namespace {
 
 	void TempBonusMaxSize_Modify(Actor* giant, float value) {
-		auto saved_data = Transient::GetSingleton().GetData(giant);
+		auto saved_data = Transient::GetActorData(giant);
 		if (saved_data) {
 			saved_data->PotionMaxSize += value;
 		}

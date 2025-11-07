@@ -8,12 +8,12 @@ namespace {
 
 	bool SetScale(StaticFunctionTag*, Actor* actor, float scale) {
 		bool result = false;
-		auto actor_data = Persistent::GetSingleton().GetData(actor);
+		auto actor_data = Persistent::GetActorData(actor);
 		if (actor_data) {
 			result = update_model_visuals(actor, scale);
-			actor_data->visual_scale = scale;
-			actor_data->visual_scale_v = 0.0f;
-			actor_data->target_scale = scale;
+			actor_data->fVisualScale = scale;
+			actor_data->fVisualScaleV = 0.0f;
+			actor_data->fTargetScale = scale;
 		}
 		return result;
 	}
@@ -28,13 +28,13 @@ namespace {
 
 	bool ModScale(StaticFunctionTag*, Actor* actor, float amt) {
 		bool result = false;
-		auto actor_data = Persistent::GetSingleton().GetData(actor);
+		auto actor_data = Persistent::GetActorData(actor);
 		if (actor_data) {
 			auto scale = get_scale(actor) + amt;
 			result = update_model_visuals(actor, scale);
-			actor_data->visual_scale = scale;
-			actor_data->visual_scale_v = 0.0f;
-			actor_data->target_scale = scale;
+			actor_data->fVisualScale = scale;
+			actor_data->fVisualScaleV = 0.0f;
+			actor_data->fTargetScale = scale;
 		}
 		return result;
 	}

@@ -1,5 +1,5 @@
 #pragma once
 
 namespace GTS {
-	void RegisterManagers();
+	void RegisterEventListeners();
 }

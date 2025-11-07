@@ -158,7 +158,7 @@ namespace GTS {
 	}
 
 	void EmotionManager::SetEmotionBusy(Actor* giant, CharEmotionType Type, bool lock) { // We don't want emotion tasks to stack, it breaks them
-		auto data = Transient::GetSingleton().GetActorData(giant);
+		auto data = Transient::GetActorData(giant);
 		if (data) {
 			switch (Type) {
 				case CharEmotionType::Modifier:
@@ -173,7 +173,7 @@ namespace GTS {
 
 	bool EmotionManager::IsEmotionBusy(Actor* giant, CharEmotionType Type) {
 		bool busy = false;
-		auto data = Transient::GetSingleton().GetActorData(giant);
+		auto data = Transient::GetActorData(giant);
 		if (data) {
 			switch (Type) {
 				case CharEmotionType::Modifier:

@@ -1,99 +1,94 @@
 #include "Hooks/Hooks.hpp"
-#include "Managers/Register.hpp"
+#include "Systems/Events/EventRegistry.hpp"
 #include "Papyrus/Papyrus.hpp"
 #include "Utils/InitUtils.hpp"
 #include "Utils/Logger.hpp"
-
-using namespace SKSE;
-using namespace RE;
-using namespace RE::BSScript;
-using namespace GTS;
 
 namespace {
 
 	void InitializeMessaging() {
 
-		if (!GetMessagingInterface()->RegisterListener([](MessagingInterface::Message *message) {
+		if (!SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message *message) {
 			switch (message->type) {
 
 				// Called after all kPostLoad message handlers have run.
-				case MessagingInterface::kPostPostLoad: {
-					EventDispatcher::DoPluginPostLoad();
+				case SKSE::MessagingInterface::kPostPostLoad: {
+					GTS::EventDispatcher::DoPluginPostLoad();
 					break;
 				}
 
 				// All ESM/ESL/ESP plugins have loaded, main menu is now active.
-				case MessagingInterface::kDataLoaded: {
-					EventDispatcher::DoDataReady();
-					CPrintPluginInfo();
+				case SKSE::MessagingInterface::kDataLoaded: {
+					GTS::EventDispatcher::DoDataReady();
+					GTS::CPrintPluginInfo();
 					break;
 				}
 
 				// Skyrim game events.
 				// Player's selected save game has finished loading.
-				case MessagingInterface::kPostLoadGame: {
-					State::SetInGame(true);
-					Cprint("[GTSPlugin.dll]: [ Succesfully initialized and loaded ]");
+				case SKSE::MessagingInterface::kPostLoadGame: {
+					GTS::State::SetInGame(true);
+					GTS::Cprint("[GTSPlugin.dll]: [ Succesfully initialized and loaded ]");
 					break;
 				}
 
 				// Player starts a new game from main menu.
-				case MessagingInterface::kNewGame: {
-					State::SetInGame(true);
-					EventDispatcher::DoReset();
-					Cprint("[GTSPlugin.dll]: [ Succesfully initialized and loaded ]");
+				case SKSE::MessagingInterface::kNewGame: {
+					GTS::State::SetInGame(true);
+					GTS::EventDispatcher::DoReset();
+					GTS::Cprint("[GTSPlugin.dll]: [ Succesfully initialized and loaded ]");
 					break;
 				}
 
 				// Player selected a game to load, but it hasn't loaded yet.
 				// Data will be the name of the loaded save.
-				case MessagingInterface::kPreLoadGame: {
-					State::SetInGame(false);
-					EventDispatcher::DoReset();
+				case SKSE::MessagingInterface::kPreLoadGame: {
+					GTS::State::SetInGame(false);
+					GTS::EventDispatcher::DoReset();
 					break;
 				}
 
 				default: {};
 			}
 		})) {
-			ReportAndExit("Unable to register message listener.");
+			GTS::ReportAndExit("Unable to register message listener.");
 		}
 	}
 
 	void InitializeSerialization() {
 
-		auto* serde = GetSerializationInterface();
+		auto* serde = SKSE::GetSerializationInterface();
 		serde->SetUniqueID(_byteswap_ulong('GTSP'));
-		serde->SetSaveCallback(Persistent::OnGameSaved);
-		serde->SetRevertCallback(Persistent::OnRevert);
-		serde->SetLoadCallback(Persistent::OnGameLoaded);
+		serde->SetSaveCallback(GTS::Persistent::OnGameSaved);
+		serde->SetRevertCallback(GTS::Persistent::OnRevert);
+		serde->SetLoadCallback(GTS::Persistent::OnGameLoaded);
 
-		log::info("Cosave serialization initialized.");
+		logger::info("Cosave serialization initialized.");
 	}
 
 	void InitializePapyrus() {
 
-		if (GetPapyrusInterface()->Register(GTS::register_papyrus)) {
-			log::info("Papyrus functions bound.");
+		if (SKSE::GetPapyrusInterface()->Register(GTS::register_papyrus)) {
+			logger::info("Papyrus functions bound");
 			return;
 		}
-		ReportAndExit("Failure to register Papyrus bindings.");
+		GTS::ReportAndExit("Failure to register Papyrus bindings.");
 	}
 }
 
-SKSEPluginLoad(const LoadInterface* a_skse){
+SKSEPluginLoad(const SKSE::LoadInterface* a_skse){
 
 	Init(a_skse);
 	logger::Initialize();
 
 	#ifndef GTS_DISABLE_PLUGIN
 
-	LogPrintPluginInfo();
-	VersionCheck(a_skse);
+	GTS::LogPrintPluginInfo();
+	GTS::VersionCheck(a_skse);
 	InitializeMessaging();
-	Hooks::Install();
 	InitializePapyrus();
-	RegisterManagers();
+	Hooks::Install();
+	GTS::RegisterEventListeners();
 
 	#endif
 

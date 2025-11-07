@@ -102,9 +102,9 @@ namespace GTS {
 		if (!Runtime::HasPerk(giant, "GTSPerkSizeReserve")) {
 			return;
 		}
-		auto Cache = Persistent::GetSingleton().GetData(giant);
+		auto Cache = Persistent::GetActorData(giant);
 		if (Cache) {
-			Cache->SizeReserve += value * 1.5f;
+			Cache->fSizeReserve += value * 1.5f;
 		}
 	}
 
@@ -218,16 +218,16 @@ namespace GTS {
 					.s = 0.54f,
 				};
 
-				const float MassBasedSize = Persistent::GetSingleton().GlobalMassBasedSizeLimit.value;
+				const float MassBasedSize = Persistent::GlobalMassBasedSizeLimit.value;
 
 				float modifier = soft_core(MassBasedSize, mod);
 				modifier = std::max(modifier, 0.10f);
 				value *= 10.0f * modifier;
 
-				auto GlobalSizeLimit = Persistent::GetSingleton().GlobalSizeLimit.value;
+				auto GlobalSizeLimit = Persistent::GlobalSizeLimit.value;
 
 				float new_value = MassBasedSize + value * progressionMultiplier * TimeScale();
-				Persistent::GetSingleton().GlobalMassBasedSizeLimit.value = std::clamp(new_value, 0.0f, GlobalSizeLimit);
+				Persistent::GlobalMassBasedSizeLimit.value = std::clamp(new_value, 0.0f, GlobalSizeLimit);
 			}
 		}
 	}
@@ -406,7 +406,7 @@ namespace GTS {
 	}
 
 	inline bool BlockShrinkToNothing(Actor* giant, Actor* tiny, float time_mult) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			float& tick = transient->ShrinkTicks;
 			tick += 0.0166f * TimeScale();

@@ -28,14 +28,14 @@ namespace {
 			"SL F Voice 8"
 		};
 
-		if (auto ActorData = Persistent::GetSingleton().GetData(a_actor)) {
+		if (auto ActorData = Persistent::GetActorData(a_actor)) {
 			ImGui::PushID(a_actor);
-			int CurrentIndex = ActorData->MoanSoundDescriptorIndex;
+			int CurrentIndex = ActorData->iVoiceBankIndex;
 			if (ImGui::BeginCombo(a_actor->GetName(), EntriesFemale[CurrentIndex])) {
 				for (int i = 0; i < EntriesFemale.size(); ++i) {
 					const bool IsSelected = (CurrentIndex == i);
 					if (ImGui::Selectable(EntriesFemale[i], IsSelected)) {
-						ActorData->MoanSoundDescriptorIndex = static_cast<uint8_t>(i);
+						ActorData->iVoiceBankIndex = static_cast<uint8_t>(i);
 					}
 					if (IsSelected) {
 						ImGui::SetItemDefaultFocus();

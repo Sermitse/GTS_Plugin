@@ -37,7 +37,7 @@ namespace {
         auto TargetBone = Attachment_GetTargetNode(giantref);
         std::string_view node_lookup = "none";
 
-        auto Transient = Transient::GetSingleton().GetActorData(giantref);
+        auto Transient = Transient::GetActorData(giantref);
 
         switch (TargetBone) {
             case AttachToNode::ObjectL: {
@@ -86,7 +86,7 @@ namespace {
     }
 
     void SetReattachingState(Actor* giant, bool Reattach) {
-        auto data = Transient::GetSingleton().GetActorData(giant);
+        auto data = Transient::GetActorData(giant);
         if (data) {
             data->ReattachingTiny = Reattach;
         }
@@ -144,7 +144,7 @@ namespace GTS {
     bool IsCurrentlyReattaching(Actor* giant) { // Sometimes Tiny is still grabbed and we need to update Tiny pos so Tiny becomes visible
         // Works in such cases like Changing locations/going between loading screens with Tiny grabbed
         bool Attaching = false;
-        auto data = Transient::GetSingleton().GetActorData(giant);
+        auto data = Transient::GetActorData(giant);
         if (data) {
             Attaching = data->ReattachingTiny;
         }

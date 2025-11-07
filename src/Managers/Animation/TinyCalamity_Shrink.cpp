@@ -9,7 +9,7 @@ using namespace GTS;
 
 namespace {
 	void slow_down(Actor* tiny, float value) {
-		auto tranData = Transient::GetSingleton().GetData(tiny);
+		auto tranData = Transient::GetActorData(tiny);
 		if (tranData) {
 			tranData->MovementSlowdown -= value;
 			//log::info("Slowdown of {} is {}", tiny->GetDisplayFullName(), tranData->MovementSlowdown);
@@ -157,15 +157,15 @@ namespace GTS
 
 
 	void Animation_TinyCalamity::ResetActors(Actor* actor) {
-		auto tranData = Transient::GetSingleton().GetData(actor);
+		auto tranData = Transient::GetActorData(actor);
 		if (tranData) {
 			tranData->shrinkies = {}; // Reset array of actors to shrink
 		}
 	}
 
     void Animation_TinyCalamity::AddToData(Actor* giant, Actor* tiny, float until) {
-        auto tranData_gts = Transient::GetSingleton().GetData(giant);
-		auto tranData_tiny = Transient::GetSingleton().GetData(tiny);
+        auto tranData_gts = Transient::GetActorData(giant);
+		auto tranData_tiny = Transient::GetActorData(tiny);
 
 		if (tranData_gts) {
 			tranData_gts->shrinkies.push_back(tiny);
@@ -177,7 +177,7 @@ namespace GTS
 
 
     std::vector<Actor*> Animation_TinyCalamity::GetShrinkActors(Actor* giant) {
-		 auto tranData_gts = Transient::GetSingleton().GetData(giant);
+		 auto tranData_gts = Transient::GetActorData(giant);
 		 if (tranData_gts) {
 			return tranData_gts->shrinkies;
 		 }
@@ -185,7 +185,7 @@ namespace GTS
 	}
 
     float Animation_TinyCalamity::GetShrinkUntil(Actor* tiny) {
-        auto tranData_tiny = Transient::GetSingleton().GetData(tiny);
+        auto tranData_tiny = Transient::GetActorData(tiny);
 		if (tranData_tiny) {
 			return tranData_tiny->ShrinkUntil;
 		}

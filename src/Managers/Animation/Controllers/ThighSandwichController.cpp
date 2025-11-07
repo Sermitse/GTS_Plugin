@@ -136,7 +136,7 @@ namespace GTS {
 			//If AI
 			if ((GiantRef->formID != 0x14) || (GiantRef->formID == 0x14 && Config::Advanced.bPlayerAI)) {
 
-				if (auto AITransientData = Transient::GetSingleton().GetData(GiantRef)) {
+				if (auto AITransientData = Transient::GetActorData(GiantRef)) {
 					AITransientData->ActionTimer.UpdateDelta(Config::AI.ThighSandwich.fInterval);
 
 					if (!State::Live()) return;

@@ -84,7 +84,7 @@ namespace {
 	}
 
 	void ModGrowthCount(Actor* giant, float value, bool reset) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			transient->ButtCrushGrowthAmount += value;
 			if (reset) {
@@ -94,7 +94,7 @@ namespace {
 	}
 
 	float GetGrowthCount(Actor* giant) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			return transient->ButtCrushGrowthAmount;
 		}

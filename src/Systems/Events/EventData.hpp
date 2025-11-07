@@ -30,6 +30,7 @@ namespace GTS {
 		VisualScale,
 		TargetScale,
 	};
+
 	enum class ParticleType {
 		Red,
 		DarkRed,

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "UI/Controls/StatusBar.hpp"
 #include "UI/Core/ImWindow.hpp"
 
 namespace GTS {

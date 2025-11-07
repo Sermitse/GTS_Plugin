@@ -47,7 +47,7 @@ namespace {
 		const std::string TaskName = std::format("ThighCrush_{}", giant->formID);
 
 		const ActorHandle GiantHandle = giant->CreateRefHandle();
-		const auto& ActorTransient = Transient::GetSingleton().GetData(giant);
+		const auto& ActorTransient = Transient::GetActorData(giant);
 		const double StartTime = Time::WorldTimeElapsed();
 
 		TaskManager::Run(TaskName, [=](auto& progressData) {

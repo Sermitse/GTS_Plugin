@@ -39,8 +39,6 @@ namespace Hooks {
 		stl::write_vfunc_unique<TESCameraStateUpdate, 8>(VTABLE_VATSCameraState[0]);
 		stl::write_vfunc_unique<TESCameraStateUpdate, 9>(VTABLE_FurnitureCameraState[0]);
 		stl::write_vfunc_unique<TESCameraStateUpdate, 10>(VTABLE_AutoVanityState[0]);
-
-		//IronSightsState has no RE'd Class member so just pass its vtable REL ID
 		stl::write_vfunc_unique<TESCameraStateUpdate, 11>(VTABLE_IronSightsState[0]);
 
 		//Disabled, Causes single frame camera missplacement when exiting the tween menu

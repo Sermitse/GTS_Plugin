@@ -218,7 +218,7 @@ namespace logger = SKSE::log;
 #include "Scale/ModScale.hpp"
 #include "Scale/Height.hpp"
 
-#include "Data/Persistent.hpp"
-#include "Data/Transient.hpp"
+#include "Data/Storage/Persistent.hpp"
+#include "Data/Storage/Transient.hpp"
 
 #include "RE/RE.hpp"

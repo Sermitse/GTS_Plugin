@@ -199,14 +199,11 @@ namespace GTS {
 			// Reciever is always PC, if it is not PC - we do nothing anyways
 			Actor* receiver = PlayerCharacter::GetSingleton();
 			if (receiver) {
-				auto& persist = Persistent::GetSingleton();
-				
+
 				float tremor_scale = Config::Camera.fCameraShakeOther;
 				float might = 1.0f + Potion_GetMightBonus(caster); // Stronger, more impactful shake with Might potion
 				
 				float distance = (coords - receiver->GetPosition()).Length(); // In that case we apply shake based on actor distance
-
-				float AnimSpeed = AnimationManager::GetAnimSpeed(caster);
 
 				float sourcesize = get_visual_scale(caster);
 				float receiversize = get_visual_scale(receiver);

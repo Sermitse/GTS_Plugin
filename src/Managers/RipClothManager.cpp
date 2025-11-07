@@ -121,7 +121,7 @@ namespace GTS {
 
 		if (!a_actor) return false;
 
-		auto transient = Transient::GetSingleton().GetActorData(a_actor);
+		auto transient = Transient::GetActorData(a_actor);
 		if (!transient) return false;
 		// If Current Scale is Equal or Larger, we either growed or stayed the same so no shriking happened
 		bool Shrinking = !(Scale >= transient->ClothRipLastScale);
@@ -234,7 +234,7 @@ namespace GTS {
 		static Timer timer = Timer(1.2);
 		if (!timer.ShouldRunFrame()) return;
 
-		auto actordata = Transient::GetSingleton().GetActorData(a_actor);
+		auto actordata = Transient::GetActorData(a_actor);
 		if (!actordata) return;
 
 		float CurrentScale = get_visual_scale(a_actor);

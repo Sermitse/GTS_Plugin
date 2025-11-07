@@ -50,7 +50,7 @@ namespace GTS {
 				return false;
 			}
 
-			const auto ActorTransient = Transient::GetSingleton().GetData(CasterActor);
+			const auto ActorTransient = Transient::GetActorData(CasterActor);
 			if (!ActorTransient) {
 				return false;
 			}
@@ -108,7 +108,7 @@ namespace GTS {
 		Actor* caster = GetCaster();
 		if (caster) {
 
-			const auto ActorTransient = Transient::GetSingleton().GetData(caster);
+			const auto ActorTransient = Transient::GetActorData(caster);
 			if (ActorTransient) {
 
 				float scale = get_visual_scale(caster);

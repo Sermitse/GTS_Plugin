@@ -297,7 +297,7 @@ namespace GTS {
 			return;
 		}
 
-		auto player_data = Persistent::GetSingleton().GetData(player);
+		auto player_data = Persistent::GetActorData(player);
 		if (!player_data) {
 			return;
 		}
@@ -307,7 +307,7 @@ namespace GTS {
 		RE::bhkCollisionFilter* filter = static_cast<bhkCollisionFilter*>(world->GetWorld2()->collisionFilter);
 
 
-		float PlayerScale = player_data->target_scale;
+		float PlayerScale = player_data->fTargetScale;
 		auto& CamSettings = Config::Camera;
 
 		// Extract a reference to the camera's bitfield to avoid repeated indexing.

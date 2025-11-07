@@ -67,7 +67,7 @@ namespace GTS {
 			if (!IsAllowed(a_Giant)) {
 				return; // Do nothing in that case
 			}
-			auto Data = Transient::GetSingleton().GetData(a_Giant);
+			auto Data = Transient::GetActorData(a_Giant);
 
 			if (Data) {
 				NiAVObject* Node_LeftFoot = find_node(a_Giant, "NPC L Foot [Lft ]");
@@ -107,7 +107,7 @@ namespace GTS {
 			return 1.0f;
 		}
 		GTS_PROFILE_SCOPE("MovementForce: GetBoneMovementSpeed");
-		auto Data = Transient::GetSingleton().GetData(actor);
+		auto Data = Transient::GetActorData(actor);
 		float NodeMovementForce = 0.0f;
 		
 		if (Data) {

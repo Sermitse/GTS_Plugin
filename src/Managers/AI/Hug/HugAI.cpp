@@ -161,7 +161,7 @@ namespace {
 				return false;
 			}
 
-			const auto& TransientData = Transient::GetSingleton().GetData(PerformerActor);
+			const auto& TransientData = Transient::GetActorData(PerformerActor);
 			if (!TransientData) {
 				return false;
 			}

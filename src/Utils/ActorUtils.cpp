@@ -346,12 +346,11 @@ namespace GTS {
 	}
 
 	void Task_AdjustHalfLifeTask(Actor* tiny, float halflife, double revert_after) {
-		auto& Persist = Persistent::GetSingleton();
-		auto actor_data = Persist.GetData(tiny);
+		auto actor_data = Persistent::GetActorData(tiny);
 		float old_halflife = 0.0f;
 		if (actor_data) {
-			old_halflife = actor_data->half_life; // record old half life
-			actor_data->half_life = halflife;
+			old_halflife = actor_data->fHalfLife; // record old half life
+			actor_data->fHalfLife = halflife;
 		}
 
 		double Start = Time::WorldTimeElapsed();
@@ -365,7 +364,7 @@ namespace GTS {
 			double timepassed = Time::WorldTimeElapsed() - Start;
 			if (timepassed > revert_after) {
 				if (actor_data) {
-					actor_data->half_life = old_halflife;
+					actor_data->fHalfLife = old_halflife;
 				}
 				return false;
 			}
@@ -402,7 +401,7 @@ namespace GTS {
 
 
 	void Potion_SetMightBonus(Actor* giant, float value, bool add) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			if (add) {
 				transient->MightValue += value;
@@ -413,7 +412,7 @@ namespace GTS {
 	}
 
 	float Potion_GetMightBonus(Actor* giant) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			return transient->MightValue; // return raw bonus
 		}
@@ -421,7 +420,7 @@ namespace GTS {
 	}
 
 	float Potion_GetSizeMultiplier(Actor* giant) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			float bonus = std::clamp(transient->PotionMaxSize, 0.0f, 10.0f);
 			return 1.0f + bonus;
@@ -430,21 +429,21 @@ namespace GTS {
 	}
 
 	void Potion_ModShrinkResistance(Actor* giant, float value) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			transient->ShrinkResistance += value;
 		}
 	}
 
 	void Potion_SetShrinkResistance(Actor* giant, float value) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			transient->ShrinkResistance = value;
 		}
 	}
 
 	float Potion_GetShrinkResistance(Actor* giant) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		float Resistance = 1.0f;
 
 		if (transient) {
@@ -456,7 +455,7 @@ namespace GTS {
 	}
 
 	void Potion_SetUnderGrowth(Actor* actor, bool set) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			transient->GrowthPotion = set;
 		}
@@ -464,7 +463,7 @@ namespace GTS {
 
 	bool Potion_IsUnderGrowthPotion(Actor* actor) {
 		bool UnderGrowth = false;
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			UnderGrowth = transient->GrowthPotion;
 		}
@@ -560,7 +559,7 @@ namespace GTS {
 
 	bool WasReanimated(Actor* actor) { // must be called while actor is still alive, else it will return false.
 		bool reanimated = false;
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			reanimated = transient->WasReanimated;
 		}
@@ -719,14 +718,14 @@ namespace GTS {
 	}
 
 	void Attachment_SetTargetNode(Actor* giant, AttachToNode Node) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			transient->AttachmentNode = Node;
 		}
 	}
 
 	AttachToNode Attachment_GetTargetNode(Actor* giant) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			return transient->AttachmentNode;
 		}
@@ -734,14 +733,14 @@ namespace GTS {
 	}
 
 	void SetBusyFoot(Actor* giant, BusyFoot Foot) { // Purpose of this function is to prevent idle pushing/dealing damage during stomps
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			transient->FootInUse = Foot;
 		}
 	}
 
 	BusyFoot GetBusyFoot(Actor* giant) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			return transient->FootInUse;
 		}
@@ -750,7 +749,7 @@ namespace GTS {
 
 	void ControlAnother(Actor* target, bool reset) {
 		Actor* player = PlayerCharacter::GetSingleton();
-		auto transient = Transient::GetSingleton().GetData(player);
+		auto transient = Transient::GetActorData(player);
 		if (transient) {
 			if (reset) {
 				transient->IsInControl = nullptr;
@@ -762,7 +761,7 @@ namespace GTS {
 	}
 
 	void RecordSneaking(Actor* actor) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		bool sneaking = actor->IsSneaking();
 		if (transient) {
 			transient->WasSneaking = sneaking;
@@ -773,7 +772,7 @@ namespace GTS {
 		if (override_sneak) {
 			actor->AsActorState()->actorState1.sneaking = enable;
 		} else {
-			auto transient = Transient::GetSingleton().GetData(actor);
+			auto transient = Transient::GetActorData(actor);
 			if (transient) {
 				actor->AsActorState()->actorState1.sneaking = transient->WasSneaking;
 			}
@@ -788,7 +787,7 @@ namespace GTS {
 
 	Actor* GetPlayerOrControlled() {
 		Actor* controlled = PlayerCharacter::GetSingleton();
-		auto transient = Transient::GetSingleton().GetData(controlled);
+		auto transient = Transient::GetActorData(controlled);
 		if (transient) {
 			if (transient->IsInControl != nullptr) {
 				return transient->IsInControl;
@@ -806,7 +805,7 @@ namespace GTS {
 	}
 
 	float GetFallModifier(Actor* giant) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		float fallmod = 1.0f;
 		if (transient) {
 			fallmod = transient->FallTimer;
@@ -1116,7 +1115,7 @@ namespace GTS {
 
 	void override_actor_scale(Actor* giant, float amt, SizeEffectType type) { // This function overrides gts manager values. 
 	    // It ignores half-life, allowing more than 1 growth/shrink sources to stack nicely
-		auto Persistent = Persistent::GetSingleton().GetData(giant);
+		auto Persistent = Persistent::GetActorData(giant);
 		if (Persistent) {
 			float OnTheEdge = 1.0f;
 			float scale = get_visual_scale(giant);
@@ -1138,8 +1137,8 @@ namespace GTS {
 			float max_scale = get_max_scale(giant);
 			if (target < max_scale || amt < 0) {
 				amt /= game_getactorscale(giant);
-				Persistent->target_scale += amt;
-				Persistent->visual_scale += amt;
+				Persistent->fTargetScale += amt;
+				Persistent->fVisualScale += amt;
 			}
 		}
 	}
@@ -1193,7 +1192,7 @@ namespace GTS {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	void SetBeingHeld(Actor* tiny, bool enable) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			transient->BeingHeld = enable;
 		}
@@ -1201,7 +1200,7 @@ namespace GTS {
 
 	void SetProneState(Actor* giant, bool enable) {
 		if (giant->formID == 0x14) {
-			auto transient = Transient::GetSingleton().GetData(giant);
+			auto transient = Transient::GetActorData(giant);
 			if (transient) {
 				transient->FPProning = enable;
 			}
@@ -1209,21 +1208,21 @@ namespace GTS {
 	}
 
 	void SetBetweenBreasts(Actor* actor, bool enable) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			transient->BetweenBreasts = enable;
 		}
 	}
 
 	void SetBeingEaten(Actor* tiny, bool enable) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			transient->AboutToBeEaten = enable;
 		}
 	}
 
 	void SetBeingGrinded(Actor* tiny, bool enable) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			transient->BeingFootGrinded = enable;
 		}
@@ -1231,7 +1230,7 @@ namespace GTS {
 
 	void SetCameraOverride(Actor* actor, bool enable) {
 		if (actor->formID == 0x14) {
-			auto transient = Transient::GetSingleton().GetData(actor);
+			auto transient = Transient::GetActorData(actor);
 			if (transient) {
 				transient->OverrideCamera = enable;
 			}
@@ -1239,7 +1238,7 @@ namespace GTS {
 	}
 
 	void SetReanimatedState(Actor* actor) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (!WasReanimated(actor)) { // disallow to override it again if it returned true a frame before
 			bool reanimated = actor->AsActorState()->GetLifeState() == ACTOR_LIFE_STATE::kReanimate;
 			if (transient) {
@@ -1458,7 +1457,7 @@ namespace GTS {
 		if (progressionQuest) {
 			auto stage = progressionQuest->GetCurrentStageID();
 			if (stage == 80) {
-				auto transient = Transient::GetSingleton().GetData(pc);
+				auto transient = Transient::GetActorData(pc);
 				if (transient) {
 					Cprint("Quest is Completed");
 					transient->DragonWasEaten = true;
@@ -1508,7 +1507,7 @@ namespace GTS {
 	}
 
 	bool DisallowSizeDamage(Actor* giant, Actor* tiny) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			if (transient->Protection == false) {
 				return false;
@@ -1612,7 +1611,7 @@ namespace GTS {
 	bool IsProning(Actor* actor) {
 		bool prone = false;
 		if (actor) {
-			auto transient = Transient::GetSingleton().GetData(actor);
+			auto transient = Transient::GetActorData(actor);
 			actor->GetGraphVariableBool("GTS_IsProne", prone);
 			if (actor->formID == 0x14 && actor->IsSneaking() && IsFirstPerson() && transient) {
 				return transient->FPProning; // Because we have no FP behaviors, 
@@ -1625,7 +1624,7 @@ namespace GTS {
 	bool IsCrawling(Actor* actor) {
 		bool crawl = false;
 		if (actor) {
-			auto transient = Transient::GetSingleton().GetData(actor);
+			auto transient = Transient::GetActorData(actor);
 			actor->GetGraphVariableBool("GTS_IsCrawling", crawl);
 			if (actor->formID == 0x14 && actor->IsSneaking() && IsFirstPerson() && transient) {
 				return transient->FPCrawling; // Needed to fix crawling being applied to FP even when Prone is off
@@ -1686,7 +1685,7 @@ namespace GTS {
 			}
 		}
 		
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			return transient->BeingHeld && !tiny->IsDead();
 		}
@@ -1694,7 +1693,7 @@ namespace GTS {
 	}
 
 	bool IsBetweenBreasts(Actor* actor) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			return transient->BetweenBreasts;
 		}
@@ -1738,7 +1737,7 @@ namespace GTS {
 	}
 
 	bool IsBeingEaten(Actor* tiny) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			return transient->AboutToBeEaten;
 		}
@@ -1824,7 +1823,7 @@ namespace GTS {
 	}
 
 	bool ButtCrush_IsAbleToGrow(Actor* actor, float limit) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		float stamina = GetAV(actor, ActorValue::kStamina);
 		if (stamina <= 4.0f) {
 			return false;
@@ -1836,7 +1835,7 @@ namespace GTS {
 	}
 
 	bool IsBeingGrinded(Actor* actor) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		bool grinded = false;
 		actor->GetGraphVariableBool("GTS_BeingGrinded", grinded);
 		if (transient) {
@@ -1869,7 +1868,7 @@ namespace GTS {
 
 	bool GetCameraOverride(Actor* actor) {
 		if (actor->formID == 0x14) {
-			auto transient = Transient::GetSingleton().GetData(actor);
+			auto transient = Transient::GetActorData(actor);
 			if (transient) {
 				return transient->OverrideCamera;
 			}
@@ -2065,20 +2064,20 @@ namespace GTS {
 
 	void AddStolenAttributes(Actor* giant, float value) {
 		if (giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkFullAssimilation")) {
-			auto attributes = Persistent::GetSingleton().GetData(giant);
+			auto attributes = Persistent::GetActorData(giant);
 			if (attributes) {
 				const float cap = GetStolenAttributeCap(giant);
 
-				float& health = attributes->stolen_health;
-				float& magick = attributes->stolen_magick;
-				float& stamin = attributes->stolen_stamin;
+				float& health = attributes->fStolenHealth;
+				float& magick = attributes->fStolenMagicka;
+				float& stamin = attributes->fStolenStamina;
 
 				if (health >= cap && magick >= cap && stamin >= cap) { // If we're at limit, don't add them
-					attributes->stolen_attributes = 0.0f;
+					attributes->fStolenAttibutes = 0.0f;
 					return;
 				} else { // Add in all other cases
-					attributes->stolen_attributes += value;
-					attributes->stolen_attributes = std::max(attributes->stolen_attributes, 0.0f);
+					attributes->fStolenAttibutes += value;
+					attributes->fStolenAttibutes = std::max(attributes->fStolenAttibutes, 0.0f);
 				}
 			}
 		}
@@ -2086,11 +2085,11 @@ namespace GTS {
 
 	void AddStolenAttributesTowards(Actor* giant, ActorValue type, float value) {
 		if (giant->formID == 0x14) {
-			auto Persistent = Persistent::GetSingleton().GetData(giant);
+			auto Persistent = Persistent::GetActorData(giant);
 			if (Persistent) {
-				float& health = Persistent->stolen_health;
-				float& magick = Persistent->stolen_magick;
-				float& stamin = Persistent->stolen_stamin;
+				float& health = Persistent->fStolenHealth;
+				float& magick = Persistent->fStolenMagicka;
+				float& stamin = Persistent->fStolenStamina;
 				const float limit = GetStolenAttributeCap(giant);
 
 				if (type == ActorValue::kHealth && health < limit) {
@@ -2112,15 +2111,15 @@ namespace GTS {
 
 	float GetStolenAttributes_Values(Actor* giant, ActorValue type) {
 		if (giant->formID == 0x14) {
-			auto Persistent = Persistent::GetSingleton().GetData(giant);
+			auto Persistent = Persistent::GetActorData(giant);
 			if (Persistent) {
 				float max = GetStolenAttributeCap(giant);
 				if (type == ActorValue::kHealth) {
-					return std::min(Persistent->stolen_health, max);
+					return std::min(Persistent->fStolenHealth, max);
 				} else if (type == ActorValue::kMagicka) {
-					return std::min(Persistent->stolen_magick, max);
+					return std::min(Persistent->fStolenMagicka, max);
 				} else if (type == ActorValue::kStamina) {
-					return std::min(Persistent->stolen_stamin, max);
+					return std::min(Persistent->fStolenStamina, max);
 				} else {
 					return 0.0f;
 				}
@@ -2131,9 +2130,9 @@ namespace GTS {
 	}
 
 	float GetStolenAttributes(Actor* giant) {
-		auto persist = Persistent::GetSingleton().GetData(giant);
+		auto persist = Persistent::GetActorData(giant);
 		if (persist) {
-			return persist->stolen_attributes;
+			return persist->fStolenAttibutes;
 		}
 		return 0.0f;
 	}
@@ -2144,14 +2143,14 @@ namespace GTS {
 			float Storage = GetStolenAttributes(giant);
 			float limit = GetStolenAttributeCap(giant);
 
-			auto Persistent = Persistent::GetSingleton().GetData(giant);
+			auto Persistent = Persistent::GetActorData(giant);
 			if (!Persistent) {
 				return;
 			}
 			//log::info("Adding {} to attributes", value);
-			float& health = Persistent->stolen_health;
-			float& magick = Persistent->stolen_magick;
-			float& stamin = Persistent->stolen_stamin;
+			float& health = Persistent->fStolenHealth;
+			float& magick = Persistent->fStolenMagicka;
+			float& stamin = Persistent->fStolenStamina;
 
 			value = std::clamp(value, 0.0f, Storage); // Can't be stronger than storage bonus
 
@@ -2714,7 +2713,7 @@ namespace GTS {
 	}
 
 	void LaunchImmunityTask(Actor* giant, bool Balance) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			transient->Protection = true;
 		}
@@ -3027,7 +3026,7 @@ namespace GTS {
 			size_boost = 1.2f;
 		}
 
-		auto& BonusSize = Persistent::GetSingleton().PlayerExtraPotionSize;  // Gts_ExtraPotionSize
+		auto& BonusSize = Persistent::PlayerExtraPotionSize;  // Gts_ExtraPotionSize
 
 		ModSizeExperience(player, 0.45f);
 
@@ -3065,7 +3064,7 @@ namespace GTS {
 	void AddSMTDuration(Actor* actor, float duration, bool perk_check) {
 		if (HasSMT(actor)) {
 			if (!perk_check || Runtime::HasPerk(actor, "GTSPerkTinyCalamityRefresh")) {
-				auto transient = Transient::GetSingleton().GetData(actor);
+				auto transient = Transient::GetActorData(actor);
 				if (transient) {
 					transient->SMTBonusDuration += duration;
 					//log::info("Adding perk duration");
@@ -3075,7 +3074,7 @@ namespace GTS {
 	}
 
 	void AddSMTPenalty(Actor* actor, float penalty) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			float skill_level = (GetGtsSkillLevel(actor) * 0.01f) - 0.65f;
 			float level_bonus = std::clamp(skill_level, 0.0f, 0.35f) * 2.0f;
@@ -3122,7 +3121,7 @@ namespace GTS {
 
 	void DisableCollisions(Actor* actor, TESObjectREFR* otherActor) {
 		if (actor) {
-			auto trans = Transient::GetSingleton().GetData(actor);
+			auto trans = Transient::GetActorData(actor);
 			if (trans) {
 				trans->DisableColissionWith = otherActor;
 				auto colliders = ActorCollisionData(actor);
@@ -3138,7 +3137,7 @@ namespace GTS {
 
 	void EnableCollisions(Actor* actor) {
 		if (actor) {
-			auto trans = Transient::GetSingleton().GetData(actor);
+			auto trans = Transient::GetActorData(actor);
 			if (trans) {
 				auto otherActor = trans->DisableColissionWith;
 				trans->DisableColissionWith = nullptr;
@@ -3198,9 +3197,7 @@ namespace GTS {
 			return;
 		}
 
-		auto& Persi = Persistent::GetSingleton();
-
-		bool CrawlState = (actor->formID == 0x14) ? Persi.EnableCrawlPlayer.value : Persi.EnableCrawlFollower.value;
+		bool CrawlState = (actor->formID == 0x14) ? Persistent::EnableCrawlPlayer.value : Persistent::EnableCrawlFollower.value;
 
 		//SetCrawlAnimation Returns true if the state has changed
 		if (SetCrawlAnimation(actor, CrawlState)) {
@@ -3251,15 +3248,15 @@ namespace GTS {
 					float stamina = std::clamp(GetStaminaPercentage(actor), 0.05f, 1.0f);
 					DamageAV(actor, ActorValue::kStamina, 0.55f * (get_visual_scale(actor) * 0.5f + 0.5f) * stamina * TimeScale());
 				}
-				auto actorData = Persistent::GetSingleton().GetData(actor);
+				auto actorData = Persistent::GetActorData(actor);
 				if (actorData) {
 					float scale = get_target_scale(actor);
 					float max_scale = get_max_scale(actor);// * get_natural_scale(actor);
 					if (scale < max_scale) {
 						if (!drain_stamina) { // Apply only to growth with animation
-							actorData->visual_scale += deltaScale;
+							actorData->fVisualScale += deltaScale;
 						}
-						actorData->target_scale += deltaScale;
+						actorData->fTargetScale += deltaScale;
 						growData->addedSoFar = totalScaleToAdd;
 					}
 				}
@@ -3286,10 +3283,10 @@ namespace GTS {
 			if (actor) {
 				float stamina = std::clamp(GetStaminaPercentage(actor), 0.05f, 1.0f);
 				DamageAV(actor, ActorValue::kStamina, 0.35f * (get_visual_scale(actor) * 0.5f + 0.5f) * stamina * TimeScale());
-				auto actorData = Persistent::GetSingleton().GetData(actor);
+				auto actorData = Persistent::GetActorData(actor);
 				if (actorData) {
-					actorData->target_scale += deltaScale;
-					actorData->visual_scale += deltaScale;
+					actorData->fTargetScale += deltaScale;
+					actorData->fVisualScale += deltaScale;
 					growData->addedSoFar = totalScaleToAdd;
 				}
 			}
@@ -3309,7 +3306,6 @@ namespace GTS {
 	}
 
 	void FixAnimationsAndCamera() { // Fixes Animations for GTS Grab Actions and resets the bone tracking on camera
-		GTS_PROFILE_SCOPE("ActorUtils: FixAnimationsAndCamera");
 
 		for (auto giant: find_actors()) {
 			if (!giant) {
@@ -3372,8 +3368,6 @@ namespace GTS {
 		if (giant->formID == 0x14) { // Player Only
 			auto progressionQuest = Runtime::GetQuest("GTSQuestProgression");
 
-			auto& Persistent = Persistent::GetSingleton();
-
 			if (progressionQuest) {
 				auto queststage = progressionQuest->GetCurrentStageID();
 
@@ -3383,16 +3377,16 @@ namespace GTS {
 
 				switch (stage) {
 					case QuestStage::HugSteal: 				// Stage 0: hug steal 2 meters of size
-						Persistent.HugStealCount.value += value;
+						Persistent::HugStealCount.value += value;
 					break;
 					case QuestStage::HugSpellSteal:			// Stage 1: hug/spell steal 5 meters of size
 						if (queststage == 20) {
-							Persistent.StolenSize.value += value;
+							Persistent::StolenSize.value += value;
 						}
 					break;
 					case QuestStage::Crushing:				// Stage 2: Crush 3 (*4 if dead) enemies
 						if (queststage >= 30 && queststage <= 40) {
-							Persistent.CrushCount.value += value;
+							Persistent::CrushCount.value += value;
 							if (value < 1) {
 								SpawnCustomParticle(tiny, ParticleType::DarkRed, NiPoint3(), "NPC Root [Root]", 1.0f);
 							} else {
@@ -3410,7 +3404,7 @@ namespace GTS {
 					break;
 					case QuestStage::ShrinkToNothing:		// Stage 3: Crush or Shrink to nothing 6 enemies in total
 						if (queststage == 40) {
-							Persistent.STNCount.value += value;
+							Persistent::STNCount.value += value;
 							if (value < 1) {
 								SpawnCustomParticle(tiny, ParticleType::DarkRed, NiPoint3(), "NPC Root [Root]", 1.0f);
 							} else {
@@ -3420,19 +3414,19 @@ namespace GTS {
 						}
 					break;
 					case QuestStage::HandCrush:				// Stage 4: hand crush 3 enemies
-						Persistent.HandCrushed.value += value;
+						Persistent::HandCrushed.value += value;
 						SpawnCustomParticle(tiny, ParticleType::Red, NiPoint3(), "NPC Root [Root]", 1.0f);
 						Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::HandCrush)), 3.0f);
 					break;
 					case QuestStage::Vore:					// Stage 5: Vore 6 enemies
 						if (queststage == 60) {
-							Persistent.VoreCount.value += value;
+							Persistent::VoreCount.value += value;
 							SpawnCustomParticle(tiny, ParticleType::Blue, NiPoint3(), "NPC Root [Root]", 1.0f);
 							Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::Vore)), 6.0f);
 						}
 					break;
 					case QuestStage::Giant:					// Stage 6: Vore/crush/shrink a Giant
-						Persistent.GiantCount.value += value;
+						Persistent::GiantCount.value += value;
 						if (vore) {
 							SpawnCustomParticle(tiny, ParticleType::Blue, NiPoint3(), "NPC Root [Root]", 1.0f);
 						} else {
@@ -3447,39 +3441,34 @@ namespace GTS {
 	float GetQuestProgression(int stage) {
 		QuestStage Stage = static_cast<QuestStage>(stage);
 
-		const auto& Persistent = Persistent::GetSingleton();
-
 		switch (Stage) {
 			case QuestStage::HugSteal: 				// Stage 0: hug steal 2 meters of size
-				return Persistent.HugStealCount.value;
+				return Persistent::HugStealCount.value;
 			case QuestStage::HugSpellSteal: 		// Stage 1: hug/spell steal 5 meters of size
-				return Persistent.StolenSize.value;
+				return Persistent::StolenSize.value;
 			case QuestStage::Crushing: 				// Stage 2: Crush 3 (*4 if dead) enemies
-				return Persistent.CrushCount.value;
+				return Persistent::CrushCount.value;
 			case QuestStage::ShrinkToNothing:  		// Stage 3: Crush or Shrink to nothing 6 enemies in total
-				return Persistent.CrushCount.value - 3.0f + Persistent.STNCount.value;
+				return Persistent::CrushCount.value - 3.0f + Persistent::STNCount.value;
 			case QuestStage::HandCrush: 			// Stage 4: hand crush 3 enemies
-				return Persistent.HandCrushed.value;
+				return Persistent::HandCrushed.value;
 			case QuestStage::Vore: 					// Stage 5: Vore 6 enemies
-				return Persistent.VoreCount.value;
+				return Persistent::VoreCount.value;
 			case QuestStage::Giant:					// Stage 6: Vore/crush/shrink a Giant
-				return Persistent.GiantCount.value;
+				return Persistent::GiantCount.value;
 			break;
 		}
 		return 0.0f;
 	}
 
 	void ResetQuest() {
-
-		auto& Persistent = Persistent::GetSingleton();
-
-		Persistent.HugStealCount.value = 0.0f;
-		Persistent.StolenSize.value = 0.0f;
-		Persistent.CrushCount.value = 0.0f;
-		Persistent.STNCount.value = 0.0f;
-		Persistent.HandCrushed.value = 0.0f;
-		Persistent.VoreCount.value = 0.0f;
-		Persistent.GiantCount.value = 0.0f;
+		Persistent::HugStealCount.value = 0.0f;
+		Persistent::StolenSize.value = 0.0f;
+		Persistent::CrushCount.value = 0.0f;
+		Persistent::STNCount.value = 0.0f;
+		Persistent::HandCrushed.value = 0.0f;
+		Persistent::VoreCount.value = 0.0f;
+		Persistent::GiantCount.value = 0.0f;
 	}
 
 	void SpawnHearts(Actor* giant, Actor* tiny, float Z, float scale, bool hugs, NiPoint3 CustomPos) {

@@ -221,6 +221,13 @@ namespace GTS {
 		});
 	}
 
+	void EventDispatcher::DoSerdeRevert() {
+		ForEachListener([](EventListener* listener) {
+			GTS_PROFILE_SCOPE(listener->DebugName());
+			listener->OnGameRevert();
+		});
+	}
+
 
 	void EventDispatcher::DoConfigResetEvent() {
 		ForEachListener([](EventListener* listener) {

@@ -209,7 +209,7 @@ namespace GTS {
 	    					 "Note: This setting is save file specific.";
 
 			//Hack
-            auto CamState = std::bit_cast<int*>(&Persistent::GetSingleton().TrackedCameraState.value);
+            auto CamState = std::bit_cast<int*>(&Persistent::TrackedCameraState.value);
 
 	        if (ImGui::CollapsingHeader("Automatic Camera", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImGuiEx::CheckBox("Enable Automatic Camera", &Config::Camera.bAutomaticCamera, T0);

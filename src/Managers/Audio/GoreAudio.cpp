@@ -13,7 +13,7 @@ namespace {
     int GetCrushedCount(Actor* giant) {
         int crushed = 0;
 
-        auto tranData = Transient::GetSingleton().GetData(giant);
+        auto tranData = Transient::GetActorData(giant);
         if (tranData) {
             crushed = tranData->CrushSound_Calc_CrushedTinies;
         }
@@ -22,7 +22,7 @@ namespace {
     }
 
     void ModCrushedCount(Actor* giant, bool reset) {
-        auto tranData = Transient::GetSingleton().GetData(giant);
+        auto tranData = Transient::GetActorData(giant);
         if (tranData) {
             if (reset) {
                 tranData->CrushSound_Calc_CrushedTinies = 0;

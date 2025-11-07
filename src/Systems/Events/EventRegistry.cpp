@@ -1,10 +1,5 @@
-#include "Managers/Register.hpp"
-
-#include "SpectatorManager.hpp"
-
-#include "AI/AIManager.hpp"
-
-#include "Animation/Utils/CooldownManager.hpp"
+#include "Systems/Events/EventRegistry.hpp"
+#include "Systems/Events/GameEvents.hpp"
 
 #include "API/Racemenu.hpp"
 #include "API/SmoothCam.hpp"
@@ -13,52 +8,48 @@
 #include "Config/ConfigModHandler.hpp"
 #include "Config/Keybinds.hpp"
 
-#include "Console/ConsoleManager.hpp"
-
-#include "Input/InputManager.hpp"
-
+#include "Managers/AI/AIManager.hpp"
+#include "Managers/AI/headtracking.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/BoobCrush.hpp"
-#include "Managers/Animation/Grab.hpp"
-
-#include "Managers/FurnitureManager.hpp"
-
 #include "Managers/Animation/Controllers/ThighSandwichController.hpp"
 #include "Managers/Animation/Controllers/VoreController.hpp"
-#include "Managers/Audio/Footstep.hpp"
-#include "Managers/Damage/CollisionDamage.hpp"
-#include "Managers/Gamemode/GameModeManager.hpp"
-#include "Managers/Perks/PerkHandler.hpp"
-#include "Managers/ShrinkToNothingManager.hpp"
-
-#include "Managers/AI/headtracking.hpp"
-
+#include "Managers/Animation/Grab.hpp"
+#include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Attributes.hpp"
+#include "Managers/Audio/Footstep.hpp"
 #include "Managers/Camera.hpp"
+#include "Managers/Console/ConsoleManager.hpp"
 #include "Managers/Contact.hpp"
 #include "Managers/CrushManager.hpp"
+#include "Managers/Damage/CollisionDamage.hpp"
 #include "Managers/Explosion.hpp"
+#include "Managers/FurnitureManager.hpp"
+#include "Managers/Gamemode/GameModeManager.hpp"
 #include "Managers/GtsManager.hpp"
 #include "Managers/GtsSizeManager.hpp"
 #include "Managers/Highheel.hpp"
 #include "Managers/HitManager.hpp"
+#include "Managers/Input/InputManager.hpp"
 #include "Managers/OverkillManager.hpp"
+#include "Managers/Perks/PerkHandler.hpp"
 #include "Managers/RandomGrowth.hpp"
-#include "Managers/Reloader.hpp"
 #include "Managers/Rumble.hpp"
+#include "Managers/ShrinkToNothingManager.hpp"
+#include "Managers/SpectatorManager.hpp"
 #include "Managers/Tremor.hpp"
 
 #include "Magic/Magic.hpp"
+
 #include "Utils/DynamicScale.hpp"
+#include "Utils/ItemDistributor.hpp"
 
 #include "UI/DebugMenu.hpp"
 #include "UI/GTSMenu.hpp"
 
-#include "Utils/ItemDistributor.hpp"
-
 namespace GTS {
 
-	void RegisterManagers() {
+	void RegisterEventListeners() {
 
 		EventDispatcher::AddListener(&Racemenu::GetSingleton());
 		EventDispatcher::AddListener(&TrainWreck::GetSingleton());
@@ -79,7 +70,7 @@ namespace GTS {
 		EventDispatcher::AddListener(&SizeManager::GetSingleton());             // Manages Max Scale of everyone
 		EventDispatcher::AddListener(&HighHeelManager::GetSingleton());         // Applies high heels
 		EventDispatcher::AddListener(&CameraManager::GetSingleton());           // Edits the camera
-		EventDispatcher::AddListener(&ReloadManager::GetSingleton());           // Handles Skyrim Events
+		EventDispatcher::AddListener(&GameEvents::GetSingleton());              // Registers Skyrim Events
 		EventDispatcher::AddListener(&CollisionDamage::GetSingleton());         // Handles precise size-related damage
 		EventDispatcher::AddListener(&MagicManager::GetSingleton());            // Manages spells and size changes in general
 		EventDispatcher::AddListener(&VoreController::GetSingleton());          // Manages vore

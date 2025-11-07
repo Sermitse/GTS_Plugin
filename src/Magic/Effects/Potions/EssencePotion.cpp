@@ -26,7 +26,7 @@ namespace {
 		if (caster && caster->formID == 0x14) {
 			float scale = get_visual_scale(caster);
 
-			auto& BonusSize = Persistent::GetSingleton().PlayerExtraPotionSize;
+			auto& BonusSize = Persistent::PlayerExtraPotionSize;
 
 			// Bonus size is added on top of all size calculations through this global
 			// Applied inside GtsManager.cpp (script)

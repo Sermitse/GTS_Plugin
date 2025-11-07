@@ -131,7 +131,7 @@ namespace {
 		constexpr float SkillLevel = 100.f; //Its locked behind a level 100 perk anyways
 		//Get the actor's Gamemode Timer From Transient and set a random value to it.
 
-		auto ActorData = Transient::GetSingleton().GetData(a_Actor);
+		auto ActorData = Transient::GetActorData(a_Actor);
 		if (!ActorData) return;
 
 		Timer* IntervalTimer = &ActorData->ActionTimer;
@@ -209,7 +209,7 @@ namespace {
 		float PowerMult;
 
 		//Get the actor's Gamemode Timer From Transient and set a random value to it.
-		auto ActorData = Transient::GetSingleton().GetData(a_Actor);
+		auto ActorData = Transient::GetActorData(a_Actor);
 		if (!ActorData) return;
 
 		Timer* IntervalTimer = &ActorData->ActionTimer;
@@ -271,7 +271,7 @@ namespace {
 		float PowerMult;
 
 		//Get the actor's Gamemode Timer From Transient and set a random value to it.
-		auto ActorData = Transient::GetSingleton().GetData(a_Actor);
+		auto ActorData = Transient::GetActorData(a_Actor);
 		if (!ActorData) return;
 
 		Timer* IntervalTimer = &ActorData->ActionTimer;

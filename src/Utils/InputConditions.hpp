@@ -165,7 +165,7 @@ namespace GTS {
 
 	static bool SizeReserveCondition() {
 		/*auto target = PlayerCharacter::GetSingleton();
-		return Runtime::HasPerk(target, "GTSPerkSizeReserve") && Persistent::GetSingleton().GetData(target);
+		return Runtime::HasPerk(target, "GTSPerkSizeReserve") && Persistent::GetActorData(target);
 		*/
 		return true;
 	}

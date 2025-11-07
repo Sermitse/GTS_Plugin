@@ -148,7 +148,7 @@ namespace {
 		const ActorHandle PerformerHandle = a_Performer->CreateRefHandle();
 		const ActorHandle PreyHandle = a_Prey->CreateRefHandle();
 
-		const auto& TransientData = Transient::GetSingleton().GetData(a_Performer);
+		const auto& TransientData = Transient::GetActorData(a_Performer);
 		if (!TransientData) {
 			return;
 		}
