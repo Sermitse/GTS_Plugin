@@ -23,33 +23,33 @@
 
 namespace {
 
-	PSString T0 = "Disable this input event.\n"
-		          "Disabled events are completely ignored by the game and will never trigger.";
+    PSString T0 = "Disable this input event.\n"
+        "Disabled events are completely ignored by the game and will never trigger.";
 
-	PSString T1 = "When an action is marked as exclusive it means it will only activate if its exact key combination is being pressed.\n"
-		          "(eg. If an action requires ALT+E to activate and you're also holding W while trying to trigger it with this flag set, nothing will happen unless you stop pressing W.)";
+    PSString T1 = "When an action is marked as exclusive it means it will only activate if its exact key combination is being pressed.\n"
+        "(eg. If an action requires ALT+E to activate and you're also holding W while trying to trigger it with this flag set, nothing will happen unless you stop pressing W.)";
 
-	PSString T2 = "The action trigger type modifies the activation behavior for an action.\n\n"
-		          "- Once: Trigger an action once upon pressing its key combo.\n"
-		          "- Release: The action will only trigger when you release its keys after pressing them.\n"
-		          "- Continuous: As long as you are holding down the key combination the action event will be fired every game frame.";
+    PSString T2 = "The action trigger type modifies the activation behavior for an action.\n\n"
+        "- Once: Trigger an action once upon pressing its key combo.\n"
+        "- Release: The action will only trigger when you release its keys after pressing them.\n"
+        "- Continuous: As long as you are holding down the key combination the action event will be fired every game frame.";
 
-	PSString T3 = "Normaly when you press a key combo. whatever keys you are holding down are sent to the mod and the game at the same time\n"
-		          "Depending on what keys you press this may have undesired effects. Which is why this option exists.\n\n"
-		          "- Automatic: Prevent the game from reading the pressed action keys only when said GTS action would be valid. (eg. When you have the relevant perk/the action is possible to do).\n"
-		          "  (NOTE: Some actions are not compatible with this setting. These are by default set to \"Never\" On purpose.)\n"
-		          "- Never: Never prevent the game from reading the pressed keys for this action even if the action would be valid.\n"
-		          "- Always: Will always prevent the game from reading this key combination regardless if the action would trigger/do something or not.";
+    PSString T3 = "Normaly when you press a key combo. whatever keys you are holding down are sent to the mod and the game at the same time\n"
+        "Depending on what keys you press this may have undesired effects. Which is why this option exists.\n\n"
+        "- Automatic: Prevent the game from reading the pressed action keys only when said GTS action would be valid. (eg. When you have the relevant perk/the action is possible to do).\n"
+        "  (NOTE: Some actions are not compatible with this setting. These are by default set to \"Never\" On purpose.)\n"
+        "- Never: Never prevent the game from reading the pressed keys for this action even if the action would be valid.\n"
+        "- Always: Will always prevent the game from reading this key combination regardless if the action would trigger/do something or not.";
 
-	PSString T4 = "This adds a time delay before an action gets triggerd if its keys are pressed.\n"
-		          "(eg. if the trigger type is once and this value is set to 1.0 you'd need to hold the correct key combination for atleast 1 second before this event's action will fire.)";
+    PSString T4 = "This adds a time delay before an action gets triggerd if its keys are pressed.\n"
+        "(eg. if the trigger type is once and this value is set to 1.0 you'd need to hold the correct key combination for atleast 1 second before this event's action will fire.)";
 
-	PSString T5 = "Change the key combination to trigger this event.\n"
-		          "You don't have to hold down the keys if creating a key combination. Pressing a key once will append it to the list\n"
-		          "After entering the new key combination press this button again to save it.\n"
-		          "Pressing ESC will cancel the keybind reassignment.";
+    PSString T5 = "Change the key combination to trigger this event.\n"
+        "You don't have to hold down the keys if creating a key combination. Pressing a key once will append it to the list\n"
+        "After entering the new key combination press this button again to save it.\n"
+        "Pressing ESC will cancel the keybind reassignment.";
 
-	PSString T6 = "Click to open advanced settings for this keybind.";
+    PSString T6 = "Click to open advanced settings for this keybind.";
 
 
     PSString TH0 = "Filter based on an actions' name.";
@@ -59,33 +59,69 @@ namespace {
 
 namespace GTS {
 
-	CategoryKeybinds::CategoryKeybinds() {
-		m_name = "Keybinds";
-		for(auto& e : DefaultEvents){
-			HeaderStateMap.emplace(e.Event.Event,false);
-		}
-	}
+    CategoryKeybinds::CategoryKeybinds() {
+        m_name = "Keybinds";
+        for(auto& e : DefaultEvents){
+            HeaderStateMap.emplace(e.Event.Event,false);
+        }
 
-	void CategoryKeybinds::Draw() {
+        // Build Maps
 
-		//New Render Loop. Reset Index.
-		CurEventIndex = UINT16_MAX;
+        categoryMap = [] {
+	        std::unordered_map<std::string, size_t> m;
+	        for (auto const& ce : DefaultEvents) {
+		        size_t catIndex = magic_enum::enum_index(ce.UICategory).value_or(0);
+		        m.emplace(ce.Event.Event, catIndex);
+	        }
+	        return m;
+        }();
 
-		//Calc the correct width
-		Width = ImGui::GetContentRegionAvail().x - ((ImGui::GetStyle().CellPadding.x * 2 + ImGui::GetStyle().FramePadding.x * 2) * Div);
+        hiddenMap = [] {
+	        std::unordered_map<std::string, bool> m;
+	        for (auto const& ce : DefaultEvents) {
+		        m.emplace(ce.Event.Event, ce.AdvFeature);
+	        }
+	        return m;
+        }();
 
-		//Draw top bar
-		DrawOptions();
+        uiNameMap = [] {
+	        std::unordered_map<std::string, const char*> m;
+	        for (auto const& ce : DefaultEvents) {
+		        m.emplace(ce.Event.Event, ce.UIName);
+	        }
+	        return m;
+        }();
 
-		//Draw the list containing each input event.
-		DrawContent();
-	}
+        uiDescriptionMap = [] {
+	        std::unordered_map<std::string, const char*> m;
+	        for (auto const& ce : DefaultEvents) {
+		        m.emplace(ce.Event.Event, ce.UIDescription);
+	        }
+	        return m;
+        }();
 
-	void CategoryKeybinds::DrawOptions() {
+    }
+
+    void CategoryKeybinds::Draw() {
+
+        //New Render Loop. Reset Index.
+        CurEventIndex = UINT16_MAX;
+
+        //Calc the correct width
+        Width = ImGui::GetContentRegionAvail().x - ((ImGui::GetStyle().CellPadding.x * 2 + ImGui::GetStyle().FramePadding.x * 2) * Div);
+
+        //Draw top bar
+        DrawOptions();
+
+        //Draw the list containing each input event.
+        DrawContent();
+    }
+
+    void CategoryKeybinds::DrawOptions() {
 
         ImGui::SetNextWindowBgAlpha(0.1f);
 
-		ImGui::BeginChild("Options", { -FLT_MIN, 0.0f }, ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
+        ImGui::BeginChild("Options", { -FLT_MIN, 0.0f }, ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
         {
             ImGui::BeginDisabled(RebindIndex > 0);
             {
@@ -97,51 +133,39 @@ namespace GTS {
                 ImGui::SameLine();
 
                 static bool constinit singleColumn = false;
-                ImGuiEx::CheckBox("Compact", &singleColumn, "List all keybinds in a single column");
-                Div = 2 - singleColumn;
+                ImGuiEx::CheckBox("Compact View", &singleColumn, "List all keybinds in a single column");
+                Div = 1 + singleColumn;
 
                 ImGuiEx::SeperatorV();
 
-                // Right-align the Reset button
-                float avail = ImGui::GetContentRegionAvail().x;
-                float buttonWidth = 18.0f + ImGui::GetStyle().FramePadding.x * 2;
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + avail - buttonWidth);
                 if (ImGuiEx::ImageButton("Reset", ImageList::Generic_Reset, 18, TH1)) {
                     Keybinds::ResetKeybinds();
                 }
 
             }
-			ImGui::EndDisabled();
+            ImGui::EndDisabled();
         }
-		ImGui::EndChild();
-	}
+        ImGui::EndChild();
+    }
 
-	void CategoryKeybinds::DrawContent() {
+    void CategoryKeybinds::DrawContent() {
 
-		ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 4.0f));
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 4.0f));
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 6.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 4.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 4.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 6.0f));
 
-		ImGui::BeginChild("InputEvents", ImVec2(0, 0));
+        ImGui::BeginChild("##InputEvents", ImVec2(0, 0));
         {
 
-            static const auto categoryMap = [] {
-                std::unordered_map<std::string, LInputCategory_t> m;
-                for (auto const& ce : DefaultEvents) {
-                    m.emplace(ce.Event.Event, ce.UICategory);
+            // Check if search matches any category name
+            std::unordered_set<size_t> matchedCategories;
+            for (size_t i = 0; i < std::size(Strings::Keybinds::CategoryNames); ++i) {
+                if (ContainsString(Strings::Keybinds::CategoryNames[i], SearchRes)) {
+                    matchedCategories.insert(i);
                 }
-                return m;
-            }();
+            }
 
-            static const auto hiddenMap = [] {
-                std::unordered_map<std::string, bool> m;
-                for (auto const& ce : DefaultEvents) {
-                    m.emplace(ce.Event.Event, ce.UIHidden);
-                }
-                return m;
-            }();
-
-            std::unordered_map<LInputCategory_t, std::vector<BaseEventData_t*>> groups;
+            std::unordered_map<size_t, std::vector<BaseEventData_t*>> groups;
 
             for (auto& ev : Keybinds::InputEvents) {
 
@@ -153,26 +177,60 @@ namespace GTS {
                     }
                 }
 
-                // filter by search
-                if (!ContainsString(HumanizeString(ev.Event), SearchRes)) {
+                // Get UI name
+                std::string uiName;
+                auto nameIt = uiNameMap.find(ev.Event);
+                if (nameIt != uiNameMap.end() && nameIt->second != nullptr && nameIt->second[0] != '\0') {
+                    uiName = nameIt->second;
+                } else {
+                    uiName = HumanizeString(ev.Event);
+                }
+
+                // find its category (default to 0 if missing)
+                auto it = categoryMap.find(ev.Event);
+                size_t catIndex = (it != categoryMap.end()) ? it->second : 0;
+
+                // filter by search - check if search matches the event name OR its category
+                bool matchesEvent = ContainsString(uiName, SearchRes);
+                bool matchesCategory = matchedCategories.contains(catIndex);
+
+                if (!matchesEvent && !matchesCategory) {
                     continue;
                 }
 
-                // find its category (default to kDefault if missing)
-                auto it = categoryMap.find(ev.Event);
-                LInputCategory_t cat = (it != categoryMap.end()) ? it->second : LInputCategory_t::kDefault;
-
-                groups[cat].push_back(&ev);
+                groups[catIndex].push_back(&ev);
             }
 
-            for (auto cat : magic_enum::enum_values<LInputCategory_t>()) {
+            // Measure widest name across ALL events globally (do this once before any category loop)
+            std::vector<float> GlobalColumnNameWidths(Div, 0.0f);
+            for (auto& evt : Keybinds::InputEvents) {
+                // Get UI name for width calculation
+                std::string displayName;
+                auto nameIt = uiNameMap.find(evt.Event);
+                if (nameIt != uiNameMap.end() && nameIt->second != nullptr && nameIt->second[0] != '\0') {
+                    displayName = nameIt->second;
+                } else {
+                    displayName = HumanizeString(evt.Event);
+                }
 
-                auto git = groups.find(cat);
+                ImGui::PushFont(nullptr, 21.0f);
+                {
+                    float w = ImGui::CalcTextSize(displayName.c_str()).x;
+                    for (int c = 0; c < Div; ++c) {
+                        GlobalColumnNameWidths[c] = std::max(GlobalColumnNameWidths[c], w);
+                    }
+                }
+                ImGui::PopFont();
+            }
+
+            for (size_t catIndex = 0; catIndex < std::size(Strings::Keybinds::CategoryNames); ++catIndex) {
+
+                auto git = groups.find(catIndex);
                 if (git == groups.end() || git->second.empty()) {
                     continue;
                 }
 
-                const std::string catName = HumanizeString(std::string{ magic_enum::enum_name(cat) });
+                const std::string catName = Strings::Keybinds::CategoryNames[catIndex];
 
                 ImGui::PushFont(nullptr, 24.0f);
                 {
@@ -187,21 +245,6 @@ namespace GTS {
                     Columns[i % Div].push_back(list[i]);
                 }
 
-                // measure widest name
-                std::vector ColumnNameWidths(Div, 0.0f);
-                for (int c = 0; c < Div; ++c) {
-                    for (auto evt : Keybinds::InputEvents) {
-
-                        ImGui::PushFont(nullptr, 21.0f);
-                        {
-                            float w = ImGui::CalcTextSize(HumanizeString(evt.Event).c_str()).x;
-                            ColumnNameWidths[c] = std::max(ColumnNameWidths[c], w);
-                        }
-                        ImGui::PopFont();
-
-                    }
-                }
-
                 // render child for each column
                 for (int c = 0; c < Div; ++c) {
 
@@ -210,11 +253,26 @@ namespace GTS {
                         ImGui::SameLine(0, 24.0f);
                     }
 
-                    ImGui::BeginChild(static_cast<ImGuiID>(__COUNTER__ | static_cast<int>(cat) << 4 | c), { Width / Div, 0 },  ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AutoResizeX);
+                    ImGui::BeginChild(static_cast<ImGuiID>(__COUNTER__ | static_cast<int>(catIndex) << 4 | c), { Width / Div, 0 },  ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AutoResizeX);
                     {
 
                         for (auto* ptr : Columns[c]) {
-                            DrawInputEvent(*ptr, HumanizeString(ptr->Event), ColumnNameWidths[c]);
+                            // Get UI name and description
+                            std::string displayName;
+                            auto nameIt = uiNameMap.find(ptr->Event);
+                            if (nameIt != uiNameMap.end() && nameIt->second != nullptr && nameIt->second[0] != '\0') {
+                                displayName = nameIt->second;
+                            } else {
+                                displayName = HumanizeString(ptr->Event);
+                            }
+
+                            std::string description;
+                            auto descIt = uiDescriptionMap.find(ptr->Event);
+                            if (descIt != uiDescriptionMap.end()) {
+                                description = descIt->second;
+                            }
+
+                            DrawInputEvent(*ptr, displayName, description.c_str(), GlobalColumnNameWidths[c]);
                         }
                     }
                     ImGui::EndChild();
@@ -225,7 +283,7 @@ namespace GTS {
             // If nothing printed at all
             bool any = ranges::any_of(groups, [](auto& kv) {
                 return !kv.second.empty();
-            });
+                });
 
             if (!any) {
                 ImGui::Text("No results matching search string.");
@@ -233,17 +291,17 @@ namespace GTS {
 
             ImGui::PopStyleVar(3);
         }
-		ImGui::EndChild();
-	}
+        ImGui::EndChild();
+    }
 
-	void CategoryKeybinds::SetWindowBusy(const bool a_busy) {
-		if (SettingsWindow* Window = dynamic_cast<SettingsWindow*>(GTSMenu::WindowManager->wSettings)) {
-			Window->m_busy = a_busy;
+    void CategoryKeybinds::SetWindowBusy(const bool a_busy) {
+        if (SettingsWindow* Window = dynamic_cast<SettingsWindow*>(GTSMenu::WindowManager->wSettings)) {
+            Window->m_busy = a_busy;
             Window->m_disableUIInteraction = a_busy;
-		}
-	}
+        }
+    }
 
-	bool CategoryKeybinds::DrawInputEvent(BaseEventData_t& Event, const std::string& a_name, float columnNameWidth) {
+    bool CategoryKeybinds::DrawInputEvent(BaseEventData_t& Event, const std::string& a_name, const char* a_description, float columnNameWidth) {
 
         const float ButtonImageSize = 18 * ImGui::GetStyle().FontScaleMain;
         const float ButtonSize = ButtonImageSize + ImGui::GetStyle().ItemSpacing.x + (ImGui::GetStyle().FramePadding.x * 2.0f);
@@ -263,24 +321,26 @@ namespace GTS {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 4));
 
         ImGui::BeginChild(CurEventIndex, { Width / Div, 0.0f }, ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AutoResizeX);
-		{
-        	ImGui::BeginDisabled(RebindIndex != CurEventIndex && RebindIndex != 0);
+        {
+            ImGui::BeginDisabled(RebindIndex != CurEventIndex && RebindIndex != 0);
             {
-                ImGui::BeginTable("KeybindRow", 4, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_NoPadInnerX);
+                ImGui::BeginTable("##KeybindRow", 4, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_NoPadInnerX);
                 {
                     // Setup column widths
-                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed, nameColWidth);
-                    ImGui::TableSetupColumn("Keys", ImGuiTableColumnFlags_WidthFixed, keysColWidth);
-                    ImGui::TableSetupColumn("Rebind", ImGuiTableColumnFlags_WidthFixed, ButtonSize);
-                    ImGui::TableSetupColumn("Options", ImGuiTableColumnFlags_WidthFixed, ButtonSize);
+                    ImGui::TableSetupColumn("##Name", ImGuiTableColumnFlags_WidthFixed, nameColWidth);
+                    ImGui::TableSetupColumn("##Keys", ImGuiTableColumnFlags_WidthFixed, keysColWidth);
+                    ImGui::TableSetupColumn("##Rebind", ImGuiTableColumnFlags_WidthFixed, ButtonSize);
+                    ImGui::TableSetupColumn("##Options", ImGuiTableColumnFlags_WidthFixed, ButtonSize);
 
                     // Column 1: Action Name
                     ImGui::TableNextColumn();
-                    ImGui::AlignTextToFramePadding();
 
                     ImGui::PushFont(nullptr, 21.0f);
                     {
-                    	ImGuiEx::TextColorShadow(Event.Disabled ? ImUtil::Colors::Message : ImGui::GetStyle().Colors[ImGuiCol_Text] ,"%s", a_name.c_str());
+                        ImGuiEx::TextColorShadow(Event.Disabled ? ImUtil::Colors::Message : ImGui::GetStyle().Colors[ImGuiCol_Text] ,"%s", a_name.c_str());
+                        if (a_description != nullptr && a_description[0] != '\0') {
+                            ImGuiEx::Tooltip(a_description, true);
+                        }
                     }
                     ImGui::PopFont();
 
@@ -309,7 +369,7 @@ namespace GTS {
 
                     ImGui::BeginDisabled((TempKeys.empty() && IsRebinding) || Event.Disabled);
                     {
-                        if (ImGuiEx::ImageButton(("Rebind##" + std::to_string(CurEventIndex)).c_str(), IsRebinding ? ImageList::Generic_OK : ImageList::Keybind_EditKeybind, 18, T5)) {
+                        if (ImGuiEx::ImageButton(("##Rebind" + std::to_string(CurEventIndex)).c_str(), IsRebinding ? ImageList::Generic_OK : ImageList::Keybind_EditKeybind, 18, T5)) {
                             RebindIndex = CurEventIndex;
                             if (IsRebinding) {
                                 if (!TempKeys.empty()) {
@@ -325,13 +385,13 @@ namespace GTS {
                     // Column 4: Options Button
                     ImGui::BeginDisabled(IsRebinding);
                     ImGui::TableNextColumn();
-				    if (ImGuiEx::ImageButton(("Options##" + std::to_string(CurEventIndex)).c_str(), ImageList::Keybind_ShowAdvanced, 18, T6)) {
+                    if (ImGuiEx::ImageButton(("##Options" + std::to_string(CurEventIndex)).c_str(), ImageList::Keybind_ShowAdvanced, 18, T6)) {
                         ImGui::OpenPopup(("Options##" + std::to_string(CurEventIndex)).c_str());
-				    }
+                    }
                     ImGui::EndDisabled();
 
                     // Options Popup
-                    if (ImGui::BeginPopup(("Options##" + std::to_string(CurEventIndex)).c_str())) {
+                    if (ImGui::BeginPopup(("##Options" + std::to_string(CurEventIndex)).c_str())) {
                         ImGui::Text("Extra Options: %s", a_name.c_str());
                         ImGui::Separator();
                         ImGui::PushItemWidth(250.0f);

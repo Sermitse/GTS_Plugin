@@ -1,6 +1,8 @@
 
 #include "UI/Windows/Settings/Categories/Stats.hpp"
 
+#include "UI/GTSMenu.hpp"
+
 #include "config/Config.hpp"
 
 #include "UI/Controls/ActorInfoCard.hpp"
@@ -17,7 +19,6 @@ namespace GTS {
 		m_name = "Stats";
 	}
 
-    
     void CategoryStats::Draw() {
 
         const float Width = (ImGui::GetContentRegionAvail().x / 3.0f - ImGui::GetStyle().ItemSpacing.x - ImGui::GetStyle().CellPadding.x);
@@ -43,7 +44,7 @@ namespace GTS {
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
 
         // Draw teammate cards with paging
-        auto teammates = FindTeammates();
+        auto teammates = GTSMenu::WindowManager->GetCachedTeamMateList();
         if (!teammates.empty()) {
             static int currentPage = 0;
             constexpr int cardsPerPage = 2;
@@ -93,5 +94,18 @@ namespace GTS {
         }
         ImGui::PopStyleColor(2);
         ImGui::PopStyleVar();
+
+        //Cleanup removed entries, smart-pointer dtor should take care of cleanup
+        std::erase_if(Cards, [&](auto& pair) {
+            RE::FormID id = pair.first;
+            if (id == Player->formID) return false;
+
+            bool found = std::ranges::any_of(teammates, [&](RE::Actor* a) {
+                return a && a->formID == id;
+            });
+            return !found;
+        });
+
     }
+
 }

@@ -74,19 +74,21 @@ struct WindowSettingsBase_t {
     float fAlpha = 1.0f;
     float fBGAlphaMult = 1.0f;
     float fWindowSizePercent = 90.0f;
+
+    bool bVisible = true;
+    bool bEnableFade = true;
+    float fFadeAfter = 2.5f;
+    float fFadeDelta = 0.01f;
+
 };
 TOML_SERIALIZABLE(WindowSettingsBase_t);
 TOML_REGISTER_NAME(WindowSettingsBase_t, "Window");
 
 //Extended settings for the sizebars
 struct WindowSettingsSizeBar_t {
-    bool bVisible = true;
-    bool bEnableFade = true;
     bool bShowName = false;
     bool bShowScale = true;
     bool bShowSize = true;
-    float fFadeAfter = 1.0f;
-    float fFadeDelta = 0.01f;
     float fBorderThickness = 1.0f;
     float fBorderLightness = 1.0f;
     float fRounding = 5.0f;
@@ -102,12 +104,8 @@ TOML_REGISTER_NAME(WindowSettingsSizeBar_t, "SizeBar");
 
 //Extended settings for the understomp bar, mostly a copy of the above one.
 struct WindowSettingsUnderstompBar_t {
-    bool bVisible = true;
-    bool bEnableFade = true;
     bool bShowScale = true;
     bool bShowAbsoluteAngle = false;
-    float fFadeAfter = 1.0f;
-    float fFadeDelta = 0.01f;
     float fBorderThickness = 1.0f;
     float fBorderLightness = 1.0f;
     float fRounding = 5.0f;
@@ -123,12 +121,16 @@ TOML_REGISTER_NAME(WindowSettingsUnderstompBar_t, "USBar");
 
 //Extended settings for the status/buff/icons bar
 struct WindowSettingsStatusBar_t {
-    bool bVisible = true;
-    bool bEnableFade = true;
-    float fFadeAfter = 2.5f;
-    float fFadeDelta = 0.01f;
     uint16_t iIconSize = 48;
     uint16_t iFlags = 0;
 };
 TOML_SERIALIZABLE(WindowSettingsStatusBar_t);
 TOML_REGISTER_NAME(WindowSettingsStatusBar_t, "StatusBar");
+
+
+struct WindowSettingsKillFeed_t {
+    uint16_t iIconSize = 48;
+    uint16_t iFlags = 0;
+};
+TOML_SERIALIZABLE(WindowSettingsKillFeed_t);
+TOML_REGISTER_NAME(WindowSettingsKillFeed_t, "KillFeed");

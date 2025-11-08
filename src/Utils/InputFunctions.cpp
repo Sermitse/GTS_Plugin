@@ -85,22 +85,6 @@ namespace {
 		}
 	}
 
-	void ReportScale(bool enemy) {
-		for (auto actor: find_actors()) {
-			if (actor->formID != 0x14) {
-				if (enemy && !IsTeammate(actor)) {
-					ReportScaleIntoConsole(actor, enemy);
-				} else if (IsTeammate(actor)) {
-					ReportScaleIntoConsole(actor, false);
-				}
-			} else {
-				if (!enemy) {
-					ReportScaleIntoConsole(actor, false);
-				}
-			}
-		}
-	}
-
 	void regenerate_health(Actor* giant, float value) {
 		if (Runtime::HasPerk(giant, "GTSPerkSizeReserveAug2")) {
 			float maxhp = GetMaxAV(giant, ActorValue::kHealth);
@@ -247,7 +231,6 @@ namespace {
 			});
 		}
 	}
-	
 
 	void TotalControlShrinkPlayer_OverTime(const ManagedInputEvent& data) {
 		auto casterRef = PlayerCharacter::GetSingleton();
@@ -382,6 +365,8 @@ namespace {
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////
+
 	void RapidGrowthEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
 			float target = get_target_scale(player);
@@ -404,6 +389,8 @@ namespace {
 			}
 			AnimationManager::StartAnim("TriggerShrink", player);
 	}
+
+	////////////////////////////////////////////////////////////////////
 
 	void SizeReserveEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
@@ -461,12 +448,12 @@ namespace {
 		}
 	}
 
-	void PartyReportEvent(const ManagedInputEvent& data) { // Report follower scale into console
-		ReportScale(false);
-	}
-
 	void DebugReportEvent(const ManagedInputEvent& data) { // Report enemy scale into console
-		ReportScale(true);
+		for (auto actor : find_actors()) {
+			if (actor->formID != 0x14) {
+				ReportScaleIntoConsole(actor, !IsTeammate(actor));
+			}
+		}
 	}
 
 	void ShrinkOutburstEvent(const ManagedInputEvent& data) {
@@ -591,9 +578,6 @@ namespace {
 
 		if (!a_Actor) return;
 
-		//TODO: Re-implement this
-		//UIManager::ShowInfos();
-
 		const bool Mammoth = Config::UI.sDisplayUnits == "kMammoth";
 		float HH = HighHeelManager::GetBaseHHOffset(a_Actor)[2] / 100;
 		const std::string HHOffset = (HighHeelManager::IsWearingHH(a_Actor) && !Mammoth) ? fmt::format(" + {}", GetFormatedHeight(HH)) : "";
@@ -636,7 +620,6 @@ namespace GTS {
 
 		InputManager::RegisterInputEvent("SizeReserve", SizeReserveEvent, SizeReserveCondition);
 		InputManager::RegisterInputEvent("DisplaySizeReserve", DisplaySizeReserveEvent, SizeReserveCondition);
-		InputManager::RegisterInputEvent("PartyReport", PartyReportEvent);
 		InputManager::RegisterInputEvent("DebugReport", DebugReportEvent);
 		InputManager::RegisterInputEvent("AnimSpeedUp", AnimSpeedUpEvent);
 		InputManager::RegisterInputEvent("AnimSpeedDown", AnimSpeedDownEvent);

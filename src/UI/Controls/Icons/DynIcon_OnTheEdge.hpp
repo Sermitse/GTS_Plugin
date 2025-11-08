@@ -1,5 +1,5 @@
 #pragma once
-#include "UI/Controls/BuffIcons/IDynIcon.hpp"
+#include "UI/Controls/Icons/IDynIcon.hpp"
 
 
 namespace ImGuiEx {

@@ -70,8 +70,12 @@ namespace GTS {
 			.f2Position = { 0.0f, 0.0f },
 			.sAnchor = "kCenter",
 			.fAlpha = 1.0f,
-			.fBGAlphaMult = 1.0f,      //Unused
-			.fWindowSizePercent = 0.0f //Unused
+			.fBGAlphaMult = 1.0f,       //Unused
+			.fWindowSizePercent = 0.0f, //Unused
+			.bVisible = true,           //Show player and 1st teammate by default
+			.bEnableFade = true,
+			.fFadeAfter = 2.5f,
+			.fFadeDelta = 0.01f,
 		});
 
 		std::array<float, 3> colorA = Config::UI.f3AccentColor;
@@ -79,12 +83,8 @@ namespace GTS {
 
 		this->RegisterExtraSettings(m_extraSettings);
 		m_settingsHolder->SetCustomDefaults<WindowSettingsUnderstompBar_t>({
-			.bVisible = true,   //Show player and 1st teammate by default
-			.bEnableFade = true,
 			.bShowScale = true,
 			.bShowAbsoluteAngle = false,
-			.fFadeAfter = 2.5f,
-			.fFadeDelta = 0.01f,
 			.fBorderThickness = 1.45f,
 			.fBorderLightness = 0.4f,
 			.fRounding = 3.0f,
@@ -112,7 +112,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (!GetExtraSettings<WindowSettingsUnderstompBar_t>().bVisible) {
+		if (!GetBaseSettings().bVisible) {
 			return false;
 		}
 
@@ -135,8 +135,8 @@ namespace GTS {
 		auto& BaseSettings = GetBaseSettings();
 		auto& ExtraSettings = GetExtraSettings<WindowSettingsUnderstompBar_t>();
 
-		m_fadeSettings.enabled = ExtraSettings.bEnableFade;
-		m_fadeSettings.visibilityDuration = ExtraSettings.fFadeAfter;
+		m_fadeSettings.enabled = BaseSettings.bEnableFade;
+		m_fadeSettings.visibilityDuration = BaseSettings.fFadeAfter;
 		bool Configuring = *m_isConfiguring && *m_settingsVisible;
 
 		const ImVec2 Offset{ BaseSettings.f2Position.at(0), BaseSettings.f2Position.at(1) };
@@ -151,7 +151,7 @@ namespace GTS {
 
 		float fScaleProgress = !Configuring ? fAngleCurrent / 1.0f : 1.0f;
 
-		if (std::abs(fAngleCurrent - m_prevAngle) >= ExtraSettings.fFadeDelta) {
+		if (std::abs(fAngleCurrent - m_prevAngle) >= BaseSettings.fFadeDelta) {
 			m_prevAngle = fAngleCurrent;
 			this->ResetFadeState();
 		}

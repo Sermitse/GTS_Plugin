@@ -1,4 +1,4 @@
-#include "UI/Controls/BuffIcons/DynIcon_DamageReduction.hpp"
+#include "UI/Controls/Icons/DynIcon_DamageReduction.hpp"
 
 #include "UI/Controls/Text.hpp"
 #include "UI/Core/ImColorUtils.hpp"

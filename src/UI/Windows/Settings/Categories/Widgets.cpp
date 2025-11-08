@@ -55,14 +55,13 @@ namespace {
 	PSString TIcoSize = "Set the size of the icons.";
 	PSString TCopyAccent = "Set the accent color as the gradient color";
 
-	template<typename SettingsType>
-	void DrawCommonWidgetOptions(auto& BaseSettings, SettingsType& ExtraSettings) {
+	void DrawCommonWidgetOptions(auto& BaseSettings) {
 
 		ImGui::SeparatorText("Common Settings");
 
-		ImGuiEx::CheckBox("Enable", &ExtraSettings.bVisible, TCVis);
+		ImGuiEx::CheckBox("Enable", &BaseSettings.bVisible, TCVis);
 
-		ImGui::BeginDisabled(!ExtraSettings.bVisible);
+		ImGui::BeginDisabled(!BaseSettings.bVisible);
 		{
 			// Anchor & Position
 			ImGuiEx::ComboEx<GTS::ImWindow::WindowAnchor>("Anchor", BaseSettings.sAnchor, TCAnchor);
@@ -75,9 +74,9 @@ namespace {
 			ImGui::Spacing();
 
 			// Fade Settings
-			ImGuiEx::CheckBox("Inactivity Fade", &ExtraSettings.bEnableFade, TCIFadeEn);
-			ImGuiEx::SliderF("Fade After", &ExtraSettings.fFadeAfter, 0.5f, 10.0f, TCIFadeTime, "After %.1f Seconds", !ExtraSettings.bEnableFade);
-			ImGuiEx::SliderF("Reappear Delta", &ExtraSettings.fFadeDelta, 0.0, 0.5f, TCIFadeDelta, "After a %.2fx Difference", !ExtraSettings.bEnableFade);
+			ImGuiEx::CheckBox("Inactivity Fade", &BaseSettings.bEnableFade, TCIFadeEn);
+			ImGuiEx::SliderF("Fade After", &BaseSettings.fFadeAfter, 0.5f, 10.0f, TCIFadeTime, "After %.1f Seconds", !BaseSettings.bEnableFade);
+			ImGuiEx::SliderF("Reappear Delta", &BaseSettings.fFadeDelta, 0.0, 0.5f, TCIFadeDelta, "After a %.2fx Difference", !BaseSettings.bEnableFade);
 			ImGuiEx::SliderF("Alpha", &BaseSettings.fAlpha, 0.1f, 1.0f, TCAlpha, "%.2fx");
 		}
 		ImGui::EndDisabled();
@@ -178,9 +177,7 @@ namespace {
 		if (!a_win) return;
 
 		if (auto window = dynamic_cast<T*>(static_cast<T*>(a_win))) {
-			auto& base = window->GetBaseSettings();
-			auto& extra = window->template GetExtraSettings<S>();
-			DrawCommonWidgetOptions(base, extra);
+			DrawCommonWidgetOptions(window->GetBaseSettings());
 		}
 	}
 
@@ -195,7 +192,7 @@ namespace {
 
 		ImGui::SeparatorText("Extended Settings");
 
-		ImGui::BeginDisabled(!ExtraSettings.bVisible);
+		ImGui::BeginDisabled(!BaseSettings.bVisible);
 		{
 
 			ImGuiEx::SliderU16("Icon Size", &ExtraSettings.iIconSize, 8, 128, TIcoSize, "%d px");
@@ -251,10 +248,11 @@ namespace {
 		if (!a_targetBar) return;
 		auto Win = dynamic_cast<GTS::USBarWindow*>(a_targetBar);
 		if (!Win) return;
+		auto& BaseSettings = Win->GetBaseSettings();
 		auto& ExtraSettings = Win->GetExtraSettings<WindowSettingsUnderstompBar_t>();
 
 		ImGui::SeparatorText("Extended Settings");
-		ImGui::BeginDisabled(!ExtraSettings.bVisible);
+		ImGui::BeginDisabled(!BaseSettings.bVisible);
 		{
 			DrawCommonBarOptions(ExtraSettings);
 
@@ -278,7 +276,7 @@ namespace {
 
 		ImGui::SeparatorText("Extended Settings");
 
-		ImGui::BeginDisabled(!ExtraSettings.bVisible);
+		ImGui::BeginDisabled(!BaseSettings.bVisible);
 		{
 			// Copy Player Style (only for non-player bars)
 			if (!a_targetBar->GetWindowName().ends_with("P")) {
@@ -288,6 +286,10 @@ namespace {
 						const auto& E = P->GetExtraSettings<WindowSettingsSizeBar_t>();
 
 						BaseSettings.fAlpha = B.fAlpha;
+						BaseSettings.bEnableFade = B.bEnableFade;
+						BaseSettings.fFadeAfter = B.fFadeAfter;
+						BaseSettings.fFadeDelta = B.fFadeDelta;
+
 						ExtraSettings.fBorderLightness = E.fBorderLightness;
 						ExtraSettings.fBorderAlpha = E.fBorderAlpha;
 						ExtraSettings.fBorderThickness = E.fBorderThickness;
@@ -295,9 +297,6 @@ namespace {
 						ExtraSettings.fRounding = E.fRounding;
 						ExtraSettings.f2GradientRange = E.f2GradientRange;
 						ExtraSettings.iFlags = E.iFlags;
-						ExtraSettings.bEnableFade = E.bEnableFade;
-						ExtraSettings.fFadeAfter = E.fFadeAfter;
-						ExtraSettings.fFadeDelta = E.fFadeDelta;
 						ExtraSettings.bShowName = E.bShowName;
 						ExtraSettings.bShowScale = E.bShowScale;
 						ExtraSettings.bShowSize = E.bShowSize;

@@ -7,7 +7,6 @@ namespace GTS {
 
 		public:
 		static void EraseUnloadedData();
-
 		static TransientActorData* GetActorData(Actor* actor);
 
 		private:

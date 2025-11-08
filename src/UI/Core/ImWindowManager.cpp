@@ -5,6 +5,7 @@
 #include "UI/Core/ImUtil.hpp"
 
 #include "UI/Windows/Other/DebugWindow.hpp"
+#include "UI/Windows/Other/KillFeedWindow.hpp"
 #include "UI/Windows/Other/SplashWindow.hpp"
 #include "UI/Windows/Settings/SettingsWindow.hpp"
 #include "UI/Windows/Widgets/SizeBarWindow.hpp"
@@ -179,6 +180,7 @@ namespace GTS {
         AddWindow(std::make_unique<DebugWindow>(),     &wDebug);
         AddWindow(std::make_unique<USBarWindow>(),     &wUBar);
         AddWindow(std::make_unique<StatusBarWindow>(), &wStatusBar);
+        AddWindow(std::make_unique<KillFeedWindow>(),  &wKillFeed);
 
         //Size Bar Windows
         AddWindow(std::make_unique<SizeBarWindow>("P"),   &wSBarP );

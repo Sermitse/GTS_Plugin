@@ -39,8 +39,12 @@ namespace GTS {
 			.f2Position = { 0.0f, 60.0f + (30.0f * m_identity) },
 			.sAnchor = "kCenter",
 			.fAlpha = 1.0f,
-			.fBGAlphaMult = 1.0f,      //Unused
-			.fWindowSizePercent = 0.0f //Unused
+			.fBGAlphaMult = 1.0f,       //Unused
+			.fWindowSizePercent = 0.0f, //Unused
+			.bVisible = m_identity < 2, //Show player and 1st teammate by default
+			.bEnableFade = true,
+			.fFadeAfter = 2.5f,
+			.fFadeDelta = 0.01f,
 		});
 
 		// Deterministic accent generation & Generate paired accent hues
@@ -52,13 +56,9 @@ namespace GTS {
 
 		this->RegisterExtraSettings(m_extraSettings);
 		m_settingsHolder->SetCustomDefaults<WindowSettingsSizeBar_t>({
-			.bVisible = m_identity < 2,   //Show player and 1st teammate by default
-			.bEnableFade = true,
 			.bShowName = m_identity > 1,  //Show name for not default shown teammates by default
 			.bShowScale = true,
 			.bShowSize = true,
-			.fFadeAfter = 2.5f,
-			.fFadeDelta = 0.01f,
 			.fBorderThickness = 1.45f,
 			.fBorderLightness = 0.4f,
 			.fRounding = 3.0f,
@@ -86,7 +86,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (!GetExtraSettings<WindowSettingsSizeBar_t>().bVisible) {
+		if (!GetBaseSettings().bVisible) {
 			return false;
 		}
 
@@ -135,8 +135,8 @@ namespace GTS {
 		auto& BaseSettings = GetBaseSettings();
 		auto& ExtraSettings = GetExtraSettings<WindowSettingsSizeBar_t>();
 
-		m_fadeSettings.enabled = ExtraSettings.bEnableFade;
-		m_fadeSettings.visibilityDuration = ExtraSettings.fFadeAfter;
+		m_fadeSettings.enabled = BaseSettings.bEnableFade;
+		m_fadeSettings.visibilityDuration = BaseSettings.fFadeAfter;
 		bool Configuring = *m_isConfiguring && *m_settingsVisible;
 
 		const ImVec2 Offset{ BaseSettings.f2Position.at(0), BaseSettings.f2Position.at(1) };
@@ -175,7 +175,7 @@ namespace GTS {
 
 		float fScaleProgress = (fScaleMax < 250.0f) ? fScaleCurrent / fScaleMax : -1.0f;
 
-		if (std::abs(fScaleCurrent - m_prevSize) >= ExtraSettings.fFadeDelta) {
+		if (std::abs(fScaleCurrent - m_prevSize) >= BaseSettings.fFadeDelta) {
 			m_prevSize = fScaleCurrent;
 			this->ResetFadeState();
 		}

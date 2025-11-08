@@ -105,7 +105,7 @@ namespace GTS {
 
 		while (serde->GetNextRecordInfo(RecordType, RecordVersion, RecordSize)) {
 
-			//----- ActorData
+			//----- Actor Data structs
 			ActorMap.Load(serde, RecordType, RecordVersion, RecordSize);
 			KillCountMap.Load(serde, RecordType, RecordVersion, RecordSize);
 
@@ -148,7 +148,7 @@ namespace GTS {
 
 		logger::info("Serializing Persistent...");
 
-		//----- Actor Data Struct
+		//----- Actor Data Structs
 		ActorMap.Save(serde);
 		KillCountMap.Save(serde);
 

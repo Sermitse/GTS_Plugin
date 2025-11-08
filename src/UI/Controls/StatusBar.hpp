@@ -1,12 +1,11 @@
 #pragma once
 
-#include "UI/Core/ImGraphics.hpp"
-#include "UI/Controls/BuffIcons/DynIcon_CataclysmicVoreStacks.hpp"
-#include "UI/Controls/BuffIcons/DynIcon_LifeAbsorbStacks.hpp"
-#include "UI/Controls/BuffIcons/DynIcon_DamageReduction.hpp"
-#include "UI/Controls/BuffIcons/DynIcon_Enchantment.hpp"
-#include "UI/Controls/BuffIcons/DynIcon_OnTheEdge.hpp"
-#include "UI/Controls/BuffIcons/DynIcon_SizeReserve.hpp"
+#include "UI/Controls/Icons/DynIcon_CataclysmicVoreStacks.hpp"
+#include "UI/Controls/Icons/DynIcon_LifeAbsorbStacks.hpp"
+#include "UI/Controls/Icons/DynIcon_DamageReduction.hpp"
+#include "UI/Controls/Icons/DynIcon_Enchantment.hpp"
+#include "UI/Controls/Icons/DynIcon_OnTheEdge.hpp"
+#include "UI/Controls/Icons/DynIcon_SizeReserve.hpp"
 
 namespace ImGuiEx {
 

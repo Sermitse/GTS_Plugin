@@ -17,10 +17,11 @@ namespace GTS {
 		// Accessors for common windows
         ImWindow* wSplash = nullptr;
         ImWindow* wSettings = nullptr;
+        ImWindow* wDebug = nullptr;
+
+        ImWindow* wKillFeed = nullptr;
         ImWindow* wActionMenu = nullptr;
         ImWindow* wQuestWidget = nullptr;
-        ImWindow* wPlayerWidget = nullptr;
-        ImWindow* wDebug = nullptr;
 
         //Widgets
         ImWindow* wUBar = nullptr;

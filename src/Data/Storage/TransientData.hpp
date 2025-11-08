@@ -1,9 +1,5 @@
 #pragma once
 
-namespace ImGuiEx {
-	struct ActorInfoCard;
-}
-
 namespace GTS {
 
 	struct TransientActorData {

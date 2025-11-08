@@ -1,4 +1,4 @@
-#include "UI/Controls/BuffIcons/DynIcon_OnTheEdge.hpp"
+#include "UI/Controls/Icons/DynIcon_Enchantment.hpp"
 
 #include "UI/Controls/Text.hpp"
 #include "UI/Core/ImColorUtils.hpp"
@@ -7,19 +7,19 @@
 
 namespace ImGuiEx {
 
-	DynIconOnTheEdge::DynIconOnTheEdge(uint32_t a_size) : IDynIcon(ImageList::BuffIcon_OnTheEdge, a_size) {
+	DynIconEnchantment::DynIconEnchantment(uint32_t a_size) : IDynIcon(ImageList::BuffIcon_GTSAspect, a_size) {
 		m_transform = std::make_unique<GTS::ImGraphics::ImageTransform>();
 		m_transform->cutoffDir = GTS::ImGraphics::CutoffDirection::BottomToTop;
 		m_transform->recolorEnabled = true;
 	}
 
-	bool DynIconOnTheEdge::Draw(float a_percent) const {
+	bool DynIconEnchantment::Draw(float a_percent) const {
 
 		if (a_percent - 1.0f <= 0.f) return false;
 
 		GTS::ImFontManager::Push(GTS::ImFontManager::kIconText, m_size / 64.0f);
 		{
-			constexpr float overflow = 99.f;
+			constexpr float overflow = 100.f;
 			m_transform->targetColor = a_percent > overflow ? ImUtil::Colors::fRGBToImVec4(GTS::Config::UI.f3IconOverflowColor) : ImVec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 			m_transform->cutoffPercent = static_cast<float>(std::min(a_percent, overflow)) / static_cast<float>(overflow);
 
