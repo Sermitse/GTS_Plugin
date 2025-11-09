@@ -189,6 +189,8 @@ namespace logger = SKSE::log;
 //Own Includes
 #include "Constants.hpp"
 
+#include "RE/RE.hpp"
+
 #include "Utils/Singleton.hpp"
 #include "Utils/Input/DInput.hpp"
 #include "Utils/Win32/Messagebox.hpp"
@@ -197,7 +199,6 @@ namespace logger = SKSE::log;
 #include "Utils/Text/Format.hpp"
 
 #include "Debug/Profilers.hpp"
-
 
 #include "Systems/Events/EventListener.hpp"
 #include "Systems/Events/EventDispatcher.hpp"
@@ -210,16 +211,12 @@ namespace logger = SKSE::log;
 #include "Systems/Misc/Time.hpp"
 #include "Systems/Misc/Timer.hpp"
 
-#include "Systems/Runtime.hpp"
-
-
 #include "Utils/Utils.hpp"
 
 #include "Scale/Scale.hpp"
 #include "Scale/ModScale.hpp"
 #include "Scale/Height.hpp"
 
-#include "Data/Storage/Persistent.hpp"
-#include "Data/Storage/Transient.hpp"
-
-#include "RE/RE.hpp"
+#include "Data/Runtime.hpp"
+#include "Data/Persistent.hpp"
+#include "Data/Transient.hpp"

@@ -1,5 +1,5 @@
 #pragma once
-#include "Data/Runtime/RuntimeEntry.hpp"
+#include "Data/Runtime/Util/RuntimeEntry.hpp"
 
 //Macro to create a concrete var and instert a string representation of itself into a map for easy itteration lookup.
 #define Entry(name, plugin, id) \
