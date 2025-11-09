@@ -1,4 +1,4 @@
-#include "Magic/Effects/TinyCalamity.hpp"
+#include "Magic/Effects/Shouts/TinyCalamity.hpp"
 #include "Managers/Rumble.hpp"
 #include "Managers/Perks/ShrinkingGaze.hpp"
 

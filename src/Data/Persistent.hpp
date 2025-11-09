@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Data/Storage/Util/BasicRecord.hpp"
-#include "Data/Storage/Util/CompressedRecord.hpp"
-#include "Data/Storage/Util/MapRecord.hpp"
+#include "Data/Util/BasicRecord.hpp"
+#include "Data/Util/CompressedRecord.hpp"
+#include "Data/Util/MapRecord.hpp"
+
 #include "Data/Storage/PersistentData.hpp"
 
 namespace GTS {

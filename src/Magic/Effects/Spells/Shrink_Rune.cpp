@@ -1,6 +1,6 @@
 
 #include "Magic/Effects/Common.hpp"
-#include "Magic/Effects/Shrink_Rune.hpp"
+#include "Magic/Effects/Spells/Shrink_Rune.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
 using namespace GTS;

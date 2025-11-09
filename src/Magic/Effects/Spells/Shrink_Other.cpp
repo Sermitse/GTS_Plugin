@@ -1,6 +1,6 @@
 
 #include "Magic/Effects/Common.hpp"
-#include "Magic/Effects/Shrink_Other.hpp"
+#include "Magic/Effects/Spells/Shrink_Other.hpp"
 
 namespace GTS {
 

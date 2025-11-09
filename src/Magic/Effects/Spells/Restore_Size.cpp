@@ -1,6 +1,6 @@
 
-#include "Common.hpp"
-#include "restore_size.hpp"
+#include "Magic/Effects/Common.hpp"
+#include "Magic/Effects/Spells/restore_size.hpp"
 
 #include "Managers/Rumble.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"

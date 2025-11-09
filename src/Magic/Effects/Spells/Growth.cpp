@@ -1,5 +1,5 @@
-#include "Magic/Effects/Growth.hpp"
-#include "Common.hpp"
+#include "Magic/Effects/Spells/Growth.hpp"
+#include "Magic/Effects/Common.hpp"
 
 namespace GTS {
 

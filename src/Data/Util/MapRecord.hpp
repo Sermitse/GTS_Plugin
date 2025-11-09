@@ -1,6 +1,6 @@
 #pragma once
-#include "Data/Storage/Util/BasicRecord.hpp"
-#include "Data/Storage/Util/MapSerializer.hpp"
+#include "Data/Util/BasicRecord.hpp"
+#include "Data/Util/MapSerializer.hpp"
 
 namespace Serialization {
 

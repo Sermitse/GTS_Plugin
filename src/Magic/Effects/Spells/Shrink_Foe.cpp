@@ -1,5 +1,5 @@
 #include "Magic/Effects/Common.hpp"
-#include "Magic/Effects/Shrink_Foe.hpp"
+#include "Magic/Effects/Spells/Shrink_Foe.hpp"
 #include "Managers/GtsSizeManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 

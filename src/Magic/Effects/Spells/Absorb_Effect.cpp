@@ -1,4 +1,4 @@
-#include "Magic/Effects/Absorb_Effect.hpp"
+#include "Magic/Effects/Spells/Absorb_Effect.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 

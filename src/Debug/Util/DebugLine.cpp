@@ -1,5 +1,5 @@
-#include "Debug/DrawUtils/DebugLine.hpp"
-#include "Debug/DrawUtils/DebugUtil.hpp"
+#include "Debug/Util/DebugLine.hpp"
+#include "Debug/Util/DebugUtil.hpp"
 
 namespace DebugUtil {
 

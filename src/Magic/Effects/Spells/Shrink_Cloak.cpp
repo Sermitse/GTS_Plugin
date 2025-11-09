@@ -1,4 +1,4 @@
-#include "Magic/Effects/Shrink_Cloak.hpp"
+#include "Magic/Effects/Spells/Shrink_Cloak.hpp"
 #include "Magic/Effects/Common.hpp"
 
 namespace {

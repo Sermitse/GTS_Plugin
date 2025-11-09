@@ -1,9 +1,7 @@
 #pragma once
 
-
-
-#include "Debug/DrawUtils/DebugLine.hpp"
-#include "Debug/DrawUtils/ObjectBound.hpp"
+#include "Debug/Util/DebugLine.hpp"
+#include "Debug/Util/ObjectBound.hpp"
 
 namespace GTS {
 

@@ -1,4 +1,4 @@
-#include "Magic/Effects/Slow_Grow.hpp"
+#include "Magic/Effects/Spells/Slow_Grow.hpp"
 #include "Magic/Effects/Common.hpp"
 
 #include "Managers/Rumble.hpp"

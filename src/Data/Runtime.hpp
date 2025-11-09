@@ -1,5 +1,5 @@
 #pragma once
-#include "Data/Runtime/Util/RuntimeData.hpp"
+#include "Data/Util/RuntimeData.hpp"
 
 namespace GTS {
 

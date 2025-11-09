@@ -293,11 +293,11 @@ namespace GTS {
 
 		const float OMC = 1.f - C;
 
-		return RE::NiPoint3(
+		return {
 			(OMC * XX + C) * vec.x + (OMC * XY - ZS) * vec.y + (OMC * ZX + YS) * vec.z,
 			(OMC * XY + ZS) * vec.x + (OMC * YY + C) * vec.y + (OMC * YZ - XS) * vec.z,
 			(OMC * ZX - YS) * vec.x + (OMC * YZ + XS) * vec.y + (OMC * ZZ + C) * vec.z
-			);
+		};
 	}
 
 	Actor* GetActorPtr(Actor* actor) {

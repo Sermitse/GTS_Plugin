@@ -1,5 +1,5 @@
 #pragma once
-#include "Data/Storage/Util/BasicRecord.hpp"
+#include "Data/Util/BasicRecord.hpp"
 
 namespace Serialization {
 

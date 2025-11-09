@@ -1,5 +1,5 @@
 #pragma once
-#include "Data/Storage/Util/TLVSerializer.hpp"
+#include "Data/Util/TLVSerializer.hpp"
 
 namespace Serialization {
 

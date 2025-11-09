@@ -2,9 +2,9 @@
 
 #include "UI/DebugMenu.hpp"
 
-#include "Debug/DrawUtils/DebugUtil.hpp"
-#include "Debug/DrawUtils/DebugLine.hpp"
-#include "Debug/DrawUtils/ObjectBound.hpp"
+#include "Debug/Util/DebugUtil.hpp"
+#include "Debug/Util/DebugLine.hpp"
+#include "Debug/Util/ObjectBound.hpp"
 
 #include "Hooks/Other/Values.hpp"
 

@@ -1,5 +1,5 @@
-#include "Debug/DrawUtils/ObjectBound.hpp"
-#include "Debug/DrawUtils/DebugUtil.hpp"
+#include "Debug/Util/ObjectBound.hpp"
+#include "Debug/Util/DebugUtil.hpp"
 
 namespace DebugUtil {
 

@@ -1,5 +1,5 @@
 
-#include "Magic/Effects/Restore_Size_Other.hpp"
+#include "Magic/Effects/Spells/Restore_Size_Other.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Managers/Rumble.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"

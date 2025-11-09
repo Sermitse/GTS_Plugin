@@ -1,4 +1,4 @@
-#include "Magic/Effects/GrowthSpurt.hpp"
+#include "Magic/Effects/Spells/GrowthSpurt.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Managers/GtsSizeManager.hpp"
 #include "Managers/Rumble.hpp"
