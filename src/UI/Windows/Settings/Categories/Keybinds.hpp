@@ -17,21 +17,18 @@ namespace GTS {
         void DrawOptions();
         void DrawContent();
         static void SetWindowBusy(bool a_busy);
+        bool DrawInputEvent(BaseEventData_t& Event, const std::string& a_name, const char* a_description, float columnNameWidth);
+
+        std::string SearchRes;
+        std::unordered_map<std::string, bool> HeaderStateMap = {};
+        std::vector<std::string> TempKeys = {};
 
         int Div = 2;
-        std::string SearchRes;
-        bool HideFiltered = false;
-        volatile uint8_t ColExpState = 0;
-        std::unordered_map<std::string, bool> HeaderStateMap = {};
-
-        //InputEvent Rebinding
-        std::string VisualKeyString;
-        std::vector<std::string> TempKeys = {};
         int RebindIndex = 0;
         int CurEventIndex = UINT16_MAX;
-        float Width = 0.0f;
-        bool DrawInputEvent(BaseEventData_t& Event, const std::string& a_name, const char* a_description, float columnNameWidth);
         const int HeaderFlags =  ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AutoResizeX ;
+        float Width = 0.0f;
+        bool singleColumn = true;
 
         inline static std::unordered_map<std::string, size_t> categoryMap = {};
         inline static std::unordered_map<std::string, bool> hiddenMap = {};

@@ -73,7 +73,6 @@ namespace GTS {
 			}
 
 			if (reset) {
-				float remove_size = saved_data->ButtCrushMaxSize;
 				float start_scale = saved_data->ButtCrushStartScale;
 
 				start_scale = std::max(start_scale, get_natural_scale(giant));

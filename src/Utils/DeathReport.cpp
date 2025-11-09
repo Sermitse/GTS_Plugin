@@ -446,7 +446,7 @@ namespace GTS {
 			case DamageSource::HandSlamRight:
 			case DamageSource::HandDropRight:
 				return rHand;
-			break;
+
 			case DamageSource::HandIdleL:
 			case DamageSource::HandCrawlLeft:
 			case DamageSource::HandSwipeLeft:
@@ -454,7 +454,7 @@ namespace GTS {
 			case DamageSource::HandDropLeft:
 			case DamageSource::HandCrushed: // When killing through grab attack, left hand
 				return lHand;
-			break;
+
 			case DamageSource::KickedRight:
 			case DamageSource::CrushedRight:
 			case DamageSource::WalkRight:
@@ -462,7 +462,7 @@ namespace GTS {
 			case DamageSource::FootGrindedRight:
 			case DamageSource::FootGrindedRight_Impact:
 				return rFoot;
-			break;
+
 			case DamageSource::KickedLeft:
 			case DamageSource::CrushedLeft:
 			case DamageSource::FootIdleL:
@@ -470,33 +470,32 @@ namespace GTS {
 			case DamageSource::FootGrindedLeft:
 			case DamageSource::FootGrindedLeft_Impact:
 				return lFoot;
-			break;
+
 			case DamageSource::KneeIdleR:
 			case DamageSource::KneeRight:
 			case DamageSource::KneeDropRight:
 				return rCalf;
-			break;
+
 			case DamageSource::KneeIdleL:
 			case DamageSource::KneeLeft:
 			case DamageSource::KneeDropLeft:
 				return lCalf;
-			break;
+
 			case DamageSource::BodyCrush:
 			case DamageSource::Hugs:
 			case DamageSource::Breast:
 			case DamageSource::BreastImpact:
 				return breast;
-			break;
+
 			case DamageSource::Booty:
 				return booty;
-			break;	
+
 			case DamageSource::ThighSandwiched:
 			case DamageSource::ThighCrushed:
 				return rThigh;
-			break;
+
 			default:
 				return none;
-			break;
 		}
 	}
 

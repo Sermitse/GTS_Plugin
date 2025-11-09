@@ -126,15 +126,16 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-#include <lunasvg.h>					//https://github.com/sammycage/lunasvg
-#include <reflect>                      //https://github.com/qlibs/reflect
-#include <toml.hpp>                     //https://github.com/ToruNiina/toml11
-#include <magic_enum/magic_enum.hpp>    //https://github.com/Neargye/magic_enum
-#include <lz4.h>						//https://github.com/lz4/lz4
-#include <glm/ext.hpp>					//https://github.com/g-truc/glm
+#include <lunasvg.h>					  //https://github.com/sammycage/lunasvg
+#include <reflect>                        //https://github.com/qlibs/reflect
+#include <toml.hpp>                       //https://github.com/ToruNiina/toml11
+#include <magic_enum/magic_enum.hpp>      //https://github.com/Neargye/magic_enum
+#include <lz4.h>						  //https://github.com/lz4/lz4
+#include <glm/ext.hpp>					  //https://github.com/g-truc/glm
 #include <glm/glm.hpp>
-#include <detours/detours.h>			//https://github.com/microsoft/Detours
-#include <nlohmann/json.hpp>			//https://github.com/nlohmann/json
+#include <detours/detours.h>			  //https://github.com/microsoft/Detours
+#include <nlohmann/json.hpp>			  //https://github.com/nlohmann/json
+#include <absl/container/flat_hash_map.h> //https://github.com/abseil/abseil-cpp
 
 //Tbb
 #include <tbb/concurrent_vector.h>

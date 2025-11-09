@@ -61,16 +61,6 @@ if(GTS_BUILD_DISTRIBUTION)
       )
     endif()
 
-    # Copy Config directory
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/distribution/Config")
-      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${CMAKE_CURRENT_SOURCE_DIR}/distribution/Config"
-                "${DEPLOY_DIR}/GTSPlugin"
-        COMMENT "Copying Config directory to deployment"
-      )
-    endif()
-
     # Clean output DLLs and PDBs
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/distribution")
       file(GLOB_RECURSE OUTPUT_DLLS "${CMAKE_CURRENT_SOURCE_DIR}/distribution/Plugin-*/*.dll")

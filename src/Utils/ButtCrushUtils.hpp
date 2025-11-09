@@ -1,3 +1,5 @@
+#pragma once
+
 namespace GTS {
 
 	float GetButtCrushSize(Actor* giant);

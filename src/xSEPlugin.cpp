@@ -1,6 +1,6 @@
 #include "Hooks/Hooks.hpp"
-#include "Systems/Events/EventRegistry.hpp"
 #include "Papyrus/Papyrus.hpp"
+#include "Systems/Events/EventRegistry.hpp"
 #include "Utils/InitUtils.hpp"
 #include "Utils/Logger.hpp"
 

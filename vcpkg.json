@@ -17,7 +17,8 @@
         "lz4",
         "detours",
         "lunasvg",
-        "tbb"
+        "tbb",
+        "abseil"
       ]
     }
   },

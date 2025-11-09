@@ -7,7 +7,7 @@ cmake_policy(VERSION 3.21...3.31)
 
 project(
 	GtsPlugin
-	VERSION 3.3.0.0
+	VERSION 4.0.0.0
 	DESCRIPTION "The main SKSE plugin of the Size Matters mod"
 	LANGUAGES CXX
 )
@@ -100,6 +100,7 @@ find_package(toml11 CONFIG REQUIRED)
 find_package(nlohmann_json 3.12.0 REQUIRED)
 find_package(lunasvg CONFIG REQUIRED)
 find_package(tbb CONFIG REQUIRED)
+find_package(absl CONFIG REQUIRED)
 
 # #######################################################################################################################
 # # Non-CLib Includes
@@ -125,6 +126,7 @@ target_link_libraries(
 	lz4::lz4
     lunasvg::lunasvg
     TBB::tbb
+	absl::flat_hash_map
 	nlohmann_json::nlohmann_json
 	cmake_git_version_tracking
 )

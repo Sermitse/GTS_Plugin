@@ -2,66 +2,8 @@
 
 namespace {
 
-	static void SetSoundHandleFrequency(RE::BSAudioManager* a_manager, std::uint32_t a_soundID, float a_freq) {
-		if (a_soundID != 0xffffffff){
-			using func_t = decltype(&SetSoundHandleFrequency);
-			static const REL::Relocation<func_t> func{ REL::RelocationID(66422, 67685, NULL) };
-			func(a_manager, a_soundID, a_freq);
-		}
-	}
-
-	template <class T>
-	T* find_form(std::string_view lookup_id) {
-		// From https://github.com/Exit-9B/MCM-Helper/blob/a39b292909923a75dbe79dc02eeda161763b312e/src/FormUtil.cpp
-		std::string lookup_id_str(lookup_id);
-		std::istringstream ss{ lookup_id_str };
-		std::string plugin, id;
-
-		std::getline(ss, plugin, '|');
-		std::getline(ss, id);
-		RE::FormID relativeID;
-		std::istringstream{ id } >> std::hex >> relativeID;
-		const auto dataHandler = RE::TESDataHandler::GetSingleton();
-		return dataHandler ? dataHandler->LookupForm<T>(relativeID, plugin) : nullptr;
-	}
-
-	struct RuntimeConfig {
-
-		std::unordered_map<std::string, std::string> sounds;
-		std::unordered_map<std::string, std::string> spellEffects;
-		std::unordered_map<std::string, std::string> spells;
-		std::unordered_map<std::string, std::string> perks;
-		std::unordered_map<std::string, std::string> explosions;
-		std::unordered_map<std::string, std::string> globals;
-		std::unordered_map<std::string, std::string> quests;
-		std::unordered_map<std::string, std::string> factions;
-		std::unordered_map<std::string, std::string> impacts;
-		std::unordered_map<std::string, std::string> races;
-		std::unordered_map<std::string, std::string> keywords;
-		std::unordered_map<std::string, std::string> containers;
-		std::unordered_map<std::string, std::string> levelitems;
-
-		RuntimeConfig(const toml::ordered_value& data) {
-
-			this->sounds = toml::find_or(data, "SNDR", std::unordered_map<std::string, std::string>());
-			this->spellEffects = toml::find_or(data, "MGEF", std::unordered_map<std::string, std::string>());
-			this->spells = toml::find_or(data, "SPEL", std::unordered_map<std::string, std::string>());
-			this->perks = toml::find_or(data, "PERK", std::unordered_map<std::string, std::string>());
-			this->explosions = toml::find_or(data, "EXPL", std::unordered_map<std::string, std::string>());
-			this->globals = toml::find_or(data, "GLOB", std::unordered_map<std::string, std::string>());
-			this->quests = toml::find_or(data, "QUST", std::unordered_map<std::string, std::string>());
-			this->factions = toml::find_or(data, "FACT", std::unordered_map<std::string, std::string>());
-			this->impacts = toml::find_or(data, "IDPS", std::unordered_map<std::string, std::string>());
-			this->races = toml::find_or(data, "RACE", std::unordered_map<std::string, std::string>());
-			this->keywords = toml::find_or(data, "KYWD", std::unordered_map<std::string, std::string>());
-			this->containers = toml::find_or(data, "CONT", std::unordered_map<std::string, std::string>());
-			this->levelitems = toml::find_or(data, "LVLI", std::unordered_map<std::string, std::string>());
-
-		}
-	};
-
 	void CheckModLoaded(bool* a_res, const std::string_view& a_name) {
-		logger::info("SoftDependency Checker: Checking for {}", a_name);
+		logger::info("Dependency Checker: Checking for {}", a_name);
 		if (a_res) {
 			if (const auto DataHandler = RE::TESDataHandler::GetSingleton()) {
 				const auto ModFile = DataHandler->LookupModByName(a_name);
@@ -75,142 +17,354 @@ namespace {
 		*a_res = false;
 	}
 
-	void CheckDLLLoaded(bool* a_res, const std::string_view& a_name) {
-		logger::info("SoftDependency DLL Checker: Checking for {}", a_name);
+	void CheckDLLLoaded(bool* a_res, const std::wstring_view& a_name) {
+		logger::info("Dependency DLL Checker: Checking for {}", GTS::Utf16ToUtf8(a_name));
 		if (a_res) {
-			*a_res = (GetModuleHandleA(a_name.data()) != nullptr); // DLL name
+			*a_res = (GetModuleHandleW(a_name.data()) != nullptr); // DLL name
 			return;
 		}
 		*a_res = false;
 	}
+
+	template<typename ReturnType, typename ListableType>
+	ReturnType* GetFormByTagName(ListableType& a_listable, const std::string_view& a_tag) {
+		if (auto it = a_listable.List.find(absl::string_view(a_tag.data(), a_tag.size())); it != a_listable.List.end()) {
+			if (!it->second->Value) {
+				logger::debug("Form lookup found key '{}' but Value is nullptr", a_tag);
+				return nullptr;
+			}
+			return it->second->Value;
+		}
+		logger::debug("Form lookup failed: key '{}' not found in list", a_tag);
+		return nullptr;
+	}
+
 }
 
 namespace GTS {
+
+	//--------------------
+	// Virtual Overrides
+	//--------------------
 
 	std::string Runtime::DebugName() {
 		return "::Runtime";
 	}
 
-	// Sound
-	BSISoundDescriptor* Runtime::GetSound(const std::string_view& tag) {
-		BSISoundDescriptor* data = nullptr;
-		try {
-			data = GetSingleton().sounds.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			data = nullptr;
-			if (!Logged("sond", tag)) {
-				//PrintMessageBox("Sound: {} not found", tag);
-				log::warn("Sound: {} not found", tag);
+	void Runtime::DataReady() {
+
+		if (auto File = TESDataHandler::GetSingleton()->LookupModByName("GTS.esp")) {
+			if (File->compileIndex == 0xFF) {
+				ReportAndExit(
+				  "GTS.esp was not found in the active load order.\n"
+				  "Make sure it exists and is activated.\n"
+	              "The game will now close."
+				);
 			}
 		}
-		return data;
+
+		CheckModLoaded(&SexlabInstalled,"SexLab.esm");
+		CheckModLoaded(&SurvivalModeInstalled, "ccQDRSSE001-SurvivalMode.esl");
+		CheckModLoaded(&DevourmentInstalled, "Devourment.esp");
+		CheckDLLLoaded(&AltConversationCamInstalled, L"AlternateConversationCamera.dll");
+
+		//Resolve FormID's -> Game Objects
+		SNDR.Resolve();
+		MGEF.Resolve();
+		SPEL.Resolve();
+		PERK.Resolve();
+		EXPL.Resolve();
+		GLOB.Resolve();
+		QUST.Resolve();
+		FACT.Resolve();
+		IDTS.Resolve();
+		RACE.Resolve();
+		KYWD.Resolve();
+		CONT.Resolve();
+		LVLI.Resolve();
+
 	}
 
+	//--------------------
+	// GameObject Getters
+	//--------------------
+
+	// ---- Sound
+	BSISoundDescriptor* Runtime::GetSound(const std::string_view& a_tag) {
+		if (const auto& Sound = GetFormByTagName<BGSSoundDescriptorForm>(SNDR, a_tag)) {
+			return Sound->soundDescriptor;
+		}
+		return nullptr;
+	}
+
+	BSISoundDescriptor* Runtime::GetSound(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value->soundDescriptor;
+		}
+		return nullptr;
+	}
+
+	// ---- Magic Effect
+	EffectSetting* Runtime::GetMagicEffect(const std::string_view& a_tag) {
+		return GetFormByTagName<EffectSetting>(MGEF, a_tag);
+	}
+
+	EffectSetting* Runtime::GetMagicEffect(const RuntimeData::RuntimeEntry<RE::EffectSetting>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Spell
+	SpellItem* Runtime::GetSpell(const std::string_view& tag) {
+		return GetFormByTagName<SpellItem>(SPEL, tag);
+	}
+
+	SpellItem* Runtime::GetSpell(const RuntimeData::RuntimeEntry<RE::SpellItem>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Perk
+	BGSPerk* Runtime::GetPerk(const std::string_view& tag) {
+		return GetFormByTagName<BGSPerk>(PERK, tag);
+	}
+
+	BGSPerk* Runtime::GetPerk(const RuntimeData::RuntimeEntry<RE::BGSPerk>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Explosion
+	BGSExplosion* Runtime::GetExplosion(const std::string_view& tag) {
+		return GetFormByTagName<BGSExplosion>(EXPL, tag);
+	}
+
+	BGSExplosion* Runtime::GetExplosion(const RuntimeData::RuntimeEntry<RE::BGSExplosion>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Global
+	TESGlobal* Runtime::GetGlobal(const std::string_view& tag) {
+		return GetFormByTagName<TESGlobal>(GLOB, tag);
+	}
+
+	TESGlobal* Runtime::GetGlobal(const RuntimeData::RuntimeEntry<RE::TESGlobal>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Quest
+	TESQuest* Runtime::GetQuest(const std::string_view& tag) {
+		return GetFormByTagName<TESQuest>(QUST, tag);
+	}
+
+	TESQuest* Runtime::GetQuest(const RuntimeData::RuntimeEntry<RE::TESQuest>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Faction
+	TESFaction* Runtime::GetFaction(const std::string_view& tag) {
+		return GetFormByTagName<TESFaction>(FACT, tag);
+	}
+
+	TESFaction* Runtime::GetFaction(const RuntimeData::RuntimeEntry<RE::TESFaction>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Impact Data Set
+	BGSImpactDataSet* Runtime::GetImpactEffect(const std::string_view& tag) {
+		return GetFormByTagName<BGSImpactDataSet>(IDTS, tag);
+	}
+
+	BGSImpactDataSet* Runtime::GetImpactEffect(const RuntimeData::RuntimeEntry<RE::BGSImpactDataSet>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Race
+	TESRace* Runtime::GetRace(const std::string_view& tag) {
+		return GetFormByTagName<TESRace>(RACE, tag);
+	}
+
+	TESRace* Runtime::GetRace(const RuntimeData::RuntimeEntry<RE::TESRace>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Keyword
+	BGSKeyword* Runtime::GetKeyword(const std::string_view& tag) {
+		return GetFormByTagName<BGSKeyword>(KYWD, tag);
+	}
+
+	BGSKeyword* Runtime::GetKeyword(const RuntimeData::RuntimeEntry<RE::BGSKeyword>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Leveled Item
+	TESLevItem* Runtime::GetLeveledItem(const std::string_view& tag) {
+		return GetFormByTagName<TESLevItem>(LVLI, tag);
+	}
+
+	TESLevItem* Runtime::GetLeveledItem(const RuntimeData::RuntimeEntry<RE::TESLevItem>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+	// ---- Container
+	TESObjectCONT* Runtime::GetContainer(const std::string_view& tag) {
+		return GetFormByTagName<TESObjectCONT>(CONT, tag);
+	}
+
+	TESObjectCONT* Runtime::GetContainer(const RuntimeData::RuntimeEntry<RE::TESObjectCONT>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
+
+	//--------------------
+	// Sound Helpers
+	//--------------------
+
+	// Overload Helpers
 	void Runtime::PlaySound(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const float& a_frequency) {
-		auto soundDescriptor = GetSound(a_tag);
-		if (!soundDescriptor) {
-			log::error("Sound invalid: {}", a_tag);
+		PlaySound_Impl_Actor(GetSound(a_tag), a_actor, a_volume, a_frequency);
+	}
+
+	void Runtime::PlaySound(const std::string_view& a_tag, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
+		PlaySound_Impl(GetSound(a_tag), a_ref, a_volume, a_frequency);
+	}
+
+	void Runtime::PlaySound(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const float& a_frequency) {
+		PlaySound_Impl_Actor(GetSound(a_entry), a_actor, a_volume, a_frequency);
+	}
+
+	void Runtime::PlaySound(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
+		PlaySound_Impl(GetSound(a_entry), a_ref, a_volume, a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
+		PlaySoundAtNode_FallOff_Impl(GetSound(a_tag), a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode_FallOff(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
+		PlaySoundAtNode_FallOff_Impl(GetSound(a_entry), a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
+		PlaySoundAtNode_FallOff_Impl(GetSound(a_tag), a_volume, a_node, a_falloff, a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode_FallOff(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
+		PlaySoundAtNode_FallOff_Impl(GetSound(a_entry), a_volume, a_node, a_falloff, a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_frequency) {
+		PlaySoundAtNode_Impl(GetSound(a_tag), a_volume, find_node(a_actor, a_node), a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, const float& a_volume, NiAVObject* a_node, float a_frequency) {
+		PlaySoundAtNode_Impl(GetSound(a_entry), a_volume, a_node, a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_frequency) {
+		PlaySoundAtNode_Impl(GetSound(a_entry), a_volume, find_node(a_actor, a_node), a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_frequency) {
+		PlaySoundAtNode_Impl(GetSound(a_tag), a_volume, a_node, a_frequency);
+	}
+
+	// ----- Concrete Implementations -----
+
+	//Workaround for explicit casting
+	void Runtime::PlaySound_Impl_Actor(BSISoundDescriptor* a_soundDescriptor, Actor* a_actor, const float& a_volume, const float& a_frequency) {
+		TESObjectREFR* ActorAsRef = skyrim_cast<TESObjectREFR*>(a_actor);
+		PlaySound_Impl(a_soundDescriptor, ActorAsRef, a_volume, a_frequency);
+	}
+
+	void Runtime::PlaySound_Impl(BSISoundDescriptor* a_soundDescriptor, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
+
+		if (!a_soundDescriptor) {
+			logger::error("Ivallid Sound Descriptor");
 			return;
 		}
+
 		auto audioManager = BSAudioManager::GetSingleton();
 		if (!audioManager) {
 			log::error("Audio Manager invalid");
 			return;
 		}
+
 		BSSoundHandle soundHandle;
-		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, soundDescriptor);
+		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor);
 		if (success) {
-			auto actorref = a_actor->CreateRefHandle();
-			auto actorget = actorref.get().get();
-			if (actorget) {
+			ObjectRefHandle ref = a_ref->CreateRefHandle();
+			if (TESObjectREFR* refget = ref.get().get()) {
 
 				soundHandle.SetVolume(a_volume);
 
 				SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
 
-				NiAVObject* current_3d = actorget->GetCurrent3D();
-				if (current_3d) {
+				if (NiAVObject* current_3d = refget->GetCurrent3D()) {
 					NiAVObject* follow = current_3d;
 					soundHandle.SetObjectToFollow(follow);
 					soundHandle.Play();
 				}
 			}
-		} else {
-			log::error("Could not build sound");
-		}
-	}
-
-	void Runtime::PlaySound(const std::string_view& a_tag, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
-		auto soundDescriptor = GetSound(a_tag);
-		if (!soundDescriptor) {
-			log::error("Sound invalid: {}", a_tag);
 			return;
 		}
-		auto audioManager = BSAudioManager::GetSingleton();
-		if (!audioManager) {
-			log::error("Audio Manager invalid");
-			return;
-		}
-		BSSoundHandle soundHandle;
-		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, soundDescriptor);
-		if (success) {
-			auto objectref = a_ref->CreateRefHandle();
-			if (objectref) {
-				auto objectget = objectref.get().get();
-			
-				NiAVObject* current_3d = objectget->GetCurrent3D();
-				if (current_3d) {
-					NiAVObject& follow = *current_3d;
-					soundHandle.SetVolume(a_volume);
 
-					SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
-
-					soundHandle.SetObjectToFollow(&follow);
-					soundHandle.Play();
-				}
-			}
-		}
-		else {
-			log::error("Could not build sound");
-		}
+		log::error("Could not build sound");
 	}
 
-	void Runtime::CheckSoftDependencies() {
-		CheckModLoaded(&SoftDep_SL_Found,"SexLab.esm");
-		CheckModLoaded(&SoftDep_SurvMode_Found, "ccQDRSSE001-SurvivalMode.esl");
-		CheckModLoaded(&SoftDep_DV_Found, "Devourment.esp");
-		CheckDLLLoaded(&SoftDep_AltCam_Found, "AlternateConversationCamera.dll");
-	}
-
-	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
-		PlaySoundAtNode_FallOff(a_tag, a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
-	}
-
-	void Runtime::PlaySoundAtNode(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_frequency) {
-		PlaySoundAtNode(a_tag, a_volume, find_node(a_actor, a_node), a_frequency);
-	}
-
-	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
+	void Runtime::PlaySoundAtNode_FallOff_Impl(BSISoundDescriptor* a_soundDescriptor, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
 
 		if (!a_node) {
 			logger::warn("Tried to play a sound on a null node");
 			return;
 		}
 
-		auto soundDescriptor = GetSound(a_tag);
-		if (!soundDescriptor) {
-			log::error("Sound invalid: {}", a_tag);
+		if (!a_soundDescriptor) {
+			logger::error("Ivallid Sound Descriptor");
 			return;
 		}
+
 		auto audioManager = BSAudioManager::GetSingleton();
 		if (!audioManager) {
 			log::error("Audio Manager invalid");
 			return;
 		}
+
 		BSSoundHandle soundHandle;
-		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, soundDescriptor);
-		if (success) {
+		if (audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor)) {
 			float falloff = Sound_GetFallOff(a_node, a_falloff);
 			soundHandle.SetVolume(a_volume * falloff);
 
@@ -218,60 +372,48 @@ namespace GTS {
 
 			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();
+			return;
 		}
-		else {
-			log::error("Could not build sound");
-		}
+
+		log::error("Could not build sound");
+		
 	}
 
-	void Runtime::PlaySoundAtNode(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_frequency) {
-
+	void Runtime::PlaySoundAtNode_Impl(BSISoundDescriptor* a_soundDescriptor, const float& a_volume, NiAVObject* a_node, float a_frequency) {
 
 		if (!a_node) {
 			logger::warn("Tried to play a sound on a null node");
 			return;
 		}
 
-		auto soundDescriptor = GetSound(a_tag);
-		if (!soundDescriptor) {
-			log::error("Sound invalid: {}", a_tag);
+		if (!a_soundDescriptor) {
+			logger::error("Ivallid Sound Descriptor");
 			return;
 		}
+
 		auto audioManager = BSAudioManager::GetSingleton();
 		if (!audioManager) {
 			log::error("Audio Manager invalid");
 			return;
 		}
+
 		BSSoundHandle soundHandle;
-		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, soundDescriptor);
-		if (success) {
+		if (audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor)) {
 			soundHandle.SetVolume(a_volume);
 
 			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
 
 			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();
+
+			return;
 		}
-		else {
-			log::error("Could not build sound");
-		}
+		log::error("Could not build sound");
 	}
 
-	// Spell Effects
-	EffectSetting* Runtime::GetMagicEffect(const std::string_view& tag) {
-		EffectSetting* data = nullptr;
-		try {
-			data = GetSingleton().spellEffects.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			if (!Logged("mgef", tag)) {
-				//PrintMessageBox("MagicEffect: {} not found", tag);
-				log::warn("MagicEffect: {} not found", tag);
-			}
-			data = nullptr;
-		}
-		return data;
-	}
+	//-----------------------
+	// Magic Effect Helpers
+	//-----------------------
 
 	bool Runtime::HasMagicEffect(Actor* actor, const std::string_view& tag) {
 		return HasMagicEffectOr(actor, tag, false);
@@ -291,20 +433,7 @@ namespace GTS {
 	}
 
 	// Spells
-	SpellItem* Runtime::GetSpell(const std::string_view& tag) {
-		SpellItem* data = nullptr;
-		try {
-			data = GetSingleton().spells.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			if (!Logged("spel", tag)) {
-				//PrintMessageBox("Spell: {} not found", tag);
-				log::warn("Spell: {} not found", tag);
-			}
-			data = nullptr;
-		}
-		return data;
-	}
+
 
 	void Runtime::AddSpell(Actor* actor, const std::string_view& tag) {
 		auto data = GetSpell(tag);
@@ -314,6 +443,7 @@ namespace GTS {
 			}
 		}
 	}
+
 	void Runtime::RemoveSpell(Actor* actor, const std::string_view& tag) {
 		auto data = GetSpell(tag);
 		if (data) {
@@ -345,20 +475,7 @@ namespace GTS {
 	}
 
 	// Perks
-	BGSPerk* Runtime::GetPerk(const std::string_view& tag) {
-		BGSPerk* data = nullptr;
-		try {
-			data = GetSingleton().perks.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			data = nullptr;
-			if (!Logged("perk", tag)) {
-				//PrintMessageBox("Perk: {} not found", tag);
-				log::warn("Perk: {} not found", tag);
-			}
-		}
-		return data;
-	}
+
 
 	void Runtime::AddPerk(Actor* actor, const std::string_view& tag) {
 		auto data = GetPerk(tag);
@@ -368,6 +485,7 @@ namespace GTS {
 			}
 		}
 	}
+
 	void Runtime::RemovePerk(Actor* actor, const std::string_view& tag) {
 		auto data = GetPerk(tag);
 		if (data) {
@@ -392,20 +510,7 @@ namespace GTS {
 	}
 
 	// Explosion
-	BGSExplosion* Runtime::GetExplosion(const std::string_view& tag) {
-		BGSExplosion* data = nullptr;
-		try {
-			data = GetSingleton().explosions.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			data = nullptr;
-			if (!Logged("expl", tag)) {
-				//("Explosion: {} not found", tag);
-				log::warn("Explosion: {} not found", tag);
-			}
-		}
-		return data;
-	}
+
 
 	void Runtime::CreateExplosion(Actor* actor, const float& scale, const std::string_view& tag) {
 		if (actor) {
@@ -450,20 +555,7 @@ namespace GTS {
 	}
 
 	// Globals
-	TESGlobal* Runtime::GetGlobal(const std::string_view& tag) {
-		TESGlobal* data = nullptr;
-		try {
-			data = GetSingleton().globals.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			data = nullptr;
-			if (!Logged("glob", tag)) {
-				//PrintMessageBox("Global: {} not found", tag);
-				log::warn("Global: {} not found", tag);
-			}
-		}
-		return data;
-	}
+
 
 	bool Runtime::GetBool(const std::string_view& tag) {
 		return GetBoolOr(tag, false);
@@ -534,20 +626,6 @@ namespace GTS {
 	}
 
 	// Quests
-	TESQuest* Runtime::GetQuest(const std::string_view& tag) {
-		TESQuest* data = nullptr;
-		try {
-			data = GetSingleton().quests.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			data = nullptr;
-			if (!Logged("qust", tag)) {
-				//PrintMessageBox("Quest: {} not found", tag);
-				log::warn("Quest: {} not found", tag);
-			}
-		}
-		return data;
-	}
 
 	std::uint16_t Runtime::GetStage(const std::string_view& tag) {
 		return GetStageOr(tag, 0);
@@ -563,18 +641,6 @@ namespace GTS {
 		
 	}
 
-	// Factions
-	TESFaction* Runtime::GetFaction(const std::string_view& tag) {
-		TESFaction* data = nullptr;
-		try {
-			data = GetSingleton().factions.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			//PrintMessageBox("Faction: {} not found", tag);
-			data = nullptr;
-		}
-		return data;
-	}
 
 
 	bool Runtime::InFaction(Actor* actor, const std::string_view& tag) {
@@ -591,21 +657,8 @@ namespace GTS {
 		
 	}
 
-	// Impacts
-	BGSImpactDataSet* Runtime::GetImpactEffect(const std::string_view& tag) {
-		BGSImpactDataSet* data = nullptr;
-		try {
-			data = GetSingleton().impacts.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			data = nullptr;
-			if (!Logged("impc", tag)) {
-				//PrintMessageBox("ImpactEffect: {} not found", tag);
-				log::warn("ImpactEffect: {} not found", tag);
-			}
-		}
-		return data;
-	}
+
+
 	void Runtime::PlayImpactEffect(Actor* actor, const std::string_view& tag, const std::string_view& node, NiPoint3 pick_direction, const float& length, const bool& applyRotation, const bool& useLocalRotation) {
 		auto data = GetImpactEffect(tag);
 		if (data) {
@@ -615,20 +668,8 @@ namespace GTS {
 	}
 
 	// Races
-	TESRace* Runtime::GetRace(const std::string_view& tag) {
-		TESRace* data = nullptr;
-		try {
-			data = GetSingleton().races.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			data = nullptr;
-			if (!Logged("impc", tag)) {
-				//PrintMessageBox("Race: {} not found", tag);
-				log::warn("Race: {} not found", tag);
-			}
-		}
-		return data;
-	}
+
+
 	bool Runtime::IsRace(Actor* actor, const std::string_view& tag) {
 		auto data = GetRace(tag);
 		if (data) {
@@ -639,20 +680,7 @@ namespace GTS {
 		
 	}
 
-	// Keywords
-	BGSKeyword* Runtime::GetKeyword(const std::string_view& tag) {
-		BGSKeyword* data = nullptr;
-		try {
-			data = GetSingleton().keywords.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			data = nullptr;
-			if (!Logged("kywd", tag)) {
-				log::warn("Keyword: {} not found", tag);
-			}
-		}
-		return data;
-	}
+
 	bool Runtime::HasKeyword(Actor* actor, const std::string_view& tag) {
 		auto data = GetKeyword(tag);
 		if (data) {
@@ -663,37 +691,7 @@ namespace GTS {
 		
 	}
 
-	// Items
-	TESLevItem* Runtime::GetLeveledItem(const std::string_view& tag) {
-		TESLevItem* data = nullptr;
-		try {
-			data = GetSingleton().levelitems.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range&) {
-			data = nullptr;
-			if (!Logged("cont", tag)) {
-				//PrintMessageBox("Item: {} not found", tag);
-				log::warn("Item: {} not found", tag);
-			}
-		}
-		return data;
-	}
 
-	// Containers
-	TESObjectCONT* Runtime::GetContainer(const std::string_view& tag) {
-		TESObjectCONT* data = nullptr;
-		try {
-			data = GetSingleton().containers.at(std::string(tag)).data;
-		}
-		catch (const std::out_of_range& oor) {
-			data = nullptr;
-			if (!Logged("cont", tag)) {
-				//PrintMessageBox("Container: {} not found", tag);
-				log::warn("Container: {} not found", tag);
-			}
-		}
-		return data;
-	}
 
 	TESObjectREFR* Runtime::PlaceContainer(Actor* actor, const std::string_view& tag) {
 		if (actor) {
@@ -811,153 +809,5 @@ namespace GTS {
 		
 	}
 
-	bool Runtime::Logged(const std::string_view& catagory, const std::string_view& key) {
-		auto& m = GetSingleton().logged;
-		std::string logKey = std::format("{}::{}", catagory, key);
-		bool shouldLog = m.find(logKey) != m.end();
-		m.emplace(logKey);
-		return shouldLog;
-	}
 
-	void Runtime::DataReady() {
-
-		try {
-			const auto data = toml::parse(R"(Data\SKSE\Plugins\GTSPlugin\Runtime.toml)");
-			RuntimeConfig config(data);
-
-			for (auto &[key, value]: config.sounds) {
-				auto form = find_form<BGSSoundDescriptorForm>(value);
-				if (form) {
-					this->sounds.try_emplace(key, form);
-				} else if (!Logged("sond", key)) {
-					log::warn("SoundDescriptorform not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.spellEffects) {
-				auto form = find_form<EffectSetting>(value);
-				if (form) {
-					this->spellEffects.try_emplace(key, form);
-				} else if (!Logged("mgef", key)) {
-					log::warn("EffectSetting form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.spells) {
-				auto form = find_form<SpellItem>(value);
-				if (form) {
-					this->spells.try_emplace(key, form);
-				} else if (!Logged("spel", key)) {
-					log::warn("SpellItem form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.perks) {
-				auto form = find_form<BGSPerk>(value);
-				if (form) {
-					this->perks.try_emplace(key, form);
-				} else if (!Logged("perk", key)) {
-					log::warn("Perk form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.explosions) {
-				auto form = find_form<BGSExplosion>(value);
-				if (form) {
-					this->explosions.try_emplace(key, form);
-				} else if (!Logged("expl", key)) {
-					log::warn("Explosion form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.globals) {
-				auto form = find_form<TESGlobal>(value);
-				if (form) {
-					this->globals.try_emplace(key, form);
-				} else if (!Logged("glob", key)) {
-					log::warn("Global form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.quests) {
-				auto form = find_form<TESQuest>(value);
-				if (form) {
-					this->quests.try_emplace(key, form);
-				} else if (!Logged("qust", key)) {
-					log::warn("Quest form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.factions) {
-				auto form = find_form<TESFaction>(value);
-				if (form) {
-					this->factions.try_emplace(key, form);
-				} else if (!Logged("facn", key)) {
-					log::warn("FactionData form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.impacts) {
-				auto form = find_form<BGSImpactDataSet>(value);
-				if (form) {
-					this->impacts.try_emplace(key, form);
-				} else if (!Logged("impc", key)) {
-					log::warn("ImpactData form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.races) {
-				auto form = find_form<TESRace>(value);
-				if (form) {
-					this->races.try_emplace(key, form);
-				} else if (!Logged("race", key)) {
-					log::warn("RaceData form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.keywords) {
-				auto form = find_form<BGSKeyword>(value);
-				if (form) {
-					this->keywords.try_emplace(key, form);
-				} else if (!Logged("kywd", key)) {
-					log::warn("Keyword form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.containers) {
-				auto form = find_form<TESObjectCONT>(value);
-				if (form) {
-					this->containers.try_emplace(key, form);
-				} else if (!Logged("cont", key)) {
-					log::warn("Container form not found for {}", key);
-				}
-			}
-
-			for (auto &[key, value]: config.levelitems) {
-				auto form = find_form<TESLevItem>(value);
-				if (form) {
-					this->levelitems.try_emplace(key, form);
-				} else if (!Logged("cont", key)) {
-					log::warn("Item form not found for {}", key);
-				}
-			}
-
-			CheckSoftDependencies();
-
-		}
-		catch (toml::exception &e) {
-			logger::critical("Runtime.toml load error {}", e.what());
-			ReportAndExit("The runtime file is either missing or corrupt.\n"
-						  "Please verify that the mod is intalled correctly.\n"
-						  "The game will now close."
-			);
-		}
-		catch (...) {
-			logger::critical("Runtime.toml Unknown exception error");
-			ReportAndExit("The runtime file is either missing or corrupt.\n"
-				"Please verify that the mod is intalled correctly.\n"
-				"The game will now close."
-			);
-		}
-	}
 }

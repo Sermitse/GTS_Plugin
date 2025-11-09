@@ -69,6 +69,7 @@ namespace GTS {
 
         categoryMap = [] {
 	        std::unordered_map<std::string, size_t> m;
+            m.reserve(128);
 	        for (auto const& ce : DefaultEvents) {
 		        size_t catIndex = magic_enum::enum_index(ce.UICategory).value_or(0);
 		        m.emplace(ce.Event.Event, catIndex);
@@ -78,6 +79,7 @@ namespace GTS {
 
         hiddenMap = [] {
 	        std::unordered_map<std::string, bool> m;
+            m.reserve(128);
 	        for (auto const& ce : DefaultEvents) {
 		        m.emplace(ce.Event.Event, ce.AdvFeature);
 	        }
@@ -86,6 +88,7 @@ namespace GTS {
 
         uiNameMap = [] {
 	        std::unordered_map<std::string, const char*> m;
+            m.reserve(128);
 	        for (auto const& ce : DefaultEvents) {
 		        m.emplace(ce.Event.Event, ce.UIName);
 	        }
@@ -94,6 +97,7 @@ namespace GTS {
 
         uiDescriptionMap = [] {
 	        std::unordered_map<std::string, const char*> m;
+            m.reserve(128);
 	        for (auto const& ce : DefaultEvents) {
 		        m.emplace(ce.Event.Event, ce.UIDescription);
 	        }
@@ -132,7 +136,7 @@ namespace GTS {
 
                 ImGui::SameLine();
 
-                static bool constinit singleColumn = false;
+                
                 ImGuiEx::CheckBox("Compact View", &singleColumn, "List all keybinds in a single column");
                 Div = 1 + singleColumn;
 
@@ -166,6 +170,7 @@ namespace GTS {
             }
 
             std::unordered_map<size_t, std::vector<BaseEventData_t*>> groups;
+            groups.reserve(128);
 
             for (auto& ev : Keybinds::InputEvents) {
 
@@ -202,7 +207,7 @@ namespace GTS {
             }
 
             // Measure widest name across ALL events globally (do this once before any category loop)
-            std::vector<float> GlobalColumnNameWidths(Div, 0.0f);
+            std::vector GlobalColumnNameWidths(Div, 0.0f);
             for (auto& evt : Keybinds::InputEvents) {
                 // Get UI name for width calculation
                 std::string displayName;
@@ -241,6 +246,7 @@ namespace GTS {
                 // split into Div columns
                 auto& list = git->second;
                 std::vector<std::vector<BaseEventData_t*>> Columns(Div);
+                Columns.reserve(16);
                 for (size_t i = 0; i < list.size(); ++i) {
                     Columns[i % Div].push_back(list[i]);
                 }
@@ -283,7 +289,7 @@ namespace GTS {
             // If nothing printed at all
             bool any = ranges::any_of(groups, [](auto& kv) {
                 return !kv.second.empty();
-                });
+            });
 
             if (!any) {
                 ImGui::Text("No results matching search string.");

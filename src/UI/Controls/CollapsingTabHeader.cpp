@@ -23,7 +23,7 @@ namespace ImGuiEx {
 		}
 	}
 
-	CollapsingTabHeader::CollapsingTabHeader(const std::string& a_label, const bool a_defaultOpen): isOpen(a_defaultOpen), headerLabel(a_label) {
+	CollapsingTabHeader::CollapsingTabHeader(const std::string& a_label, const bool a_defaultOpen) : isOpen(a_defaultOpen), headerLabel(a_label) {
 		id = ImGui::GetID(a_label.c_str());
 	}
 
@@ -74,6 +74,7 @@ namespace ImGuiEx {
 
 	void CollapsingTabHeader::SetDisabledState(bool a_disabled) {
 		isDisabled = a_disabled;
+        isOpen = true;
 	}
 
     bool CollapsingTabHeader::Begin() {
