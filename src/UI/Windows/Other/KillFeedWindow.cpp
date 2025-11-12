@@ -232,6 +232,7 @@ namespace GTS {
 		const ImVec2 Offset{ BaseSettings.f2Position[0], BaseSettings.f2Position[1] };
 		ImGui::SetWindowPos(GetAnchorPos(StringToEnum<WindowAnchor>(BaseSettings.sAnchor), Offset, true));
 
+		ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetBody);
 
 		// Demo entries if configuring
 		if (Configuring) {
@@ -243,8 +244,8 @@ namespace GTS {
 				ImGuiEx::DrawKillfeedEntry(DemoEntry, BaseSettings.fFadeAfter, true);
 			}
 		}
+		else {
 
-		{
 			std::lock_guard lock(_Lock);
 
 			// Move entries from pending to visible if there's space
@@ -268,7 +269,7 @@ namespace GTS {
 			ImGui::Dummy({});
 		}
 
-		ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetBody);
+		
 		ImFontManager::Pop();
 	}
 
