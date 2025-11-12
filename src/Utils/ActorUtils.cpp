@@ -1,4 +1,7 @@
 #include "Utils/ActorUtils.hpp"
+
+#include "KillDataUtils.hpp"
+
 #include "Utils/DeathReport.hpp"
 #include "Utils/FindActor.hpp"
 
@@ -3569,7 +3572,8 @@ namespace GTS {
 			} 
 			
 			ApplyDamage(attacker, receiver, value * difficulty * GetDamageSetting());
-		} else if (receiver->IsDead()) {
+		}
+		else if (receiver->IsDead()) {
 			Task_InitHavokTask(receiver);
 			// ^ Needed to fix this issue:
 			//   https://www.reddit.com/r/skyrimmods/comments/402b69/help_looking_for_a_bugfix_dead_enemies_running_in/
@@ -3611,7 +3615,8 @@ namespace GTS {
 	void ApplyDamage(Actor* giant, Actor* tiny, float damage) { // applies correct amount of damage and kills actors properly
 		typedef void (*DefApplyDamage)(Actor* a_this, float dmg, Actor* aggressor, HitData* maybe_hitdata, TESObjectREFR* damageSrc);
 		REL::Relocation<DefApplyDamage> Skyrim_ApplyDamage{ RELOCATION_ID(36345, 37335) }; // 5D6300 (SE)
-		Skyrim_ApplyDamage(tiny, damage, nullptr, nullptr, nullptr);
+		//TODO Figure out why the aggressor wasn't being passed here before.
+		Skyrim_ApplyDamage(tiny, damage, giant, nullptr, nullptr);
 	}
 
 	void SetObjectRotation_X(TESObjectREFR* ref, float X) {

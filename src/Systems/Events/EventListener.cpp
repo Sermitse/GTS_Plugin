@@ -70,6 +70,9 @@ namespace GTS {
 	// Fired when actor uses furniture
 	void EventListener::FurnitureEvent(Actor* user, TESObjectREFR* object, bool enter) {}
 
+	// Fired when actor uses furniture
+	void EventListener::DeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead) {}
+
 	//Fires Before Cosave Serialization
 	void EventListener::OnGameSave() {}
 

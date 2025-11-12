@@ -553,7 +553,7 @@ namespace {
             Rumbling::Once("PullOut_L", &data.giant, 0.75f, 0.0f, "R Breast02", 0.0f);
 
             Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectL);
-            IncrementKillCount(&data.giant, SizeKillType::kBreastSuffocated);
+            RecordKill(&data.giant, tiny, DeathType::kBreastSuffocated);
 
             ManageCamera(&data.giant, true, CameraTracking::ObjectB);
             SpawnHearts(&data.giant, tiny, 35, 0.50f, false);

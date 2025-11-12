@@ -35,6 +35,7 @@ namespace GTS {
 		virtual void MenuChange(const RE::MenuOpenCloseEvent* menu_event);
 		virtual void ActorAnimEvent(RE::Actor* actor, const std::string_view& tag, const std::string_view& payload);
 		virtual void FurnitureEvent(RE::Actor* user, TESObjectREFR* object, bool enter);
+		virtual void DeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead);
 		virtual void OnGameSave();
 		virtual void OnGameLoaded();
 		virtual void OnGameRevert();

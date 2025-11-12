@@ -142,6 +142,7 @@
 #include <tbb/concurrent_map.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/parallel_for_each.h>
+#include <tbb/concurrent_queue.h>
 
 #pragma hdrstop  // Everything after this is NOT precompiled
 

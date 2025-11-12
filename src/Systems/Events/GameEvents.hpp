@@ -11,7 +11,8 @@ namespace GTS {
 		public BSTEventSink<TESEquipEvent>,
 		public BSTEventSink<TESTrackedStatsEvent>,
 		public BSTEventSink<MenuOpenCloseEvent>,
-		public BSTEventSink<TESFurnitureEvent> {
+		public BSTEventSink<TESFurnitureEvent>,
+		public BSTEventSink<TESDeathEvent> {
 
 		public:
 		virtual std::string DebugName() override;
@@ -25,5 +26,6 @@ namespace GTS {
 		virtual BSEventNotifyControl ProcessEvent(const TESTrackedStatsEvent* evn, BSTEventSource<TESTrackedStatsEvent>* dispatcher) override;
 		virtual BSEventNotifyControl ProcessEvent(const MenuOpenCloseEvent* a_event, BSTEventSource<MenuOpenCloseEvent>* a_eventSource) override;
 		virtual BSEventNotifyControl ProcessEvent(const TESFurnitureEvent* a_event, BSTEventSource<TESFurnitureEvent>* a_eventSource) override;
+		virtual BSEventNotifyControl ProcessEvent(const TESDeathEvent* a_event, BSTEventSource<TESDeathEvent>* a_eventSource) override;
 	};
 }

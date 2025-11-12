@@ -131,6 +131,9 @@ TOML_REGISTER_NAME(WindowSettingsStatusBar_t, "StatusBar");
 struct WindowSettingsKillFeed_t {
     uint16_t iIconSize = 48;
     uint16_t iFlags = 0;
+    float fWidth = 400.0f;
+    uint8_t iMaxVisibleEntries;
+    float fVisibilityDuration = 6.0f;
 };
 TOML_SERIALIZABLE(WindowSettingsKillFeed_t);
 TOML_REGISTER_NAME(WindowSettingsKillFeed_t, "KillFeed");

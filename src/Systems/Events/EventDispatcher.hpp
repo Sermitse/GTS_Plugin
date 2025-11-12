@@ -42,8 +42,9 @@ namespace GTS {
 		static void DoConfigRefreshEvent();
 		static void DoPluginPostLoad();
 		static void DoFurnitureEvent(const TESFurnitureEvent* a_event);
+		static void DoDeathEvent(const TESDeathEvent* a_event);
 
-		private:
+	private:
 
         struct ListenerEntry {
             std::atomic<EventListener*> ptr{ nullptr };

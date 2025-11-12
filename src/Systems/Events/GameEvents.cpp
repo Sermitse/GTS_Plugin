@@ -14,6 +14,7 @@ namespace GTS {
 			event_sources->AddEventSink<TESEquipEvent>(this);
 			event_sources->AddEventSink<TESTrackedStatsEvent>(this);
 			event_sources->AddEventSink<TESResetEvent>(this);
+			event_sources->AddEventSink<TESDeathEvent>(this);
 			//event_sources->AddEventSink<TESFurnitureEvent>(this); // Uncomment it to enable this event!
 			// Also don't forget to uncomment data->UsingFurniture inside PerformRoofRaycastAdjustments
 		}
@@ -23,9 +24,9 @@ namespace GTS {
 		if (ui) {
 			ui->AddEventSink<MenuOpenCloseEvent>(this);
 			log::info("Successfully registered MenuOpenCloseEventHandler");
-		} else {
+		}
+		else {
 			log::error("Failed to register MenuOpenCloseEventHandler");
-			return;
 		}
 	}
 
@@ -82,4 +83,8 @@ namespace GTS {
 		return RE::BSEventNotifyControl::kContinue;
 	}
 
+	BSEventNotifyControl GameEvents::ProcessEvent(const TESDeathEvent* a_event, BSTEventSource<TESDeathEvent>* a_eventSource) {
+		if (a_event) EventDispatcher::DoDeathEvent(a_event);
+		return RE::BSEventNotifyControl::kContinue;
+	}
 }

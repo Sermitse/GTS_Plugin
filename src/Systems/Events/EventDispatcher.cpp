@@ -267,4 +267,14 @@ namespace GTS {
 			});
 		}
 	}
+
+	void EventDispatcher::DoDeathEvent(const TESDeathEvent* a_event) {
+		ForEachListener([a_event](EventListener* listener) {
+			GTS_PROFILE_SCOPE(listener->DebugName());
+			Actor* Killer = skyrim_cast<Actor*>(a_event->actorKiller.get());
+			Actor* Victim = skyrim_cast<Actor*>(a_event->actorDying.get());
+			listener->DeathEvent(Killer, Victim, a_event->dead);
+
+		});
+	}
 }

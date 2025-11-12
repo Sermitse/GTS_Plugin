@@ -83,7 +83,7 @@ namespace ImGuiEx {
 		}
 
 		//Other
-		I.iTotalKills =             GetKillCount(a_actor, SizeKillType::kTotalKills);
+		I.iTotalKills =             GetKillCount(a_actor, DeathType::kTotalKills);
 
 		//Formated
 		I.sFmtScale =               fmt::format("{} ({:.2f}x)", GetFormatedHeight(a_actor), I.fScaleCurrent);
@@ -440,7 +440,7 @@ namespace ImGuiEx {
 		}
 	}
 
-	void ActorInfoCard::DrawKillStat(Actor* a_actor, const char* a_name, SizeKillType a_type, uint8_t a_colOffset, const char* a_toolTip) {
+	void ActorInfoCard::DrawKillStat(Actor* a_actor, const char* a_name, DeathType a_type, uint8_t a_colOffset, const char* a_toolTip) {
 
 		if (!a_actor) return;
 
@@ -473,29 +473,29 @@ namespace ImGuiEx {
 
 			//The Row Draws Must be interleaved, as we have 4 columns, a_colOffset > 0 Prevents moving to then next row.
 
-			DrawKillStat(a_actor, "Erased From Existence:", SizeKillType::kErasedFromExistence, 0 );
-			DrawKillStat(a_actor, "Finger Crushed:",        SizeKillType::kFingerCrushed,       2 );
-			DrawKillStat(a_actor, "Shrunk To Nothing:",     SizeKillType::kShrunkToNothing ,    0 );
-			DrawKillStat(a_actor, "Grab Crushed:",          SizeKillType::kGrabCrushed,         2 );
-			DrawKillStat(a_actor, "Breast Suffocated:",     SizeKillType::kBreastSuffocated,    0 );
-			DrawKillStat(a_actor, "Butt Crushed:",          SizeKillType::kButtCrushed,         2 );
-			DrawKillStat(a_actor, "Breast Absorbed:",       SizeKillType::kBreastAbsorbed,      0 );
-			DrawKillStat(a_actor, "Hug Crushed:",           SizeKillType::kHugCrushed,          2 );
-			DrawKillStat(a_actor, "Breast Crushed:",        SizeKillType::kBreastCrushed,       0 );
-			DrawKillStat(a_actor, "Crushed:",               SizeKillType::kCrushed,             2 );
-			DrawKillStat(a_actor, "Thigh Suffocated:",      SizeKillType::kThighSuffocated,     0 );
-			DrawKillStat(a_actor, "Eaten:",                 SizeKillType::kEaten,               2 );
-			DrawKillStat(a_actor, "Thigh Sandwiched:",      SizeKillType::kThighSandwiched,     0 );
-			DrawKillStat(a_actor, "Other Sources:",         SizeKillType::kOtherSources,        2,
+			DrawKillStat(a_actor, "Erased From Existence:", DeathType::kErasedFromExistence, 0 );
+			DrawKillStat(a_actor, "Finger Crushed:",        DeathType::kFingerCrushed,       2 );
+			DrawKillStat(a_actor, "Shrunk To Nothing:",     DeathType::kShrunkToNothing ,    0 );
+			DrawKillStat(a_actor, "Grab Crushed:",          DeathType::kGrabCrushed,         2 );
+			DrawKillStat(a_actor, "Breast Suffocated:",     DeathType::kBreastSuffocated,    0 );
+			DrawKillStat(a_actor, "Butt Crushed:",          DeathType::kButtCrushed,         2 );
+			DrawKillStat(a_actor, "Breast Absorbed:",       DeathType::kBreastAbsorbed,      0 );
+			DrawKillStat(a_actor, "Hug Crushed:",           DeathType::kHugCrushed,          2 );
+			DrawKillStat(a_actor, "Breast Crushed:",        DeathType::kBreastCrushed,       0 );
+			DrawKillStat(a_actor, "Crushed:",               DeathType::kCrushed,             2 );
+			DrawKillStat(a_actor, "Thigh Suffocated:",      DeathType::kThighSuffocated,     0 );
+			DrawKillStat(a_actor, "Eaten:",                 DeathType::kEaten,               2 );
+			DrawKillStat(a_actor, "Thigh Sandwiched:",      DeathType::kThighSandwiched,     0 );
+			DrawKillStat(a_actor, "Other Sources:",         DeathType::kOtherSources,        2,
 				"Other Sources are:\n"
 				"- Shockwave deaths\n"
 				"- Tiny calamity collision deaths\n"
 				"- Tiny death while grabbed with no action happening\n"
 				"- Overkill weapon damage when large\n"
 			);
-			DrawKillStat(a_actor, "Thigh Crushed:",         SizeKillType::kThighCrushed);
-			DrawKillStat(a_actor, "Grind Crushed:",         SizeKillType::kGrinded);
-			DrawKillStat(a_actor, "Kick Crushed:",          SizeKillType::kKicked);
+			DrawKillStat(a_actor, "Thigh Crushed:",         DeathType::kThighCrushed);
+			DrawKillStat(a_actor, "Grind Crushed:",         DeathType::kGrinded);
+			DrawKillStat(a_actor, "Kick Crushed:",          DeathType::kKicked);
 
 			ImGui::EndTable();
 		}

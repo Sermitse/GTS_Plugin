@@ -45,6 +45,12 @@ namespace {
 		}
 	}
 	void ScaleProjectile(Projectile* projectile, float speed_limit, bool apply_speed) {
+
+		//Probably impossible, but while testing the killfeed this ptr was 0xFFFFFFFFFFFFFFFF  according to the debugger
+		if (!projectile || reinterpret_cast<uintptr_t>(projectile) == 0xFFFFFFFFFFFFFFFF) {
+			return;
+		}
+
 		auto node = projectile->Get3D2();
 		if (!node) {
 			node = projectile->Get3D1(false);
@@ -120,7 +126,7 @@ namespace Hooks {
 
 	struct GetLinearVelocity {
 
-		static constexpr size_t funcIndex = 0xC0;
+		static constexpr size_t funcIndex = 0x86;
 
 		// Unused
 		template<int ID>
@@ -139,8 +145,8 @@ namespace Hooks {
 	};
 
 	struct Handle3DLoaded {
-		
-		static constexpr size_t funcIndex = 0x86;
+
+		static constexpr size_t funcIndex = 0xC0;
 
 		// Scales projectiles once (when it first spawns). Affects only visuals.
 		template<int ID>

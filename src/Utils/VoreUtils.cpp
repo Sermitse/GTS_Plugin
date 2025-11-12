@@ -245,7 +245,7 @@ namespace GTS {
 					Notify("{} was devoured by {}", Prey->GetDisplayFullName(), Pred->GetDisplayFullName());
 					Cprint("{} was devoured by {}", Prey->GetDisplayFullName(), Pred->GetDisplayFullName());
 					DevourmentBonuses(Pred, Prey, true, 1.5f); // Value is multiplier of growth power.
-					IncrementKillCount(Pred, SizeKillType::kEaten);
+					RecordKill(Pred, Prey, DeathType::kEaten);
 					Devoured = true;
 				}
 			}

@@ -23,17 +23,13 @@ namespace {
                     SpawnParticle(tiny, 1.20f, "GTS/Damage/ShrinkOrCrush.nif", NiMatrix3(), root->world.translate, currentSize * 12.5f, 7, root);
                 }
             }
-            Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
+            Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", RE::NiPoint3{0, 0, -1}, 512, false, true);
             Runtime::CreateExplosion(tiny, get_visual_scale(tiny) * 0.5f, "GTSExplosionBlood");
         }
     }
 }
 
 namespace GTS {
-	OverkillManager& OverkillManager::GetSingleton() noexcept {
-		static OverkillManager instance;
-		return instance;
-	}
 
 	std::string OverkillManager::DebugName() {
 		return "::OverkillManager";
@@ -130,8 +126,8 @@ namespace GTS {
 	}
 
 	OverkillData::OverkillData(Actor* giant) :
-		delay(Timer(0.01)),
 		state(OverkillState::Healthy),
+		delay(Timer(0.01)),
 		giant(giant ? giant->CreateRefHandle() : ActorHandle()) {
 	}
 }

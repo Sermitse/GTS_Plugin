@@ -2,37 +2,43 @@
 
 namespace GTS {
 
-    enum class SizeKillType {
-		kTotalKills = 0,
+    enum class DeathType : int16_t {
 
-		kShrunkToNothing = 1,
-		kOtherSources = 2,
+		kVanilla = -1,
 
-		kBreastAbsorbed = 3,
-		kBreastCrushed = 4,
-		kBreastSuffocated = 5,
+		kTotalKills,
 
-		kHugCrushed = 6,
-		kGrabCrushed = 7,
-		kButtCrushed = 8,
+		kShrunkToNothing,
+		kOtherSources,
 
-		kThighCrushed = 9,
-		kThighSuffocated = 10,
-		kThighSandwiched = 11,
-		kThighGrinded = 12,
+		kBreastAbsorbed,
+		kBreastCrushed ,
+		kBreastSuffocated,
 
-		kFingerCrushed = 13,
+		kHugCrushed,
+		kGrabCrushed ,
+		kButtCrushed,
 
-		kErasedFromExistence = 14,
+		kThighCrushed,
+		kThighSuffocated,
+		kThighSandwiched,
+		kThighGrinded,
 
-		kAbsorbed = 15,
-		kCrushed = 16,
-		kKicked = 17,
-		kEaten = 18,
+		kFingerCrushed,
 
-		kGrinded = 19,
+		kErasedFromExistence,
+
+		kVoreAbsorbed,
+		kAbsorbed,
+		kCrushed,
+		kKicked,
+		kEaten,
+		kGrinded,
+
+		kProximity,
+    	
 	};
 
-    void IncrementKillCount(Actor* giant, SizeKillType Type);
-    uint32_t GetKillCount(Actor* giant, SizeKillType Type);
+    void RecordKill(Actor* a_giant, Actor* a_victim, DeathType a_type);
+    uint32_t GetKillCount(Actor* giant, DeathType Type);
 }
