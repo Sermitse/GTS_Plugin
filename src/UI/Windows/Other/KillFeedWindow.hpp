@@ -21,7 +21,7 @@ namespace GTS {
         bool WantsToDraw() override;
         virtual float GetBackgroundAlpha() override;
 
-        WindowSettingsKillFeed_t m_extraSettings;
+        WindowSettingsKillFeed_t m_extraSettings = {};
 
         const bool* m_isConfiguring = nullptr;
         const bool* m_settingsVisible = nullptr;

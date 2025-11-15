@@ -3,6 +3,7 @@
 
 
 namespace {
+
     void DrawRoundedGradientRect(ImDrawList* draw_list, const ImVec2& p_min, const ImVec2& p_max,
         ImU32 col_left, ImU32 col_right, float rounding) {
 
@@ -30,7 +31,7 @@ namespace {
                 c1.w + (c2.w - c1.w) * t
             };
             return ImGui::ColorConvertFloat4ToU32(result);
-            };
+        };
 
         const ImVec2 uv = draw_list->_Data->TexUvWhitePixel;
         const float AA_SIZE = draw_list->_FringeScale;
@@ -44,7 +45,7 @@ namespace {
         auto addPoint = [&](const ImVec2& p, const ImVec2& n) {
             points.push_back(p);
             normals.push_back(n);
-            };
+        };
 
         // Top edge, left to right
         addPoint({ p_min.x + rounding, p_min.y }, { 0.0f, -1.0f });
@@ -129,13 +130,14 @@ namespace {
         // Outer AA fringe vertices
         for (int i = 0; i < num_points; ++i) {
             float t = ImClamp((points[i].x - p_min.x) / width, 0.0f, 1.0f);
-            ImU32 color = lerpColor(col_left, col_right, t);
-            color &= ~IM_COL32_A_MASK; // Transparent
-            ImVec2 outer_pos = {
+            ImVec4 c = ImGui::ColorConvertU32ToFloat4(lerpColor(col_left, col_right, t));
+            c.w *= 0.5f;
+            ImU32 color_outer = ImGui::ColorConvertFloat4ToU32(c);
+            ImVec2 outer_pos{
                 points[i].x + normals[i].x * AA_SIZE,
                 points[i].y + normals[i].y * AA_SIZE
             };
-            draw_list->PrimWriteVtx(outer_pos, uv, color);
+            draw_list->PrimWriteVtx(outer_pos, uv, color_outer);
         }
 
         // Inner triangle fan indices
@@ -206,8 +208,10 @@ namespace ImGuiEx {
 
         // Render border
         if (a_borderThickness > 0.0f) {
-            ImU32 colWithAlpha = (a_borderCol & 0x00FFFFFF) | (static_cast<ImU32>(style.Alpha * 255.0f) << 24);
-            window->DrawList->AddRect(bb.Min, bb.Max, colWithAlpha, frame_rounding, ImDrawFlags_None, a_borderThickness);
+            ImVec4 borderColorVec4 = ImGui::ColorConvertU32ToFloat4(a_borderCol);
+            borderColorVec4.w *= style.Alpha;
+            ImU32 borderColorWithAlpha = ImGui::ColorConvertFloat4ToU32(borderColorVec4);
+            window->DrawList->AddRect(bb.Min, bb.Max, borderColorWithAlpha, frame_rounding, ImDrawFlags_None, a_borderThickness);
         }
 
         auto* dl = window->DrawList;
