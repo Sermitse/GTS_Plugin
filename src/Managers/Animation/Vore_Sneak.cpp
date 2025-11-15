@@ -51,7 +51,7 @@ namespace {
         auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
 
 		if (!AllowDevourment()) {
-			Runtime::PlaySoundAtNode("GTSSoundSwallow", giant, 1.0f, "NPC Head [Head]"); // Play sound
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, giant, 1.0f, "NPC Head [Head]"); // Play sound
 		}
 
 		for (auto& tiny: VoreData.GetVories()) {

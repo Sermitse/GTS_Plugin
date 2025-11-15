@@ -31,7 +31,7 @@ namespace {
 	}
 
 	void AdjustCalamityDuration(Actor* caster, ActiveEffect* Effect) {
-		if (Runtime::HasPerkTeam(caster, "GTSPerkTinyCalamitySizeSteal")) {
+		if (Runtime::HasPerkTeam(caster, Runtime::PERK.GTSPerkTinyCalamitySizeSteal)) {
 			if (Effect) {
 				float level = GetGtsSkillLevel(caster) - 85.0f;
 				float extra = std::clamp(level, 0.0f, 15.0f) * 2.0f;
@@ -57,7 +57,7 @@ namespace GTS {
 
 		auto caster = GetCaster();
 		if (caster) {
-			Runtime::PlaySoundAtNode("GTSSoundTinyCalamity", caster, 1.0f, "NPC COM [COM ]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity, caster, 1.0f, "NPC COM [COM ]");
 			AdjustCalamityDuration(caster, GetActiveEffect());
 			auto node = find_node(caster, "NPC Root [Root]");
 			StartShrinkingGaze(caster);

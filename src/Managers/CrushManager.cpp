@@ -31,7 +31,7 @@ namespace {
 		}
 
 		if (voreFearRoll <= 0) {
-			Runtime::CastSpell(actor, actor, "GTSSpellFear");
+			Runtime::CastSpell(actor, actor, Runtime::SPEL.GTSSpellFear);
 		}
 	}
 
@@ -44,7 +44,7 @@ namespace {
 		}
 		int FearChance = RandomInt(0, MaxValue);
 		if (FearChance <= 0) {
-			Runtime::CastSpell(giant, giant, "GTSSpellFear");
+			Runtime::CastSpell(giant, giant, Runtime::SPEL.GTSSpellFear);
 			// Should cast fear
 		}
 	}
@@ -66,9 +66,9 @@ namespace {
 
 		if (EnableCrushGrowth && !HasSMT(caster)) {
 
-			if (Runtime::HasPerkTeam(caster, "GTSPerkGrowthDesire")) {
+			if (Runtime::HasPerkTeam(caster, Runtime::PERK.GTSPerkGrowthDesire)) {
 				float Rate = (0.00016f * get_visual_scale(target)) * 120.0f * power;
-				if (Runtime::HasPerkTeam(caster, "GTSPerkAdditionalGrowth")) {
+				if (Runtime::HasPerkTeam(caster, Runtime::PERK.GTSPerkAdditionalGrowth)) {
 					Rate *= 2.0f;
 				}
 				CrushGrow(caster, 0, Rate * SizeSteal_GetPower(caster, target));
@@ -174,8 +174,8 @@ namespace GTS {
 							SpawnParticle(tiny, 0.60f, "GTS/Damage/Crush.nif", root->world.rotate, root->world.translate, currentSize * 2.5f, 7, root);
 							SpawnParticle(tiny, 1.20f, "GTS/Damage/ShrinkOrCrush.nif", NiMatrix3(), root->world.translate, currentSize * 25, 7, root);
 						}
-						Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4,"GTSExplosionBlood");
-						Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, false);
+						Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4, Runtime::EXPL.GTSExplosionBlood);
+						Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, false);
 					}
 				}
 				ActorHandle giantHandle = giant->CreateRefHandle();

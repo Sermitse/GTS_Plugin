@@ -11,15 +11,19 @@ namespace GTS {
 
 		auto base_spell = GetBaseEffect();
 
-		if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectMightExtreme")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectMightExtreme)) {
 			this->Power = 0.45f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectMightStrong")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectMightStrong)) {
 			this->Power = 0.30f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectMightNormal")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectMightNormal)) {
 			this->Power = 0.20f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectMightWeak")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectMightWeak)) {
 			this->Power = 0.10f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSAlchEffectMight")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSAlchEffectMight)) {
 			RecordPotionMagnitude(GetActiveEffect(), this->Power, 0.45f);
 		}
 	}

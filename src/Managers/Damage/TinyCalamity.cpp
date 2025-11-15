@@ -25,7 +25,7 @@ namespace {
     void ScareEnemies(Actor* giant)  {
 		int FearChance = RandomInt(0, 2);
 		if (FearChance <= 0) {
-			Runtime::CastSpell(giant, giant, "GTSSpellFear");
+			Runtime::CastSpell(giant, giant, Runtime::SPEL.GTSSpellFear);
 		}
 	}
 
@@ -44,15 +44,15 @@ namespace {
                     SpawnParticle(tiny, 1.20f, "GTS/Damage/ShrinkOrCrush.nif", NiMatrix3(), root->world.translate, currentSize * 12.5f, 7, root);
                 }
             }
-            Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
-            Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
-            Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
-            Runtime::CreateExplosion(tiny, get_visual_scale(tiny) * 0.5f, "GTSExplosionBlood");
+            Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
+            Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
+            Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
+            Runtime::CreateExplosion(tiny, get_visual_scale(tiny) * 0.5f, Runtime::EXPL.GTSExplosionBlood);
         }
     }
 
     void RefreshDuration(Actor* giant) {
-        if (Runtime::HasPerk(giant, "GTSPerkTinyCalamityAug")) {
+        if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkTinyCalamityAug)) {
             AttributeManager::OverrideSMTBonus(0.75f); // Reduce speed after crush
         } else {
             AttributeManager::OverrideSMTBonus(0.35f); // Reduce more speed after crush
@@ -84,7 +84,7 @@ namespace {
                 CanApplyEffect = true;
             } else if (speed >= 1.0f && CanApplyEffect) {
                 CanApplyEffect = false;
-                //Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_ReachedSpeed", giant, 1.0f, 1.0f, "NPC COM [COM ]");
+                Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_ReachedSpeed, giant, 1.0f, "NPC COM [COM ]");
             } 
         }
     }
@@ -93,7 +93,7 @@ namespace {
 namespace GTS {
     bool TinyCalamity_WrathfulCalamity(Actor* giant) {
         bool perform = false;
-        if (Runtime::HasPerkTeam(giant, "GTSPerkTinyCalamityRage") && HasSMT(giant) && !giant->IsSneaking()) {
+        if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkTinyCalamityRage) && HasSMT(giant) && !giant->IsSneaking()) {
 
             float threshold = 0.25f;
             float level_bonus = std::clamp(GetGtsSkillLevel(giant) - 70.0f, 0.0f, 0.30f);
@@ -156,7 +156,7 @@ namespace GTS {
     void TinyCalamity_ShrinkActor(Actor* giant, Actor* tiny, float shrink) {
        GTS_PROFILE_SCOPE("TinyCalamity: ShrinkActor");
         if (HasSMT(giant)) {
-            bool HasPerk = Runtime::HasPerk(giant, "GTSPerkTinyCalamitySizeSteal");
+            bool HasPerk = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkTinyCalamitySizeSteal);
             float limit = Minimum_Actor_Scale;
             if (HasPerk) {
 				DamageAV(giant, ActorValue::kHealth, -shrink * 1.25f);
@@ -239,7 +239,7 @@ namespace GTS {
         giant->SetGraphVariableFloat("GiantessScale", 1.0f); // Needed to allow Stagger to play, else it won't work
 
         int Random = RandomInt(1, 4);
-		if (Random >= 4 && !IsActionOnCooldown(giant, CooldownSource::Emotion_Moan_Crush) && Runtime::HasPerk(giant, "GTSPerkGrowthDesire")) {
+		if (Random >= 4 && !IsActionOnCooldown(giant, CooldownSource::Emotion_Moan_Crush) && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkGrowthDesire)) {
             Task_FacialEmotionTask_Smile(giant, 1.25f, "CollideSmile", RandomFloat(0.0f, 0.7f), 0.5f);
 			Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Overkill);
 		}
@@ -248,7 +248,7 @@ namespace GTS {
         StaggerActor(giant, 0.5f);
         RefreshDuration(giant);
 
-        Runtime::PlaySound("GTSSoundCrushDefault", giant, 1.0f, 1.0f);
+        Runtime::PlaySound(Runtime::SNDR.GTSSoundCrushDefault, giant, 1.0f, 1.0f);
 
         if (tiny->formID != 0x14) {
             Disintegrate(tiny); // Set critical stage 4 on actors
@@ -257,7 +257,7 @@ namespace GTS {
             tiny->SetAlpha(0.0f); // Player can't be disintegrated, so we make player Invisible
         }
         
-        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Crush", giant, 1.0f, "NPC COM [COM ]");
+        Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Crush, giant, 1.0f, "NPC COM [COM ]");
         giant->SetGraphVariableFloat("GiantessScale", OldScale);
         DecreaseShoutCooldown(giant);
 
@@ -283,7 +283,7 @@ namespace GTS {
         update_target_scale(tiny, -0.06f, SizeEffectType::kShrink);
         ModSizeExperience(giant, xp);
 
-        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Impact", giant, 1.0f, "NPC COM [COM ]");
+        Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Impact, giant, 1.0f, "NPC COM [COM ]");
         shake_camera_at_node(giant, "NPC COM [COM ]", 16.0f, 1.0f);
         
         if (IsEssential(giant, tiny)) {
@@ -385,7 +385,7 @@ namespace GTS {
         // SMT Active and sprinting
 		if (giant->AsActorState()->IsSprinting() && HasSMT(giant)) {
 
-			if (Runtime::HasPerk(giant, "GTSPerkTinyCalamityAug")) {
+			if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkTinyCalamityAug)) {
 				speed = 1.25f;
                 decay = 1.5f;
 				cap = 1.10f;

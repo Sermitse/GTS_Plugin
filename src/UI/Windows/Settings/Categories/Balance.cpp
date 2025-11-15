@@ -12,9 +12,6 @@
 #include "Managers/MaxSizeManager.hpp"
 #include "Config/Config.hpp"
 
-namespace {
-    const std::string CollossalGrowthPerk = "GTSPerkColossalGrowth"; //AKA GtsTotalSizeControl
-}
 
 namespace GTS {
 
@@ -131,7 +128,7 @@ namespace GTS {
                              "- Game Scale (SetScale)\n"
                              "- Natural Size";
 
-        	const bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), CollossalGrowthPerk);
+        	const bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth);
             const bool Unlock = Persistent::UnlockMaxSizeSliders.value;
 
             std::string DisableReason = "";

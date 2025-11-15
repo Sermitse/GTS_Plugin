@@ -47,7 +47,7 @@ namespace GTS {
 		if (IsPlayerFirstPerson(target)) {
 			return false;
 		}
-		if (IsButtCrushing(target) && !IsChangingSize(target) && Runtime::HasPerkTeam(target, "GTSPerkButtCrushAug2")) {
+		if (IsButtCrushing(target) && !IsChangingSize(target) && Runtime::HasPerkTeam(target, Runtime::PERK.GTSPerkButtCrushAug2)) {
 			return true;
 		}
 		return false;
@@ -70,7 +70,7 @@ namespace GTS {
 	static bool CleavageCondition() {
 		Actor* target = GetPlayerOrControlled();
 		if (target) {
-			if (Runtime::HasPerkTeam(target, "GTSPerkBreastsIntro")) {
+			if (Runtime::HasPerkTeam(target, Runtime::PERK.GTSPerkBreastsIntro)) {
 				Actor* tiny = Grab::GetHeldActor(target);
 				if (tiny && IsBetweenBreasts(tiny)) {
 					return true;
@@ -83,7 +83,7 @@ namespace GTS {
 	static bool CleavageDOTCondition() {
 		Actor* target = GetPlayerOrControlled();
 		if (target) {
-			if (Runtime::HasPerkTeam(target, "GTSPerkBreastsStrangle")) {
+			if (Runtime::HasPerkTeam(target, Runtime::PERK.GTSPerkBreastsStrangle)) {
 				Actor* tiny = Grab::GetHeldActor(target);
 				if (IsInCleavageState(target) && tiny && IsBetweenBreasts(tiny)) {
 					return true;
@@ -165,7 +165,7 @@ namespace GTS {
 
 	static bool SizeReserveCondition() {
 		/*auto target = PlayerCharacter::GetSingleton();
-		return Runtime::HasPerk(target, "GTSPerkSizeReserve") && Persistent::GetActorData(target);
+		return Runtime::HasPerk(target, Runtime::PERK.GTSPerkSizeReserve) && Persistent::GetActorData(target);
 		*/
 		return true;
 	}
@@ -177,7 +177,7 @@ namespace GTS {
 	static bool RappidGrowShrinkCondition() {
 		auto target = PlayerCharacter::GetSingleton();
 
-		if (!Runtime::HasPerk(target, "GTSPerkGrowthDesireAug")) {
+		if (!Runtime::HasPerk(target, Runtime::PERK.GTSPerkGrowthDesireAug)) {
 			return false;
 		}
 
@@ -196,7 +196,7 @@ namespace GTS {
 	static bool ShrinkOutburstCondition() {
 		auto target = PlayerCharacter::GetSingleton();
 		if (target) {
-			bool DarkArts = Runtime::HasPerk(target, "GTSPerkDarkArts");
+			bool DarkArts = Runtime::HasPerk(target, Runtime::PERK.GTSPerkDarkArts);
 			if (!DarkArts) {
 				return false; // no perk, do nothing
 			}
@@ -226,7 +226,7 @@ namespace GTS {
 	static bool TotalControlCondition() {
 		auto target = PlayerCharacter::GetSingleton();
 
-		if (!Runtime::HasPerk(target, "GTSPerkGrowthDesireAug")) {
+		if (!Runtime::HasPerk(target, Runtime::PERK.GTSPerkGrowthDesireAug)) {
 			return false;
 		}
 		return true;

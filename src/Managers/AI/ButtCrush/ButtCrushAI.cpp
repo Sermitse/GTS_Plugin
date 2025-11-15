@@ -87,7 +87,7 @@ namespace {
 
 			if (!IsChangingSize(ActorRef)){
 				//If we dont have the perk or for some reason the action needs to be canceled just play the attack anim immediatly
-				if (!Runtime::HasPerkTeam(ActorRef, "GTSPerkButtCrushAug2") || !IsButtCrushing(ActorRef)) {
+				if (!Runtime::HasPerkTeam(ActorRef, Runtime::PERK.GTSPerkButtCrushAug2) || !IsButtCrushing(ActorRef)) {
 					AnimationManager::StartAnim("ButtCrush_Attack", ActorRef);
 				}
 				else if (CanGrow && RandomBool(Config::AI.ButtCrush.fGrowProb)) {
@@ -191,7 +191,7 @@ namespace GTS {
 
     void ButtCrushAI_Start(Actor* A_Performer, Actor* a_Prey) {
 
-		if (RandomBool(Config::AI.ButtCrush.fButtCrushTypeProb) && Runtime::HasPerkTeam(A_Performer, "GTSPerkButtCrushAug1")) {
+		if (RandomBool(Config::AI.ButtCrush.fButtCrushTypeProb) && Runtime::HasPerkTeam(A_Performer, Runtime::PERK.GTSPerkButtCrushAug1)) {
 			ButtCrushController::StartButtCrush(A_Performer, a_Prey, false);
 			ButtCrushAI_StartLogicTask(A_Performer);
 		}

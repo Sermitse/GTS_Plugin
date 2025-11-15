@@ -1,6 +1,8 @@
 ﻿#include "UI/GTSMenu.hpp"
 #include "UI/Windows/Widgets/USBarWindow.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Stomp_Under.hpp"
 #include "Managers/Cameras/CamUtil.hpp"
 

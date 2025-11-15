@@ -21,22 +21,21 @@ namespace GTS {
     BSISoundDescriptor* GetStompSound_Light(const int scale) {
         switch (scale) {
             case 2: 
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x2");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Light_x2);
             case 4:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x4");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Light_x4);
             case 8:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x8");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Light_x8);
             case 12:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x12");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Light_x12);
             case 24:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x24");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Light_x24);
             case 48:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x48");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Light_x48);
             case 96:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_x96");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Light_x96);
             case 128:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Light_Mega");
-            break;
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Light_Mega);
         }
         return nullptr;
     }
@@ -44,22 +43,21 @@ namespace GTS {
 	BSISoundDescriptor* GetStompSound_Strong(const int scale) {
         switch (scale) {
             case 2: 
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x2");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Strong_x2);
             case 4:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x4");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Strong_x4);
             case 8:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x8");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Strong_x8);
             case 12:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x12");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Strong_x12);
             case 24:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x24");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Strong_x24);
             case 48:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x48");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Strong_x48);
             case 96:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_x96");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Strong_x96);
             case 128:
-                return Runtime::GetSound("GTSSoundFootstep_Stomp_Strong_Mega");
-            break;
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Stomp_Strong_Mega);
         }
         return nullptr;
     }
@@ -148,11 +146,7 @@ namespace GTS {
             case FootEvent::Front:
 			case FootEvent::Right:
         	case FootEvent::Back:
-                return Runtime::GetSound("GTSSoundFootstep_L");
-
-            //case FootEvent::Right:
-            //case FootEvent::Back:
-            //    return Runtime::GetSound("GTSSoundFootstep_L");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_L);
         }
         return nullptr;
     }
@@ -160,7 +154,7 @@ namespace GTS {
     BSISoundDescriptor* get_lJumpLand_sounddesc(const FootEvent& foot_kind) {
         switch (foot_kind) {
             case FootEvent::JumpLand:
-                return Runtime::GetSound("GTSSoundFootstepLand_L");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLand_L);
         }
         return nullptr;
     }
@@ -171,11 +165,7 @@ namespace GTS {
             case FootEvent::Front:
             case FootEvent::Right:
             case FootEvent::Back:
-                return Runtime::GetSound("GTSSoundFootstep_XL");
-
-            //case FootEvent::Right:
-            //case FootEvent::Back:
-            //    return Runtime::GetSound("GTSSoundFootstep_XL");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_XL);
         }
         return nullptr;
     }
@@ -186,14 +176,10 @@ namespace GTS {
             case FootEvent::Front:
             case FootEvent::Right:
             case FootEvent::Back:
-                return Runtime::GetSound("GTSSoundRumble");
-
-            //case FootEvent::Right:
-            //case FootEvent::Back:
-            //    return Runtime::GetSound("GTSSoundRumble");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundRumble);
 
             case FootEvent::JumpLand:
-                return Runtime::GetSound("GTSSoundRumble");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundRumble);
         }
         return nullptr;
     }
@@ -205,14 +191,10 @@ namespace GTS {
             case FootEvent::Front:
 			case FootEvent::Right:
 			case FootEvent::Back:
-                return Runtime::GetSound("GTSSoundFootstep_Sprint");
-
-            //case FootEvent::Right:
-            //case FootEvent::Back:
-            //    return Runtime::GetSound("GTSSoundFootstep_Sprint");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_Sprint);
 
             case FootEvent::JumpLand:
-                return Runtime::GetSound("GTSSoundFootstepLand_L");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLand_L);
         }
         return nullptr;
     }
@@ -226,12 +208,8 @@ namespace GTS {
             case FootEvent::Right:
             case FootEvent::Back:
             case FootEvent::JumpLand:
-                return Runtime::GetSound("GTSSoundFootstep_XXL");
-            //case FootEvent::Right:
-            //case FootEvent::Back:
-            //    return Runtime::GetSound("GTSSoundFootstep_XXL");
-            //case FootEvent::JumpLand:
-            //    return Runtime::GetSound("GTSSoundFootstep_XXL");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstep_XXL);
+
         }
 
         return nullptr;
@@ -239,28 +217,28 @@ namespace GTS {
 
     BSISoundDescriptor* GetNormalSound(float scale) {
         if (scale == 2.0f) {
-            return Runtime::GetSound("GTSSoundFootstepNormal_2x");
+            return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepNormal_2x);
         }
-        else if (scale == 4.0f) {
-            return Runtime::GetSound("GTSSoundFootstepNormal_4x");
+        if (scale == 4.0f) {
+	        return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepNormal_4x);
         }
-        else if (scale == 8.0f) {
-            return Runtime::GetSound("GTSSoundFootstepNormal_8x");
+        if (scale == 8.0f) {
+	        return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepNormal_8x);
         }
-        else if (scale == 12.0f) {
-            return Runtime::GetSound("GTSSoundFootstepNormal_12x");
+        if (scale == 12.0f) {
+	        return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepNormal_12x);
         }
-        else if (scale == 24.0f) {
-            return Runtime::GetSound("GTSSoundFootstepNormal_24x");
+        if (scale == 24.0f) {
+	        return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepNormal_24x);
         }
-        else if (scale == 48.0f) {
-            return Runtime::GetSound("GTSSoundFootstepNormal_48x");
+        if (scale == 48.0f) {
+	        return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepNormal_48x);
         }
-        else if (scale == 96.0f) {
-            return Runtime::GetSound("GTSSoundFootstepNormal_96x");
+        if (scale == 96.0f) {
+	        return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepNormal_96x);
         }
-        else if (scale > 96.0f) {
-            return Runtime::GetSound("GTSSoundFootstepNormal_Mega");
+        if (scale > 96.0f) {
+	        return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepNormal_Mega);
         }
         return nullptr;
     }
@@ -268,22 +246,21 @@ namespace GTS {
     BSISoundDescriptor* GetNormalSound_Jump(const int scale) {
         switch (scale) {
             case 2:
-                return Runtime::GetSound("GTSSoundFootstepLandNormal_2x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandNormal_2x);
             case 4:
-                return Runtime::GetSound("GTSSoundFootstepLandNormal_4x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandNormal_4x);
             case 8:
-                return Runtime::GetSound("GTSSoundFootstepLandNormal_8x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandNormal_8x);
             case 12:
-                return Runtime::GetSound("GTSSoundFootstepLandNormal_12x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandNormal_12x);
             case 24:
-                return Runtime::GetSound("GTSSoundFootstepLandNormal_24x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandNormal_24x);
             case 48:
-                return Runtime::GetSound("GTSSoundFootstepLandNormal_48x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandNormal_48x);
             case 96:
-                return Runtime::GetSound("GTSSoundFootstepLandNormal_96x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandNormal_96x);
             case 128:
-                return Runtime::GetSound("GTSSoundFootstepLandNormal_Mega");
-            break;
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandNormal_Mega);
         }
         return nullptr;
     }
@@ -291,22 +268,21 @@ namespace GTS {
     BSISoundDescriptor* GetHHSound_Normal(const int scale) {
         switch (scale) {
             case 2:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_2x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_2x);
             case 4:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_4x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_4x);
             case 8:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_8x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_8x);
             case 12:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_12x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_12x);
             case 24:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_24x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_24x);
             case 48:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_48x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_48x);
             case 96:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_96x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_96x);
             case 128:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_Mega");
-            break;
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_Mega);
         }
         return nullptr;
     }
@@ -314,24 +290,23 @@ namespace GTS {
     BSISoundDescriptor* GetHHSound_NormalAlt(const int scale) {
         switch (scale) {
             case 1:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_1_5x_Alt");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_1_5x_Alt);
             case 2: 
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_2x_Alt");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_2x_Alt);
             case 4:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_4x_Alt");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_4x_Alt);
             case 8:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_8x_Alt");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_8x_Alt);
             case 12:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_12x_Alt");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_12x_Alt);
             case 24:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_24x_Alt");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_24x_Alt);
             case 48:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_48x_Alt");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_48x_Alt);
             case 96:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_96x_Alt");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_96x_Alt);
             case 128:
-                return Runtime::GetSound("GTSSoundFootstepHighHeels_Mega_Alt");
-            break;
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepHighHeels_Mega_Alt);
         }
         return nullptr;
     }
@@ -339,22 +314,21 @@ namespace GTS {
     BSISoundDescriptor* GetHHSound_JumpAlt(const int scale) {
         switch (scale) {
             case 2: 
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_2x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_2x);
             case 4:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_4x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_4x);
             case 8:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_8x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_8x);
             case 12:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_12x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_12x);
             case 24:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_24x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_24x);
             case 48:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_48x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_48x);
             case 96:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_96x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_96x);
             case 128:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_Mega");
-            break;
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_Mega);
         }
         return nullptr;
     }
@@ -362,22 +336,21 @@ namespace GTS {
     BSISoundDescriptor* GetHHSound_Jump(const int scale) {
         switch (scale) {
             case 2: 
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_2x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_2x);
             case 4:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_4x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_4x);
             case 8:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_8x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_8x);
             case 12:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_12x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_12x);
             case 24:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_24x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_24x);
             case 48:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_48x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_48x);
             case 96:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_96x");
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_96x);
             case 128:
-                return Runtime::GetSound("GTSSoundFootstepLandHighHeels_Mega");
-            break;
+                return Runtime::GetSound(Runtime::SNDR.GTSSoundFootstepLandHighHeels_Mega);
         }
         return nullptr;
     }
@@ -415,10 +388,6 @@ namespace GTS {
         	case FootEvent::Back:
                 return GetNormalSound(scale);
 
-            //case FootEvent::Right:
-            //case FootEvent::Back:
-            //    return GetNormalSound(scale);
-
             case FootEvent::JumpLand:
                 return GetNormalSound_Jump(scale);
         }
@@ -426,7 +395,7 @@ namespace GTS {
     }
 
 	BSSoundHandle get_sound(float movement_mod, NiAVObject* foot, const float& scale, const float& scale_limit, BSISoundDescriptor* sound_descriptor, const VolumeParams& params, const VolumeParams& blend_with, std::string_view tag, float mult, bool blend, float extra_volume) {
-		BSSoundHandle result = BSSoundHandle::BSSoundHandle();
+		BSSoundHandle result = BSSoundHandle();
 		auto audio_manager = BSAudioManager::GetSingleton();
 		if (foot) {
 			if (sound_descriptor && audio_manager) {

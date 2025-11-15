@@ -80,7 +80,7 @@ namespace {
 
 				SpawnCustomParticle(giantref, ParticleType::Red, NiPoint3(), "NPC Root [Root]", 3.0f);
 				SpawnParticle(giantref, 4.60f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), giantref->GetPosition(), get_visual_scale(giantref) * 4.0f, 7, nullptr);
-				Runtime::PlaySoundAtNode_FallOff("GTSSoundTinyCalamity_Impact", giantref, 1.0f, "NPC COM [COM ]", 0.10f * get_visual_scale(giantref));
+				Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundTinyCalamity_Impact, giantref, 1.0f, "NPC COM [COM ]", 0.10f * get_visual_scale(giantref));
 				Rumbling::Once("ButtCrushDeath", giantref, 128.0f, 0.25f, "NPC Root [Root]", 0.0f);
 
 				AnimationBoobCrush::GetSingleton().Reset();

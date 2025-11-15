@@ -22,10 +22,10 @@ namespace {
 
     constexpr float DEFAULT_MAX = 1'000'000.0f;
 
-	const bool IsSizeUnlocked() {
+    bool IsSizeUnlocked() {
 		// Reports true when player has ColossalGrowth perk and used gts unlimited command, else it's false
 		if (Persistent::UnlockMaxSizeSliders.value) {
-			const bool Unlocked = Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth");
+			const bool Unlocked = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth);
 			return Unlocked;
 		}
 		return false;
@@ -42,15 +42,15 @@ namespace {
 	float GetSizeFromPerks(RE::Actor* a_Actor) {
 		float BonusSize = 0.0f;
 
-		if (Runtime::HasPerk(a_Actor,"GTSPerkSizeManipulation3")) { //SizeManipulation 3
+		if (Runtime::HasPerk(a_Actor, Runtime::PERK.GTSPerkSizeManipulation3)) {
 			BonusSize += static_cast<float>(a_Actor->GetLevel()) * Perk_SizeManipulation_3;
 		}
 
-		if (Runtime::HasPerk(a_Actor,"GTSPerkSizeManipulation2")) { //SizeManipulation 2
-			BonusSize += Runtime::GetFloat("GTSSkillLevel") * Perk_SizeManipulation_2;
+		if (Runtime::HasPerk(a_Actor, Runtime::PERK.GTSPerkSizeManipulation2)) {
+			BonusSize += Runtime::GetFloat(Runtime::GLOB.GTSSkillLevel) * Perk_SizeManipulation_2;
 		}
 
-		if (Runtime::HasPerk(a_Actor,"GTSPerkSizeManipulation1")) { //SizeManipulation 1
+		if (Runtime::HasPerk(a_Actor, Runtime::PERK.GTSPerkSizeManipulation1)) {
 			BonusSize += Perk_SizeManipulation_1;
 		}
 
@@ -60,7 +60,7 @@ namespace {
     float get_endless_height(Actor* actor) {
 		float endless = 0.0f;
 
-		if (Runtime::HasPerk(actor, "GTSPerkColossalGrowth") && Persistent::UnlockMaxSizeSliders.value) {
+		if (Runtime::HasPerk(actor, Runtime::PERK.GTSPerkColossalGrowth) && Persistent::UnlockMaxSizeSliders.value) {
 			endless = DEFAULT_MAX;
 		}
 
@@ -112,7 +112,7 @@ namespace GTS {
 		const bool IsMassBased = Config::Balance.sSizeMode == "kMassBased"; // Should DLL use mass based formula for Player?
 		const bool SizeUnlocked = IsSizeUnlocked();
 
-		const float QuestStage = Runtime::GetStage("GTSQuestProgression");
+		const float QuestStage = Runtime::GetStage(Runtime::QUST.GTSQuestProgression);
 
 		// -------------------------------------------------------------------------------------------------
 		const float GlobalLimit = Persistent::GlobalSizeLimit.value;
@@ -159,7 +159,7 @@ namespace GTS {
 		float Colossal_kills = 0.0f;
 		float Colossal_lvl = 1.0f;
 
-		const auto Quest = Runtime::GetQuest("GTSQuestProgression");
+		const auto Quest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression);
 		if (!Quest) {
 			return 1.0f;
 		}
@@ -176,14 +176,14 @@ namespace GTS {
 		float QuestMult = 0.10f + static_cast<float>(Stage - 20) / 10.f * 0.04f;
 		if (Stage >= 80) QuestMult = 0.60f;
 
-		if (Runtime::HasPerk(a_Actor,"GTSPerkColossalGrowth")) { //Total Size Control Perk
+		if (Runtime::HasPerk(a_Actor, Runtime::PERK.GTSPerkColossalGrowth)) { //Total Size Control Perk
 			auto Persistent = Persistent::GetKillCountData(a_Actor);
 			Colossal_lvl = 1.15f;
 
 			if (Persistent) {
 				Colossal_kills = static_cast<float>(Persistent->iTotalKills) * (0.02f / Characters_AssumedCharSize);
-				if (Runtime::HasPerk(a_Actor, "GTSPerkOverindulgence")) {
-					Colossal_lvl += static_cast<float>(Persistent->iTotalKills * Overkills_BonusSizePerKill);
+				if (Runtime::HasPerk(a_Actor, Runtime::PERK.GTSPerkOverindulgence)) {
+					Colossal_lvl += Persistent->iTotalKills * Overkills_BonusSizePerKill;
 				}
 			}
 

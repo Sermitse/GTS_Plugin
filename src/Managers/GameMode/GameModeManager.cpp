@@ -183,7 +183,7 @@ namespace {
 			}
 
 			Rumbling::Once("CurseOfGrowth", a_Actor, GrowthPower * 20, 0.10f);
-			Runtime::PlaySoundAtNode("GTSSoundGrowth", a_Actor, GrowthPower * 2, "NPC Pelvis [Pelv]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, a_Actor, GrowthPower * 2, "NPC Pelvis [Pelv]");
 
 			//If the Growth event would make the actor larger than the target scale set it to target scale.
 			if (a_CurrentTargetScale + GrowthPower >= CurseTargetScale) {
@@ -255,7 +255,7 @@ namespace {
 			}
 
 			update_target_scale(a_Actor, ModAmmount, SizeEffectType::kGrow);
-			Runtime::PlaySoundAtNode("GTSSoundGrowth", a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
 		}
 	}
 
@@ -313,7 +313,7 @@ namespace {
 			);
 			ModAmmount = std::min(ModAmmount, ScaleDiff);
 
-			Runtime::PlaySoundAtNode("GTSSoundShrink", a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundShrink, a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
 			update_target_scale(a_Actor, -ModAmmount, SizeEffectType::kShrink);
 		}
 	}
@@ -424,7 +424,7 @@ namespace GTS {
 		float BaseShrinkRate = 0.0f;
 		float BonusShrink = 7.4f;
 		float BonusGrowth = 1.0f;
-		uint16_t QuestStage = Runtime::GetStage("GTSQuestProgression");
+		uint16_t QuestStage = Runtime::GetStage(Runtime::QUST.GTSQuestProgression);
 
 		const bool BalanceModeEnabled = Config::Balance.bBalanceMode;
 
@@ -483,7 +483,7 @@ namespace GTS {
 
 			if (actor->formID == 0x14) {
 
-				if (Runtime::HasMagicEffect(actor, "GTSPotionEffectSizeAmplify")) {
+				if (Runtime::HasMagicEffect(actor, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 					BonusGrowth = CurrentScale * 0.25f + 0.75f;
 				}
 
@@ -493,7 +493,7 @@ namespace GTS {
 			}
 			else if (IsTeammate(actor)) {
 
-				if (Runtime::HasMagicEffect(actor, "GTSPotionEffectSizeAmplify")) {
+				if (Runtime::HasMagicEffect(actor, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 					BonusGrowth = CurrentScale * 0.25f + 0.75f;
 				}
 
@@ -510,7 +510,7 @@ namespace GTS {
 			return;
 		}
 
-		if (!HasSMT(actor) && Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth")) {
+		if (!HasSMT(actor) && Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth)) {
             ApplyGameMode(actor, GameMode, BaseGrowhtRate / 2, BaseShrinkRate);
         }
 	}

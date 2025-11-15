@@ -11,7 +11,7 @@ namespace {
 	constexpr float default_gravity = 1.0f;
 
 	float Jump_GetFallDamageReductionMult(Actor* actor) {
-		bool HasPerk = Runtime::HasPerkTeam(actor, "GTSPerkCruelFall");
+		bool HasPerk = Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkCruelFall);
 		
 		return HasPerk ? 0.1f : 0.0f;
 	}

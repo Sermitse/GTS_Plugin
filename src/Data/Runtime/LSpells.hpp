@@ -4,12 +4,6 @@ namespace RuntimeData {
 
 	struct Spells : iListable <RE::SpellItem> {
 
-		//Shouts
-		Entry(GTSPowerGrowthSpurt,           GTSP, 0x00792A);
-		Entry(GTSPowerGrowthSpurtMedium,     GTSP, 0x1E42A3);
-		Entry(GTSPowerGrowthSpurtMassive,    GTSP, 0x1E42A7);
-		Entry(GTSVoiceTinyCalamity,          GTSP, 0x1A2566);
-
 		//Spells
 		Entry(GTSSpellAbsorb,                GTSP, 0x00B471);
 		Entry(GTSSpellFear,                  GTSP, 0x026D15);

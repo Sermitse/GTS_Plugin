@@ -35,7 +35,7 @@ namespace {
 				
 				if (!IsMechanical(tiny)) {
 					float scale = get_corrected_scale(tiny);
-					Runtime::PlaySoundAtNode(DefaultCrush, 0.66f, tiny->Get3D(), CalculateGorePitch(scale));
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrushDefault, 0.66f, tiny->Get3D(), CalculateGorePitch(scale));
 				}
 
 				ReportDeath(giant, tiny, DamageSource::Shockwave, false);
@@ -50,7 +50,7 @@ namespace {
 
 	float GetLaunchThreshold(Actor* giant) {
 		float threshold = 8.0f;
-		if (Runtime::HasPerkTeam(giant, "GTSPerkRumblingFeet")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRumblingFeet)) {
 			threshold *= 0.75f;
 		}
 		return threshold;
@@ -121,7 +121,7 @@ namespace GTS {
 
 		float startpower = Push_Actor_Upwards * highheel * (1.0f + Potion_GetMightBonus(giant)); // determines default power of launching someone
 		
-		if (Runtime::HasPerkTeam(giant, "GTSPerkRumblingFeet")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRumblingFeet)) {
 			startpower *= 1.25f;
 		}
 
@@ -143,7 +143,7 @@ namespace GTS {
 			if (sizeRatio > threshold) {
 				if (force >= 0.10f) {
 					float power = (1.0f * launch_power) / Adjustment;
-					if (Runtime::HasPerkTeam(giant, "GTSPerkDisastrousTremmor")) {
+					if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDisastrousTremmor)) {
 						float might = 1.0f + Potion_GetMightBonus(giant);
 						DamageMult *= 2.0f * might;
 						OwnsPerk = true;
@@ -152,7 +152,7 @@ namespace GTS {
 
 					ApplyActionCooldown(tiny, CooldownSource::Damage_Launch);
 
-					if (Runtime::HasPerkTeam(giant, "GTSPerkDeadlyRumble") && CanDoDamage(giant, tiny, true)) {
+					if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDeadlyRumble) && CanDoDamage(giant, tiny, true)) {
 						float damage = LAUNCH_DAMAGE * sizeRatio * force * DamageMult * highheel;
 						if (OwnsPerk) { // Apply only when we have DisastrousTremor perk
 							update_target_scale(tiny, -(damage / 1500) * GetDamageSetting(), SizeEffectType::kShrink);
@@ -162,7 +162,7 @@ namespace GTS {
 							}
 						}
 
-						if (Runtime::HasPerkTeam(giant, "GTSPerkRuinousStride")) {
+						if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRuinousStride)) {
 							if (ObliterateCheck(giant, tiny, sizeRatio, damage * 1.5f)) {
 								return;
 							}

@@ -26,9 +26,9 @@ namespace GTS {
 
 		auto base_spell = GetBaseEffect();
 
-		if (base_spell == Runtime::GetMagicEffect("GTSEffectShrinkAllyAdept")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectShrinkAllyAdept)) {
 			power *= 1.33f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSEffectShrinkAllyExpert")) {
+		} else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectShrinkAllyExpert)) {
 			power *= 1.75f;
 		}
 

@@ -78,37 +78,37 @@ namespace {
 
 	void GTS_Sneak_Swipe_On_R(AnimationEventData& data) {
 		TriggerHandCollision_Right(&data.giant, Damage_Sneak_HandSwipe, 1.8f, Push_Sneak_HandSwipe);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", "GTSPerkDestructionBasics", true, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, true, 4.0f);
 	}
 	void GTS_Sneak_Swipe_On_L(AnimationEventData& data) {
 		TriggerHandCollision_Left(&data.giant, Damage_Sneak_HandSwipe, 1.8f, Push_Sneak_HandSwipe);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", "GTSPerkDestructionBasics", true, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, true, 4.0f);
 	}
 	void GTS_Sneak_Swipe_Off_R(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", "GTSPerkDestructionBasics", false, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, false, 4.0f);
 		DisableHandCollisions(&data.giant);
 	}
 	void GTS_Sneak_Swipe_Off_L(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", "GTSPerkDestructionBasics", false, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, false, 4.0f);
 		DisableHandCollisions(&data.giant);
 	}
 
 	///////////////strong
 
 	void GTS_Sneak_Swipe_Power_On_R(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", "GTSPerkDestructionBasics", true, 10.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, true, 10.0f);
 		TriggerHandCollision_Right(&data.giant, Damage_Sneak_HandSwipe_Strong, 1.4f, Push_Sneak_HandSwipe_Strong);
 	}
 	void GTS_Sneak_Swipe_Power_On_L(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", "GTSPerkDestructionBasics", true, 10.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, true, 10.0f);
 		TriggerHandCollision_Left(&data.giant, Damage_Sneak_HandSwipe_Strong, 1.4f, Push_Sneak_HandSwipe_Strong);
 	}
 	void GTS_Sneak_Swipe_Power_Off_R(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", "GTSPerkDestructionBasics", false, 10.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 10.0f);
 		DisableHandCollisions(&data.giant);
 	}
 	void GTS_Sneak_Swipe_Power_Off_L(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", "GTSPerkDestructionBasics", false, 10.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 10.0f);
 		DisableHandCollisions(&data.giant);
 	}
 }

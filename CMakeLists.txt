@@ -80,11 +80,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(cmake_git_version_tracking)
 
 # Boost Reflect
+# https://github.com/qlibs/reflect
 FetchContent_Declare(
     boost_ext_reflect
-    GIT_REPOSITORY https://github.com/qlibs/reflect
+    GIT_REPOSITORY https://github.com/BingusEx/reflect/
     GIT_SHALLOW ON
-    GIT_TAG v1.2.6
+    GIT_TAG 653c94092fa8702dbc33ebf3b570190fb1a9dc28
 )
 FetchContent_MakeAvailable(boost_ext_reflect)
 

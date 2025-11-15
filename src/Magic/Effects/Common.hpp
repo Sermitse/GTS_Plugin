@@ -29,7 +29,7 @@ namespace GTS {
 	}
 
 	inline bool CanBendLifeless(Actor* giant) {
-		bool allow = Runtime::HasPerkTeam(giant, "GTSPerkBendTheLifeless");
+		bool allow = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkBendTheLifeless);
 		return allow;
 	}
 
@@ -99,7 +99,7 @@ namespace GTS {
 	}
 
 	inline void AdjustSizeReserve(Actor* giant, float value) {
-		if (!Runtime::HasPerk(giant, "GTSPerkSizeReserve")) {
+		if (!Runtime::HasPerk(giant, Runtime::PERK.GTSPerkSizeReserve)) {
 			return;
 		}
 		auto Cache = Persistent::GetActorData(giant);
@@ -150,7 +150,7 @@ namespace GTS {
 
 	inline void ModSizeExperience(Actor* Caster, float value) { // Adjust Matter Of Size skill
 		if (value > 0) {
-			auto progressionQuest = Runtime::GetQuest("GTSQuestProgression");
+			auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression);
 			if (progressionQuest) {
 				auto queststage = progressionQuest->GetCurrentStageID();
 				if (queststage >= 10) {
@@ -159,9 +159,10 @@ namespace GTS {
 						if (Teammate) {
 							value *= 0.2f;
 						}
-						auto GtsSkillLevel = Runtime::GetGlobal("GTSSkillLevel");
-						auto GtsSkillRatio = Runtime::GetGlobal("GTSSkillRatio");
-						auto GtsSkillProgress = Runtime::GetGlobal("GTSSkillProgress");
+
+						const auto& GtsSkillLevel = Runtime::GetGlobal(Runtime::GLOB.GTSSkillLevel);
+						const auto& GtsSkillRatio = Runtime::GetGlobal(Runtime::GLOB.GTSSkillRatio);
+						const auto& GtsSkillProgress = Runtime::GetGlobal(Runtime::GLOB.GTSSkillProgress);
 						
 						if (GtsSkillLevel) {
 							if (GtsSkillLevel->value >= 100.0f) {
@@ -289,7 +290,7 @@ namespace GTS {
 		float target_scale = get_target_scale(actor);
 		float natural_scale = get_natural_scale(actor, true); // get_neutral_scale(actor) 
 
-		if (Runtime::HasPerk(PlayerCharacter::GetSingleton(), "GTSPerkColossalGrowth")) {
+		if (Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth)) {
 
 			if (actor->formID == 0x14) {
 				const auto Mode = StringToEnum<LActiveGamemode_t>(Config::Gameplay.GamemodePlayer.sGameMode);
@@ -388,10 +389,10 @@ namespace GTS {
 			power *= SMT_BONUS;
 		}
 
-		if (Runtime::HasPerkTeam(caster, "GTSPerkShrinkAdept")) {
+		if (Runtime::HasPerkTeam(caster, Runtime::PERK.GTSPerkShrinkAdept)) {
 			PERK_BONUS += 0.15f;
 		}
-		if (Runtime::HasPerkTeam(caster, "GTSPerkShrinkExpert")) {
+		if (Runtime::HasPerkTeam(caster, Runtime::PERK.GTSPerkShrinkExpert)) {
 			PERK_BONUS += 0.35f;
 		}
 
@@ -440,7 +441,7 @@ namespace GTS {
 		float bbscale = GetSizeFromBoundingBox(target);
 		float target_scale = get_target_scale(target);
 
-		if (target_scale <= SHRINK_TO_NOTHING_SCALE / bbscale && !Runtime::HasMagicEffect(target, "GTSEffectShrinkToNothing")) {
+		if (target_scale <= SHRINK_TO_NOTHING_SCALE / bbscale && !Runtime::HasMagicEffect(target, Runtime::MGEF.GTSEffectShrinkToNothing)) {
 
 			set_target_scale(target, SHRINK_TO_NOTHING_SCALE / bbscale);
 

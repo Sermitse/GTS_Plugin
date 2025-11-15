@@ -369,12 +369,12 @@ namespace GTS {
 			wastestamina = 30; // Less tamina drain for non Player
 		}
 
-		if (!Runtime::HasPerkTeam(pred, "GTSPerkVoreAbility")) { // Damage stamina if we don't have perk
+		if (!Runtime::HasPerkTeam(pred, Runtime::PERK.GTSPerkVoreAbility)) { // Damage stamina if we don't have perk
 			if (staminacheck < wastestamina) {
 				Notify("{} is too tired for vore.", pred->GetDisplayFullName());
 				DamageAV(prey, ActorValue::kHealth, 3 * sizedifference);
 				if (pred->formID == 0x14) {
-					Runtime::PlaySound("GTSSoundFail", pred, 0.4f, 1.0f);
+					Runtime::PlaySound(Runtime::SNDR.GTSSoundFail, pred, 0.4f, 1.0f);
 				}
 				StaggerActor(pred, prey, 0.25f);
 				return;
@@ -394,7 +394,7 @@ namespace GTS {
 		}
 
 		if (pred->formID == 0x14) {
-			Runtime::PlaySound("GTSSoundFail", pred, 0.4f, 1.0f);
+			Runtime::PlaySound(Runtime::SNDR.GTSSoundFail, pred, 0.4f, 1.0f);
 		}
 		auto& voreData = this->GetVoreData(pred);
 		voreData.AddTiny(prey);

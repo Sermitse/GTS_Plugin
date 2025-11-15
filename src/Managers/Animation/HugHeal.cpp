@@ -118,7 +118,7 @@ namespace {
 			float threshold = 3.0f;
 			float stamina = 0.35f;
 
-			if (Runtime::HasPerkTeam(giantref, "GTSPerkHugsGreed")) {
+			if (Runtime::HasPerkTeam(giantref, Runtime::PERK.GTSPerkHugsGreed)) {
 				stamina *= 0.75f;
 			}
 			stamina *= Perk_GetCostReduction(giantref);

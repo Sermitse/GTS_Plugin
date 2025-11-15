@@ -88,7 +88,7 @@ namespace {
 
 		Rumbling::Once("Finger", &data.giant, Rumble_FingerGrind_Impact, 0.025f, Rfinger, 0.0f);
 
-		DrainStamina(&data.giant, "StaminaDrain_FingerGrind", "GTSPerkDestructionBasics", true, 0.8f);
+		DrainStamina(&data.giant, "StaminaDrain_FingerGrind", Runtime::PERK.GTSPerkDestructionBasics, true, 0.8f);
 	};
     void GTS_Sneak_FingerGrind_Impact_L(AnimationEventData& data) {
 		Finger_DoDamage(&data.giant, DamageSource::LeftFinger_Impact, false, Radius_Sneak_FingerGrind_Impact, Damage_Sneak_FingerGrind_Impact, 2.8f, 1.2f);
@@ -97,7 +97,7 @@ namespace {
 
 		Rumbling::Once("Finger", &data.giant, Rumble_FingerGrind_Impact, 0.025f, Lfinger, 0.0f);
 
-		DrainStamina(&data.giant, "StaminaDrain_FingerGrind", "GTSPerkDestructionBasics", true, 0.8f);
+		DrainStamina(&data.giant, "StaminaDrain_FingerGrind", Runtime::PERK.GTSPerkDestructionBasics, true, 0.8f);
 	};
 
 	void GTS_Sneak_FingerGrind_Rotation_R(AnimationEventData& data) {
@@ -162,8 +162,8 @@ namespace GTS {
     }
 
     void StopStaminaDrain(Actor* giant) {
-		DrainStamina(giant, "StaminaDrain_StrongSneakSlam", "GTSPerkDestructionBasics", false, 2.2f);
-		DrainStamina(giant, "StaminaDrain_FingerGrind", "GTSPerkDestructionBasics", false, 0.8f);
-		DrainStamina(giant, "StaminaDrain_SneakSlam", "GTSPerkDestructionBasics", false, 1.4f);
+		DrainStamina(giant, "StaminaDrain_StrongSneakSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 2.2f);
+		DrainStamina(giant, "StaminaDrain_FingerGrind", Runtime::PERK.GTSPerkDestructionBasics, false, 0.8f);
+		DrainStamina(giant, "StaminaDrain_SneakSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 1.4f);
 	}
 }

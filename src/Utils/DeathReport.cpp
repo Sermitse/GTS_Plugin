@@ -34,7 +34,7 @@ namespace {
 	void VoreMessage_SwallowedAbsorbing(Actor* pred, Actor* prey) {
 		if (pred) {
 			int random = RandomInt(0, 3);
-			if (!prey->IsDead() && !Runtime::HasPerk(pred, "GTSPerkFullAssimilation") || random <= 1) {
+			if (!prey->IsDead() && !Runtime::HasPerk(pred, Runtime::PERK.GTSPerkFullAssimilation) || random <= 1) {
 				Cprint("{} was Swallowed and is now being slowly absorbed by {}", prey->GetDisplayFullName(), pred->GetDisplayFullName());
 			} else if (random == 2) {
 				Cprint("{} is now absorbing {}", pred->GetDisplayFullName(), prey->GetDisplayFullName());
@@ -47,11 +47,11 @@ namespace {
 	void VoreMessage_Absorbed(Actor* pred, std::string_view prey) {
 		if (pred) {
 			int random = RandomInt(0, 3);
-			if (!Runtime::HasPerk(pred, "GTSPerkFullAssimilation") || random == 0) {
+			if (!Runtime::HasPerk(pred, Runtime::PERK.GTSPerkFullAssimilation) || random == 0) {
 				Cprint("{} was absorbed by {}", prey, pred->GetDisplayFullName());
-			} else if (Runtime::HasPerk(pred, "GTSPerkFullAssimilation") && random == 1) {
+			} else if (Runtime::HasPerk(pred, Runtime::PERK.GTSPerkFullAssimilation) && random == 1) {
 				Cprint("{} became one with {}", prey, pred->GetDisplayFullName());
-			} else if (Runtime::HasPerk(pred, "GTSPerkFullAssimilation") && random >= 2) {
+			} else if (Runtime::HasPerk(pred, Runtime::PERK.GTSPerkFullAssimilation) && random >= 2) {
 				Cprint("{} was greedily devoured by {}", prey, pred->GetDisplayFullName());
 			} else {
 				Cprint("{} was absorbed by {}", prey, pred->GetDisplayFullName());

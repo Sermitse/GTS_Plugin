@@ -166,7 +166,7 @@ namespace GTS {
 					// Lastly play the sound at each node
 					if (data.delay.ShouldRun()) {
 						//log::info("Playing sound at: {}, Intensity: {}", actor->GetDisplayFullName(), intensity);
-						Runtime::PlaySoundAtNode("GTSSoundWalkAirRumble", volume, node);
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundWalkAirRumble, volume, node);
 					}
 				}
 			}

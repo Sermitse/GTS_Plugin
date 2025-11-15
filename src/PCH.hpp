@@ -149,19 +149,9 @@
 using namespace std::literals;
 using namespace REL::literals;
 
-namespace reflect {
-	//Fix ambiguity in reflects' usage of the detail namespace
-	using namespace reflect::v1_2_5::detail;
-}
-
 namespace GTS {
 	using namespace std;
 	using namespace SKSE;
-	using namespace RE;
-}
-
-namespace DebugUtil {
-	using namespace GTS;
 	using namespace RE;
 }
 

@@ -24,7 +24,7 @@ namespace GTS {
 
 		float bonus = 1.0f;
 
-		if (Runtime::HasMagicEffect(caster,"GTSPotionEffectSizeAmplify")) {
+		if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 			bonus = get_visual_scale(caster) * 0.25f + 0.75f;
 		}
 
@@ -32,9 +32,9 @@ namespace GTS {
 
 		auto base_spell = GetBaseEffect();
 
-		if (base_spell == Runtime::GetMagicEffect("GTSEffectGrowthAdept")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectGrowthAdept)) {
 			power *= 1.33f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSEffectGrowthExpert")) {
+		} else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectGrowthExpert)) {
 			power *= 1.75f;
 			caster->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, ActorValue::kHealth, HpRegen * TimeScale());
 		}

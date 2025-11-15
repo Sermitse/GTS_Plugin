@@ -240,8 +240,8 @@ namespace {
 		giant->SetGraphVariableInt("GTS_Storing_Tiny", 0);
 		giant->SetGraphVariableInt("GTS_Grab_State", 0);
 		AnimationManager::StartAnim("TinyDied", giant);
-		DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
-		DrainStamina(giant, "GrabThrow", "GTSPerkDestructionBasics", false, 1.25f);
+		DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
+		DrainStamina(giant, "GrabThrow", Runtime::PERK.GTSPerkDestructionBasics, false, 1.25f);
 		ManageCamera(&data.giant, false, CameraTracking::Grab_Left);
 		Grab::DetachActorTask(giant);
 		Grab::Release(giant);
@@ -262,8 +262,8 @@ namespace {
 		giant->SetGraphVariableInt("GTS_Grab_State", 0);
 
 		AnimationManager::StartAnim("TinyDied", giant);
-		DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
-		DrainStamina(giant, "GrabThrow", "GTSPerkDestructionBasics", false, 1.25f);
+		DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
+		DrainStamina(giant, "GrabThrow", Runtime::PERK.GTSPerkDestructionBasics, false, 1.25f);
 		ManageCamera(&data.giant, false, CameraTracking::Grab_Left);
 		Grab::DetachActorTask(giant);
 		Grab::Release(giant);
@@ -280,7 +280,7 @@ namespace {
 	void GTSGrab_Breast_PutActor(AnimationEventData& data) { // Places actor between breasts
 		auto giant = &data.giant;
 		
-		Runtime::PlaySoundAtNode("GTSSoundBreastImpact", giant, 1.0f, "NPC L Hand [LHnd]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundBreastImpact, giant, 1.0f, "NPC L Hand [LHnd]");
 		giant->SetGraphVariableInt("GTS_Storing_Tiny", 1);
 		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
 		auto otherActor = Grab::GetHeldActor(giant);
@@ -335,7 +335,7 @@ namespace {
 	void GrabAttackEvent(const ManagedInputEvent& data) { // Attack everyone in your hand
 		Actor* player = GetPlayerOrControlled();
 			float WasteStamina = 20.0f;
-			if (Runtime::HasPerk(player, "GTSPerkDestructionBasics")) {
+			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkDestructionBasics)) {
 				WasteStamina *= 0.65f;
 			}
 			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
@@ -358,7 +358,7 @@ namespace {
 	void GrabThrowEvent(const ManagedInputEvent& data) { // Throw everyone away
 		Actor* player = GetPlayerOrControlled();
 			float WasteStamina = 40.0f;
-			if (Runtime::HasPerk(player, "GTSPerkDestructionBasics")) {
+			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkDestructionBasics)) {
 				WasteStamina *= 0.65f;
 			}
 			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
@@ -447,14 +447,14 @@ namespace GTS {
 				DelayedBreastDeattach(tiny);
                 SetBeingHeld(tiny, false);
 
-                Runtime::PlaySoundAtNode("GTSSoundCrushDefault", giantess, 1.0f, "NPC L Hand [LHnd]");
+                Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrushDefault, giantess, 1.0f, "NPC L Hand [LHnd]");
 
 				if (do_sound) {
 					if (!LessGore()) {
-						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, "NPC L Hand [LHnd]");
-						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, giantess, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, giantess, 1.0f, "NPC L Hand [LHnd]");
 					} else {
-						Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", giantess, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSoftHandAttack, giantess, 1.0f, "NPC L Hand [LHnd]");
 					}
 				}
 
@@ -470,10 +470,10 @@ namespace GTS {
             } else {
 				if (do_sound) {
 					if (!LessGore()) {
-						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, giantess, 1.0f, "NPC L Hand [LHnd]");
 						SpawnHurtParticles(giantess, tiny, 1.0f, 1.0f);
 					} else {
-						Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", giantess, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSoftHandAttack, giantess, 1.0f, "NPC L Hand [LHnd]");
 					}
 				}
 				if (stagger) {
@@ -515,9 +515,9 @@ namespace GTS {
 			}
 
             if (CanDoDamage(giant, grabbed, false)) {
-                if (Runtime::HasPerkTeam(giant, "GTSPerkGrowingPressure")) {
-                    auto& sizemanager = SizeManager::GetSingleton();
-                    sizemanager.ModSizeVulnerability(grabbed, damage * 0.0010f);
+                if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
+                    auto& mgr = SizeManager::GetSingleton();
+                    mgr.ModSizeVulnerability(grabbed, damage * 0.0010f);
                 }
 
                 TinyCalamity_ShrinkActor(giant, grabbed, damage * 0.10f * GetDamageSetting());
@@ -637,7 +637,7 @@ namespace GTS {
 			giantref->SetGraphVariableInt("GTS_GrabbedTiny", 0); // Tell behaviors 'we have nothing in our hands'. A must.
 			giantref->SetGraphVariableInt("GTS_Grab_State", 0);
 			giantref->SetGraphVariableInt("GTS_Storing_Tiny", 0);
-			DrainStamina(giantref, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
+			DrainStamina(giantref, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
 			ManageCamera(giantref, false, CameraTracking::Grab_Left); // Disable any camera edits
 			Grab::ExitGrabState(giantref);
 			Grab::DetachActorTask(giantref);
@@ -654,7 +654,7 @@ namespace GTS {
 			giantref->SetGraphVariableInt("GTS_GrabbedTiny", 0); // Tell behaviors 'we have nothing in our hands'. A must.
 			giantref->SetGraphVariableInt("GTS_Grab_State", 0);
 			giantref->SetGraphVariableInt("GTS_Storing_Tiny", 0);
-			DrainStamina(giantref, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
+			DrainStamina(giantref, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
 			Grab::ExitGrabState(giantref);
 			ManageCamera(giantref, false, CameraTracking::Grab_Left); // Disable any camera edits
 			Grab::DetachActorTask(giantref);

@@ -86,7 +86,7 @@ namespace {
 	}
 
 	void regenerate_health(Actor* giant, float value) {
-		if (Runtime::HasPerk(giant, "GTSPerkSizeReserveAug2")) {
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkSizeReserveAug2)) {
 			float maxhp = GetMaxAV(giant, ActorValue::kHealth);
 			float regenerate = maxhp * 0.25f * value; // 25% of health
 
@@ -103,7 +103,7 @@ namespace {
 				if (targetRef) {
 					float falloff = 0.11f * get_visual_scale(targetRef);
 					float Volume = std::clamp(get_visual_scale(targetRef)/8.0f, 0.20f, 1.0f);
-					Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
+					Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundGrowth, targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
 
 					// Thread safe handles
 					ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -127,7 +127,7 @@ namespace {
 						float magicka = std::clamp(GetMagikaPercentage(caster), 0.05f, 1.0f);
 
 						float bonus = 1.0f;
-						if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+						if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 							bonus = target_scale * 0.25f + 0.75f;
 						}
 
@@ -151,7 +151,7 @@ namespace {
 					float Volume = std::clamp(scale * 0.10f, 0.10f, 1.0f);
 					
 					float falloff = 0.11f * scale;
-					Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
+					Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundShrink, targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
 					
 					// Thread safe handles
 					ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -174,7 +174,7 @@ namespace {
 						float magicka = std::clamp(GetMagikaPercentage(caster), 0.05f, 1.0f);
 
 						float bonus = 1.0f;
-						if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+						if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 							bonus = target_scale * 0.25f + 0.75f;
 						}
 
@@ -198,7 +198,7 @@ namespace {
 
 			float falloff = 0.11f * scale;
 
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundGrowth, casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
 		
 			// Thread safe handles
 			ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -216,7 +216,7 @@ namespace {
 				float target_scale = get_target_scale(caster);
 
 				float bonus = 1.0f;
-				if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+				if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 					bonus = target_scale * 0.25f + 0.75f;
 				}
 
@@ -239,7 +239,7 @@ namespace {
 			float Volume = std::clamp(scale * 0.10f, 0.10f, 1.0f);
 			float falloff = 0.11f * scale;
 
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundShrink, casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
 		
 			// Thread safe handles
 			ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -259,7 +259,7 @@ namespace {
 				float stamina = std::clamp(GetStaminaPercentage(caster), 0.05f, 1.0f);
 
 				float bonus = 1.0f;
-				if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+				if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 					bonus = target_scale * 0.25f + 0.75f;
 				}
 
@@ -291,7 +291,7 @@ namespace {
 		Rumbling::Once("ColossalGrowth", player, 0.15f, 0.05f);
 		static Timer timergrowth = Timer(2.00);
 		if (timergrowth.ShouldRun()) {
-			Runtime::PlaySoundAtNode("GTSSoundGrowth", player, Volume, "NPC Pelvis [Pelv]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, player, Volume, "NPC Pelvis [Pelv]");
 		}
 	}
 
@@ -313,7 +313,7 @@ namespace {
 		Rumbling::Once("ColossalGrowth", player, 0.15f, 0.05f);
 		static Timer timergrowth = Timer(2.00);
 		if (timergrowth.ShouldRun()) {
-			Runtime::PlaySound("GTSSoundShrink", player, Volume, 1.0f);
+			Runtime::PlaySound(Runtime::SNDR.GTSSoundShrink, player, Volume, 1.0f);
 		}
 	}
 
@@ -335,7 +335,7 @@ namespace {
 				Rumbling::Once("TotalControlOther", actor, 0.15f, 0.05f);
 				static Timer timergrowth = Timer(2.00);
 				if (timergrowth.ShouldRun()) {
-					Runtime::PlaySoundAtNode("GTSSoundGrowth", actor, Volume, "NPC Pelvis [Pelv]");
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, actor, Volume, "NPC Pelvis [Pelv]");
 				}
 			}
 		}
@@ -359,7 +359,7 @@ namespace {
 				Rumbling::Once("TotalControlOther", actor, 0.15f, 0.05f);
 				static Timer timergrowth = Timer(2.00);
 				if (timergrowth.ShouldRun()) {
-					Runtime::PlaySound("GTSSoundShrink", actor, Volume, 1.0f);
+					Runtime::PlaySound(Runtime::SNDR.GTSSoundShrink, actor, Volume, 1.0f);
 				}
 			} 
 		}
@@ -403,7 +403,7 @@ namespace {
 				if (!Attacking) {
 					float duration = data.Duration();
 					
-					if (duration >= 1.2f && Runtime::HasPerk(player, "GTSPerkSizeReserve")) {
+					if (duration >= 1.2f && Runtime::HasPerk(player, Runtime::PERK.GTSPerkSizeReserve)) {
 						bool ShouldPrevent = get_target_scale(player) >= 1.49f && HasSMT(player); // So we don't waste it on Calamity that shrinks player back
 						if (!ShouldPrevent) {
 							bool HandsBusy = Grab::GetHeldActor(player);
@@ -413,7 +413,7 @@ namespace {
 								float Volume = std::clamp(get_visual_scale(player) * Cache->fSizeReserve/10.0f, 0.10f, 2.0f);
 								static Timer timergrowth = Timer(3.00);
 								if (timergrowth.ShouldRunFrame()) {
-									Runtime::PlaySoundAtNode("GTSSoundGrowth", player, Cache->fSizeReserve/50 * duration, "NPC Pelvis [Pelv]");
+									Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, player, Cache->fSizeReserve/50 * duration, "NPC Pelvis [Pelv]");
 									Task_FacialEmotionTask_Moan(player, 2.0f, "SizeReserve");
 									Sound_PlayMoans(player, 0.8f, 0.14f, EmotionTriggerSource::Growth);
 								}
@@ -440,7 +440,7 @@ namespace {
 		auto player = PlayerCharacter::GetSingleton();
 		auto Cache = Persistent::GetActorData(player);
 		if (Cache) {
-			if (Runtime::HasPerk(player, "GTSPerkSizeReserve")) {
+			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkSizeReserve)) {
 				float gigantism = 1.0f + Ench_Aspect_GetPower(player);
 				float Value = Cache->fSizeReserve * gigantism;
 				Notify("Size Reserve: {:.2f}", Value);
@@ -460,9 +460,9 @@ namespace {
 
 		auto player = PlayerCharacter::GetSingleton();
 
-		bool DarkArts2 = Runtime::HasPerk(player, "GTSPerkDarkArtsAug2");
-		bool DarkArts3 = Runtime::HasPerk(player, "GTSPerkDarkArtsAug3");
-		bool DarkArts_Legendary = Runtime::HasPerk(player, "GTSPerkDarkArtsLegendary");
+		bool DarkArts2 = Runtime::HasPerk(player, Runtime::PERK.GTSPerkDarkArtsAug2);
+		bool DarkArts3 = Runtime::HasPerk(player, Runtime::PERK.GTSPerkDarkArtsAug3);
+		bool DarkArts_Legendary = Runtime::HasPerk(player, Runtime::PERK.GTSPerkDarkArtsLegendary);
 
 		float gigantism = 1.0f + Ench_Aspect_GetPower(player);
 
@@ -609,7 +609,7 @@ namespace {
 			return;
 		}
 
-		Runtime::SetFloat("GTSSkillMenu", 1.0);
+		Runtime::SetFloat(Runtime::GLOB.GTSSkillMenu, 1.0);
 	}
 
 }

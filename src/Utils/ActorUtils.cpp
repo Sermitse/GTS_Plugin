@@ -1,8 +1,4 @@
 #include "Utils/ActorUtils.hpp"
-
-#include "KillDataUtils.hpp"
-
-#include "Utils/DeathReport.hpp"
 #include "Utils/FindActor.hpp"
 
 #include "Magic/Effects/Common.hpp"
@@ -123,7 +119,7 @@ namespace {
 			StaggerActor_Around(giantref, 48.0f, false);
 
 			auto node = find_node(giantref, "NPC Root [Root]");
-			Runtime::PlaySoundAtNode("GTSSoundMagicBreak", giantref, 1.0f, "NPC COM [COM ]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundMagicBreak, giantref, 1.0f, "NPC COM [COM ]");
 			
 			if (node) {
 				NiPoint3 position = node->world.translate;
@@ -479,22 +475,23 @@ namespace GTS {
 		if (performcheck && Check) {
 			return false;
 		}
-		bool Spider = Runtime::IsRace(actor, "FrostbiteSpiderRace");
-		bool SpiderGiant = Runtime::IsRace(actor, "FrostbiteSpiderRaceGiant");
-		bool SpiderLarge = Runtime::IsRace(actor, "FrostbiteSpiderRaceLarge");
-		bool ChaurusReaper = Runtime::IsRace(actor, "ChaurusReaperRace");
-		bool Chaurus = Runtime::IsRace(actor, "ChaurusRace");
-		bool ChaurusHunterDLC = Runtime::IsRace(actor, "DLC1ChaurusHunterRace");
-		bool ChaurusDLC = Runtime::IsRace(actor, "DLC1_BF_ChaurusRace");
-		bool ExplSpider = Runtime::IsRace(actor, "DLC2ExpSpiderBaseRace");
-		bool ExplSpiderPackMule = Runtime::IsRace(actor, "DLC2ExpSpiderPackmuleRace");
-		bool AshHopper = Runtime::IsRace(actor, "DLC2AshHopperRace");
+
+		bool Spider             = Runtime::IsRace(actor, Runtime::RACE.FrostbiteSpiderRace);
+		bool SpiderGiant        = Runtime::IsRace(actor, Runtime::RACE.FrostbiteSpiderRaceGiant);
+		bool SpiderLarge        = Runtime::IsRace(actor, Runtime::RACE.FrostbiteSpiderRaceLarge);
+		bool ChaurusReaper      = Runtime::IsRace(actor, Runtime::RACE.ChaurusReaperRace);
+		bool Chaurus            = Runtime::IsRace(actor, Runtime::RACE.ChaurusRace);
+		bool ChaurusHunterDLC   = Runtime::IsRace(actor, Runtime::RACE.DLC1ChaurusHunterRace);
+		bool ChaurusDLC         = Runtime::IsRace(actor, Runtime::RACE.DLC1_BF_ChaurusRace);
+		bool ExplSpider         = Runtime::IsRace(actor, Runtime::RACE.DLC2ExpSpiderBaseRace);
+		bool ExplSpiderPackMule = Runtime::IsRace(actor, Runtime::RACE.DLC2ExpSpiderPackmuleRace);
+		bool AshHopper          = Runtime::IsRace(actor, Runtime::RACE.DLC2AshHopperRace);
+
 		if (Spider||SpiderGiant||SpiderLarge||ChaurusReaper||Chaurus||ChaurusHunterDLC||ChaurusDLC||ExplSpider||ExplSpiderPackMule||AshHopper) {
 			return true;
-		} else {
-			return false;
 		}
 		return false;
+
 	}
 
 	bool IsFemale(Actor* a_Actor, bool AllowOverride) {
@@ -518,27 +515,27 @@ namespace GTS {
 	}
 
 	bool IsDragon(Actor* actor) {
-		if (Runtime::HasKeyword(actor, "DragonKeyword")) {
+		if (Runtime::HasKeyword(actor, Runtime::KYWD.DragonKeyword)) {
 			return true;
 		}
-		if (Runtime::IsRace(actor, "DragonRace")) {
+		if (Runtime::IsRace(actor, Runtime::RACE.DragonRace)) {
 			return true;
 		} 
 		return false;
 	}
 
 	bool IsGiant(Actor* actor) {
-		return Runtime::IsRace(actor, "GiantRace");
+		return Runtime::IsRace(actor, Runtime::RACE.GiantRace);
 	}
 
 	bool IsMammoth(Actor* actor) {
-		return Runtime::IsRace(actor, "MammothRace");
+		return Runtime::IsRace(actor, Runtime::RACE.MammothRace);
 	}
 
 	bool IsLiving(Actor* actor) {
-		bool IsDraugr = Runtime::HasKeyword(actor, "UndeadKeyword");
-		bool IsDwemer = Runtime::HasKeyword(actor, "DwemerKeyword");
-		bool IsVampire = Runtime::HasKeyword(actor, "VampireKeyword");
+		bool IsDraugr = Runtime::HasKeyword(actor, Runtime::KYWD.UndeadKeyword);
+		bool IsDwemer = Runtime::HasKeyword(actor, Runtime::KYWD.DwemerKeyword);
+		bool IsVampire = Runtime::HasKeyword(actor, Runtime::KYWD.VampireKeyword);
 		if (IsVampire) {
 			return true;
 		}
@@ -552,7 +549,7 @@ namespace GTS {
 	}
 
 	bool IsUndead(Actor* actor, bool PerformCheck) {
-		bool IsDraugr = Runtime::HasKeyword(actor, "UndeadKeyword");
+		bool IsDraugr = Runtime::HasKeyword(actor, Runtime::KYWD.UndeadKeyword);
 		bool Check = Config::Gameplay.ActionSettings.bAllowUndead;
 		if (Check && PerformCheck) {
 			return false;
@@ -590,7 +587,7 @@ namespace GTS {
 		bool hostile = IsHostile(giant, tiny);
 		bool essential = IsEssential_WithIcons(giant, tiny); // Teammate check is also done here, spawns icons
 		bool no_protection = Config::AI.bAllowFollowers;
-		bool Ignore_Protection = (HugCheck && giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkHugsLovingEmbrace"));
+		bool Ignore_Protection = (HugCheck && giant->formID == 0x14 && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace));
 		bool allow_teammate = (giant->formID != 0x14 && no_protection && IsTeammate(tiny) && IsTeammate(giant));
 
 		if (IsFlying(tiny)) {
@@ -820,7 +817,7 @@ namespace GTS {
 	std::vector<Actor*> GetMaxActionableTinyCount(Actor* giant, const std::vector<Actor*>& actors) {
 		float capacity = 1.0f;
 		std::vector<Actor*> vories = {};
-		if (Runtime::HasPerkTeam(giant, "GTSPerkMassActions")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkMassActions)) {
 			capacity = 3.0f * get_visual_scale(giant);
 			if (HasSMT(giant)) {
 				capacity *= 3.0f;
@@ -853,7 +850,7 @@ namespace GTS {
 
 	float Perk_GetSprintShrinkReduction(Actor* actor) {
 		float resistance = 1.0f;
-		if (actor->AsActorState()->IsSprinting() && Runtime::HasPerkTeam(actor, "GTSPerkSprintDamageMult1")) {
+		if (actor->AsActorState()->IsSprinting() && Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkSprintDamageMult1)) {
 			resistance -= 0.20f;
 		}
 		return resistance;
@@ -1038,7 +1035,7 @@ namespace GTS {
 
 										float iconScale = std::clamp(tinyScale, 1.0f, 9999.0f) * 2.4f;
 										bool Ally = !IsHostile(giant, otherActor) && IsTeammate(otherActor);
-										bool HasLovingEmbrace = Runtime::HasPerkTeam(giant, "GTSPerkHugsLovingEmbrace");
+										bool HasLovingEmbrace = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace);
 										bool Healing = IsHugHealing(giant);
 
 										NiPoint3 Position = node->world.translate;
@@ -1062,7 +1059,7 @@ namespace GTS {
 											SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_LovingEmbrace.nif", NiMatrix3(), Position, iconScale, 7, node);
 										} else if (huggedActor && huggedActor == otherActor && !IsHugCrushing(giant) && !Healing) {
 											bool LowHealth = (GetHealthPercentage(huggedActor) < GetHugCrushThreshold(giant, otherActor, true));
-											bool ForceCrush = Runtime::HasPerkTeam(giant, "GTSPerkHugMightyCuddles");
+											bool ForceCrush = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugMightyCuddles);
 											float Stamina = GetStaminaPercentage(giant);
 											if (HasSMT(giant) || LowHealth || (ForceCrush && Stamina > 0.75f)) {
 												SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_Hug_Crush.nif", NiMatrix3(), Position, iconScale, 7, node); // Spawn 'can be hug crushed'
@@ -1106,7 +1103,7 @@ namespace GTS {
 	float GetPerkBonus_OnTheEdge(Actor* giant, float amt) {
 		// When health is < 60%, empower growth by up to 50%. Max value at 10% health.
 		float bonus = 1.0f;
-		bool perk = Runtime::HasPerkTeam(giant, "GTSPerkOnTheEdge");
+		bool perk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkOnTheEdge);
 		if (perk) {
 			float hpFactor = std::clamp(GetHealthPercentage(giant) + 0.4f, 0.5f, 1.0f);
 			bonus = (amt > 0.0f) ? (2.0f - hpFactor) : hpFactor;
@@ -1280,7 +1277,7 @@ namespace GTS {
 
 	void DecreaseShoutCooldown(Actor* giant) {
 		auto process = giant->GetActorRuntimeData().currentProcess;
-		if (giant->formID == 0x14 && process && Runtime::HasPerk(giant, "GTSPerkTinyCalamityRefresh")) {
+		if (giant->formID == 0x14 && process && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkTinyCalamityRefresh)) {
 			auto high = process->high;
 			float by = 0.90f;
 			if (high) {
@@ -1456,7 +1453,7 @@ namespace GTS {
 
 	void CompleteDragonQuest(Actor* tiny, ParticleType Type, bool dead) {
 		auto pc = PlayerCharacter::GetSingleton();
-		auto progressionQuest = Runtime::GetQuest("GTSQuestProgression");
+		auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression);
 		if (progressionQuest) {
 			auto stage = progressionQuest->GetCurrentStageID();
 			if (stage == 80) {
@@ -1480,7 +1477,7 @@ namespace GTS {
 		float hh = 0.0f;
 
 		if (actor) {
-			if (Runtime::HasPerkTeam(actor, "GTSPerkHighHeels")) {
+			if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHighHeels)) {
 				hh = HighHeelManager::GetInitialHeelHeight(actor);
 			}
 		} if (multiply) {
@@ -1546,7 +1543,10 @@ namespace GTS {
 			return false;
 		}
 
-		if (Runtime::InFaction(actor, "FollowerFaction") || actor->IsPlayerTeammate() || IsGtsTeammate(actor)) {
+		if ((Runtime::InFaction(actor, Runtime::FACT.FollowerFaction) || 
+			actor->IsPlayerTeammate() || 
+			IsGtsTeammate(actor)) &&
+			IsHumanoid(actor)) { //Disallow Creature NPC's
 			return true;
 		}
 
@@ -1561,8 +1561,6 @@ namespace GTS {
 		bool everyone = Config::General.bAllActorSizeEffects || CountAsGiantess(giant);
 		if (!dead && everyone) {
 			return true;
-		} else {
-			return false;
 		}
 		return false;
 	}
@@ -1885,7 +1883,7 @@ namespace GTS {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	bool IsGrowthSpurtActive(Actor* actor) {
-		if (!Runtime::HasPerkTeam(actor, "GTSPerkGrowthAug1")) {
+		if (!Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkGrowthAug1)) {
 			return false;
 		}
 		if (HasGrowthSpurt(actor)) {
@@ -1895,14 +1893,13 @@ namespace GTS {
 	}
 
 	bool HasGrowthSpurt(Actor* actor) {
-		bool Growth1 = Runtime::HasMagicEffect(actor, "GTSEffectGrowthSpurt1");
-		bool Growth2 = Runtime::HasMagicEffect(actor, "GTSEffectGrowthSpurt2");
-		bool Growth3 = Runtime::HasMagicEffect(actor, "GTSEffectGrowthSpurt3");
+		bool Growth1 = Runtime::HasMagicEffect(actor, Runtime::MGEF.GTSEffectGrowthSpurt1);
+		bool Growth2 = Runtime::HasMagicEffect(actor, Runtime::MGEF.GTSEffectGrowthSpurt2);
+		bool Growth3 = Runtime::HasMagicEffect(actor, Runtime::MGEF.GTSEffectGrowthSpurt3);
 		if (Growth1 || Growth2 || Growth3) {
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	bool InBleedout(Actor* actor) {
@@ -1926,37 +1923,40 @@ namespace GTS {
 	}
 
 	bool IsMechanical(Actor* actor) {
-		bool dwemer = Runtime::HasKeyword(actor, "DwemerKeyword");
+		bool dwemer = Runtime::HasKeyword(actor, Runtime::KYWD.DwemerKeyword);
 		return dwemer;
 	}
 
 	bool IsHuman(Actor* actor) { // Check if Actor is humanoid or not. Currently used for Hugs Animation and for playing moans
-		bool vampire = Runtime::HasKeyword(actor, "VampireKeyword");
-		bool dragon = Runtime::HasKeyword(actor, "DragonKeyword");
-		bool animal = Runtime::HasKeyword(actor, "AnimalKeyword");
-		bool dwemer = Runtime::HasKeyword(actor, "DwemerKeyword");
-		bool undead = Runtime::HasKeyword(actor, "UndeadKeyword");
-		bool creature = Runtime::HasKeyword(actor, "CreatureKeyword");
-		bool humanoid = Runtime::HasKeyword(actor, "ActorTypeNPC");
+		bool vampire  = Runtime::HasKeyword(actor, Runtime::KYWD.VampireKeyword);
+		bool dragon   = Runtime::HasKeyword(actor, Runtime::KYWD.DragonKeyword);
+		bool animal   = Runtime::HasKeyword(actor, Runtime::KYWD.AnimalKeyword);
+		bool dwemer   = Runtime::HasKeyword(actor, Runtime::KYWD.DwemerKeyword);
+		bool undead   = Runtime::HasKeyword(actor, Runtime::KYWD.UndeadKeyword);
+		bool creature = Runtime::HasKeyword(actor, Runtime::KYWD.CreatureKeyword);
+		bool humanoid = Runtime::HasKeyword(actor, Runtime::KYWD.ActorTypeNPC);
 		if (humanoid) {
 			return true;
-		} if (!dragon && !animal && !dwemer && !undead && !creature) {
+		} 
+		if (!dragon && !animal && !dwemer && !undead && !creature) {
 			return true; // Detect non-vampire
-		} if (!dragon && !animal && !dwemer && !creature && undead && vampire) {
+		}
+		if (!dragon && !animal && !dwemer && !creature && undead && vampire) {
 			return true; // Detect Vampire
-		} else {
+		} 
+		else {
 			return false;
 		}
 		return false;
 	}
 
 	bool IsBlacklisted(Actor* actor) {
-		bool blacklist = Runtime::HasKeyword(actor, "GTSKeywordBlackListActor");
+		bool blacklist = Runtime::HasKeyword(actor, Runtime::KYWD.GTSKeywordBlackListActor);
 		return blacklist;
 	}
 
 	bool IsGtsTeammate(Actor* actor) {
-		return Runtime::HasKeyword(actor, "GTSKeywordCountAsFollower");
+		return Runtime::HasKeyword(actor, Runtime::KYWD.GTSKeywordCountAsFollower);
 	}
 
 	void ResetCameraTracking(Actor* actor) {
@@ -1967,7 +1967,7 @@ namespace GTS {
 	}
 
 	void CallDevourment(Actor* a_Pred, Actor* a_Prey) {
-		auto ProxyQuest = Runtime::GetQuest("GTSQuestProxy");
+		auto ProxyQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 		const auto& AllowEndo = Config::Gameplay.ActionSettings.bDVDoEndoOnTeam;
 		bool DoEndo = false;
 
@@ -2009,14 +2009,14 @@ namespace GTS {
 	}
 
 	void CallVampire() {
-		auto progressionQuest = Runtime::GetQuest("GTSQuestProxy");
+		auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 		if (progressionQuest) {
 			CallFunctionOn(progressionQuest, "GTSProxy", "Proxy_SatisfyVampire");
 		}
 	}
 
 	void AddCalamityPerk() {
-		auto progressionQuest = Runtime::GetQuest("GTSQuestProxy");
+		auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 		if (progressionQuest) {
 			CallFunctionOn(progressionQuest, "GTSProxy", "Proxy_AddCalamityShout");
 		}
@@ -2025,7 +2025,7 @@ namespace GTS {
 
 	//Unused
 	void RemoveCalamityPerk() {
-		auto progressionQuest = Runtime::GetQuest("GTSQuestProxy");
+		auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 		if (progressionQuest) {
 			CallFunctionOn(progressionQuest, "GTSProxy", "Proxy_RemoveCalamityShout");
 		}
@@ -2035,7 +2035,7 @@ namespace GTS {
 
 		const auto _Level = static_cast<int>(std::round(a_Level));
 
-		auto GtsSkillPerkPoints = Runtime::GetGlobal("GTSSkillPerkPoints");
+		auto GtsSkillPerkPoints = Runtime::GetGlobal(Runtime::GLOB.GTSSkillPerkPoints);
 
 		if (!GtsSkillPerkPoints) {
 			return;
@@ -2066,7 +2066,7 @@ namespace GTS {
 	}
 
 	void AddStolenAttributes(Actor* giant, float value) {
-		if (giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkFullAssimilation")) {
+		if (giant->formID == 0x14 && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkFullAssimilation)) {
 			auto attributes = Persistent::GetActorData(giant);
 			if (attributes) {
 				const float cap = GetStolenAttributeCap(giant);
@@ -2141,7 +2141,7 @@ namespace GTS {
 	}
 
 	void DistributeStolenAttributes(Actor* giant, float value) {
-		if (value > 0 && giant->formID == 0x14 && Runtime::HasPerk(giant, "GTSPerkFullAssimilation")) { // Permamently increases random AV after shrinking and stuff
+		if (value > 0 && giant->formID == 0x14 && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkFullAssimilation)) { // Permamently increases random AV after shrinking and stuff
 			float scale = std::clamp(get_visual_scale(giant), 0.01f, 1000000.0f);
 			float Storage = GetStolenAttributes(giant);
 			float limit = GetStolenAttributeCap(giant);
@@ -2172,10 +2172,10 @@ namespace GTS {
 
 	float GetButtCrushCost(Actor* actor, bool DoomOnly) {
 		float cost = 1.0f;
-		if (!DoomOnly && Runtime::HasPerkTeam(actor, "GTSPerkButtCrush")) {
+		if (!DoomOnly && Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrush)) {
 			cost -= 0.15f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrushAug4")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrushAug4)) {
 			cost -= 0.25f;
 		}
 		cost *= Perk_GetCostReduction(actor);
@@ -2186,14 +2186,14 @@ namespace GTS {
 		float cost = 1.0f;
 		float reduction_1 = 0.0f;
 		float reduction_2 = 1.0f;
-		if (Runtime::HasPerkTeam(giant, "GTSPerkExperiencedGiantess")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkExperiencedGiantess)) {
 			reduction_1 += std::clamp(GetGtsSkillLevel(giant) * 0.0035f, 0.0f, 0.35f);
 		}
 		if (giant->formID == 0x14 && HasGrowthSpurt(giant)) {
-			if (Runtime::HasPerkTeam(giant, "GTSPerkGrowthAug1")) {
+			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowthAug1)) {
 				reduction_2 -= 0.10f;
 			} 
-			if (Runtime::HasPerk(giant, "GTSPerkExtraGrowth1")) {
+			if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkExtraGrowth1)) {
 				reduction_2 -= 0.30f;
 			}
 		}
@@ -2287,7 +2287,7 @@ namespace GTS {
 	void SpawnDustParticle(Actor* giant, Actor* tiny, std::string_view node, float size) {
 		auto result = find_node(giant, node);
 		if (result) {
-			BGSExplosion* base_explosion = Runtime::GetExplosion("GTSExplosionDraugr");
+			BGSExplosion* base_explosion = Runtime::GetExplosion(Runtime::EXPL.GTSExplosionDraugr);
 			if (base_explosion) {
 				NiPointer<TESObjectREFR> instance_ptr = giant->PlaceObjectAtMe(base_explosion, false);
 				if (!instance_ptr) {
@@ -2579,9 +2579,9 @@ namespace GTS {
 		if (IsEssential_WithIcons(giant, tiny)) { // Protect followers/essentials
 			return;
 		}
-		bool DarkArts1 = Runtime::HasPerk(giant, "GTSPerkDarkArtsAug1");
-		bool DarkArts2 = Runtime::HasPerk(giant, "GTSPerkDarkArtsAug2");
-		bool DarkArts_Legendary = Runtime::HasPerk(giant, "GTSPerkDarkArtsLegendary");
+		bool DarkArts1 = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsAug1);
+		bool DarkArts2 = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsAug2);
+		bool DarkArts_Legendary = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsLegendary);
 
 		float shrinkpower = (shrink * 0.35f) * (1.0f + (GetGtsSkillLevel(giant) * 0.005f)) * CalcEffeciency(giant, tiny);
 
@@ -2624,8 +2624,8 @@ namespace GTS {
 		if (!node) {
 			return;
 		}
-		bool DarkArts_Legendary = Runtime::HasPerk(giant, "GTSPerkDarkArtsLegendary");
-		bool DarkArts1 = Runtime::HasPerk(giant, "GTSPerkDarkArtsAug1");
+		bool DarkArts_Legendary = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsLegendary);
+		bool DarkArts1 = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsAug1);
 		
 		NiPoint3 NodePosition = node->world.translate;
 
@@ -2653,12 +2653,12 @@ namespace GTS {
 		
 		explosion *= radius_mult;
 		radius *= radius_mult;
-		
 
-		const float BASE_DISTANCE = 84.0f;
+
+		constexpr float BASE_DISTANCE = 84.0f;
 		float CheckDistance = BASE_DISTANCE*giantScale*radius;
 
-		Runtime::PlaySoundAtNode("GTSSoundShrinkOutburst", giant, explosion, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundShrinkOutburst, giant, explosion, "NPC Pelvis [Pelv]");
 		Rumbling::For("ShrinkOutburst", giant, Rumble_Misc_ShrinkOutburst, 0.15f, "NPC COM [COM ]", 0.60f, 0.0f);
 
 		SpawnParticle(giant, 6.00f, "GTS/Shouts/ShrinkOutburst.nif", NiMatrix3(), NodePosition, giantScale*explosion*3.0f, 7, nullptr); // Spawn effect
@@ -2702,7 +2702,7 @@ namespace GTS {
 				float scale = get_visual_scale(actor);
 
 				SpawnCustomParticle(actor, ParticleType::Red, NiPoint3(), "NPC Root [Root]", scale * 1.15f);
-				Runtime::PlaySoundAtNode("GTSSoundMagicProctectTinies", actor, 1.0f, "NPC COM [COM ]");
+				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundMagicProctectTinies, actor, 1.0f, "NPC COM [COM ]");
 
 				std::string name_com = std::format("Protect_{}", actor->formID);
 				std::string name_root = std::format("Protect_Root_{}", actor->formID);
@@ -2752,7 +2752,7 @@ namespace GTS {
 	}
 
 	bool HasSMT(Actor* giant) {
-		if (Runtime::HasMagicEffect(giant, "GTSEffectTinyCalamity")) {
+		if (Runtime::HasMagicEffect(giant, Runtime::MGEF.GTSEffectTinyCalamity)) {
 			return true;
 		}
 		return false;
@@ -2763,7 +2763,7 @@ namespace GTS {
 			static Timer Cooldown = Timer(1.2);
 			if (Cooldown.ShouldRun()) {
 				float falloff = 0.13f * get_visual_scale(actor);
-				Runtime::PlaySoundAtNode_FallOff("GTSSoundFail", actor, 0.4f, "NPC COM [COM ]", falloff);
+				Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundFail, actor, 0.4f, "NPC COM [COM ]", falloff);
 				Notify(message);
 			}
 		}
@@ -2993,7 +2993,7 @@ namespace GTS {
 
 	float GetGtsSkillLevel(Actor* giant) {
         if (giant->formID == 0x14) {
-            auto GtsSkillLevel = Runtime::GetFloatOr("GTSSkillLevel", 1.0f);
+            auto GtsSkillLevel = Runtime::GetFloat(Runtime::GLOB.GTSSkillLevel);
             return GtsSkillLevel;
         } else {
             float Alteration = std::clamp(GetAV(giant, ActorValue::kAlteration), 1.0f, 100.0f);
@@ -3003,7 +3003,7 @@ namespace GTS {
 
 	float GetLegendaryLevel(Actor* giant) {
 		if (giant->formID == 0x14) {
-            auto LegendaryLevel = Runtime::GetFloatOr("GTSSkillLegendary", 0.0f);
+            auto LegendaryLevel = Runtime::GetFloat(Runtime::GLOB.GTSSkillLegendary);
             return LegendaryLevel;
         } 
 		return 0.0f;
@@ -3021,11 +3021,11 @@ namespace GTS {
 
 		Actor* player = PlayerCharacter::GetSingleton();
 
-		if (!Runtime::HasPerk(player, "GTSPerkMightOfDragons")) {
+		if (!Runtime::HasPerk(player, Runtime::PERK.GTSPerkMightOfDragons)) {
 			return;
 		}
 
-		if (Runtime::HasPerk(player, "GTSPerkColossalGrowth")) {
+		if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkColossalGrowth)) {
 			size_boost = 1.2f;
 		}
 
@@ -3066,7 +3066,7 @@ namespace GTS {
 
 	void AddSMTDuration(Actor* actor, float duration, bool perk_check) {
 		if (HasSMT(actor)) {
-			if (!perk_check || Runtime::HasPerk(actor, "GTSPerkTinyCalamityRefresh")) {
+			if (!perk_check || Runtime::HasPerk(actor, Runtime::PERK.GTSPerkTinyCalamityRefresh)) {
 				auto transient = Transient::GetActorData(actor);
 				if (transient) {
 					transient->SMTBonusDuration += duration;
@@ -3171,7 +3171,7 @@ namespace GTS {
 				}
 
 				if (PlayerCharacter->IsSneaking() && UtilEnableDialogue->value < 1.0f) {
-					Runtime::GetFloat("GTSUtilEnableDialogue");
+					Runtime::GetFloat(Runtime::GLOB.GTSUtilEnableDialogue);
 					UtilEnableDialogue->value = 1.0f;
 				}
 				else if (!PlayerCharacter->IsSneaking() && UtilEnableDialogue->value >= 1.0f) {
@@ -3338,7 +3338,7 @@ namespace GTS {
 		if (giant->formID != 0x14) {
 			return true;
 		} else {
-			auto progressionQuest = Runtime::GetQuest("GTSQuestProgression");
+			auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression);
 			if (progressionQuest) {
 				auto queststage = progressionQuest->GetCurrentStageID();
 
@@ -3369,7 +3369,7 @@ namespace GTS {
 
 	void AdvanceQuestProgression(Actor* giant, Actor* tiny, QuestStage stage, float value, bool vore) {
 		if (giant->formID == 0x14) { // Player Only
-			auto progressionQuest = Runtime::GetQuest("GTSQuestProgression");
+			auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression);
 
 			if (progressionQuest) {
 				auto queststage = progressionQuest->GetCurrentStageID();

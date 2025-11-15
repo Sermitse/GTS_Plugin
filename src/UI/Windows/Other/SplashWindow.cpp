@@ -4,6 +4,8 @@
 
 #include "Version.hpp"
 
+#include "Config/Config.hpp"
+
 namespace {
 
 	//Helper function to get the current keybind for opening the settings menu

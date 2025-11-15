@@ -64,12 +64,12 @@ namespace {
 	void GTS_Sneak_Slam_Raise_Arm_R(AnimationEventData& data) {
 		Utils_UpdateHighHeelBlend(&data.giant, false);
 		TrackMatchingHand(&data.giant, CrawlEvent::RightHand, true);
-		DrainStamina(&data.giant, "StaminaDrain_SneakSlam", "GTSPerkDestructionBasics", true, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_SneakSlam", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
 	}
 	void GTS_Sneak_Slam_Raise_Arm_L(AnimationEventData& data) {
 		Utils_UpdateHighHeelBlend(&data.giant, false);
 		TrackMatchingHand(&data.giant, CrawlEvent::LeftHand, true);
-		DrainStamina(&data.giant, "StaminaDrain_SneakSlam", "GTSPerkDestructionBasics", true, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_SneakSlam", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
 	}
 
 	void GTS_Sneak_Slam_Lower_Arm_R(AnimationEventData& data) {};

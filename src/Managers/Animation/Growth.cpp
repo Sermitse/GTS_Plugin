@@ -41,7 +41,7 @@ namespace {
 			std::string name = std::format("ManualGrowth_{}", actor->formID);
 
 			float Volume = std::clamp(get_visual_scale(actor)/8.0f, 0.20f, 1.0f);
-			Runtime::PlaySoundAtNode("GTSSoundGrowth", actor, Volume, "NPC Pelvis [Pelv]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, actor, Volume, "NPC Pelvis [Pelv]");
 
 			TaskManager::Run(name, [=](auto& progressData) {
 				if (!gianthandle) {

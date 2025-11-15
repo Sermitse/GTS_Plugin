@@ -20,7 +20,7 @@ namespace GTS {
 		Potion_Penalty(caster);
 
 		float Volume = std::clamp(get_visual_scale(caster)/8.0f, 0.15f, 2.0f);
-		Runtime::PlaySoundAtNode("GTSSoundGrowth", caster, Volume, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, caster, Volume, "NPC Pelvis [Pelv]");
 		log::info("Growth Potion start actor: {}", caster->GetDisplayFullName());
 	}
 

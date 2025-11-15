@@ -37,7 +37,7 @@ namespace {
 
 	bool Hit_ShouldGrow(Actor* receiver) {
 		bool GrowthEnabled = Config::Gameplay.bEnableGrowthOnHit;
-		bool HasPerk = Runtime::HasPerkTeam(receiver, "GTSPerkHitGrowth");
+		bool HasPerk = Runtime::HasPerkTeam(receiver, Runtime::PERK.GTSPerkHitGrowth);
 		bool Teammate = (IsTeammate(receiver) || CountAsGiantess(receiver)) && IsFemale(receiver, true);
 		bool IsPlayer = receiver->formID == 0x14;
 		
@@ -51,7 +51,7 @@ namespace {
 
 	bool Hit_ShouldShrink(Actor* receiver) {
 		
-		const bool HasPerk = Runtime::HasPerk(receiver, "GTSPerkHitGrowth");
+		const bool HasPerk = Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkHitGrowth);
 		const bool BalanceMode = SizeManager::BalancedMode();
 
 		if (BalanceMode && receiver->formID == 0x14 && !HasPerk) {
@@ -98,11 +98,11 @@ namespace {
 				}
 
 				if (!LessGore()) {
-					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, "NPC L Hand [LHnd]");
-					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, "NPC L Hand [LHnd]");
-					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
 				} else {
-					Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", receiver, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSoftHandAttack, receiver, 1.0f, "NPC L Hand [LHnd]");
 				}
 				Rumbling::Once("GrabAttackKill", receiver, 8.0f, 0.15f, "NPC L Hand [LHnd]", 0.0f);
 				AnimationManager::StartAnim("GrabAbort", receiver); // Abort Grab animation
@@ -115,13 +115,13 @@ namespace {
 	void DropTinyChance(Actor* receiver, float damage, float scale) {
 		static Timer DropTimer = Timer(0.33); // Check once per .33 sec
 		float bonus = 1.0f;
-		if (Runtime::HasPerkTeam(receiver, "GTSPerkHugsOfDeath")) {
+		if (Runtime::HasPerkTeam(receiver, Runtime::PERK.GTSPerkHugsOfDeath)) {
 			return; // Full immunity
 		}
-		if (Runtime::HasPerkTeam(receiver, "GTSPerkHugsGreed")) {
+		if (Runtime::HasPerkTeam(receiver, Runtime::PERK.GTSPerkHugsGreed)) {
 			bonus = 4.0f; // 4 times bigger damage threshold to cancel hugs
 		}
-		if (Runtime::HasPerkTeam(receiver, "GTSPerkHugsToughGrip")) {
+		if (Runtime::HasPerkTeam(receiver, Runtime::PERK.GTSPerkHugsToughGrip)) {
 			float GetHP = GetHealthPercentage(receiver);
 			if (GetHP >= 0.85f) {
 				return; // Drop only if hp is < 85%
@@ -160,7 +160,7 @@ namespace {
 		update_target_scale(receiver, GrowthValue, SizeEffectType::kNeutral);
 		
 		if (soundtimer.ShouldRunFrame()) {
-			Runtime::PlaySoundAtNode("GTSSoundGrowth", receiver, GrowthValue * 2, "NPC Pelvis [Pelv]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, receiver, GrowthValue * 2, "NPC Pelvis [Pelv]");
 		}
 		if (ShrinkChance >= 2) {
 			if (get_target_scale(attacker) >= 0.06f/Adjustment) {
@@ -248,10 +248,10 @@ namespace GTS {
 	}
 
 	void SizeHitEffects::PerformInjuryDebuff(Actor* giant, Actor* tiny, float damage, int random) { // Used as a debuff
-		if (!tiny->IsDead() && Runtime::HasPerkTeam(giant, "GTSPerkRavagingInjuries")) {
+		if (!tiny->IsDead() && Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRavagingInjuries)) {
 			if (random > 0) {
 
-				if (Runtime::HasPerkTeam(giant, "GTSPerkSprintDamageMult2") && giant->AsActorState()->IsSprinting() && !IsGtsBusy(giant)) {
+				if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkSprintDamageMult2) && giant->AsActorState()->IsSprinting() && !IsGtsBusy(giant)) {
 					damage *= 3.0f;
 					random = 1; // always apply
 				}

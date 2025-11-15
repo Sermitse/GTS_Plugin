@@ -94,7 +94,7 @@ namespace GTS {
 	void ConsoleManager::CMD_Unlimited() {
 		auto Player = PlayerCharacter::GetSingleton();
 		if (Player) {
-			if (Runtime::HasPerk(Player, "GTSPerkColossalGrowth")) {
+			if (Runtime::HasPerk(Player, Runtime::PERK.GTSPerkColossalGrowth)) {
 				Persistent::UnlockMaxSizeSliders.value = !Persistent::UnlockMaxSizeSliders.value;
 				Cprint("Max Size Sliders unlocked: {}", Persistent::UnlockMaxSizeSliders.value);
 			}

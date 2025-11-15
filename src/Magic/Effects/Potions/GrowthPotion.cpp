@@ -17,7 +17,7 @@ namespace {
 
 			Rumbling::Once("GrowthPotion", giant, 2.0f, 0.05f);
 
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", giant, Volume, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundGrowth, giant, Volume, "NPC Pelvis [Pelv]", falloff);
 		}
 	}
 
@@ -32,15 +32,19 @@ namespace GTS {
 
 		auto base_spell = GetBaseEffect();
 
-		if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectGrowthWeak")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectGrowthWeak)) {
 			this->power = 1.0f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectGrowthNormal")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectGrowthNormal)) {
 			this->power = 1.5f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectGrowthStrong")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectGrowthStrong)) {
 			this->power = 2.0f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectGrowthExtreme")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectGrowthExtreme)) {
 			this->power = 2.5f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSAlchEffectGrowth")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSAlchEffectGrowth)) {
 			RecordPotionMagnitude(GetActiveEffect(), this->power, 1.0f);
 		}
 	}

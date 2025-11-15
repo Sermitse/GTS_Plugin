@@ -101,7 +101,7 @@ namespace {
 		ActorHandle giantHandle = giant->CreateRefHandle();
 		double Start = Time::WorldTimeElapsed();
 
-		DrainStamina(giant,"StaminaDrain_UnderButtCrush", "GTSPerkDestructionBasics", false, 18.0f);
+		DrainStamina(giant,"StaminaDrain_UnderButtCrush", Runtime::PERK.GTSPerkDestructionBasics, false, 18.0f);
 		
 		TaskManager::RunFor(taskname, 1.0f, [=](auto& update){ // Needed because anim has wrong timing
 			if (!giantHandle) {
@@ -172,7 +172,7 @@ namespace {
 	}
 
     void GTS_UnderStomp_ButtCamOn(AnimationEventData& data) {
-		DrainStamina(&data.giant,"StaminaDrain_UnderButtCrush", "GTSPerkDestructionBasics", true, 18.0f); // 13.5 * 5.1
+		DrainStamina(&data.giant,"StaminaDrain_UnderButtCrush", Runtime::PERK.GTSPerkDestructionBasics, true, 18.0f); // 13.5 * 5.1
 		ManageCamera(&data.giant, true, CameraTracking::Butt);
 	}
     void GTS_UnderStomp_ButtCamOff(AnimationEventData& data) {

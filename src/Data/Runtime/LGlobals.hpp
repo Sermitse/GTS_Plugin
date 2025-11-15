@@ -16,7 +16,6 @@ namespace RuntimeData {
 		Entry(GTSUtilEnableDialogue,       GTSP, 0x277000);
 
 		//Survival Mode
-		Entry(Survival_HungerNeedMaxValue, SRVM, 0x00080C);
 		Entry(Survival_HungerNeedValue,    SRVM, 0x00081A);
 		Entry(Survival_HungerStage1Value,  SRVM, 0x000806);
 		Entry(Survival_HungerStage2Value,  SRVM, 0x000802);

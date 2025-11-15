@@ -208,9 +208,9 @@ namespace Grab_Fixes {
 			float experience = std::clamp(damage/1600, 0.0f, 0.06f);
 
             if (CanDoDamage(giant, grabbedActor, false)) {
-                if (Runtime::HasPerkTeam(giant, "GTSPerkGrowingPressure")) {
-                    auto& sizemanager = SizeManager::GetSingleton();
-                    sizemanager.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
+                if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
+                    auto& mgr = SizeManager::GetSingleton();
+                    mgr.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
                 }
 
                 TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * GetDamageSetting());
@@ -345,7 +345,7 @@ namespace {
 
 	void GTS_HS_Flick_Ragdoll(AnimationEventData& data) {
 		Rumbling::Once("FlichTiny_Land", &data.giant, 2.1f, 0.05f, "NPC L Hand [LHnd]", true);
-		Runtime::PlaySoundAtNode("GTSSoundSwingImpact", &data.giant, 0.75f, "NPC L Hand [LHnd]"); // play swing impact sound
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwingImpact, &data.giant, 0.75f, "NPC L Hand [LHnd]"); // play swing impact sound
 	}
 
 	// [ L I G H T  C R U S H ]
@@ -385,7 +385,7 @@ namespace {
 
 	void GTS_HS_Kiss_Stop(AnimationEventData& data) {}
 	void GTS_HS_KissSound_Play(AnimationEventData& data) {
-		Runtime::PlaySoundAtNode_FallOff("GTSSoundKissing", &data.giant, 1.0f, "NPC Head [Head]", 0.11f * get_visual_scale(&data.giant));
+		Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundKissing, &data.giant, 1.0f, "NPC Head [Head]", 0.11f * get_visual_scale(&data.giant));
 		auto tiny = Grab::GetHeldActor(&data.giant);
 		if (tiny) {
 			tiny->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, ActorValue::kHealth, GetMaxAV(tiny, ActorValue::kHealth) * 0.1f);
@@ -420,7 +420,7 @@ namespace {
 	}
 
 	void GTS_HS_K_Vore_SlurpTiny_End(AnimationEventData& data) {
-		Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
 	}
 
 	void GTS_HS_K_Vore_TinyInMouth(AnimationEventData& data) {
@@ -444,7 +444,7 @@ namespace {
 	}
 
 	void GTS_HS_Vore_SwallowTiny(AnimationEventData& data) {
-		Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
 		Grab_Fixes::GTSGrab_FullyEatTiny(&data.giant);
 		//Grab::FailSafeReset(&data.giant);
 	}

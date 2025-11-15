@@ -13,7 +13,7 @@ namespace GTS {
 	bool IsUnderTrampling(Actor* giant);
 	bool IsInGrabPlayState(Actor* giant);
 	bool IsInSexlabAnim(Actor* actor_1, Actor* actor_2);
-	bool DontAlterDamage(Actor* a_this, float dmg, float Health_Reduction);
+	bool DontAlterDamage(Actor* a_this, float dmg, float Damage_Add);
 	bool IsHumanoid(Actor* giant);
 	bool CountAsGiantess(Actor* giant);
 	bool IsVisible(Actor* giant);

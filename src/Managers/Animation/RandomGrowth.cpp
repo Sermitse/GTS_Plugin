@@ -28,7 +28,7 @@ namespace {
 		int growth_roll = static_cast<int>(GetGrowthType(giant));
 		float multiplier = 1.0f;
 
-		if (Runtime::HasPerkTeam(giant, "GTSPerkRandomGrowthTerror")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRandomGrowthTerror)) {
 			multiplier = 1.3f;
 		}
 
@@ -43,7 +43,7 @@ namespace {
 				return 0.28f * multiplier * 1.35f; // ~42% without * 1.25
 			case 4:
 				return 0.34f * multiplier * 1.25f; // ~62% without * 1.25
-			break;
+			default: {} ;
 		}
 
 		return 0.9f * multiplier;
@@ -115,7 +115,7 @@ namespace {
 				ApplyActionCooldown(giant, CooldownSource::Misc_GrowthSound);
 
 				float Volume = std::clamp(get_visual_scale(actor)/8.0f, 0.20f, 1.0f);
-				Runtime::PlaySoundAtNode("GTSSoundGrowth", actor, Volume * gain, "NPC Pelvis [Pelv]");
+				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, actor, Volume * gain, "NPC Pelvis [Pelv]");
 			}
 			
 			if (!IsGrowing(giant) || elapsed > 1.8f && gain < 0.0f) {
@@ -134,7 +134,7 @@ namespace {
 		Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 		Task_FacialEmotionTask_Moan(giant, 1.75f, "RandomGrow");
 
-		if (Runtime::HasPerkTeam(giant, "GTSPerkRandomGrowthTerror")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRandomGrowthTerror)) {
 			for (auto tiny: find_actors()) {
 				if (tiny && tiny != giant) {
 					if (IsHostile(giant, tiny) || IsHostile(tiny, giant)) {

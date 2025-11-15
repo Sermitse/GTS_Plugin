@@ -27,9 +27,10 @@ namespace GTS {
 
 		auto base_spell = GetBaseEffect();
 
-		if (base_spell == Runtime::GetMagicEffect("GTSEffectGrowAllyAdept")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectGrowAllyAdept)) {
 			power *= 1.32f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSEffectGrowAllyExpert")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectGrowAllyExpert)) {
 			power *= 1.75f;
 		}
 

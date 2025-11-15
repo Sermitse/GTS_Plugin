@@ -22,7 +22,7 @@ namespace GTS {
 		float power = BASE_POWER * SkillMult;
 
 		float bonus = 1.0f;
-		if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+		if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 			bonus = get_visual_scale(caster) * 0.25f + 0.75f;
 		}
 

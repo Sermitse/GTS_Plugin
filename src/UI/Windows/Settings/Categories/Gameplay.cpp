@@ -12,15 +12,6 @@
 
 #include "UI/Controls/CollapsingTabHeader.hpp"
 
-namespace {
-
-    const std::string CollossalGrowthPerk = "GTSPerkColossalGrowth"; //AKA GtsTotalSizeControl
-    const std::string PleasurableGrowthPerk = "GTSPerkRandomGrowth"; //AKA GtsCrushGrowthAug
-    const std::string CrushGrowthAugmetationPerk = "GTSPerkGrowthDesire";
-    const std::string GrowOnHitPerk = "GTSPerkHitGrowth";
-}
-
-
 namespace GTS {
 
     void CategoryGameplay::GameModeOptions(GameplayActorSettings_t* a_Settings) {
@@ -90,9 +81,9 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Perk Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                const bool PerkCondCrush = Runtime::HasPerk(PlayerCharacter::GetSingleton(), CrushGrowthAugmetationPerk);
-                const bool PerkCondHit = Runtime::HasPerk(PlayerCharacter::GetSingleton(), GrowOnHitPerk);
-                const bool PerkCondAtribCap = Runtime::HasPerk(PlayerCharacter::GetSingleton(), CrushGrowthAugmetationPerk);;
+                const bool PerkCondCrush = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkGrowthDesire);
+                const bool PerkCondHit = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkHitGrowth);
+                const bool PerkCondAtribCap = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkGrowthDesire);
 
                 PSString T1 = "Upon crushing someone: Grow in size.\n"
                               "Applies to both the player and followers.";
@@ -171,7 +162,7 @@ namespace GTS {
 
         ImUtil_Unique {
 
-            const bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), PleasurableGrowthPerk);
+            const bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkRandomGrowth);
             const bool BalancedMode = Config::Balance.bBalanceMode;
         	const char* Reason = "Requires \"Pleasurable Growth\" Perk";
 
@@ -222,7 +213,7 @@ namespace GTS {
             shouldDisable = true;
             Reason = "Balance Mode Active";
         }
-        else if (!Runtime::HasPerk(PlayerCharacter::GetSingleton(), CollossalGrowthPerk)) {
+        else if (!Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth)) {
             shouldDisable = true;
             Reason = "Missing Perk: \"Colossal Growth\"";
         }

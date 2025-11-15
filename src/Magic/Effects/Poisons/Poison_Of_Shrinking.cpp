@@ -22,7 +22,7 @@ namespace GTS {
 		Rumbling::Once("Shrink_Poison", target, 2.0f, 0.05f);
 
 		float Volume = std::clamp(get_visual_scale(target) * 0.10f, 0.10f, 1.0f);
-		Runtime::PlaySound("GTSSoundShrink", target, Volume, 1.0f);
+		Runtime::PlaySound(Runtime::SNDR.GTSSoundShrink, target, Volume, 1.0f);
 	}
 
 	void Shrink_Poison::OnUpdate() {

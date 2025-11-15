@@ -132,7 +132,7 @@ namespace {
 					}
 				}
 
-				DrainStamina(giantref, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", false, 3.4f);
+				DrainStamina(giantref, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 3.4f);
 
 				StompManager::PlayNewOrOldStomps(giantref, SMT + (animSpeed/10), Event, Node, true);
 
@@ -167,7 +167,7 @@ namespace {
 			data.animSpeed += GetRandomBoost()/3;
 		}
 		ManageCamera(giant, true, CameraTracking::R_Foot);
-		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", true, 3.4f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, true, 3.4f);
 
 		SetBusyFoot(&data.giant, BusyFoot::RightFoot);
 		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);
@@ -181,7 +181,7 @@ namespace {
 			data.animSpeed += GetRandomBoost()/3;
 		}
 		ManageCamera(giant, true, CameraTracking::L_Foot);
-		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", true, 3.4f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, true, 3.4f);
 
 		SetBusyFoot(&data.giant, BusyFoot::LeftFoot);
 

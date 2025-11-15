@@ -1,5 +1,8 @@
 #include "UI/GTSMenu.hpp"
 #include "UI/Windows/Widgets/SizeBarWindow.hpp"
+
+#include "Config/Config.hpp"
+
 #include "UI/Lib/imgui.h"
 
 #include "UI/Core/ImFontManager.hpp"

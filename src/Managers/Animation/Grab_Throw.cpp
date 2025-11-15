@@ -69,7 +69,7 @@ namespace {
 
     void GTSGrab_Throw_MoveStart(AnimationEventData& data) {
 		auto giant = &data.giant;
-		DrainStamina(giant, "GrabThrow", "GTSPerkDestructionBasics", true, 1.25f);
+		DrainStamina(giant, "GrabThrow", Runtime::PERK.GTSPerkDestructionBasics, true, 1.25f);
 		ManageCamera(giant, true, CameraTracking::Grab_Left);
 		StartLHandRumble("GrabThrowL", data.giant, 0.5f, 0.10f);
 	}
@@ -224,7 +224,7 @@ namespace {
 	void GTSGrab_Throw_MoveStop(AnimationEventData& data) {
 		// Throw Frame 3
 		auto giant = &data.giant;
-		DrainStamina(giant, "GrabThrow", "GTSPerkDestructionBasics", false, 1.25f);
+		DrainStamina(giant, "GrabThrow", Runtime::PERK.GTSPerkDestructionBasics, false, 1.25f);
 		StopLHandRumble("GrabThrowL", data.giant);
 	}
 

@@ -67,10 +67,10 @@ namespace GTS {
 
 			if (timer.ShouldRun()) {
 				float Volume = std::clamp(get_visual_scale(CasterActor) / 8.0f, 0.20f, 1.0f);
-				Runtime::PlaySoundAtNode("GTSSoundGrowth", CasterActor, Volume, "NPC Pelvis [Pelv]");
+				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, CasterActor, Volume, "NPC Pelvis [Pelv]");
 			}
 
-			if (Runtime::HasMagicEffect(CasterActor, "GTSPotionEffectSizeAmplify")) {
+			if (Runtime::HasMagicEffect(CasterActor, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 				bonus = get_visual_scale(CasterActor) * 0.25f + 0.75f;
 			}
 
@@ -96,10 +96,10 @@ namespace GTS {
 
 		auto base_spell = GetBaseEffect();
 
-		if (base_spell == Runtime::GetMagicEffect("GTSEffectSlowGrowth")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectSlowGrowth)) {
 			this->IsDual = false;
 		}
-		if (base_spell == Runtime::GetMagicEffect("GTSEffectSlowGrowthDual")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectSlowGrowthDual)) {
 			this->IsDual = true;
 		}
 	}

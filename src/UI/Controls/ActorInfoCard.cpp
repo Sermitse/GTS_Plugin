@@ -1,5 +1,7 @@
 ﻿#include "UI/Controls/ActorInfoCard.hpp"
 
+#include "Config/Config.hpp"
+
 #include "UI/Lib/imgui.h"
 #include "UI/Lib/imgui_internal.h"
 
@@ -90,7 +92,7 @@ namespace ImGuiEx {
 		I.sFmtWeight =              GetFormatedWeight(a_actor).c_str();
 
 		//Perk Check
-		I.bHasPerk_GTSFullAssimilation = Runtime::HasPerk(a_actor, "GTSPerkFullAssimilation");
+		I.bHasPerk_GTSFullAssimilation = Runtime::HasPerk(a_actor, Runtime::PERK.GTSPerkFullAssimilation);
 
 		return std::move(I);
 

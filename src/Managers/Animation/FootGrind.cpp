@@ -136,7 +136,7 @@ namespace {
 		data.stage = 1;
 		data.canEditAnimSpeed = true;
 		data.animSpeed = 1.0f;
-		DrainStamina(&data.giant, "StaminaDrain_FootGrind", "GTSPerkDestructionBasics", true, 0.25f);
+		DrainStamina(&data.giant, "StaminaDrain_FootGrind", Runtime::PERK.GTSPerkDestructionBasics, true, 0.25f);
 		ApplyDamageOverTime(&data.giant, LNode, FootEvent::Left, "Left_Light");
 	}
 
@@ -144,7 +144,7 @@ namespace {
 		data.stage = 1;
 		data.canEditAnimSpeed = true;
 		data.animSpeed = 1.0f;
-		DrainStamina(&data.giant, "StaminaDrain_FootGrind", "GTSPerkDestructionBasics", true, 0.25f);
+		DrainStamina(&data.giant, "StaminaDrain_FootGrind", Runtime::PERK.GTSPerkDestructionBasics, true, 0.25f);
 		ApplyDamageOverTime(&data.giant, RNode, FootEvent::Right, "Right_Light");
 	}
 
@@ -177,13 +177,13 @@ namespace {
 	}
 
 	void GTSstomp_FootGrindR_Exit(AnimationEventData& data) { // Called when we want to deattach tiny from the foot and end grind in general
-		DrainStamina(&data.giant, "StaminaDrain_FootGrind", "GTSPerkDestructionBasics", false, 0.25f);
+		DrainStamina(&data.giant, "StaminaDrain_FootGrind", Runtime::PERK.GTSPerkDestructionBasics, false, 0.25f);
 		CancelGrindTasks(&data.giant);
 		ResetGrindData(data);
 	}
 
 	void GTSstomp_FootGrindL_Exit(AnimationEventData& data) { // Called when we want to deattach tiny from the foot and end grind in general
-		DrainStamina(&data.giant, "StaminaDrain_FootGrind", "GTSPerkDestructionBasics", false, 0.25f);
+		DrainStamina(&data.giant, "StaminaDrain_FootGrind", Runtime::PERK.GTSPerkDestructionBasics, false, 0.25f);
 		CancelGrindTasks(&data.giant);
 		ResetGrindData(data);
 	}

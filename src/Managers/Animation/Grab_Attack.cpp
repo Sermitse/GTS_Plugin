@@ -18,7 +18,7 @@ namespace {
 
     void GTSGrab_Attack_MoveStart(AnimationEventData& data) {
 		auto giant = &data.giant;
-		DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", true, 0.75f);
+		DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, true, 0.75f);
 		ManageCamera(giant, true, CameraTracking::Grab_Left);
 		StartLHandRumble("GrabMoveL", data.giant, 0.5f, 0.10f);
 	}
@@ -45,9 +45,9 @@ namespace {
 			}
 
             if (CanDoDamage(giant, grabbedActor, false)) {
-                if (Runtime::HasPerkTeam(giant, "GTSPerkGrowingPressure")) {
-                    auto& sizemanager = SizeManager::GetSingleton();
-                    sizemanager.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
+                if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
+                    auto& mgr = SizeManager::GetSingleton();
+                    mgr.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
                 }
 
                 TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * GetDamageSetting());
@@ -70,7 +70,7 @@ namespace {
 		auto& sizemanager = SizeManager::GetSingleton();
 		auto grabbedActor = Grab::GetHeldActor(giant);
 		ManageCamera(giant, false, CameraTracking::Grab_Left);
-		DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
+		DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
 		StopLHandRumble("GrabMoveL", data.giant);
 		if (!grabbedActor) {
 			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);

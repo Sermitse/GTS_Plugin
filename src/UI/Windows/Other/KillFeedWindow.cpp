@@ -15,7 +15,6 @@ namespace GTS {
 	void KillFeedWindow::Init() {
 
 		m_windowType = WindowType::kWidget;
-		m_fadeSettings.enabled = true;
 		m_name = "KillFeed";
 		m_title = "KillFeed";
 
@@ -232,7 +231,7 @@ namespace GTS {
 		const ImVec2 Offset{ BaseSettings.f2Position[0], BaseSettings.f2Position[1] };
 		ImGui::SetWindowPos(GetAnchorPos(StringToEnum<WindowAnchor>(BaseSettings.sAnchor), Offset, true));
 
-		ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetBody);
+		ImFontManager::Push(ImFontManager::ActiveFontType::kLargeText);
 
 		// Demo entries if configuring
 		if (Configuring) {
@@ -266,10 +265,9 @@ namespace GTS {
 				return entry->lifetime >= BaseSettings.fFadeAfter;
 			});
 
-			ImGui::Dummy({});
 		}
 
-		
+		ImGui::Dummy({});
 		ImFontManager::Pop();
 	}
 

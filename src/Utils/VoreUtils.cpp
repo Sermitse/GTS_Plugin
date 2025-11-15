@@ -17,7 +17,7 @@ namespace {
 
     void BuffAttributes(Actor* giant) {
 		if (giant) {
-			if (Runtime::HasPerk(giant, "GTSPerkFullAssimilation")) { // Permamently increases random AV after eating someone
+			if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkFullAssimilation)) { // Permamently increases random AV after eating someone
 				float TotalMod = 0.33f;
 				int Boost = RandomInt(0, 2);
 				if (Boost == 0) {
@@ -32,15 +32,15 @@ namespace {
 	}
 
     void UpdateVoreValues(Actor* giant, Actor* tiny, float& Health_Regeneration, float& growth, float& duration) { // Updates values 
-        if (Runtime::HasPerkTeam(giant, "GTSPerkVoreAbility")) {
+        if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkVoreAbility)) {
 			Health_Regeneration = GetMaxAV(tiny, ActorValue::kHealth) * 0.2f; // Default hp/sp regen
 		}
-		if (Runtime::HasPerkTeam(giant, "GTSPerkVoreHeal")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkVoreHeal)) {
 			Health_Regeneration = GetMaxAV(tiny, ActorValue::kHealth) * 0.8f; // 4 times stronger hp/sp regen
 			duration *= 0.5f; // 50% faster vore, means -50% duration
             growth *= 2.0f; // but 100% more growth
 		}
-		if (Runtime::HasPerkTeam(giant, "GTSPerkAdditionalGrowth")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkAdditionalGrowth)) {
 			growth *= 1.25f; // 25% stronger growth
 		}
     }

@@ -5,10 +5,6 @@
 using namespace GTS;
 
 namespace {
-    
-    void PrintSoundResult(int crushed, std::string_view sound_name) {
-        Cprint("[{} total crushed] - [playing {}]", crushed, sound_name);
-    }
 
     int GetCrushedCount(Actor* giant) {
         int crushed = 0;
@@ -35,34 +31,29 @@ namespace {
     void PlaySingleCrushSound(Actor* giant, NiAVObject* node, int crushed, float size, float frequency) {
         for (int i = 0; i < crushed; i++) {
             if (node) {
-                Runtime::PlaySoundAtNode(SingleCrush_8, 1.0f, node, frequency);
+                Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrushFootSingle8x, 1.0f, node, frequency);
             } else {
-                Runtime::PlaySound(SingleCrush_8, giant, 1.0f, frequency);
+                Runtime::PlaySound(Runtime::SNDR.GTSSoundCrushFootSingle8x, giant, 1.0f, frequency);
             }
-
-            PrintSoundResult(crushed, std::format("SingleCrush ({})", SingleCrush_8));
         }
     }
 
      void PlayMultiCrushSound(Actor* giant, NiAVObject* node, int crushed, float size, float frequency) {
         if (node) {
-            Runtime::PlaySoundAtNode(MultiCrush_8_3x, 1.0f, node, frequency);
+            Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrushFootMulti3x8x, 1.0f, node, frequency);
         } else {
-            Runtime::PlaySound(MultiCrush_8_3x, giant, 1.0f, frequency);
+            Runtime::PlaySound(Runtime::SNDR.GTSSoundCrushFootMulti3x8x, giant, 1.0f, frequency);
         }
 
-        PrintSoundResult(crushed, std::format("MultiCrush ({})", MultiCrush_8_3x));
     }
 
     void PlayDefaultSound(Actor* giant, NiAVObject* node, int crushed, float frequency) {
         for (int i = 0; i < crushed; i++) {
             if (node) {
-                Runtime::PlaySoundAtNode(DefaultCrush, 1.0f, node, frequency);
+                Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrushDefault, 1.0f, node, frequency);
             } else {
-                Runtime::PlaySound(DefaultCrush, giant, 1.0f, frequency);
+                Runtime::PlaySound(Runtime::SNDR.GTSSoundCrushDefault, giant, 1.0f, frequency);
             }
-
-            PrintSoundResult(crushed, std::format("DefaultCrush ({})", DefaultCrush));
         }
     }
 }

@@ -54,7 +54,7 @@ namespace {
 		});
 	}
 
-	void RunAudioTask(ObjectRefHandle dropboxHandle, Actor* actor) {
+	void RunAudioTask(const ObjectRefHandle& dropboxHandle, Actor* actor) {
 		std::string taskname_sound = std::format("DropboxAudio {}", actor->formID);
 		TaskManager::RunFor(taskname_sound, 6, [=](auto& progressData) {
 			if (!dropboxHandle) {
@@ -68,7 +68,7 @@ namespace {
 			if (!dropbox3D) {
 				return true; // Retry next frame
 			} else {
-				Runtime::PlaySound("GTSSoundCrushDefault", dropboxPtr, 1.0f, 1.0f);
+				Runtime::PlaySound(Runtime::SNDR.GTSSoundCrushDefault, dropboxPtr, 1.0f, 1.0f);
 				return false;
 			}
 		});
@@ -76,6 +76,7 @@ namespace {
 }
 
 namespace GTS {
+
 	NiPoint3 GetContainerSpawnLocation(Actor* giant, Actor* tiny) {
 		bool success_first = false;
 		bool success_second = false;
@@ -110,7 +111,7 @@ namespace GTS {
 		if (Cause != DamageSource::Vored) {
 			reanimated = WasReanimated(from);
 		}
-		if (Runtime::IsRace(from, "IcewraithRace")) {
+		if (Runtime::IsRace(from, Runtime::RACE.IcewraithRace)) {
 			reanimated = true;
 		}
 		// ^ we generally do not want to transfer loot in that case: 2 loot piles will spawn if actor was resurrected
@@ -185,14 +186,11 @@ namespace GTS {
 						}
 					}
 
-
 					tiny->RemoveItem(a_object, quantity, ITEM_REMOVE_REASON::kRemove, nullptr, giant, nullptr, nullptr);
 				}
 			}
 		}
 	}
-
-
 
 	void TransferInventoryToDropbox(Actor* giant, Actor* actor, const float scale, bool removeQuestItems, DamageSource Cause, bool Resurrected) {
 		bool soul = false;
@@ -202,35 +200,38 @@ namespace GTS {
 			return;
 		}
 
-		std::string_view container;
+		RuntimeData::RuntimeEntry<TESObjectCONT>* container = nullptr;
 		std::string name = std::format("{} remains", actor->GetDisplayFullName());
 
 		if (IsMechanical(actor)) {
-			container = "GTSDropboxMechanical";
-		} else if (Cause == DamageSource::Vored) { // Always spawn soul on vore
-			container = "GTSDropboxSoul";
+			container = &Runtime::CONT.GTSDropboxMechanical;
+		} 
+		else if (Cause == DamageSource::Vored) { // Always spawn soul on vore
+			container = &Runtime::CONT.GTSDropboxSoul;
 			name = std::format("{} Soul Remains", actor->GetDisplayFullName());
 			soul = true;
-		} else if (LessGore()) { // Always Spawn soul if Less Gore is on
-			container = "GTSDropboxSoul";
+		} 
+		else if (LessGore()) { // Always Spawn soul if Less Gore is on
+			container = &Runtime::CONT.GTSDropboxSoul;
 			name = std::format("Crushed Soul of {} ", actor->GetDisplayFullName());
 			soul = true;
-		} else if (IsInsect(actor, false)) {
-			container = "GTSDropboxInsect";
+		} 
+		else if (IsInsect(actor, false)) {
+			container = &Runtime::CONT.GTSDropboxInsect;
 			name = std::format("Remains of {}", actor->GetDisplayFullName());
-		} else if (IsLiving(actor)) {
-			container = "GTSDropboxGore"; // spawn normal dropbox
-		} else {
-			container = "GTSDropboxUndead";
+		} 
+		else if (IsLiving(actor)) {
+			container = &Runtime::CONT.GTSDropboxGore; // spawn normal dropbox
 		}
-
-
+		else {
+			container = &Runtime::CONT.GTSDropboxUndead;
+		}
 
 		NiPoint3 TotalPos = GetContainerSpawnLocation(giant, actor); // obtain goal of container position by doing ray-cast
 		if (IsDebugEnabled()) {
 			DebugDraw::DrawSphere(glm::vec3(TotalPos.x, TotalPos.y, TotalPos.z), 8.0f, 6000, {1.0f, 1.0f, 0.0f, 1.0f});
 		}
-		auto dropbox = Runtime::PlaceContainerAtPos(actor, TotalPos, container); // Place chosen container
+		auto dropbox = Runtime::PlaceContainerAtPos(actor, TotalPos, *container); // Place chosen container
 
 		if (!dropbox) {
 			return;
@@ -267,20 +268,16 @@ namespace GTS {
 					}
 
 					//log::info("Transfering item: {}, quantity: {}", a_object->GetName(), quantity);
-
 					actor->RemoveItem(a_object, quantity, ITEM_REMOVE_REASON::kRemove, nullptr, dropbox, nullptr, nullptr);
 				}
 			}
 		}
 	}
 
-	void MoveItems(ActorHandle giantHandle, ActorHandle tinyHandle, FormID ID, DamageSource Cause) {
+	void MoveItems(const ActorHandle& giantHandle, const ActorHandle& tinyHandle, FormID ID, DamageSource Cause) {
 		std::string taskname = std::format("MoveItems_{}", ID);
 		TaskManager::RunOnce(taskname, [=](auto& update){
-			if (!tinyHandle) {
-				return;
-			}
-			if (!giantHandle) {
+			if (!tinyHandle || !giantHandle) {
 				return;
 			}
 			auto giant = giantHandle.get().get();

@@ -13,12 +13,12 @@ namespace {
     void GTS_Sneak_SlamStrong_Raise_Arm_R(AnimationEventData& data) {
         Utils_UpdateHighHeelBlend(&data.giant, false);
         TrackMatchingHand(&data.giant, CrawlEvent::RightHand, true); // OFF is handled inside Sneak_Slam.cpp
-		DrainStamina(&data.giant, "StaminaDrain_StrongSneakSlam", "GTSPerkDestructionBasics", true, 2.2f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongSneakSlam", Runtime::PERK.GTSPerkDestructionBasics, true, 2.2f);
 	} 
 	void GTS_Sneak_SlamStrong_Raise_Arm_L(AnimationEventData& data) {
         Utils_UpdateHighHeelBlend(&data.giant, false);
         TrackMatchingHand(&data.giant, CrawlEvent::LeftHand, true); // OFF is handled inside Sneak_Slam.cpp
-		DrainStamina(&data.giant, "StaminaDrain_StrongSneakSlam", "GTSPerkDestructionBasics", true, 2.2f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongSneakSlam", Runtime::PERK.GTSPerkDestructionBasics, true, 2.2f);
 	}
 
     void GTS_Sneak_SlamStrong_Lower_Arm_R(AnimationEventData& data) {}
@@ -27,12 +27,12 @@ namespace {
     void GTS_Sneak_SlamStrong_Impact_R(AnimationEventData& data) {
         float scale = get_visual_scale(&data.giant);
         DoCrawlingFunctions(&data.giant, scale, 2.75f, Damage_Sneak_HandSlam_Strong, CrawlEvent::RightHand, "RightHandRumble", 1.6f, Radius_Sneak_HandSlam_Strong, 1.0f, DamageSource::HandSlamRight);
-        DrainStamina(&data.giant, "StaminaDrain_StrongSneakSlam", "GTSPerkDestructionBasics", false, 2.2f);
+        DrainStamina(&data.giant, "StaminaDrain_StrongSneakSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 2.2f);
     }  
 	void GTS_Sneak_SlamStrong_Impact_L(AnimationEventData& data) {
         float scale = get_visual_scale(&data.giant);
         DoCrawlingFunctions(&data.giant, scale, 2.75f, Damage_Sneak_HandSlam_Strong, CrawlEvent::LeftHand, "RightHandRumble", 1.6f, Radius_Sneak_HandSlam_Strong, 1.0f, DamageSource::HandSlamLeft);
-        DrainStamina(&data.giant, "StaminaDrain_StrongSneakSlam", "GTSPerkDestructionBasics", false, 2.2f);
+        DrainStamina(&data.giant, "StaminaDrain_StrongSneakSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 2.2f);
         Grab::DamageActorInHand(&data.giant, Damage_Sneak_HandSlam_Strong * 0.6f);
     } 
 

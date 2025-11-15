@@ -15,7 +15,7 @@ namespace {
 	float Get_Breach_Threshold(Actor* actor) {
 		float threshold = 1.65f;
 
-		if (Runtime::HasPerkTeam(actor, "GTSPerkRandomGrowthTerror")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowthTerror)) {
 			threshold = 1.60f;
 		}
 
@@ -47,7 +47,7 @@ namespace {
 			MultiplySlider = 1.0f;
 		}
 
-		if (!Runtime::HasPerkTeam(actor, "GTSPerkRandomGrowth")) {
+		if (!Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowth)) {
 			return false;
 		}
 
@@ -107,7 +107,7 @@ namespace GTS {
 								float base_power = ((0.00750f * TotalPower * 25) * SpellEfficiency);  // The power of it
 								float Gigantism = 1.0f + Ench_Aspect_GetPower(actor);
 
-								if (Runtime::HasPerkTeam(actor, "GTSPerkRandomGrowthAug") && TotalPower >= Get_Breach_Threshold(actor) && !IsGtsBusy(actor)) {
+								if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowthAug) && TotalPower >= Get_Breach_Threshold(actor) && !IsGtsBusy(actor)) {
 									AnimationManager::StartAnim("StartRandomGrowth", actor);
 								} else {
 									if (!IsGrowing(actor)) {
@@ -120,8 +120,8 @@ namespace GTS {
 											Sound_PlayMoans(actor, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 											Task_FacialEmotionTask_Moan(actor, 0.8f, "RandomGrow");
 										}
-										Runtime::PlaySoundAtNode("GTSSoundRumble", actor, base_power, "NPC COM [COM ]");
-										Runtime::PlaySoundAtNode("GTSSoundGrowth", actor, Volume, "NPC Pelvis [Pelv]");
+										Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundRumble, actor, base_power, "NPC COM [COM ]");
+										Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, actor, Volume, "NPC Pelvis [Pelv]");
 
 										double Start = Time::WorldTimeElapsed();
 										TaskManager::Run(name, [=](auto& progressData) {

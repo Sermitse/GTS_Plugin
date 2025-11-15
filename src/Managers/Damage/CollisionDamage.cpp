@@ -106,10 +106,10 @@ namespace {
 	}
 
 	void ModVulnerability(Actor* giant, Actor* tiny, float damage) {
-		if (Runtime::HasPerkTeam(giant, "GTSPerkGrowingPressure")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
 			auto& sizemanager = SizeManager::GetSingleton();
 
-			if (Runtime::HasPerkTeam(giant, "GTSPerkRavagingInjuries") && giant->AsActorState()->IsSprinting() && !IsGtsBusy(giant)) {
+			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRavagingInjuries) && giant->AsActorState()->IsSprinting() && !IsGtsBusy(giant)) {
 				damage *= 3.0f; // x3 stronger during sprint
 			}
 
@@ -119,8 +119,8 @@ namespace {
 
 	float HighHeels_PerkDamage(Actor* giant, DamageSource Cause) {
 		float value = 1.0f;
-		bool perk = Runtime::HasPerkTeam(giant, "GTSPerkHighHeels");
-		bool rumbling_feet = Runtime::HasPerkTeam(giant, "GTSPerkRumblingFeet");
+		bool perk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHighHeels);
+		bool rumbling_feet = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRumblingFeet);
 		bool matches = false;
 
 		switch (Cause) {

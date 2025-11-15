@@ -12,11 +12,11 @@ namespace {
 		float falloff = 0.18f * scale;
 		Rumbling::Once("GrowthSpurt", actor, Rumble_Shrink_GrowthSpurt, 0.05f);
 		if (timer_1) {
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundRumble", actor, power/20, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundRumble, actor, power/20, "NPC Pelvis [Pelv]", falloff);
 		}
 		if (timer_2) {
 			float Volume = std::clamp(get_visual_scale(actor) * 0.10f, 0.10f, 1.0f);
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", actor, Volume, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundShrink, actor, Volume, "NPC Pelvis [Pelv]", falloff);
 		}
 	}
 
@@ -25,11 +25,11 @@ namespace {
 		float falloff = 0.18f * scale;
 		Rumbling::Once("GrowthSpurt", actor, Rumble_Growth_GrowthSpurt, 0.05f);
 		if (timer_1) {
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundRumble", actor, power/20, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundRumble, actor, power/20, "NPC Pelvis [Pelv]", falloff);
 		}
 		if (timer_2) {
 			float Volume = std::clamp(scale * 0.10f, 0.20f, 1.0f);
-			Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", actor, Volume, "NPC Pelvis [Pelv]", falloff);
+			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundGrowth, actor, Volume, "NPC Pelvis [Pelv]", falloff);
 		}
 	}
 
@@ -37,10 +37,10 @@ namespace {
 		float bonus = 1.0f;
 		float basic = 0.0f;
 		
-		if (Runtime::HasPerk(giant, "GTSPerkExtraGrowth1")) {
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkExtraGrowth1)) {
 			basic += 0.50f;
 		}
-		if (Runtime::HasPerk(giant, "GTSPerkExtraGrowth2")) {
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkExtraGrowth2)) {
 			float perkbonus = 1.0f + ((GetGtsSkillLevel(giant) * 0.015f) + (giant->GetLevel() * 0.030f));
 			basic *= perkbonus;
 		}
@@ -67,7 +67,7 @@ namespace {
 	void GrowthSpurt_RegenerateAttributes(Actor* caster) {
 		float HpRegen = GetMaxAV(caster, ActorValue::kHealth) * 0.00020f;
 		
-		if (Runtime::HasPerk(caster, "GTSPerkGrowthAug2")) {
+		if (Runtime::HasPerk(caster, Runtime::PERK.GTSPerkGrowthAug2)) {
 			HpRegen *= 2.0f;
 		}
 
@@ -110,13 +110,15 @@ namespace GTS {
 		auto base_spell = GetBaseEffect();
 
 		
-		if (base_spell == Runtime::GetMagicEffect("GTSEffectGrowthSpurt1")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectGrowthSpurt1)) {
 			this->power = GROWTH_1_POWER * Get_Perk_Bonus(caster);
 			this->grow_limit = Get_Growth_Limit(caster, 1);
-		} else if (base_spell == Runtime::GetMagicEffect("GTSEffectGrowthSpurt2")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectGrowthSpurt2)) {
 			this->power = GROWTH_2_POWER * Get_Perk_Bonus(caster);
 			this->grow_limit = Get_Growth_Limit(caster, 2);
-		} else if (base_spell == Runtime::GetMagicEffect("GTSEffectGrowthSpurt3")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectGrowthSpurt3)) {
 			this->power = GROWTH_3_POWER * Get_Perk_Bonus(caster);
 			this->grow_limit = Get_Growth_Limit(caster, 3);
 		}
@@ -132,7 +134,7 @@ namespace GTS {
 		GrowthSpurt_RegenerateAttributes(caster);
 
 		if (scale < limit && scale < MaxSize) {
-			if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+			if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 				bonus = get_visual_scale(caster) * 0.25f + 0.75f;
 			}
 			DoGrowth(caster, this->power * bonus);

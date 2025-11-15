@@ -238,7 +238,7 @@ namespace GTS {
 			if (ImGui::CollapsingHeader("Skill Tree", ImUtil::HeaderFlagsDefaultOpen)) {
 				if (ImGuiEx::Button("Open Skill Tree",T0)) {
 					GTSMenu::CloseInputConsumers();
-					Runtime::SetFloat("GTSSkillMenu", 1.0);
+					Runtime::SetFloat(Runtime::GLOB.GTSSkillMenu, 1.0);
 				}
 
 				ImGui::Spacing();

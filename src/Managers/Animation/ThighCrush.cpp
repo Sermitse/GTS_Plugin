@@ -224,7 +224,7 @@ namespace {
 	void GTSsitcrushlight_start(AnimationEventData& data) {
 		auto giant = &data.giant;
 		StartLegRumbling("ThighCrush", data.giant, Rumble_ThighCrush_LegSpread_Light_Loop, 0.12f);
-		DrainStamina(&data.giant, "StaminaDrain_Thighs", "GTSPerkThighAbilities", true, 1.0f); // < Start Light Stamina Drain
+		DrainStamina(&data.giant, "StaminaDrain_Thighs", Runtime::PERK.GTSPerkThighAbilities, true, 1.0f); // < Start Light Stamina Drain
 
 		std::string name_l = std::format("ThighCrush_{}_ThighIdle_R", giant->formID);
 		std::string name_r = std::format("ThighCrush_{}_ThighIdle_L", giant->formID);
@@ -246,7 +246,7 @@ namespace {
 		StopLegRumbling("ThighCrush", data.giant);
 		LegRumblingOnce("ThighCrush_End", data.giant, Rumble_ThighCrush_LegSpread_Light_End, 0.10f);
 
-		DrainStamina(&data.giant, "StaminaDrain_Thighs", "GTSPerkThighAbilities", false, 1.0f); // < Stop Light Stamina Drain
+		DrainStamina(&data.giant, "StaminaDrain_Thighs", Runtime::PERK.GTSPerkThighAbilities, false, 1.0f); // < Stop Light Stamina Drain
 
 		std::string name_l = std::format("ThighCrush_{}_ThighLight_R", giant->formID);
 		std::string name_r = std::format("ThighCrush_{}_ThighLight_L", giant->formID);
@@ -260,7 +260,7 @@ namespace {
 
 	void GTSsitcrushheavy_start(AnimationEventData& data) {
 		auto giant = &data.giant;
-		DrainStamina(&data.giant, "StaminaDrain_Thighs", "GTSPerkThighAbilities", true, 2.5f); // < - Start HEAVY Stamina Drain
+		DrainStamina(&data.giant, "StaminaDrain_Thighs", Runtime::PERK.GTSPerkThighAbilities, true, 2.5f); // < - Start HEAVY Stamina Drain
 
 		std::string name_l = std::format("ThighCrush_{}_ThighIdle_R", giant->formID);
 		std::string name_r = std::format("ThighCrush_{}_ThighIdle_L", giant->formID);
@@ -280,7 +280,7 @@ namespace {
 	void GTSsitcrushheavy_end(AnimationEventData& data) {
 		auto giant = &data.giant;
 		data.currentTrigger = 2;
-		DrainStamina(&data.giant, "StaminaDrain_Thighs", "GTSPerkThighAbilities", false, 2.5f); // < Stop Heavy Stamina Drain
+		DrainStamina(&data.giant, "StaminaDrain_Thighs", Runtime::PERK.GTSPerkThighAbilities, false, 2.5f); // < Stop Heavy Stamina Drain
 
 		StopLegRumbling("ThighCrushHeavy", data.giant);
 		LegRumblingOnce("ThighCrushHeavy_End", data.giant, Rumble_ThighCrush_LegCross_Heavy_End, 0.10f);
@@ -356,7 +356,7 @@ namespace {
 		auto player = PlayerCharacter::GetSingleton();
 		if (IsGtsBusy(player)) {
 			float WasteStamina = 40.0f;
-			if (Runtime::HasPerk(player, "GTSPerkThighAbilities")) {
+			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkThighAbilities)) {
 				WasteStamina *= 0.65f;
 			}
 			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {

@@ -134,9 +134,10 @@ namespace GTS {
 					SpawnParticle(tiny, 0.20f, "GTS/Damage/Explode.nif", NiMatrix3(), root->world.translate, 2.0f, 7, root);
 					SpawnParticle(tiny, 1.20f, "GTS/Damage/ShrinkOrCrush.nif", NiMatrix3(), root->world.translate, get_visual_scale(tiny) * 10, 7, root);
 				}
-				Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4, "GTSExplosionBlood");
-				Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, false);
-			} else {
+				Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4, Runtime::EXPL.GTSExplosionBlood);
+				Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, false);
+			} 
+			else {
 				Runtime::PlaySound("SKSoundBloodGush", tiny, 1.0f, 1.0f);
 			}
 		}
@@ -149,7 +150,7 @@ namespace GTS {
 
 		float currentSize = get_visual_scale(tiny);
 
-		Runtime::PlaySound("GTSSoundShrinkToNothing", giant, 1.0f, 1.0f);
+		Runtime::PlaySound(Runtime::SNDR.GTSSoundShrinkToNothing, giant, 1.0f, 1.0f);
 
 		TaskManager::RunOnce(taskname, [=](auto& update){
 			if (!tinyHandle) {

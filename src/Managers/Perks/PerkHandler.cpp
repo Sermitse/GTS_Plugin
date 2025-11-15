@@ -74,16 +74,16 @@ namespace {
 
     void ManageSpellPerks(const AddPerkEvent& evt) {
         if (evt.actor->formID == 0x14) {
-            if (evt.perk == Runtime::GetPerk("GTSPerkGrowthDesireAug")) {
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkGrowthDesireAug)) {
                 PrintMessageBox("You're now able to grow and shrink yourself manually at will. By default, press L.Shift + 1 or 2. You can affect followers by pressing L.Shift + Left Arrow + Arrow Up, and can also affect self by pressing Left Arrow + Arrow Up");
             }
-            if (evt.perk == Runtime::GetPerk("GTSPerkShrinkAdept") && !Runtime::HasSpell(evt.actor, "GTSSpellShrinkBolt")) {
-                Runtime::AddSpell(evt.actor, "GTSSpellShrinkBolt");
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkShrinkAdept) && !Runtime::HasSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkBolt)) {
+                Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkBolt);
             }
-            if (evt.perk == Runtime::GetPerk("GTSPerkShrinkExpert") && !Runtime::HasSpell(evt.actor, "GTSSpellShrinkStorm")) {
-                Runtime::AddSpell(evt.actor, "GTSSpellShrinkStorm");
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkShrinkExpert) && !Runtime::HasSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkStorm)) {
+                Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkStorm);
             }
-            if (evt.perk == Runtime::GetPerk("GTSPerkTinyCalamity")) {
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkTinyCalamity)) {
                 AddCalamityPerk();
             }
         }
@@ -95,7 +95,7 @@ namespace {
             if (actor->formID == 0x14 || IsTeammate(actor)) {
                 auto data = Transient::GetActorData(actor);
                 if (data) {
-                    if (evt.perk == Runtime::GetPerk("GTSPerkAcceleration")) {
+                    if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkAcceleration)) {
                         data->PerkBonusSpeed = Perk_Acceleration_GetBonus(actor);
                     }
                 }
@@ -104,7 +104,7 @@ namespace {
     }
 
     void Perks_UpdateAccelerationPerk(TransientActorData* data, Actor* giant) {
-        if (data && Runtime::HasPerkTeam(giant, "GTSPerkAcceleration")) {
+        if (data && Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkAcceleration)) {
             data->PerkBonusSpeed = Perk_Acceleration_GetBonus(giant);
         }
     }
@@ -154,7 +154,7 @@ namespace {
 
     void Perks_UpdateLifeForceAbsorptionPerk(TransientActorData* data, Actor* giant) {
         if (giant) {
-            if (Runtime::HasPerkTeam(giant, "GTSPerkLifeAbsorption")) {
+            if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkLifeAbsorption)) {
                 int stack_limit = 25;
                 if (data) {
                     if (data->Stacks_Perk_LifeForce < stack_limit) {
@@ -200,10 +200,10 @@ namespace GTS {
             if (actor->formID == 0x14 || IsTeammate(actor)) {
                 auto data = Transient::GetActorData(actor);
                 if (data) {
-                    if (evt.perk == Runtime::GetPerk("GTSPerkAcceleration")) {
+                    if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkAcceleration)) {
                         data->PerkBonusSpeed = 1.0f;
                     }
-                    if (evt.perk == Runtime::GetPerk("GTSPerkLifeAbsorption")) {
+                    if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkLifeAbsorption)) {
                         data->PerkLifeForceStolen = 0.0f;
                         data->Stacks_Perk_LifeForce = 0;
                     }
@@ -214,7 +214,7 @@ namespace GTS {
     bool PerkHandler::Perks_Cataclysmic_HasStacks(Actor* giant) {
         auto transient = Transient::GetActorData(giant);
 		if (transient) {
-            bool HasPerk = Runtime::HasPerkTeam(giant, "GTSPerkCataclysmicStomp");
+            bool HasPerk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkCataclysmicStomp);
             return HasPerk && transient->Stacks_Perk_CataclysmicStomp > 0;
         }
         return false;
@@ -223,7 +223,7 @@ namespace GTS {
     void PerkHandler::Perks_Cataclysmic_ManageStacks(Actor* giant, PerkAction action) {
 		auto transient = Transient::GetActorData(giant);
 		if (transient) {
-            bool HasPerk = Runtime::HasPerkTeam(giant, "GTSPerkCataclysmicStomp");
+            bool HasPerk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkCataclysmicStomp);
             int current_stacks = transient->Stacks_Perk_CataclysmicStomp;
 
             if (action == PerkAction::Increase && current_stacks < 3) { // Increase stack

@@ -24,11 +24,11 @@ namespace {
 
 	float Multiply_By_Perk(Actor* giant) {
 		float multiply = 1.0f;
-		if (Runtime::HasPerkTeam(giant, "GTSPerkRumblingFeet")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRumblingFeet)) {
 			multiply *= 1.25f;
 		}
 
-		if (Runtime::HasPerkTeam(giant, "GTSPerkDisastrousTremmor")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDisastrousTremmor)) {
 			multiply *= 1.5f;
 		}
 		return multiply;

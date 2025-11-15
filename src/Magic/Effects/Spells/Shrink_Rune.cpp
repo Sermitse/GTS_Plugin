@@ -51,10 +51,10 @@ namespace {
 		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			float slow = 0.50f;
-			if (Runtime::HasPerkTeam(giant, "GTSPerkShrinkAdept")) {
+			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkShrinkAdept)) {
 				slow += 0.05f;
 			}
-			if (Runtime::HasPerkTeam(giant, "GTSPerkShrinkExpert")) {
+			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkShrinkExpert)) {
 				slow += 0.05f;
 			}
 			transient->MovementSlowdown = slow;

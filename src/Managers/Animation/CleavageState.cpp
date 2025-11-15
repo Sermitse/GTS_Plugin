@@ -48,8 +48,8 @@ namespace {
         "L Breast04",
 	};
 
-    bool CanForceAction(Actor* giant, Actor* huggedActor, std::string pass_anim) {
-        bool ForceCrush = Runtime::HasPerkTeam(giant, "GTSPerkHugMightyCuddles");
+    bool CanForceAction(Actor* giant, Actor* huggedActor, const std::string& pass_anim) {
+        bool ForceCrush = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugMightyCuddles);
         float staminapercent = GetStaminaPercentage(giant);
         float stamina = GetAV(giant, ActorValue::kStamina);
         if (ForceCrush && staminapercent >= 0.50f) {
@@ -62,7 +62,7 @@ namespace {
 
     float GetMasteryReduction(Actor* giant) {
         float hp_reduction = 0.0f;
-        if (Runtime::HasPerk(giant, "GTSPerkBreastsMastery2")) {
+        if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkBreastsMastery2)) {
             float level = GetGtsSkillLevel(giant) - 60.0f;
             hp_reduction = std::clamp(level * 0.015f, 0.0f, 0.6f);
         }
@@ -70,7 +70,7 @@ namespace {
         return hp_reduction;
     }
 
-    bool AttemptBreastAction(const std::string& pass_anim, CooldownSource Source, std::string cooldown_msg, const std::string& perk, bool ignore_checks = false) {
+    bool AttemptBreastAction(const std::string& pass_anim, CooldownSource Source, std::string cooldown_msg, const RuntimeData::RuntimeEntry<RE::BGSPerk>& perk, bool ignore_checks = false) {
         Actor* player = GetPlayerOrControlled();
         if (IsInCleavageState(player)) {
             auto tiny = Grab::GetHeldActor(player);
@@ -134,7 +134,7 @@ namespace {
         PassAnimation("Cleavage_EnterState", false);
         Animation_Cleavage::AttemptBreastActionOnTiny("Cleavage_EnterState_Tiny");
 
-        if (giant->formID == 0x14 && Runtime::HasPerkTeam(giant, "GTSPerkBreastsIntro") && Grab::GetHeldActor(giant)) {
+        if (giant->formID == 0x14 && Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkBreastsIntro) && Grab::GetHeldActor(giant)) {
             auto Camera = PlayerCamera::GetSingleton();
             bool Sheathed = Camera->isWeapSheathed;
             if (!Sheathed) {
@@ -158,23 +158,23 @@ namespace {
         }
     }
     void CleavageSuffocateEvent(const ManagedInputEvent& data) {
-        if (AttemptBreastAction("Cleavage_Suffocate", CooldownSource::Action_Breasts_Suffocate, "Suffocation", "GTSPerkBreastsSuffocation")) {
+        if (AttemptBreastAction("Cleavage_Suffocate", CooldownSource::Action_Breasts_Suffocate, "Suffocation", Runtime::PERK.GTSPerkBreastsSuffocation)) {
             Animation_Cleavage::AttemptBreastActionOnTiny("Cleavage_Suffocate_Tiny");
         }
     }
     void CleavageAbsorbEvent(const ManagedInputEvent& data) {
-        if (AttemptBreastAction("Cleavage_Absorb", CooldownSource::Action_Breasts_Absorb, "Absorption", "GTSPerkBreastsAbsorb")) {
+        if (AttemptBreastAction("Cleavage_Absorb", CooldownSource::Action_Breasts_Absorb, "Absorption", Runtime::PERK.GTSPerkBreastsAbsorb)) {
             Animation_Cleavage::AttemptBreastActionOnTiny("Cleavage_Absorb_Tiny");
         }
     }
     void CleavageVoreEvent(const ManagedInputEvent& data) {
-        if (AttemptBreastAction("Cleavage_Vore", CooldownSource::Action_Breasts_Vore, "Vore", "GTSPerkBreastsVore")) {
+        if (AttemptBreastAction("Cleavage_Vore", CooldownSource::Action_Breasts_Vore, "Vore", Runtime::PERK.GTSPerkBreastsVore)) {
             Animation_Cleavage::AttemptBreastActionOnTiny("Cleavage_Vore_Tiny");
         }
     }
 
     void CleavageDOTEvent(const ManagedInputEvent& data) {
-        if (AttemptBreastAction("Cleavage_DOT_Start", CooldownSource::Action_Breasts_Vore, "Breast Strangle", "GTSPerkBreastsStrangle", true)) {
+        if (AttemptBreastAction("Cleavage_DOT_Start", CooldownSource::Action_Breasts_Vore, "Breast Strangle", Runtime::PERK.GTSPerkBreastsStrangle, true)) {
             // Because of True at the end, we ignore all checks in this case. only check is IsInCleavageState
             Animation_Cleavage::AttemptBreastActionOnTiny("Cleavage_DOT_Start_Tiny");
         }

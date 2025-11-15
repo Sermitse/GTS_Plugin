@@ -270,7 +270,7 @@ namespace GTS {
 	void UpdateFriendlyHugs(Actor* giant, Actor* tiny, bool force) {
 		bool hostile = IsHostile(tiny, giant);
 		bool teammate = IsTeammate(tiny) || tiny->formID == 0x14;
-		bool perk = Runtime::HasPerkTeam(giant, "GTSPerkHugsLovingEmbrace");
+		bool perk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace);
 
 		if (perk && !hostile && teammate && !force) {
 			tiny->SetGraphVariableBool("GTS_IsFollower", true);
@@ -295,8 +295,7 @@ namespace GTS {
 			return;
 		}
 
-		std::string sound = "GTSSoundShrinkToNothing";
-		Runtime::PlaySoundAtNode(sound, giant, 1.0f, "NPC Spine2 [Spn2]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundShrinkToNothing, giant, 1.0f, "NPC Spine2 [Spn2]");
 
 		if (!IsLiving(tiny)) {
 			SpawnDustParticle(tiny, tiny, "NPC Root [Root]", 3.6f);
@@ -309,8 +308,8 @@ namespace GTS {
 					SpawnParticle(tiny, 1.20f, "GTS/Damage/Explode.nif", NiMatrix3(), root->world.translate, 2.0f, 7, root);
 					SpawnParticle(tiny, 1.20f, "GTS/Damage/ShrinkOrCrush.nif", NiMatrix3(), root->world.translate, get_visual_scale(tiny) * 10, 7, root);
 				}
-				Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4, "GTSExplosionBlood");
-				Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSetVoreMedium", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
+				Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4, Runtime::EXPL.GTSExplosionBlood);
+				Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSetVoreMedium, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
 			} else {
 				Runtime::PlaySound("SKSoundBloodGush", tiny, 1.0f, 0.5f);
 			}
@@ -527,7 +526,7 @@ namespace GTS {
 
 	void GrabStaminaDrain(Actor* giant, Actor* tiny, float sizedifference) {
 		float WasteMult = 1.0f;
-		if (Runtime::HasPerkTeam(giant, "GTSPerkDestructionBasics")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDestructionBasics)) {
 			WasteMult *= 0.65f;
 		}
 		WasteMult *= Perk_GetCostReduction(giant);
@@ -540,7 +539,7 @@ namespace GTS {
 		DamageAV(giant, ActorValue::kStamina, WasteStamina);
 	}
 
-	void DrainStamina(Actor* giant, std::string_view TaskName, std::string_view perk, bool enable, float power) {
+	void DrainStamina(Actor* giant, std::string_view TaskName, const RuntimeData::RuntimeEntry<RE::BGSPerk>& perk, bool enable, float power) {
 		float WasteMult = 1.0f;
 		if (Runtime::HasPerkTeam(giant, perk)) {
 			WasteMult -= 0.35f;
@@ -613,7 +612,7 @@ namespace GTS {
 
 	float GetWasteMult(Actor* giant) {
 		float WasteMult = 1.0f;
-		if (Runtime::HasPerk(giant, "GTSPerkDestructionBasics")) {
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDestructionBasics)) {
 			WasteMult *= 0.65f;
 		}
 		WasteMult *= Perk_GetCostReduction(giant);
@@ -621,7 +620,7 @@ namespace GTS {
 	}
 
 	float GetPerkBonus_Basics(Actor* Giant) {
-		if (Runtime::HasPerkTeam(Giant, "GTSPerkDestructionBasics")) {
+		if (Runtime::HasPerkTeam(Giant, Runtime::PERK.GTSPerkDestructionBasics)) {
 			return 1.25f;
 		} else {
 			return 1.0f;
@@ -629,7 +628,7 @@ namespace GTS {
 	}
 
 	float GetPerkBonus_Thighs(Actor* Giant) {
-		if (Runtime::HasPerkTeam(Giant, "GTSPerkThighAbilities")) {
+		if (Runtime::HasPerkTeam(Giant, Runtime::PERK.GTSPerkThighAbilities)) {
 			return 1.25f;
 		} else {
 			return 1.0f;
@@ -1040,7 +1039,7 @@ namespace GTS {
 
 								auto targetNode = find_node(giant, GetDeathNodeName(Cause));
 								if (targetNode) {
-									Runtime::PlaySoundAtNode("GTSSoundSwingImpact", Volume, targetNode); // play swing impact sound
+									Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwingImpact, Volume, targetNode); // play swing impact sound
 									ApplyShakeAtPoint(giant, 1.8f * pushpower * audio, targetNode->world.translate, 0.0f);
 								}
 
@@ -1412,7 +1411,7 @@ namespace GTS {
 
 				Grow(giantref, 0, 0.016f * (1 + random));
 
-				Runtime::CastSpell(giantref, giantref, "GTSSpellFear");
+				Runtime::CastSpell(giantref, giantref, Runtime::SPEL.GTSSpellFear);
 
 				SpawnCustomParticle(giantref, ParticleType::Blue, NiPoint3(), "NPC COM [COM ]", get_visual_scale(giantref));
 				Task_FacialEmotionTask_Moan(giantref, 2.0f, "Absorb");
@@ -1776,10 +1775,10 @@ namespace GTS {
 
 	float GetHugStealRate(Actor* actor) {
 		float steal = 0.18f;
-		if (Runtime::HasPerkTeam(actor, "GTSPerkHugsToughGrip")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHugsToughGrip)) {
 			steal += 0.072f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkHugs")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHugs)) {
 			steal *= 1.35f;
 		}
 		return steal;
@@ -1787,10 +1786,10 @@ namespace GTS {
 
 	float GetHugShrinkThreshold(Actor* actor) {
 		float threshold = 2.5f;
-		if (Runtime::HasPerkTeam(actor, "GTSPerkHugs")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHugs)) {
 			threshold *= 1.25f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkHugsGreed")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHugsGreed)) {
 			threshold *= 1.35f;
 		}
 		if (HasGrowthSpurt(actor)) {
@@ -1801,10 +1800,10 @@ namespace GTS {
 
 	float GetHugCrushThreshold(Actor* giant, Actor* tiny, bool check_size) {
 		float hp = 0.12f;
-		if (Runtime::HasPerkTeam(giant, "GTSPerkHugMightyCuddles")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugMightyCuddles)) {
 			hp += 0.08f;
 		}
-		if (Runtime::HasPerkTeam(giant, "GTSPerkHugsOfDeath")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsOfDeath)) {
 			hp += 0.10f;
 		}
 

@@ -142,7 +142,7 @@ namespace {
 		
 		DamageAV(giant, ActorValue::kStamina, WasteStamina);
 
-		Runtime::PlaySoundAtNode("GTSSoundGrowth", giant, 1.0f, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, giant, 1.0f, "NPC Pelvis [Pelv]");
 
 		StartRumble("BCRumble", data.giant, 1.25f, 0.30f);
 	}
@@ -288,7 +288,7 @@ namespace {
 		Actor* player = GetPlayerOrControlled();
 
 		
-		if (Runtime::HasPerk(player, "GTSPerkButtCrushAug1")) {
+		if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkButtCrushAug1)) {
 			auto& ButtCrush = ButtCrushController::GetSingleton();
 
 			std::vector<Actor*> preys = ButtCrush.GetButtCrushTargets(player, 1);
@@ -296,11 +296,11 @@ namespace {
 				ButtCrushController::StartButtCrush(player, prey); // attaches actors to AnimObjectB
 			} 
 			return;
-		} else if (CanDoButtCrush(player, true) && !Runtime::HasPerk(player, "GTSPerkButtCrushAug1")) {
+		} else if (CanDoButtCrush(player, true) && !Runtime::HasPerk(player, Runtime::PERK.GTSPerkButtCrushAug1)) {
 			float WasteStamina = 100.0f * GetButtCrushCost(player, false);
 			DamageAV(player, ActorValue::kStamina, WasteStamina);
 			AnimationManager::StartAnim("ButtCrush_StartFast", player);
-		} else if (!CanDoButtCrush(player, false) && !Runtime::HasPerk(player, "GTSPerkButtCrushAug1")) {
+		} else if (!CanDoButtCrush(player, false) && !Runtime::HasPerk(player, Runtime::PERK.GTSPerkButtCrushAug1)) {
 			ButtCrushController::ButtCrush_OnCooldownMessage(player);
 		}
 	}

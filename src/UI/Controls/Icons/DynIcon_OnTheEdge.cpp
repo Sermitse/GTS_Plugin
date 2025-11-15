@@ -1,5 +1,7 @@
 #include "UI/Controls/Icons/DynIcon_OnTheEdge.hpp"
 
+#include "Config/Config.hpp"
+
 #include "UI/Controls/Text.hpp"
 #include "UI/Core/ImColorUtils.hpp"
 #include "UI/Core/ImFontManager.hpp"

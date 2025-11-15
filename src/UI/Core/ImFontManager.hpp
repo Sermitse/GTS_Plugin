@@ -1,8 +1,6 @@
 #pragma once
 
 #include "UI/Lib/imgui.h"
-#include "Config/Config.hpp"
-
 namespace GTS {
 
     class ImFontManager {
@@ -27,8 +25,6 @@ namespace GTS {
         static inline const std::string g_Noto_Medium_SC = _basePath + R"(Noto\SC\NotoSans-Medium)" + _ext;
         static inline const std::string g_Noto_Regular_SC = _basePath + R"(Noto\SC\NotoSans-Regular)" + _ext;
 
-        const SettingsUI_t& Settings = Config::UI;
-
 		public:
 
         enum ActiveFontType {
@@ -39,7 +35,7 @@ namespace GTS {
             kText,           //{ kText,        TextType(&FontSet_Regular, 18.0f) },
             kLargeText,      //{ kLargeText,   TextType(&FontSet_Regular, 22.0f) },
             kSubText,        //{ kSubText,     TextType(&FontSet_Regular, 16.0f) },
-            kWidgetBody,     //{ kWidgetBody,  TextType(&FontSet_Regular, 20.0f) },
+            kWidgetBody,     //{ kWidgetBody,  TextType(&FontSet_Regular, 18.0f) },
             kWidgetTitle,    //{ kWidgetTitle, TextType(&FontSet_Light,   32.0f) },
             kIconText        //{ kIconText,    TextType(&FontSet_Medium,  16.0f) },
         };

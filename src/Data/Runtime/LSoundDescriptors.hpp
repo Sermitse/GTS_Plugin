@@ -196,12 +196,12 @@ namespace RuntimeData {
 		Entry(GTSSoundMoan_HugDrain_x96,          GTSP, 0x8FDCBB);
 
 		//Other
+		Entry(SKSoundBloodGush,                   SKRM, 0x10F78C);
 		Entry(GTSSoundFail,                       GTSP, 0x851A37);
 		Entry(GTSSoundRipClothes,                 GTSP, 0x30EE54);
 		Entry(GTSSoundSoftHandAttack,             GTSP, 0x5E2E60);
 		Entry(GTSSoundSwallow,                    GTSP, 0x56E747);
 		Entry(GTSSoundEat,                        GTSP, 0x011031);
-		Entry(SKSoundBloodGush,                   SKRM, 0x10F78C);
 		Entry(GTSSoundKissing,                    GTSP, 0x8DF67E);
 		Entry(GTSSoundHeavyStomp,                 GTSP, 0x596F4E);
 

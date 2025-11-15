@@ -55,7 +55,7 @@ namespace {
 		SpawnParticle(otherActor, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), otherActor->GetPosition(), tiny_size * 4.5f, 7, nullptr); 
 		SpawnCustomParticle(otherActor, ParticleType::Red, otherActor->GetPosition(), "NPC Root [Root]", tiny_size);
 
-		Runtime::PlaySoundAtNode("GTSSoundMagicProctectTinies", otherActor, 0.5f, "NPC Root [Root]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundMagicProctectTinies, otherActor, 0.5f, "NPC Root [Root]");
 
 		InflictSizeDamage(giant, otherActor, GetAV(otherActor, ActorValue::kHealth) * 0.015f);
 		AddSMTDuration(giant, stare_threshold * 0.75f, false);
@@ -136,7 +136,7 @@ namespace {
 												} else {
 													if (!IsActionOnCooldown(otherActor, CooldownSource::Misc_ShrinkParticle_Gaze)) {
 														SpawnParticle(otherActor, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), otherActor->GetPosition(), tiny_size * 4.5f, 7, nullptr); 
-														Runtime::PlaySoundAtNode("GTSSoundMagicProctectTinies", otherActor, 0.5f, "NPC Root [Root]");
+														Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundMagicProctectTinies, otherActor, 0.5f, "NPC Root [Root]");
 														ApplyActionCooldown(otherActor, CooldownSource::Misc_ShrinkParticle_Gaze);
 													}
 													data->MovementSlowdown = 1.0f;
@@ -180,7 +180,7 @@ namespace {
 namespace GTS {
 
 	void StartShrinkingGaze(Actor* giant) {
-		if (Runtime::HasPerk(giant, "GTSPerkShrinkingGaze") && giant->formID == 0x14) {
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkShrinkingGaze) && giant->formID == 0x14) {
 			Task_ShrinkingGazeTask(giant);
 		}
 	}

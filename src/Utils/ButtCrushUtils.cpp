@@ -21,13 +21,13 @@ namespace GTS {
 
 	float GetGrowthLimit(Actor* actor) {
 		float limit = 0;
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrushAug2")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrushAug2)) {
 			limit += 3.0f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrushAug3")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrushAug3)) {
 			limit += 4.0f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrushAug4")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrushAug4)) {
 			limit += 5.0f;
 		}
 
@@ -36,10 +36,10 @@ namespace GTS {
 
 	float GetButtCrushDamage(Actor* actor) {
 		float damage = 1.0f;
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrush")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrush)) {
 			damage += 0.30f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrushAug3")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrushAug3)) {
 			damage += 0.70f;
 		}
 		return damage;

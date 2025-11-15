@@ -103,7 +103,7 @@ namespace {
 		Actor* player = PlayerCharacter::GetSingleton(); 
 		if (player && player->IsInMidair()) {
 			auto transient = Transient::GetActorData(player);
-			if (Runtime::HasPerkTeam(player, "GTSPerkCruelFall")) {
+			if (Runtime::HasPerkTeam(player, Runtime::PERK.GTSPerkCruelFall)) {
 				auto charCont = player->GetCharController();
 				if (charCont) {
 					if (transient) {

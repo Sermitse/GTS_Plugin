@@ -43,7 +43,7 @@ namespace {
 	void ApplyStateAndPerks(Actor* actor, float& scale) {
 		if (actor->AsActorState()->IsSprinting()) {
 			scale *= 1.25f; // Sprinting makes you seem bigger
-			if (Runtime::HasPerk(actor, "GTSPerkSprintDamageMult2")) {
+			if (Runtime::HasPerk(actor, Runtime::PERK.GTSPerkSprintDamageMult2)) {
 				scale *= 1.75f; // A lot bigger
 			}
 		}

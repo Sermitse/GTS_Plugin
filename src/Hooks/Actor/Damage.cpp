@@ -161,7 +161,7 @@ namespace GTS {
 			a_damage *= GetDifficultyMultiplier(attacker, receiver); // Take difficulty into account
 
 			if (a_damage > GetAV(receiver, ActorValue::kHealth)) {
-				if (Runtime::HasPerk(receiver, "GTSPerkHealthGate")) {
+				if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkHealthGate)) {
 					if (!IsActionOnCooldown(receiver, CooldownSource::Action_HealthGate)) {
 						ApplyActionCooldown(receiver, CooldownSource::Action_HealthGate);
 						float maxhp = GetMaxAV(receiver, ActorValue::kHealth);
@@ -174,7 +174,7 @@ namespace GTS {
 						if ((target <= natural) || (target - 0.35f * scale <= natural)) {
 							set_target_scale(receiver, natural); // to prevent becoming < natural scale
 						}
-						Runtime::PlaySound("GTSSoundTriggerHG", receiver, 2.0f, 0.5f);
+						Runtime::PlaySound(Runtime::SNDR.GTSSoundTriggerHG, receiver, 2.0f, 0.5f);
 						shake_camera(receiver, 1.7f, 1.5f);
 						
 						auto node = find_node(receiver, "NPC Root [Root]");
@@ -200,7 +200,7 @@ namespace GTS {
 				}
 			}
 		}
-		if (Runtime::HasPerk(receiver, "GTSPerkDarkArtsAug4") && GetHealthPercentage(receiver) <= 0.40f) {
+		if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkDarkArtsAug4) && GetHealthPercentage(receiver) <= 0.40f) {
 			bool OnCooldown = IsActionOnCooldown(receiver, CooldownSource::Misc_ShrinkOutburst_Forced);
 			if (!OnCooldown) {
 				ApplyActionCooldown(receiver, CooldownSource::Misc_ShrinkOutburst_Forced);
@@ -219,10 +219,10 @@ namespace GTS {
 			int growthtype = 0;
 			receiver->GetGraphVariableInt("GTS_Growth_Roll", growthtype);
 			if (growthtype > 0) {
-				if (Runtime::HasPerk(receiver, "GTSPerkRandomGrowthAug")) {
+				if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkRandomGrowthAug)) {
 					reduction -= 0.6f;
 				}
-				if (Runtime::HasPerk(receiver, "GTSPerkRandomGrowthTerror")) {
+				if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkRandomGrowthTerror)) {
 					reduction -= 0.25f;
 				}
 			}
@@ -234,10 +234,10 @@ namespace GTS {
 		float reduction = 1.0f;
 		// Applies extra layer of damage reduction when hugging someone
 		if (HugShrink::GetHuggiesActor(receiver)) {
-			if (Runtime::HasPerk(receiver, "GTSPerkHugsToughGrip")) {
+			if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkHugsToughGrip)) {
 				reduction -= 0.25f; // 25% resistance
 			}
-			if (Runtime::HasPerk(receiver, "GTSPerkHugsOfDeath")) {
+			if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkHugsOfDeath)) {
 				reduction -= 0.35f; // 35% additional resistance
 			}
 		}

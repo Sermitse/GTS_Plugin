@@ -23,8 +23,8 @@ namespace {
                     SpawnParticle(tiny, 1.20f, "GTS/Damage/ShrinkOrCrush.nif", NiMatrix3(), root->world.translate, currentSize * 12.5f, 7, root);
                 }
             }
-            Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", RE::NiPoint3{0, 0, -1}, 512, false, true);
-            Runtime::CreateExplosion(tiny, get_visual_scale(tiny) * 0.5f, "GTSExplosionBlood");
+            Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", RE::NiPoint3{0, 0, -1}, 512, false, true);
+            Runtime::CreateExplosion(tiny, get_visual_scale(tiny) * 0.5f, Runtime::EXPL.GTSExplosionBlood);
         }
     }
 }

@@ -17,10 +17,10 @@ namespace {
 		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			float slow = 0.75f;
-			if (Runtime::HasPerkTeam(giant, "GTSPerkShrinkAdept")) {
+			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkShrinkAdept)) {
 				slow += 0.05f;
 			}
-			if (Runtime::HasPerkTeam(giant, "GTSPerkShrinkExpert")) {
+			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkShrinkExpert)) {
 				slow += 0.05f;
 			}
 			transient->MovementSlowdown = slow;
@@ -49,22 +49,26 @@ namespace GTS {
 
 		auto base_spell = GetBaseEffect();
 
-		if (base_spell == Runtime::GetMagicEffect("GTSEffectShrinkEnemy")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectShrinkEnemy)) {
 			this->power = SHRINK_POWER;
 			this->efficiency = SHRINK_EFFIC;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSEffectShrinkEnemyAOE")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectShrinkEnemyAOE)) {
 			this->power = SHRINK_AOE_POWER;
 			this->efficiency = SHRINK_AOE_EFFIC;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSEffectShrinkOtherAOEMastery")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectShrinkOtherAOEMastery)) {
 			// ShrinkEnemyAOEMast
 			this->power = SHRINK_AOE_MASTER_POWER;
 			this->efficiency = SHRINK_AOE_MASTER_EFFIC;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSEffectShrinkBolt")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectShrinkBolt)) {
 			// ShrinkBolt
 			this->power = SHRINK_BOLT_POWER;
 			this->efficiency = SHRINK_BOLT_EFFIC;
 			this->time_mult = 0.2f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSEffectShrinkStorm")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectShrinkStorm)) {
 			// ShrinkBolt
 			this->power = SHRINK_STORM_POWER;
 			this->efficiency = SHRINK_STORM_EFFIC;

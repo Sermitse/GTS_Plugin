@@ -6,7 +6,6 @@ namespace RuntimeData {
 
 		Entry(GTSLootListMaster, GTSP, 0x7C3DFB);
 
-
 	};
 
 }

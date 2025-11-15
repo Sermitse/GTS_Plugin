@@ -14,8 +14,6 @@ namespace RuntimeData {
 		Entry(VampireKeyword,            SKRM, 0x0A82BB);
 		Entry(AnimalKeyword,             SKRM, 0x013798);
 		Entry(CreatureKeyword,           SKRM, 0x013795);
-		Entry(DarkSouls,                 SKRM, 0x0C1E8F);
-		Entry(SummonUndead,              SKRM, 0x02482B);
 		Entry(ActorTypeNPC,              SKRM, 0x013794);
 
 	};

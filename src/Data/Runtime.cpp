@@ -39,6 +39,177 @@ namespace {
 		return nullptr;
 	}
 
+	void PlaySoundImpl(RE::BSISoundDescriptor* a_soundDescriptor, RE::TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
+
+		if (!a_soundDescriptor) {
+			logger::error("Ivallid Sound Descriptor");
+			return;
+		}
+
+		auto audioManager = RE::BSAudioManager::GetSingleton();
+		if (!audioManager) {
+			logger::error("Audio Manager invalid");
+			return;
+		}
+
+		RE::BSSoundHandle soundHandle;
+		if (audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor)) {
+			RE::ObjectRefHandle ref = a_ref->CreateRefHandle();
+			if (RE::TESObjectREFR* refget = ref.get().get()) {
+
+				soundHandle.SetVolume(a_volume);
+
+				SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+
+				if (RE::NiAVObject* current_3d = refget->GetCurrent3D()) {
+					RE::NiAVObject* follow = current_3d;
+					soundHandle.SetObjectToFollow(follow);
+					soundHandle.Play();
+				}
+			}
+			return;
+		}
+
+		logger::error("Could not build sound");
+	}
+
+	void PlaySoundImplActor(RE::BSISoundDescriptor* a_soundDescriptor, RE::Actor* a_actor, const float& a_volume, const float& a_frequency) {
+		if (a_actor) {
+			if (RE::TESObjectREFR* ActorAsRef = skyrim_cast<RE::TESObjectREFR*>(a_actor)) {
+				PlaySoundImpl(a_soundDescriptor, ActorAsRef, a_volume, a_frequency);
+			}
+		}
+	}
+
+	void PlaySoundAtNodeFallOffImpl(RE::BSISoundDescriptor* a_soundDescriptor, const float& a_volume, RE::NiAVObject* a_node, float a_falloff, float a_frequency) {
+
+		if (!a_node) {
+			logger::warn("Tried to play a sound on a null node");
+			return;
+		}
+
+		if (!a_soundDescriptor) {
+			logger::error("Ivallid Sound Descriptor");
+			return;
+		}
+
+		auto audioManager = RE::BSAudioManager::GetSingleton();
+		if (!audioManager) {
+			logger::error("Audio Manager invalid");
+			return;
+		}
+
+		RE::BSSoundHandle soundHandle;
+		if (audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor)) {
+			float falloff = GTS::Sound_GetFallOff(a_node, a_falloff);
+			soundHandle.SetVolume(a_volume * falloff);
+
+			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+
+			soundHandle.SetObjectToFollow(a_node);
+			soundHandle.Play();
+			return;
+		}
+
+		logger::error("Could not build sound");
+
+	}
+
+	void PlaySoundAtNodeImpl(RE::BSISoundDescriptor* a_soundDescriptor, const float& a_volume, RE::NiAVObject* a_node, float a_frequency) {
+
+		if (!a_node) {
+			logger::warn("Tried to play a sound on a null node");
+			return;
+		}
+
+		if (!a_soundDescriptor) {
+			logger::error("Ivallid Sound Descriptor");
+			return;
+		}
+
+		auto audioManager = RE::BSAudioManager::GetSingleton();
+		if (!audioManager) {
+			logger::error("Audio Manager invalid");
+			return;
+		}
+
+		RE::BSSoundHandle soundHandle;
+		if (audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor)) {
+			soundHandle.SetVolume(a_volume);
+
+			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+
+			soundHandle.SetObjectToFollow(a_node);
+			soundHandle.Play();
+
+			return;
+		}
+		logger::error("Could not build sound");
+	}
+
+	template <class T>
+	bool HasMagicEffectImpl(RE::Actor* a_actor, const T& a_entry) {
+		if (!a_actor) return false;
+
+		if (RE::EffectSetting* data = GTS::Runtime::GetMagicEffect(a_entry)) {
+			return a_actor->AsMagicTarget()->HasMagicEffect(data);
+		}
+
+		return false;
+	}
+
+	void CreateExplosionAtPosImpl(RE::Actor* a_actor, RE::NiPoint3 a_pos, const float& a_scale, RE::BGSExplosion* data) {
+		if (!data && !a_actor) {
+			return;
+		}
+
+		RE::NiPointer<RE::TESObjectREFR> instance_ptr = a_actor->PlaceObjectAtMe(data, false);
+		if (!instance_ptr) {
+			return;
+		}
+
+		RE::Explosion* explosion = instance_ptr->AsExplosion();
+		if (!explosion) {
+			return;
+		}
+
+		explosion->SetPosition(a_pos);
+		auto& runtime_data = explosion->GetExplosionRuntimeData();
+		runtime_data.radius *= a_scale;
+		runtime_data.imodRadius *= a_scale;
+	}
+
+	RE::TESObjectREFR* PlaceContainerAtPosImpl(RE::TESObjectREFR* a_ref, RE::NiPoint3 a_pos, RE::TESObjectCONT* a_container) {
+
+		if (a_container) {
+
+			RE::NiPointer<RE::TESObjectREFR> instance_ptr = a_ref->PlaceObjectAtMe(a_container, false);
+			if (!instance_ptr) {
+				return nullptr;
+			}
+
+			RE::TESObjectREFR* instance = instance_ptr.get();
+			if (!instance) {
+				return nullptr;
+			}
+
+			instance->SetPosition(a_pos);
+			instance->data.angle.x = 0;
+			instance->data.angle.y = 0;
+			instance->data.angle.z = 0;
+			return instance;
+		}
+		return nullptr;
+	}
+
+	RE::TESObjectREFR* PlaceContainerAtPosImplActor(RE::TESObjectREFR* a_actor, RE::NiPoint3 a_pos, RE::TESObjectCONT* a_container) {
+		if (a_actor) {
+			if (RE::TESObjectREFR* ActorAsRef = skyrim_cast<RE::TESObjectREFR*>(a_actor)) {
+				return PlaceContainerAtPosImpl(ActorAsRef, a_pos, a_container);
+			}
+		}
+		return nullptr;
+	}
 }
 
 namespace GTS {
@@ -117,8 +288,8 @@ namespace GTS {
 	}
 
 	// ---- Spell
-	SpellItem* Runtime::GetSpell(const std::string_view& tag) {
-		return GetFormByTagName<SpellItem>(SPEL, tag);
+	SpellItem* Runtime::GetSpell(const std::string_view& a_tag) {
+		return GetFormByTagName<SpellItem>(SPEL, a_tag);
 	}
 
 	SpellItem* Runtime::GetSpell(const RuntimeData::RuntimeEntry<RE::SpellItem>& a_entry) {
@@ -129,8 +300,8 @@ namespace GTS {
 	}
 
 	// ---- Perk
-	BGSPerk* Runtime::GetPerk(const std::string_view& tag) {
-		return GetFormByTagName<BGSPerk>(PERK, tag);
+	BGSPerk* Runtime::GetPerk(const std::string_view& a_tag) {
+		return GetFormByTagName<BGSPerk>(PERK, a_tag);
 	}
 
 	BGSPerk* Runtime::GetPerk(const RuntimeData::RuntimeEntry<RE::BGSPerk>& a_entry) {
@@ -141,8 +312,8 @@ namespace GTS {
 	}
 
 	// ---- Explosion
-	BGSExplosion* Runtime::GetExplosion(const std::string_view& tag) {
-		return GetFormByTagName<BGSExplosion>(EXPL, tag);
+	BGSExplosion* Runtime::GetExplosion(const std::string_view& a_tag) {
+		return GetFormByTagName<BGSExplosion>(EXPL, a_tag);
 	}
 
 	BGSExplosion* Runtime::GetExplosion(const RuntimeData::RuntimeEntry<RE::BGSExplosion>& a_entry) {
@@ -153,8 +324,8 @@ namespace GTS {
 	}
 
 	// ---- Global
-	TESGlobal* Runtime::GetGlobal(const std::string_view& tag) {
-		return GetFormByTagName<TESGlobal>(GLOB, tag);
+	TESGlobal* Runtime::GetGlobal(const std::string_view& a_tag) {
+		return GetFormByTagName<TESGlobal>(GLOB, a_tag);
 	}
 
 	TESGlobal* Runtime::GetGlobal(const RuntimeData::RuntimeEntry<RE::TESGlobal>& a_entry) {
@@ -165,8 +336,8 @@ namespace GTS {
 	}
 
 	// ---- Quest
-	TESQuest* Runtime::GetQuest(const std::string_view& tag) {
-		return GetFormByTagName<TESQuest>(QUST, tag);
+	TESQuest* Runtime::GetQuest(const std::string_view& a_tag) {
+		return GetFormByTagName<TESQuest>(QUST, a_tag);
 	}
 
 	TESQuest* Runtime::GetQuest(const RuntimeData::RuntimeEntry<RE::TESQuest>& a_entry) {
@@ -177,8 +348,8 @@ namespace GTS {
 	}
 
 	// ---- Faction
-	TESFaction* Runtime::GetFaction(const std::string_view& tag) {
-		return GetFormByTagName<TESFaction>(FACT, tag);
+	TESFaction* Runtime::GetFaction(const std::string_view& a_tag) {
+		return GetFormByTagName<TESFaction>(FACT, a_tag);
 	}
 
 	TESFaction* Runtime::GetFaction(const RuntimeData::RuntimeEntry<RE::TESFaction>& a_entry) {
@@ -189,8 +360,8 @@ namespace GTS {
 	}
 
 	// ---- Impact Data Set
-	BGSImpactDataSet* Runtime::GetImpactEffect(const std::string_view& tag) {
-		return GetFormByTagName<BGSImpactDataSet>(IDTS, tag);
+	BGSImpactDataSet* Runtime::GetImpactEffect(const std::string_view& a_tag) {
+		return GetFormByTagName<BGSImpactDataSet>(IDTS, a_tag);
 	}
 
 	BGSImpactDataSet* Runtime::GetImpactEffect(const RuntimeData::RuntimeEntry<RE::BGSImpactDataSet>& a_entry) {
@@ -201,8 +372,8 @@ namespace GTS {
 	}
 
 	// ---- Race
-	TESRace* Runtime::GetRace(const std::string_view& tag) {
-		return GetFormByTagName<TESRace>(RACE, tag);
+	TESRace* Runtime::GetRace(const std::string_view& a_tag) {
+		return GetFormByTagName<TESRace>(RACE, a_tag);
 	}
 
 	TESRace* Runtime::GetRace(const RuntimeData::RuntimeEntry<RE::TESRace>& a_entry) {
@@ -213,8 +384,8 @@ namespace GTS {
 	}
 
 	// ---- Keyword
-	BGSKeyword* Runtime::GetKeyword(const std::string_view& tag) {
-		return GetFormByTagName<BGSKeyword>(KYWD, tag);
+	BGSKeyword* Runtime::GetKeyword(const std::string_view& a_tag) {
+		return GetFormByTagName<BGSKeyword>(KYWD, a_tag);
 	}
 
 	BGSKeyword* Runtime::GetKeyword(const RuntimeData::RuntimeEntry<RE::BGSKeyword>& a_entry) {
@@ -225,8 +396,8 @@ namespace GTS {
 	}
 
 	// ---- Leveled Item
-	TESLevItem* Runtime::GetLeveledItem(const std::string_view& tag) {
-		return GetFormByTagName<TESLevItem>(LVLI, tag);
+	TESLevItem* Runtime::GetLeveledItem(const std::string_view& a_tag) {
+		return GetFormByTagName<TESLevItem>(LVLI, a_tag);
 	}
 
 	TESLevItem* Runtime::GetLeveledItem(const RuntimeData::RuntimeEntry<RE::TESLevItem>& a_entry) {
@@ -237,8 +408,8 @@ namespace GTS {
 	}
 
 	// ---- Container
-	TESObjectCONT* Runtime::GetContainer(const std::string_view& tag) {
-		return GetFormByTagName<TESObjectCONT>(CONT, tag);
+	TESObjectCONT* Runtime::GetContainer(const std::string_view& a_tag) {
+		return GetFormByTagName<TESObjectCONT>(CONT, a_tag);
 	}
 
 	TESObjectCONT* Runtime::GetContainer(const RuntimeData::RuntimeEntry<RE::TESObjectCONT>& a_entry) {
@@ -248,566 +419,531 @@ namespace GTS {
 		return nullptr;
 	}
 
-
 	//--------------------
 	// Sound Helpers
 	//--------------------
 
-	// Overload Helpers
 	void Runtime::PlaySound(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const float& a_frequency) {
-		PlaySound_Impl_Actor(GetSound(a_tag), a_actor, a_volume, a_frequency);
+		PlaySoundImplActor(GetSound(a_tag), a_actor, a_volume, a_frequency);
 	}
 
 	void Runtime::PlaySound(const std::string_view& a_tag, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
-		PlaySound_Impl(GetSound(a_tag), a_ref, a_volume, a_frequency);
+		PlaySoundImpl(GetSound(a_tag), a_ref, a_volume, a_frequency);
 	}
 
 	void Runtime::PlaySound(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const float& a_frequency) {
-		PlaySound_Impl_Actor(GetSound(a_entry), a_actor, a_volume, a_frequency);
+		PlaySoundImplActor(GetSound(a_entry), a_actor, a_volume, a_frequency);
 	}
 
 	void Runtime::PlaySound(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
-		PlaySound_Impl(GetSound(a_entry), a_ref, a_volume, a_frequency);
-	}
-
-	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
-		PlaySoundAtNode_FallOff_Impl(GetSound(a_tag), a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
-	}
-
-	void Runtime::PlaySoundAtNode_FallOff(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
-		PlaySoundAtNode_FallOff_Impl(GetSound(a_entry), a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
-	}
-
-	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
-		PlaySoundAtNode_FallOff_Impl(GetSound(a_tag), a_volume, a_node, a_falloff, a_frequency);
-	}
-
-	void Runtime::PlaySoundAtNode_FallOff(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
-		PlaySoundAtNode_FallOff_Impl(GetSound(a_entry), a_volume, a_node, a_falloff, a_frequency);
+		PlaySoundImpl(GetSound(a_entry), a_ref, a_volume, a_frequency);
 	}
 
 	void Runtime::PlaySoundAtNode(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_frequency) {
-		PlaySoundAtNode_Impl(GetSound(a_tag), a_volume, find_node(a_actor, a_node), a_frequency);
+		PlaySoundAtNodeImpl(GetSound(a_tag), a_volume, find_node(a_actor, a_node), a_frequency);
 	}
 
 	void Runtime::PlaySoundAtNode(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, const float& a_volume, NiAVObject* a_node, float a_frequency) {
-		PlaySoundAtNode_Impl(GetSound(a_entry), a_volume, a_node, a_frequency);
+		PlaySoundAtNodeImpl(GetSound(a_entry), a_volume, a_node, a_frequency);
 	}
 
 	void Runtime::PlaySoundAtNode(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_frequency) {
-		PlaySoundAtNode_Impl(GetSound(a_entry), a_volume, find_node(a_actor, a_node), a_frequency);
+		PlaySoundAtNodeImpl(GetSound(a_entry), a_volume, find_node(a_actor, a_node), a_frequency);
 	}
 
 	void Runtime::PlaySoundAtNode(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_frequency) {
-		PlaySoundAtNode_Impl(GetSound(a_tag), a_volume, a_node, a_frequency);
+		PlaySoundAtNodeImpl(GetSound(a_tag), a_volume, a_node, a_frequency);
+	}
+	
+	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
+		PlaySoundAtNodeFallOffImpl(GetSound(a_tag), a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
 	}
 
-	// ----- Concrete Implementations -----
-
-	//Workaround for explicit casting
-	void Runtime::PlaySound_Impl_Actor(BSISoundDescriptor* a_soundDescriptor, Actor* a_actor, const float& a_volume, const float& a_frequency) {
-		TESObjectREFR* ActorAsRef = skyrim_cast<TESObjectREFR*>(a_actor);
-		PlaySound_Impl(a_soundDescriptor, ActorAsRef, a_volume, a_frequency);
+	void Runtime::PlaySoundAtNode_FallOff(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
+		PlaySoundAtNodeFallOffImpl(GetSound(a_entry), a_volume, find_node(a_actor, a_node), a_falloff, a_frequency);
 	}
 
-	void Runtime::PlaySound_Impl(BSISoundDescriptor* a_soundDescriptor, TESObjectREFR* a_ref, const float& a_volume, const float& a_frequency) {
-
-		if (!a_soundDescriptor) {
-			logger::error("Ivallid Sound Descriptor");
-			return;
-		}
-
-		auto audioManager = BSAudioManager::GetSingleton();
-		if (!audioManager) {
-			log::error("Audio Manager invalid");
-			return;
-		}
-
-		BSSoundHandle soundHandle;
-		bool success = audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor);
-		if (success) {
-			ObjectRefHandle ref = a_ref->CreateRefHandle();
-			if (TESObjectREFR* refget = ref.get().get()) {
-
-				soundHandle.SetVolume(a_volume);
-
-				SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
-
-				if (NiAVObject* current_3d = refget->GetCurrent3D()) {
-					NiAVObject* follow = current_3d;
-					soundHandle.SetObjectToFollow(follow);
-					soundHandle.Play();
-				}
-			}
-			return;
-		}
-
-		log::error("Could not build sound");
+	void Runtime::PlaySoundAtNode_FallOff(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
+		PlaySoundAtNodeFallOffImpl(GetSound(a_tag), a_volume, a_node, a_falloff, a_frequency);
 	}
 
-	void Runtime::PlaySoundAtNode_FallOff_Impl(BSISoundDescriptor* a_soundDescriptor, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
-
-		if (!a_node) {
-			logger::warn("Tried to play a sound on a null node");
-			return;
-		}
-
-		if (!a_soundDescriptor) {
-			logger::error("Ivallid Sound Descriptor");
-			return;
-		}
-
-		auto audioManager = BSAudioManager::GetSingleton();
-		if (!audioManager) {
-			log::error("Audio Manager invalid");
-			return;
-		}
-
-		BSSoundHandle soundHandle;
-		if (audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor)) {
-			float falloff = Sound_GetFallOff(a_node, a_falloff);
-			soundHandle.SetVolume(a_volume * falloff);
-
-			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
-
-			soundHandle.SetObjectToFollow(a_node);
-			soundHandle.Play();
-			return;
-		}
-
-		log::error("Could not build sound");
-		
-	}
-
-	void Runtime::PlaySoundAtNode_Impl(BSISoundDescriptor* a_soundDescriptor, const float& a_volume, NiAVObject* a_node, float a_frequency) {
-
-		if (!a_node) {
-			logger::warn("Tried to play a sound on a null node");
-			return;
-		}
-
-		if (!a_soundDescriptor) {
-			logger::error("Ivallid Sound Descriptor");
-			return;
-		}
-
-		auto audioManager = BSAudioManager::GetSingleton();
-		if (!audioManager) {
-			log::error("Audio Manager invalid");
-			return;
-		}
-
-		BSSoundHandle soundHandle;
-		if (audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor)) {
-			soundHandle.SetVolume(a_volume);
-
-			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
-
-			soundHandle.SetObjectToFollow(a_node);
-			soundHandle.Play();
-
-			return;
-		}
-		log::error("Could not build sound");
+	void Runtime::PlaySoundAtNode_FallOff(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
+		PlaySoundAtNodeFallOffImpl(GetSound(a_entry), a_volume, a_node, a_falloff, a_frequency);
 	}
 
 	//-----------------------
 	// Magic Effect Helpers
 	//-----------------------
 
-	bool Runtime::HasMagicEffect(Actor* actor, const std::string_view& tag) {
-		return HasMagicEffectOr(actor, tag, false);
+	bool Runtime::HasMagicEffect(Actor* a_actor, const std::string_view& a_tag) {
+		return HasMagicEffectImpl(a_actor, a_tag);
 	}
 
-	bool Runtime::HasMagicEffectOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
-		if (!actor) {
-			return false;
+	bool Runtime::HasMagicEffect(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::EffectSetting>& a_entry) {
+		return HasMagicEffectImpl(a_actor, a_entry);
+	}
+
+	bool Runtime::HasMagicEffectTeam(Actor* a_actor, const std::string_view& a_tag) {
+		if (HasMagicEffect(a_actor, a_tag)) {
+			return true;
 		}
-		auto data = GetMagicEffect(tag);
+
+		if (IsTeammate(a_actor)) {
+			return HasMagicEffect(PlayerCharacter::GetSingleton(), a_tag);
+		}
+
+		return false;
+	}
+
+	bool Runtime::HasMagicEffectTeam(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::EffectSetting>& a_entry) {
+		if (HasMagicEffect(a_actor, a_entry)) {
+			return true;
+		}
+
+		if (IsTeammate(a_actor)) {
+			return HasMagicEffect(PlayerCharacter::GetSingleton(), a_entry);
+		}
+
+		return false;
+	}
+
+	//-----------------------
+	// Spell Helpers
+	//-----------------------
+
+	void Runtime::AddSpell(Actor* a_actor, const std::string_view& a_tag) {
+		auto data = GetSpell(a_tag);
+		if (data && !HasSpell(a_actor, a_tag)) {
+			a_actor->AddSpell(data);
+		}
+	}
+
+	void Runtime::AddSpell(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::SpellItem>& a_entry) {
+		auto data = GetSpell(a_entry);
+		if (data && !HasSpell(a_actor, a_entry)) {
+			a_actor->AddSpell(data);
+		}
+	}
+
+	void Runtime::RemoveSpell(Actor* a_actor, const std::string_view& a_tag) {
+		auto data = GetSpell(a_tag);
+		if (data && HasSpell(a_actor, a_tag)) {
+			a_actor->RemoveSpell(data);
+		}
+	}
+
+	void Runtime::RemoveSpell(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::SpellItem>& a_entry) {
+		auto data = GetSpell(a_entry);
+		if (data && HasSpell(a_actor, a_entry)) {
+			a_actor->RemoveSpell(data);
+		}
+	}
+
+	bool Runtime::HasSpell(Actor* a_actor, const std::string_view& a_tag) {
+		auto data = GetSpell(a_tag);
+		return data ? a_actor->HasSpell(data) : false;
+	}
+
+	bool Runtime::HasSpell(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::SpellItem>& a_entry) {
+		auto data = GetSpell(a_entry);
+		return data ? a_actor->HasSpell(data) : false;
+	}
+
+	bool Runtime::HasSpellTeam(Actor* a_actor, const std::string_view& a_tag) {
+		if (HasSpell(a_actor, a_tag)) {
+			return true;
+		}
+		if (IsTeammate(a_actor)) {
+			return HasSpell(PlayerCharacter::GetSingleton(), a_tag);
+		}
+
+		return false;
+	}
+
+	bool Runtime::HasSpellTeam(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::SpellItem>& a_entry) {
+		if (HasSpell(a_actor, a_entry)) {
+			return true;
+		}
+		if (IsTeammate(a_actor)) {
+			return HasSpell(PlayerCharacter::GetSingleton(), a_entry);
+		}
+
+		return false;
+	}
+
+	void Runtime::CastSpell(Actor* a_caster, Actor* a_target, const std::string_view& a_tag) {
+		auto data = GetSpell(a_tag);
 		if (data) {
-			return actor->AsMagicTarget()->HasMagicEffect(data);
+			a_caster->GetMagicCaster(MagicSystem::CastingSource::kInstant)->CastSpellImmediate(data, false, a_target, 1.00f, false, 0.0f, a_caster);
 		}
-
-		return default_value;
-		
 	}
 
-	// Spells
-
-
-	void Runtime::AddSpell(Actor* actor, const std::string_view& tag) {
-		auto data = GetSpell(tag);
+	void Runtime::CastSpell(Actor* a_caster, Actor* a_target, const RuntimeData::RuntimeEntry<RE::SpellItem>& a_entry) {
+		auto data = GetSpell(a_entry);
 		if (data) {
-			if (!HasSpell(actor, tag)) {
-				actor->AddSpell(data);
-			}
+			a_caster->GetMagicCaster(MagicSystem::CastingSource::kInstant)->CastSpellImmediate(data, false, a_target, 1.00f, false, 0.0f, a_caster);
 		}
 	}
 
-	void Runtime::RemoveSpell(Actor* actor, const std::string_view& tag) {
-		auto data = GetSpell(tag);
-		if (data) {
-			if (HasSpell(actor, tag)) {
-				actor->RemoveSpell(data);
-			}
+	//-----------------------
+	// Perk Helpers
+	//-----------------------
+
+	void Runtime::AddPerk(Actor* a_actor, const std::string_view& a_tag) {
+		if (auto data = GetPerk(a_tag); data && !HasPerk(a_actor, a_tag)) {
+			a_actor->AddPerk(data);
 		}
 	}
 
-	bool Runtime::HasSpell(Actor* actor, const std::string_view& tag) {
-		return HasSpellOr(actor, tag, false);
-	}
-
-	bool Runtime::HasSpellOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
-		auto data = GetSpell(tag);
-		if (data) {
-			return actor->HasSpell(data);
-		}
-
-		return default_value;
-		
-	}
-
-	void Runtime::CastSpell(Actor* caster, Actor* target, const std::string_view& tag) {
-		auto data = GetSpell(tag);
-		if (data) {
-			caster->GetMagicCaster(MagicSystem::CastingSource::kInstant)->CastSpellImmediate(data, false, target, 1.00f, false, 0.0f, caster);
+	void Runtime::AddPerk(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::BGSPerk>& a_entry) {
+		if (auto data = GetPerk(a_entry); data && !HasPerk(a_actor, a_entry)) {
+			a_actor->AddPerk(data);
 		}
 	}
 
-	// Perks
-
-
-	void Runtime::AddPerk(Actor* actor, const std::string_view& tag) {
-		auto data = GetPerk(tag);
-		if (data) {
-			if (!HasPerk(actor, tag)) {
-				actor->AddPerk(data);
-			}
+	void Runtime::RemovePerk(Actor* a_actor, const std::string_view& a_tag) {
+		if (auto data = GetPerk(a_tag); data && HasPerk(a_actor, a_tag)) {
+			a_actor->RemovePerk(data);
 		}
 	}
 
-	void Runtime::RemovePerk(Actor* actor, const std::string_view& tag) {
-		auto data = GetPerk(tag);
-		if (data) {
-			if (HasPerk(actor, tag)) {
-				actor->RemovePerk(data);
-			}
+	void Runtime::RemovePerk(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::BGSPerk>& a_entry) {
+		if (auto data = GetPerk(a_entry); data && HasPerk(a_actor, a_entry)) {
+			a_actor->RemovePerk(data);
 		}
 	}
 
-	bool Runtime::HasPerk(Actor* actor, const std::string_view& tag) {
-		return HasPerkOr(actor, tag, false);
-	}
-
-	bool Runtime::HasPerkOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
-		auto data = GetPerk(tag);
-		if (data) {
-			return actor->HasPerk(data);
+	bool Runtime::HasPerk(Actor* a_actor, const std::string_view& a_tag) {
+		if (auto data = GetPerk(a_tag)) {
+			return a_actor->HasPerk(data);
 		}
-
-		return default_value;
-		
+		return false;
 	}
 
-	// Explosion
+	bool Runtime::HasPerk(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::BGSPerk>& a_entry) {
+		if (auto data = GetPerk(a_entry)) {
+			return a_actor->HasPerk(data);
+		}
+		return false;
+	}
+
+	bool Runtime::HasPerkTeam(Actor* a_actor, const std::string_view& a_tag) {
+		if (HasPerk(a_actor, a_tag)) {
+			return true;
+		}
+		if (IsTeammate(a_actor) || CountAsGiantess(a_actor)) {
+			return HasPerk(PlayerCharacter::GetSingleton(), a_tag);
+		}
+		return false;
+	}
+
+	bool Runtime::HasPerkTeam(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::BGSPerk>& a_entry) {
+		if (HasPerk(a_actor, a_entry)) {
+			return true;
+		}
+		if (IsTeammate(a_actor) || CountAsGiantess(a_actor)) {
+			return HasPerk(PlayerCharacter::GetSingleton(), a_entry);
+		}
+		return false;
+	}
 
 
-	void Runtime::CreateExplosion(Actor* actor, const float& scale, const std::string_view& tag) {
-		if (actor) {
-			CreateExplosionAtPos(actor, actor->GetPosition(), scale, tag);
+
+	//-----------------------
+	// Explosion Helpers
+	//-----------------------
+
+	void Runtime::CreateExplosion(Actor* a_actor, const float& a_scale, const std::string_view& a_tag) {
+		if (a_actor) {
+			CreateExplosionAtPos(a_actor, a_actor->GetPosition(), a_scale, a_tag);
 		}
 	}
 
-	void Runtime::CreateExplosionAtNode(Actor* actor, const std::string_view& node_name, const float& scale, const std::string_view& tag) {
-		if (actor) {
-			if (actor->Is3DLoaded()) {
-				auto model = actor->GetCurrent3D();
-				if (model) {
-					auto node = model->GetObjectByName(std::string(node_name));
-					if (node) {
-						CreateExplosionAtPos(actor, node->world.translate, scale, tag);
-					}
+	void Runtime::CreateExplosion(Actor* a_actor, const float& a_scale, const RuntimeData::RuntimeEntry<RE::BGSExplosion>& a_entry) {
+		if (a_actor) {
+			CreateExplosionAtPos(a_actor, a_actor->GetPosition(), a_scale, a_entry);
+		}
+	}
+
+	void Runtime::CreateExplosionAtNode(Actor* a_actor, const std::string_view& a_nodeName, const float& a_scale, const std::string_view& a_tag) {
+		if (a_actor && a_actor->Is3DLoaded()) {
+			if (auto model = a_actor->GetCurrent3D()) {
+				if (auto node = model->GetObjectByName(std::string(a_nodeName))) {
+					CreateExplosionAtPos(a_actor, node->world.translate, a_scale, a_tag);
 				}
 			}
 		}
 	}
 
-	void Runtime::CreateExplosionAtPos(Actor* actor, NiPoint3 pos, const float& scale, const std::string_view& tag) {
-		auto data = GetExplosion(tag);
-		if (data) {
-			NiPointer<TESObjectREFR> instance_ptr = actor->PlaceObjectAtMe(data, false);
-			if (!instance_ptr) {
-				return;
+	void Runtime::CreateExplosionAtNode(Actor* a_actor, const std::string_view& a_nodeName, const float& a_scale, const RuntimeData::RuntimeEntry<RE::BGSExplosion>& a_entry) {
+		if (a_actor && a_actor->Is3DLoaded()) {
+			if (auto model = a_actor->GetCurrent3D()) {
+				if (auto node = model->GetObjectByName(std::string(a_nodeName))) {
+					CreateExplosionAtPos(a_actor, node->world.translate, a_scale, a_entry);
+				}
 			}
-			TESObjectREFR* instance = instance_ptr.get();
-			if (!instance) {
-				return;
-			}
-
-			Explosion* explosion = instance->AsExplosion();
-			if (!explosion) {
-				return;
-			}
-			explosion->SetPosition(pos);
-			explosion->GetExplosionRuntimeData().radius *= scale;
-			explosion->GetExplosionRuntimeData().imodRadius *= scale;
 		}
 	}
 
-	// Globals
-
-
-	bool Runtime::GetBool(const std::string_view& tag) {
-		return GetBoolOr(tag, false);
+	void Runtime::CreateExplosionAtPos(Actor* a_actor, NiPoint3 a_pos, const float& a_scale, const std::string_view& a_tag) {
+		CreateExplosionAtPosImpl(a_actor, a_pos, a_scale, GetExplosion(a_tag));
 	}
 
-	bool Runtime::GetBoolOr(const std::string_view& tag, const bool& default_value) {
-		auto data = GetGlobal(tag);
-		if (data) {
+	void Runtime::CreateExplosionAtPos(Actor* a_actor, NiPoint3 a_pos, const float& a_scale, const RuntimeData::RuntimeEntry<RE::BGSExplosion>& a_entry) {
+		CreateExplosionAtPosImpl(a_actor, a_pos, a_scale, GetExplosion(a_entry));
+	}
+
+	//-----------------------
+	// Global Helpers
+	//-----------------------
+
+	bool Runtime::GetBool(const std::string_view& a_tag) {
+		if (auto data = GetGlobal(a_tag)) {
 			return fabs(data->value - 0.0f) > 1e-4;
 		}
-
-		return default_value;
-		
+		return false;
 	}
 
-	void Runtime::SetBool(const std::string_view& tag, const bool& value) {
-		auto data = GetGlobal(tag);
-		if (data) {
-			if (value) {
-				data->value = 1.0f;
-			}
-			else {
-				data->value = 0.0f;
-			}
+	bool Runtime::GetBool(const RuntimeData::RuntimeEntry<RE::TESGlobal>& a_entry) {
+		if (auto data = GetGlobal(a_entry)) {
+			return fabs(data->value - 0.0f) > 1e-4;
+		}
+		return false;
+	}
+
+	void Runtime::SetBool(const std::string_view& a_tag, const bool& a_value) {
+		if (auto data = GetGlobal(a_tag)) {
+			data->value = a_value ? 1.0f : 0.0f;
 		}
 	}
 
-	int Runtime::GetInt(const std::string_view& tag) {
-		return GetIntOr(tag, false);
+	void Runtime::SetBool(const RuntimeData::RuntimeEntry<RE::TESGlobal>& a_entry, const bool& a_value) {
+		if (auto data = GetGlobal(a_entry)) {
+			data->value = a_value ? 1.0f : 0.0f;
+		}
 	}
 
-	int Runtime::GetIntOr(const std::string_view& tag, const int& default_value) {
-		auto data = GetGlobal(tag);
-		if (data) {
+	int Runtime::GetInt(const std::string_view& a_tag) {
+		if (auto data = GetGlobal(a_tag)) {
 			return static_cast<int>(data->value);
 		}
-
-		return default_value;
-		
+		return 0;
 	}
 
-	void Runtime::SetInt(const std::string_view& tag, const int& value) {
-		auto data = GetGlobal(tag);
-		if (data) {
-			data->value = static_cast<float>(value);
+	int Runtime::GetInt(const RuntimeData::RuntimeEntry<RE::TESGlobal>& a_entry) {
+		if (auto data = GetGlobal(a_entry)) {
+			return static_cast<int>(data->value);
+		}
+		return 0;
+	}
+
+	void Runtime::SetInt(const std::string_view& a_tag, const int& a_value) {
+		if (auto data = GetGlobal(a_tag)) {
+			data->value = static_cast<float>(a_value);
 		}
 	}
 
-	float Runtime::GetFloat(const std::string_view& tag) {
-		return GetFloatOr(tag, false);
+	void Runtime::SetInt(const RuntimeData::RuntimeEntry<RE::TESGlobal>& a_entry, const int& a_value) {
+		if (auto data = GetGlobal(a_entry)) {
+			data->value = static_cast<float>(a_value);
+		}
 	}
 
-	float Runtime::GetFloatOr(const std::string_view& tag, const float& default_value) {
-		auto data = GetGlobal(tag);
-		if (data) {
+	float Runtime::GetFloat(const std::string_view& a_tag) {
+		if (auto data = GetGlobal(a_tag)) {
 			return data->value;
 		}
-
-		return default_value;
-		
+		return 0.0f;
 	}
 
-	void Runtime::SetFloat(const std::string_view& tag, const float& value) {
-		auto data = GetGlobal(tag);
-		if (data) {
-			data->value = value;
+	float Runtime::GetFloat(const RuntimeData::RuntimeEntry<RE::TESGlobal>& a_entry) {
+		if (auto data = GetGlobal(a_entry)) {
+			return data->value;
+		}
+		return 0.0f;
+	}
+
+	void Runtime::SetFloat(const std::string_view& a_tag, const float& a_value) {
+		if (auto data = GetGlobal(a_tag)) {
+			data->value = a_value;
 		}
 	}
 
-	// Quests
-
-	std::uint16_t Runtime::GetStage(const std::string_view& tag) {
-		return GetStageOr(tag, 0);
+	void Runtime::SetFloat(const RuntimeData::RuntimeEntry<RE::TESGlobal>& a_entry, const float& a_value) {
+		if (auto data = GetGlobal(a_entry)) {
+			data->value = a_value;
+		}
 	}
 
-	std::uint16_t Runtime::GetStageOr(const std::string_view& tag, const std::uint16_t& default_value) {
-		auto data = GetQuest(tag);
-		if (data) {
+	//-----------------------
+	// Quest Helpers
+	//-----------------------
+
+	std::uint16_t Runtime::GetStage(const std::string_view& a_tag) {
+		if (auto data = GetQuest(a_tag)) {
 			return data->GetCurrentStageID();
 		}
-
-		return default_value;
-		
+		return 0;
 	}
 
-
-
-	bool Runtime::InFaction(Actor* actor, const std::string_view& tag) {
-		return InFactionOr(actor, tag, false);
-	}
-
-	bool Runtime::InFactionOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
-		auto data = GetFaction(tag);
-		if (data) {
-			return actor->IsInFaction(data);
+	std::uint16_t Runtime::GetStage(const RuntimeData::RuntimeEntry<RE::TESQuest>& a_entry) {
+		if (auto data = GetQuest(a_entry)) {
+			return data->GetCurrentStageID();
 		}
-
-		return default_value;
-		
+		return 0;
 	}
 
+	//-----------------------
+	// Faction Helpers
+	//-----------------------
 
-
-	void Runtime::PlayImpactEffect(Actor* actor, const std::string_view& tag, const std::string_view& node, NiPoint3 pick_direction, const float& length, const bool& applyRotation, const bool& useLocalRotation) {
-		auto data = GetImpactEffect(tag);
-		if (data) {
-			auto impact = BGSImpactManager::GetSingleton();
-			impact->PlayImpactEffect(actor, data, node, pick_direction, length, applyRotation, useLocalRotation);
+	bool Runtime::InFaction(Actor* a_actor, const std::string_view& a_tag) {
+		if (auto data = GetFaction(a_tag); a_actor) {
+			return a_actor->IsInFaction(data);
 		}
-	}
-
-	// Races
-
-
-	bool Runtime::IsRace(Actor* actor, const std::string_view& tag) {
-		auto data = GetRace(tag);
-		if (data) {
-			return actor->GetRace() == data;
-		}
-
 		return false;
-		
 	}
 
-
-	bool Runtime::HasKeyword(Actor* actor, const std::string_view& tag) {
-		auto data = GetKeyword(tag);
-		if (data) {
-			return actor->HasKeyword(data);
+	bool Runtime::InFaction(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::TESFaction>& a_entry) {
+		if (auto data = GetFaction(a_entry); a_actor) {
+			return a_actor->IsInFaction(data);
 		}
-
 		return false;
-		
 	}
 
+	//-----------------------
+	// Impact Helpers
+	//-----------------------
 
-
-	TESObjectREFR* Runtime::PlaceContainer(Actor* actor, const std::string_view& tag) {
-		if (actor) {
-			return PlaceContainerAtPos(actor, actor->GetPosition(), tag);
-		}
-		return nullptr;
-	}
-
-	TESObjectREFR* Runtime::PlaceContainer(TESObjectREFR* object, const std::string_view& tag) {
-		if (object) {
-			return PlaceContainerAtPos(object, object->GetPosition(), tag);
-		}
-		return nullptr;
-	}
-
-	TESObjectREFR* Runtime::PlaceContainerAtPos(Actor* actor, NiPoint3 pos, const std::string_view& tag) {
-		auto data = GetContainer(tag);
-		if (data) {
-			NiPointer<TESObjectREFR> instance_ptr = actor->PlaceObjectAtMe(data, false);
-			if (!instance_ptr) {
-				return nullptr;
+	void Runtime::PlayImpactEffect(Actor* a_actor, const std::string_view& a_tag, const std::string_view& a_node, NiPoint3 a_pickDirection, const float& a_length, const bool& a_applyRotation, const bool& a_useLocalRotation) {
+		if (auto data = GetImpactEffect(a_tag); a_actor) {
+			if (auto impact = BGSImpactManager::GetSingleton()) {
+				impact->PlayImpactEffect(a_actor, data, a_node, a_pickDirection, a_length, a_applyRotation, a_useLocalRotation);
 			}
-
-			TESObjectREFR* instance = instance_ptr.get();
-			if (!instance) {
-				return nullptr;
-			}
-
-			instance->SetPosition(pos);
-			instance->data.angle.x = 0;
-			instance->data.angle.y = 0;
-			instance->data.angle.z = 0;
-			return instance;
 		}
-		return nullptr;
 	}
 
-	TESObjectREFR* Runtime::PlaceContainerAtPos(TESObjectREFR* object, NiPoint3 pos, const std::string_view& tag) {
-		auto data = GetContainer(tag);
-		if (data) {
-			NiPointer<TESObjectREFR> instance_ptr = object->PlaceObjectAtMe(data, false);
-			if (!instance_ptr) {
-				return nullptr;
+	void Runtime::PlayImpactEffect(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::BGSImpactDataSet>& a_entry, const std::string_view& a_node, NiPoint3 a_pickDirection, const float& a_length, const bool& a_applyRotation, const bool& a_useLocalRotation) {
+		if (auto data = GetImpactEffect(a_entry); a_actor) {
+			if (auto impact = BGSImpactManager::GetSingleton()) {
+				impact->PlayImpactEffect(a_actor, data, a_node, a_pickDirection, a_length, a_applyRotation, a_useLocalRotation);
 			}
-
-			TESObjectREFR* instance = instance_ptr.get();
-			if (!instance) {
-				return nullptr;
-			}
-
-			instance->SetPosition(pos);
-			instance->data.angle.x = 0;
-			instance->data.angle.y = 0;
-			instance->data.angle.z = 0;
-			return instance;
 		}
-		return nullptr;
 	}
 
-	// Team Functions
-	bool Runtime::HasMagicEffectTeam(Actor* actor, const std::string_view& tag) {
-		return HasMagicEffectTeamOr(actor, tag, false);
-	}
+	//-----------------------
+	// Race Helpers
+	//-----------------------
 
-	bool Runtime::HasMagicEffectTeamOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
-
-		if (HasMagicEffectOr(actor, tag, default_value)) {
-			return true;
+	bool Runtime::IsRace(Actor* a_actor, const std::string_view& a_tag) {
+		if (auto data = GetRace(a_tag); a_actor) {
+			return a_actor->GetRace() == data;
 		}
-
-		if (IsTeammate(actor)) {
-			auto player = PlayerCharacter::GetSingleton();
-			return HasMagicEffectOr(player, tag, default_value);
-		}
-
 		return false;
-		
 	}
 
-	bool Runtime::HasSpellTeam(Actor* actor, const std::string_view& tag) {
-		return HasMagicEffectTeamOr(actor, tag, false);
-	}
-
-	bool Runtime::HasSpellTeamOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
-
-		if (HasSpellTeam(actor, tag)) {
-			return true;
+	bool Runtime::IsRace(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::TESRace>& a_entry) {
+		if (auto data = GetRace(a_entry); a_actor) {
+			return a_actor->GetRace() == data;
 		}
-
-		if (IsTeammate(actor)) {
-			auto player = PlayerCharacter::GetSingleton();
-			return HasSpellTeamOr(player, tag, default_value);
-		}
-
-		return default_value;
-		
+		return false;
 	}
 
-	bool Runtime::HasPerkTeam(Actor* actor, const std::string_view& tag) {
-		return HasPerkTeamOr(actor, tag, false);
+	//-----------------------
+	// Keyword Helpers
+	//-----------------------
+
+	bool Runtime::HasKeyword(Actor* a_actor, const std::string_view& a_tag) {
+		if (auto data = GetKeyword(a_tag); a_actor) {
+			return a_actor->HasKeyword(data);
+		}
+		return false;
 	}
 
-	bool Runtime::HasPerkTeamOr(Actor* actor, const std::string_view& tag, const bool& default_value) {
-
-		if (HasPerk(actor, tag)) {
-			return true;
+	bool Runtime::HasKeyword(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::BGSKeyword>& a_entry) {
+		if (auto data = GetKeyword(a_entry); a_actor) {
+			return a_actor->HasKeyword(data);
 		}
-
-		if (IsTeammate(actor) || CountAsGiantess(actor)) {
-			auto player = PlayerCharacter::GetSingleton();
-			return HasPerkOr(player, tag, default_value);
-		}
-
-		return default_value;
-		
+		return false;
 	}
 
+	//-----------------------
+	// Container Helpers
+	//-----------------------
 
+	TESObjectREFR* Runtime::PlaceContainer(Actor* a_actor, const std::string_view& a_tag) {
+		if (auto data = GetContainer(a_tag); a_actor) {
+			return PlaceContainerAtPosImplActor(a_actor, a_actor->GetPosition(), data);
+		}
+		return nullptr;
+	}
+
+	TESObjectREFR* Runtime::PlaceContainer(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::TESObjectCONT>& a_entry) {
+		if (auto data = GetContainer(a_entry); a_actor) {
+			return PlaceContainerAtPosImplActor(a_actor, a_actor->GetPosition(), data);
+		}
+		return nullptr;
+	}
+
+	TESObjectREFR* Runtime::PlaceContainer(TESObjectREFR* a_object, const std::string_view& a_tag) {
+		if (auto data = GetContainer(a_tag); a_object) {
+			return PlaceContainerAtPosImpl(a_object, a_object->GetPosition(), data);
+		}
+		return nullptr;
+	}
+
+	TESObjectREFR* Runtime::PlaceContainer(TESObjectREFR* a_object, const RuntimeData::RuntimeEntry<RE::TESObjectCONT>& a_entry) {
+		if (auto data = GetContainer(a_entry); a_object) {
+			return PlaceContainerAtPosImpl(a_object, a_object->GetPosition(), data);
+		}
+		return nullptr;
+	}
+
+	TESObjectREFR* Runtime::PlaceContainerAtPos(Actor* a_actor, NiPoint3 a_pos, const std::string_view& a_tag) {
+		if (auto data = GetContainer(a_tag); a_actor) {
+			return PlaceContainerAtPosImplActor(a_actor, a_pos, data);
+		}
+		return nullptr;
+	}
+
+	TESObjectREFR* Runtime::PlaceContainerAtPos(Actor* a_actor, NiPoint3 a_pos, const RuntimeData::RuntimeEntry<RE::TESObjectCONT>& a_entry) {
+		if (auto data = GetContainer(a_entry); a_actor) {
+			return PlaceContainerAtPosImplActor(a_actor, a_pos, data);
+		}
+		return nullptr;
+	}
+
+	TESObjectREFR* Runtime::PlaceContainerAtPos(TESObjectREFR* a_object, NiPoint3 a_pos, const std::string_view& a_tag) {
+		if (auto data = GetContainer(a_tag); a_object) {
+			return PlaceContainerAtPosImpl(a_object, a_pos, data);
+		}
+		return nullptr;
+	}
+
+	TESObjectREFR* Runtime::PlaceContainerAtPos(TESObjectREFR* a_object, NiPoint3 a_pos, const RuntimeData::RuntimeEntry<RE::TESObjectCONT>& a_entry) {
+		if (auto data = GetContainer(a_entry); a_object) {
+			return PlaceContainerAtPosImpl(a_object, a_pos, data);
+		}
+		return nullptr;
+	}
+
+	//-----------------------
+	// Dependency Checks
+	//-----------------------
+
+	bool Runtime::IsSexlabInstalled() {
+		return SexlabInstalled;
+	}
+
+	bool Runtime::IsSurvivalModeInstalled() {
+		return SurvivalModeInstalled;
+	}
+
+	bool Runtime::IsDevourmentInstalled() {
+		return DevourmentInstalled;
+	}
+
+	bool Runtime::IsAltConversationCamInstalled() {
+		return AltConversationCamInstalled;
+	}
 }

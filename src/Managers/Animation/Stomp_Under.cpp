@@ -57,7 +57,7 @@ namespace {
         DoImpactRumble(giant, Node, rumble);
         DoDustExplosion(giant, 1.0f * (SMT), Event, Node);
 
-        DrainStamina(giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", false, 1.4f);
+        DrainStamina(giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.4f);
 
         StompManager::PlayNewOrOldStomps(giant, SMT, Event, Node, false);
 
@@ -69,13 +69,13 @@ namespace {
 	}
 
     void GTS_UnderStomp_CamOnR(AnimationEventData& data) {
-        DrainStamina(&data.giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", true, 1.4f);
+        DrainStamina(&data.giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
         ManageCamera(&data.giant, true, CameraTracking::R_Foot);
         SetBusyFoot(&data.giant, BusyFoot::RightFoot);
     }
 
     void GTS_UnderStomp_CamOnL(AnimationEventData& data) {
-        DrainStamina(&data.giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", true, 1.4f);
+        DrainStamina(&data.giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
         ManageCamera(&data.giant, true, CameraTracking::L_Foot);
         SetBusyFoot(&data.giant, BusyFoot::LeftFoot);
     }

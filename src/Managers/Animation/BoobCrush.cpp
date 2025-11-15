@@ -309,7 +309,7 @@ namespace {
 		float WasteStamina = 100.0f * GetButtCrushCost(giant, false);
 		DamageAV(giant, ActorValue::kStamina, WasteStamina);
 		
-		Runtime::PlaySoundAtNode("GTSSoundGrowth", giant, 1.0f, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, giant, 1.0f, "NPC Pelvis [Pelv]");
 		Task_FacialEmotionTask_Moan(giant, 0.675f, "BoobCrush_Growth", 0.20f);
 		
 		StartRumble("CleavageRumble", data.giant, 0.06f, 0.60f);
@@ -364,10 +364,10 @@ namespace GTS
 
 	float AnimationBoobCrush::GetBoobCrushDamage(Actor* actor) {
 		float damage = 1.0f;
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrush")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrush)) {
 			damage += 0.30f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrushAug3")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrushAug3)) {
 			damage += 0.70f;
 		}
 		return damage;
