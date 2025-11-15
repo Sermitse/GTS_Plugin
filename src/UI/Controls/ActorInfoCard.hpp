@@ -85,7 +85,7 @@ namespace ImGuiEx {
         ImU32 m_wChildFlags = ImGuiChildFlags_None;
         ImU32 m_wWindowFlags = ImGuiWindowFlags_None;
         const uint32_t m_baseIconSize = 32;
-        const uint32_t m_buffIconSize = 64;
+        const uint32_t m_buffIconSize = 48;
         std::unique_ptr<StatusBar> m_buffs;
    
     };

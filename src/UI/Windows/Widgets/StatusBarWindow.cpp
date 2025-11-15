@@ -1,11 +1,31 @@
 #include "UI/GTSMenu.hpp"
 #include "UI/Windows/Widgets/StatusBarWindow.hpp"
 
+#include "UI/Core/ImColorUtils.hpp"
 #include "UI/Core/ImFontManager.hpp"
 #include "UI/Lib/imgui.h"
 #include "UI/Lib/imgui_internal.h"
 
 #include "UI/Windows/Settings/SettingsWindow.hpp"
+
+namespace {
+
+	void DrawWindowFrame(ImVec4 color) {
+		const ImGuiStyle& style = ImGui::GetStyle();
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+		ImRect r = ImGui::GetCurrentWindow()->Rect();
+		ImVec2 p_min{ r.Min.x - 1, r.Min.y - 1 };
+		ImVec2 p_max{ r.Max.x - 1, r.Max.y - 1 };
+		ImVec2 p_min_out{ r.Min.x, r.Min.y };
+		ImVec2 p_max_out{ r.Max.x, r.Max.y };
+
+		ImU32 brd = ImGui::GetColorU32(ImGuiCol_Border);
+
+		draw_list->AddRectFilled(p_min, p_max, ImUtil::Colors::ImVec4ToU32(color), style.FrameRounding);
+		draw_list->AddRect(p_min_out, p_max_out, brd, style.FrameRounding);
+	}
+
+}
 
 namespace GTS {
 
@@ -48,7 +68,9 @@ namespace GTS {
 		this->RegisterExtraSettings(m_extraSettings);
 		m_settingsHolder->SetCustomDefaults<WindowSettingsStatusBar_t>({
 			.iIconSize = 48,
-			.iFlags = 0
+			.iFlagsVis = 0,
+			.iFlagsAS = 0,
+			.f3BGColor = {0.0f, 0.0f, 0.0f}
 		});
 
 		if (const auto& wSettings = dynamic_cast<SettingsWindow*>(GTSMenu::WindowManager->wSettings)) {
@@ -81,78 +103,43 @@ namespace GTS {
 	}
 
 	float StatusBarWindow::GetBackgroundAlpha() {
-		return GetBaseSettings().fBGAlphaMult;
+		return 0.0f;
 	}
 
-
-	//Todo Fix
-	//Instead of autosize
-
 	void StatusBarWindow::Draw() {
-
 		auto& BaseSettings = GetBaseSettings();
 		auto& ExtraSettings = GetExtraSettings<WindowSettingsStatusBar_t>();
-
-		//const ImVec2 Size = {
-		//	((ExtraSettings.iIconSize * 6) + (ImGui::GetStyle().FramePadding.x * 2.0f) + (ImGui::GetStyle().ItemSpacing.x * 5)),
-		//	((ExtraSettings.iIconSize) + (ImGui::GetStyle().FramePadding.y * 2.0f))
-		//};
 
 		ImGui::SetWindowSize({});
 
 		m_fadeSettings.enabled = BaseSettings.bEnableFade;
 		m_fadeSettings.visibilityDuration = BaseSettings.fFadeAfter;
-		bool Configuring = *m_isConfiguring && *m_settingsVisible;
+		bool configuring = *m_isConfiguring && *m_settingsVisible;
 
-		const ImVec2 Offset{ BaseSettings.f2Position.at(0), BaseSettings.f2Position.at(1) };
-		ImGui::SetWindowPos(GetAnchorPos(StringToEnum<WindowAnchor>(BaseSettings.sAnchor), Offset, true));
+		const ImVec2 offset{ BaseSettings.f2Position[0], BaseSettings.f2Position[1] };
+		ImGui::SetWindowPos(GetAnchorPos(StringToEnum<WindowAnchor>(BaseSettings.sAnchor), offset, true));
 
-		RE::Actor* Target = PlayerCharacter::GetSingleton();
+		RE::Actor* target = PlayerCharacter::GetSingleton();
+
+		static int NumDrawn = 0;
+		if (NumDrawn > 0) {
+			DrawWindowFrame(ImUtil::Colors::AdjustAlpha(
+				ImUtil::Colors::fRGBToImVec4(ExtraSettings.f3BGColor),
+				BaseSettings.fBGAlphaMult * m_fadeSettings.fadeAlpha)
+			);
+		}
 
 		bool stateChanged = false;
 		m_buffs->m_iconSize = ExtraSettings.iIconSize;
-		int drawnIcons = m_buffs->Draw(Target, ExtraSettings.iFlags, &stateChanged, Configuring);
+		NumDrawn = m_buffs->Draw(target, ExtraSettings.iFlagsVis, ExtraSettings.iFlagsAS, &stateChanged, configuring);
 
 		if (stateChanged) {
-			this->ResetFadeState();
+			ResetFadeState();
 		}
 
-		{
-			if (drawnIcons == 0 && this->m_fadeSettings.enabled) {
-				this->m_fadeSettings.isFading = false;
-				this->m_fadeSettings.fadeAlpha = 0.0f;
-				this->m_fadeSettings.visibilityTimer = 0.0f;
-
-			}
-
-			//const ImVec2 Size = {
-			//	((ExtraSettings.iIconSize * 2) + (ImGui::GetStyle().FramePadding.x * 2.0f)),
-			//	((ExtraSettings.iIconSize) + (ImGui::GetStyle().FramePadding.y * 2.0f))
-			//};
-
-			//if (drawnIcons == 0 && !this->m_fadeSettings.enabled) {
-			//	ImFontManager::Push(ImFontManager::kWidgetBody, ExtraSettings.iIconSize / 64.0f);
-			//	if (BaseSettings.fBGAlphaMult > 0.01f) {
-			//		ImGui::SetWindowSize(Size);
-			//		const char* txt = "No Buffs Active";
-			//		const ImVec2 textSize = ImGui::CalcTextSize(txt);
-			//		ImGui::SetCursorPos({
-			//			Size.x * .5f - (textSize.x * .5f),
-			//			Size.y * .5f - (textSize.y * .5f)
-			//		});
-			//		ImGui::Text(txt);
-			//	}
-			//	ImFontManager::Pop();
-			//}
-
-			//Workaround
-			//Dummy adds nonsensical padding otherwise.
-			ImGuiContext& g = *GImGui;
-			ImGuiWindow* window = g.CurrentWindow;
-			if (window) {
-				window->DC.IsSetPos = false;
-			}
-
+		// Workaround for ImGui Dummy padding bug
+		if (ImGuiWindow* window = GImGui->CurrentWindow) {
+			window->DC.IsSetPos = false;
 		}
 	}
 }

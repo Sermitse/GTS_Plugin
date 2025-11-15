@@ -15,9 +15,9 @@ namespace ImGuiEx {
 		m_transform->recolorEnabled = true;
 	}
 
-	bool DynIconEnchantment::Draw(float a_percent) const {
+	bool DynIconEnchantment::Draw(float a_percent, bool a_alwaysShow) const {
 
-		if (a_percent - 1.0f <= 0.f) return false;
+		if (a_percent - 1.0f <= 0.f && !a_alwaysShow) return false;
 
 		GTS::ImFontManager::Push(GTS::ImFontManager::kIconText, m_size / 64.0f);
 		{

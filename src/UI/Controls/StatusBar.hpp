@@ -19,11 +19,21 @@ namespace ImGuiEx {
 		StatusbarFlag_HideOnTheEdge = 1 << 5,
 	};
 
+	enum StatusbarAlwaysShowFlags : uint32_t {
+		StatusbarASFlag_None = 0,
+		StatusbarASFlag_ASDamageReduction = 1 << 0,
+		StatusbarASFlag_ASLifeAbsorbtion = 1 << 1,
+		StatusbarASFlag_ASEnchantment = 1 << 2,
+		StatusbarASFlag_ASVoreStacks = 1 << 3,
+		StatusbarASFlag_ASSizeReserve = 1 << 4,
+		StatusbarASFlag_ASOnTheEdge = 1 << 5,
+	};
+
 	class StatusBar {
 
 		public:
         StatusBar(uint32_t a_iconSize, bool a_enableToolTips);
-		uint8_t Draw(RE::Actor* a_actor, uint32_t a_flags = StatusbarFlag_None, bool* a_stateChanged = nullptr, bool a_preview = false);
+		uint8_t Draw(RE::Actor* a_actor, uint32_t a_visFlags = StatusbarFlag_None, uint32_t a_ASFlags = StatusbarASFlag_None, bool* a_stateChanged = nullptr, bool a_preview = false);
 
 		uint32_t m_iconSize;
 		float m_padding = 8.0f;

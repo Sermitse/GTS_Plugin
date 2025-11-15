@@ -122,18 +122,19 @@ TOML_REGISTER_NAME(WindowSettingsUnderstompBar_t, "USBar");
 //Extended settings for the status/buff/icons bar
 struct WindowSettingsStatusBar_t {
     uint16_t iIconSize = 48;
-    uint16_t iFlags = 0;
+    uint16_t iFlagsVis = 0;
+    uint16_t iFlagsAS = 0;
+    std::array<float, 3> f3BGColor = { 0.0f, 0.0f, 0.0f };
 };
 TOML_SERIALIZABLE(WindowSettingsStatusBar_t);
 TOML_REGISTER_NAME(WindowSettingsStatusBar_t, "StatusBar");
 
 
 struct WindowSettingsKillFeed_t {
-    uint16_t iIconSize = 48;
     uint16_t iFlags = 0;
     float fWidth = 400.0f;
-    uint8_t iMaxVisibleEntries;
-    float fVisibilityDuration = 6.0f;
+    uint8_t iMaxVisibleEntries = 8;
+    std::array<float, 3> f3BGColor = {0.0f, 0.0f, 0.0f};
 };
 TOML_SERIALIZABLE(WindowSettingsKillFeed_t);
 TOML_REGISTER_NAME(WindowSettingsKillFeed_t, "KillFeed");

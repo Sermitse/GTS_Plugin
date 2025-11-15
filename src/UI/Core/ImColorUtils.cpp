@@ -124,6 +124,10 @@ namespace ImUtil::Colors {
         return ImVec4(r * scale, g * scale, b * scale, a * scale);
     }
 
+    ImU32 ImVec4ToU32(ImVec4 a_rgba) noexcept {
+        return IM_COL32(a_rgba.x * 255, a_rgba.y * 255, a_rgba.z * 255, a_rgba.w * 255);
+    }
+
     ImU32 fRGBToU32(std::array<float, 3> a_rgb) {
 
         auto clamp = [](float v) -> int {

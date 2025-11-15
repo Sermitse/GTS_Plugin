@@ -12,6 +12,7 @@
 #include "UI/Core/ImColorUtils.hpp"
 
 #include "UI/Core/ImUtil.hpp"
+#include "UI/Windows/Other/KillFeedWindow.hpp"
 
 #include "UI/Windows/Widgets/SizeBarWindow.hpp"
 #include "UI/Windows/Widgets/StatusBarWindow.hpp"
@@ -25,7 +26,7 @@ namespace {
 	PSString TCPosOffset = "Offset the widget position relative to the selected anchor point.";
 	PSString TCHeight = "Adjust the height of the progress bar.";
 	PSString TCWidth = "Adjust the length of the progress bar.";
-	PSString TCAlpha = "Adjust the overall transparency of progress bar.";
+	PSString TCAlpha = "Adjust the overall transparency.";
 	PSString TCIFadeEn = "Enable progress bar hide after a specified amount of inactivity.";
 	PSString TCIFadeTime = "Set the time in seconds before the progress bar starts to fade after inactivity.";
 	PSString TCIFadeDelta = "Set the minimum required amount of change for the progress bar to reappear again after being hidden.";
@@ -52,8 +53,96 @@ namespace {
 	//Specific to Icon/Buff/Status Bar
 	PSString TFrameAlpha = "Set the transparency level for the window containing the statusbar.";
 	PSString TIcoVis = "Toggle icon visibility.";
+	PSString TIcoAlwaysVis = "Toggle whether icons should remain visible when empty.";
 	PSString TIcoSize = "Set the size of the icons.";
 	PSString TCopyAccent = "Set the accent color as the gradient color";
+
+
+	PSString KFFlagNoKiller = "Show/Hide the killers name.";
+	PSString KFFlagNoKillType = "Show/Hide the death type.";
+	PSString KFBGAlpha = "Set background alpha.";
+	PSString KFVisDur = "Set the visibility duration for a kill entry.";
+	PSString KFWidth = "Set the width of a kill entry.";
+	PSString KFMaxVis = "Set the max number of kill entries visible at the same time.\n"
+					    "Overflown entries are queued and will be shown once the currently visible ones expire.";
+
+
+	void DrawKillFeedWindowBase(GTS::ImWindow* a_KillFeed) {
+
+		if (!a_KillFeed) return;
+		auto Win = dynamic_cast<GTS::KillFeedWindow*>(a_KillFeed);
+		if (!Win) return;
+
+		auto& BaseSettings = Win->GetBaseSettings();
+
+		ImGui::SeparatorText("Common Settings");
+
+		ImGuiEx::CheckBox("Enable", &BaseSettings.bVisible, TCVis);
+
+		ImGui::BeginDisabled(!BaseSettings.bVisible);
+		{
+			// Anchor & Position
+			ImGuiEx::ComboEx<GTS::ImWindow::WindowAnchor>("Anchor", BaseSettings.sAnchor, TCAnchor);
+			ImGuiEx::SliderF("Position Up/Down", &BaseSettings.f2Position.at(1), 0.0f, 720.f, TCPosOffset, "%.1f");
+
+			if (BaseSettings.sAnchor != "kCenter") {
+				ImGuiEx::SliderF("Position Left/Right", &BaseSettings.f2Position.at(0), 0.0f, 1280.f, TCPosOffset, "%.1f");
+			}
+
+			ImGuiEx::SliderF("Alpha", &BaseSettings.fAlpha, 0.1f, 1.0f, TCAlpha, "%.2fx");
+		}
+		ImGui::EndDisabled();
+	}
+
+	void DrawKillfeedOptions(GTS::ImWindow* a_KillFeed) {
+
+		if (!a_KillFeed) return;
+		auto Win = dynamic_cast<GTS::KillFeedWindow*>(a_KillFeed);
+		if (!Win) return;
+
+		auto& BaseSettings = Win->GetBaseSettings();
+		auto& ExtraSettings = Win->GetExtraSettings<WindowSettingsKillFeed_t>();
+
+		ImGui::SeparatorText("Extended Settings");
+
+		ImGui::BeginDisabled(!BaseSettings.bVisible);
+		{
+			
+			ImGuiEx::SliderF("Visibility Duration", &BaseSettings.fFadeAfter, 0.1f, 10.f, KFVisDur, "%.2f second(s)");
+			ImGuiEx::SliderF("Entry Width", &ExtraSettings.fWidth, 75.0f, 600.f, KFWidth, "%.2f");
+			ImGuiEx::SliderU8("Max Visible Entries", &ExtraSettings.iMaxVisibleEntries, 2, 20, KFMaxVis, "%.d Entries");
+
+			static GTS::ImGraphics::ImageTransform T = {
+				.recolorEnabled = true,
+			};
+
+			T.targetColor = ImUtil::Colors::fRGBToImVec4(GTS::Config::UI.f3AccentColor);
+			float buttonWidth = 18 + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().FramePadding.x * 2;
+			if (ImGuiEx::ImageButtonTransform("##ResetA", ImageList::Generic_Square, T, 18, TCopyAccent)) {
+				ExtraSettings.f3BGColor = GTS::Config::UI.f3AccentColor;
+			}
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(ImGui::CalcItemWidth() - buttonWidth);
+			ImGui::ColorEdit3("Background Color", ExtraSettings.f3BGColor.data(), ImGuiColorEditFlags_DisplayHSV);
+			ImGuiEx::SliderF("Backround Alpha", &BaseSettings.fBGAlphaMult, 0.0f, 1.0f, KFBGAlpha, "%.2fx");
+
+			bool sNoKillType = !(ExtraSettings.iFlags & ImGuiEx::KillFeedEntryFlag_NoKillType);
+			bool sNoKiller = !(ExtraSettings.iFlags & ImGuiEx::KillFeedEntryFlag_NoKiller);
+
+			if (ImGuiEx::CheckBox("Show Kill Type", &sNoKillType, KFFlagNoKillType)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::KillFeedEntryFlag_NoKillType, !sNoKillType);
+			}
+
+			ImGui::SameLine();
+
+			if (ImGuiEx::CheckBox("Show Killer", &sNoKiller, KFFlagNoKiller)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::KillFeedEntryFlag_NoKiller, !sNoKiller);
+			}
+
+		}
+		ImGui::EndDisabled();
+
+	}
 
 	void DrawCommonWidgetOptions(auto& BaseSettings) {
 
@@ -145,7 +234,7 @@ namespace {
 		};
 		T.targetColor = ImUtil::Colors::fRGBToImVec4(GTS::Config::UI.f3AccentColor);
 
-		float buttonWidth = 18 + ImGui::GetStyle().ItemSpacing.x;
+		float buttonWidth = 18 + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().FramePadding.x * 2;
 
 		if (ImGuiEx::ImageButtonTransform("##ResetA", ImageList::Generic_Square, T, 18, TCopyAccent)) {
 			ExtraSettings.f3ColorA = GTS::Config::UI.f3AccentColor;
@@ -196,49 +285,117 @@ namespace {
 		{
 
 			ImGuiEx::SliderU16("Icon Size", &ExtraSettings.iIconSize, 8, 128, TIcoSize, "%d px");
-			ImGuiEx::SliderF("Frame Alpha", &BaseSettings.fBGAlphaMult, 0.0f, 1.0f, TFrameAlpha, "%.2fx");
 
-			bool sDamReduction = !(ExtraSettings.iFlags & ImGuiEx::StatusbarFlag_HideDamageReduction);
-			bool sLifeAbsorbtion = !(ExtraSettings.iFlags & ImGuiEx::StatusbarFlag_HideLifeAbsorbtion);
-			bool sEnachantment = !(ExtraSettings.iFlags & ImGuiEx::StatusbarFlag_HideEnchantment);
-			bool sVoreStacks = !(ExtraSettings.iFlags & ImGuiEx::StatusbarFlag_HideVoreStacks);
-			bool sSizeReserve = !(ExtraSettings.iFlags & ImGuiEx::StatusbarFlag_HideSizeReserve);
-			bool sOnTheEdge = !(ExtraSettings.iFlags & ImGuiEx::StatusbarFlag_HideOnTheEdge);
+			bool sDamReduction   = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideDamageReduction);
+			bool sLifeAbsorbtion = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideLifeAbsorbtion);
+			bool sEnachantment   = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideEnchantment);
+			bool sVoreStacks     = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideVoreStacks);
+			bool sSizeReserve    = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideSizeReserve);
+			bool sOnTheEdge      = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideOnTheEdge);
 
-			ImGui::Text("Icon Visibility Toggles");
+			bool ASDamReduction   = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASDamageReduction);
+			bool ASLifeAbsorbtion = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASLifeAbsorbtion);
+			bool ASEnachantment   = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASEnchantment);
+			bool ASVoreStacks     = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASVoreStacks);
+			bool ASSizeReserve    = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASSizeReserve);
+			bool ASOnTheEdge      = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASOnTheEdge);
 
-			if (ImGuiEx::CheckBox("Damage Reduction", &sDamReduction, TIcoVis)) {
-				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::StatusbarFlag_HideDamageReduction, !sDamReduction);
+			static GTS::ImGraphics::ImageTransform T = {
+				.recolorEnabled = true,
+			};
+
+			T.targetColor = ImUtil::Colors::fRGBToImVec4(GTS::Config::UI.f3AccentColor);
+			float buttonWidth = 18 + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().FramePadding.x * 2;
+			if (ImGuiEx::ImageButtonTransform("##ResetA", ImageList::Generic_Square, T, 18, TCopyAccent)) {
+				ExtraSettings.f3BGColor = GTS::Config::UI.f3AccentColor;
 			}
-
 			ImGui::SameLine();
+			ImGui::SetNextItemWidth(ImGui::CalcItemWidth() - buttonWidth);
+			ImGui::ColorEdit3("Background Color", ExtraSettings.f3BGColor.data(), ImGuiColorEditFlags_DisplayHSV);
+			ImGuiEx::SliderF("Backround Alpha", &BaseSettings.fBGAlphaMult, 0.0f, 1.0f, TFrameAlpha, "%.2fx");
 
-			if (ImGuiEx::CheckBox("Life Absorbtion", &sLifeAbsorbtion, TIcoVis)) {
-				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::StatusbarFlag_HideLifeAbsorbtion, !sLifeAbsorbtion);
+			ImGui::Spacing();
+
+			ImUtil_Unique{
+
+				ImGui::Text("Icon Visibility Toggles");
+
+				if (ImGuiEx::CheckBox("Damage Reduction", &sDamReduction, TIcoVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideDamageReduction, !sDamReduction);
+				}
+
+				ImGui::SameLine();
+
+				if (ImGuiEx::CheckBox("Life Absorbtion", &sLifeAbsorbtion, TIcoVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideLifeAbsorbtion, !sLifeAbsorbtion);
+				}
+
+				ImGui::SameLine();
+
+				if (ImGuiEx::CheckBox("GTS Aspect", &sEnachantment, TIcoVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideEnchantment, !sEnachantment);
+				}
+
+				//------------ Line 2
+
+				if (ImGuiEx::CheckBox("Vore Stacks", &sVoreStacks, TIcoVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideVoreStacks, !sVoreStacks);
+				}
+
+				ImGui::SameLine();
+
+				if (ImGuiEx::CheckBox("Size Reserve", &sSizeReserve, TIcoVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideSizeReserve, !sSizeReserve);
+				}
+
+				ImGui::SameLine();
+
+				if (ImGuiEx::CheckBox("On The Edge", &sOnTheEdge, TIcoVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideOnTheEdge, !sOnTheEdge);
+				}
 			}
 
-			ImGui::SameLine();
+			// -------------- Always Show Toggles
 
-			if (ImGuiEx::CheckBox("GTS Aspect", &sEnachantment, TIcoVis)) {
-				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::StatusbarFlag_HideEnchantment, !sEnachantment);
-			}
+			ImGui::Spacing();
 
-			//------------ Line 2
+			ImUtil_Unique {
 
-			if (ImGuiEx::CheckBox("Vore Stacks", &sVoreStacks, TIcoVis)) {
-				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::StatusbarFlag_HideVoreStacks, !sVoreStacks);
-			}
+				ImGui::Text("Always Show Icon Toggles");
 
-			ImGui::SameLine();
+				if (ImGuiEx::CheckBox("Damage Reduction", &ASDamReduction, TIcoAlwaysVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASDamageReduction, ASDamReduction);
+				}
 
-			if (ImGuiEx::CheckBox("Size Reserve", &sSizeReserve, TIcoVis)) {
-				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::StatusbarFlag_HideSizeReserve, !sSizeReserve);
-			}
+				ImGui::SameLine();
 
-			ImGui::SameLine();
+				if (ImGuiEx::CheckBox("Life Absorbtion", &ASLifeAbsorbtion, TIcoAlwaysVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASLifeAbsorbtion, ASLifeAbsorbtion);
+				}
 
-			if (ImGuiEx::CheckBox("On The Edge", &sOnTheEdge, TIcoVis)) {
-				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::StatusbarFlag_HideOnTheEdge, !sOnTheEdge);
+				ImGui::SameLine();
+
+				if (ImGuiEx::CheckBox("GTS Aspect", &ASEnachantment, TIcoAlwaysVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASEnchantment, ASEnachantment);
+				}
+
+				//------------ Line 2
+
+				if (ImGuiEx::CheckBox("Vore Stacks", &ASVoreStacks, TIcoAlwaysVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASVoreStacks, ASVoreStacks);
+				}
+
+				ImGui::SameLine();
+
+				if (ImGuiEx::CheckBox("Size Reserve", &ASSizeReserve, TIcoAlwaysVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASSizeReserve, ASSizeReserve);
+				}
+
+				ImGui::SameLine();
+
+				if (ImGuiEx::CheckBox("On The Edge", &ASOnTheEdge, TIcoAlwaysVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASOnTheEdge, ASOnTheEdge);
+				}
 			}
 		}
 		ImGui::EndDisabled();
@@ -318,6 +475,8 @@ namespace {
 
 	}
 
+	
+
 }
 
 namespace GTS {
@@ -336,8 +495,10 @@ namespace GTS {
 			case 4: DrawSizeBarOptions(GTSMenu::WindowManager->wSBarF4); break;
 			case 5: DrawSizeBarOptions(GTSMenu::WindowManager->wSBarF5); break;
 
-			case 6: DrawUnderstompBarOptions(GTSMenu::WindowManager->wUBar);   break;
-			case 7: DrawStatusBarOptions(GTSMenu::WindowManager->wStatusBar);  break;
+			case 7: DrawUnderstompBarOptions(GTSMenu::WindowManager->wUBar);   break;
+			case 8: DrawStatusBarOptions(GTSMenu::WindowManager->wStatusBar);  break;
+			case 9: DrawKillfeedOptions(GTSMenu::WindowManager->wKillFeed);    break;
+
 			default: break;
 
 		}
@@ -354,8 +515,10 @@ namespace GTS {
 			case 4: DrawCommonOptionsFor<SizeBarWindow, WindowSettingsSizeBar_t>(GTSMenu::WindowManager->wSBarF4); break;
 			case 5: DrawCommonOptionsFor<SizeBarWindow, WindowSettingsSizeBar_t>(GTSMenu::WindowManager->wSBarF5); break;
 
-			case 6: DrawCommonOptionsFor<USBarWindow, WindowSettingsUnderstompBar_t>(GTSMenu::WindowManager->wUBar);       break;
-			case 7: DrawCommonOptionsFor<StatusBarWindow, WindowSettingsStatusBar_t>(GTSMenu::WindowManager->wStatusBar);  break;
+			case 7: DrawCommonOptionsFor<USBarWindow, WindowSettingsUnderstompBar_t>(GTSMenu::WindowManager->wUBar);       break;
+			case 8: DrawCommonOptionsFor<StatusBarWindow, WindowSettingsStatusBar_t>(GTSMenu::WindowManager->wStatusBar);  break;
+			case 9: DrawKillFeedWindowBase(GTSMenu::WindowManager->wKillFeed);  break;
+
 			default: break;
 
 		}
@@ -368,47 +531,69 @@ namespace GTS {
 	}
 
 	void CategoryWidgets::DrawOptions() {
-
 		ImGui::SetNextWindowBgAlpha(0.1f);
-
-		static std::vector<std::string> ItemList {
-			"Sizebar - Player",
-			"Sizebar - Follower 1",
-			"Sizebar - Follower 2",
-			"Sizebar - Follower 3",
-			"Sizebar - Follower 4",
-			"Sizebar - Follower 5",
-			"Understomp Angle",
-			"Status/Active Buffs Bar",
+		static std::vector<std::string> SizebarList{
+			"Size Bar - Player",
+			"Size Bar - Follower 1",
+			"Size Bar - Follower 2",
+			"Size Bar - Follower 3",
+			"Size Bar - Follower 4",
+			"Size Bar - Follower 5"
 		};
 
-		ItemList[0] = fmt::format("Sizebar - {}",PlayerCharacter::GetSingleton()->GetName());
-		static std::string CurrentItem = ItemList[0]; //Init to first
+		static std::vector<std::string> OtherWidgetList{
+			"Size Bars",
+			"Understomp Bar",
+			"Status Bar",
+			"KillFeed"
+		};
+
+		SizebarList[0] = fmt::format("Size Bar - {}", PlayerCharacter::GetSingleton()->GetName());
+		static std::string CurrentSizebar = SizebarList[0];
+		static std::string CurrentOther = OtherWidgetList[0];
 
 		const auto& tmplist = GTSMenu::WindowManager->GetCachedTeamMateList();
 		for (uint8_t i = 1; i <= 5; i++) {
 			if (i - 1 < tmplist.size() && tmplist[i - 1]) {
-				ItemList[i] = fmt::format("Sizebar - {}", tmplist[i - 1]->GetName());
+				SizebarList[i] = fmt::format("Size Bar - {}", tmplist[i - 1]->GetName());
 			}
 			else {
-				ItemList[i] = fmt::format("Sizebar - Follower {}", i);
+				SizebarList[i] = fmt::format("Size Bar - Follower {}", i);
 			}
 		}
 
 		ImGui::BeginChild("##Options", { -FLT_MIN, 0.0f }, ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
 		{
-
-			if (ImGui::BeginCombo("Select Widget", CurrentItem.c_str())) {
-				for (size_t i = 0; i < ItemList.size(); ++i) {
-					bool is_selected = (CurrentItem == ItemList[i]);
-					if (ImGui::Selectable(ItemList[i].c_str(), is_selected)) {
-						CurrentItem = ItemList[i];
-						IndexToDraw = i;
+			if (ImGui::BeginCombo("Select Widget", CurrentOther.c_str())) {
+				for (size_t i = 0; i < OtherWidgetList.size(); ++i) {
+					bool selected = (CurrentOther == OtherWidgetList[i]);
+					if (ImGui::Selectable(OtherWidgetList[i].c_str(), selected)) {
+						CurrentOther = OtherWidgetList[i];
+						if (i == 0) { // "Sizebar" selected
+							IndexToDraw = 0; // Default to player sizebar
+						}
+						else {
+							IndexToDraw = 6 + i;
+						}
 						ImGui::SetItemDefaultFocus();
-						break;
 					}
 				}
 				ImGui::EndCombo();
+			}
+
+			if (CurrentOther == "Size Bars") {
+
+				if (ImGui::BeginCombo("Select Size Bar", CurrentSizebar.c_str())) {
+					for (size_t i = 0; i < SizebarList.size(); ++i) {
+						bool selected = (CurrentSizebar == SizebarList[i]);
+						if (ImGui::Selectable(SizebarList[i].c_str(), selected)) {
+							CurrentSizebar = SizebarList[i];
+							IndexToDraw = i;
+							ImGui::SetItemDefaultFocus();
+						}
+					}
+					ImGui::EndCombo();
+				}
 			}
 		}
 		ImGui::EndChild();

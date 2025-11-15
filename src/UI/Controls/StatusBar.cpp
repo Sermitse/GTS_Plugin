@@ -45,7 +45,7 @@ namespace ImGuiEx {
 		m_CataclysmicVoreStacksIcon = std::make_unique<DynIconCataclysmicVoreStacks>(m_iconSize);
 	}
 
-	uint8_t StatusBar::Draw(RE::Actor* a_actor, uint32_t a_flags, bool* a_stateChanged, bool a_preview) {
+	uint8_t StatusBar::Draw(RE::Actor* a_actor, uint32_t a_visFlags, uint32_t a_ASFlags, bool* a_stateChanged, bool a_preview) {
 
 		if (!a_actor) return 0;
 		if (!a_actor->Get3D(false)) return 0;
@@ -72,12 +72,19 @@ namespace ImGuiEx {
 			iVoreStacks = 10;
 		}
 
-		bool Draw_damageReductionIcon       = !(a_flags & StatusbarFlag_HideDamageReduction);
-		bool Draw_lifeAbsorbIcon            = !(a_flags & StatusbarFlag_HideLifeAbsorbtion);
-		bool Draw_enchantmentIcon           = !(a_flags & StatusbarFlag_HideEnchantment);
-		bool Draw_CataclysmicVoreStacksIcon = !(a_flags & StatusbarFlag_HideVoreStacks);
-		bool Draw_sizeReserveIcon           = !(a_flags & StatusbarFlag_HideSizeReserve);
-		bool Draw_onTheEdgeIcon             = !(a_flags & StatusbarFlag_HideOnTheEdge);
+		bool Draw_damageReductionIcon       = !(a_visFlags & StatusbarFlag_HideDamageReduction);
+		bool Draw_lifeAbsorbIcon            = !(a_visFlags & StatusbarFlag_HideLifeAbsorbtion);
+		bool Draw_enchantmentIcon           = !(a_visFlags & StatusbarFlag_HideEnchantment);
+		bool Draw_CataclysmicVoreStacksIcon = !(a_visFlags & StatusbarFlag_HideVoreStacks);
+		bool Draw_sizeReserveIcon           = !(a_visFlags & StatusbarFlag_HideSizeReserve);
+		bool Draw_onTheEdgeIcon             = !(a_visFlags & StatusbarFlag_HideOnTheEdge);
+
+		bool AS_damageReductionIcon       = (a_ASFlags & StatusbarFlag_HideDamageReduction);
+		bool AS_lifeAbsorbIcon            = (a_ASFlags & StatusbarFlag_HideLifeAbsorbtion);
+		bool AS_enchantmentIcon           = (a_ASFlags & StatusbarFlag_HideEnchantment);
+		bool AS_CataclysmicVoreStacksIcon = (a_ASFlags & StatusbarFlag_HideVoreStacks);
+		bool AS_sizeReserveIcon           = (a_ASFlags & StatusbarFlag_HideSizeReserve);
+		bool AS_onTheEdgeIcon             = (a_ASFlags & StatusbarFlag_HideOnTheEdge);
 
 		const float RowY = ImGui::GetCursorPosY();
 		float cursorX = ImGui::GetCursorPosX();
@@ -87,7 +94,7 @@ namespace ImGuiEx {
 		//m_damageReductionIcon
 		if (Draw_damageReductionIcon) {
 			m_damageReductionIcon->Resize(m_iconSize);
-			if (m_damageReductionIcon->Draw(fDamageResist)) {
+			if (m_damageReductionIcon->Draw(fDamageResist, AS_damageReductionIcon)) {
 				if (m_enableToolTips) Tooltip(TDamageResist, true);
 				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
 				m_combiCurValueState += fDamageResist;
@@ -98,7 +105,7 @@ namespace ImGuiEx {
 		//m_lifeAbsorbIcon
 		if (Draw_lifeAbsorbIcon) {
 			m_lifeAbsorbIcon->Resize(m_iconSize);
-			if (m_lifeAbsorbIcon->Draw(iLifeAbsorbStacks)) {
+			if (m_lifeAbsorbIcon->Draw(iLifeAbsorbStacks, AS_lifeAbsorbIcon)) {
 				if (m_enableToolTips) Tooltip(TLifeAbsorb, true);
 				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
 				m_combiCurValueState += iLifeAbsorbStacks;
@@ -109,7 +116,7 @@ namespace ImGuiEx {
 		//m_enchantmentIcon
 		if (Draw_enchantmentIcon) {
 			m_enchantmentIcon->Resize(m_iconSize);
-			if (m_enchantmentIcon->Draw(fGTSAspect)) {
+			if (m_enchantmentIcon->Draw(fGTSAspect, AS_enchantmentIcon)) {
 				if (m_enableToolTips) Tooltip(TAspectOfGTS, true);
 				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
 				m_combiCurValueState += fGTSAspect;
@@ -120,7 +127,7 @@ namespace ImGuiEx {
 		//m_CataclysmicVoreStacksIcon
 		if (Draw_CataclysmicVoreStacksIcon) {
 			m_CataclysmicVoreStacksIcon->Resize(m_iconSize);
-			if (m_CataclysmicVoreStacksIcon->Draw(iVoreStacks)) {
+			if (m_CataclysmicVoreStacksIcon->Draw(iVoreStacks, AS_CataclysmicVoreStacksIcon)) {
 				if (m_enableToolTips) Tooltip(TVoreStacks, true);
 				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
 				m_combiCurValueState += iVoreStacks;
@@ -134,7 +141,7 @@ namespace ImGuiEx {
 			//m_sizeReserveIcon
 			if (Draw_sizeReserveIcon) {
 				m_sizeReserveIcon->Resize(m_iconSize);
-				if (m_sizeReserveIcon->Draw(fSizeReserve)) {
+				if (m_sizeReserveIcon->Draw(fSizeReserve, AS_sizeReserveIcon)) {
 					if (m_enableToolTips) Tooltip(TSizeReserve, true);
 					ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
 					m_combiCurValueState += fSizeReserve;
@@ -145,7 +152,7 @@ namespace ImGuiEx {
 			//m_onTheEdgeIcon
 			if (Draw_onTheEdgeIcon) {
 				m_onTheEdgeIcon->Resize(m_iconSize);
-				if (m_onTheEdgeIcon->Draw(fOnTheEdge)) {
+				if (m_onTheEdgeIcon->Draw(fOnTheEdge, AS_onTheEdgeIcon)) {
 					if (m_enableToolTips) Tooltip(TOnTheEdge, true);
 					m_combiCurValueState += fOnTheEdge;
 					drawnIcons++;

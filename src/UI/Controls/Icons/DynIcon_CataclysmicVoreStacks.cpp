@@ -16,9 +16,9 @@ namespace ImGuiEx {
 		m_transform->recolorEnabled = true;
 	}
 
-	bool DynIconCataclysmicVoreStacks::Draw(int a_stacks) const {
+	bool DynIconCataclysmicVoreStacks::Draw(int a_stacks, bool a_alwaysShow) const {
 
-		if (a_stacks <= 0) return false;
+		if (a_stacks <= 0 && !a_alwaysShow) return false;
 
 		GTS::ImFontManager::Push(GTS::ImFontManager::kIconText, m_size / 64.0f);
 		{

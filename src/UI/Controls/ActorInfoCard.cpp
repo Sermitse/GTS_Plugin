@@ -195,7 +195,7 @@ namespace ImGuiEx {
 			ImGuiWindowFlags_NoNav
 		);
 
-		uint32_t drawnIcons = m_buffs->Draw(Data.pTargetActor.get().get());
+		uint32_t drawnIcons = m_buffs->Draw(Data.pTargetActor.get().get(), 0, 0, nullptr, false);
 
 		if (drawnIcons == 0) {
 			const char* txt = "No Buffs Active";

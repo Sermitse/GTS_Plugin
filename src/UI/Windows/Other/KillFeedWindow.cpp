@@ -2,6 +2,7 @@
 #include "UI/Windows/Other/KillFeedWindow.hpp"
 
 #include "UI/Controls/KillEntry.hpp"
+#include "UI/Core/ImColorUtils.hpp"
 #include "UI/Lib/imgui.h"
 
 #include "UI/Core/ImFontManager.hpp"
@@ -39,21 +40,21 @@ namespace GTS {
 			.f2Position = { 20.0f, 20.0f },
 			.sAnchor = "kTopRight",
 			.fAlpha = 0.9f,
-			.fBGAlphaMult = 0.0f,
+			.fBGAlphaMult = 1.0f,
 			.fWindowSizePercent = 0.0f, //Unused
 			.bVisible = true,
-			.bEnableFade = false, //Unused
+			.bEnableFade = false,       //Unused
 			.fFadeAfter = 6.0f,
-			.fFadeDelta = 0.00f, //Unused
+			.fFadeDelta = 0.00f,        //Unused
 		});
 
 
 		this->RegisterExtraSettings(m_extraSettings);
 		m_settingsHolder->SetCustomDefaults<WindowSettingsKillFeed_t>({
-			.iIconSize = 48,
 			.iFlags = 0,
 			.fWidth = 400.f,
-			.iMaxVisibleEntries = 8
+			.iMaxVisibleEntries = 8,
+			.f3BGColor = {0.0f, 0.0f, 0.0f}
 		});
 
 		if (const auto& wSettings = dynamic_cast<SettingsWindow*>(GTSMenu::WindowManager->wSettings)) {
@@ -240,7 +241,13 @@ namespace GTS {
 			);
 
 			for (uint8_t i = 0; i < ExtraSettings.iMaxVisibleEntries; i++) {
-				ImGuiEx::DrawKillfeedEntry(DemoEntry, BaseSettings.fFadeAfter, true);
+				ImGuiEx::DrawKillfeedEntry(
+					DemoEntry, 
+					BaseSettings.fFadeAfter, 
+					true, 
+					ImUtil::Colors::fRGBToU32(ExtraSettings.f3BGColor), 
+					BaseSettings.fBGAlphaMult, ExtraSettings.iFlags
+				);
 			}
 		}
 		else {
@@ -257,7 +264,13 @@ namespace GTS {
 			// Draw visible entries and update lifetime
 			for (auto& Entry : KillEntries) {
 				Entry->lifetime += Time::WorldTimeDelta();
-				ImGuiEx::DrawKillfeedEntry(Entry, BaseSettings.fFadeAfter, false);
+				ImGuiEx::DrawKillfeedEntry(
+					Entry, 
+					BaseSettings.fFadeAfter, 
+					false, 
+					ImUtil::Colors::fRGBToU32(ExtraSettings.f3BGColor), 
+					BaseSettings.fBGAlphaMult, ExtraSettings.iFlags
+				);
 			}
 
 			// Remove expired entries

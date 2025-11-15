@@ -12,6 +12,7 @@ namespace ImGuiEx {
         const char* a_tooltip = nullptr, const char* a_cfmt = "%.2f", bool a_disabled = false, bool a_alwaysClamp = true);
 
     bool SliderU16(const char* a_label, uint16_t* a_value, uint16_t a_min, uint16_t a_max, const char* a_tooltip, const char* a_cfmt, bool a_disabled = false, bool a_alwaysClamp = true);
+    bool SliderU8(const char* a_label, uint8_t* a_value, uint8_t a_min, uint8_t a_max, const char* a_tooltip, const char* a_cfmt, bool a_disabled = false, bool a_alwaysClamp = true);
 }
 
 
