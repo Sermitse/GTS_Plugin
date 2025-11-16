@@ -10,7 +10,7 @@
 #include "Managers/Animation/Grab.hpp"
 
 #include "Magic/Effects/Common.hpp"
-#include "Utils/DynamicScale.hpp"
+#include "Scale/DynamicScale.hpp"
 #include "AI/AIFunctions.hpp"
 #include "Utils/MovementForce.hpp"
 #include "Config/Config.hpp"

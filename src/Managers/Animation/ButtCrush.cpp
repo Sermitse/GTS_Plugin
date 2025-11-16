@@ -9,8 +9,8 @@
 #include "Managers/Audio/Footstep.hpp"
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Rumble.hpp"
-#include "Utils/ButtCrushUtils.hpp"
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
 

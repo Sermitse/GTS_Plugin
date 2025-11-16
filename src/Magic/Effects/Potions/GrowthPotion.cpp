@@ -24,6 +24,7 @@ namespace {
 }
 
 namespace GTS {
+
 	std::string GrowthPotion::GetName() {
 		return "GrowthPotion";
 	}
@@ -50,6 +51,7 @@ namespace GTS {
 	}
 
 	void GrowthPotion::OnStart() {
+
 		auto caster = GetCaster();
 		if (!caster) {
 			return;

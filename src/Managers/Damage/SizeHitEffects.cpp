@@ -1,5 +1,7 @@
 #include "Managers/Damage/SizeHitEffects.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/HugShrink.hpp"

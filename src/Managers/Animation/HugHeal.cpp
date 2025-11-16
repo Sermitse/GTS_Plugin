@@ -1,5 +1,7 @@
 #include "Managers/Animation/HugHeal.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/HugShrink.hpp"

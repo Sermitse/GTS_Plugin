@@ -1,7 +1,5 @@
 #include "UI/Core/ImInput.hpp"
-
 #include "UI/GTSMenu.hpp"
-#include "UI/Core/ImWindowManager.hpp"
 
 namespace GTS {
 

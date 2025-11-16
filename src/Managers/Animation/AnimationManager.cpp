@@ -52,7 +52,7 @@
 
 #include "Managers/Perks/PerkHandler.hpp"
 
-#include "Utils/InputFunctions.hpp"
+#include "Utils/Actions/InputFunctions.hpp"
 
 
 using namespace GTS;

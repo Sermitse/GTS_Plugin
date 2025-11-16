@@ -8,11 +8,13 @@ namespace GTS {
 	}
 
 	void Gigantism::OnStart() {
+
 		auto caster = GetCaster();
 
 		if (!caster) {
 			return;
 		}
+
 		this->magnitude = GetActiveEffect()->magnitude;
 		float GigantismPower = this->magnitude;
 		SizeManager::GetSingleton().ModEnchantmentBonus(caster, GigantismPower);

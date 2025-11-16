@@ -4,7 +4,6 @@
 using namespace GTS;
 
 // A potion that TEMPORARILY increases max possible size
-
 namespace {
 
 	void TempBonusMaxSize_Modify(Actor* giant, float value) {
@@ -21,7 +20,6 @@ namespace GTS {
 	std::string MaxSizePotion::GetName() {
 		return "MaxSizePotion";
 	}
-
 
 	MaxSizePotion::MaxSizePotion(ActiveEffect* effect) : Magic(effect) {
 

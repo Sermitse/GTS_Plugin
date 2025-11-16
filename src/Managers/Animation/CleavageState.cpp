@@ -5,7 +5,7 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Input/InputManager.hpp"
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 using namespace GTS;
 

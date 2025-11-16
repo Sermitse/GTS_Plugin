@@ -3,6 +3,7 @@
 #include "RE/B/bhkCharacterRigidBody.hpp"
 #include "RE/B/bhkCharacterRigidBodyController.hpp"
 #include "RE/B/BSAudioManager.hpp"
+#include "RE/B/BSDirectInputManager.hpp"
 
 #include "RE/M/MenuCursor.hpp"
 

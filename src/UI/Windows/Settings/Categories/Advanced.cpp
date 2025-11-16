@@ -10,7 +10,7 @@
 #include "UI/Controls/ComboBox.hpp"
 #include "UI/Controls/Slider.hpp"
 
-#include "Utils/Logger.hpp"
+#include "Utils/Plugin/Logger.hpp"
 
 namespace GTS {
 

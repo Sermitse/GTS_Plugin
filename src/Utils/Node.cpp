@@ -4,6 +4,7 @@
 using namespace RE;
 
 namespace {
+
 	void UpdateNodeWorldTransform(RE::NiAVObject* node) {
     	if (!node) {
 			return;
@@ -17,7 +18,9 @@ namespace {
 			node->world = node->local;
 		}
 	}
+
 	void UpdateTreeTransforms(RE::NiAVObject* node) {
+
 		if (!node) {
 			return;
 		}
@@ -34,6 +37,7 @@ namespace {
 	}
 
 	void AttachChildAndUpdate(RE::NiNode* parent, RE::NiAVObject* child) {
+
 		if (!parent || !child) {
 			return;
 		}
@@ -45,6 +49,7 @@ namespace {
 	}
 
 	void loop_message(NiAVObject* root, std::string_view message) {
+
 		auto owner_data = root->GetUserData();
 		if (owner_data) {
 			auto name = owner_data->GetDisplayFullName();
@@ -63,6 +68,7 @@ namespace {
 			logger::error("{} : Possible Endless Loop on {}", message, actor->GetDisplayFullName());
 		}
 	}
+
 }
 
 namespace GTS {
@@ -645,8 +651,8 @@ namespace GTS {
 	}
 
 	std::vector<NiAVObject*> GetModelsForSlot(Actor* actor, BGSBipedObjectForm::BipedObjectSlot slot) {
-		enum
-		{
+		
+		enum {
 			k3rd,
 			k1st,
 			kTotal

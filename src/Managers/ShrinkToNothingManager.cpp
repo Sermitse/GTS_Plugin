@@ -1,4 +1,7 @@
 #include "Managers/ShrinkToNothingManager.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/AI/AIFunctions.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
 #include "Magic/Effects/Common.hpp"
@@ -55,7 +58,7 @@ namespace GTS {
 
 				const bool silent = Config::Audio.bMuteShrinkToNothingDeathScreams;
 
-				ShrinkToNothingManager::SpawnDeathEffects(tiny);
+				SpawnDeathEffects(tiny);
 				DecreaseShoutCooldown(giant);
 				KillActor(giant, tiny, silent);
 
@@ -63,7 +66,7 @@ namespace GTS {
 
 				AddSMTDuration(giant, 5.0f);
 
-				ShrinkToNothingManager::TransferInventoryTask(giant, tiny); // Also plays STN sound
+				TransferInventoryTask(giant, tiny); // Also plays STN sound
 
 				data.state = ShrinkState::Shrinked;
 			}
@@ -89,8 +92,8 @@ namespace GTS {
 		if (!giant) {
 			return;
 		}
-		if (ShrinkToNothingManager::CanShrink(giant, tiny)) {
-			ShrinkToNothingManager::GetSingleton().data.try_emplace(tiny->formID, giant);
+		if (CanShrink(giant, tiny)) {
+			GetSingleton().data.try_emplace(tiny->formID, giant);
 		}
 	}
 
@@ -98,12 +101,12 @@ namespace GTS {
 		if (!actor) {
 			return false;
 		}
-		auto& m = ShrinkToNothingManager::GetSingleton().data;
+		auto& m = GetSingleton().data;
 		return !(m.find(actor->formID) == m.end());
 	}
 
 	bool ShrinkToNothingManager::CanShrink(Actor* giant, Actor* tiny) {
-		if (ShrinkToNothingManager::AlreadyShrinked(tiny)) {
+		if (AlreadyShrinked(tiny)) {
 			return false;
 		}
 		if (IsEssential(giant, tiny)) {

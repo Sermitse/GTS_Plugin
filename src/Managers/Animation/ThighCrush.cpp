@@ -12,7 +12,7 @@
 
 #include "Magic/Effects/Common.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 using namespace GTS;
 

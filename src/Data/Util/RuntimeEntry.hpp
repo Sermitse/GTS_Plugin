@@ -37,7 +37,7 @@ namespace RuntimeData {
 		void Resolve() {
 			for (const auto& entry : List) {
 				if (!entry.second->Resolve()) {
-					logger::trace("Form Lookup Failed for {} on {}|{:X} ({})", typeid(T).name() , entry.second->Plugin, entry.second->ID, entry.first);
+					logger::warn("Form Lookup Failed for {} on {}|{:X} ({})", typeid(T).name() , entry.second->Plugin, entry.second->ID, entry.first);
 				}
 				else {
 					logger::trace("Form Lookup OK for {} on {}|{:X} -> Ptr: {} ({})", typeid(T).name() , entry.second->Plugin, entry.second->ID, fmt::ptr(entry.second->Value), entry.first);

@@ -1,6 +1,6 @@
 #include "Managers/MaxSizeManager.hpp"
 #include "Config/Config.hpp"
-#include "Utils/ButtCrushUtils.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp"
 
 using namespace GTS;
 

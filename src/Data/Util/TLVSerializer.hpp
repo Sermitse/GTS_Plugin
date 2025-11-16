@@ -48,17 +48,17 @@ namespace Serialization {
     // -------------------- type codes for basic types --------------------
     enum : uint8_t {
         TC_INVALID = 0,
-        TC_INT8 = 1,
-        TC_INT16 = 2,
-        TC_INT32 = 3,
-        TC_INT64 = 4,
-        TC_UINT8 = 5,
-        TC_UINT16 = 6,
-        TC_UINT32 = 7,
-        TC_UINT64 = 8,
-        TC_FLOAT = 9,
-        TC_DOUBLE = 10,
-        TC_BOOL = 11
+        TC_INT8    = 1,
+        TC_INT16   = 2,
+        TC_INT32   = 3,
+        TC_INT64   = 4,
+        TC_UINT8   = 5,
+        TC_UINT16  = 6,
+        TC_UINT32  = 7,
+        TC_UINT64  = 8,
+        TC_FLOAT   = 9,
+        TC_DOUBLE  = 10,
+        TC_BOOL    = 11
     };
 
     template<typename T> struct type_code { static constexpr uint8_t value = TC_INVALID; };

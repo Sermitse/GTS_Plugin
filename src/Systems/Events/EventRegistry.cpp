@@ -41,7 +41,7 @@
 
 #include "Magic/Magic.hpp"
 
-#include "Utils/DynamicScale.hpp"
+#include "Scale/DynamicScale.hpp"
 #include "Utils/ItemDistributor.hpp"
 
 #include "UI/DebugMenu.hpp"

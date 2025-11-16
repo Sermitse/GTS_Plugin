@@ -11,11 +11,12 @@ namespace GTS {
 	}
 
 	void SizeHunger::OnStart() {
-		auto caster = GetCaster();
 
+		auto caster = GetCaster();
 		if (!caster) {
 			return;
 		}
+
 		float Power = GetActiveEffect()->magnitude;
 		SizeManager::GetSingleton().SetSizeHungerBonus(caster, Power);
 		Potion_Penalty(caster);
@@ -23,10 +24,12 @@ namespace GTS {
 	}
 
 	void SizeHunger::OnFinish() {
+
 		auto caster = GetCaster();
 		if (!caster) {
 			return;
 		}
+
 		float Power = SizeManager::GetSingleton().GetSizeHungerBonus(caster);
 		SizeManager::GetSingleton().ModSizeHungerBonus(caster, -Power);
 	}

@@ -9,7 +9,7 @@
 #include "Managers/Rumble.hpp"
 
 #include "Managers/Input/InputManager.hpp"
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 #include "Managers/Damage/TinyCalamity.hpp"
 #include "Managers/GtsSizeManager.hpp"

@@ -647,8 +647,6 @@ namespace GTS {
 		return false;
 	}
 
-
-
 	//-----------------------
 	// Explosion Helpers
 	//-----------------------

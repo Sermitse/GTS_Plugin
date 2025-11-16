@@ -4,7 +4,7 @@
 #include "Managers/Animation/Utils/CrawlUtils.hpp"
 #include "Managers/Rumble.hpp"
 #include "Magic/Effects/Common.hpp"
-#include "Utils/ButtCrushUtils.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
 

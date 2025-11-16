@@ -1,8 +1,8 @@
 #include "Hooks/Hooks.hpp"
 #include "Papyrus/Papyrus.hpp"
 #include "Systems/Events/EventRegistry.hpp"
-#include "Utils/InitUtils.hpp"
-#include "Utils/Logger.hpp"
+#include "Utils/Plugin/InitUtils.hpp"
+#include "Utils/Plugin/Logger.hpp"
 
 namespace {
 

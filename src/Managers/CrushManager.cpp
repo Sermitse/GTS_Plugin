@@ -1,4 +1,7 @@
 #include "Managers/CrushManager.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/GtsSizeManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/AI/AIFunctions.hpp"

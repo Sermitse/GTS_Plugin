@@ -43,6 +43,4 @@ namespace GTS {
 			set_target_scale(caster, 0.12f);
 		}
 	}
-
-	void ShrinkPotion::OnFinish() {}
 }

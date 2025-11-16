@@ -1,5 +1,7 @@
 #include "Managers/RandomGrowth.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"

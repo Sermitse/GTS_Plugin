@@ -16,9 +16,9 @@
 #include "Magic/Effects/Common.hpp"
 
 #include "Utils/AttachPoint.hpp"
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
-#include "Utils/ActorBools.hpp"
+#include "Utils/DeathReport.hpp"
 
 using namespace GTS;
 
@@ -416,10 +416,6 @@ namespace {
 		});
 	}
 }
-
-
-
-
 
 namespace GTS {
 

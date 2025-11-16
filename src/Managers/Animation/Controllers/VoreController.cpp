@@ -5,7 +5,7 @@
 #include "Managers/AI/AIFunctions.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Utils/SurvivalMode.hpp"
-#include "Utils/VoreUtils.hpp"
+#include "Utils/Actions/VoreUtils.hpp"
 #include "Utils/Looting.hpp"
 
 #include "Utils/DeathReport.hpp"

@@ -1,38 +1,36 @@
 #include "Magic/Magic.hpp"
 
-#include "Magic/Effects/Spells/Absorb_Effect.hpp"
-#include "Magic/Effects/Spells/GrowthSpurt.hpp"
-#include "Magic/Effects/Spells/Grow_Other.hpp"
-#include "Magic/Effects/Spells/Growth.hpp"
-#include "Magic/Effects/Spells/Shrink.hpp"
-#include "Magic/Effects/Spells/Restore_Size.hpp"
-#include "Magic/Effects/Spells/Restore_Size_Other.hpp"
-#include "Magic/Effects/Spells/Shrink_Foe.hpp"
-#include "Magic/Effects/Spells/Shrink_Other.hpp"
-#include "Magic/Effects/Spells/Slow_Grow.hpp"
-
 #include "Magic/Effects/Shouts/TinyCalamity.hpp"
 
 #include "Magic/Effects/Enchantments/EnchGigantism.hpp"
-#include "Magic/Effects/Enchantments/Sword_Of_Size.hpp"
+#include "Magic/Effects/Enchantments/SwordOfSize.hpp"
 
-#include "Magic/Effects/Potions/MightPotion.hpp"
-#include "Magic/Effects/Potions/GrowthPotion.hpp"
-#include "Magic/Effects/Potions/MaxSizePotion.hpp"
-#include "Magic/Effects/Potions/SizeHunger.hpp"
+#include "Magic/Effects/Spells/Absorb.hpp"
+#include "Magic/Effects/Spells/GrowOther.hpp"
+#include "Magic/Effects/Spells/Growth.hpp"
+#include "Magic/Effects/Spells/GrowthSpurt.hpp"
+#include "Magic/Effects/Spells/RestoreSize.hpp"
+#include "Magic/Effects/Spells/RestoreSizeOther.hpp"
+#include "Magic/Effects/Spells/Shrink.hpp"
+#include "Magic/Effects/Spells/ShrinkFoe.hpp"
+#include "Magic/Effects/Spells/ShrinkOther.hpp"
+#include "Magic/Effects/Spells/SlowGrow.hpp"
+
 #include "Magic/Effects/Potions/EssencePotion.hpp"
 #include "Magic/Effects/Potions/ExperiencePotion.hpp"
-#include "Magic/Effects/Poisons/Poison_Of_Shrinking.hpp"
-#include "Magic/Effects/Potions/ShrinkResistPotion.hpp"
+#include "Magic/Effects/Potions/GrowthPotion.hpp"
+#include "Magic/Effects/Potions/MaxSizePotion.hpp"
+#include "Magic/Effects/Potions/MightPotion.hpp"
 #include "Magic/Effects/Potions/ShrinkPotion.hpp"
+#include "Magic/Effects/Potions/ShrinkResistPotion.hpp"
+#include "Magic/Effects/Potions/SizeHunger.hpp"
 
+#include "Magic/Effects/Poisons/PoisonOfShrinking.hpp"
 
 namespace GTS {
 
 	void Magic::OnStart() {}
-
 	void Magic::OnUpdate() {}
-
 	void Magic::OnFinish() {}
 
 	std::string Magic::GetName() {
@@ -40,11 +38,11 @@ namespace GTS {
 	}
 
 	Magic::Magic(ActiveEffect* effect) : activeEffect(effect) {
+
 		if (this->activeEffect) {
 			auto spell = this->activeEffect->spell;
 			this->effectSetting = this->activeEffect->GetBaseObject();
-			MagicTarget* m_target = this->activeEffect->target;
-			if (m_target) {
+			if (MagicTarget* m_target = this->activeEffect->target) {
 				if (m_target->MagicTargetIsActor()) {
 					this->target = skyrim_cast<Actor*>(m_target);
 				}
@@ -56,38 +54,37 @@ namespace GTS {
 		}
 	}
 
+	bool Magic::IsFinished() const {
+		return this->state == State::CleanUp;
+	}
+
 	bool Magic::HasDuration() const {
+
 		if (this->activeEffect) {
-			auto spell = this->activeEffect->spell;
-			if (spell) {
-				// switch (this->activeEffect->spell->GetSpellType()) {
-				// 	case  MagicSystem::SpellType::kEnchantment: {
-				// 		return false;
-				// 	}
-				// }
+			if (auto spell = this->activeEffect->spell) {
 				switch (spell->GetCastingType()) {
 					case  MagicSystem::CastingType::kConstantEffect: {
 						return false;
 					}
+					default: break;
 				}
 			}
 		}
-		auto effectSetting = this->effectSetting;
-		if (effectSetting) {
+		
+		if (auto effectSetting = this->effectSetting) {
 			if (effectSetting->data.flags.all(EffectSetting::EffectSettingData::Flag::kNoDuration)) {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
-	void Magic::poll() {
+	void Magic::Poll() {
 
 		switch (this->state) {
-			case State::Init:
-			{
+			case State::Init: {
 				this->dual_casted = this->IsDualCasting();
-
 				this->state = State::Start;
 				break;
 			}
@@ -145,13 +142,16 @@ namespace GTS {
 		if (this->caster) {
 			auto casting_type = GetActiveEffect()->castingSource;
 			if (casting_type == MagicSystem::CastingSource::kLeftHand || casting_type == MagicSystem::CastingSource::kRightHand) {
-				auto source = this->caster->GetMagicCaster(casting_type);
-				if (source) {
+				if (auto source = this->caster->GetMagicCaster(casting_type)) {
 					return source->GetIsDualCasting();
 				}
 			}
 		}
 		return false;
+	}
+
+	bool Magic::DualCasted() const {
+		return this->dual_casted;
 	}
 
 	void MagicManager::ProcessActiveEffects(Actor* a_actor) {
@@ -184,14 +184,14 @@ namespace GTS {
 
 	void MagicManager::Update() {
 
-		for (auto actor: find_actors()) {
+		for (const auto& actor: find_actors()) {
 			ProcessActiveEffects(actor);
 		}
 
 		for (auto i = active_effects.begin(); i != this->active_effects.end();) {
 			numberOfOurEffects += 1;
 			auto& magic = (*i);
-			magic.second->poll();
+			magic.second->Poll();
 			if (magic.second->IsFinished()) {
 				i = active_effects.erase(i);
 			} 

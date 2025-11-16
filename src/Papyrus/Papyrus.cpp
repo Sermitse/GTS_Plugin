@@ -5,12 +5,9 @@
 #include "papyrus/ModEvents.hpp"
 #include "papyrus/TotalControl.hpp"
 
-using namespace GTS;
-using namespace RE::BSScript;
-
 namespace GTS {
 
-	bool register_papyrus(IVirtualMachine* vm) {
+	bool register_papyrus(BSScript::IVirtualMachine* vm) {
 		register_papyrus_plugin(vm);
 		register_papyrus_scale(vm);
 		register_papyrus_height(vm);

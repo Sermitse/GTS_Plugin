@@ -8,7 +8,7 @@
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Rumble.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 #include "Utils/AttachPoint.hpp"
 
 using namespace GTS;

@@ -8,7 +8,6 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 
 #include "Utils/DifficultyUtils.hpp"
-#include "Utils/ActorBools.hpp"
 #include "Hooks/Util/HookUtil.hpp"
 
 namespace {

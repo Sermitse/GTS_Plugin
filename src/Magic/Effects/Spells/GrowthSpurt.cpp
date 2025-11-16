@@ -81,8 +81,7 @@ namespace GTS {
 		return "GrowthSpurt";
 	}
 
-	GrowthSpurt::GrowthSpurt(ActiveEffect* effect) : Magic(effect) {
-	}
+	GrowthSpurt::GrowthSpurt(ActiveEffect* effect) : Magic(effect) {}
 
 	void GrowthSpurt::OnStart() {
 		Actor* caster = GetCaster();
@@ -123,12 +122,12 @@ namespace GTS {
 			this->grow_limit = Get_Growth_Limit(caster, 3);
 		}
 
-		float Gigantism = 1.0f + Ench_Aspect_GetPower(caster);
-		float scale = get_target_scale(caster);
+		const float Gigantism = 1.0f + Ench_Aspect_GetPower(caster);
+		const float scale = get_target_scale(caster);
 
 		float bonus = 1.0f;
-		float limit = this->grow_limit * Gigantism;
-		float MaxSize = get_max_scale(caster) - 0.004f;
+		const float limit = this->grow_limit * Gigantism;
+		const float MaxSize = get_max_scale(caster) - 0.004f;
 		
 
 		GrowthSpurt_RegenerateAttributes(caster);
@@ -142,10 +141,12 @@ namespace GTS {
 	}
 
 	void GrowthSpurt::OnFinish() {
+
 		Actor* caster = GetCaster();
 		if (!caster) {
 			return;
 		}
+
 		GrowthSpurt::DoShrink(caster);
 	}
 
@@ -155,7 +156,8 @@ namespace GTS {
 			if (this->AllowStacking) {
 				SizeManager::GetSingleton().ModGrowthSpurt(actor, appliedscale);
 			}
-		} else {
+		} 
+		else {
 			this->AllowStacking = false;
 		}
 		PlayGrowthAudio(actor, this->timer.ShouldRun(), this->timerSound.ShouldRunFrame(), this->power);
@@ -165,6 +167,7 @@ namespace GTS {
 		float value = SizeManager::GetSingleton().GetGrowthSpurt(actor);
 		float naturalscale = get_natural_scale(actor, true);
 		update_target_scale(actor, -value, SizeEffectType::kNeutral); // Do Shrink
+
 		if (get_target_scale(actor) <= naturalscale) {
 			set_target_scale(actor, naturalscale);
 		}

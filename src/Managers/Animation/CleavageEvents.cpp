@@ -19,9 +19,13 @@
 #include "Utils/Looting.hpp"
 #include "API/Racemenu.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Utils/KillDataUtils.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
+
+#include "Utils/DeathReport.hpp"
 
 using namespace GTS;
 

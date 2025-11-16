@@ -111,6 +111,7 @@ namespace {
 	}
 
 	void GrowPlayer(StaticFunctionTag*, float power) {
+
 		auto casterRef = PlayerCharacter::GetSingleton();
 		if (casterRef) {
 			if (Runtime::HasPerkTeam(casterRef, Runtime::PERK.GTSPerkGrowthDesireAug)) {
@@ -157,6 +158,7 @@ namespace {
 	
 
 	void ShrinkPlayer(StaticFunctionTag*, float power) {
+
 		auto casterRef = PlayerCharacter::GetSingleton();
 		if (casterRef) {
 			if (Runtime::HasPerkTeam(casterRef, Runtime::PERK.GTSPerkGrowthDesireAug)) {

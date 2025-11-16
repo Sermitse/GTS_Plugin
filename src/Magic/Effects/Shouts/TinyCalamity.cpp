@@ -45,7 +45,7 @@ namespace {
 namespace GTS {
 
 	std::string TinyCalamity::GetName() {
-		return "::TinyCalamity";
+		return "TinyCalamity";
 	}
 
 	void TinyCalamity::OnStart() {

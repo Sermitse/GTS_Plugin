@@ -6,7 +6,7 @@
 #include "Managers/GtsSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 #include "Managers/HighHeel.hpp"
-#include "Utils/ButtCrushUtils.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp"
 
 using namespace GTS;
 

@@ -97,20 +97,20 @@ namespace GTS {
 		glm::vec3 glmZStart4(objectLocation.x + boundRight.x + boundForward.x, objectLocation.y + boundRight.y + boundForward.y, objectLocation.z + boundRight.z + boundForward.z);
 		glm::vec3 glmZEnd4(glmZStart4.x + boundUp.x, glmZStart4.y + boundUp.y, glmZStart4.z + boundUp.z);
 
-		DebugDraw::DrawLineForMS(glmZStart1, glmZEnd1, liftetimeMS, color, lineThickness);
-		DebugDraw::DrawLineForMS(glmZStart2, glmZEnd2, liftetimeMS, color, lineThickness);
-		DebugDraw::DrawLineForMS(glmZStart3, glmZEnd3, liftetimeMS, color, lineThickness);
-		DebugDraw::DrawLineForMS(glmZStart4, glmZEnd4, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmZStart1, glmZEnd1, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmZStart2, glmZEnd2, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmZStart3, glmZEnd3, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmZStart4, glmZEnd4, liftetimeMS, color, lineThickness);
 
-		DebugDraw::DrawLineForMS(glmYStart1, glmYEnd1, liftetimeMS, color, lineThickness);
-		DebugDraw::DrawLineForMS(glmYStart2, glmYEnd2, liftetimeMS, color, lineThickness);
-		DebugDraw::DrawLineForMS(glmYStart3, glmYEnd3, liftetimeMS, color, lineThickness);
-		DebugDraw::DrawLineForMS(glmYStart4, glmYEnd4, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmYStart1, glmYEnd1, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmYStart2, glmYEnd2, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmYStart3, glmYEnd3, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmYStart4, glmYEnd4, liftetimeMS, color, lineThickness);
 
-		DebugDraw::DrawLineForMS(glmXStart1, glmXEnd1, liftetimeMS, color, lineThickness);
-		DebugDraw::DrawLineForMS(glmXStart2, glmXEnd2, liftetimeMS, color, lineThickness);
-		DebugDraw::DrawLineForMS(glmXStart3, glmXEnd3, liftetimeMS, color, lineThickness);
-		DebugDraw::DrawLineForMS(glmXStart4, glmXEnd4, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmXStart1, glmXEnd1, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmXStart2, glmXEnd2, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmXStart3, glmXEnd3, liftetimeMS, color, lineThickness);
+		DrawLineForMS(glmXStart4, glmXEnd4, liftetimeMS, color, lineThickness);
 	}
 
 	void DebugDraw::DrawSphere(glm::vec3 origin, float radius, int liftetimeMS, const glm::vec4& color, float lineThickness) {
@@ -289,7 +289,7 @@ namespace GTS {
 		return nullptr;
 	}
 
-	void DebugDraw::DrawLine3D(const RE::GPtr<RE::GFxMovieView>& movie, glm::vec3 from, glm::vec3 to, float color, float lineThickness, float alpha) {
+	void DebugDraw::DrawLine3D(const GPtr<GFxMovieView>& movie, glm::vec3 from, glm::vec3 to, float color, float lineThickness, float alpha) {
 
 		if (DebugUtil::IsPosBehindPlayerCamera(from) && DebugUtil::IsPosBehindPlayerCamera(to)) {
 			return;
@@ -301,11 +301,11 @@ namespace GTS {
 		DrawLine2D(movie, screenLocFrom, screenLocTo, color, lineThickness, alpha);
 	}
 
-	void DebugDraw::DrawLine3D(const RE::GPtr<RE::GFxMovieView>& movie, glm::vec3 from, glm::vec3 to, glm::vec4 color, float lineThickness) {
+	void DebugDraw::DrawLine3D(const GPtr<GFxMovieView>& movie, glm::vec3 from, glm::vec3 to, glm::vec4 color, float lineThickness) {
 		DrawLine3D(movie, from, to, DebugUtil::RGBToHex(glm::vec3(color.r, color.g, color.b)), lineThickness, color.a * 100.0f);
 	}
 
-	void DebugDraw::DrawLine2D(const RE::GPtr<RE::GFxMovieView>& movie, glm::vec2 from, glm::vec2 to, float color, float lineThickness, float alpha) {
+	void DebugDraw::DrawLine2D(const GPtr<GFxMovieView>& movie, glm::vec2 from, glm::vec2 to, float color, float lineThickness, float alpha) {
 
 		// all parts of the line are off screen - don't need to draw them
 
@@ -316,28 +316,28 @@ namespace GTS {
 		FastClampToScreen(from);
 		FastClampToScreen(to);
 
-		RE::GFxValue argsLineStyle[3]{ lineThickness, color, alpha };
+		GFxValue argsLineStyle[3]{ lineThickness, color, alpha };
 		movie->Invoke("lineStyle", nullptr, argsLineStyle, 3);
 
-		RE::GFxValue argsStartPos[2]{ from.x, from.y };
+		GFxValue argsStartPos[2]{ from.x, from.y };
 		movie->Invoke("moveTo", nullptr, argsStartPos, 2);
 
-		RE::GFxValue argsEndPos[2]{ to.x, to.y };
+		GFxValue argsEndPos[2]{ to.x, to.y };
 		movie->Invoke("lineTo", nullptr, argsEndPos, 2);
 
 		movie->Invoke("endFill", nullptr, nullptr, 0);
 	}
 
-	void DebugDraw::DrawLine2D(const RE::GPtr<RE::GFxMovieView>& movie, glm::vec2 from, glm::vec2 to, glm::vec4 color, float lineThickness) {
+	void DebugDraw::DrawLine2D(const GPtr<GFxMovieView>& movie, glm::vec2 from, glm::vec2 to, glm::vec4 color, float lineThickness) {
 		DrawLine2D(movie, from, to, DebugUtil::RGBToHex(glm::vec3(color.r, color.g, color.b)), lineThickness, color.a * 100.0f);
 	}
 
-	void DebugDraw::ClearLines2D(const RE::GPtr<RE::GFxMovieView>& movie) {
+	void DebugDraw::ClearLines2D(const GPtr<GFxMovieView>& movie) {
 		movie->Invoke("clear", nullptr, nullptr, 0);
 	}
 
-	RE::GPtr<RE::IMenu> DebugDraw::GetHUD() {
-		return RE::UI::GetSingleton()->GetMenu(DebugMenu::MENU_NAME);
+	GPtr<IMenu> DebugDraw::GetHUD() {
+		return UI::GetSingleton()->GetMenu(DebugMenu::MENU_NAME);
 	}
 
 	void DebugDraw::FastClampToScreen(glm::vec2& point) {
@@ -369,15 +369,15 @@ namespace GTS {
 		}
 	}
 
-	glm::vec2 DebugDraw::WorldToScreenLoc(const RE::GPtr<RE::GFxMovieView>& movie, glm::vec3 worldLoc) {
+	glm::vec2 DebugDraw::WorldToScreenLoc(const GPtr<GFxMovieView>& movie, glm::vec3 worldLoc) {
 
 		glm::vec2 screenLocOut;
-		RE::NiPoint3 niWorldLoc(worldLoc.x, worldLoc.y, worldLoc.z);
+		NiPoint3 niWorldLoc(worldLoc.x, worldLoc.y, worldLoc.z);
 
 		float zVal;
 
-		RE::NiCamera::WorldPtToScreenPt3(Hooks::World::RawWorldToCamMatrix->data, *Hooks::World::RawViewPort, niWorldLoc, screenLocOut.x, screenLocOut.y, zVal, 1e-5f);
-		RE::GRectF rect = movie->GetVisibleFrameRect();
+		NiCamera::WorldPtToScreenPt3(Hooks::World::RawWorldToCamMatrix->data, *Hooks::World::RawViewPort, niWorldLoc, screenLocOut.x, screenLocOut.y, zVal, 1e-5f);
+		GRectF rect = movie->GetVisibleFrameRect();
 
 		screenLocOut.x = rect.left + (rect.right - rect.left) * screenLocOut.x;
 		screenLocOut.y = 1.0f - screenLocOut.y;  // Flip y for Flash coordinate system
@@ -392,12 +392,12 @@ namespace GTS {
 			return;
 		}
 
-		RE::GPtr<RE::IMenu> menu = RE::UI::GetSingleton()->GetMenu(DebugMenu::MENU_NAME);
+		GPtr<IMenu> menu = UI::GetSingleton()->GetMenu(DebugMenu::MENU_NAME);
 		if (!menu || !menu->uiMovie) {
 			return;
 		}
 
-		RE::GRectF rect = menu->uiMovie->GetVisibleFrameRect();
+		GRectF rect = menu->uiMovie->GetVisibleFrameRect();
 
 		ScreenResX = abs(rect.left - rect.right);
 		ScreenResY = abs(rect.top - rect.bottom);

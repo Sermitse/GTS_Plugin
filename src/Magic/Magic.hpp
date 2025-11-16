@@ -8,33 +8,26 @@ namespace GTS {
 		virtual void OnStart();
 		virtual void OnUpdate();
 		virtual void OnFinish();
-
 		virtual std::string GetName();
-
-		void poll();
 
 		[[nodiscard]] Actor* GetTarget() const;
 		[[nodiscard]] Actor* GetCaster() const;
-
 		[[nodiscard]] ActiveEffect* GetActiveEffect() const;
 		[[nodiscard]] EffectSetting* GetBaseEffect() const;
-
-		void Dispel() const;
 		[[nodiscard]] bool IsDualCasting() const;
-
-		[[nodiscard]] inline bool DualCasted() const {
-			return this->dual_casted;
-		}
-
+		[[nodiscard]] bool DualCasted() const;
 		[[nodiscard]] bool HasDuration() const;
+		[[nodiscard]] bool IsFinished() const;
+
+		void Poll();
+		void Dispel() const;
 
 		Magic(ActiveEffect* effect);
 
-		[[nodiscard]] inline bool IsFinished() const {
-			return this->state == State::CleanUp;
-		}
+
 
 		private:
+
 		enum State {
 			Init,
 			Start,
@@ -73,6 +66,7 @@ namespace GTS {
 	}
 
 	class MagicManager : public EventListener, public CInitSingleton<MagicManager> {
+		
 		public:
 		virtual std::string DebugName() override;
 		virtual void Update() override;
@@ -97,7 +91,7 @@ namespace GTS {
 
 		private:
 		static inline std::map<ActiveEffect*, std::unique_ptr<Magic> > active_effects;
-		static inline std::unordered_map<EffectSetting*, std::unique_ptr<MagicFactoryBase> > factories;
+		static inline absl::flat_hash_map<EffectSetting*, std::unique_ptr<MagicFactoryBase> > factories;
 		static inline std::uint64_t numberOfEffects = 0;
 		static inline std::uint64_t numberOfOurEffects = 0;
 	};

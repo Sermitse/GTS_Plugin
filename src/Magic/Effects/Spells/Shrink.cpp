@@ -8,17 +8,16 @@ namespace GTS {
 	}
 
 	void Shrink::OnUpdate() {
-		const float BASE_POWER = 0.00360f;
-		const float DUAL_CAST_BONUS = 2.0f;
-		auto base_spell = GetBaseEffect();
+		constexpr float BASE_POWER = 0.00360f;
+		constexpr float DUAL_CAST_BONUS = 2.0f;
+
 		auto caster = GetCaster();
 		if (!caster) {
 			return;
 		}
-		auto GtsSkillLevel = GetGtsSkillLevel(caster);
 
-		float SkillMult = 1.0f + (GtsSkillLevel * 0.01f);
-
+		const float GtsSkillLevel = GetGtsSkillLevel(caster);
+		const float SkillMult = 1.0f + (GtsSkillLevel * 0.01f);
 		float power = BASE_POWER * SkillMult;
 
 		float bonus = 1.0f;
@@ -29,9 +28,11 @@ namespace GTS {
 		if (IsDualCasting()) {
 			power *= DUAL_CAST_BONUS;
 		}
+
 		if (get_target_scale(caster) > Minimum_Actor_Scale) {
 			ShrinkActor(caster, 0.0f, power * bonus);
-		} else {
+		} 
+		else {
 			set_target_scale(caster, Minimum_Actor_Scale);
 		}
 	}

@@ -9,7 +9,7 @@
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/GtsSizeManager.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 using namespace GTS;
 

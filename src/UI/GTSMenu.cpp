@@ -181,7 +181,7 @@ namespace GTS {
 				//You can sort of force a partial flag read by sending a kHide and kShow Ui message,
 				//Essentially turning it off and on again. This appears to make the mouse flags work however it seems to have no
 				//effect on other flags like pause game/blur backround.
-				menuFlags.set(UI_MENU_FLAGS::kUpdateUsesCursor); //Maybe these do something maybe they don't
+				menuFlags.set(UI_MENU_FLAGS::kUpdateUsesCursor);
 				menuFlags.set(UI_MENU_FLAGS::kUsesCursor);
 
 				//Enable Imgui's win32 input update code.

@@ -1,20 +1,10 @@
 #include "Magic/Effects/Potions/ShrinkResistPotion.hpp"
 #include "Magic/Effects/Common.hpp"
-#include "Managers/Rumble.hpp"
 
 using namespace GTS;
 
-namespace {
-	void PlayGrowthAudio(Actor* giant, bool checkTimer) {
-		if (checkTimer) {
-			Rumbling::Once("ShrinkResistPotion", giant, 2.0f, 0.05f);
-			float Volume = std::clamp(get_visual_scale(giant)/10.0f, 0.20f, 2.0f);
-			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, giant, Volume, "NPC Pelvis [Pelv]");
-		}
-	}
-}
-
 namespace GTS {
+
 	std::string ShrinkResistPotion::GetName() {
 		return "ShrinkResistPotion";
 	}

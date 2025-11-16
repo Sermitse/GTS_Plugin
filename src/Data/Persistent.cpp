@@ -256,23 +256,23 @@ namespace GTS {
 		ActorMap.value.clear();
 		KillCountMap.value.clear();
 
-		TrackedCameraState = 0;
-		EnableCrawlPlayer = false;
-		EnableCrawlFollower = false;
-		PlayerExtraPotionSize = 0.0f;
-		GlobalSizeLimit = 1.0f;
+		TrackedCameraState       = 0;
+		EnableCrawlPlayer        = false;
+		EnableCrawlFollower      = false;
+		PlayerExtraPotionSize    = 0.0f;
+		GlobalSizeLimit          = 1.0f;
 		GlobalMassBasedSizeLimit = 0.0f;
-		HugStealCount = 0.0f;
-		StolenSize = 0.0f;
-		CrushCount = 0.0f;
-		STNCount = 0.0f;
-		HandCrushed = 0.0f;
-		VoreCount = 0.0f;
-		GiantCount = 0.0f;
-		MSGSeenTinyCamity = false;
-		MSGSeenGrowthSpurt = false;
-		MSGSeenAspectOfGTS = false;
-		UnlockMaxSizeSliders = false;
+		HugStealCount            = 0.0f;
+		StolenSize               = 0.0f;
+		CrushCount               = 0.0f;
+		STNCount                 = 0.0f;
+		HandCrushed              = 0.0f;
+		VoreCount                = 0.0f;
+		GiantCount               = 0.0f;
+		MSGSeenTinyCamity        = false;
+		MSGSeenGrowthSpurt       = false;
+		MSGSeenAspectOfGTS       = false;
+		UnlockMaxSizeSliders     = false;
 
 	}
 
@@ -310,9 +310,6 @@ namespace GTS {
 				++it;
 			}
 		}
-
 		logger::critical("All Unloaded actors have beeen purged from persistent.");
-
 	}
-
 }

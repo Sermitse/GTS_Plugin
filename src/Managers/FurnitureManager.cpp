@@ -2,7 +2,7 @@
 #include "Managers/Animation/Utils/CrawlUtils.hpp"
 #include "Managers/Damage/LaunchActor.hpp"
 #include "Managers/FurnitureManager.hpp"
-#include "Utils/ButtCrushUtils.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp"
 #include "Managers/Rumble.hpp"
 
 using namespace GTS;

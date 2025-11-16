@@ -40,6 +40,7 @@ namespace {
 }
 
 namespace GTS {
+
 	std::string EssencePotion::GetName() {
 		return "EssencePotion";
 	}

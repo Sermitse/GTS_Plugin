@@ -1,21 +1,22 @@
+#include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/TinyCalamity_Instakill.hpp"
 #include "Managers/Animation/TinyCalamity_Shrink.hpp"
-#include "Managers/Animation/AnimationManager.hpp"
 
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/Utils/TurnTowards.hpp"
 
-#include "Managers/Perks/PerkHandler.hpp"
 #include "Managers/AI/aifunctions.hpp"
 #include "Managers/Audio/Footstep.hpp"
+#include "Managers/Perks/PerkHandler.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"
 
-#include "Utils/AttachPoint.hpp"
-#include "Utils/KillDataUtils.hpp"
-
 #include "Managers/Audio/MoansLaughs.hpp"
+#include "Managers/ShrinkToNothingManager.hpp"
+
+#include "Utils/AttachPoint.hpp"
+#include "Utils/DeathReport.hpp"
 
 using namespace GTS;
 

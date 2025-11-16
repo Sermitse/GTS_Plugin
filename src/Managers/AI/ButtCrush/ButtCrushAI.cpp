@@ -5,7 +5,7 @@
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/Controllers/ButtCrushController.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
-#include "Utils/ButtCrushUtils.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp"
 
 using namespace GTS;
 

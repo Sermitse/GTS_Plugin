@@ -174,40 +174,50 @@ namespace RE {
 
 namespace logger = SKSE::log;
 
-//TODO Place Includes that will rarely if ever be modified here
-//VVVVVVV
-
-//Own Includes
+// ---- Own Includes ----
+#include "RE/RE.hpp"
 #include "Constants.hpp"
 
-#include "RE/RE.hpp"
+//Debugging
+#include "Debug/Profilers.hpp"
 
-#include "Utils/Singleton.hpp"
+//Utils
+#include "Utils/Misc/Singleton.hpp"
+#include "Utils/Misc/Enum.hpp"
+#include "Utils/Misc/Random.hpp"
+#include "Utils/Misc/TryLockMutex.hpp"
 #include "Utils/Input/DInput.hpp"
 #include "Utils/Win32/Messagebox.hpp"
-
 #include "Utils/Text/Text.hpp"
 #include "Utils/Text/Format.hpp"
 
-#include "Debug/Profilers.hpp"
-
+//Systems
 #include "Systems/Events/EventListener.hpp"
 #include "Systems/Events/EventDispatcher.hpp"
-
-#include "Systems/Motion/Spring.hpp"
-#include "Systems/Motion/Smooth.hpp"
-
 #include "Systems/Misc/State.hpp"
 #include "Systems/Misc/Tasks.hpp"
 #include "Systems/Misc/Time.hpp"
 #include "Systems/Misc/Timer.hpp"
+#include "Systems/Motion/Spring.hpp"
+#include "Systems/Motion/Smooth.hpp"
 
-#include "Utils/Utils.hpp"
+#include "Utils/PapyrusUtils.hpp"
+#include "Utils/Units.hpp"
+#include "Utils/Camera.hpp"
+#include "Utils/Node.hpp"
 
+//Scale
 #include "Scale/Scale.hpp"
 #include "Scale/ModScale.hpp"
 #include "Scale/Height.hpp"
 
+//Actor
+#include "Utils/Actor/FindActor.hpp"
+#include "Utils/Actor/ActorUtils.hpp"
+#include "Utils/Actor/ActorBools.hpp"
+#include "Utils/Actor/AV.hpp"
+
+//Data
 #include "Data/Runtime.hpp"
 #include "Data/Persistent.hpp"
 #include "Data/Transient.hpp"
