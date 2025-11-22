@@ -446,10 +446,6 @@ namespace {
 }
 
 namespace GTS {
-	HugShrink& HugShrink::GetSingleton() noexcept {
-		static HugShrink instance;
-		return instance;
-	}
 
 	std::string HugShrink::DebugName() {
 		return "::HugShrink";
@@ -694,6 +690,22 @@ namespace GTS {
 		} else {
 			return nullptr;
 		}
+	}
+
+	bool HugShrink::IsTinyInDataList(Actor* aTiny) {
+		std::unique_lock lock(_lock);
+		if (!aTiny) {
+			return false;
+		}
+
+		for (auto& val : data | views::values) {
+			if (val.tiny) {
+				if (val.tiny->formID == aTiny->formID) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	void HugShrink::RegisterEvents() {

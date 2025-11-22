@@ -29,7 +29,7 @@ namespace {
 			auto& BonusSize = Persistent::PlayerExtraPotionSize;
 
 			// Bonus size is added on top of all size calculations through this global
-			// Applied inside GtsManager.cpp (script)
+			// Applied inside GTSManager.cpp (script)
 			
 			BonusSize.value += power/Characters_AssumedCharSize; // convert to m
 

@@ -281,7 +281,7 @@ namespace GTS {
 
 	float game_getactorscale(Actor* actor) {
 		// This function reports same values as GetScale() in the console, so it is a value from SetScale() command
-		// Used inside: GtsManager.cpp - apply_height
+		// Used inside: GTSManager.cpp - apply_height
 		//              Scale.cpp   -  get_natural_scale   
 		return static_cast<float>(actor->GetReferenceRuntimeData().refScale) / 100.0F;
 	}

@@ -60,8 +60,8 @@ namespace {
 		auto ThighL = find_node(giant, "NPC L Thigh [LThg]");
 		auto ThighR = find_node(giant, "NPC R Thigh [RThg]");
 		if (ThighL && ThighR) {
-			LaunchActor::GetSingleton().LaunchAtNode(giant, radius, power, ThighL);
-			LaunchActor::GetSingleton().LaunchAtNode(giant, radius, power, ThighR);
+			LaunchActor::LaunchAtNode(giant, radius, power, ThighL);
+			LaunchActor::LaunchAtNode(giant, radius, power, ThighR);
 		}
 	}
 	void LaunchAtCleavage(Actor* giant, float radius, float power) {
@@ -70,11 +70,11 @@ namespace {
 		auto BreastL03 = find_node(giant, "L Breast03");
 		auto BreastR03 = find_node(giant, "R Breast03");
 		if (BreastL03 && BreastR03) {
-			LaunchActor::GetSingleton().LaunchAtNode(giant, radius, power, BreastL03);
-			LaunchActor::GetSingleton().LaunchAtNode(giant, radius, power, BreastR03);
+			LaunchActor::LaunchAtNode(giant, radius, power, BreastL03);
+			LaunchActor::LaunchAtNode(giant, radius, power, BreastR03);
 		} else if (BreastL && BreastR) {
-			LaunchActor::GetSingleton().LaunchAtNode(giant, radius, power, BreastL);
-			LaunchActor::GetSingleton().LaunchAtNode(giant, radius, power, BreastR);
+			LaunchActor::LaunchAtNode(giant, radius, power, BreastL);
+			LaunchActor::LaunchAtNode(giant, radius, power, BreastR);
 		}
 	}
 
@@ -85,22 +85,13 @@ namespace {
 		}
 		if (AllowStagger(giant, otherActor)) {
 			float force = GetForceFromDistance(distance, maxDistance);
-			LaunchActor::GetSingleton().ApplyLaunchTo(giant, otherActor, force, power);
+			LaunchActor::ApplyLaunchTo(giant, otherActor, force, power);
 		}
 	}
 }
 
 
 namespace GTS {
-
-	LaunchActor& LaunchActor::GetSingleton() noexcept {
-		static LaunchActor instance;
-		return instance;
-	}
-
-	std::string LaunchActor::DebugName() {
-		return "::LaunchActor";
-	}
 
 	void LaunchActor::ApplyLaunchTo(Actor* giant, Actor* tiny, float force, float launch_power) {
 		GTS_PROFILE_SCOPE("LaunchActor: ApplyLaunchTo");
@@ -203,10 +194,10 @@ namespace GTS {
 		if (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant)) {
 			switch (kind) {
 				case FootEvent::Left: 
-					LaunchActor::GetSingleton().LaunchAtFoot(giant, radius, power, false);
+					LaunchAtFoot(giant, radius, power, false);
 				break;
 				case FootEvent::Right:
-					LaunchActor::GetSingleton().LaunchAtFoot(giant, radius, power, true);
+					LaunchAtFoot(giant, radius, power, true);
 				break;
 				case FootEvent::Butt: 
 					LaunchAtThighs(giant, radius, power);

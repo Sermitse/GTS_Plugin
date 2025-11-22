@@ -3,7 +3,7 @@
 #include "Managers/Animation/Utils/AttachPoint.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/BoobCrush.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 #include "Managers/HighHeel.hpp"
 #include "Utils/Actions/ButtCrushUtils.hpp"
@@ -124,10 +124,6 @@ namespace {
 }
 
 namespace GTS {
-	ButtCrushController& ButtCrushController::GetSingleton() noexcept {
-		static ButtCrushController instance;
-		return instance;
-	}
 
 	std::string ButtCrushController::DebugName() {
 		return "::ButtCrushController";

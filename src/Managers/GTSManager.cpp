@@ -16,7 +16,6 @@
 #include "Config/Config.hpp"
 
 #include "Hooks/Other/Values.hpp"
-#include "Debug/DebugDraw.hpp"
 
 using namespace GTS;
 
@@ -359,40 +358,27 @@ namespace {
 	}
 }
 
-GtsManager& GtsManager::GetSingleton() noexcept {
-	static GtsManager instance;
-
-	static std::atomic_bool initialized;
-	static std::latch latch(1);
-	if (!initialized.exchange(true)) {
-		latch.count_down();
-	}
-	latch.wait();
-
-	return instance;
-}
-
-std::string GtsManager::DebugName() {
+std::string GTSManager::DebugName() {
 	return "::GTSManager";
 }
 
-void GtsManager::Start() {
+void GTSManager::Start() {
 	FixEmotionsRange();
 }
 
 // Poll for updates
-void GtsManager::Update() {
+void GTSManager::Update() {
 
 	UpdateInterractionDistance(); // Player exclusive
 	UpdateGlobalSizeLimit();
 	ShiftAudioFrequency();
-	ManageActorControl(); // Sadly have to call it non stop since im unsure how to easily fix it otherwise :(
+	ManageActorControl();         // Sadly have to call it non stop since im unsure how to easily fix it otherwise :(
 	UpdateCameraINIs();
 	ApplyTalkToActor();
-	UpdateMaxScale(); // Update max scale of each actor in the scene
-	UpdateFalling(); // Update player size damage when falling down
+	UpdateMaxScale();             // Update max scale of each actor in the scene
+	UpdateFalling();              // Update player size damage when falling down
 	CheckTalkPerk();
-	FixActorFade(); // Self explanatory
+	FixActorFade();               // Self explanatory
 
 	const auto& ActorList = find_actors();
 
@@ -406,13 +392,13 @@ void GtsManager::Update() {
 
 			if (actor->formID == 0x14 || IsTeammate(actor)) {
 
-				ClothManager::GetSingleton().CheckClothingRip(actor);
-				GameModeManager::GameMode(actor); // Handle Game Modes
+				ClothManager::CheckClothingRip(actor);
+				GameModeManager::GameMode(actor);    // Handle Game Modes
 
 				Foot_PerformIdleEffects_Main(actor); // Just idle zones for pushing away/dealing minimal damage
-				UpdateBoneMovementData(actor); // Records movement force of Player/Follower Legs/Hands
-				TinyCalamity_SeekActors(actor); // Active only on Player
-				SpawnActionIcon(actor); // Icons for interactions with others, Player only
+				UpdateBoneMovementData(actor);       // Records movement force of Player/Follower Legs/Hands
+				TinyCalamity_SeekActors(actor);      // Active only on Player
+				SpawnActionIcon(actor);              // Icons for interactions with others, Player only
 				ScareActors(actor);
 
 				//Ported from papyrus
@@ -432,11 +418,11 @@ void GtsManager::Update() {
 	}
 }
 
-void GtsManager::DragonSoulAbsorption() {
+void GTSManager::DragonSoulAbsorption() {
 	DragonAbsorptionBonuses(); 
 }
 
-void GtsManager::reapply(bool force) {
+void GTSManager::reapply(bool force) {
 	// Get everyone in loaded AI data and reapply
 
 	GTS_PROFILE_SCOPE("GTSManager: ReApply");
@@ -449,7 +435,8 @@ void GtsManager::reapply(bool force) {
 		}
 	}
 }
-void GtsManager::reapply_actor(Actor* actor, bool force) {
+
+void GTSManager::reapply_actor(Actor* actor, bool force) {
 
 	GTS_PROFILE_SCOPE("GTSManager: ReApplyActor");
 

@@ -31,13 +31,7 @@ namespace GTS {
 		this->startTime = 0.0f;
 	}
 
-	ActorRumbleData::ActorRumbleData()  : delay(Timer(0.40)) {
-	}
-
-	Rumbling& Rumbling::GetSingleton() noexcept {
-		static Rumbling instance;
-		return instance;
-	}
+	ActorRumbleData::ActorRumbleData()  : delay(Timer(0.40)) {}
 
 	std::string Rumbling::DebugName() {
 		return "::Rumbling";

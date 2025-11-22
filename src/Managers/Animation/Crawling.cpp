@@ -7,7 +7,7 @@
 
 #include "Managers/Damage/LaunchObject.hpp"
 #include "Managers/Input/InputManager.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 #include "Utils/Actions/InputConditions.hpp"
 

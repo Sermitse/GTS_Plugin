@@ -78,16 +78,13 @@ namespace GTS {
     double GetRemainingCooldown(Actor* giant, CooldownSource source);
     bool IsActionOnCooldown(Actor* giant, CooldownSource source);
 
-    class CooldownManager : public GTS::EventListener {
+    class CooldownManager : public GTS::EventListener, public CInitSingleton <CooldownManager> {
 		public:
-			[[nodiscard]] static CooldownManager& GetSingleton() noexcept;
-			virtual std::string DebugName() override;
-
-			virtual void Reset() override;
-
-			CooldownData& GetCooldownData(Actor* actor);
+		virtual std::string DebugName() override;
+		virtual void Reset() override;
+		CooldownData& GetCooldownData(Actor* actor);
 
         private: 
-			std::map<Actor*, CooldownData> CooldownData;
+		std::map<Actor*, CooldownData> CooldownData;
     };
 }

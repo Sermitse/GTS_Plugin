@@ -9,7 +9,7 @@
 
 #include "Managers/Rumble.hpp"
 #include "Managers/CrushManager.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 #include "Magic/Effects/Common.hpp"
 
@@ -233,15 +233,6 @@ namespace {
 
 
 namespace GTS {
-
-	SizeHitEffects& SizeHitEffects::GetSingleton() noexcept {
-		static SizeHitEffects instance;
-		return instance;
-	}
-
-	std::string SizeHitEffects::DebugName() {
-		return "::SizeHitEffects";
-	}
 
 	void SizeHitEffects::ApplyEverything(Actor* attacker, Actor* receiver, float damage) {
 		ApplyHitGrowth(attacker, receiver, damage);

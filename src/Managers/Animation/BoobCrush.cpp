@@ -323,13 +323,7 @@ namespace {
 	}
 }
 
-namespace GTS
-{	
-
-	AnimationBoobCrush& AnimationBoobCrush::GetSingleton() noexcept {
-		static AnimationBoobCrush instance;
-		return instance;
-	}
+namespace GTS {	
 
 	std::string AnimationBoobCrush::DebugName() {
 		return "::AnimationBoobCrush";

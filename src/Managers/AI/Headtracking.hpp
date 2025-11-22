@@ -7,16 +7,13 @@ namespace GTS {
 		Spring casterSmooth = Spring(0.0f, 1.0f);
 	};
 
-	class Headtracking : public EventListener  {
+	class Headtracking : public EventListener, public CInitSingleton <Headtracking> {
 		public:
-			[[nodiscard]] static Headtracking& GetSingleton() noexcept;
-
-			virtual std::string DebugName() override;
-			virtual void Update() override;
-
-			void SpineUpdate(Actor* me);
+		virtual std::string DebugName() override;
+		virtual void Update() override;
+		void SpineUpdate(Actor* me);
 
 		protected:
-			std::unordered_map<FormID, HeadtrackingData> data;
+		std::unordered_map<FormID, HeadtrackingData> data;
 	};
 }

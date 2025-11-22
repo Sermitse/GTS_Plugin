@@ -1,6 +1,7 @@
 #pragma once
 
 namespace GTS {
+
 	static const std::vector<std::string_view> Butt_Zones = {"NPC R Butt", "NPC L Butt", "NPC R Thigh [RThg]", "NPC L Thigh [LThg]"};
 
 	enum class FurnitureType
@@ -17,14 +18,12 @@ namespace GTS {
 		DisableDamage,
 	};
 
-	class FurnitureManager : public EventListener {
+	class FurnitureManager : public EventListener, public CInitSingleton<FurnitureManager> {
 		public:
-			[[nodiscard]] static FurnitureManager& GetSingleton();
+		virtual std::string DebugName() override;
+        virtual void FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, bool enter) override;
 
-			virtual std::string DebugName() override;
-            virtual void FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, bool enter) override;
-
-			void Furniture_RecordTransientData(RE::Actor* activator, TESObjectREFR* object, bool enter);
-			void Furniture_EnableButtHitboxes(RE::Actor* activator, FurnitureDamageSwitch type);
+		static void Furniture_RecordTransientData(RE::Actor* activator, TESObjectREFR* object, bool enter);
+		static void Furniture_EnableButtHitboxes(RE::Actor* activator, FurnitureDamageSwitch type);
 	};
 }

@@ -153,11 +153,6 @@ namespace {
 
 namespace GTS {
 
-	Headtracking& Headtracking::GetSingleton() noexcept {
-		static Headtracking instance;
-		return instance;
-	}
-
 	std::string Headtracking::DebugName() {
 		return "::Headtracking";
 	}

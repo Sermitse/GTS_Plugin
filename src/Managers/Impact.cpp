@@ -3,7 +3,7 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/ModEvent.hpp"
 
 #include "Config/Config.hpp"
@@ -225,10 +225,6 @@ namespace {
 	}
 }
 namespace GTS {
-	ImpactManager& ImpactManager::GetSingleton() noexcept {
-		static ImpactManager instance;
-		return instance;
-	}
 
 	void ImpactManager::HookProcessEvent(BGSImpactManager* impact, const BGSFootstepEvent* a_event, BSTEventSource<BGSFootstepEvent>* a_eventSource) {
 		// Applied when Foot Events such as FootScuffLeft/FootScuffRight and FootLeft/FootRight are seen on Actors
@@ -240,8 +236,7 @@ namespace GTS {
 			if (id != 10000001) { // .dll sends fake footstep events to fix missing foot sounds during some animations
 			    // If it matches that number = we don't want to do anything. Done inside FootStepManager::PlayVanillaFootstepSounds function
 				std::string tag = a_event->tag.c_str();
-				auto event_manager = ModEventManager::GetSingleton();
-				event_manager.m_onfootstep.SendEvent(actor,tag);
+				ModEventManager::GetSingleton().m_onfootstep.SendEvent(actor, tag);
 
 				auto kind = get_foot_kind(actor, tag);
 

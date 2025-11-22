@@ -3,7 +3,7 @@
 #include "Config/Config.hpp"
 
 #include "Managers/Cameras/CamUtil.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Debug/DebugDraw.hpp"
 
 using namespace GTS;

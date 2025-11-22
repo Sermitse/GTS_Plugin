@@ -1,45 +1,43 @@
 #pragma once
 
 namespace GTS {
+
 	struct GrabData {
-		public:
-			GrabData(TESObjectREFR* tiny, float strength);;
-			TESObjectREFR* tiny;
-			bool holding = false;
-			float strength;
+		GrabData(TESObjectREFR* tiny, float strength);;
+		TESObjectREFR* tiny;
+		bool holding = false;
+		float strength;
 	};
 
 	void Utils_CrushTask(Actor* giant, Actor* grabbedActor, float bonus, bool do_sound, bool stagger, DamageSource source, QuestStage stage);
 
-	class Grab : public EventListener {
+	class Grab : public EventListener, public CInitSingleton <Grab> {
 		public:
-			[[nodiscard]] static Grab& GetSingleton() noexcept;
+		virtual std::string DebugName() override;
+		virtual void Reset() override;
+		virtual void ResetActor(Actor* actor) override;
 
-			virtual std::string DebugName() override;
+		static void RegisterEvents();
+		static void RegisterTriggers();
+		static void DamageActorInHand(Actor* giant, float Damage);
+		static void DetachActorTask(Actor* giant);
+		static void AttachActorTask(Actor* giant, Actor* tiny);
 
-			static void RegisterEvents();
-			static void RegisterTriggers();
+		// Streangth is meant to be for a calculation of
+		// escape chance currently unused
+		static void ExitGrabState(Actor* giant);
+		static void GrabActor(Actor* giant, TESObjectREFR* tiny, float strength);
+		static void GrabActor(Actor* giant, TESObjectREFR* tiny);
+		static void Release(Actor* giant);
 
-			static void DamageActorInHand(Actor* giant, float Damage);
-			static void DetachActorTask(Actor* giant);
-			static void AttachActorTask(Actor* giant, Actor* tiny);
-			virtual void Reset() override;
-			virtual void ResetActor(Actor* actor) override;
-			// Streangth is meant to be for a calculation of
-			// escape chance currently unused
-			static void ExitGrabState(Actor* giant);
-			static void GrabActor(Actor* giant, TESObjectREFR* tiny, float strength);
-			static void GrabActor(Actor* giant, TESObjectREFR* tiny);
-			static void Release(Actor* giant);
-
-			// Get object being held
-			static TESObjectREFR* GetHeldObj(Actor* giant);
-			// Same as `GetHeldObj` but with a conversion to actor if possible
-			static Actor* GetHeldActor(Actor* giant);
-			static void FailSafeReset(Actor* giantref);
-			static void CancelGrab(Actor* giantref, Actor* tinyref);
-			
-			std::unordered_map<Actor*, GrabData> data;
+		// Get object being held
+		static TESObjectREFR* GetHeldObj(Actor* giant);
+		// Same as `GetHeldObj` but with a conversion to actor if possible
+		static Actor* GetHeldActor(Actor* giant);
+		static void FailSafeReset(Actor* giantref);
+		static void CancelGrab(Actor* giantref, Actor* tinyref);
+		
+		std::unordered_map<Actor*, GrabData> data;
 	};
 
 	void StartRHandRumble(std::string_view tag, Actor& actor, float power, float halflife);

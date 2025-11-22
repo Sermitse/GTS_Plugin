@@ -13,7 +13,7 @@
 
 #include "Magic/Effects/Common.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 
 #include "Managers/Audio/MoansLaughs.hpp"

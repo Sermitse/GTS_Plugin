@@ -7,7 +7,7 @@ cmake_policy(VERSION 3.21...3.31)
 
 project(
 	GtsPlugin
-	VERSION 4.0.0.0
+	VERSION 3.5.0.0
 	DESCRIPTION "The main SKSE plugin of the Size Matters mod"
 	LANGUAGES CXX
 )

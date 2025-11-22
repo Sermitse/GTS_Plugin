@@ -1,4 +1,4 @@
-// dear imgui, v1.92.5 WIP
+// dear imgui, v1.92.5
 // (internal structures/api)
 
 // You may use this file to debug, understand or extend Dear ImGui features but we don't provide any guarantee of forward compatibility.
@@ -1722,7 +1722,7 @@ enum ImGuiNavMoveFlags_
     ImGuiNavMoveFlags_WrapMask_             = ImGuiNavMoveFlags_LoopX | ImGuiNavMoveFlags_LoopY | ImGuiNavMoveFlags_WrapX | ImGuiNavMoveFlags_WrapY,
     ImGuiNavMoveFlags_AllowCurrentNavId     = 1 << 4,   // Allow scoring and considering the current NavId as a move target candidate. This is used when the move source is offset (e.g. pressing PageDown actually needs to send a Up move request, if we are pressing PageDown from the bottom-most item we need to stay in place)
     ImGuiNavMoveFlags_AlsoScoreVisibleSet   = 1 << 5,   // Store alternate result in NavMoveResultLocalVisible that only comprise elements that are already fully visible (used by PageUp/PageDown)
-    ImGuiNavMoveFlags_ScrollToEdgeY         = 1 << 6,   // Force scrolling to min/max (used by Home/End) // FIXME-NAV: Aim to remove or reword, probably unnecessary
+    ImGuiNavMoveFlags_ScrollToEdgeY         = 1 << 6,   // Force scrolling to min/max (used by Home/End) // FIXME-NAV: Aim to remove or reword as ImGuiScrollFlags
     ImGuiNavMoveFlags_Forwarded             = 1 << 7,
     ImGuiNavMoveFlags_DebugNoResult         = 1 << 8,   // Dummy scoring for debug purpose, don't apply result
     ImGuiNavMoveFlags_FocusApi              = 1 << 9,   // Requests from focus API can land/focus/activate items even if they are marked with _NoTabStop (see NavProcessItemForTabbingRequest() for details)
@@ -2120,28 +2120,34 @@ struct ImGuiMetricsConfig
 struct ImGuiStackLevelInfo
 {
     ImGuiID                 ID;
-    ImS8                    QueryFrameCount;            // >= 1: Query in progress
-    bool                    QuerySuccess;               // Obtained result from DebugHookIdInfo()
+    ImS8                    QueryFrameCount;            // >= 1: Sub-query in progress
+    bool                    QuerySuccess;               // Sub-query obtained result from DebugHookIdInfo()
     ImS8                    DataType;                   // ImGuiDataType
-    int                     DescOffset;                 // -1 or offset into parent's ResultPathsBuf
+    int                     DescOffset;                 // -1 or offset into parent's ResultsPathsBuf
 
     ImGuiStackLevelInfo()   { memset(this, 0, sizeof(*this)); DataType = -1; DescOffset = -1; }
+};
+
+struct ImGuiDebugItemPathQuery
+{
+    ImGuiID                 MainID;                     // ID to query details for.
+    bool                    Active;                     // Used to disambiguate the case when ID == 0 and e.g. some code calls PushOverrideID(0).
+    bool                    Complete;                   // All sub-queries are finished (some may have failed).
+    ImS8                    Step;                       // -1: query stack + init Results, >= 0: filling individual stack level.
+    ImVector<ImGuiStackLevelInfo> Results;
+    ImGuiTextBuffer         ResultsDescBuf;
+    ImGuiTextBuffer         ResultPathBuf;
+
+    ImGuiDebugItemPathQuery() { memset(this, 0, sizeof(*this)); }
 };
 
 // State for ID Stack tool queries
 struct ImGuiIDStackTool
 {
-    int                     LastActiveFrame;
-    int                     StackLevel;                 // -1: query stack and resize Results, >= 0: individual stack level.
-    ImGuiID                 QueryMainId;                // ID to query details for.
-    ImVector<ImGuiStackLevelInfo> Results;
-    bool                    ResultsComplete;            // All sub-query have succeeeded, result is complete.
-    bool                    QueryHookActive;            // Used to disambiguate the case where DebugHookIdInfoId == 0 which is valid.
     bool                    OptHexEncodeNonAsciiChars;
     bool                    OptCopyToClipboardOnCtrlC;
+    int                     LastActiveFrame;
     float                   CopyToClipboardLastTime;
-    ImGuiTextBuffer         ResultPathsBuf;
-    ImGuiTextBuffer         ResultFullPathBuf;
 
     ImGuiIDStackTool()      { memset(this, 0, sizeof(*this)); LastActiveFrame = -1; OptHexEncodeNonAsciiChars = true; CopyToClipboardLastTime = -FLT_MAX; }
 };
@@ -2529,6 +2535,7 @@ struct ImGuiContext
     float                   DebugFlashStyleColorTime;
     ImVec4                  DebugFlashStyleColorBackup;
     ImGuiMetricsConfig      DebugMetricsConfig;
+    ImGuiDebugItemPathQuery DebugItemPathQuery;
     ImGuiIDStackTool        DebugIDStackTool;
     ImGuiDebugAllocInfo     DebugAllocInfo;
 #if defined(IMGUI_DEBUG_HIGHLIGHT_ALL_ID_CONFLICTS) && !defined(IMGUI_DISABLE_DEBUG_TOOLS)

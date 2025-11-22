@@ -235,7 +235,7 @@ namespace GTS {
 		Task_Vore_FinishVoreBuff(VoreInfo, Prey, 1, true);
 	}
 
-	void Devourment_Compatibility(Actor* Pred, Actor* Prey, bool Digested) { // Called from the GtsManagerQuest script, takes priority over GTS Vore
+	void Devourment_Compatibility(Actor* Pred, Actor* Prey, bool Digested) { // Called from the GTSManagerQuest script, takes priority over GTS Vore
 		if (Pred && Prey) {
 			auto Data = Transient::GetActorData(Prey);
 			if (Data) {

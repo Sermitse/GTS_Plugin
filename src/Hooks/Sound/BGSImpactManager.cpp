@@ -53,7 +53,7 @@ namespace Hooks {
 
 			{
 				GTS_PROFILE_ENTRYPOINT("SoundImpactManager::ImpactManagerProcessEvent");
-				ImpactManager::GetSingleton().HookProcessEvent(a_this, a_event, a_eventSource);
+				ImpactManager::HookProcessEvent(a_this, a_event, a_eventSource);
 				// ^ On FootEvent: manages damage, effects and launching. do NOT disable it!
 
 			}

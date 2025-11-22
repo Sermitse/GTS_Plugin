@@ -1,6 +1,6 @@
 #include "Magic/Effects/Common.hpp"
 #include "Magic/Effects/Spells/ShrinkFoe.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
 using namespace GTS;

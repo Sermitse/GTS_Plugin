@@ -161,11 +161,6 @@ namespace GTS {
 		}
 	}
 
-	VoreController& VoreController::GetSingleton() noexcept {
-		static VoreController instance;
-		return instance;
-	}
-
 	std::string VoreController::DebugName() {
 		return "::VoreController";
 	}
@@ -468,5 +463,25 @@ namespace GTS {
 
 	void VoreController::AllowMessage(bool allow) {
 		this->allow_message = allow;
+	}
+
+	bool VoreController::IsTinyInDataList(Actor* aTiny) {
+
+		std::unique_lock lock(_lock);
+
+		if (!aTiny) {
+			return false;
+		}
+
+		for (auto& val : data | views::values) {
+			for (const auto& Tiny : val.GetVories()) {
+				if (Tiny) {
+					if (Tiny->formID == aTiny->formID) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }

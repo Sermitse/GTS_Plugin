@@ -12,16 +12,14 @@ namespace {
 		if (!form) {
 			return;
 		}
-		auto event_manager = ModEventManager::GetSingleton();
-		event_manager.m_onfootstep.Register(form);
+		ModEventManager::GetSingleton().m_onfootstep.Register(form);
 	}
 
 	void UnRegisterOnFootstep(StaticFunctionTag*, TESForm* form) {
 		if (!form) {
 			return;
 		}
-		auto event_manager = ModEventManager::GetSingleton();
-		event_manager.m_onfootstep.Unregister(form);
+		ModEventManager::GetSingleton().m_onfootstep.Unregister(form);
 	}
 }
 

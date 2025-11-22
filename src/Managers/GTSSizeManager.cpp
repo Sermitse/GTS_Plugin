@@ -1,4 +1,4 @@
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 #include "Config/Config.hpp"
 

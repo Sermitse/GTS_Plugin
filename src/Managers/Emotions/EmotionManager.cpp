@@ -148,15 +148,6 @@ namespace {
 
 namespace GTS {
 
-	EmotionManager& EmotionManager::GetSingleton() noexcept {
-		static EmotionManager instance;
-		return instance;
-	}
-
-	std::string EmotionManager::DebugName() {
-		return "::EmotionManager";
-	}
-
 	void EmotionManager::SetEmotionBusy(Actor* giant, CharEmotionType Type, bool lock) { // We don't want emotion tasks to stack, it breaks them
 		auto data = Transient::GetActorData(giant);
 		if (data) {

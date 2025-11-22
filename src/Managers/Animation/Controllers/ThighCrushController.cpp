@@ -1,5 +1,5 @@
 #include "Managers/Animation/Controllers/ThighCrushController.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/HighHeel.hpp"
 
 namespace {
@@ -11,15 +11,6 @@ namespace {
 }
 
 namespace GTS {
-
-	ThighCrushController& ThighCrushController::GetSingleton() noexcept {
-		static ThighCrushController instance;
-		return instance;
-	}
-
-	std::string ThighCrushController::DebugName() {
-		return "::ThighCrushController";
-	}
 
 	std::vector<Actor*> ThighCrushController::GetThighTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor

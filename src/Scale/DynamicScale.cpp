@@ -174,15 +174,7 @@ namespace GTS {
 		return max_scale;
 	}
 
-	DynamicScaleData::DynamicScaleData() : roomHeight(
-			Spring(std::numeric_limits<float>::infinity(), 1.0f)
-			) {
-	}
-
-	DynamicScale& DynamicScale::GetSingleton() {
-		static DynamicScale instance;
-		return instance;
-	}
+	DynamicScaleData::DynamicScaleData() : roomHeight(Spring(std::numeric_limits<float>::infinity(), 1.0f)){}
 
 	std::string DynamicScale::DebugName() {
 		return "::DynamicScale";

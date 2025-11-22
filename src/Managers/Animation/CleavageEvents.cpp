@@ -12,7 +12,7 @@
 #include "Managers/AI/AIFunctions.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"

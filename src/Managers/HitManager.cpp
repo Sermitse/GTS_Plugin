@@ -1,4 +1,4 @@
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/HitManager.hpp"
 
 using namespace GTS;
@@ -19,11 +19,6 @@ namespace {
 }
 
 namespace GTS {
-
-	HitManager& HitManager::GetSingleton() noexcept {
-		static HitManager instance;
-		return instance;
-	}
 
 	std::string HitManager::DebugName() {
 		return "::HitManager";

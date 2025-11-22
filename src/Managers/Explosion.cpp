@@ -57,10 +57,6 @@ namespace {
 }
 
 namespace GTS {
-	ExplosionManager& ExplosionManager::GetSingleton() noexcept {
-		static ExplosionManager instance;
-		return instance;
-	}
 
 	std::string ExplosionManager::DebugName() {
 		return "::ExplosionManager";

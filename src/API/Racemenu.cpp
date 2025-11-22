@@ -83,6 +83,6 @@ namespace GTS {
 	}
 
 	void Racemenu::OnPluginPostLoad() {
-		//Register(); // <- Disabled For Now...
+		Register();
 	}
 }

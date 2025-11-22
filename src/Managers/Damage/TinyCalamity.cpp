@@ -11,7 +11,7 @@
 #include "Utils/Looting.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
 #include "Managers/AI/AIFunctions.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Debug/DebugDraw.hpp"
 
@@ -197,18 +197,16 @@ namespace GTS {
                 }
             }
             if (nodeCollisions > 0) {
-                auto& CollisionDamage = CollisionDamage::GetSingleton();
                 if (ApplyCooldown) { // Needed to fix Thigh Crush stuff
-                    auto& sizemanager = SizeManager::GetSingleton();
                     bool OnCooldown = IsActionOnCooldown(tiny, CooldownSource::Damage_Thigh);
                     if (!OnCooldown) {
                         Utils_PushCheck(giant, tiny, Get_Bone_Movement_Speed(giant, Cause)); // pass original un-altered force
-                        CollisionDamage.DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
+                        CollisionDamage::DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
                         ApplyActionCooldown(giant, CooldownSource::Damage_Thigh);
                     }
                 } else {
                     Utils_PushCheck(giant, tiny, Get_Bone_Movement_Speed(giant, Cause)); // pass original un-altered force
-                    CollisionDamage.DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
+                    CollisionDamage::DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
                 }
             }
         }

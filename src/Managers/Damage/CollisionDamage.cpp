@@ -5,7 +5,7 @@
 #include "Managers/Damage/TinyCalamity.hpp"
 #include "Managers/Audio/GoreAudio.hpp"
 #include "Managers/CrushManager.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 #include "Magic/Effects/Common.hpp"
 
@@ -152,15 +152,6 @@ namespace {
 
 namespace GTS {
 
-	CollisionDamage& CollisionDamage::GetSingleton() noexcept {
-		static CollisionDamage instance;
-		return instance;
-	}
-
-	std::string CollisionDamage::DebugName() {
-		return "::CollisionDamage";
-	}
-
 	// Safer optimization that preserves original behavior
 	void CollisionDamage::DoFootCollision(Actor* actor, float damage, float radius, int random, float bbmult, float crush_threshold, DamageSource Cause, bool Right, bool ApplyCooldown, bool ignore_rotation, bool SupportCalamity) {
 
@@ -247,18 +238,17 @@ namespace GTS {
 			}
 
 			if (nodeCollisions > 0) {
-				auto& CollisionDamage = CollisionDamage::GetSingleton();
 				if (ApplyCooldown) {
 					bool OnCooldown = IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh);
 					if (!OnCooldown) {
 						Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause));
-						CollisionDamage.DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
+						DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
 						ApplyActionCooldown(otherActor, CooldownSource::Damage_Thigh);
 					}
 				}
 				else {
 					Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause));
-					CollisionDamage.DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
+					DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
 				}
 			}
 		}

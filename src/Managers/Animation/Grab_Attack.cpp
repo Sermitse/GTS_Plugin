@@ -7,7 +7,7 @@
 #include "Managers/Damage/SizeHitEffects.hpp"
 #include "Managers/Damage/TinyCalamity.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"
@@ -52,7 +52,7 @@ namespace {
 
                 TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * GetDamageSetting());
 
-                SizeHitEffects::GetSingleton().PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
+                SizeHitEffects::PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
                 InflictSizeDamage(giant, grabbedActor, damage);
             }
 			

@@ -10,14 +10,7 @@
 using namespace GTS;
 
 namespace GTS {
-	StompManager& StompManager::GetSingleton() noexcept {
-		static StompManager instance;
-		return instance;
-	}
 
-	std::string StompManager::DebugName() {
-		return "::StompManager";
-	}
 	void StompManager::PlayNewOrOldStomps(Actor* giant, float modifier, FootEvent foot_kind, std::string_view find_foot, bool Strong) {
 		const bool UseOtherHeelSet = Config::Audio.bUseOtherHighHeelSet;
 

@@ -5,7 +5,7 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/Utils/AttachPoint.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Magic/Effects/Common.hpp"
 
 #include "Managers/AI/Thigh/ThighSandwichAI.hpp"
@@ -93,11 +93,6 @@ namespace GTS {
 			result.push_back(actor);
 		}
 		return result;
-	}
-
-	ThighSandwichController& ThighSandwichController::GetSingleton() noexcept {
-		static ThighSandwichController instance;
-		return instance;
 	}
 
 	std::string ThighSandwichController::DebugName() {

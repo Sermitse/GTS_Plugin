@@ -8,7 +8,7 @@
 #include "Managers/Input/InputManager.hpp"
 
 #include "Managers/CrushManager.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"
@@ -47,8 +47,6 @@ namespace {
 		"NPC L FrontThigh",
 		"NPC L RearCalf [RrClf]",
 	};
-
-
 
 	void AllowToBeCrushed(Actor* actor, bool toggle) {
 		auto transient = Transient::GetActorData(actor);
@@ -417,12 +415,4 @@ namespace GTS
 		AnimationManager::RegisterTrigger("ThighExit", "ThighSandwich", "GTSBEH_ThighSandwich_ExitLoop");
 	}
 
-	AnimationThighSandwich& AnimationThighSandwich::GetSingleton() noexcept {
-		static AnimationThighSandwich instance;
-		return instance;
-	}
-
-	std::string AnimationThighSandwich::DebugName() {
-		return "::AnimationThighSandwich";
-	}
 }

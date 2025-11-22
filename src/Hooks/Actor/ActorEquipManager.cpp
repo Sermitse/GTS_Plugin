@@ -12,7 +12,7 @@ namespace Hooks {
 
 			{
 				GTS_PROFILE_ENTRYPOINT("ActorEquipManager::EquipObject");
-				if (ClothManager::GetSingleton().ShouldPreventReEquip(a_actor, a_object)) {
+				if (ClothManager::ShouldPreventReEquip(a_actor, a_object)) {
 					allow = false;
 				}
 			}

@@ -4,29 +4,17 @@
 
 namespace GTS {
 
-	class SpectatorManager : public EventListener {
+	class SpectatorManager : public EventListener, public CInitSingleton <SpectatorManager> {
 		public:
-
-		[[nodiscard]] static SpectatorManager& GetSingleton() noexcept {
-			static SpectatorManager Instance;
-			return Instance;
-		}
-
-		std::string DebugName() override {
-			return "::SpectatorManager";
-		}
-
-		virtual void DataReady() override {
-
-		}
-		static Actor* GetCameraTarget();
-
-		static void SetCameraTarget(RE::Actor* a_Actor, bool aTemporary);
+		virtual std::string DebugName() override;
 		virtual void Update() override;
-		static bool IsCameraTargetPlayer();
-		static void ResetTarget(bool aDoFullReset);
 		virtual void Reset() override;
 		virtual void ResetActor(Actor* actor) override;
+
+		static Actor* GetCameraTarget();
+		static void SetCameraTarget(RE::Actor* a_Actor, bool aTemporary);
+		static bool IsCameraTargetPlayer();
+		static void ResetTarget(bool aDoFullReset);
 
 		private:
 		static inline FormID Target = 0x14;

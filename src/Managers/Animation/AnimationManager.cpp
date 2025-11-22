@@ -69,11 +69,6 @@ namespace GTS {
 		}
 	}
 
-	AnimationManager& AnimationManager::GetSingleton() noexcept {
-		static AnimationManager instance;
-		return instance;
-	}
-
 	std::string AnimationManager::DebugName() {
 		return "::AnimationManager";
 	}

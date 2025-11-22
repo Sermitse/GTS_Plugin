@@ -67,11 +67,6 @@ namespace {
 
 namespace GTS {
 
-	CameraManager& CameraManager::GetSingleton() noexcept {
-		static CameraManager instance;
-		return instance;
-	}
-
 	std::string CameraManager::DebugName() {
 		return "::CameraManager";
 	}

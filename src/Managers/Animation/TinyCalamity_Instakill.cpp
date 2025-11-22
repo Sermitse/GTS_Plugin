@@ -275,7 +275,7 @@ namespace {
 		Rumbling::Once("FingerSnap", &data.giant, 7.25f, 0.025f, true);
 		for (auto tiny: tinies) {
 			if (tiny) {
-				Animation_TinyCalamity::GetSingleton().ResetActors(&data.giant);
+				Animation_TinyCalamity::ResetActors(&data.giant);
 				FingerSnap_Execute(&data.giant, tiny);
 			}
 		}

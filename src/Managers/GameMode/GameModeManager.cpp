@@ -1,7 +1,7 @@
 #include "Managers/GameMode/GameModeManager.hpp"
 #include "config/Config.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
@@ -322,15 +322,6 @@ namespace {
 
 namespace GTS {
 
-	GameModeManager& GameModeManager::GetSingleton() noexcept {
-		static GameModeManager instance;
-		return instance;
-	}
-
-	std::string GameModeManager::DebugName() {
-		return "::GameModeManager";
-	}
-
 	void GameModeManager::ApplyGameMode(Actor* a_Actor, const LActiveGamemode_t& a_SelectedGameMode, const float& a_GrowthRate, const float& a_ShrinkRate)  {
 
 		GTS_PROFILE_SCOPE("GameModeManager: ApplyGameMode");
@@ -406,6 +397,7 @@ namespace GTS {
 	}
 
 	void GameModeManager::GameMode(Actor* actor)  {
+
 		GTS_PROFILE_SCOPE("GameModeManager: GameMode");
 
 		if (!actor) {

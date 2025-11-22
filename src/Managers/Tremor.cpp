@@ -50,10 +50,6 @@ namespace {
 }
 
 namespace GTS {
-	TremorManager& TremorManager::GetSingleton() noexcept {
-		static TremorManager instance;
-		return instance;
-	}
 
 	std::string TremorManager::DebugName() {
 		return "::TremorManager";

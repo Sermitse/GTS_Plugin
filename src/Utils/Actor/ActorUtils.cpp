@@ -19,7 +19,7 @@
 #include "Managers/Attributes.hpp"
 #include "Managers/Rumble.hpp"
 #include "Managers/Explosion.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/HighHeel.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
 
@@ -2367,10 +2367,10 @@ namespace GTS {
 
 	void DoDamageEffect(Actor* giant, float damage, float radius, int random, float bonedamage, FootEvent kind, float crushmult, DamageSource Cause, bool ignore_rotation) {
 		if (kind == FootEvent::Left) {
-			CollisionDamage::GetSingleton().DoFootCollision(giant, damage, radius, random, bonedamage, crushmult, Cause, false, false, ignore_rotation, true);
+			CollisionDamage::DoFootCollision(giant, damage, radius, random, bonedamage, crushmult, Cause, false, false, ignore_rotation, true);
 		}
 		if (kind == FootEvent::Right) {
-			CollisionDamage::GetSingleton().DoFootCollision(giant, damage, radius, random, bonedamage, crushmult, Cause, true, false, ignore_rotation, true);
+			CollisionDamage::DoFootCollision(giant, damage, radius, random, bonedamage, crushmult, Cause, true, false, ignore_rotation, true);
 			//                                                                                  ^        ^           ^ - - - - Normal Crush
 			//                                                       Chance to trigger bone crush   Damage of            Threshold multiplication
 			//                                                                                      Bone Crush

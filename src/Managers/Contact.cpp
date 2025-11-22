@@ -2,7 +2,7 @@
 
 #include "Config/Config.hpp"
 
-#include "Managers/GtsManager.hpp"
+#include "Managers/GTSManager.hpp"
 
 using namespace REL;
 using namespace GTS;
@@ -397,12 +397,6 @@ namespace GTS {
 			filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCharController)] |= (static_cast<uint64_t>(1) << static_cast<uint64_t>(COL_LAYER::kCharController));
 		}
 
-	}
-
-
-	ContactManager& ContactManager::GetSingleton() noexcept {
-		static ContactManager instance;
-		return instance;
 	}
 
 	std::string ContactManager::DebugName() {

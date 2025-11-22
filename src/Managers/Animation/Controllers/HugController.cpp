@@ -6,7 +6,7 @@
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/HugShrink.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 using namespace GTS;
 
@@ -87,14 +87,6 @@ namespace {
 }
 
 namespace GTS {
-	HugAnimationController& HugAnimationController::GetSingleton() noexcept {
-		static HugAnimationController instance;
-		return instance;
-	}
-
-	std::string HugAnimationController::DebugName() {
-		return "::HugAnimationController";
-	}
 
 	void HugAnimationController::Hugs_OnCooldownMessage(Actor* giant) {
 		double cooldown = GetRemainingCooldown(giant, CooldownSource::Action_Hugs);

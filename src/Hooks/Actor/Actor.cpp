@@ -17,7 +17,7 @@ namespace Hooks {
 
 				if (a_attacker) {
 
-					SizeHitEffects::GetSingleton().ApplyEverything(a_attacker, a_this, a_damage); // Apply bonus damage, overkill, stagger resistance
+					SizeHitEffects::ApplyEverything(a_attacker, a_this, a_damage); // Apply bonus damage, overkill, stagger resistance
 
 					if (Runtime::HasPerkTeam(a_this, Runtime::PERK.GTSPerkSizeReserveAug1)) { // Size Reserve Augmentation
 						auto Cache = Persistent::GetActorData(a_this);

@@ -3,23 +3,13 @@
 
 namespace GTS {
 
-	class AIManager : public EventListener {
+	class AIManager : public EventListener, public CInitSingleton<AIManager> {
 		public:
-
-		[[nodiscard]] static AIManager& GetSingleton() noexcept {
-			static AIManager Instance;
-			return Instance;
-		}
-
-		std::string DebugName() override {
-			return "::AIManager";
-		}
-
-		Timer BeginNewActionTimer = Timer(3.0f);
-
-		void Update() override;
+		virtual std::string DebugName() override;
+		virtual void Update() override;
 		bool TryStartAction(Actor* a_Performer) const;
 
+		Timer BeginNewActionTimer = Timer(3.0f);
 		SettingsAI_t& AISettings = Config::AI;
 		SettingsAdvanced_t& AdvancedSettings = Config::Advanced;
 	};

@@ -1,6 +1,6 @@
 #include "Magic/Effects/Potions/SizeHunger.hpp"
 #include "Magic/Effects/Common.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 // A potion that amplifies size gain
 

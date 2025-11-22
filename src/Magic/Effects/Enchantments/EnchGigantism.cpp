@@ -1,5 +1,5 @@
 #include "Magic/Effects/Enchantments/EnchGigantism.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 namespace GTS {
 

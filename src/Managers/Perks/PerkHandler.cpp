@@ -172,18 +172,6 @@ namespace {
 }
 
 namespace GTS {
-    PerkHandler& PerkHandler::GetSingleton() noexcept {
-        static PerkHandler instance;
-
-        static std::atomic_bool initialized;
-        static std::latch latch(1);
-        if (!initialized.exchange(true)) {
-            latch.count_down();
-        }
-        latch.wait();
-
-        return instance;
-    }
 
     std::string PerkHandler::DebugName() {
         return "::PerkHandler";

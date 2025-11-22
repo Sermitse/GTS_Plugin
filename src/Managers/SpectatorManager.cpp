@@ -39,7 +39,12 @@ namespace GTS {
 		}
 	}
 
+	std::string SpectatorManager::DebugName() {
+		return "::SpectatorManager";
+	}
+
 	void SpectatorManager::Update() {
+
 		if (State::Live()) {
 
 			auto currentCameraTarget = GetCameraActor();

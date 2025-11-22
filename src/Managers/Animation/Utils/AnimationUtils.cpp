@@ -24,7 +24,7 @@
 
 #include "Managers/Rumble.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/HighHeel.hpp"
 
 #include "Magic/Effects/Common.hpp"
@@ -511,7 +511,7 @@ namespace GTS {
 			smt_power *= 2.0f;
 			smt_radius *= 1.25f;
 		}
-		LaunchActor::GetSingleton().ApplyLaunch_At(giant, radius * smt_radius, power * smt_power, kind);
+		LaunchActor::ApplyLaunch_At(giant, radius * smt_radius, power * smt_power, kind);
 	}
 
 	void DoLaunch(Actor* giant, float radius, float power, NiAVObject* node) {
@@ -521,7 +521,7 @@ namespace GTS {
 			smt_power *= 2.0f;
 			smt_radius *= 1.25f;
 		}
-		LaunchActor::GetSingleton().LaunchAtCustomNode(giant, radius * smt_radius, 0.0f, power * smt_power, node);
+		LaunchActor::LaunchAtCustomNode(giant, radius * smt_radius, 0.0f, power * smt_power, node);
 	}
 
 	void GrabStaminaDrain(Actor* giant, Actor* tiny, float sizedifference) {
@@ -585,11 +585,10 @@ namespace GTS {
 	}
 
 	void AdjustFacialExpression(Actor* giant, int ph, float target, CharEmotionType Type, float phenome_halflife, float modifier_speed) {
-		auto& Emotions = EmotionManager::GetSingleton();
 		auto fgen = giant->GetFaceGenAnimationData();
 		switch (Type) {
 			case CharEmotionType::Phenome:
-				Emotions.OverridePhenome(giant, ph, phenome_halflife, target);
+				EmotionManager::OverridePhenome(giant, ph, phenome_halflife, target);
 			break;
 			case CharEmotionType::Expression:
 				if (fgen) {
@@ -605,7 +604,7 @@ namespace GTS {
 				}
 			break;
 			case CharEmotionType::Modifier:
-				Emotions.OverrideModifier(giant, ph, modifier_speed, target);
+				EmotionManager::OverrideModifier(giant, ph, modifier_speed, target);
 			break;
 		}
 	}
@@ -1055,8 +1054,7 @@ namespace GTS {
 
 	void ApplyThighDamage(Actor* actor, bool right, bool CooldownCheck, float radius, float damage, float bbmult, float crush_threshold, int random, DamageSource Cause) {
 		GTS_PROFILE_SCOPE("AnimUtils: ApplyThighDamage");
-		auto& CollisionDamage = CollisionDamage::GetSingleton();
-		
+
 		if (actor) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			float giantScale = get_visual_scale(actor);

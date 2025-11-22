@@ -15,46 +15,43 @@
 
 namespace GTS {
 
-	class CameraManager : public EventListener {
+	class CameraManager : public EventListener, public CInitSingleton <CameraManager> {
 		public:
-			[[nodiscard]] static CameraManager& GetSingleton() noexcept;
+		virtual std::string DebugName() override;
+		virtual void DataReady() override;
+		virtual void Start() override;
+		virtual void CameraUpdate() override;
 
-			virtual std::string DebugName() override;
-			virtual void DataReady() override;
-			virtual void Start() override;
+		CameraState* GetCameraState();
 
-			virtual void CameraUpdate() override;
+		void AdjustUpDown(float amt);
+		void ResetUpDown();
 
-			CameraState* GetCameraState();
+		void AdjustLeftRight(float amt);
+		void ResetLeftRight();
 
-			void AdjustUpDown(float amt);
-			void ResetUpDown();
-
-			void AdjustLeftRight(float amt);
-			void ResetLeftRight();
-
-			void Reset() override;
+		void Reset() override;
 
 		private:
-			CameraState* GetCameraStateTP();
-			CameraState* GetCameraStateFP();
+		CameraState* GetCameraStateTP();
+		CameraState* GetCameraStateFP();
 
-			CameraState CamStateVanillaScaled;  // Like vanilla only scaled
+		CameraState CamStateVanillaScaled;  // Like vanilla only scaled
 
-			Normal CamStateNormal;
-			Alt CamStateAlt;
-			Foot CamStateFoot;
-			FootR CamStateFootR;
-			FootL CamStateFootL;
+		Normal CamStateNormal;
+		Alt CamStateAlt;
+		Foot CamStateFoot;
+		FootR CamStateFootR;
+		FootL CamStateFootL;
 
-			FirstPerson CamStateFP;
+		FirstPerson CamStateFP;
 
-			NiPoint3 ManualEditOffsets = {0,0,0};
+		NiPoint3 ManualEditOffsets = {0,0,0};
 
-			Spring SpringSmoothScale = Spring(0.3f, 0.5f);
-			Spring3 SpringSmoothOffset = Spring3(NiPoint3(0.3f, 0.3f, 0.3f), 0.5f);
+		Spring SpringSmoothScale = Spring(0.3f, 0.5f);
+		Spring3 SpringSmoothOffset = Spring3(NiPoint3(0.3f, 0.3f, 0.3f), 0.5f);
 
-			CameraState* TrackedState = nullptr;
-			std::unique_ptr<TransState> TransitionState = std::unique_ptr<TransState>(nullptr);
+		CameraState* TrackedState = nullptr;
+		std::unique_ptr<TransState> TransitionState = std::unique_ptr<TransState>(nullptr);
 	};
 }

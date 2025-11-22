@@ -26,8 +26,8 @@
 #include "Managers/Explosion.hpp"
 #include "Managers/FurnitureManager.hpp"
 #include "Managers/Gamemode/GameModeManager.hpp"
-#include "Managers/GtsManager.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Highheel.hpp"
 #include "Managers/HitManager.hpp"
 #include "Managers/Input/InputManager.hpp"
@@ -64,14 +64,12 @@ namespace GTS {
 		EventDispatcher::AddListener(&InputManager::GetSingleton());
 		EventDispatcher::AddListener(&ConsoleManager::GetSingleton());
 		EventDispatcher::AddListener(&SmoothCam::GetSingleton());
-		EventDispatcher::AddListener(&GameModeManager::GetSingleton());         // Manages Game Modes
-		EventDispatcher::AddListener(&GtsManager::GetSingleton());              // Manages smooth size increase and animation & movement speed
+		EventDispatcher::AddListener(&GTSManager::GetSingleton());              // Manages smooth size increase and animation & movement speed
 		EventDispatcher::AddListener(&PerkHandler::GetSingleton());             // Manages some perk updates
 		EventDispatcher::AddListener(&SizeManager::GetSingleton());             // Manages Max Scale of everyone
 		EventDispatcher::AddListener(&HighHeelManager::GetSingleton());         // Applies high heels
 		EventDispatcher::AddListener(&CameraManager::GetSingleton());           // Edits the camera
 		EventDispatcher::AddListener(&GameEvents::GetSingleton());              // Registers Skyrim Events
-		EventDispatcher::AddListener(&CollisionDamage::GetSingleton());         // Handles precise size-related damage
 		EventDispatcher::AddListener(&MagicManager::GetSingleton());            // Manages spells and size changes in general
 		EventDispatcher::AddListener(&VoreController::GetSingleton());          // Manages vore
 		EventDispatcher::AddListener(&CrushManager::GetSingleton());            // Manages crushing

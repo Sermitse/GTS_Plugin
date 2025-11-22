@@ -2,9 +2,13 @@
 
 template <typename T>
 class CInitSingleton {
+
     public:
-    static T& GetSingleton() {
-        return instance_;
+    static T& GetSingleton() noexcept {
+        static_assert(std::is_default_constructible_v<T>);
+        static_assert(!std::is_abstract_v<T>);
+        static T instance;
+        return instance;
     }
 
     protected:
@@ -14,11 +18,4 @@ class CInitSingleton {
     CInitSingleton(const CInitSingleton&) = delete;
     CInitSingleton& operator=(const CInitSingleton&) = delete;
 
-    private:
-    // This ensures CRT init (not lazy)
-    static T instance_;
 };
-
-// definition
-template <typename T>
-T CInitSingleton<T>::instance_{};

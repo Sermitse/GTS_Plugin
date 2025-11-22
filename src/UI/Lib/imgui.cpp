@@ -1,27 +1,28 @@
-// dear imgui, v1.92.5 WIP
+// dear imgui, v1.92.5
 // (main code and documentation)
 
 // Help:
-// - See links below.
 // - Call and read ImGui::ShowDemoWindow() in imgui_demo.cpp. All applications in examples/ are doing that.
 // - Read top of imgui.cpp for more details, links and comments.
+// - Add '#define IMGUI_DEFINE_MATH_OPERATORS' before including imgui.h (or in imconfig.h) to access courtesy maths operators for ImVec2 and ImVec4.
 
 // Resources:
 // - FAQ ........................ https://dearimgui.com/faq (in repository as docs/FAQ.md)
 // - Homepage ................... https://github.com/ocornut/imgui
-// - Releases & changelog ....... https://github.com/ocornut/imgui/releases
+// - Releases & Changelog ....... https://github.com/ocornut/imgui/releases
 // - Gallery .................... https://github.com/ocornut/imgui/issues?q=label%3Agallery (please post your screenshots/video there!)
 // - Wiki ....................... https://github.com/ocornut/imgui/wiki (lots of good stuff there)
 //   - Getting Started            https://github.com/ocornut/imgui/wiki/Getting-Started (how to integrate in an existing app by adding ~25 lines of code)
 //   - Third-party Extensions     https://github.com/ocornut/imgui/wiki/Useful-Extensions (ImPlot & many more)
-//   - Bindings/Backends          https://github.com/ocornut/imgui/wiki/Bindings (language bindings, backends for various tech/engines)
-//   - Glossary                   https://github.com/ocornut/imgui/wiki/Glossary
+//   - Bindings/Backends          https://github.com/ocornut/imgui/wiki/Bindings (language bindings + backends for various tech/engines)
 //   - Debug Tools                https://github.com/ocornut/imgui/wiki/Debug-Tools
+//   - Glossary                   https://github.com/ocornut/imgui/wiki/Glossary
 //   - Software using Dear ImGui  https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui
 // - Issues & support ........... https://github.com/ocornut/imgui/issues
 // - Test Engine & Automation ... https://github.com/ocornut/imgui_test_engine (test suite, test engine to automate your apps)
+// - Web version of the Demo .... https://pthom.github.io/imgui_manual_online/manual/imgui_manual.html (w/ source code browser)
 
-// For first-time users having issues compiling/linking/running:
+// For FIRST-TIME users having issues compiling/linking/running:
 // please post in https://github.com/ocornut/imgui/discussions if you cannot find a solution in resources above.
 // Everything else should be asked in 'Issues'! We are building a database of cross-linked knowledge there.
 // Since 1.92, we encourage font loading questions to also be posted in 'Issues'.
@@ -122,7 +123,7 @@ CODE
  Designed primarily for developers and content-creators, not the typical end-user!
  Some of the current weaknesses (which we aim to address in the future) includes:
 
- - Doesn't look fancy.
+ - Doesn't look fancy by default.
  - Limited layout features, intricate layouts are typically crafted in code.
 
 
@@ -147,7 +148,8 @@ CODE
    - Ctrl+Z                         Undo.
    - Ctrl+Y or Ctrl+Shift+Z:        Redo.
    - ESCAPE:                        Revert text to its original value.
-   - On OSX, controls are automatically adjusted to match standard OSX text editing 2ts and behaviors.
+   - On macOS, controls are automatically adjusted to match standard macOS text editing and behaviors.
+     (for 99% of shortcuts, Ctrl is replaced by Cmd on macOS).
 
  - KEYBOARD CONTROLS
    - Basic:
@@ -200,7 +202,7 @@ CODE
 
  READ FIRST
  ----------
- - Remember to check the wonderful Wiki (https://github.com/ocornut/imgui/wiki)
+ - Remember to check the wonderful Wiki: https://github.com/ocornut/imgui/wiki
  - Your code creates the UI every frame of your application loop, if your code doesn't run the UI is gone!
    The UI can be highly dynamic, there are no construction or destruction steps, less superfluous
    data retention on your side, less state duplication, less state synchronization, fewer bugs.
@@ -1322,7 +1324,7 @@ static void             ErrorCheckNewFrameSanityChecks();
 static void             ErrorCheckEndFrameSanityChecks();
 #ifndef IMGUI_DISABLE_DEBUG_TOOLS
 static void             UpdateDebugToolItemPicker();
-static void             UpdateDebugToolStackQueries();
+static void             UpdateDebugToolItemPathQuery();
 static void             UpdateDebugToolFlashStyleColor();
 #endif
 
@@ -3346,10 +3348,12 @@ static bool ImGuiListClipper_StepInternal(ImGuiListClipper* clipper)
         {
             // Add range selected to be included for navigation
             const bool is_nav_request = (g.NavMoveScoringItems && g.NavWindow && g.NavWindow->RootWindowForNav == window->RootWindowForNav);
+            const int nav_off_min = (is_nav_request && g.NavMoveClipDir == ImGuiDir_Up) ? -1 : 0;
+            const int nav_off_max = (is_nav_request && g.NavMoveClipDir == ImGuiDir_Down) ? 1 : 0;
             if (is_nav_request)
             {
-                data->Ranges.push_back(ImGuiListClipperRange::FromPositions(g.NavScoringRect.Min.y, g.NavScoringRect.Max.y, 0, 0));
-                data->Ranges.push_back(ImGuiListClipperRange::FromPositions(g.NavScoringNoClipRect.Min.y, g.NavScoringNoClipRect.Max.y, 0, 0));
+                data->Ranges.push_back(ImGuiListClipperRange::FromPositions(g.NavScoringRect.Min.y, g.NavScoringRect.Max.y, nav_off_min, nav_off_max));
+                data->Ranges.push_back(ImGuiListClipperRange::FromPositions(g.NavScoringNoClipRect.Min.y, g.NavScoringNoClipRect.Max.y, nav_off_min, nav_off_max));
             }
             if (is_nav_request && (g.NavMoveFlags & ImGuiNavMoveFlags_IsTabbing) && g.NavTabbingDir == -1)
                 data->Ranges.push_back(ImGuiListClipperRange::FromIndices(clipper->ItemsCount - 1, clipper->ItemsCount));
@@ -3378,9 +3382,7 @@ static bool ImGuiListClipper_StepInternal(ImGuiListClipper* clipper)
             }
 
             // Add main visible range
-            const int off_min = (is_nav_request && g.NavMoveClipDir == ImGuiDir_Up) ? -1 : 0;
-            const int off_max = (is_nav_request && g.NavMoveClipDir == ImGuiDir_Down) ? 1 : 0;
-            data->Ranges.push_back(ImGuiListClipperRange::FromPositions(min_y, max_y, off_min, off_max));
+            data->Ranges.push_back(ImGuiListClipperRange::FromPositions(min_y, max_y, nav_off_min, nav_off_max));
         }
 
         // Convert position ranges to item index ranges
@@ -5525,17 +5527,6 @@ void ImGui::NewFrame()
             g.HoverItemDelayTimer = g.HoverItemDelayClearTimer = 0.0f; // May want a decaying timer, in which case need to clamp at max first, based on max of caller last requested timer.
     }
 
-    // Drag and drop
-    g.DragDropAcceptIdPrev = g.DragDropAcceptIdCurr;
-    g.DragDropAcceptIdCurr = 0;
-    g.DragDropAcceptFlagsPrev = g.DragDropAcceptFlagsCurr;
-    g.DragDropAcceptFlagsCurr = ImGuiDragDropFlags_None;
-    g.DragDropAcceptIdCurrRectSurface = FLT_MAX;
-    g.DragDropWithinSource = false;
-    g.DragDropWithinTarget = false;
-    g.DragDropHoldJustPressedId = 0;
-    g.TooltipPreviousWindow = NULL;
-
     // Close popups on focus lost (currently wip/opt-in)
     //if (g.IO.AppFocusLost)
     //    ClosePopupsExceptModals();
@@ -5547,6 +5538,30 @@ void ImGui::NewFrame()
     //IM_ASSERT(g.IO.KeyShift == IsKeyDown(ImGuiKey_LeftShift) || IsKeyDown(ImGuiKey_RightShift));
     //IM_ASSERT(g.IO.KeyAlt == IsKeyDown(ImGuiKey_LeftAlt) || IsKeyDown(ImGuiKey_RightAlt));
     //IM_ASSERT(g.IO.KeySuper == IsKeyDown(ImGuiKey_LeftSuper) || IsKeyDown(ImGuiKey_RightSuper));
+
+    // Drag and drop
+    g.DragDropAcceptIdPrev = g.DragDropAcceptIdCurr;
+    g.DragDropAcceptIdCurr = 0;
+    g.DragDropAcceptFlagsPrev = g.DragDropAcceptFlagsCurr;
+    g.DragDropAcceptFlagsCurr = ImGuiDragDropFlags_None;
+    g.DragDropAcceptIdCurrRectSurface = FLT_MAX;
+    g.DragDropWithinSource = false;
+    g.DragDropWithinTarget = false;
+    g.DragDropHoldJustPressedId = 0;
+    if (g.DragDropActive)
+    {
+        // Also works when g.ActiveId==0 (aka leftover payload in progress, no active id)
+        // You may disable this externally by hijacking the input route:
+        //  'if (GetDragDropPayload() != NULL) { Shortcut(ImGuiKey_Escape, ImGuiInputFlags_RouteGlobal | ImGuiInputFlags_RouteOverActive); }
+        // but you will not get a return value from Shortcut() due to ActiveIdUsingAllKeyboardKeys logic. You can however poll IsKeyPressed(ImGuiKey_Escape) afterwards.
+        ImGuiID owner_id = g.ActiveId ? g.ActiveId : ImHashStr("##DragDropCancelHandler");
+        if (Shortcut(ImGuiKey_Escape, ImGuiInputFlags_RouteGlobal, owner_id))
+        {
+            ClearActiveID();
+            ClearDragDrop();
+        }
+    }
+    g.TooltipPreviousWindow = NULL;
 
     // Update keyboard/gamepad navigation
     NavUpdate();
@@ -5621,7 +5636,7 @@ void ImGui::NewFrame()
     // [DEBUG] Update debug features
 #ifndef IMGUI_DISABLE_DEBUG_TOOLS
     UpdateDebugToolItemPicker();
-    UpdateDebugToolStackQueries();
+    UpdateDebugToolItemPathQuery();
     UpdateDebugToolFlashStyleColor();
     if (g.DebugLocateFrames > 0 && --g.DebugLocateFrames == 0)
     {
@@ -13207,10 +13222,14 @@ static void ImGui::NavProcessItem()
 
                 // Features like PageUp/PageDown need to maintain a separate score for the visible set of items.
                 const float VISIBLE_RATIO = 0.70f;
-                if ((g.NavMoveFlags & ImGuiNavMoveFlags_AlsoScoreVisibleSet) && window->ClipRect.Overlaps(nav_bb))
-                    if (ImClamp(nav_bb.Max.y, window->ClipRect.Min.y, window->ClipRect.Max.y) - ImClamp(nav_bb.Min.y, window->ClipRect.Min.y, window->ClipRect.Max.y) >= (nav_bb.Max.y - nav_bb.Min.y) * VISIBLE_RATIO)
-                        if (NavScoreItem(&g.NavMoveResultLocalVisible, nav_bb))
-                            NavApplyItemToResult(&g.NavMoveResultLocalVisible);
+                if (g.NavMoveFlags & ImGuiNavMoveFlags_AlsoScoreVisibleSet)
+                {
+                    const ImRect& r = window->InnerRect; // window->ClipRect
+                    if (r.Overlaps(nav_bb))
+                        if (ImClamp(nav_bb.Max.y, r.Min.y, r.Max.y) - ImClamp(nav_bb.Min.y, r.Min.y, r.Max.y) >= (nav_bb.Max.y - nav_bb.Min.y) * VISIBLE_RATIO)
+                            if (NavScoreItem(&g.NavMoveResultLocalVisible, nav_bb))
+                                NavApplyItemToResult(&g.NavMoveResultLocalVisible);
+                }
             }
         }
     }
@@ -13808,14 +13827,9 @@ void ImGui::NavUpdateCreateMoveRequest()
 
     // Update PageUp/PageDown/Home/End scroll
     // FIXME-NAV: Consider enabling those keys even without the master ImGuiConfigFlags_NavEnableKeyboard flag?
-    float scoring_rect_offset_y = 0.0f;
+    float scoring_page_offset_y = 0.0f;
     if (window && g.NavMoveDir == ImGuiDir_None && nav_keyboard_active)
-        scoring_rect_offset_y = NavUpdatePageUpPageDown();
-    if (scoring_rect_offset_y != 0.0f)
-    {
-        g.NavScoringNoClipRect = window->InnerRect;
-        g.NavScoringNoClipRect.TranslateY(scoring_rect_offset_y);
-    }
+        scoring_page_offset_y = NavUpdatePageUpPageDown();
 
     // [DEBUG] Always send a request when holding Ctrl. Hold Ctrl + Arrow change the direction.
 #if IMGUI_DEBUG_NAV_SCORING
@@ -13879,12 +13893,23 @@ void ImGui::NavUpdateCreateMoveRequest()
     {
         ImRect nav_rect_rel = !window->NavRectRel[g.NavLayer].IsInverted() ? window->NavRectRel[g.NavLayer] : ImRect(0, 0, 0, 0);
         scoring_rect = WindowRectRelToAbs(window, nav_rect_rel);
-        scoring_rect.TranslateY(scoring_rect_offset_y);
+
+        if (g.NavMoveFlags & ImGuiNavMoveFlags_IsPageMove)
+        {
+            // When we start from a visible location, score visible items and prioritize this result.
+            if (window->InnerRect.Contains(scoring_rect))
+                g.NavMoveFlags |= ImGuiNavMoveFlags_AlsoScoreVisibleSet;
+            g.NavScoringNoClipRect = scoring_rect;
+            scoring_rect.TranslateY(scoring_page_offset_y);
+            g.NavScoringNoClipRect.Add(scoring_rect);
+        }
+
+        //GetForegroundDrawList()->AddRectFilled(scoring_rect.Min - ImVec2(1, 1), scoring_rect.Max + ImVec2(1, 1), IM_COL32(255, 100, 0, 80)); // [DEBUG] Pre-bias
         if (g.NavMoveSubmitted)
             NavBiasScoringRect(scoring_rect, window->RootWindowForNav->NavPreferredScoringPosRel[g.NavLayer], g.NavMoveDir, g.NavMoveFlags);
         IM_ASSERT(!scoring_rect.IsInverted()); // Ensure we have a non-inverted bounding box here will allow us to remove extraneous ImFabs() calls in NavScoreItem().
-        //GetForegroundDrawList()->AddRect(scoring_rect.Min, scoring_rect.Max, IM_COL32(255,200,0,255)); // [DEBUG]
-        //if (!g.NavScoringNoClipRect.IsInverted()) { GetForegroundDrawList()->AddRect(g.NavScoringNoClipRect.Min, g.NavScoringNoClipRect.Max, IM_COL32(255, 200, 0, 255)); } // [DEBUG]
+        //GetForegroundDrawList()->AddRectFilled(scoring_rect.Min - ImVec2(1, 1), scoring_rect.Max + ImVec2(1, 1), IM_COL32(255, 100, 0, 80)); // [DEBUG] Post-bias
+        //if (!g.NavScoringNoClipRect.IsInverted()) { GetForegroundDrawList()->AddRectFilled(g.NavScoringNoClipRect.Min, g.NavScoringNoClipRect.Max, IM_COL32(100, 255, 0, 80)); } // [DEBUG]
     }
     g.NavScoringRect = scoring_rect;
     //g.NavScoringNoClipRect.Add(scoring_rect);
@@ -14130,14 +14155,14 @@ static float ImGui::NavUpdatePageUpPageDown()
             nav_scoring_rect_offset_y = -page_offset_y;
             g.NavMoveDir = ImGuiDir_Down; // Because our scoring rect is offset up, we request the down direction (so we can always land on the last item)
             g.NavMoveClipDir = ImGuiDir_Up;
-            g.NavMoveFlags = ImGuiNavMoveFlags_AllowCurrentNavId | ImGuiNavMoveFlags_AlsoScoreVisibleSet | ImGuiNavMoveFlags_IsPageMove;
+            g.NavMoveFlags = ImGuiNavMoveFlags_AllowCurrentNavId | ImGuiNavMoveFlags_IsPageMove; // ImGuiNavMoveFlags_AlsoScoreVisibleSet may be added later
         }
         else if (IsKeyPressed(ImGuiKey_PageDown, true))
         {
             nav_scoring_rect_offset_y = +page_offset_y;
             g.NavMoveDir = ImGuiDir_Up; // Because our scoring rect is offset down, we request the up direction (so we can always land on the last item)
             g.NavMoveClipDir = ImGuiDir_Down;
-            g.NavMoveFlags = ImGuiNavMoveFlags_AllowCurrentNavId | ImGuiNavMoveFlags_AlsoScoreVisibleSet | ImGuiNavMoveFlags_IsPageMove;
+            g.NavMoveFlags = ImGuiNavMoveFlags_AllowCurrentNavId | ImGuiNavMoveFlags_IsPageMove; // ImGuiNavMoveFlags_AlsoScoreVisibleSet may be added later
         }
         else if (home_pressed)
         {
@@ -17789,82 +17814,83 @@ void ImGui::UpdateDebugToolItemPicker()
     EndTooltip();
 }
 
-// [DEBUG] ID Stack Tool: update queries. Called by NewFrame()
-void ImGui::UpdateDebugToolStackQueries()
+// Update queries. The steps are: -1: query Stack, >= 0: query each stack item
+// We can only perform 1 ID Info query every frame. This is designed so the GetID() tests are cheap and constant-time
+static ImGuiID DebugItemPathQuery_UpdateAndGetHookId(ImGuiDebugItemPathQuery* query, ImGuiID id)
 {
-    ImGuiContext& g = *GImGui;
-    ImGuiIDStackTool* tool = &g.DebugIDStackTool;
-
-    // Clear hook when id stack tool is not visible
-    g.DebugHookIdInfoId = 0;
-    tool->QueryHookActive = false;
-    if (g.FrameCount != tool->LastActiveFrame + 1)
-        return;
-
-    // Update queries. The steps are: -1: query Stack, >= 0: query each stack item
-    // We can only perform 1 ID Info query every frame. This is designed so the GetID() tests are cheap and constant-time
-    const ImGuiID query_main_id = g.HoveredIdPreviousFrame ? g.HoveredIdPreviousFrame : g.ActiveId;
-    if (tool->QueryMainId != query_main_id)
+    // Update query. Clear hook when no active query
+    if (query->MainID != id)
     {
-        tool->QueryMainId = query_main_id;
-        tool->StackLevel = -1;
-        tool->Results.resize(0);
-        tool->ResultPathsBuf.resize(0);
+        query->MainID = id;
+        query->Step = -1;
+        query->Complete = false;
+        query->Results.resize(0);
+        query->ResultsDescBuf.resize(0);
     }
-    if (query_main_id == 0)
-        return;
+    query->Active = false;
+    if (id == 0)
+        return 0;
 
     // Advance to next stack level when we got our result, or after 2 frames (in case we never get a result)
-    int stack_level = tool->StackLevel;
-    if (stack_level >= 0 && stack_level < tool->Results.Size)
-        if (tool->Results[stack_level].QuerySuccess || tool->Results[stack_level].QueryFrameCount > 2)
-            tool->StackLevel++;
-    stack_level = tool->StackLevel;
+    if (query->Step >= 0 && query->Step < query->Results.Size)
+        if (query->Results[query->Step].QuerySuccess || query->Results[query->Step].QueryFrameCount > 2)
+            query->Step++;
 
     // Update status and hook
-    tool->ResultsComplete = (stack_level == tool->Results.Size);
-    if (stack_level == -1)
+    query->Complete = (query->Step == query->Results.Size);
+    if (query->Step == -1)
     {
-        g.DebugHookIdInfoId = query_main_id;
-        tool->QueryHookActive = true;
+        query->Active = true;
+        return id;
     }
-    else if (stack_level >= 0 && stack_level < tool->Results.Size)
+    else if (query->Step >= 0 && query->Step < query->Results.Size)
     {
-        g.DebugHookIdInfoId = tool->Results[stack_level].ID;
-        tool->Results[stack_level].QueryFrameCount++;
-        tool->QueryHookActive = true;
+        query->Results[query->Step].QueryFrameCount++;
+        query->Active = true;
+        return query->Results[query->Step].ID;
     }
+    return 0;
+}
+
+// [DEBUG] ID Stack Tool: update query. Called by NewFrame()
+void ImGui::UpdateDebugToolItemPathQuery()
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiID id = 0;
+    if (g.DebugIDStackTool.LastActiveFrame + 1 == g.FrameCount)
+        id = g.HoveredIdPreviousFrame ? g.HoveredIdPreviousFrame : g.ActiveId;
+    g.DebugHookIdInfoId = DebugItemPathQuery_UpdateAndGetHookId(&g.DebugItemPathQuery, id);
 }
 
 // [DEBUG] ID Stack tool: hooks called by GetID() family functions
 void ImGui::DebugHookIdInfo(ImGuiID id, ImGuiDataType data_type, const void* data_id, const void* data_id_end)
 {
     ImGuiContext& g = *GImGui;
-    ImGuiWindow* window = g.CurrentWindow;
-    ImGuiIDStackTool* tool = &g.DebugIDStackTool;
-    if (tool->QueryHookActive == false)
+    ImGuiDebugItemPathQuery* query = &g.DebugItemPathQuery;
+    if (query->Active == false)
     {
         IM_ASSERT(id == 0);
         return;
     }
+    ImGuiWindow* window = g.CurrentWindow;
 
-    // Step 0: stack query
+    // Step -1: stack query
     // This assumes that the ID was computed with the current ID stack, which tends to be the case for our widget.
-    if (tool->StackLevel == -1)
+    if (query->Step == -1)
     {
-        IM_ASSERT(tool->Results.Size == 0);
-        tool->StackLevel++;
-        tool->Results.resize(window->IDStack.Size + 1, ImGuiStackLevelInfo());
+        IM_ASSERT(query->Results.Size == 0);
+        query->Step++;
+        query->Results.resize(window->IDStack.Size + 1, ImGuiStackLevelInfo());
         for (int n = 0; n < window->IDStack.Size + 1; n++)
-            tool->Results[n].ID = (n < window->IDStack.Size) ? window->IDStack[n] : id;
+            query->Results[n].ID = (n < window->IDStack.Size) ? window->IDStack[n] : id;
         return;
     }
 
-    // Step 1+: query for individual level
-    IM_ASSERT(tool->StackLevel >= 0);
-    if (tool->StackLevel != window->IDStack.Size)
+    // Step 0+: query for individual level
+    IM_ASSERT(query->Step >= 0);
+    if (query->Step != window->IDStack.Size)
         return;
-    ImGuiStackLevelInfo* info = &tool->Results[tool->StackLevel];
+    ImGuiStackLevelInfo* info = &query->Results[query->Step];
     IM_ASSERT(info->ID == id && info->QueryFrameCount > 0);
 
     if (info->DescOffset == -1)
@@ -17889,23 +17915,23 @@ void ImGui::DebugHookIdInfo(ImGuiID id, ImGuiDataType data_type, const void* dat
         default:
             IM_ASSERT(0);
         }
-        info->DescOffset = tool->ResultPathsBuf.size();
-        tool->ResultPathsBuf.append(result, result_end + 1); // Include zero terminator
+        info->DescOffset = query->ResultsDescBuf.size();
+        query->ResultsDescBuf.append(result, result_end + 1); // Include zero terminator
     }
     info->QuerySuccess = true;
     if (info->DataType == -1)
         info->DataType = (ImS8)data_type;
 }
 
-static int StackToolFormatLevelInfo(ImGuiIDStackTool* tool, int n, bool format_for_ui, char* buf, size_t buf_size)
+static int DebugItemPathQuery_FormatLevelInfo(ImGuiDebugItemPathQuery* query, int n, bool format_for_ui, char* buf, size_t buf_size)
 {
-    ImGuiStackLevelInfo* info = &tool->Results[n];
+    ImGuiStackLevelInfo* info = &query->Results[n];
     ImGuiWindow* window = (info->DescOffset == -1 && n == 0) ? ImGui::FindWindowByID(info->ID) : NULL;
     if (window)                                 // Source: window name (because the root ID don't call GetID() and so doesn't get hooked)
         return ImFormatString(buf, buf_size, format_for_ui ? "\"%s\" [window]" : "%s", ImHashSkipUncontributingPrefix(window->Name));
     if (info->QuerySuccess)                     // Source: GetID() hooks (prioritize over ItemInfo() because we frequently use patterns like: PushID(str), Button("") where they both have same id)
-        return ImFormatString(buf, buf_size, (format_for_ui && info->DataType == ImGuiDataType_String) ? "\"%s\"" : "%s", ImHashSkipUncontributingPrefix(&tool->ResultPathsBuf.Buf[info->DescOffset]));
-    if (tool->StackLevel < tool->Results.Size)  // Only start using fallback below when all queries are done, so during queries we don't flickering ??? markers.
+        return ImFormatString(buf, buf_size, (format_for_ui && info->DataType == ImGuiDataType_String) ? "\"%s\"" : "%s", ImHashSkipUncontributingPrefix(&query->ResultsDescBuf.Buf[info->DescOffset]));
+    if (query->Step < query->Results.Size)      // Only start using fallback below when all queries are done, so during queries we don't flickering ??? markers.
         return (*buf = 0);
 #ifdef IMGUI_ENABLE_TEST_ENGINE
     if (const char* label = ImGuiTestEngine_FindItemDebugLabel(GImGui, info->ID)) // Source: ImGuiTestEngine's ItemInfo()
@@ -17914,14 +17940,14 @@ static int StackToolFormatLevelInfo(ImGuiIDStackTool* tool, int n, bool format_f
     return ImFormatString(buf, buf_size, "???");
 }
 
-static const char* StackToolGetResultAsPath(ImGuiIDStackTool* tool, bool hex_encode_non_ascii_chars)
+static const char* DebugItemPathQuery_GetResultAsPath(ImGuiDebugItemPathQuery* query, bool hex_encode_non_ascii_chars)
 {
-    ImGuiTextBuffer* buf = &tool->ResultFullPathBuf;
+    ImGuiTextBuffer* buf = &query->ResultPathBuf;
     buf->resize(0);
-    for (int stack_n = 0; stack_n < tool->Results.Size; stack_n++)
+    for (int stack_n = 0; stack_n < query->Results.Size; stack_n++)
     {
         char level_desc[256];
-        StackToolFormatLevelInfo(tool, stack_n, false, level_desc, IM_ARRAYSIZE(level_desc));
+        DebugItemPathQuery_FormatLevelInfo(query, stack_n, false, level_desc, IM_ARRAYSIZE(level_desc));
         buf->append(stack_n == 0 ? "//" : "/");
         for (const char* p = level_desc; *p != 0; )
         {
@@ -17951,10 +17977,11 @@ void ImGui::ShowIDStackToolWindow(bool* p_open)
         return;
     }
 
-    // Display hovered/active status
+    ImGuiDebugItemPathQuery* query = &g.DebugItemPathQuery;
     ImGuiIDStackTool* tool = &g.DebugIDStackTool;
-    const char* result_path = StackToolGetResultAsPath(tool, tool->OptHexEncodeNonAsciiChars);
-    Text("0x%08X", tool->QueryMainId);
+    tool->LastActiveFrame = g.FrameCount;
+    const char* result_path = DebugItemPathQuery_GetResultAsPath(query, tool->OptHexEncodeNonAsciiChars);
+    Text("0x%08X", query->MainID);
     SameLine();
     MetricsHelpMarker("Hover an item with the mouse to display elements of the ID Stack leading to the item's final ID.\nEach level of the stack correspond to a PushID() call.\nAll levels of the stack are hashed together to make the final ID of a widget (ID displayed at the bottom level of the stack).\nRead FAQ entry about the ID stack for details.");
 
@@ -17973,32 +18000,31 @@ void ImGui::ShowIDStackToolWindow(bool* p_open)
         SetClipboardText(result_path);
     }
 
-    Text("- Path \"%s\"", tool->ResultsComplete ? result_path : "");
+    Text("- Path \"%s\"", query->Complete ? result_path : "");
 #ifdef IMGUI_ENABLE_TEST_ENGINE
-    Text("- Label \"%s\"", tool->QueryMainId ? ImGuiTestEngine_FindItemDebugLabel(&g, tool->QueryMainId) : "");
+    Text("- Label \"%s\"", query->MainID ? ImGuiTestEngine_FindItemDebugLabel(&g, query->MainID) : "");
 #endif
     Separator();
 
     // Display decorated stack
-    tool->LastActiveFrame = g.FrameCount;
-    if (tool->Results.Size > 0 && BeginTable("##table", 3, ImGuiTableFlags_Borders))
+    if (query->Results.Size > 0 && BeginTable("##table", 3, ImGuiTableFlags_Borders))
     {
         const float id_width = CalcTextSize("0xDDDDDDDD").x;
         TableSetupColumn("Seed", ImGuiTableColumnFlags_WidthFixed, id_width);
         TableSetupColumn("PushID", ImGuiTableColumnFlags_WidthStretch);
         TableSetupColumn("Result", ImGuiTableColumnFlags_WidthFixed, id_width);
         TableHeadersRow();
-        for (int n = 0; n < tool->Results.Size; n++)
+        for (int n = 0; n < query->Results.Size; n++)
         {
-            ImGuiStackLevelInfo* info = &tool->Results[n];
+            ImGuiStackLevelInfo* info = &query->Results[n];
             TableNextColumn();
-            Text("0x%08X", (n > 0) ? tool->Results[n - 1].ID : 0);
+            Text("0x%08X", (n > 0) ? query->Results[n - 1].ID : 0);
             TableNextColumn();
-            StackToolFormatLevelInfo(tool, n, true, g.TempBuffer.Data, g.TempBuffer.Size);
+            DebugItemPathQuery_FormatLevelInfo(query, n, true, g.TempBuffer.Data, g.TempBuffer.Size);
             TextUnformatted(g.TempBuffer.Data);
             TableNextColumn();
             Text("0x%08X", info->ID);
-            if (n == tool->Results.Size - 1)
+            if (n == query->Results.Size - 1)
                 TableSetBgColor(ImGuiTableBgTarget_CellBg, GetColorU32(ImGuiCol_Header));
         }
         EndTable();

@@ -11,10 +11,8 @@ namespace GTS {
 		float InitialHeelHeight; // initial heel height, used in calculating damage bonus
 	};
 
-	class HighHeelManager : public EventListener {
+	class HighHeelManager : public EventListener, public CInitSingleton <HighHeelManager> {
 		public:
-		[[nodiscard]] static HighHeelManager& GetSingleton() noexcept;
-
 		virtual std::string DebugName() override;
 		virtual void HavokUpdate() override;
 		virtual void ActorEquip(Actor* actor) override;

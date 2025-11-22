@@ -132,11 +132,6 @@ namespace {
 
 namespace GTS {
 
-    CooldownManager& CooldownManager::GetSingleton() noexcept {
-		static CooldownManager instance;
-		return instance;
-	}
-
 	std::string CooldownManager::DebugName() {
 		return "::CooldownManager";
 	}

@@ -5,7 +5,7 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"
@@ -81,11 +81,6 @@ namespace {
 }
 
 namespace GTS {
-
-	RandomGrowth& RandomGrowth::GetSingleton() noexcept {
-		static RandomGrowth instance;
-		return instance;
-	}
 
 	std::string RandomGrowth::DebugName() {
 		return "::RandomGrowth";

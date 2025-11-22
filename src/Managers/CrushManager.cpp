@@ -2,7 +2,7 @@
 
 #include "Config/Config.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/AI/AIFunctions.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
@@ -100,10 +100,6 @@ namespace {
 }
 
 namespace GTS {
-	CrushManager& CrushManager::GetSingleton() noexcept {
-		static CrushManager instance;
-		return instance;
-	}
 
 	std::string CrushManager::DebugName() {
 		return "::CrushManager";

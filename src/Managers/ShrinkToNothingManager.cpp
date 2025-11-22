@@ -21,10 +21,6 @@ namespace {
 }
 
 namespace GTS {
-	ShrinkToNothingManager& ShrinkToNothingManager::GetSingleton() noexcept {
-		static ShrinkToNothingManager instance;
-		return instance;
-	}
 
 	std::string ShrinkToNothingManager::DebugName() {
 		return "::ShrinkToNothingManager";

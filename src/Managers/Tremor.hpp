@@ -4,11 +4,9 @@
 
 namespace GTS {
 
-	class TremorManager : public EventListener {
+	class TremorManager : public EventListener, public CInitSingleton <TremorManager> {
 		public:
-			[[nodiscard]] static TremorManager& GetSingleton() noexcept;
-
-			virtual std::string DebugName() override;
-			virtual void OnImpact(const Impact& impact) override;
+		virtual std::string DebugName() override;
+		virtual void OnImpact(const Impact& impact) override;
 	};
 }

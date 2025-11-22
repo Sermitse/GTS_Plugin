@@ -4,15 +4,9 @@
 
 namespace GTS {
 
-	class AttributeManager : public EventListener {
+	class AttributeManager : public EventListener, public CInitSingleton <AttributeManager> {
 
 		public:
-
-		[[nodiscard]] static AttributeManager& GetSingleton() {
-			static AttributeManager Instance;
-			return Instance;
-		};
-
 		virtual std::string DebugName() override;
 		virtual void Update() override;
 

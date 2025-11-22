@@ -1,16 +1,12 @@
 #pragma once
 
-// Module that handles AttributeValues
-
 namespace GTS {
 
-	class RandomGrowth : public EventListener {
+	class RandomGrowth : public EventListener, public CInitSingleton <RandomGrowth> {
 		public:
-			[[nodiscard]] static RandomGrowth& GetSingleton() noexcept;
+		virtual std::string DebugName() override;
+		virtual void Update() override;
 
-			virtual std::string DebugName() override;
-			virtual void Update() override;
-
-			static void RestoreStats(Actor* actor, float multiplier);
+		static void RestoreStats(Actor* actor, float multiplier);
 	};
 }

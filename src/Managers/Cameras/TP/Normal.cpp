@@ -1,6 +1,6 @@
 #include "Managers/Cameras/TP/Normal.hpp"
 #include "Managers/Cameras/CamUtil.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Config/Config.hpp"
 
 #include "Managers/SpectatorManager.hpp"

@@ -1,6 +1,6 @@
 #include "Debug/Profilers.hpp"
 
-#include "Managers/GtsManager.hpp"
+#include "Managers/GTSManager.hpp"
 
 #include "UI/Lib/imgui.h"
 #include "UI/Core/ImFontManager.hpp"
@@ -506,7 +506,7 @@ namespace GTS {
 		// Display summary
 		ImGui::Text("Total DLL Time: %.3fms", current_snapshot.total_time * 1000);
 		ImGui::SameLine(); ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
-		ImGui::SameLine(); ImGui::Text("Loaded Actors: %d", GtsManager::LoadedActorCount);
+		ImGui::SameLine(); ImGui::Text("Loaded Actors: %d", GTSManager::LoadedActorCount);
 		ImGui::SameLine(); ImGui::Text("Threads: %zu", current_snapshot.threads.size());
 
 		if (ImGui::Button("Settings")) {

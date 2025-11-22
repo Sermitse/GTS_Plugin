@@ -2,14 +2,9 @@
 
 namespace GTS {
 
-	class ThighCrushController : public EventListener  {
+	class ThighCrushController : public CInitSingleton <ThighCrushController> {
 		public:
-			[[nodiscard]] static ThighCrushController& GetSingleton() noexcept;
-
-			virtual std::string DebugName() override;
-            
-			std::vector<Actor*> GetThighTargetsInFront(Actor* pred, std::size_t numberOfPrey);
-			static void StartThighCrush(Actor* pred, Actor* prey);
-			bool CanThighCrush(Actor* pred, Actor* prey);
+		std::vector<Actor*> GetThighTargetsInFront(Actor* pred, std::size_t numberOfPrey);
+		bool CanThighCrush(Actor* pred, Actor* prey);
 	};
 }

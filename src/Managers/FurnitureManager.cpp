@@ -70,7 +70,7 @@ namespace GTS_Hitboxes {
             if (Butt) {
                 DoDamageAtPoint(giant, Radius_ButtCrush_Sit, Damage_ButtCrush_Sit * damage, Butt, 4, 0.70f, 0.8f, DamageSource::Booty);
                 Rumbling::Once("Butt_L", giant, shake_power * smt, 0.075f, "NPC R Butt", 0.0f);
-                LaunchActor::GetSingleton().LaunchAtNode(giant, 1.3f * perk, 2.0f, Butt);
+                LaunchActor::LaunchAtNode(giant, 1.3f * perk, 2.0f, Butt);
             }
         }
     } 
@@ -103,10 +103,6 @@ namespace GTS_Hitboxes {
 }
 
 namespace GTS {
-    FurnitureManager& FurnitureManager::GetSingleton() {
-		static FurnitureManager instance;
-		return instance;
-	}
 
 	std::string FurnitureManager::DebugName() {
 		return "::FurnitureManager";

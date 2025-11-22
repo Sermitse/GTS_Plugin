@@ -40,23 +40,6 @@ namespace {
 
 namespace GTS {
 
-    AttackManager& AttackManager::GetSingleton() noexcept {
-        static AttackManager instance;
-
-        static std::atomic_bool initialized;
-        static std::latch latch(1);
-        if (!initialized.exchange(true)) {
-            latch.count_down();
-        }
-        latch.wait();
-
-        return instance;
-    }
-
-    std::string AttackManager::DebugName() {
-        return "::AttackManager";
-    }
-
 	void AttackManager::PreventAttacks(Actor* a_Giant, Actor* a_Tiny) {
 
 		if (a_Giant && a_Giant->formID != 0x14 && IsHumanoid(a_Giant)) {
@@ -70,7 +53,7 @@ namespace GTS {
 
 			if (Config::AI.bAlwaysDisableAttacks) { // If this option is on, always prevent attacks past 2.5x scale
 				const float VisualScale = get_visual_scale(a_Giant);
-				const float Threshold = 2.5f;
+				constexpr float Threshold = 2.5f;
 				if (VisualScale >= Threshold) {
 					// past threshold, disable all attacks
 					a_Giant->GetActorRuntimeData().boolFlags.set(Actor::BOOL_FLAGS::kAttackingDisabled);

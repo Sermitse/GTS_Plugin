@@ -23,14 +23,13 @@ namespace GTS {
 			void enable_biped_collision() const;
 	};
 
-	class ContactManager : public EventListener {
+	class ContactManager : public EventListener, public CInitSingleton <ContactManager> {
 		public:
-			[[nodiscard]] static ContactManager& GetSingleton() noexcept;
+		virtual std::string DebugName() override;
+		virtual void HavokUpdate() override;
+		void UpdateCameraContacts();
 
-			virtual std::string DebugName() override;
-			virtual void HavokUpdate() override;
-			void UpdateCameraContacts();
-
-			ContactListener listener{};
+		private:
+		ContactListener listener{};
 	};
 }

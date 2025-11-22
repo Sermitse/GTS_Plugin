@@ -3,7 +3,7 @@
 #include "Config/Config.hpp"
 
 #include "Managers/Damage/TinyCalamity.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 using namespace REL;
 using namespace GTS;

@@ -128,20 +128,12 @@ namespace {
     }
 
 	void GTS_TC_ShrinkStop(AnimationEventData& data) {
-		Animation_TinyCalamity::GetSingleton().ResetActors(&data.giant);
+		Animation_TinyCalamity::ResetActors(&data.giant);
     }
 }
 
-namespace GTS
-{
-    Animation_TinyCalamity& Animation_TinyCalamity::GetSingleton() noexcept {
-		static Animation_TinyCalamity instance;
-		return instance;
-	}
+namespace GTS {
 
-	std::string Animation_TinyCalamity::DebugName() {
-		return "::Animation_TinyCalamity";
-	}
 
 	void Animation_TinyCalamity::RegisterEvents() {
 		AnimationManager::RegisterEvent("GTS_TC_RuneStart", "Calamity", GTS_TC_RuneStart); 

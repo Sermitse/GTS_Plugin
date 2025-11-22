@@ -66,7 +66,7 @@ namespace GTS {
 		float smt = 1.0f;
 		float minimal_scale = 1.5f;
 
-		LaunchActor::GetSingleton().LaunchAtCustomNode(actor, launch_dist, damage_dist, multiplier, node); // Launch actors
+		LaunchActor::LaunchAtCustomNode(actor, launch_dist, damage_dist, multiplier, node); // Launch actors
 		// Order matters here since we don't want to make it even stronger during SMT, so that's why SMT check is after this function
 		
 		if (actor->formID == 0x14) {
@@ -164,7 +164,7 @@ namespace GTS {
 								PushActorAway(giant, otherActor, 1.0f);
 							}
 							
-							CollisionDamage::GetSingleton().DoSizeDamage(giant, otherActor, damage, bbmult, crushmult, static_cast<int>(random), Cause, true);
+							CollisionDamage::DoSizeDamage(giant, otherActor, damage, bbmult, crushmult, static_cast<int>(random), Cause, true);
 						}
 					}
 				}

@@ -40,10 +40,6 @@ namespace {
 }
 
 namespace GTS {
-	HighHeelManager& HighHeelManager::GetSingleton() noexcept {
-		static HighHeelManager instance;
-		return instance;
-	}
 
 	std::string HighHeelManager::DebugName() {
 		return "::HighHeelManager";

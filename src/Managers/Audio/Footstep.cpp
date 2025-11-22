@@ -127,10 +127,6 @@ namespace PlayFootSound {
 }
 
 namespace GTS {
-	FootStepManager& FootStepManager::GetSingleton() noexcept {
-		static FootStepManager instance;
-		return instance;
-	}
 
 	std::string FootStepManager::DebugName() {
 		return "::FootStepManager";

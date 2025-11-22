@@ -50,7 +50,7 @@ namespace {
 			}
 			auto giantref = gianthandle.get().get();
 
-			CollisionDamage::GetSingleton().DoFootCollision(giantref, damage, radius, random, bbmult, crush_threshold, DamageSource::Crushed, right, CooldownCheck, false, false); // Foot damage
+			CollisionDamage::DoFootCollision(giantref, damage, radius, random, bbmult, crush_threshold, DamageSource::Crushed, right, CooldownCheck, false, false); // Foot damage
 			ApplyThighDamage(giantref, right, CooldownCheck, radius, damage, bbmult, crush_threshold, random, DamageSource::ThighCrushed); // Thigh Damage
 		    
 			return true; // Do not cancel it, let it repeat

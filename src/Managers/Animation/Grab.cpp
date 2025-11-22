@@ -9,7 +9,7 @@
 #include "Managers/Damage/TinyCalamity.hpp"
 #include "Managers/Input/InputManager.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/CrushManager.hpp"
 #include "Managers/Rumble.hpp"
 
@@ -478,12 +478,6 @@ namespace GTS {
             }
         });
     }
-    
-
-	Grab& Grab::GetSingleton() noexcept {
-		static Grab instance;
-		return instance;
-	}
 
 	std::string Grab::DebugName() {
 		return "::Grab";

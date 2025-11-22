@@ -5,7 +5,7 @@
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 using namespace GTS;
 
@@ -47,14 +47,6 @@ namespace {
 }
 
 namespace GTS {
-	GrabAnimationController& GrabAnimationController::GetSingleton() noexcept {
-		static GrabAnimationController instance;
-		return instance;
-	}
-
-	std::string GrabAnimationController::DebugName() {
-		return "::GrabAnimationController";
-	}
 
 	std::vector<Actor*> GrabAnimationController::GetGrabTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor

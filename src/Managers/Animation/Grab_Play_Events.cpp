@@ -12,7 +12,7 @@
 #include "Utils/Actions/InputConditions.hpp"
 
 #include "Managers/Damage/TinyCalamity.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Magic/Effects/Common.hpp"
 
 #include "Managers/Damage/SizeHitEffects.hpp"
@@ -215,7 +215,7 @@ namespace Grab_Fixes {
 
                 TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * GetDamageSetting());
 
-                SizeHitEffects::GetSingleton().PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
+                SizeHitEffects::PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
                 InflictSizeDamage(giant, grabbedActor, damage);
             }
 			

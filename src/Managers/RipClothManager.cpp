@@ -11,6 +11,8 @@ namespace GTS {
 
     #define RANDOM_OFFSET RandomFloat(0.01f, rip_randomOffsetMax - 0.01f)
 
+	constexpr float rip_randomOffsetMax = 0.10f;
+
 	// List of keywords (Editor ID's) we want to ignore when stripping
 	static const std::vector<string> KeywordBlackList = {
 		"SOS_Genitals", //Fix Slot 52 Genitals while still keeping the ability to unequip slot 52 underwear
@@ -58,15 +60,6 @@ namespace GTS {
 		// BGSBipedObjectForm::BipedObjectSlot::kFX01,					// 61
 	};
 
-	ClothManager& ClothManager::GetSingleton() noexcept {
-		static ClothManager instance;
-		return instance;
-	}
-
-	std::string ClothManager::DebugName() {
-		return "::ClothManager";
-	}
-
 	//Add A check bool to transient to decect npc_reequips
 
 	//I don't like this. Ideally we should call the same update func that the game does when the npc changes cells for example.
@@ -90,7 +83,7 @@ namespace GTS {
 		}
 	}
 
-	float ClothManager::ReConstructOffset(Actor* a_actor, float scale) const {
+	float ClothManager::ReConstructOffset(Actor* a_actor, float scale) {
 
 		if (!a_actor) {
 			return 0.0f;
@@ -223,7 +216,7 @@ namespace GTS {
 		}
 	}
 
-	void ClothManager::CheckClothingRip(Actor* a_actor) const {
+	void ClothManager::CheckClothingRip(Actor* a_actor) {
 
 		if (!a_actor) return;
 
