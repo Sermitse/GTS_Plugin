@@ -10,6 +10,7 @@ using namespace GTS;
 
 namespace {
 
+	constexpr float kScaleEpsilon = 0.02f;
 	constexpr float EPS = 1e-7f;
 
 	float GetShrinkPenalty(float size) {
@@ -234,17 +235,16 @@ namespace {
 		}
 
 		//If the target scale > than the actors max scale return
-		if (a_CurrentTargetScale >= a_MaxScale || a_CurrentTargetScale >= CurseTargetScale) {
+		const float ScaleDiff = CurseTargetScale - a_CurrentTargetScale;
+		
+		if (ScaleDiff <= kScaleEpsilon || a_CurrentTargetScale >= a_MaxScale) {
 			return;
 		}
 
 		if (IntervalTimer->ShouldRun()) {
-
-			const float ScaleDiff = CurseTargetScale - a_CurrentTargetScale;
 			const float ScaleMult = std::max(ScaleDiff, PowerMult);
 			constexpr float MinStep = 0.05f; // Minimum guaranteed growth per tick
-			float ModAmmount = std::max(
-				PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult),
+			float ModAmmount = std::max(PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult),
 				MinStep
 			);
 			ModAmmount = std::min(ModAmmount, ScaleDiff);
@@ -298,7 +298,12 @@ namespace {
 			return;
 		}
 
-		if (a_CurrentTargetScale <= CurseTargetScale) {
+
+
+		// Stop if already at or below the target
+		if (a_CurrentTargetScale <= CurseTargetScale ||
+			(a_CurrentTargetScale - CurseTargetScale) <= kScaleEpsilon)
+		{
 			return;
 		}
 

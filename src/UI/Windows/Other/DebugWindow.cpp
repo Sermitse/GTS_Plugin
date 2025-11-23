@@ -83,22 +83,25 @@ namespace GTS {
 				case 1: transform4.cutoffDir = ImGraphics::CutoffDirection::RightToLeft; break;
 				case 2: transform4.cutoffDir = ImGraphics::CutoffDirection::TopToBottom; break;
 				case 3: transform4.cutoffDir = ImGraphics::CutoffDirection::BottomToTop; break;
+				default: break;
 			}
 
 			// Oscillating cutoff percentage (0% to 100% and back)
 			transform4.cutoffPercent = 0.5f + 0.5f * std::sin(time);
 
-			// Optional: Display current values for debugging
 			ImGui::Text("Time: %.2f", time);
 			ImGui::Text("Color: R:%.2f G:%.2f B:%.2f", r, g, b);
 			ImGui::Text("Rotation: %.2f rad (%.1f deg)", transform2.affine.rotation, transform2.affine.rotation * 180.0f / std::numbers::pi);
 			ImGui::Text("Scale: %.2f", scaleValue);
 			ImGui::Text("Cutoff: %s %.1f%%", dirIndex == 0 ? "L->R" : dirIndex == 1 ? "R->L" : dirIndex == 2 ? "T->B" : "B->T", transform4.cutoffPercent * 100.0f);
 
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform,  { 64, 64 }); // Render with transformations
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform2, { 64, 64 }); // Render with transformations
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform3, { 64, 64 }); // Render with transformations
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform4, { 64, 64 }); // Render with transformations
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform,  { 64, 64 });
+			ImGui::SameLine();
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform2, { 64, 64 }); 
+			ImGui::SameLine();
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform3, { 64, 64 });
+			ImGui::SameLine();
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform4, { 64, 64 });
 
 			ImGui::Spacing();
 		}

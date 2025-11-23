@@ -116,7 +116,7 @@ namespace {
 	// Check if an actor is a valid action victim
 	inline bool ValidPrey(Actor* a_Performer, Actor* a_Prey, const bool a_AllowPlayer, const bool a_AllowTeamMates, const bool a_AllowEssential, const bool a_HostileOnly) {
 
-		if (!a_Prey) {
+		if (!a_Prey || !a_Performer) {
 			return false;
 		}
 
@@ -231,16 +231,24 @@ namespace {
 	//Calculate which actions should be started based on which ones can currently be started
 	ActionType CalculateProbability(const std::map<ActionType, int>& a_ValidActionMap) {
 
+		constexpr int DesiredNonePercentage = 30; // Target probability for None
 		if (a_ValidActionMap.empty()) return ActionType::kNone;
 
 		try {
 			std::array<int, static_cast<int>(ActionType::kTotal)> ProbabiltyList = { 0 };
+			int totalActionWeight = 0;
 
 			for (auto Action : a_ValidActionMap) {
 				ProbabiltyList[static_cast<int>(Action.first)] = Action.second;
+				totalActionWeight += Action.second;
 			}
 
-			ProbabiltyList[static_cast<int>(ActionType::kNone)] = 100;
+			// Scale None weight so it represents DesiredNonePercentage of total probability
+			// If None should be 30%, then actions should be 70% of total
+			// So: NoneWeight / (ActionWeight + NoneWeight) = 0.30
+			// Solving: NoneWeight = ActionWeight * (DesiredNonePercentage / (100 - DesiredNonePercentage))
+			const int noneWeight = (totalActionWeight * DesiredNonePercentage) / (100 - DesiredNonePercentage);
+			ProbabiltyList[static_cast<int>(ActionType::kNone)] = noneWeight;
 
 			return static_cast<ActionType>(RandomIntWeighted(ProbabiltyList));
 		}
@@ -379,7 +387,7 @@ namespace GTS {
 		if (AISettings.ButtCrush.bEnableAction) {
 			CanButtCrush = ButtCrushAI_FilterList(a_Performer, PreyList);
 			if (!CanButtCrush.empty()) {
-				StartableActions.emplace(ActionType::kButt, static_cast<int>(AISettings.ThighCrush.fProbability));
+				StartableActions.emplace(ActionType::kButt, static_cast<int>(AISettings.ButtCrush.fProbability));
 			}
 		}
 

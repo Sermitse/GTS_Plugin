@@ -70,6 +70,25 @@ namespace GTS {
 		return InPlayState;
 	}
 
+	//Not sure yet when its true, i assume its the same as GTSbusy but only when grab playing
+	bool IsGrabPlaySandwiching(Actor* giant) {
+		bool state = false;
+		giant->GetGraphVariableBool("GTS_IsPlaying", state);
+		return state;
+	}
+
+	bool IsHandCrushing(Actor* giant) {
+		bool state = false;
+		giant->GetGraphVariableBool("GTS_IsHandCrushing", state);
+		return state;
+	}
+
+	bool IsGrabPlayKissing(Actor* giant) {
+		bool state = false;
+		giant->GetGraphVariableBool("GTS_IsKissing", state);
+		return state;
+	}
+
 	bool IsInSexlabAnim(Actor* actor_1, Actor* actor_2) {
 		if (Runtime::IsSexlabInstalled()) {
 			const auto& SLAnim = Runtime::FACT.SexLabAnimatingFaction;

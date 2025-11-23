@@ -50,8 +50,8 @@ namespace {
         PSString T1 = "Set the chance for a thigh sandwich action to be started.";
 
         PSString T2 = "When a thigh sandwich action has started,\n"
-			                          "modify the time interval for attack attempts.\n"
-			                          "If an attack happens, it depends on the probabilities set below.";
+			          "modify the time interval for attack attempts.\n"
+			          "If an attack happens, it depends on the probabilities set below.";
 
         PSString T3 = "Modify the chance to start a heavy attack.";
         PSString T4 = "Modify the chance to start a light attack.";
@@ -79,8 +79,8 @@ namespace {
         PSString T1 = "Set the chance for a thigh crush action to be started.";
 
         PSString T2 = "When a thigh crush action has started\n"
-                         "modify the time interval for attack attempts.\n"
-                         "If an attack happens, it depends on the probabilities set below.";
+                      "modify the time interval for attack attempts.\n"
+                      "If an attack happens, it depends on the probabilities set below.";
 
         PSString T3 = "Modify the chance to perform an attack.";
 
@@ -207,14 +207,24 @@ namespace {
         PSString T11 = "Set the chance for the actor to be released when grabbed.";
         PSString T12 = "Set the chance cleavage actions to stop.";
 
+		PSString T13 = "Set the chance for the actor to start a grab-play action.";
+		PSString T14 = "Set the chance for the actor to perform a heavy crush during grab-play.";
+		PSString T15 = "Set the chance for the actor to vore during grab-play.";
+		PSString T16 = "Set the chance for the actor to kiss during grab-play.";
+		PSString T17 = "Set the chance for the actor to vore while kissing during grab-play.";
+		PSString T18 = "Set the chance for the actor to poke during grab-play.";
+		PSString T19 = "Set the chance for the actor to flick during grab-play.";
+		PSString T20 = "Set the chance for the actor to sandwich during grab-play.";
+		PSString T21 = "Set the chance for the actor to start grinding during grab-play.";
+		PSString T22 = "Set the chance for the actor to stop grinding during grab-play.";
+		PSString T23 = "Set the chance for the actor to exit grab-play.";
+
+
         ImGuiEx::CheckBox("Enable Action", &Config::AI.Grab.bEnableAction, T0);
 
         ImGui::BeginDisabled(!Config::AI.Grab.bEnableAction);
         {
             ImGuiEx::SliderF("Start Chance", &Config::AI.Grab.fProbability, 1.0f, 100.0f, T1, "%.0f%%");
-
-            ImGui::Spacing();
-
             ImGuiEx::SliderF("Action Interval", &Config::AI.Grab.fInterval, 1.0f, 10.0f, T2, "Every %.1f Second(s)");
 
             ImGui::Spacing();
@@ -229,11 +239,31 @@ namespace {
 
             ImGui::Text("Cleavage Actions");
             ImGuiEx::SliderF("Place in Cleavage Chance", &Config::AI.Grab.fCleavageProb, 0.0f, 100.0f, T6, "%.0f%%");
+            ImGui::Spacing();
             ImGuiEx::SliderF("Cleavage Absorb Chance", &Config::AI.Grab.fCleavageAbsorbProb, 0.0f, 100.0f, T7, "%.0f%%");
             ImGuiEx::SliderF("Cleavage Vore Chance", &Config::AI.Grab.fCleavageVoreProb, 0.0f, 100.0f, T8, "%.0f%%");
             ImGuiEx::SliderF("Cleavage Crush Chance", &Config::AI.Grab.fCleavageAttackProb, 0.0f, 100.0f, T9, "%.0f%%");
             ImGuiEx::SliderF("Cleavage Suffocate Chance", &Config::AI.Grab.fCleavageSuffocateProb, 0.0f, 100.0f, T10, "%.0f%%");
             ImGuiEx::SliderF("Cleavage Stop Chance", &Config::AI.Grab.fCleavageStopProb, 0.0f, 100.0f, T12, "%.0f%%");
+
+            ImGui::Spacing();
+
+            ImGui::Text("Grab-play Actions");
+            ImGuiEx::SliderF("GP Start Chance", &Config::AI.Grab.fGrabPlayStartProb, 0.0f, 100.0f, T13, "%.0f%%");
+            ImGui::Spacing();
+            ImGuiEx::SliderF("GP Heavy Crush Chance", &Config::AI.Grab.fGrabPlayHeavyCrushProb, 0.0f, 100.0f, T14, "%.0f%%");
+            ImGuiEx::SliderF("GP Vore Chance", &Config::AI.Grab.fGrabPlayVoreProb, 0.0f, 100.0f, T15, "%.0f%%");
+            ImGuiEx::SliderF("GP Kiss Chance", &Config::AI.Grab.fGrabPlayKissProb, 0.0f, 100.0f, T16, "%.0f%%");
+            ImGuiEx::SliderF("GP Kiss-Vore Chance", &Config::AI.Grab.fGrabPlayKissVoreProb, 0.0f, 100.0f, T17, "%.0f%%");
+            ImGuiEx::SliderF("GP Poke Chance", &Config::AI.Grab.fGrabPlayPokeProb, 0.0f, 100.0f, T18, "%.0f%%");
+            ImGuiEx::SliderF("GP Flick Chance", &Config::AI.Grab.fGrabPlayFlickProb, 0.0f, 100.0f, T19, "%.0f%%");
+            ImGuiEx::SliderF("GP Sandwich Chance", &Config::AI.Grab.fGrabPlaySandwichProb, 0.0f, 100.0f, T20, "%.0f%%");
+
+            ImGuiEx::SliderF("GP Grind Start Chance", &Config::AI.Grab.fGrabPlayGrindStartProb, 0.0f, 100.0f, T21, "%.0f%%");
+            ImGuiEx::SliderF("GP Grind Stop Chance", &Config::AI.Grab.fGrabPlayGrindStopProb, 0.0f, 100.0f, T22, "%.0f%%");
+
+            ImGuiEx::SliderF("GP Exit Chance", &Config::AI.Grab.fGrabPlayExitProb, 0.0f, 100.0f, T23, "%.0f%%");
+
         }
         ImGui::EndDisabled();
     }
@@ -252,29 +282,28 @@ namespace GTS {
 
             PSString T0 = "Globaly Enable/Disable the follower action AI.";
 
-
             PSString T1 = "Set the time interval followers should attempt to start a new GTS action.\n"
-                             "This does not guarantee a follower will do something every x seconds.\n"
-                             "It just changes the time interval an attempt is made to start something.\n"
-                             "If anything is done depends on the probabilities configured in each action on the right pane.";
+                          "This does not guarantee a follower will do something every x seconds.\n"
+                          "It just changes the time interval an attempt is made to start something.\n"
+                          "If anything is done depends on the probabilities configured in each action on the right pane.";
 
             PSString T2 = "Allow the AI to target the player.";
             PSString T3 = "Allow the AI to target other followers.";
             PSString T4 = "Allow AI to perform actions only if NPC is hostile to performer.";
             PSString T5 = "Only allow the action AI to be active when the follower is in combat.";
+
             PSString T6 = "Prevent Followers from using regular attacks based on their size, when they're large.\n"
-            "- The chance to not attack increases with size.\n"
-            "- Works only if enemies are close to Follower";
+                          "- The chance to not attack increases with size.\n"
+                          "- Works only if enemies are close to Follower";
+
             PSString T7 = "If on, always prevents Attacks of followers even if there's no enemies nearby";
 
-           
-
             PSString THelp = "The GTS AI checks at a configurable time interval what GTS actions it can start.\n"
-                                "Whether the AI takes an action depends on said actions' probability settings.\n"
-                                "If its probability percentage is low, the action is less likely to be started.\n"
-                                "When all action chances are low, the AI is more likely to simply \"do nothing\".\n"
-                                "Some actions (like hugs or grabs) have their own actions (sub-actions) that work on the same idea but with their own settings\n"
-                                "whom you can modify on the right pane of this settings page.";
+                             "Whether the AI takes an action depends on said actions' probability settings.\n"
+                             "If its probability percentage is low, the action is less likely to be started.\n"
+                             "When all action chances are low, the AI is more likely to simply \"do nothing\".\n"
+                             "Some actions (like hugs or grabs) have their own actions (sub-actions) that work on the same idea but with their own settings\n"
+                             "whom you can modify on the right pane of this settings page.";
 
             if (ImGui::CollapsingHeader("AI Settings",ImUtil::HeaderFlagsDefaultOpen)) {
 

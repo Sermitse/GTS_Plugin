@@ -75,7 +75,7 @@ namespace {
 	void AlterRotationSpeed(Actor* giant) {
 		auto AI = giant->GetActorRuntimeData().currentProcess;
 		if (AI) {
-			auto high = AI->high;
+			//auto high = AI->high;
 			auto mid = AI->middleHigh;
 
 			float speedMult = std::clamp(AnimationManager::GetAnimSpeed(giant), 0.02f, 1.0f);

@@ -34,15 +34,12 @@ namespace GTS {
 		ImGui::SetWindowPos(GetAnchorPos(m_anchorPos, {20.0f, 15.0f}, false));
 
 		{
-			ImFontManager::Push(ImFontManager::kWidgetTitle);
-			ImGui::Text(fmt::format("Size Matters {} ", GTSPlugin::ModVersion.string(".")).c_str());
+			ImFontManager::Push(ImFontManager::kWidgetBody);
 
-			{
-				ImFontManager::Push(ImFontManager::kWidgetBody);
-				ImGui::Text("Press %s or type \"gts menu\" in the console to open the mod's settings while in-game.", GetSettingsKeybind().c_str());
-			}
+			ImGui::Text(fmt::format("Size Matters - {}", GTSPlugin::ModVersion.string(".")).c_str());
+			ImGui::Text("Press %s or type \"gts menu\" in the console to open the mod's settings while in-game.", GetSettingsKeybind().c_str());
 
-			ImFontManager::Pop(2);
+			ImFontManager::Pop();
 		}
 
 	}
@@ -66,18 +63,18 @@ namespace GTS {
 		m_name = "SplashWindow";
 		m_title = "Startup Info";
 		m_anchorPos = WindowAnchor::kTopLeft;
-		m_fadeSettings.visibilityDuration = 15.0f;
+		m_fadeSettings.visibilityDuration = 10.0f;
 		m_fadeSettings.fadeDuration = 3.0f;
 		m_fadeSettings.enabled = true;
 
 	}
 
 	float SplashWindow::GetFullAlpha() {
-		return 0.9f;
+		return 1.0f;
 	}
 
 	float SplashWindow::GetBackgroundAlpha() {
-		return 0.8f;
+		return 0.7f;
 	}
 
 	std::string SplashWindow::GetWindowName() {

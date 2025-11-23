@@ -61,10 +61,10 @@ namespace {
 			return false;
 		}
 
-		const float PredScale = get_visual_scale(a_Performer);
-		const float SizeDiff = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
+		const float PredScale        = get_visual_scale(a_Performer);
+		const float SizeDiff         = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
 		constexpr float MinGrabScale = Action_Grab;
-		float MinDistance = MINIMUM_GRAB_DISTANCE;
+		float MinDistance            = MINIMUM_GRAB_DISTANCE;
 
 		if (HasSMT(a_Performer) || IsCrawling(a_Performer)) {
 			MinDistance *= 1.5f;
@@ -181,8 +181,8 @@ namespace {
 			}
 
 			TransientData->ActionTimer.UpdateDelta(Config::AI.Grab.fInterval);
-			const bool IsDead = PreyActor->IsDead() || GetAV(PreyActor, ActorValue::kHealth) <= 0.0f || PerformerActor->IsDead();
-			const bool IsBusy = IsGrabAttacking(PerformerActor) || IsTransitioning(PerformerActor);
+			const bool IsDead    = PreyActor->IsDead() || GetAV(PreyActor, ActorValue::kHealth) <= 0.0f || PerformerActor->IsDead();
+			const bool IsBusy    = IsGrabAttacking(PerformerActor) || IsTransitioning(PerformerActor);
 			const bool ValidPrey = Grab::GetHeldActor(PerformerActor) != nullptr;
 
 			if (!IsDead && !IsBusy) {
@@ -191,17 +191,19 @@ namespace {
 
 					PreventCombat(PerformerActor);
 
-					if (!IsBetweenBreasts(PreyActor) && !IsInCleavageState(PerformerActor) && !IsInsideCleavage(PreyActor) && !IsGtsBusy(PerformerActor)) {
+					if (!IsBetweenBreasts(PreyActor) && 
+						!IsInCleavageState(PerformerActor) && 
+						!IsInsideCleavage(PreyActor) && 
+						!IsGtsBusy(PerformerActor)) {
 
-						const int AttackChance = GrabAI_CanAttack(PerformerActor) ? static_cast<int>(Settings.fCrushProb) : 0;
-						const int ThrowChance = GrabAI_CanThrow(PerformerActor) ? static_cast<int>(Settings.fThrowProb) : 0;
-						const int EatChance = GrabAI_CanVore(PerformerActor) ? static_cast<int>(Settings.fVoreProb) : 0;
-						const int ReleaseChance = GrabAI_CanRelease(PerformerActor) ? static_cast<int>(Settings.fReleaseProb) : 0;
-						const int CleavageChance = static_cast<int>(Settings.fCleavageProb);
+						const int AttackChance      = GrabAI_CanAttack(PerformerActor)  ? static_cast<int>(Settings.fCrushProb)   : 0;
+						const int ThrowChance       = GrabAI_CanThrow(PerformerActor)   ? static_cast<int>(Settings.fThrowProb)   : 0;
+						const int EatChance         = GrabAI_CanVore(PerformerActor)    ? static_cast<int>(Settings.fVoreProb)    : 0;
+						const int ReleaseChance     = GrabAI_CanRelease(PerformerActor) ? static_cast<int>(Settings.fReleaseProb) : 0;
+						const int CleavageChance    = static_cast<int>(Settings.fCleavageProb);
+						const int GrabPlayStartProb = static_cast<int>(Settings.fGrabPlayStartProb);
 
-						
-
-						switch (RandomIntWeighted({ AttackChance, ThrowChance, EatChance, ReleaseChance, CleavageChance, 100 })) {
+						switch (RandomIntWeighted({ AttackChance, ThrowChance, EatChance, ReleaseChance, CleavageChance, GrabPlayStartProb, 33 })) {
 
 							//Attack
 							case 0: {
@@ -223,8 +225,15 @@ namespace {
 								AnimationManager::StartAnim("GrabReleasePunies", PerformerActor);
 								break;
 							}
+							//Cleavage
 							case 4: {
 								AnimationManager::StartAnim("Breasts_Put", PerformerActor);
+								break;
+							}
+							//Grab Play
+							case 5: {
+								AnimationManager::StartAnim("GrabPlay_Enter", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_Enter_T", PreyActor);
 								break;
 							}
 
@@ -255,14 +264,14 @@ namespace {
 					//IsGtsBusy(PerformerActor) is true when in this state
 					else if (IsInCleavageState(PerformerActor) && IsInsideCleavage(PreyActor)) {
 
-						const int AttackChance = static_cast<int>(Settings.fCleavageAttackProb);
+						const int AttackChance    = static_cast<int>(Settings.fCleavageAttackProb);
 						const int SuffocateChance = static_cast<int>(Settings.fCleavageSuffocateProb);
-						const int EatChance = static_cast<int>(Settings.fCleavageVoreProb);
-						const int AbsorbChance = static_cast<int>(Settings.fCleavageAbsorbProb);
-						const int StrangleChance = static_cast<int>(Settings.fStrangleChance);
-						const int StopChance = static_cast<int>(Settings.fCleavageStopProb);
+						const int EatChance       = static_cast<int>(Settings.fCleavageVoreProb);
+						const int AbsorbChance    = static_cast<int>(Settings.fCleavageAbsorbProb);
+						const int StrangleChance  = static_cast<int>(Settings.fStrangleChance);
+						const int StopChance      = static_cast<int>(Settings.fCleavageStopProb);
 
-						switch (RandomIntWeighted({ AttackChance, SuffocateChance, EatChance, AbsorbChance, StrangleChance, StopChance, 100 })) {
+						switch (RandomIntWeighted({ AttackChance, SuffocateChance, EatChance, AbsorbChance, StrangleChance, StopChance, 33 })) {
 
 							//Attack
 							case 0: {
@@ -312,11 +321,97 @@ namespace {
 
 						}
 					}
-					
+					else if (IsInGrabPlayState(PerformerActor)) {
+
+						const bool isGrinding = IsGrabPlaySandwiching(PerformerActor);
+						const bool isKissing = IsGrabPlayKissing(PerformerActor);
+						const bool isInSubState = isGrinding || isKissing;
+
+						//Mult by the !bool so the chance is only > 0 if not in a substate
+						const int HeavyCrushChance = static_cast<int>(Settings.fGrabPlayHeavyCrushProb) * !isInSubState;
+						const int VoreChance       = static_cast<int>(Settings.fGrabPlayVoreProb)       * !isInSubState;
+						const int KissChance       = static_cast<int>(Settings.fGrabPlayKissProb)       * !isInSubState;
+						const int PokeChance       = static_cast<int>(Settings.fGrabPlayPokeProb)       * !isInSubState;
+						const int FlickChance      = static_cast<int>(Settings.fGrabPlayFlickProb)      * !isInSubState;
+						const int SandwichChance   = static_cast<int>(Settings.fGrabPlaySandwichProb)   * !isInSubState;
+						const int GrindStartChance = static_cast<int>(Settings.fGrabPlayGrindStartProb) * !isInSubState;
+						const int ExitChance       = static_cast<int>(Settings.fGrabPlayExitProb)       * !isInSubState;
+
+						// "Sub" states, multiply by isX to only enable when in that substate
+						const int KissVoreChance  = static_cast<int>(Settings.fGrabPlayKissVoreProb)  * isKissing;
+						const int GrindStopChance = static_cast<int>(Settings.fGrabPlayGrindStopProb) * isGrinding;
+
+						switch (RandomIntWeighted({ HeavyCrushChance, VoreChance, KissChance, KissVoreChance, PokeChance, 
+							FlickChance, SandwichChance, GrindStartChance, GrindStopChance, ExitChance, 33 })) {
+
+							//HeavyCrushChance - Stateless
+							case 0: {
+								AnimationManager::StartAnim("GrabPlay_CrushH", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_CrushH_T", PreyActor);
+								break;
+							}
+							//VoreChance - Stateless
+							case 1: {
+								AnimationManager::StartAnim("GrabPlay_Vore", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_Vore_T", PreyActor);
+								break;
+							}
+							//KissChance - Stateless
+							case 2: {
+								AnimationManager::StartAnim("GrabPlay_Kiss", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_Kiss_T", PreyActor);
+								break;
+							}
+							//KissVoreChance - Substate of Kiss
+							case 3: {
+								AnimationManager::StartAnim("GrabPlay_KissVore", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_KissVore_T", PreyActor);
+								break;
+							}
+							//PokeChance - Stateless
+							case 4: {
+								AnimationManager::StartAnim("GrabPlay_Poke", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_Poke_T", PreyActor);
+								break;
+							}
+							//FlickChance - Stateless
+							case 5: {
+								AnimationManager::StartAnim("GrabPlay_Flick", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_Flick_T", PreyActor);
+								break;
+							}
+							//SandwichChance - Stateless
+							case 6: {
+								AnimationManager::StartAnim("GrabPlay_Sandwich", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_Sandwich_T", PreyActor);
+								break;
+							}
+							//GrindStartChance - Statefull
+							case 7: {
+								AnimationManager::StartAnim("GrabPlay_GrindStart", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_GrindStart_T", PreyActor);
+								break;
+							}
+							//GrindStopChance - Substate of GrindStartChance
+							case 8: {
+								AnimationManager::StartAnim("GrabPlay_GrindStop", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_GrindStop_T", PreyActor);
+								break;
+							}
+							//ExitChance - Stateless
+							case 9: {
+								AnimationManager::StartAnim("GrabPlay_Exit", PerformerActor);
+								AnimationManager::StartAnim("GrabPlay_Exit_T", PreyActor);
+								break;
+							}
+
+							default: {}
+						}
+					}
 				}
 			}
 
-			bool Attacking = IsGrabAttacking(PerformerActor);
+			bool Attacking = IsGrabAttacking(PerformerActor) || IsGrabPlaySandwiching(PerformerActor);
 			bool CanCancel = (IsDead || !IsVoring(PerformerActor)) && (!Attacking || IsBeingEaten(PreyActor));
 			if (ShouldAbortGrab(PerformerActor, PreyActor, CanCancel, IsDead, ValidPrey)) {
 				logger::info("GrabAI: Prey Dead or Invalid");
