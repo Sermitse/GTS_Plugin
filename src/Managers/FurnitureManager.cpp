@@ -2,13 +2,19 @@
 #include "Managers/Animation/Utils/CrawlUtils.hpp"
 #include "Managers/Damage/LaunchActor.hpp"
 #include "Managers/FurnitureManager.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Utils/Actions/ButtCrushUtils.hpp"
 #include "Managers/Rumble.hpp"
 
 using namespace GTS;
 
+
 namespace GTS_Markers {
+
     void GetFurnitureMarkerAnimations(RE::TESObjectREFR* ref) {
+
         if (!ref) {
             return;
         }
@@ -46,6 +52,7 @@ namespace GTS_Markers {
 }
 
 namespace GTS_Hitboxes {
+
     void ApplySitDamage_Loop(Actor* giant) {
         float damage = GetButtCrushDamage(giant);
         for (auto Nodes: Butt_Zones) {
@@ -110,21 +117,41 @@ namespace GTS {
 
     void FurnitureManager::FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, bool enter) {
         if (activator && object) {
-            GTS_Markers::GetFurnitureMarkerAnimations(object);
+            //GTS_Markers::GetFurnitureMarkerAnimations(object);
+            RecordAndHandleFurnState(activator, object, enter);
         }
     }
 
-    void FurnitureManager::Furniture_RecordTransientData(RE::Actor* activator, TESObjectREFR* object, bool enter) {
-        // Purpose of this function was following:
-        // - Offset characters forward when sitting on the furniture
-        // - So Characters won't be sitting inside chairs for example
-        // - Problem: player is fixed, but NPC's shift forward instead (ty Todd)
-        // - Unused atm.
-        // [ Search for these data-> stuff and uncommend them if you want to experiment with it ]
-        auto data = Transient::GetActorData(activator);
-        if (data) {
-            data->FurnitureScale = object->GetScale() / get_natural_scale(activator, true);
-            data->UsingFurniture = enter;
+    // If the scale keywords is removed from the default object, through an esp/patch, the game will calculate where
+    // the actor should be placed however it does this before this event fires.
+    // So if this system is used as is, the actor will be offset incorrectly.
+    // To counter this we can simply reposition the actor to the furns pos and rotation.
+	// This "fix" happens only after the "enter" anim completes but its better than nothing.
+    void FurnitureManager::RecordAndHandleFurnState(RE::Actor* activator, TESObjectREFR* object, bool enter) {
+
+        if (object) {
+
+			//Almost all "invisible" furns have "Marker" in their name, skip these.
+			//easiest way to avoid scaling invisible furnitures.
+			//it would be better if the actual model was checked to see if it contains visible geometry.
+			//but i don't know how to do that.
+            std::string name = object->GetName();
+			if (name.empty()) return;
+
+			name = str_tolower(name);
+            if (name.contains("marker")) return;
+
+			//Swiched to persistent, so on load we can restore the scale if an npc was saved when in furniture.
+            auto data = Persistent::GetActorData(activator);
+            if (data) {
+                data->fRecordedFurnScale = object->GetScale() / get_natural_scale(activator, true);
+                data->bIsUsingFurniture = enter;
+            }
+
+            if (enter) {
+                activator->SetRotationX(object->GetAngleX());
+                activator->SetPosition(object->GetPosition(), true);
+            }
         }
     }
 

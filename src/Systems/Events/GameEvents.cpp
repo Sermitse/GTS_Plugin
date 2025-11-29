@@ -15,8 +15,7 @@ namespace GTS {
 			event_sources->AddEventSink<TESTrackedStatsEvent>(this);
 			event_sources->AddEventSink<TESResetEvent>(this);
 			event_sources->AddEventSink<TESDeathEvent>(this);
-			//event_sources->AddEventSink<TESFurnitureEvent>(this); // Uncomment it to enable this event!
-			// Also don't forget to uncomment data->UsingFurniture inside PerformRoofRaycastAdjustments
+			event_sources->AddEventSink<TESFurnitureEvent>(this); 
 		}
 
 

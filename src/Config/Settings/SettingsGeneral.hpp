@@ -47,6 +47,10 @@ struct SettingsGeneral_t {
     // Gameplay enhancements
     bool bDynamicSizePlayer = false;
     bool bDynamicSizeFollowers = false;
+
+    bool bDynamicFurnSizePlayer = false;
+    bool bDynamicFurnSizeFollowers = false;
+
     bool bDynamicAnimspeed = true;
     bool bEnableHighHeels = true;
     bool bHighheelsFurniture = true;

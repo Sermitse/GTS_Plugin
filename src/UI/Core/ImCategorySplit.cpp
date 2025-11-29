@@ -9,7 +9,7 @@ namespace GTS {
         auto WMult = Config::UI.fItemWidth;
         {   //Left
 
-            ImGui::BeginChild("SLeft", ImVec2(ImGui::GetContentRegionAvail().x / splitRatio, 0), ImGuiChildFlags_AlwaysUseWindowPadding);
+            ImGui::BeginChild("##SLeft", ImVec2(ImGui::GetContentRegionAvail().x / splitRatio, 0), ImGuiChildFlags_AlwaysUseWindowPadding);
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * WMult);
             DrawLeft();
             ImGui::PopItemWidth();
@@ -21,7 +21,7 @@ namespace GTS {
         ImGui::SameLine(0.0, 8.0f);
 
         {   //Right
-            ImGui::BeginChild("SRight", ImVec2(0, 0), ImGuiChildFlags_AlwaysUseWindowPadding);
+            ImGui::BeginChild("##SRight", ImVec2(0, 0), ImGuiChildFlags_AlwaysUseWindowPadding);
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * WMult);
             DrawRight();
             ImGui::PopItemWidth();

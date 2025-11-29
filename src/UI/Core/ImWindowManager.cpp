@@ -202,6 +202,10 @@ namespace GTS {
         return Context->GetCurrentConfig().cursorEnabled;
     }
 
+    bool ImWindowManager::GetWantDrawOnPresent() const {
+        return Context->GetCurrentConfig().drawOnPresent;
+    }
+
     std::vector<Actor*> ImWindowManager::GetCachedTeamMateList(){
     	return m_cachedTeamMateList;
     }

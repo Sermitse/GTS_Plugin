@@ -21,6 +21,7 @@
 #include "Hooks/Engine/Input.hpp"
 #include "Hooks/Engine/Main.hpp"
 #include "Hooks/Engine/Window.hpp"
+#include "Hooks/Engine/Present.hpp"
 #include "Hooks/Havok/Havok.hpp"
 #include "Hooks/Havok/hkbBehaviorGraph.hpp"
 #include "Hooks/Havok/Pushback.hpp"
@@ -64,6 +65,7 @@ namespace Hooks {
 		Hook_Input::Install();
 		Hook_MainUpdate::Install();
 		Hook_Window::Install();
+		Hook_Present::Install();
 
 		//Havok
 		Hook_Havok::Install();

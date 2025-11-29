@@ -156,12 +156,6 @@ namespace {
 
 		const auto& Settings = Config::General;
 		const bool DoRayCast = (actor->formID == 0x14) ? Settings.bDynamicSizePlayer : Settings.bDynamicSizeFollowers;
-		/*auto data = Transient::GetActorData(actor);
-		if (data->UsingFurniture) { 
-			target_scale = data->FurnitureScale;
-			return;
-		}*/ 
-		// ^ To Arial: Uncommend it when you'll be experimenting with furniture, this part scales actors down
 
 		if (DoRayCast && !actor->IsDead() && target_scale > 1.025f) {
 
@@ -176,6 +170,21 @@ namespace {
 				target_scale = 1.0f;
 			}
 		}
+	}
+
+	void PerformFurnAdjusments(Actor* actor, float& target_scale) {
+
+		bool ShouldHandleFurnUpdate = 
+			(Config::General.bDynamicFurnSizePlayer && actor->IsPlayerRef()) ||
+			(Config::General.bDynamicFurnSizeFollowers && IsTeammate(actor));
+
+		auto data = Persistent::GetActorData(actor);
+		if (ShouldHandleFurnUpdate && 
+			data->bIsUsingFurniture && 
+			target_scale > data->fRecordedFurnScale) {
+			target_scale = data->fRecordedFurnScale;
+		}
+
 	}
 
 	void update_height(Actor* actor, PersistentActorData* persi_actor_data, TransientActorData* trans_actor_data) {
@@ -233,6 +242,10 @@ namespace {
 		// We only do this if they are bigger than 1.05x their natural scale (currentOtherScale)
 		// and if enabled in the mcm
 		PerformRoofRaycastAdjustments(actor, target_scale, currentOtherScale);
+		PerformFurnAdjusments(actor, target_scale);
+
+
+
 		
 		if (fabs(target_scale - persi_actor_data->fVisualScale) > 1e-5) {
 			float minimum_scale_delta = 0.000005f; // 0.00005f

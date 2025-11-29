@@ -31,7 +31,12 @@ namespace GTS {
 		float fHalfLife = 1.0f;
 		float fAnimSpeed = 1.0f;
 
+		//Voice
 		uint8_t iVoiceBankIndex = 0;
+
+		//Furniture
+		bool bIsUsingFurniture = false;
+		float fRecordedFurnScale = 1.0f;
 
 		/*
 		//These two should trigger a hash colission

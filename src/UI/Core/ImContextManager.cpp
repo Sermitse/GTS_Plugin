@@ -20,12 +20,13 @@ namespace GTS {
 
     constexpr ImContextManager::ContextConfig ImContextManager::GetConfigForMode(ContextMode mode) {
         switch (mode) {
-            case ContextMode::kHUD:          return { 0,  false }; //We want to draw below everyting, because even though we don't request the cursor if a game menu renders at a lower priority our menu will steal input.
-            case ContextMode::kMainMenu:     return { 9,  false }; //Main Menu draws at 8 if set above 10 input is stolen from it.
-            case ContextMode::kSettings:     return { 4,  true  }; //Highest normal menu is at 3 (FaderMenu) If somehow we enter a special mode the settings should be auto closed regardless.
-            case ContextMode::kDebug:        return { 5,  true  }; //Imgui debug stuff should be above everything else, but below cursor which is at 13.
-            case ContextMode::kDebugNoInput: return { 5,  false }; //Imgui debug stuff should be above everything else, but below cursor which is at 13.
-            default:                         return { 0,  false };
+			//Depth, Cursor, DrawOnPresent
+            case ContextMode::kHUD:          return { 0,  false, false }; //We want to draw below everyting, because even though we don't request the cursor if a game menu renders at a lower priority our menu will steal input.
+			case ContextMode::kMainMenu:     return { 0,  false, true  }; //Main Menu draws at 9 if set above 10 input is stolen from it. Due to messagebox shenanigans we must draw on present to avoid input highijacking.
+            case ContextMode::kSettings:     return { 4,  true,  false }; //Highest normal menu is at 3 (FaderMenu) If somehow we enter a special mode the settings should be auto closed regardless.
+            case ContextMode::kDebug:        return { 5,  true,  false }; //Imgui debug stuff should be above everything else, but below cursor which is at 13.
+            case ContextMode::kDebugNoInput: return { 5,  false, false }; //Imgui debug stuff should be above everything else, but below cursor which is at 13.
+            default:                         return { 0,  false, false };
         }
     }
 

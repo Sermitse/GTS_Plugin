@@ -256,11 +256,11 @@ namespace GTS {
 	void EventDispatcher::DoFurnitureEvent(const TESFurnitureEvent* a_event) {
 		Actor* actor = skyrim_cast<Actor*>(a_event->actor.get());
 		TESObjectREFR* object = a_event->targetFurniture.get();
-		logger::trace("Furniture Event Seen");
-		logger::trace("Actor: {}", static_cast<bool>(actor != nullptr));
-		logger::trace("Object: {}", static_cast<bool>(object != nullptr));
+		//logger::trace("Furniture Event Seen");
+		//logger::trace("Actor: {}", static_cast<bool>(actor != nullptr));
+		//logger::trace("Object: {}", static_cast<bool>(object != nullptr));
 		if (actor && object) {
-			logger::trace("Both are true");
+			//logger::trace("Both are true");
 			ForEachListener([actor, object, a_event](EventListener* listener) {
 				GTS_PROFILE_SCOPE(listener->DebugName());
 				listener->FurnitureEvent(actor, object, a_event->type == TESFurnitureEvent::FurnitureEventType::kEnter);

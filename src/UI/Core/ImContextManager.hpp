@@ -19,6 +19,7 @@ namespace GTS {
         struct ContextConfig {
             int depthPriority;
             bool cursorEnabled;
+            bool drawOnPresent;
         };
 
         private:

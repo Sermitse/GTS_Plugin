@@ -327,11 +327,17 @@ namespace GTS {
 	        PSString T1 = "Adjust the speed of all animations based on an actor's scale.";
 			PSString T2 = "Reduce the amount of gore in some sound and visual effects.";
 
+			PSString T3 = "Temporarily shrink grow the target actor to fit the target furniture";
 
 	        if (ImGui::CollapsingHeader("Miscellaneous", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImGuiEx::CheckBox("Dynamic Size Player", &Config::General.bDynamicSizePlayer, T0);
+				ImGuiEx::CheckBox("Dynamic Size (Player)", &Config::General.bDynamicSizePlayer, T0);
 				ImGui::SameLine();
-				ImGuiEx::CheckBox("Dynamic Size Followers", &Config::General.bDynamicSizeFollowers, T0);
+				ImGuiEx::CheckBox("Dynamic Size (Followers)", &Config::General.bDynamicSizeFollowers, T0);
+
+				ImGuiEx::CheckBox("Scale to furniture (Player)", &Config::General.bDynamicFurnSizePlayer, T3);
+				ImGui::SameLine();
+				ImGuiEx::CheckBox("Scale to furniture (Followers)", &Config::General.bDynamicFurnSizeFollowers, T3);
+
 				ImGuiEx::CheckBox("Dynamic Animation Speed", &Config::General.bDynamicAnimspeed, T1);
 				ImGuiEx::CheckBox("Less Gore", &Config::General.bLessGore, T2);
 

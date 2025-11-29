@@ -341,15 +341,20 @@ namespace GTS {
 
 		depthPriority = WindowManager->GetDesiredPriority();
 		SetInputFlags(WindowManager->GetDesiredCursorState());
+		m_DrawOnPresent.store(WindowManager->GetWantDrawOnPresent());
 
 		m_frameReady.store(true, std::memory_order_release);
 	}
 
 	//ImGui Present
 	void GTSMenu::PostDisplay() {
-
 		IMenu::PostDisplay();
+		if (m_DrawOnPresent.load() == false) {
+			Present();
+		}
+	}
 
+	void GTSMenu::Present() {
 		if (m_frameReady.exchange(false, std::memory_order_acquire)) {
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

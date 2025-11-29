@@ -15,6 +15,7 @@ namespace GTS {
 		static inline ImInput* Input = nullptr;
 		static inline ImWindowManager* WindowManager = nullptr;
 		static inline ImGuiIO* ImIO = nullptr;
+		static inline std::atomic_bool m_DrawOnPresent = false;
 
 		private:
 		static inline std::vector<std::string> m_hideSources = {};
@@ -26,6 +27,7 @@ namespace GTS {
 		std::atomic_bool m_gamePaused = false;
 		std::atomic_bool m_isScaleformVisible = false;
 		std::atomic_bool m_cursorEnabled = false;
+		
 
 		static inline float m_originalGameTime = 1.0f;
 		inline static std::atomic_flag g_alreadyPresenting = ATOMIC_FLAG_INIT;
@@ -51,7 +53,9 @@ namespace GTS {
 		static void AlterTimeScale(bool a_enable);
 		static bool CloseInputConsumers();
 
-	private:
+		void Present();
+
+		private:
 		void Show(const std::string& source);
 		void Hide(const std::string& source);
 

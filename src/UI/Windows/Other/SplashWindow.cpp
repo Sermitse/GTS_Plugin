@@ -34,10 +34,15 @@ namespace GTS {
 		ImGui::SetWindowPos(GetAnchorPos(m_anchorPos, {20.0f, 15.0f}, false));
 
 		{
-			ImFontManager::Push(ImFontManager::kWidgetBody);
+			ImFontManager::Push(ImFontManager::kWidgetBody, 1.2f);
 
-			ImGui::Text(fmt::format("Size Matters - {}", GTSPlugin::ModVersion.string(".")).c_str());
-			ImGui::Text("Press %s or type \"gts menu\" in the console to open the mod's settings while in-game.", GetSettingsKeybind().c_str());
+			ImGui::Text(
+				"Size Matters - %s\n"
+				"Press %s or type \"gts menu\" in the console to open the mod's settings while in-game.",
+				GTSPlugin::ModVersion.string(".").c_str(), 
+				GetSettingsKeybind().c_str()
+			);
+
 
 			ImFontManager::Pop();
 		}

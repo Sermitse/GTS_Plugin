@@ -33,7 +33,6 @@ namespace GTS {
 		float ClothRipOffset = -1.0f;
 		float ShrinkUntil = 0.0f;
 		float BreastSizeBuff = 0.0f;
-		float FurnitureScale = 1.0f;
 		float OverkillSizeBonus = 1.0f;
 		float Overkills = 0.0f;
 		float FootVelocity_R = 0.0f;
@@ -69,7 +68,6 @@ namespace GTS {
 		bool ImmuneToBreastOneShot = true;
 		bool IsSlowGrowing = false;
 		bool TemporaryDamageImmunity = false;
-		bool UsingFurniture = false;
 		bool ReattachingTiny = false;
 		bool KissVoring = false;
 

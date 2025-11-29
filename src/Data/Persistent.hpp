@@ -28,6 +28,7 @@ namespace GTS {
 		static PersistentActorData* GetActorData(Actor& actor);
 		static PersistentActorData* GetActorData(Actor* actor);
 
+
 		//----- Actor Data
 		static inline Serialization::MapRecord<PersistentActorData, 'ACT_'> ActorMap = {};
 		static inline Serialization::MapRecord<PersistentKillCountData, 'ACTK'> KillCountMap = {};

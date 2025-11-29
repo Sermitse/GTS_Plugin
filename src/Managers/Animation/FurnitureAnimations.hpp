@@ -3,6 +3,6 @@
 namespace GTS {
 	class FurnitureAnimations {
 		public:
-			static void RegisterEvents();
+		static void RegisterEvents();
 	};
 }
