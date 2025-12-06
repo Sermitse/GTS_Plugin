@@ -17,6 +17,16 @@
 - [X] [14] Integrate new Potions into the world
 - [X] [15] .dll optimization so it will eat less CPU and have better performance (Partially done)
 - [X] [16] Make feet deal damage and effects based on it's speed instead of being able to kill everyone if standing still
+- [X] [17] Racemenu morphs.
+- [X] [18] Improved code peformance.
+- [X] [19] Killfeed UI. 
+- [X] [20] Statuseffect/Active Buff Icons UI for the following mechanics:
+	- Life Absorption Stacks (Perk);
+	- Damage Reduction (passive);
+	- Size Reserve Stacks (buff);
+	- Aspect Of Giantess (buff);
+	- Vore Stacks (passive);
+	- On The Edge (Perk);
 
 ## Easier Things
 - [X] Scale

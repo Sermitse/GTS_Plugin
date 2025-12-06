@@ -24,14 +24,14 @@ This is a standard **CMake**-based project. Once all requirements are met, you c
 ### Option 1 — Visual Studio 
 1. Clone the repository using Git.
 2. Open the cloned folder in Visual Studio.
-3. Visual Studio will automatically detect the `CMakeLists.txt` file and configure the build environment.
+3. Visual Studio if setup correctly should automatically detect the `CMakeLists.txt` file and configure the build environment.
 
-### Option 2 — Command Line (Recommended)
+### Option 2 — Automated (Recommended)
 Simply run the provided batch file:
 ```
 CompileDLL.bat
 ```
-If successfull a `Package-Release` folder should exist within the `distribution` folder.
+If successfull a `Package-Release` folder have been created within the `distribution` folder. Containing the built DLL along with other runtime requirements.
 > **Note:**  
 > You must clone the repository using Git.  
 > Direct downloads from GitHub (ZIP files) will **not** compile due to missing git data which the build process depends on.
@@ -41,17 +41,7 @@ If successfull a `Package-Release` folder should exist within the `distribution`
 
 - [ ] [1] Blood feet/hands after crushing.
 - [ ] [2] Quest progression UI.
-- [ ] [4] Racemenu morphs.
-- [ ] [5] Improved code structure.
-- [ ] [5] Improved code peformance.
-- [ ] [6] Killfeed UI. 
-- [ ] [7] Statuseffect/Active Buff Icons UI for the following mechanics:
-- Life Absorption Stacks (Perk);
-- Damage Reduction (passive);
-- Size Reserve Stacks (buff);
-- Aspect Of Giantess (buff);
-- Vore Stacks (passive);
-- On The Edge (Perk);
+- [ ] [3] Improved code structure.
 
 ## Implemented features that need improving
 - [X] [1] Correct Collider Scaling (Currently done through Side-Mod)
