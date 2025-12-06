@@ -70,14 +70,36 @@ namespace GTS {
             }
         }
 
+        
+    }
+
+    void CategoryAdvanced::DrawRight() {
+
         ImUtil_Unique {
 
-	        PSString T0 = "Multiply the resulting GetAnimationSlowdown Value (Acts as a flat multiplier applied after the main formula).";
-	        PSString T1 = "Modify The \"SoftCore\" formula used to calculate the amount animations will slow down relative to scale.";
+	        PSString T1 = "Count Player as NPC, which makes Player perform random animations";
+	        PSString T2 = "Enable the experimental support for devourment using AI manager. Meant to partially replace DV's own PseudoAI";
+	        PSString T3 = "Set the probabilty for a DV action to be started.";
+
+	        if (ImGui::CollapsingHeader("Experimental",ImUtil::HeaderFlagsDefaultOpen)) {
+                ImGuiEx::CheckBox("Player AI", &Config::Advanced.bPlayerAI, T1);
+
+                ImGuiEx::CheckBox("DevourmentAI", &Config::Advanced.bEnableExperimentalDevourmentAI, T2, !Runtime::IsDevourmentInstalled());
+                ImGuiEx::SliderF("DevourmentAI Probability", &Config::Advanced.fExperimentalDevourmentAIProb, 1.0f, 100.0f, T3,"%.0f%%", !Config::Advanced.bEnableExperimentalDevourmentAI, !Runtime::IsDevourmentInstalled());
+
+	            ImGui::Spacing();
+	        }
+        }
+
+        ImUtil_Unique
+		{
+
+            PSString T0 = "Multiply the resulting GetAnimationSlowdown Value (Acts as a flat multiplier applied after the main formula).";
+            PSString T1 = "Modify The \"SoftCore\" formula used to calculate the amount animations will slow down relative to scale.";
             PSString T2 = "Should AnimSpeed be force set to 1x if IsGTSBusy() == true?";
             PSString T3 = "Define the floor value for the animation speed formula. (Default 0.1f).";
 
-	        if (ImGui::CollapsingHeader("Animation Speed", ImUtil::HeaderFlagsDefaultOpen)) {
+            if (ImGui::CollapsingHeader("Animation Speed", ImUtil::HeaderFlagsDefaultOpen)) {
 
                 ImGuiEx::CheckBox("GTS Actions Always 1x Speed", &Config::Advanced.bGTSAnimsFullSpeed, T2);
                 ImGuiEx::SliderF("Animspeed Player", &Config::Advanced.fAnimSpeedAdjMultPlayer, 0.1f, 3.0f, T0);
@@ -96,30 +118,12 @@ namespace GTS {
                 ImGui::Text("Animation Formula");
                 ImGuiEx::SliderF3("Param K, N, S", &Config::Advanced.fAnimSpeedFormula.at(0), 0.0f, 10.0f, T1, "%.3f");
                 ImGuiEx::SliderF2("Param O, A", &Config::Advanced.fAnimSpeedFormula.at(3), 0.0f, 10.0f, T1, "%.3f");
+                if (ImGuiEx::Button("Reset")) {
+                    Config::Advanced.fAnimSpeedFormula = { 0.142f, 0.82f, 1.90f, 1.0f, 0.0f };
+                }
 
-	            ImGui::Spacing();
-	        }
-	    }
-    }
-
-    void CategoryAdvanced::DrawRight() {
-
-        ImUtil_Unique {
-
-	        PSString T0 = "When performing Breast Absorption, visually enlarge breasts. Not Guaranteed to Work.";
-	        PSString T1 = "Count Player as NPC, which makes Player perform random animations";
-	        PSString T2 = "Enable the experimental support for devourment using AI manager. Meant to partially replace DV's own PseudoAI";
-	        PSString T3 = "Set the probabilty for a DV action to be started.";
-
-	        if (ImGui::CollapsingHeader("Experimental",ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::CheckBox("Enlarge Breasts On Absorbtion", &Config::Advanced.bEnlargeBreastsOnAbsorption, T0, true);
-                ImGuiEx::CheckBox("Player AI", &Config::Advanced.bPlayerAI, T1);
-
-                ImGuiEx::CheckBox("DevourmentAI", &Config::Advanced.bEnableExperimentalDevourmentAI, T2, !Runtime::IsDevourmentInstalled());
-                ImGuiEx::SliderF("DevourmentAI Probability", &Config::Advanced.fExperimentalDevourmentAIProb, 1.0f, 100.0f, T3,"%.0f%%", !Config::Advanced.bEnableExperimentalDevourmentAI, !Runtime::IsDevourmentInstalled());
-
-	            ImGui::Spacing();
-	        }
+                ImGui::Spacing();
+            }
         }
 
         ImUtil_Unique {

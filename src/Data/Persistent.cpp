@@ -116,11 +116,6 @@ namespace GTS {
 			EnableCrawlPlayer.Load(serde, RecordType, RecordVersion, RecordSize);
 			EnableCrawlFollower.Load(serde, RecordType, RecordVersion, RecordSize);
 
-			//----- Max Size Related
-			GlobalMassBasedSizeLimit.Load(serde, RecordType, RecordVersion, RecordSize);
-			PlayerExtraPotionSize.Load(serde, RecordType, RecordVersion, RecordSize);
-			GlobalSizeLimit.Load(serde, RecordType, RecordVersion, RecordSize);
-
 			// ---- Quest Progression
 			HugStealCount.Load(serde, RecordType, RecordVersion, RecordSize);
 			StolenSize.Load(serde, RecordType, RecordVersion, RecordSize);
@@ -158,11 +153,6 @@ namespace GTS {
 		//----- Crawk/Sneak State
 		EnableCrawlPlayer.Save(serde);
 		EnableCrawlFollower.Save(serde);
-
-		//----- Max Size Related
-		GlobalMassBasedSizeLimit.Save(serde);
-		PlayerExtraPotionSize.Save(serde);
-		GlobalSizeLimit.Save(serde);
 
 		// ---- Quest Progression
 		HugStealCount.Save(serde);
@@ -259,9 +249,6 @@ namespace GTS {
 		TrackedCameraState       = 0;
 		EnableCrawlPlayer        = false;
 		EnableCrawlFollower      = false;
-		PlayerExtraPotionSize    = 0.0f;
-		GlobalSizeLimit          = 1.0f;
-		GlobalMassBasedSizeLimit = 0.0f;
 		HugStealCount            = 0.0f;
 		StolenSize               = 0.0f;
 		CrushCount               = 0.0f;

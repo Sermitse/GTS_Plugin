@@ -1,6 +1,5 @@
 #pragma once
 
-#include "UI/Core/ImGraphics.hpp"
 #include "UI/Core/ImInput.hpp"
 #include "UI/Core/ImWindowManager.hpp"
 
@@ -27,7 +26,6 @@ namespace GTS {
 		std::atomic_bool m_gamePaused = false;
 		std::atomic_bool m_isScaleformVisible = false;
 		std::atomic_bool m_cursorEnabled = false;
-		
 
 		static inline float m_originalGameTime = 1.0f;
 		inline static std::atomic_flag g_alreadyPresenting = ATOMIC_FLAG_INIT;

@@ -13,8 +13,6 @@ using namespace GTS;
 
 namespace {
 
-	constexpr float anim_fps_speed = 30.0f;
-
 	GrowthAnimation GetGrowthType(Actor* giant) { // Used as a way to read which exact Growth was triggered (it is full RNG on Behavior side)
 		int growthtype = 0;
 		giant->GetGraphVariableInt("GTS_Growth_Roll", growthtype);

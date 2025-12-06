@@ -47,6 +47,8 @@ struct SettingsAudio_t {
 
 
     bool bMoanLaughSizeVariants = true;
+    bool bLaughEnable = true;
+    bool bMoanEnable = true;
     bool bMoanLaughPCExclusive = false;
     bool bUseOtherHighHeelSet = true;
     bool bBlendBetweenFootsteps = false;

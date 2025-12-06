@@ -1,4 +1,4 @@
-#include "Managers/Explosion.hpp"
+#include "Managers/ExplosionManager.hpp"
 
 #include "Config/Config.hpp"
 

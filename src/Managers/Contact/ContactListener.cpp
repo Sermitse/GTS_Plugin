@@ -1,22 +1,17 @@
-#include "Managers/Contact.hpp"
-
+#include "Managers/Contact/ContactListener.hpp"
 #include "Config/Config.hpp"
-
-#include "Managers/GTSManager.hpp"
-
-using namespace REL;
-using namespace GTS;
 
 namespace {
 
+	using namespace GTS;
+	using namespace RE;
+
 	// From https://github.com/ersh1/Precision, https://github.com/adamhynek/activeragdoll/ and https://github.com/adamhynek/higgs
-	enum class WorldExtensionIds : int32_t
-	{
+	enum class WorldExtensionIds : int32_t {
 		kAnonymous = -1,
 		kBreakOffParts = 1000,
 		kCollisionCallback = 1001
 	};
-
 
 	hkpWorldExtension* findWorldExtension(hkpWorld* a_world, WorldExtensionIds a_id) {
 		using func_t = decltype(&findWorldExtension);
@@ -36,7 +31,7 @@ namespace {
 		return func(a_world);
 	}
 
-	void addContactListener(RE::hkpWorld* a_world, RE::hkpContactListener* a_worldListener){
+	void addContactListener(RE::hkpWorld* a_world, RE::hkpContactListener* a_worldListener) {
 		using func_t = decltype(&addContactListener);
 		REL::Relocation<func_t> func{ RELOCATION_ID(60543, 61383) };
 		return func(a_world, a_worldListener);
@@ -79,7 +74,7 @@ namespace {
 	}
 
 	void print_collision_groups(std::uint64_t flags) {
-		std::map<std::string, COL_LAYER> named_layers {
+		std::map<std::string, COL_LAYER> named_layers{
 			{ "kStatic", COL_LAYER::kStatic },
 			{ "kAnimStatic", COL_LAYER::kAnimStatic },
 			{ "kTransparent", COL_LAYER::kTransparent },
@@ -137,8 +132,8 @@ namespace {
 
 namespace GTS {
 
-	void ContactListener::ContactPointCallback(const hkpContactPointEvent& a_event)
-	{
+	void ContactListener::ContactPointCallback(const hkpContactPointEvent& a_event) {
+
 		auto rigid_a = a_event.bodies[0];
 		if (!rigid_a) {
 			return;
@@ -197,18 +192,15 @@ namespace GTS {
 		// log::info("ContactPointCallback");
 	}
 
-	void ContactListener::CollisionAddedCallback(const hkpCollisionEvent& a_event)
-	{
+	void ContactListener::CollisionAddedCallback(const hkpCollisionEvent& a_event) {
 		// log::info("CollisionAddedCallback");
 	}
 
-	void ContactListener::CollisionRemovedCallback(const hkpCollisionEvent& a_event)
-	{
+	void ContactListener::CollisionRemovedCallback(const hkpCollisionEvent& a_event) {
 		// log::info("CollisionRemovedCallback");
 	}
 
-	void ContactListener::PostSimulationCallback(hkpWorld* a_world)
-	{
+	void ContactListener::PostSimulationCallback(hkpWorld* a_world) {
 		// log::info("PostSimulationCallback");
 	}
 
@@ -224,7 +216,7 @@ namespace GTS {
 			this->world = nullptr;
 		}
 	}
-	void ContactListener::attach(NiPointer<bhkWorld> world) {
+	void ContactListener::attach(const NiPointer<bhkWorld>& world) {
 		// Only runs if current world is nullptr and new is not
 		if (!this->world && world) {
 			this->world = world;
@@ -261,7 +253,7 @@ namespace GTS {
 		}
 	}
 
-	void ContactListener::sync_camera_collision_groups() {
+	void ContactListener::sync_camera_collision_groups() const {
 		auto& world = this->world;
 		// Default groups:
 		//  CameraSphere Collision Groups
@@ -324,7 +316,7 @@ namespace GTS {
 				else
 					cameraBitfield |= mask;
 			}
-		};
+			};
 
 		// Actor collision: update bits for both Biped and CharController.
 		updateCollisionBits(CamSettings.bCamCollideActor, { COL_LAYER::kBiped, COL_LAYER::kCharController });
@@ -382,7 +374,7 @@ namespace GTS {
 		BSWriteLockGuard lock(world->worldLock);
 
 
-		if (RE::bhkCollisionFilter* filter = skyrim_cast<bhkCollisionFilter*>(world->GetWorld2()->collisionFilter)){
+		if (RE::bhkCollisionFilter* filter = skyrim_cast<bhkCollisionFilter*>(world->GetWorld2()->collisionFilter)) {
 
 			filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kBiped)] |= (static_cast<uint64_t>(1) << static_cast<uint64_t>(COL_LAYER::kBiped));
 			filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kBiped)] |= (static_cast<uint64_t>(1) << static_cast<uint64_t>(COL_LAYER::kBipedNoCC));
@@ -397,36 +389,5 @@ namespace GTS {
 			filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCharController)] |= (static_cast<uint64_t>(1) << static_cast<uint64_t>(COL_LAYER::kCharController));
 		}
 
-	}
-
-	std::string ContactManager::DebugName() {
-		return "::ContactManager";
-	}
-
-	void ContactManager::HavokUpdate() {
-		GTS_PROFILE_SCOPE("ContactManager: HavokUpdate");
-		auto playerCharacter = PlayerCharacter::GetSingleton();
-
-		auto cell = playerCharacter->GetParentCell();
-		if (!cell) {
-			return;
-		}
-		auto world = RE::NiPointer<RE::bhkWorld>(cell->GetbhkWorld());
-		if (!world) {
-			return;
-		}
-		ContactListener& contactListener = this->listener;
-		if (contactListener.world != world) {
-			contactListener.detach();
-			contactListener.attach(world);
-			contactListener.ensure_last();
-			contactListener.enable_biped_collision();
-		}
-		contactListener.sync_camera_collision_groups();
-	}
-
-	void ContactManager::UpdateCameraContacts() {
-		ContactListener& contactListener = this->listener;
-		contactListener.sync_camera_collision_groups();
 	}
 }

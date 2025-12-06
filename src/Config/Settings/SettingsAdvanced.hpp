@@ -37,7 +37,6 @@ struct SettingsAdvanced_t {
     bool bDamageAV = true;
     bool bCooldowns = true;
     bool bEnforceUIClamps = true;
-    bool bEnlargeBreastsOnAbsorption = false;
     bool bPlayerAI = false;
     float fAnimSpeedAdjMultPlayer = 1.0f;
     float fAnimSpeedAdjMultTeammate = 1.0f;

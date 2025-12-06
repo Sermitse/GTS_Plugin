@@ -16,14 +16,14 @@
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
-#include "Managers/Attributes.hpp"
+#include "Managers/AttributeManager.hpp"
 #include "Managers/Audio/Footstep.hpp"
-#include "Managers/Camera.hpp"
+#include "Managers/CameraManager.hpp"
 #include "Managers/Console/ConsoleManager.hpp"
-#include "Managers/Contact.hpp"
+#include "Managers/Contact/ContactManager.hpp"
 #include "Managers/CrushManager.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
-#include "Managers/Explosion.hpp"
+#include "Managers/ExplosionManager.hpp"
 #include "Managers/FurnitureManager.hpp"
 #include "Managers/Gamemode/GameModeManager.hpp"
 #include "Managers/GTSManager.hpp"
@@ -40,6 +40,8 @@
 #include "Managers/Tremor.hpp"
 
 #include "Magic/Magic.hpp"
+
+#include "Managers/Morphs/MorphManager.hpp"
 
 #include "Scale/DynamicScale.hpp"
 #include "Utils/ItemDistributor.hpp"
@@ -96,6 +98,7 @@ namespace GTS {
 		EventDispatcher::AddListener(&GTSMenu::GetSingleton());
 		EventDispatcher::AddListener(&ItemDistributor::GetSingleton());
 		EventDispatcher::AddListener(&ConfigModHandler::GetSingleton());
+		EventDispatcher::AddListener(&MorphManager::GetSingleton());
 
 		log::info("Managers Registered");
 	}

@@ -13,6 +13,7 @@ namespace GTS {
 
 		virtual std::string DebugName() = 0;
 
+		virtual void ActorUpdate(RE::Actor* actor);
 		virtual void Update();
 		virtual void PapyrusUpdate();
 		virtual void HavokUpdate();

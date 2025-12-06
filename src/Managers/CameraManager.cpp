@@ -1,4 +1,4 @@
-#include "Managers/Camera.hpp"
+#include "Managers/CameraManager.hpp"
 
 #include "Managers/Cameras/CamUtil.hpp"
 #include "Managers/Input/InputManager.hpp"
@@ -85,9 +85,7 @@ namespace GTS {
 
 	}
 
-	void CameraManager::Start() {
-
-	}
+	void CameraManager::Start() {}
 
 	void CameraManager::CameraUpdate() {
 
@@ -112,12 +110,15 @@ namespace GTS {
 		}
 
 		if (CurrentState != this->TrackedState) {
+
 			if (this->TrackedState) {
 				this->TrackedState->ExitState();
 			}
+
 			if (CurrentState) {
 				CurrentState->EnterState();
 			}
+
 			CameraState* PreviousState = this->TrackedState;
 			this->TrackedState = CurrentState;
 			if (PreviousState) {

@@ -40,11 +40,6 @@ namespace GTS {
 		static inline Serialization::BasicRecord<bool, 'ECPL'> EnableCrawlPlayer = false;
 		static inline Serialization::BasicRecord<bool, 'ECFL'> EnableCrawlFollower = false;
 
-		//----- Max Size Related
-		static inline Serialization::BasicRecord<float, 'GBPS'> PlayerExtraPotionSize = 0.0f;
-		static inline Serialization::BasicRecord<float, 'GTSL'> GlobalSizeLimit = 1.0f;
-		static inline Serialization::BasicRecord<float, 'GMBS'> GlobalMassBasedSizeLimit = 0.0f;
-
 		// ---- Quest Progression
 		static inline Serialization::BasicRecord<float, 'QHSR'> HugStealCount = 0.0f;
 		static inline Serialization::BasicRecord<float, 'QSSR'> StolenSize = 0.0f;

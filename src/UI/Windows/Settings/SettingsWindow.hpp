@@ -15,6 +15,7 @@ namespace GTS {
         bool m_busy = false;
         bool m_disableUIInteraction = false;
         bool m_isConfiguringWidgets = false;
+        bool m_MorphDataWasModified = false;
         bool m_show = false;
 
 		private:

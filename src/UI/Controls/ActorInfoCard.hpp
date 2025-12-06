@@ -14,41 +14,45 @@ namespace ImGuiEx {
             std::string Name = {};
 
             //Scale
-            float fScaleCurrent = {};
-            float fScaleMax = {};
-            float fScaleNatural = {};
+            float fScaleCurrent     = {};
+            float fScaleMax         = {};
+            float fScaleNatural     = {};
 			float fMassModeScaleMax = {};
-            float fScaleProgress = {};  //Normalized Value from 0 to 1
+            float fScaleProgress    = {};  //Normalized Value from 0 to 1
 
-            int iTotalKills = {};
-
-            float fOverkills = {};
+            int iTotalKills     = {};
+            float fOverkills    = {};
             float fOverkillMult = {};
 
             //Bonuses
-            float fScaleBonus = {};
-            float fDamageBonus = {};
+            float fScaleBonus          = {};
+            float fDamageBonus         = {};
             float fHighHeelDamageBonus = {};
-            float fCarryWeightBonus = {};
-            float fSpeedMult = {};
-            float fJumpMult = {};
-            float fGTSAspect = {};
+            float fCarryWeightBonus    = {};
+            float fSpeedMult           = {};
+            float fJumpMult            = {};
+            float fGTSAspect           = {};
 
-            float fStolenAtributes = {};
+            float fStolenAtributes    = {};
             float fStolenAtributesCap = {};
-            float fStolenHealth = {};
-            float fStolenMagicka = {};
-            float fStolenStamina = {};
-            float fStolenCap = {};
+            float fStolenHealth       = {};
+            float fStolenMagicka      = {};
+            float fStolenStamina      = {};
+            float fStolenCap          = {};
 
             //Player Only
-            bool bIsPlayer = {};
+            bool bIsPlayer          = {};
             float fShrinkResistance = {};
-            float fSizeEssence = {};
+            float fSizeEssence      = {};
 
             //Formated
-            std::string sFmtScale = {};
+            std::string sFmtScale  = {};
 			std::string sFmtWeight = {};
+
+            //Skill
+            float fSkillLevel    = {};
+            float fSkillProgress = {};
+            float fSkillRatio    = {};
 
             //Perk Check
             bool bHasPerk_GTSFullAssimilation = {};
@@ -79,7 +83,6 @@ namespace ImGuiEx {
 
         //Other UI Data
         bool bMassModeEnabled = false;
-        bool bIsPlayerMassMode = false;
 
         Section m_expandedSec;
         ImU32 m_wChildFlags = ImGuiChildFlags_None;

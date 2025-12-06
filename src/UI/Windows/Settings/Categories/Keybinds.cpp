@@ -391,8 +391,8 @@ namespace GTS {
                     // Column 4: Options Button
                     ImGui::BeginDisabled(IsRebinding);
                     ImGui::TableNextColumn();
-                    if (ImGuiEx::ImageButton(("##Options" + std::to_string(CurEventIndex)).c_str(), ImageList::Keybind_ShowAdvanced, 18, T6)) {
-                        ImGui::OpenPopup(("Options##" + std::to_string(CurEventIndex)).c_str());
+                    if (ImGuiEx::ImageButton(("##OptionsOpen" + std::to_string(CurEventIndex)).c_str(), ImageList::Keybind_ShowAdvanced, 18, T6)) {
+                        ImGui::OpenPopup(("##Options" + std::to_string(CurEventIndex)).c_str());
                     }
                     ImGui::EndDisabled();
 

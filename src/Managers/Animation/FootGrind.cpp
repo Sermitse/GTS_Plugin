@@ -5,7 +5,7 @@
 
 #include "Managers/Audio/Footstep.hpp"
 #include "Managers/Audio/Stomps.hpp"
-#include "Managers/Explosion.hpp"
+#include "Managers/ExplosionManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"

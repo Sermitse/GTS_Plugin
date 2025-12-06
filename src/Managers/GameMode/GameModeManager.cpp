@@ -298,8 +298,6 @@ namespace {
 			return;
 		}
 
-
-
 		// Stop if already at or below the target
 		if (a_CurrentTargetScale <= CurseTargetScale ||
 			(a_CurrentTargetScale - CurseTargetScale) <= kScaleEpsilon)
@@ -320,6 +318,63 @@ namespace {
 
 			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundShrink, a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
 			update_target_scale(a_Actor, -ModAmmount, SizeEffectType::kShrink);
+		}
+	}
+
+	void LevelLocked(Actor* a_Actor, const float a_CurrentTargetScale, const float a_MaxScale) {
+
+		if (GetCombatState(a_Actor) > 0 || IsGtsBusy(a_Actor)) return;
+
+		// Slider that determines max size cap.
+		float CurseTargetScale;
+		float PowerMult = 0.3f;
+
+		//Get the actor's Gamemode Timer From Transient and set a random value to it.
+		auto ActorData = Transient::GetActorData(a_Actor);
+		if (!ActorData) return;
+
+		Timer* IntervalTimer = &ActorData->ActionTimer;
+
+		//Set Values based on Settings and actor type.
+		if (a_Actor->formID == 0x14) {
+			const auto& Settings = Config::Gameplay.GamemodePlayer;
+			CurseTargetScale = (Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel;
+
+			const float RandomDelay = Settings.fGameModeUpdateInterval;
+			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+		}
+		else if (IsTeammate(a_Actor)) {
+			const auto& Settings = Config::Gameplay.GamemodeFollower;
+			CurseTargetScale = (Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel;
+			const float RandomDelay = Settings.fGameModeUpdateInterval;
+			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+		}
+		else {
+			return;
+		}
+
+		//If the target scale > than the actors max scale return
+		const float ScaleDiff = CurseTargetScale - a_CurrentTargetScale;
+
+		if (ScaleDiff <= kScaleEpsilon || a_CurrentTargetScale >= a_MaxScale) {
+			return;
+		}
+
+		if (IntervalTimer->ShouldRun()) {
+			const float ScaleMult = std::max(ScaleDiff, PowerMult);
+			constexpr float MinStep = 0.05f; // Minimum guaranteed growth per tick
+			float ModAmmount = std::max(PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult),
+				MinStep
+			);
+			ModAmmount = std::min(ModAmmount, ScaleDiff);
+
+			if (RandomBool(25.0f) && ModAmmount > 1.0f) {
+				Sound_PlayMoans(a_Actor, a_CurrentTargetScale / 4, 0.14f, EmotionTriggerSource::Growth);
+				Task_FacialEmotionTask_Moan(a_Actor, 2.0f, "CurseOfTheGiantess");
+			}
+
+			update_target_scale(a_Actor, ModAmmount, SizeEffectType::kGrow);
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
 		}
 	}
 
@@ -395,6 +450,11 @@ namespace GTS {
 				case LActiveGamemode_t::kSizeLocked: {
 					CurseOfTheGiantess(a_Actor, TargetScale, MaxScale);
 					CurseOfDiminishing(a_Actor, TargetScale);
+					break;
+				}
+
+				case LActiveGamemode_t::kLevelLocked: {
+					LevelLocked(a_Actor, TargetScale, MaxScale);
 					break;
 				}
 			}

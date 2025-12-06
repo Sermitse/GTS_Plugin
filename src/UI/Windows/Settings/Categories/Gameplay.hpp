@@ -12,7 +12,7 @@ namespace GTS {
         void DrawRight() override;
 
         private:
-        static void GameModeOptions(GameplayActorSettings_t* a_Settings);
+        static void GameModeOptions(GameplayActorSettings_t* a_Settings, bool a_isPlayer);
     };
 
 }

@@ -383,12 +383,11 @@ void GTSManager::Start() {
 void GTSManager::Update() {
 
 	UpdateInterractionDistance(); // Player exclusive
-	UpdateGlobalSizeLimit();
 	ShiftAudioFrequency();
 	ManageActorControl();         // Sadly have to call it non stop since im unsure how to easily fix it otherwise :(
 	UpdateCameraINIs();
 	ApplyTalkToActor();
-	UpdateMaxScale();             // Update max scale of each actor in the scene
+	
 	UpdateFalling();              // Update player size damage when falling down
 	CheckTalkPerk();
 	FixActorFade();               // Self explanatory
@@ -402,6 +401,10 @@ void GTSManager::Update() {
 	for (auto actor : ActorList) {
 
 		if (actor) {
+
+			SetNPCSkillLevelByPerk(actor);
+			UpdateGlobalSizeLimit(actor);
+			UpdateMaxScale(actor);
 
 			if (actor->formID == 0x14 || IsTeammate(actor)) {
 

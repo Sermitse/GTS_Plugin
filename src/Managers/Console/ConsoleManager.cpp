@@ -7,21 +7,14 @@ namespace GTS {
 
 	void ConsoleManager::RegisterCommand(std::string_view a_cmdName, const std::function<void()>& a_callback, const std::string& a_desc) {
 
-		auto& me = GetSingleton();
-
 		std::string name(a_cmdName);
-
-		me.RegisteredCommands.try_emplace(name, a_callback, a_desc);
-
-		log::info("Registered Console Command \"{} {}\"", me.Default_Preffix, name);
+		RegisteredCommands.try_emplace(name, a_callback, a_desc);
+		log::info("Registered Console Command \"{} {}\"", Default_Preffix, name);
 	}
-
 
 	bool ConsoleManager::Process(const std::string& a_msg) {
 
-		auto& me = GetSingleton();
-
-		[[unlikely]] if (me.RegisteredCommands.empty()) return false;
+		if (RegisteredCommands.empty()) return false;
 
 		//Convert to invariant and trim
 		std::stringstream Msg(trim(str_tolower(a_msg)));
@@ -39,7 +32,7 @@ namespace GTS {
 			Args.emplace_back(TmpArg);
 
 			//no "gts" ? then its not our problem to deal with
-			if (Args.at(0) != me.Default_Preffix) {
+			if (Args.at(0) != Default_Preffix) {
 				return false;
 			}
 		}
@@ -50,7 +43,7 @@ namespace GTS {
 			return true;
 		}
 
-		for (const auto& registered_command : me.RegisteredCommands) {
+		for (const auto& registered_command : RegisteredCommands) {
 			if (registered_command.first == Args.at(1)) {
 				if (registered_command.second.callback) {
 					registered_command.second.callback();
@@ -63,7 +56,7 @@ namespace GTS {
 			}
 		}
 
-		Cprint("Command not found type {} help for a list of commands.", me.Default_Preffix);
+		Cprint("Command not found type {} help for a list of commands.", Default_Preffix);
 		return true;
 	}
 
@@ -76,11 +69,10 @@ namespace GTS {
 	}
 
 	void ConsoleManager::CMD_Help() {
-		auto& me = GetSingleton();
 		Cprint("--- List of available commands ---");
 
-		for (const auto& key : me.RegisteredCommands) {
-			Cprint("* {} {} - {} ", me.Default_Preffix, key.first, key.second.desc);
+		for (const auto& key : RegisteredCommands) {
+			Cprint("* {} {} - {} ", Default_Preffix, key.first, key.second.desc);
 		}
 	}
 

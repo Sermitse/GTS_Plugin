@@ -1,4 +1,4 @@
-#include "Managers/Attributes.hpp"
+#include "Managers/AttributeManager.hpp"
 
 #include "Config/Config.hpp"
 

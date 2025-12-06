@@ -61,11 +61,9 @@ namespace Hooks {
 
 		logger::info("Installing Perk VTABLE MultiHooks...");
 
-		stl::write_vfunc_unique<AddPerk, 0>(VTABLE_Actor[0]);
 		stl::write_vfunc_unique<AddPerk, 1>(VTABLE_Character[0]);
 		stl::write_vfunc_unique<AddPerk, 2>(VTABLE_PlayerCharacter[0]);
 
-		stl::write_vfunc_unique<RemovePerk, 0>(VTABLE_Actor[0]);
 		stl::write_vfunc_unique<RemovePerk, 1>(VTABLE_Character[0]);
 		stl::write_vfunc_unique<RemovePerk, 2>(VTABLE_PlayerCharacter[0]);
 

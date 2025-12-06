@@ -22,7 +22,6 @@ namespace GTS {
 				KillData->iTotalKills += 1; // Always increment total kills
 				switch (a_type) {
 					case DeathType::kShrunkToNothing: 	KillData->iShrunkToNothing += 1;		break;
-					case DeathType::kOtherSources:		KillData->iOtherSources += 1;			break;
 					case DeathType::kBreastAbsorbed:	KillData->iBreastAbsorbed += 1;			break;
 					case DeathType::kBreastCrushed:		KillData->iBreastCrushed += 1;			break;
 					case DeathType::kBreastSuffocated:  KillData->iBreastSuffocated +=1;    	break;
@@ -40,7 +39,10 @@ namespace GTS {
 					case DeathType::kEaten:				KillData->iEaten += 1;					break;
 					case DeathType::kKicked:			KillData->iKicked += 1;					break;
 					case DeathType::kGrinded:			KillData->iGrinded += 1;				break;
-					default: break;
+					
+					default:
+					case DeathType::kOtherSources:		KillData->iOtherSources += 1;			break;
+					
 				}
 			}
 		}
@@ -62,7 +64,6 @@ namespace GTS {
 				switch (Type) {
 					case DeathType::kTotalKills:		 return KillData->iTotalKills;
 					case DeathType::kShrunkToNothing: 	 return KillData->iShrunkToNothing;
-					case DeathType::kOtherSources:		 return KillData->iOtherSources;
 					case DeathType::kBreastAbsorbed:	 return KillData->iBreastAbsorbed;
 					case DeathType::kBreastCrushed:		 return KillData->iBreastCrushed;
 					case DeathType::kBreastSuffocated:   return KillData->iBreastSuffocated;
@@ -80,7 +81,9 @@ namespace GTS {
 					case DeathType::kEaten:				 return KillData->iEaten;
 					case DeathType::kKicked:			 return KillData->iKicked;
 					case DeathType::kGrinded:			 return KillData->iGrinded;
-					default: return 0;
+
+					default:
+					case DeathType::kOtherSources:		 return KillData->iOtherSources;
 				}
 			}
 		}

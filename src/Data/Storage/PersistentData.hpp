@@ -12,6 +12,9 @@ namespace GTS {
 		float fTargetScale = 1.0f;
 		float fTargetScaleV = 0.0f;
 		float fMaxScale = 65535.0f;
+		float fExtraPotionMaxScale = 0.0f;
+		float fSizeLimit = 1.0f;
+		float fMassBasedLimit = 1.0f;
 
 		//Damage
 		float fNormalDamage = 1.0f;
@@ -37,6 +40,15 @@ namespace GTS {
 		//Furniture
 		bool bIsUsingFurniture = false;
 		float fRecordedFurnScale = 1.0f;
+
+		//Morphs
+		float fBreastsScale = 0.0f;
+		float fBellyScale = 0.0f;
+
+		//Skill Level (NPC only)
+		float fGTSSkillLevel = 0.0f;
+		float fGTSSkillExp   = 0.0f;
+		float fGTSSkillRatio = 0.0f;
 
 		/*
 		//These two should trigger a hash colission

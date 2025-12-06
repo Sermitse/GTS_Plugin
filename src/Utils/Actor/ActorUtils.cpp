@@ -16,9 +16,9 @@
 #include "Managers/Damage/LaunchActor.hpp"
 #include "Managers/AI/AIfunctions.hpp"
 #include "Managers/Audio/Footstep.hpp"
-#include "Managers/Attributes.hpp"
+#include "Managers/AttributeManager.hpp"
 #include "Managers/Rumble.hpp"
-#include "Managers/Explosion.hpp"
+#include "Managers/ExplosionManager.hpp"
 #include "Managers/GTSSizeManager.hpp"
 #include "Managers/HighHeel.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
@@ -2992,13 +2992,19 @@ namespace GTS {
 	}
 
 	float GetGtsSkillLevel(Actor* giant) {
-        if (giant->formID == 0x14) {
+
+        if (giant->IsPlayerRef()) {
             auto GtsSkillLevel = Runtime::GetFloat(Runtime::GLOB.GTSSkillLevel);
             return GtsSkillLevel;
-        } else {
-            float Alteration = std::clamp(GetAV(giant, ActorValue::kAlteration), 1.0f, 100.0f);
-            return Alteration;
-        }
+        } 
+
+		if (auto data = Persistent::GetActorData(giant)) {
+			return data->fGTSSkillLevel;
+		}
+		//Fallback
+		float Alteration = std::clamp(GetAV(giant, ActorValue::kAlteration), 1.0f, 100.0f);
+		return Alteration;
+
     }
 
 	float GetLegendaryLevel(Actor* giant) {
@@ -3029,12 +3035,12 @@ namespace GTS {
 			size_boost = 1.2f;
 		}
 
-		auto& BonusSize = Persistent::PlayerExtraPotionSize;  // Gts_ExtraPotionSize
+		if (auto data = Persistent::GetActorData(PlayerCharacter::GetSingleton())) {
+			data->fExtraPotionMaxScale += size_increase * size_boost;
+		}
 
 		ModSizeExperience(player, 0.45f);
-
 		Notify("You feel like something is filling you");
-		BonusSize.value += size_increase * size_boost;
 
 		if (rng <= 1) {
 			Sound_PlayMoans(player, 1.0f, 0.14f, EmotionTriggerSource::Absorption);

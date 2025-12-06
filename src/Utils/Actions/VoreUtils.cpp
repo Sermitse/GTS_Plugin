@@ -12,6 +12,7 @@
 #include "Utils/KillDataUtils.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
+#include "Managers/Morphs/MorphManager.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
 
 using namespace GTS;
@@ -58,7 +59,6 @@ namespace GTS {
 		float growth = 0.275f; // Default power of gaining size
 
 		UpdateVoreValues(giant, tiny, Health_Regeneration, growth, duration);
-		std::string_view tiny_name = tiny->GetDisplayFullName();
 
 		float bounding_box = GetSizeFromBoundingBox(tiny);
 		float Vore_Power = growth * growth_mult * bounding_box; // power of most buffs that we start
@@ -100,7 +100,7 @@ namespace GTS {
 
     void CantVorePlayerMessage(Actor* giant, Actor* tiny, float sizedifference) {
 		if (sizedifference < Action_Vore) {
-			std::string message = std::format("Player is too big to be eaten: x{:.2f}/{:.2f}", sizedifference, Action_Vore);
+			std::string message = std::format("{} is too big to be eaten: x{:.2f}/{:.2f}", PlayerCharacter::GetSingleton()->GetName(), sizedifference, Action_Vore);
 			NotifyWithSound(tiny, message);
 		}
 	}
@@ -118,8 +118,7 @@ namespace GTS {
 	}
 
 	void Task_Vore_FinishVoreBuff(const VoreInformation& VoreInfo, Actor* tiny, int amount_of_tinies, bool Devourment) {
-        std::string_view tiny_name = VoreInfo.Tiny_Name; // Used for death message
-		
+
 		float sizePower = VoreInfo.Vore_Power;
         float Box_Scale = VoreInfo.Box_Scale; // Base scale of Bounding Box
         float tinySize = VoreInfo.Scale; // Pre-Shrink scale of actor (before entering mouth)
@@ -161,6 +160,11 @@ namespace GTS {
                 Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Vore);
             }
 
+			//Remove tiny from belly scale
+			if (!AllowDevourment()) {
+				MorphManager::AlterMorph(VoreInfo.giantess, MorphManager::Category::kBelly, MorphManager::Action::kModify, -Config::Gameplay.ActionSettings.fBellyAbsorbIncrementBy, MorphManager::UpdateKind::kGradual, 1.0f);
+			}
+
             Rumbling::Once("GrowthRumble", giant, 1.75f, 0.30f);
         }
 	}
@@ -185,7 +189,9 @@ namespace GTS {
 			float formula = GetGrowthFormula(giantSize, tinySize, false);
 			float size_gain = (sizePower * formula * TimeScale()) / 5000;
 
-
+			if (Config::Gameplay.ActionSettings.bEnableBellyMorph) {
+				MorphManager::AlterMorph(VoreInfo.giantess, MorphManager::Category::kBelly, MorphManager::Action::kModify, Config::Gameplay.ActionSettings.fBellyAbsorbIncrementBy, MorphManager::UpdateKind::kGradual, 1.0f);
+			}
 
 			TaskManager::Run(name, [=](auto& progressData) {
 				if (!gianthandle) {

@@ -36,7 +36,6 @@ namespace Hooks {
 
 		logger::info("Installing BSAnimationGraph VTABLE MultiHooks...");
 
-		//stl::write_vfunc_unique<BSAnimationGraphEventHandle, 0>(VTABLE_Actor[2]);
 		stl::write_vfunc_unique<BSAnimationGraphEventHandle, 1>(VTABLE_Character[2]);
 		stl::write_vfunc_unique<BSAnimationGraphEventHandle, 2>(VTABLE_PlayerCharacter[2]);
 	}

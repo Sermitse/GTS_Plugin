@@ -2,10 +2,8 @@
 
 #include "Config/Config.hpp"
 #include "Config/ConfigModHandler.hpp"
-
 #include "UI/Controls/CheckBox.hpp"
 #include "UI/Controls/Slider.hpp"
-
 #include "UI/Core/ImUtil.hpp"
 #include "UI/Lib/imgui.h"
 
@@ -33,7 +31,6 @@ namespace GTS {
 				}
 
                 ImGui::Spacing();
-
 			}
 		}
 
@@ -209,11 +206,10 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Cleavage Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                PSString T0 = "Modify the placement of actors during cleavage actions.\n"
-            	              "Up/Down | Forward/Back";
+                PSString T1 = "Modify the placement of actors during cleavage actions.\n"
+                              "Up/Down | Forward/Back";
 
-                ImGuiEx::SliderF2("Placement Offset", &Config::Gameplay.ActionSettings.f2CleavageOffset.at(0), -15.0f, 15.0f, T0, "%.2f");
-
+                ImGuiEx::SliderF2("Placement Offset", &Config::Gameplay.ActionSettings.f2CleavageOffset.at(0), -15.0f, 15.0f, T1, "%.2f");
                 ImGui::Spacing();
             }
         }

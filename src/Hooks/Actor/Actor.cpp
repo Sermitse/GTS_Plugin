@@ -1,6 +1,6 @@
 #include "Hooks/Actor/Actor.hpp"
 #include "Hooks/Util/HookUtil.hpp"
-#include "Managers/Attributes.hpp"
+#include "Managers/AttributeManager.hpp"
 #include "Managers/Damage/SizeHitEffects.hpp"
 
 namespace Hooks {
@@ -58,17 +58,35 @@ namespace Hooks {
 		FUNCTYPE_VFUNC_UNIQUE func;
 	};
 
+	struct Update {
+
+		static constexpr std::size_t funcIndex = 0xAD;
+		template<int ID>
+		static void thunk(RE::Actor* a_this, float a_deltaTime) {
+
+			func<ID>(a_this, a_deltaTime);
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Update", ID);
+				EventDispatcher::DoActorUpdate(a_this);
+			}
+
+		}
+		template<int ID>
+		FUNCTYPE_VFUNC_UNIQUE func;
+	};
+
 	void Hook_Actor::Install() {
 
 		logger::info("Installing Actor VTABLE MultiHooks...");
 
-		//stl::write_vfunc_unique<HandleHealthDamage, 0>(VTABLE_Actor[0]);
 		stl::write_vfunc_unique<HandleHealthDamage, 1>(VTABLE_Character[0]);
 		stl::write_vfunc_unique<HandleHealthDamage, 2>(VTABLE_PlayerCharacter[0]);
 
-		//stl::write_vfunc_unique<Move, 0>(VTABLE_Actor[0]);
 		stl::write_vfunc_unique<Move, 1>(VTABLE_Character[0]);
 		stl::write_vfunc_unique<Move, 2>(VTABLE_PlayerCharacter[0]);
 
+		stl::write_vfunc_unique<Update, 1>(VTABLE_Character[0]);
+		stl::write_vfunc_unique<Update, 2>(VTABLE_PlayerCharacter[0]);
 	}
 }

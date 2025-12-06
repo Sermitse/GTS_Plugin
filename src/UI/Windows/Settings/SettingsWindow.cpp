@@ -32,6 +32,10 @@
 #include "Version.hpp"
 #include "git.h"
 
+#include "Categories/Morphs.hpp"
+
+#include "Config/ConfigModHandler.hpp"
+
 namespace GTS {
 
 	bool SettingsWindow::LoadImpl() {
@@ -136,6 +140,7 @@ namespace GTS {
 		CategoryMgr->AddCategory(std::make_unique<CategoryGameplay>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryBalance>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryActions>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryMorphs>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryAudio>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryAI>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryCamera>());
@@ -205,6 +210,10 @@ namespace GTS {
 		}
 
 		else {
+
+			if (m_MorphDataWasModified) {
+				ConfigModHandler::HandleRaceMenuDataUpdate();
+			}
 
 			//If save fails don't hide self and show modal box.
 			if (!SaveImpl()) {

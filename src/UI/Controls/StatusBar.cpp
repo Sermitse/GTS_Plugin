@@ -3,7 +3,7 @@
 
 #include "UI/Core/ImUtil.hpp"
 
-#include "Managers/Attributes.hpp"
+#include "Managers/AttributeManager.hpp"
 
 namespace {
 

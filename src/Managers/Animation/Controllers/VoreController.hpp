@@ -68,7 +68,7 @@ namespace GTS {
 		std::vector<Actor*> GetVoreTargetsInFront(Actor* pred, std::size_t numberOfPrey);
 
 		// Check if they can vore based on size difference and reach distance
-		bool CanVore(Actor* pred, Actor* prey);
+		bool CanVore(Actor* pred, Actor* prey) const;
 
 		// Do the vore
 		void StartVore(Actor* pred, Actor* prey);

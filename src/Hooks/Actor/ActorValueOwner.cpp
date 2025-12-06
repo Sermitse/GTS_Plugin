@@ -1,6 +1,6 @@
 #include "Hooks/Actor/ActorValueOwner.hpp"
 #include "Hooks/Util/HookUtil.hpp"
-#include "Managers/Attributes.hpp"
+#include "Managers/AttributeManager.hpp"
 #include "Managers/AI/AIFunctions.hpp"
 
 namespace Hooks {
@@ -116,20 +116,16 @@ namespace Hooks {
 
 		logger::info("Installing ActorValueOwner VTABLE MultiHooks...");
 
-		//stl::write_vfunc_unique<GetActorValue, 0>(VTABLE_Actor[5]);
 		stl::write_vfunc_unique<GetActorValue, 1>(VTABLE_Character[5]);
 		stl::write_vfunc_unique<GetActorValue, 2>(VTABLE_PlayerCharacter[5]);
 
 		//Unused
-		/*stl::write_vfunc_unique<GetPermanentActorValue, 0>(VTABLE_Actor[5]);
-		stl::write_vfunc_unique<GetPermanentActorValue, 1>(VTABLE_Character[5]);
+		/*stl::write_vfunc_unique<GetPermanentActorValue, 1>(VTABLE_Character[5]);
 		stl::write_vfunc_unique<GetPermanentActorValue, 2>(VTABLE_Actor[5]);*/
 
-		//stl::write_vfunc_unique<GetBaseActorValue, 0>(VTABLE_Actor[5]);
 		stl::write_vfunc_unique<GetBaseActorValue, 1>(VTABLE_Character[5]);
 		stl::write_vfunc_unique<GetBaseActorValue, 2>(VTABLE_PlayerCharacter[5]);
 
-		//stl::write_vfunc_unique<SetBaseActorValue, 0>(VTABLE_Actor[5]);
 		stl::write_vfunc_unique<SetBaseActorValue, 1>(VTABLE_Character[5]);
 		stl::write_vfunc_unique<SetBaseActorValue, 2>(VTABLE_PlayerCharacter[5]);
 

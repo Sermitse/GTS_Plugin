@@ -36,13 +36,22 @@ enum class LActiveGamemode_t : uint8_t {
     kCurseOfGrowth,
     kCurseOfTheGiantess,
     kCurseOfDiminishing,
-    kSizeLocked
+    kSizeLocked,
+    kLevelLocked
 };
 
 //-------------------------------------------------------------------------------------------------------------------
 //  CHILD STRUCTS 
 //  (Not Directly Serialized, but used within other structs)
 //-------------------------------------------------------------------------------------------------------------------
+
+//16 ought to be enough
+struct GameplayMorphSettings_t {
+    float fMultiplier = 1.0f;
+    std::array<std::string, 16> MorphNames;
+    std::array<float, 16> MorphScales;
+};
+TOML_SERIALIZABLE(GameplayMorphSettings_t);
 
 struct GameplayActionSettings_t {
 
@@ -59,6 +68,8 @@ struct GameplayActionSettings_t {
     bool bAllowInsects = false;
     bool bAllowUndead = false;
     bool bDVDoEndoOnTeam = false;
+    bool bEnableBellyMorph = true;
+    float fBellyAbsorbIncrementBy = 0.55f;
 
     //Stomp Settings
     float fPlayerUnderstompGrindChance = 20.0f;
@@ -75,8 +86,42 @@ struct GameplayActionSettings_t {
 
     // Cleavage offset for forward/back and up/down adjustments
     std::array<float, 2> f2CleavageOffset = { 0.0f, 0.0f };
+    
+    //Cleavage Settings
     float fGrabPlayVoreOffset_Z = 0.0f;
+    bool bShrinkBreastsOverTime = true;
+    float fBreastShrinkRate = 0.15f;
+    float fBreastsAbsorbIncrementBy = 1.85;
+    bool bEnlargeBreastsOnAbsorption = true;
 
+
+
+	//Morph Lists
+    GameplayMorphSettings_t MorphListBreasts = {
+        .fMultiplier = 1.0f,
+		.MorphNames = {
+		    "Breasts",
+		    "BreastsFantasy",
+		    "BreastsNewSH",
+		    "BreastGravity2"
+		},
+		.MorphScales = {
+		    0.45f,
+		    0.20f,
+		    0.30f,
+		    0.15f
+		}
+    };
+
+    GameplayMorphSettings_t MorphListBelly = {
+        .fMultiplier = 1.0f,
+        .MorphNames = {
+            "PregnancyBelly",
+        },
+        .MorphScales = {
+            0.20f,
+        }
+    };
 };
 TOML_SERIALIZABLE(GameplayActionSettings_t);
 
@@ -98,6 +143,9 @@ struct GameplayActorSettings_t {
     float fGameModeUpdateInterval = 3.0f;
     bool bMultiplyGrowthrate = false;
 
+    float fScalePerLevel = 0.05f;
+	bool bUseGTSSkill = false;
+
 };
 TOML_SERIALIZABLE(GameplayActorSettings_t);
 
@@ -112,6 +160,8 @@ struct SettingsGameplay_t {
     GameplayActorSettings_t GamemodePlayer = {};
     GameplayActorSettings_t GamemodeFollower = {};
     GameplayActionSettings_t ActionSettings = {};
+
+
 
     // Size Effects
     bool bPlayerAnimEffects = true;
@@ -128,6 +178,8 @@ struct SettingsGameplay_t {
     bool bEnableCrushGrowth = true;
     bool bEnableGrowthOnHit = true;
     float fFullAssimilationLevelCap = 1.0f;
+
+
 
 };
 TOML_SERIALIZABLE(SettingsGameplay_t);

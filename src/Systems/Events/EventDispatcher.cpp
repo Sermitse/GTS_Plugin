@@ -51,6 +51,20 @@ namespace GTS {
 		});
 	}
 
+	void EventDispatcher::DoActorUpdate(RE::Actor* actor) {
+
+		////Experiment
+		//ForEachListenerConcurrent([](EventListener* listener) {
+		//	GTS_PROFILE_SCOPE(listener->DebugName());
+		//	listener->Update();
+		//});
+
+		ForEachListener([actor](EventListener* listener) {
+			GTS_PROFILE_SCOPE(listener->DebugName());
+			listener->ActorUpdate(actor);
+		});
+	}
+
 	void EventDispatcher::DoPapyrusUpdate() {
 		ForEachListener([](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName());

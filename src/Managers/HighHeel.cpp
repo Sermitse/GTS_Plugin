@@ -5,10 +5,16 @@
 
 #include "Config/Config.hpp"
 
-using json = nlohmann::json;
 using namespace GTS;
 
+struct SDTAAlteration {
+	std::string name;
+	std::vector<float> pos;
+};
+
 namespace {
+
+
 	bool DisableHighHeels(Actor* actor) {
 		bool disable = (
 			AnimationManager::HHDisabled(actor) || !Config::General.bEnableHighHeels ||
@@ -17,6 +23,8 @@ namespace {
 		);
 		return disable;
 	}
+
+
 	bool DisableOnFurniture(Actor* actor) {
 		const auto ActorState = actor->AsActorState()->GetSitSleepState();
 		bool DisableFurniture = Config::General.bHighheelsFurniture;
@@ -37,6 +45,7 @@ namespace {
 		bool ShouldBeDisabled = (DisableFurniture && Sitting) || (Sleeping);
 		return ShouldBeDisabled;
 	}
+
 }
 
 namespace GTS {
@@ -162,79 +171,134 @@ namespace GTS {
 		}
 	}
 
-	// This seems to be the most expensive HH function so far, not sure how to optimize it properly
+
+
 	void HighHeelManager::UpdateHHOffset(Actor* actor) {
 		GTS_PROFILE_SCOPE("HHMgr: UpdateHHOffset");
 		auto models = GetModelsForSlot(actor, BGSBipedObjectForm::BipedObjectSlot::kFeet);
-		NiPoint3 result = NiPoint3();
-		for (auto model: models) {
-			if (model) {
-				VisitExtraData<NiFloatExtraData>(model, "HH_OFFSET", [&result](NiAVObject& currentnode, NiFloatExtraData& data) {
-					result.z = fabs(data.value);
+		NiPoint3 result{};
+
+		for (auto model : models) {
+			if (!model) continue;
+
+			VisitExtraData<NiFloatExtraData>(model, "HH_OFFSET",
+				[&result](NiAVObject&, NiFloatExtraData& data) {
+					result.z = std::fabs(data.value);
 					return false;
-				});
-				VisitExtraData<NiStringExtraData>(model, "SDTA", [&result](NiAVObject& currentnode, NiStringExtraData& data) {
-					std::string stringDataStr = data.value;
-					try{
-						std::stringstream jsonData(stringDataStr);
-						json j = json::parse(jsonData);
-						for (const auto& alteration: j) {
-							if (alteration.contains("name") && alteration.contains("pos") && alteration["name"] == "NPC" && alteration["pos"].size() > 2) {
-								auto p = alteration["pos"].template get<std::vector<float> >();
-								result = NiPoint3(p[0], p[1], p[2]);
-								return false;
+				}
+			);
+
+			VisitExtraData<NiStringExtraData>(model, "SDTA", [&result](NiAVObject&, NiStringExtraData& data) {
+				std::string_view sv = data.value;
+
+				// Quick reject
+				if (sv.find("\"pos\"") == std::string_view::npos) {
+					return true;
+				}
+
+				// Sanitize only if needed (check for malformed float pattern)
+				std::string sanitized;
+				bool needsSanitization = false;
+
+				// Quick scan for double-dot pattern
+				for (size_t i = 0; i + 2 < sv.size(); ++i) {
+					if (sv[i] == '.' && std::isdigit(static_cast<unsigned char>(sv[i + 1]))) {
+						size_t j = i + 1;
+						while (j < sv.size() && std::isdigit(static_cast<unsigned char>(sv[j]))) ++j;
+						if (j < sv.size() && sv[j] == '.') {
+							needsSanitization = true;
+							break;
+						}
+					}
+				}
+
+				std::string_view parseView = sv;
+				if (needsSanitization) {
+					sanitized.reserve(sv.size());
+					sanitized = sv;
+
+					// Sanitize malformed floats
+					size_t i = 0;
+					while (i < sanitized.size()) {
+						if (std::isdigit(static_cast<unsigned char>(sanitized[i]))) {
+							size_t numStart = i;
+							while (i < sanitized.size() && std::isdigit(static_cast<unsigned char>(sanitized[i]))) ++i;
+
+							if (i < sanitized.size() && sanitized[i] == '.') {
+								++i; // First dot
+								if (i < sanitized.size() && std::isdigit(static_cast<unsigned char>(sanitized[i]))) {
+									while (i < sanitized.size() && std::isdigit(static_cast<unsigned char>(sanitized[i]))) ++i;
+
+									// Second dot (malformed)
+									if (i < sanitized.size() && sanitized[i] == '.') {
+										size_t endPos = i;
+										while (endPos < sanitized.size() &&
+											(std::isdigit(static_cast<unsigned char>(sanitized[endPos])) || sanitized[endPos] == '.')) {
+											++endPos;
+										}
+										sanitized.erase(i, endPos - i);
+										continue;
+									}
+								}
 							}
 						}
-						return true;
-					} catch (const json::exception& e) {
-						//log::warn("JSON parse error: {}. Using alternate method", e.what());
+						++i;
+					}
+					parseView = sanitized;
+				}
 
-						auto posStart = stringDataStr.find("\"pos\":[");
-						if (posStart == std::string::npos) {
-							//log::warn("Pos not found in string. High Heel will be disabled");
-							return true;
-						}
+				// Try glaze parsing
+				std::vector<SDTAAlteration> alterations;
+				auto ec = glz::read_json(alterations, parseView);
 
-						posStart += 7;
-						auto posEnd = stringDataStr.find("]", posStart);
-
-						if (posEnd != std::string::npos && posStart != posEnd) {
-								
-							std::string posString = stringDataStr.substr(posStart, posEnd - posStart);
-
-							auto posValueStart = 0;
-							auto posValueEnd = static_cast<int>(posString.find(",", posValueStart));
-							
-							float pos_x = static_cast<float>(std::stod(posString.substr(posValueStart, posValueEnd - posValueStart)));
-							
-							posValueStart = posValueEnd + 1;
-							posValueEnd = static_cast<int>(posString.find(",", posValueStart));
-							float pos_y = static_cast<float>(std::stod(posString.substr(posValueStart, posValueEnd - posValueStart)));
-							
-							posValueStart = posValueEnd + 1;
-							float pos_z = static_cast<float>(std::stod(posString.substr(posValueStart)));
-
-							result = NiPoint3(pos_x, pos_y, pos_z);
+				if (!ec) {
+					for (const auto& alt : alterations) {
+						if (alt.name == "NPC" && alt.pos.size() >= 3) {
+							result = NiPoint3(alt.pos[0], alt.pos[1], alt.pos[2]);
 							return false;
 						}
-
-						return true;
-					} catch (const std::exception& e) {
-						//log::warn("Error while parsing the JSON data: {}", e.what());
-						return true;
 					}
-				});
-			}
-		}
-		//log::info("Base HHOffset: {}", Vector2Str(result));
-		auto npcNodeScale = get_npcparentnode_scale(actor);
+					return true;
+				}
 
-		auto& me = HighHeelManager::GetSingleton();
+				// Fallback manual parser for malformed JSON
+				size_t posStart = parseView.find("\"pos\":[");
+				if (posStart == std::string_view::npos) {
+					return true;
+				}
+				posStart += 7;
+				size_t posEnd = parseView.find(']', posStart);
+				if (posEnd == std::string_view::npos || posEnd == posStart) {
+					return true;
+				}
+
+				const char* ptr = parseView.data() + posStart;
+				const char* end = parseView.data() + posEnd;
+				char* endptr;
+				float vals[3];
+
+				for (int i = 0; i < 3; ++i) {
+					while (ptr < end && (*ptr == ',' || std::isspace(static_cast<unsigned char>(*ptr)))) ++ptr;
+					if (ptr >= end) return true;
+
+					vals[i] = std::strtof(ptr, &endptr);
+					if (endptr == ptr || !std::isfinite(vals[i])) return true;
+					ptr = endptr;
+				}
+
+				result = NiPoint3(vals[0], vals[1], vals[2]);
+				return false;
+			});
+		}
+
+		auto npcNodeScale = get_npcparentnode_scale(actor);
+		static auto& me = GetSingleton();
 		me.data.try_emplace(actor);
 		auto& hhData = me.data[actor];
-		hhData.lastBaseHHOffset = result * npcNodeScale; // Record hh height that is affected by natural scale for .z offset of model
-		hhData.InitialHeelHeight = result.z; // Record initial hh height for hh damage boost
+		hhData.lastBaseHHOffset = result * npcNodeScale;
+		hhData.InitialHeelHeight = result.z;
 	}
+
 
 	// Unscaled base .z offset of HH, takes Natural Scale into account
 	NiPoint3 HighHeelManager::GetBaseHHOffset(Actor* actor) {  

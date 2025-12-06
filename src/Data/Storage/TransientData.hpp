@@ -40,6 +40,12 @@ namespace GTS {
 		float HandVelocity_R = 0.0f;
 		float HandVelocity_L = 0.0f;
 
+		float CurrentBreastsScale = 0.0f;
+		float CurrentBellyScale = 0.0f;
+		float BreastsTransitionTime = 0.0f;
+		float BellyTransitionTime = 0.0f;
+
+
 		int Stacks_Perk_CataclysmicStomp = 0;
 		int Stacks_Perk_LifeForce = 0;
 		int CrushSound_Calc_CrushedTinies = 0;

@@ -1,6 +1,7 @@
 #pragma once
 
 namespace GTS {
+
 	void Node_CreateNewNode(Actor* giant, std::string_view name, std::string_view connect_to);
 	NiPoint3 Node_WorldToLocal(NiAVObject* node, const NiPoint3& world_pos);
 	NiPoint3 Node_LocalToWorld(NiAVObject* node, const NiPoint3& local_pos);
@@ -23,6 +24,7 @@ namespace GTS {
 
 	std::vector<NiAVObject*> GetModelsForSlot(Actor* actor, BGSBipedObjectForm::BipedObjectSlot slot);
 	void VisitNodes(NiAVObject* root, const std::function<bool(NiAVObject& a_obj)>& a_visitor);
+	
 	template<typename T>
 	void VisitExtraData(NiAVObject* root, std::string_view name, std::function<bool(NiAVObject& a_obj, T& data)> a_visitor) {
 		VisitNodes(root, [&root, &name, &a_visitor](NiAVObject& node) {

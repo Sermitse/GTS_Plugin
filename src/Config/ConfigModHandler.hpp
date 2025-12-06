@@ -6,11 +6,13 @@ namespace GTS {
 		public:
 		static void DoCameraStateReset();
 		static void DoHighHeelStateReset();
+		static void HandleRaceMenuDataUpdate();
 		std::string DebugName() override;
 		void OnGameSave() override;
 		void OnGameLoaded() override;
 		void OnConfigReset() override;
 		void OnConfigRefresh() override;
+
 	};
 
 }

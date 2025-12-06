@@ -10,11 +10,12 @@
 
 #include "Config/Config.hpp"
 
+#include "UI/GTSMenu.hpp"
 #include "UI/Controls/CollapsingTabHeader.hpp"
 
 namespace GTS {
 
-    void CategoryGameplay::GameModeOptions(GameplayActorSettings_t* a_Settings) {
+    void CategoryGameplay::GameModeOptions(GameplayActorSettings_t* a_Settings, bool a_isPlayer) {
 
         PSString T0 = "Select the game mode\n\n"
                       "Basic:\n"
@@ -47,25 +48,69 @@ namespace GTS {
 
         ImGuiEx::ComboEx<LActiveGamemode_t>("Game Mode", a_Settings->sGameMode, T0);
 
+		auto currentMode = magic_enum::enum_cast<LActiveGamemode_t>(a_Settings->sGameMode);
+
         ImGui::BeginDisabled(a_Settings->sGameMode == "kNone");
 
         ImGui::Spacing();
-        ImGui::Text("Basic Game Modes");
-
         static std::array const pTemp = { &a_Settings->fGrowthRate, &a_Settings->fShrinkRate };
+        
 
-        ImGuiEx::SliderF2("Grow/Shrink Rate", pTemp.at(0), 0.001f, 0.2f, T1, "%.3fx");
-        ImGuiEx::CheckBox("Multiply Rates", &a_Settings->bMultiplyGrowthrate, T4);
+        if (currentMode.has_value()) {
 
-        ImGui::Spacing();
-        ImGui::Text("Curse Game Modes");
-        ImGuiEx::SliderF("Curse Update Interval", &a_Settings->fGameModeUpdateInterval, 1.0f, 60.0f, T6, "Every %.2f Seconds");
-        ImGuiEx::SliderF("Curse of Growth Limit", &a_Settings->fCurseGrowthSizeLimit, 1.1f, 50.0f, T3, "%.2fx");
-        ImGuiEx::SliderF("Target Scale", &a_Settings->fCurseTargetScale, 0.5f, 5.0f, T5, "%.2fx");
+            const bool CurseModes = currentMode.value() == LActiveGamemode_t::kCurseOfGrowth      ||
+                                    currentMode.value() == LActiveGamemode_t::kCurseOfTheGiantess ||
+                                    currentMode.value() == LActiveGamemode_t::kCurseOfDiminishing ||
+                                    currentMode.value() == LActiveGamemode_t::kSizeLocked         ||
+                                    currentMode.value() == LActiveGamemode_t::kLevelLocked;
+
+            const bool UsesMultiplier = !CurseModes;
+			const bool UsesRate = currentMode.value() != LActiveGamemode_t::kLevelLocked;
+
+            ImGui::Spacing();
+
+            if (UsesRate) {
+                ImGuiEx::SliderF2("Grow/Shrink Rate", pTemp.at(0), 0.001f, 0.2f, T1, "%.3fx");
+            }
+
+            if (UsesMultiplier) {
+                ImGuiEx::CheckBox("Multiply Rates", &a_Settings->bMultiplyGrowthrate, T4);
+            }
+
+            if (CurseModes) {
+                ImGuiEx::SliderF("Update Interval", &a_Settings->fGameModeUpdateInterval, 1.0f, 60.0f, T6, "Every %.2f Seconds");
+            }
+
+            if (currentMode.value() == LActiveGamemode_t::kCurseOfTheGiantess ||
+                currentMode.value() == LActiveGamemode_t::kCurseOfDiminishing ||
+                currentMode.value() == LActiveGamemode_t::kSizeLocked){
+                ImGuiEx::SliderF("Curse of Growth Limit", &a_Settings->fCurseGrowthSizeLimit, 1.1f, 50.0f, T3, "%.2fx");
+                ImGuiEx::SliderF("Target Scale", &a_Settings->fCurseTargetScale, 0.5f, 5.0f, T5, "%.2fx");
+            }
+            else if (currentMode.value() == LActiveGamemode_t::kLevelLocked) {
+
+                if (a_isPlayer) {
+                    Actor* Target = PlayerCharacter::GetSingleton();
+                    float TargetScale = (a_Settings->bUseGTSSkill ? GetGtsSkillLevel(Target) : Target->GetLevel()) * a_Settings->fScalePerLevel;
+                    ImGui::Text("%s's Minimum Scale Will Be: %.2fx", Target->GetName(), TargetScale);
+                }
+                else {
+                    for (const auto& teammate : GTSMenu::WindowManager->GetCachedTeamMateList()) {
+                        float TargetScale = (a_Settings->bUseGTSSkill ? GetGtsSkillLevel(teammate) : teammate->GetLevel()) * a_Settings->fScalePerLevel;
+                        ImGui::PushID(teammate);
+                        ImGui::Text("%s's Minimum Scale Will Be: %.2fx", teammate->GetName(), TargetScale);
+                        ImGui::PopID();
+                    }
+                }
+
+                ImGuiEx::SliderF("Scale Per Level", &a_Settings->fScalePerLevel, 0.0001f, 0.2f, "Increase Size per Level", "Adds %.4fx per Level");
+                ImGuiEx::CheckBox("Use GTS Skill Level", &a_Settings->bUseGTSSkill, "Use the GTS Skill Level instead of the regular Level to calculate target scale.");
+
+            }
+        }
 
         ImGui::EndDisabled();
         ImGui::Spacing();
-        
     }
 
     CategoryGameplay::CategoryGameplay() {
@@ -225,9 +270,9 @@ namespace GTS {
             if (ImGuiEx::BeginCollapsingTabHeader(GameModeSettingsHeader)) {
                 // Content based on active tab
                 switch (GameModeSettingsHeader.GetActiveTab()) {
-                    case 0: GameModeOptions(&Config::Gameplay.GamemodePlayer);   break;
-                    case 1: GameModeOptions(&Config::Gameplay.GamemodeFollower); break;
-                    default:                                                     break;
+                    case 0: GameModeOptions(&Config::Gameplay.GamemodePlayer, true);    break;
+                    case 1: GameModeOptions(&Config::Gameplay.GamemodeFollower, false); break;
+                    default:                                                            break;
                 }
             }
 

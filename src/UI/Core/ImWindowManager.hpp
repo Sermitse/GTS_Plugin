@@ -2,6 +2,7 @@
 
 #include "UI/Core/ImContextManager.hpp"
 #include "UI/Core/ImWindow.hpp"
+#include "UI/Windows/Settings/SettingsWindow.hpp"
 
 namespace GTS {
 

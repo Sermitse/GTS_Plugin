@@ -33,7 +33,7 @@ namespace GTS {
 
 	void VoreData::Swallow() {
 		std::unique_lock lock(_lock);
-		for (auto& [key, tinyref]: this->tinies) {
+		for (auto& tinyref : this->tinies | views::values) {
 			auto tiny = tinyref.get().get();
 			auto giant = this->giant.get().get();
 			
@@ -98,7 +98,7 @@ namespace GTS {
 				});
 			}
 		} else {
-			for (auto& [key, tinyref]: this->tinies) { // just clear the data
+			for (auto& tinyref : this->tinies | views::values) { // just clear the data
 				auto tiny = tinyref.get().get();
 				SetBeingHeld(tiny, false);
 			}
@@ -108,7 +108,7 @@ namespace GTS {
 
 	void VoreData::AllowToBeVored(bool allow) {
 		std::unique_lock lock(_lock);
-		for (auto& [key, tinyref]: this->tinies) {
+		for (auto& tinyref : this->tinies | views::values) {
 			auto tiny = tinyref.get().get();
 			auto transient = Transient::GetActorData(tiny);
 			if (transient) {
@@ -145,7 +145,7 @@ namespace GTS {
 			auto giant = this->giant.get().get();
 			float giantScale = get_visual_scale(giant);
 			// Stick them to the AnimObjectA
-			for (auto& [key, tinyref]: this->tinies) {
+			for (auto& tinyref : this->tinies | views::values) {
 				auto tiny = tinyref.get().get();
 				if (!tiny) {
 					return;
@@ -197,19 +197,17 @@ namespace GTS {
 		auto preys = find_actors();
 
 		// Sort prey by distance
-		sort(preys.begin(), preys.end(),
-		     [predPos](const Actor* preyA, const Actor* preyB) -> bool
-		{
+		ranges::sort(preys,[predPos](const Actor* preyA, const Actor* preyB) -> bool{
 			float distanceToA = (preyA->GetPosition() - predPos).Length();
 			float distanceToB = (preyB->GetPosition() - predPos).Length();
 			return distanceToA < distanceToB;
 		});
 
 		// Filter out invalid targets
-		preys.erase(std::remove_if(preys.begin(), preys.end(),[pred, this](auto prey)
+		std::erase_if(preys,[pred, this](auto prey)
 		{
 			return !this->CanVore(pred, prey);
-		}), preys.end());
+		});
 
 		// Filter out actors not in front
 		auto actorAngle = pred->data.angle.z;
@@ -218,7 +216,7 @@ namespace GTS {
 
 		NiPoint3 predDir = actorForward;
 		predDir = predDir / predDir.Length();
-		preys.erase(std::remove_if(preys.begin(), preys.end(),[predPos, predDir](auto prey)
+		std::erase_if(preys,[predPos, predDir](auto prey)
 		{
 			NiPoint3 preyDir = prey->GetPosition() - predPos;
 			if (preyDir.Length() <= 1e-4) {
@@ -227,7 +225,7 @@ namespace GTS {
 			preyDir = preyDir / preyDir.Length();
 			float cosTheta = predDir.Dot(preyDir);
 			return cosTheta <= 0; // 180 degress
-		}), preys.end());
+		});
 
 		// Filter out actors not in a truncated cone
 		// \      x   /
@@ -239,7 +237,7 @@ namespace GTS {
 		float shiftAmount = fabs((predWidth / 2.0f) / tan(VORE_ANGLE/2.0f));
 
 		NiPoint3 coneStart = predPos - predDir * shiftAmount;
-		preys.erase(std::remove_if(preys.begin(), preys.end(),[coneStart, predWidth, predDir](auto prey)
+		std::erase_if(preys,[coneStart, predWidth, predDir](auto prey)
 		{
 			NiPoint3 preyDir = prey->GetPosition() - coneStart;
 			if (preyDir.Length() <= predWidth*0.4f) {
@@ -248,7 +246,7 @@ namespace GTS {
 			preyDir = preyDir / preyDir.Length();
 			float cosTheta = predDir.Dot(preyDir);
 			return cosTheta <= cos(VORE_ANGLE*PI/180.0f);
-		}), preys.end());
+		});
 
 		if (numberOfPrey == 1) {
 			return GetMaxActionableTinyCount(pred, preys);
@@ -262,7 +260,7 @@ namespace GTS {
 		return preys;
 	}
 
-	bool VoreController::CanVore(Actor* pred, Actor* prey) {
+	bool VoreController::CanVore(Actor* pred, Actor* prey) const {
 
 		if (pred == prey) {
 			return false;
@@ -426,7 +424,7 @@ namespace GTS {
 			std::string name = std::format("ShrinkTo_{}", tiny->formID);
 
 			if (preyscale > targetScale) {
-				VoreController::GetSingleton().RecordOriginalScale(tiny); // We're shrinking the tiny which affects effectiveness of vore bonuses, this fixes it
+				GetSingleton().RecordOriginalScale(tiny); // We're shrinking the tiny which affects effectiveness of vore bonuses, this fixes it
 				TaskManager::Run(name, [=](auto& progressData) {
 					Actor* actor = tinyHandle.get().get();
 					if (!actor) {

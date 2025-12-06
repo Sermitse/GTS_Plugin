@@ -255,8 +255,8 @@ namespace GTS {
 	}
 
 	CrushData::CrushData(Actor* giant) :
-		delay(Timer(0.01)),
 		state(CrushState::Healthy),
+		delay(Timer(0.01)),
 		giant(giant ? giant->CreateRefHandle() : ActorHandle()) {
 	}
 }

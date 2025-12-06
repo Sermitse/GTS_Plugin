@@ -6,7 +6,7 @@
 #include "Managers/Animation/TinyCalamity_Shrink.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
-#include "Managers/Attributes.hpp"
+#include "Managers/AttributeManager.hpp"
 #include "Utils/MovementForce.hpp"
 #include "Utils/Looting.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"

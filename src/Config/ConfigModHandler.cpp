@@ -1,6 +1,8 @@
 #include "Config/ConfigModHandler.hpp"
 #include "Config/Config.hpp"
 
+#include "Managers/Morphs/MorphManager.hpp"
+
 #include "UI/Core/ImStyleManager.hpp"
 #include "spdlog/spdlog.h"
 
@@ -44,6 +46,11 @@ namespace GTS {
 		}
 	}
 
+	void ConfigModHandler::HandleRaceMenuDataUpdate() {
+		//Reset All RM Data from this mod and reapply the current state to all loaded actors.
+		MorphManager::HandleCategoryDataChange(MorphManager::Category::kAll);
+	}
+
 	std::string ConfigModHandler::DebugName() {
 		return "::ConfigModHandler";
 	}
@@ -73,6 +80,7 @@ namespace GTS {
 
 		DoCameraStateReset();
 		DoHighHeelStateReset();
+		HandleRaceMenuDataUpdate();
 
 		Notify("Mod Settings Have Been Reset");
 		logger::info("ConfigModHandler OnConfigReset");
@@ -81,4 +89,6 @@ namespace GTS {
 	void ConfigModHandler::OnConfigRefresh() {
 		OnGameLoaded();
 	}
+
+
 }

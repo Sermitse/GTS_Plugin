@@ -45,9 +45,15 @@ namespace GTS {
         }
     }
     void Sound_PlayLaughs(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source) {
+
+        if (!Config::Audio.bLaughEnable){
+            return;
+        }
+
         if (actor->formID != 0x14 && Config::Audio.bMoanLaughPCExclusive) {
             return;
         }
+
         if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CD_Source)) {
             ApplyActionCooldown(actor, CD_Source);
             float Scale = get_visual_scale(actor);
@@ -81,7 +87,12 @@ namespace GTS {
     }
 
     void Sound_PlayMoans(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source) {
-        if (actor->formID != 0x14 && Config::Audio.bMoanLaughPCExclusive) {
+
+        if (!Config::Audio.bMoanEnable) {
+            return;
+        }
+
+    	if (actor->formID != 0x14 && Config::Audio.bMoanLaughPCExclusive) {
             return;
         }
         if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CD_Source)) {

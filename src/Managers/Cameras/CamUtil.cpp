@@ -2,7 +2,7 @@
 #include "TPState.hpp"
 #include "Config/Config.hpp"
 #include "Hooks/Other/Values.hpp"
-#include "Managers/Camera.hpp"
+#include "Managers/CameraManager.hpp"
 #include "Systems/Rays/raycast.hpp"
 #include "Debug/DebugDraw.hpp"
 
@@ -17,7 +17,7 @@ namespace {
 
 	constexpr CameraDataMode currentMode = CameraDataMode::State;
 
-	const BoneTarget GetBoneTarget_Anim(CameraTracking Camera_Anim) {
+	BoneTarget GetBoneTarget_Anim(CameraTracking Camera_Anim) {
 
 		switch (Camera_Anim) {
 			case CameraTracking::None: {
@@ -257,31 +257,6 @@ namespace GTS {
 		}
 		else {
 			return GetBoneTargetFromSettings(Camera_MCM);
-		}
-	}
-
-	void SetINIFloat(std::string_view name, float value) {
-		auto ini_conf = INISettingCollection::GetSingleton();
-		Setting* setting = ini_conf->GetSetting(name);
-		if (setting) {
-			setting->data.f=value; // If float
-			ini_conf->WriteSetting(setting);
-		}
-	}
-
-	float GetINIFloat(std::string_view name) {
-		auto ini_conf = INISettingCollection::GetSingleton();
-		Setting* setting = ini_conf->GetSetting(name);
-		if (setting) {
-			return setting->data.f;
-		}
-		return -1.0f;
-	}
-
-	void EnsureINIFloat(std::string_view name, float value) {
-		auto currentValue = GetINIFloat(name);
-		if (fabs(currentValue - value) > 1e-3) {
-			SetINIFloat(name, value);
 		}
 	}
 
@@ -641,7 +616,7 @@ namespace GTS {
 
 						//If less than frustrum it means the camera is stuck to the raycast origin bone.
 						//"Revert" the colision position if this happens. Effectively disabling camera colision in this case.
-						if (abs(RayCastHitPosition.GetDistance(RayStart)) <= GetFrustrumNearDistance() + std::numeric_limits<float>::epsilon()) {
+						if (abs(RayCastHitPosition.GetDistance(RayStart)) <= GetFrustrumNearDistance() + 1e-2) {
 							RayCastHitPosition = LocalSpacePosition;
 						}
 

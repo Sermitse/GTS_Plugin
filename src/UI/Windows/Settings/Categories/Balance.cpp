@@ -211,14 +211,12 @@ namespace GTS {
                         *Scale = 1000000.0f;
                     }
                     else if (ShouldBeAuto) {
-
-                        const float PlayersLimit = Persistent::GlobalSizeLimit.value;
-
-                        if (PlayersLimit >= 250.01f) {
-                            _Frmt = fmt::format("Based on Player [Infinite]", PlayersLimit);
+                    
+                        if (IsMassBased) {
+                            _Frmt = fmt::format("Mass Based");
                         }
                         else {
-                            _Frmt = fmt::format("Based on Player [{:.2f}x]", PlayersLimit);
+                            _Frmt = fmt::format("Skill Based");
                         }
 
                         *Scale = 0.0f;
@@ -231,7 +229,7 @@ namespace GTS {
                         std::string ToolTip = fmt::format(
                             "Change the maximum follower size\n"
                             "Higher than {:.0f}x scale disables the limit entirely\n"
-                            "At 0.0x scale the limit will be based on the player's.",
+                            "At 0.0x scale the limit will be based on the follower's GTS Level and perks.",
                             Max - 5.0f
                         );
 
@@ -253,14 +251,13 @@ namespace GTS {
                     }
                     else if (ShouldBeAuto) {
 
-                        const float NPCsLimit = Persistent::GlobalSizeLimit.value;
-
-                        if (NPCsLimit >= 250.01f) {
-                            _Frmt = fmt::format("Based on Player [Infinite]", NPCsLimit);
+                        if (IsMassBased) {
+                            _Frmt = fmt::format("Mass Based");
                         }
                         else {
-                            _Frmt = fmt::format("Based on Player [{:.2f}x]", NPCsLimit);
+                            _Frmt = fmt::format("Skill Based");
                         }
+
                         *Scale = 0.0f;
                     }
                     else {
@@ -271,7 +268,7 @@ namespace GTS {
                         std::string ToolTip = fmt::format(
                             "Change the maximum size for non-follower NPCs\n"
                             "Higher than {:.0f}x scale disables the limit entirely\n"
-                            "At 0.0x scale the limit will be based on the player's.",
+                            "At 0.0x scale the limit will be based on the npc's GTS Level and perks.",
                             Max - 5.0f
                         );
                         ImGuiEx::SliderF("Max NPC Size", Scale, Min, Max, ToolTip.c_str(), _Frmt.c_str());

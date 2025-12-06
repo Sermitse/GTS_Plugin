@@ -134,7 +134,7 @@
 #include <glm/ext.hpp>					  //https://github.com/g-truc/glm
 #include <glm/glm.hpp>
 #include <detours/detours.h>			  //https://github.com/microsoft/Detours
-#include <nlohmann/json.hpp>			  //https://github.com/nlohmann/json
+#include <glaze/json/read.hpp>                //https://github.com/stephenberry/glaze
 #include <absl/container/flat_hash_map.h> //https://github.com/abseil/abseil-cpp
 
 //Tbb

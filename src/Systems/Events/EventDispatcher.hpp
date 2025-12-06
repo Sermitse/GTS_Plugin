@@ -15,6 +15,7 @@ namespace GTS {
 		static void Compact();
 
 		static void DoUpdate();
+		static void DoActorUpdate(RE::Actor* actor);
 		static void DoPapyrusUpdate();
 		static void DoHavokUpdate();
 		static void DoCameraUpdate();

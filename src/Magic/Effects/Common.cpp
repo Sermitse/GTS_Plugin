@@ -150,29 +150,24 @@ namespace GTS {
 			if (progressionQuest) {
 				auto queststage = progressionQuest->GetCurrentStageID();
 				if (queststage >= 10) {
-					bool Teammate = IsTeammate(Caster);
-					if (Caster->formID == 0x14 || Teammate) {
-						if (Teammate) {
-							value *= 0.2f;
-						}
+
+					if (Caster->IsPlayerRef()) {
 
 						const auto& GtsSkillLevel = Runtime::GetGlobal(Runtime::GLOB.GTSSkillLevel);
-						const auto& GtsSkillRatio = Runtime::GetGlobal(Runtime::GLOB.GTSSkillRatio);
 						const auto& GtsSkillProgress = Runtime::GetGlobal(Runtime::GLOB.GTSSkillProgress);
+						const auto& GtsSkillRatio = Runtime::GetGlobal(Runtime::GLOB.GTSSkillRatio);
 						
-						if (GtsSkillLevel) {
+						if (GtsSkillLevel && GtsSkillProgress && GtsSkillRatio) {
 							if (GtsSkillLevel->value >= 100.0f) {
 								GtsSkillLevel->value = 100.0f;
 								GtsSkillRatio->value = 0.0f;
 								return;
 							}
 
-							float skill_level = GtsSkillLevel->value;
-
-							float ValueEffectiveness = std::clamp(1.0f - GtsSkillLevel->value/100, 0.10f, 1.0f);
-
-							float oldvaluecalc = 1.0f - GtsSkillRatio->value; //Attempt to keep progress on the next level
-							float Total = value * ValueEffectiveness;
+							const float skill_level = GtsSkillLevel->value;
+							const float ValueEffectiveness = std::clamp(1.0f - GtsSkillLevel->value / 100, 0.10f, 1.0f);
+							const float oldvaluecalc = 1.0f - GtsSkillRatio->value; //Attempt to keep progress on the next level
+							const float Total = value * ValueEffectiveness;
 							GtsSkillRatio->value += Total * GetXpBonus();
 
 							if (GtsSkillRatio->value >= 1.0f) {
@@ -180,7 +175,30 @@ namespace GTS {
 								GtsSkillRatio->value = transfer;
 								GtsSkillLevel->value = skill_level + 1.0f;
 								GtsSkillProgress->value = GtsSkillLevel->value;
+
 								AddPerkPoints(GtsSkillLevel->value);
+							}
+						}
+					}
+					else if (IsTeammate(Caster)) {
+						if (auto data = Persistent::GetActorData(Caster)) {
+							if (data->fGTSSkillLevel >= 100.0f) {
+								data->fGTSSkillLevel = 100.0f;
+								data->fGTSSkillRatio = 0.0f;
+								return;
+							}
+
+							const float skill_level = data->fGTSSkillLevel;
+							const float ValueEffectiveness = std::clamp(1.0f - data->fGTSSkillLevel / 100, 0.10f, 1.0f);
+							const float oldvaluecalc = 1.0f - data->fGTSSkillRatio; //Attempt to keep progress on the next level
+							const float Total = value * ValueEffectiveness;
+							data->fGTSSkillRatio += Total * GetXpBonus();
+
+							if (data->fGTSSkillRatio >= 1.0f) {
+								float transfer = std::clamp(Total - oldvaluecalc, 0.0f, 1.0f);
+								data->fGTSSkillRatio = transfer;
+								data->fGTSSkillLevel = skill_level + 1.0f;
+								data->fGTSSkillExp = data->fGTSSkillLevel;
 							}
 						}
 					}
@@ -200,28 +218,25 @@ namespace GTS {
 	}
 
 	void AdjustMassLimit(float value, Actor* caster) { // Adjust Size Limit for Mass Based Size Mode
-		if (caster->formID == 0x14) {
-			const auto selectedFormula = Config::Balance.sSizeMode;
-			float progressionMultiplier = Config::Balance.fSpellEfficiency;
+		const auto selectedFormula = Config::Balance.sSizeMode;
+		float progressionMultiplier = Config::Balance.fSpellEfficiency;
 
-			if (selectedFormula == "kMassBased") {
+		if (selectedFormula == "kMassBased") {
 
-				SoftPotential mod {
-					.k = 0.070f,
-					.n = 3.0f,
-					.s = 0.54f,
-				};
+			SoftPotential mod {
+				.k = 0.070f,
+				.n = 3.0f,
+				.s = 0.54f,
+			};
 
-				const float MassBasedSize = Persistent::GlobalMassBasedSizeLimit.value;
+			if (auto data = Persistent::GetActorData(caster); data) {
 
-				float modifier = soft_core(MassBasedSize, mod);
+				float modifier = soft_core(data->fMassBasedLimit, mod);
 				modifier = std::max(modifier, 0.10f);
 				value *= 10.0f * modifier;
 
-				auto GlobalSizeLimit = Persistent::GlobalSizeLimit.value;
-
-				float new_value = MassBasedSize + value * progressionMultiplier * TimeScale();
-				Persistent::GlobalMassBasedSizeLimit.value = std::clamp(new_value, 0.0f, GlobalSizeLimit);
+				float new_value = data->fMassBasedLimit + value * progressionMultiplier * TimeScale();
+				data->fMassBasedLimit = std::clamp(new_value, 0.0f, data->fSizeLimit);
 			}
 		}
 	}

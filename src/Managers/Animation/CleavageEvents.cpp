@@ -24,6 +24,7 @@
 #include "Utils/KillDataUtils.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
+#include "Managers/Morphs/MorphManager.hpp"
 
 #include "Utils/DeathReport.hpp"
 
@@ -462,55 +463,15 @@ namespace {
         }
     }
 
-    static void GrowBreastsOverTime(Actor* giant) {
-    	// Should probably be capped at +50 or +100% of natural breast size
-        // As a fun thing can probably even try to calculate total player weight based on morph values if we will manage to use RaceMenu functions directly
-        // If RaceMenu API won't be found - it won't work. It doesn't on my end at least.
-        std::string taskname = std::format("GrowBreasts_{}", giant->formID);
-        ActorHandle giantHandle = giant->CreateRefHandle();
+    void GTS_BS_GrowBoobs(const AnimationEventData& data) {
 
-        bool AllowBreastGrow = Config::Advanced.bEnlargeBreastsOnAbsorption;  // Should be tied to UI settings
-        if (!AllowBreastGrow) {
+        Animation_Cleavage::LaunchCooldownFor(&data.giant, CooldownSource::Action_Breasts_Absorb);
+
+        if (!Config::Gameplay.ActionSettings.bEnlargeBreastsOnAbsorption) {
             return;
         }
 
-        auto transient = Transient::GetActorData(giant);
-        double startTime = Time::WorldTimeElapsed();
-
-        float duration = 3.0f;
-        float total_size_add = 1.0f;
-        float initial_size = 0.0f;
-        if (transient) {
-            initial_size = transient->BreastSizeBuff;
-        }
-
-        TaskManager::Run(taskname, [=](auto& progressData) {
-            if (!giantHandle) {
-                return false;
-            }
-
-            double endTime = Time::WorldTimeElapsed();
-
-            Actor* giant = giantHandle.get().get();
-            float timepassed = endTime - startTime;
-            float breast_buff = (initial_size)+(timepassed * 0.33f) * total_size_add;
-
-            GTS::Racemenu::SetMorph(giant, "Breasts", breast_buff, true);
-
-            if (timepassed >= static_cast<double>(duration)) {
-                if (transient) {
-                    transient->BreastSizeBuff = breast_buff;
-                }
-                return false;
-            }
-            return true;
-        });
-    }
-
-    void GTS_BS_GrowBoobs(const AnimationEventData& data) {
-        Animation_Cleavage::LaunchCooldownFor(&data.giant, CooldownSource::Action_Breasts_Absorb);
-        //TODO Implement Propper Racemenu Scaling
-        //GrowBreastsOverTime(&data.giant);
+        MorphManager::AlterMorph(&data.giant, MorphManager::kBreasts, MorphManager::Action::kModify, Config::Gameplay.ActionSettings.fBreastsAbsorbIncrementBy, MorphManager::UpdateKind::kGradual, 0.75f);
     }
 
     ///===================================================================

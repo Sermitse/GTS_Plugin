@@ -12,8 +12,8 @@ namespace GTS {
         };
 
         //default base command preffix
-        const std::string Default_Preffix = "gts";
-        std::map<std::string, Command> RegisteredCommands;
+        inline static const std::string Default_Preffix = "gts";
+        static inline std::map<std::string, Command> RegisteredCommands = {};
 
         static void CMD_Help();
         static void CMD_Version();

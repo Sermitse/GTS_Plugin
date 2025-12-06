@@ -102,6 +102,13 @@ namespace RuntimeData {
 
 		Entry(GTSUtilTalkToActor,           GTSP, 0x5F7265); //TalkToActorWhenSneaking (Internal);
 
+		//NPC Only Perks
+		Entry(GTSNPCPerkSkilled10,          GTSP, 0x907EBD); //GTSNPCSKilled10
+		Entry(GTSNPCPerkSkilled30,          GTSP, 0x907EBE); //GTSNPCSKilled30
+		Entry(GTSNPCPerkSkilled50,          GTSP, 0x907EBF); //GTSNPCSKilled50
+		Entry(GTSNPCPerkSkilled70,          GTSP, 0x907EC0); //GTSNPCSKilled70
+		Entry(GTSNPCPerkSkilled90,          GTSP, 0x907EC1); //GTSNPCSKilled90
+		Entry(GTSNPCPerkSkilled100,         GTSP, 0x907EC2); //GTSNPCSKilled100
 
 	};
 

@@ -82,6 +82,9 @@ namespace GTS {
 						  "If False: \n"
 						  "- Footstep audio changes as soon as you pass a size threshold.";
 
+			PSString T6 = "Enable/Disable Laugh Sounds";
+			PSString T7 = "Enable/Disable Moan Sounds";
+
 			PSString THelp = "Note: Moan/Laugh sounds are included in the mod if you chose to install them.\n"
 							 "You can also add sounds by adding your own .wav files in the following folder:\n"
 	    					 "(Your Skyrim Folder)\\Data\\Sound\\fx\\GTS\\Moans_Laughs";
@@ -90,16 +93,26 @@ namespace GTS {
 				ImGui::TextColored(ImUtil::Colors::Subscript, "A Note On Sounds (?)");
 				ImGuiEx::Tooltip(THelp ,true);
 
-				ImGuiEx::CheckBox("Footstep Sounds",&Config::Audio.bFootstepSounds,T0);
-				ImGuiEx::CheckBox("Moans On Slow Growth",&Config::Audio.bSlowGrowMoans, T1);
-
-				ImGui::Spacing();
-				ImGui::Text("Moans and Laughs");
-				ImGuiEx::CheckBox("Size Variance", &Config::Audio.bMoanLaughSizeVariants, T2);
+				ImGuiEx::CheckBox("Enable Moans", &Config::Audio.bMoanEnable, T6);
 				ImGui::SameLine();
-				ImGuiEx::CheckBox("Player Exclusive", &Config::Audio.bMoanLaughPCExclusive, T3);
+				ImGuiEx::CheckBox("Enable Laughs", &Config::Audio.bLaughEnable, T7);
+				ImGuiEx::CheckBox("Footstep Sounds",&Config::Audio.bFootstepSounds,T0);
+				ImGuiEx::CheckBox("Moans On Slow Growth",&Config::Audio.bSlowGrowMoans, T1, !Config::Audio.bMoanEnable);
 
 				ImGui::Spacing();
+
+				ImGui::Text("Moans and Laughs");
+
+				ImGui::BeginDisabled(!Config::Audio.bMoanEnable && !Config::Audio.bLaughEnable);
+		        {
+			        ImGuiEx::CheckBox("Size Variance", &Config::Audio.bMoanLaughSizeVariants, T2);
+					ImGui::SameLine();
+					ImGuiEx::CheckBox("Player Exclusive", &Config::Audio.bMoanLaughPCExclusive, T3);
+		        }
+				ImGui::EndDisabled();
+
+				ImGui::Spacing();
+
 				ImGuiEx::CheckBox("Alternative High Heel Size Sounds", &Config::Audio.bUseOtherHighHeelSet, T4);
 				ImGuiEx::CheckBox("Smoothly Blend Between Footstep Sounds", &Config::Audio.bBlendBetweenFootsteps, T5);
 
@@ -115,7 +128,7 @@ namespace GTS {
 								 "This mod can now use it's voice files as an alternative\n\n"
 								 "Note: Only The Player\\Current Followers will be listed as to not clutter this menu.\n"
 								 "If this menu is empty it means none of the currently loaded npc's are elidgible for this feature.";
-
+				ImGui::BeginDisabled(!Config::Audio.bMoanEnable);
 				if (ImGui::CollapsingHeader("Alternative Voice Options", ImUtil::HeaderFlagsDefaultOpen)) {
 					ImGui::TextColored(ImUtil::Colors::Subscript, "What is this (?)");
 					ImGuiEx::Tooltip(THelp, true);
@@ -136,6 +149,7 @@ namespace GTS {
 
 					ImGui::Spacing();
 				}
+				ImGui::EndDisabled();
 			}
 		}
 	}

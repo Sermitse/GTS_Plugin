@@ -3,7 +3,10 @@
 
 namespace GTS {
 
-	// Called on Live (non paused) gameplay
+	// Called per frame for each currently loaded actor
+	void EventListener::ActorUpdate(RE::Actor* actor) {}
+
+	// Called on Live (non paused) gameplay at the end of the game loop
 	void EventListener::Update() {}
 
 	// Called on Papyrus OnUpdate

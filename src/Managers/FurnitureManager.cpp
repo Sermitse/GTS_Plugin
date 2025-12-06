@@ -3,8 +3,6 @@
 #include "Managers/Damage/LaunchActor.hpp"
 #include "Managers/FurnitureManager.hpp"
 
-#include "Config/Config.hpp"
-
 #include "Utils/Actions/ButtCrushUtils.hpp"
 #include "Managers/Rumble.hpp"
 
@@ -13,41 +11,44 @@ using namespace GTS;
 
 namespace GTS_Markers {
 
-    void GetFurnitureMarkerAnimations(RE::TESObjectREFR* ref) {
+    std::tuple<NiPoint3, float> GetClosestMarkerOffset(RE::TESObjectREFR* a_user, RE::TESObjectREFR* a_furn) {
+        if (!a_furn) return { {}, 0.0f};
+        auto root = a_furn->Get3D();
+        if (!root) return { {}, 0.0f };
 
-        if (!ref) {
-            return;
-        }
+        static constexpr std::array<const char* const, 3> names = {
+            "FURN", "FRN", "FurnitureMarker"
+        };
 
-        auto root = ref->Get3D();
-        if (!root) {
-            return;
-        }
+        float bestDist = std::numeric_limits<float>::max();
+        NiPoint3 bestOffset{};
+        float bestHeading = 0.f;
 
-        static constexpr std::array<const char*, 3> names = { "FURN", "FRN", "FurnitureMarker" };
+        const NiPoint3 userPos = a_user->GetPosition();
+        const NiPoint3 furnPos = a_furn->GetPosition();
 
         for (auto name : names) {
-            VisitExtraData<RE::BSFurnitureMarkerNode>(root, name, [](NiAVObject& node, RE::BSFurnitureMarkerNode& data) {
-                for (auto& marker : data.markers) {
-                    auto animType = marker.animationType.get();
-                    switch (animType) {
-                    case RE::BSFurnitureMarker::AnimationType::kSit:
-                        log::info("Marker: Sit");
-                        break;
-                    case RE::BSFurnitureMarker::AnimationType::kSleep:
-                        log::info("Marker: Sleep");
-                        break;
-                    case RE::BSFurnitureMarker::AnimationType::kLean:
-                        log::info("Marker: Lean");
-                        break;
-                    default:
-                        log::info("Marker: Unknown ({})", static_cast<int>(animType));
-                        break;
-                    }
-                }
-                return true;
+            VisitExtraData<RE::BSFurnitureMarkerNode>(root, name, [&](NiAVObject&, RE::BSFurnitureMarkerNode& data) {
+
+	            for (auto& marker : data.markers) {
+	                NiPoint3 worldPos = marker.offset + furnPos;
+
+	                float d = userPos.GetDistance(worldPos);
+	                if (d < bestDist) {
+	                    bestDist = d;
+	                    bestOffset = marker.offset;
+	                    bestHeading = marker.heading; // BipedMarker heading is already float degrees
+	                }
+	            }
+	            return true;
             });
         }
+
+        if (bestDist >= std::numeric_limits<float>::max()) {
+            return {{}, 0.0f};
+        }
+
+        return { bestOffset, bestHeading };
     }
 }
 
@@ -118,7 +119,9 @@ namespace GTS {
     void FurnitureManager::FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, bool enter) {
         if (activator && object) {
             //GTS_Markers::GetFurnitureMarkerAnimations(object);
-            RecordAndHandleFurnState(activator, object, enter);
+            if (IsHuman(activator)) {
+                RecordAndHandleFurnState(activator, object, enter);
+            }
         }
     }
 
@@ -149,8 +152,15 @@ namespace GTS {
             }
 
             if (enter) {
-                activator->SetRotationX(object->GetAngleX());
-                activator->SetPosition(object->GetPosition(), true);
+
+                //Furnitures can have multiple markers. We need to target the closest one as i currently only know how to querry the list of markers per object.
+                //Hopefully this is good enough.
+
+				auto [offset, heading] = GTS_Markers::GetClosestMarkerOffset(activator, object);
+                offset.z = 0.0f; //We dont need a height ofs the game handles that for us.
+
+                activator->SetRotationX(object->GetAngleX() + heading);
+                activator->SetPosition(object->GetPosition() + offset, true);
             }
         }
     }

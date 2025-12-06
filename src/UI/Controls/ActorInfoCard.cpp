@@ -14,7 +14,7 @@
 
 #include "Managers/SpectatorManager.hpp"
 #include "Managers/MaxSizeManager.hpp"
-#include "Managers/Attributes.hpp"
+#include "Managers/AttributeManager.hpp"
 
 #include "Utils/KillDataUtils.hpp"
 
@@ -50,46 +50,44 @@ namespace ImGuiEx {
 		const auto& T = Transient::GetActorData(a_actor);
 		if (!T || !P)  return std::nullopt;
 
-		I.pTargetActor =            a_actor->CreateRefHandle();
-		I.Name =                    a_actor->GetName();
+		I.pTargetActor = a_actor->CreateRefHandle();
+		I.Name         = a_actor->GetName();
 
 		//Scale
-		I.fScaleCurrent =           get_visual_scale(a_actor);
-		I.fScaleMax =               get_max_scale(a_actor);
-		I.fScaleNatural =           get_natural_scale(a_actor);
-		I.fMassModeScaleMax =       MassMode_GetValuesForMenu(a_actor);
-		I.fScaleProgress =          I.fScaleMax < 250.0f ? I.fScaleCurrent / I.fScaleMax : -1.0f;
+		I.fScaleCurrent     = get_visual_scale(a_actor);
+		I.fScaleMax         = get_max_scale(a_actor);
+		I.fScaleNatural     = get_natural_scale(a_actor);
+		I.fMassModeScaleMax = MassMode_GetValuesForMenu(a_actor);
+		I.fScaleProgress    = I.fScaleMax < 250.0f ? I.fScaleCurrent / I.fScaleMax : -1.0f;
 
 		//Bonuses
-		I.fScaleBonus =				T->PotionMaxSize;
-		I.fShrinkResistance =       (1.0f - 1.0f * Potion_GetShrinkResistance(a_actor) * Perk_GetSprintShrinkReduction(a_actor)) * 100.f;
-		I.fHighHeelDamageBonus =    (GetHighHeelsBonusDamage(a_actor, true) - 1.0f) * 100.0f;
-		I.fGTSAspect =              Ench_Aspect_GetPower(a_actor) * 100.0f;
+		I.fScaleBonus          = T->PotionMaxSize;
+		I.fShrinkResistance    = (1.0f - 1.0f * Potion_GetShrinkResistance(a_actor) * Perk_GetSprintShrinkReduction(a_actor)) * 100.f;
+		I.fHighHeelDamageBonus = (GetHighHeelsBonusDamage(a_actor, true) - 1.0f) * 100.0f;
+		I.fGTSAspect           = Ench_Aspect_GetPower(a_actor) * 100.0f;
 
 		//Stats
-		I.fSpeedMult =              (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kSpeedMult) - 1.0f) * 100.f;
-		I.fJumpMult =               (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kJumpingBonus) - 1.0f) * 100.0f;
-		I.fDamageBonus =            (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kAttackDamageMult) - 1.0f) * 100.0f;
+		I.fSpeedMult   = (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kSpeedMult) - 1.0f) * 100.f;
+		I.fJumpMult    = (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kJumpingBonus) - 1.0f) * 100.0f;
+		I.fDamageBonus = (AttributeManager::GetAttributeBonus(a_actor, ActorValue::kAttackDamageMult) - 1.0f) * 100.0f;
 
 		//Stolen Attributes
-		I.fStolenAtributes =        P->fStolenAttibutes;
-		I.fStolenHealth =           GetStolenAttributes_Values(a_actor, ActorValue::kHealth);
-		I.fStolenMagicka =          GetStolenAttributes_Values(a_actor, ActorValue::kMagicka);
-		I.fStolenStamina =          GetStolenAttributes_Values(a_actor, ActorValue::kStamina);
-		I.fStolenCap =              GetStolenAttributeCap(a_actor);
-
-		//Player Only
-		if (a_actor->IsPlayerRef()) {
-			I.bIsPlayer = true;
-			I.fSizeEssence =        Persistent::PlayerExtraPotionSize.value;
-		}
+		I.fStolenAtributes = P->fStolenAttibutes;
+		I.fStolenHealth    = GetStolenAttributes_Values(a_actor, ActorValue::kHealth);
+		I.fStolenMagicka   = GetStolenAttributes_Values(a_actor, ActorValue::kMagicka);
+		I.fStolenStamina   = GetStolenAttributes_Values(a_actor, ActorValue::kStamina);
+		I.fStolenCap       = GetStolenAttributeCap(a_actor);
 
 		//Other
-		I.iTotalKills =             GetKillCount(a_actor, DeathType::kTotalKills);
+		I.iTotalKills    = GetKillCount(a_actor, DeathType::kTotalKills);
+		I.bIsPlayer      = a_actor->IsPlayerRef();
+		I.fSizeEssence   = P->fExtraPotionMaxScale;
+		I.fSkillLevel    = GetGtsSkillLevel(a_actor);
+		I.fSkillRatio    = !I.bIsPlayer ? P->fGTSSkillRatio : Runtime::GetFloat(Runtime::GLOB.GTSSkillRatio);
 
 		//Formated
-		I.sFmtScale =               fmt::format("{} ({:.2f}x)", GetFormatedHeight(a_actor), I.fScaleCurrent);
-		I.sFmtWeight =              GetFormatedWeight(a_actor).c_str();
+		I.sFmtScale  = fmt::format("{} ({:.2f}x)", GetFormatedHeight(a_actor), I.fScaleCurrent);
+		I.sFmtWeight = GetFormatedWeight(a_actor).c_str();
 
 		//Perk Check
 		I.bHasPerk_GTSFullAssimilation = Runtime::HasPerk(a_actor, Runtime::PERK.GTSPerkFullAssimilation);
@@ -124,7 +122,6 @@ namespace ImGuiEx {
 
 		//Update Vars
 		bMassModeEnabled = Config::Balance.sSizeMode == "kMassBased";
-		bIsPlayerMassMode = a_actor->IsPlayerRef() && bMassModeEnabled;
 
 		ImGui::PushID(a_actor);
 
@@ -316,17 +313,21 @@ namespace ImGuiEx {
 				(1.0f - MassMode_ElixirPowerMultiplier) * 100.0f
 			);
 
-			// --------------------------------- Player Only Stuff 
-			if (Data.bIsPlayer) {
+			// --------------------------------- Skill Level
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Skill Level:");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.0f (%.0f%%)", Data.fSkillLevel, (Data.fSkillRatio * 100.f));
 
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("Shrink Resistance:");
-				ImGuiEx::Tooltip(TShrinkResist, true);
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("%.1f%%", Data.fShrinkResistance);
 
-			}
+			// --------------------------------- Shrink Resistance
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Shrink Resistance:");
+			ImGuiEx::Tooltip(TShrinkResist, true);
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.1f%%", Data.fShrinkResistance);
 
 			// --------------------------------- Weight
 			ImGui::TableNextRow();
@@ -343,7 +344,7 @@ namespace ImGuiEx {
 			ImGuiEx::Tooltip(TotalSizeBonusCalculation.c_str(), true);
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text(
-				bIsPlayerMassMode ? "%.0f%% + [%.2F + %.2Fx possible]" : "%.0f%% + %.2F + %.2Fx",
+				bMassModeEnabled ? "%.0f%% + [%.2F + %.2Fx possible]" : "%.0f%% + %.2F + %.2Fx",
 				(Data.fScaleBonus * 100.0f) + Data.fGTSAspect,
 				bMassModeEnabled ? (Data.fSizeEssence * MassMode_ElixirPowerMultiplier) + BonusSize_Overkills : (Data.fSizeEssence * 1.0f) + BonusSize_Overkills,
 				std::clamp(BonusSize_Overkills_Multiplier, 1.0f, 999999.0f)
