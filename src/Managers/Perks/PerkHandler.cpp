@@ -211,8 +211,10 @@ namespace GTS {
     }
 
     void PerkHandler::ActorLoaded(RE::Actor* actor) {
-        SetNPCSkillLevelByPerk(actor);
-        OnGTSLevelUp(actor);
+        if (IsHuman(actor)) {
+            SetNPCSkillLevelByPerk(actor);
+            OnGTSLevelUp(actor);
+        }
     }
 
     //GTS Skill Boosts For NPCs
