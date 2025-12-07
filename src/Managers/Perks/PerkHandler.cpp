@@ -199,6 +199,113 @@ namespace GTS {
             }
         }
     }
+
+    void PerkHandler::OnGTSLevelUp(Actor* a_actor) {
+        if (a_actor) {
+            if (const auto& data = Persistent::GetActorData(a_actor)) {
+                if (!a_actor->IsPlayerRef()) { //Only NPC's
+                    RuntimeGivePerksToNPC(a_actor, data->fGTSSkillLevel);
+                }
+            }
+        }
+    }
+
+    void PerkHandler::ActorLoaded(RE::Actor* actor) {
+        SetNPCSkillLevelByPerk(actor);
+        OnGTSLevelUp(actor);
+    }
+
+    //GTS Skill Boosts For NPCs
+    void PerkHandler::SetNPCSkillLevelByPerk(Actor* a_actor) {
+        if (!a_actor) return;
+
+        auto apply = [&](bool hasPerk, int minVal, int maxVal) {
+            if (!hasPerk) return false;
+
+            if (auto data = Persistent::GetActorData(a_actor); data) {
+                if (static_cast<int>(data->fGTSSkillLevel) < minVal) {
+                    data->fGTSSkillLevel = static_cast<float>(RandomInt(minVal, maxVal));
+                    logger::trace("Setting skill level of: {} to: {}", a_actor->GetName(), data->fGTSSkillLevel);
+                }
+            }
+            return true;
+        };
+
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled100), 100, 100)) return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled90), 90, 95))    return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled70), 70, 75))    return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled50), 50, 55))    return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled30), 30, 35))    return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled10), 10, 15))    return;
+    }
+
+    void PerkHandler::RuntimeGivePerksToNPC(Actor* a_actor, float a_currentSkillLevel) {
+
+        if (a_actor->GetActorBase()->UsesTemplate()) {
+            logger::trace("Can't give perks to Templated NPC's");
+            return;
+        }
+
+        static std::regex intRegex(R"((\d+))");
+
+        for (const auto& perk : Runtime::PERK.List) {
+            const auto& nam = str_tolower(perk.first);
+            BGSPerk* perkptr = perk.second->Value;
+            if (!perkptr) continue;
+            if (perkptr->data.hidden || !perkptr->data.playable) continue;
+            if (a_actor->HasPerk(perkptr)) continue;
+            if (!nam.contains("gtsperk")) continue;
+            
+            TESConditionItem* cond = perkptr->perkConditions.head;
+
+            //If null head: perk has no conditions
+
+            //So there's a case (me <- (dumbass)) where if you use a synthesis patcher to remove all perk reqs the skilltree 
+            //will obvs. not lock you out of later perks, BUT it will also mess up this condition checker.
+            //So in the case that this happens we'll fall back to parsing the perk name itself as litterally all of them contain the req level.
+            // eg. perkname (40).
+            if (!cond) {
+                std::string pname = perkptr->GetName();
+                int reqLevel = -1;
+
+                std::sregex_iterator it(pname.begin(), pname.end(), intRegex);
+                std::sregex_iterator end;
+
+                if (it != end) {
+                    reqLevel = std::stoi((*it)[1].str());
+                }
+
+                if (reqLevel > 0 && a_currentSkillLevel >= reqLevel) {
+                    a_actor->GetActorBase()->AddPerk(perkptr, 0);
+                    logger::trace("Gave Conditionless Perk: {} to {}", perkptr->GetName(), a_actor->GetName());
+                }
+
+                continue;
+            }
+
+            //Traverse Condition Linked List and find the level req for the perk.
+            while (cond) {
+	            const FUNCTION_DATA& fd = cond->data.functionData;
+                if (fd.function.get() == FUNCTION_DATA::FunctionID::kGetGlobalValue) {
+                    if (TESGlobal* glob = static_cast<TESGlobal*>(cond->data.functionData.params[0])) {
+                        if (glob->formID == Runtime::GLOB.GTSSkillLevel.Value->formID) {
+                            float req = cond->data.comparisonValue.f;
+                            
+                            if (req <= a_currentSkillLevel) {
+                                //If level req. met give the perk.
+                                logger::trace("Gave Perk: {} to {}", perkptr->GetName(), a_actor->GetName());
+                                a_actor->GetActorBase()->AddPerk(perkptr, 1);
+                                break;
+                            }
+                        }
+                    }
+                }
+                cond = cond->next;
+            }
+        }
+        a_actor->ApplyPerksFromBase();
+    }
+
     bool PerkHandler::Perks_Cataclysmic_HasStacks(Actor* giant) {
         auto transient = Transient::GetActorData(giant);
 		if (transient) {
@@ -211,7 +318,6 @@ namespace GTS {
     void PerkHandler::Perks_Cataclysmic_ManageStacks(Actor* giant, PerkAction action) {
 		auto transient = Transient::GetActorData(giant);
 		if (transient) {
-            bool HasPerk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkCataclysmicStomp);
             int current_stacks = transient->Stacks_Perk_CataclysmicStomp;
 
             if (action == PerkAction::Increase && current_stacks < 3) { // Increase stack

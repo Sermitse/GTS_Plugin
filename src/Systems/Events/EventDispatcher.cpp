@@ -114,7 +114,6 @@ namespace GTS {
 		});
 	}
 
-
 	void EventDispatcher::DoDataReady() {
 		ForEachListener([](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
@@ -130,14 +129,12 @@ namespace GTS {
 		});
 	}
 
-
 	void EventDispatcher::DoActorEquip(RE::Actor* actor) {
 		ForEachListener([actor](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->ActorEquip(actor);
 		});
 	}
-
 
 	void EventDispatcher::DoDragonSoulAbsorption() {
 		ForEachListener([](EventListener* listener) {
@@ -146,14 +143,12 @@ namespace GTS {
 		});
 	}
 
-
 	void EventDispatcher::DoActorLoaded(RE::Actor* actor) {
 		ForEachListener([actor](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->ActorLoaded(actor);
 		});
 	}
-
 
 	void EventDispatcher::DoHitEvent(const RE::TESHitEvent* evt) {
 		ForEachListener([evt](EventListener* listener) {
@@ -162,14 +157,12 @@ namespace GTS {
 		});
 	}
 
-
 	void EventDispatcher::DoUnderFootEvent(const UnderFoot& evt) {
 		ForEachListener([evt](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->UnderFootEvent(evt);
 		});
 	}
-
 
 	void EventDispatcher::DoOnImpact(const Impact& impact) {
 		ForEachListener([impact](EventListener* listener) {
@@ -178,14 +171,12 @@ namespace GTS {
 		});
 	}
 
-
 	void EventDispatcher::DoHighheelEquip(const HighheelEquip& evt) {
 		ForEachListener([evt](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->OnHighheelEquip(evt);
 		});
 	}
-
 
 	void EventDispatcher::DoAddPerk(const AddPerkEvent& evt) {
 		ForEachListener([evt](EventListener* listener) {
@@ -194,7 +185,6 @@ namespace GTS {
 		});
 	}
 
-
 	void EventDispatcher::DoRemovePerk(const RemovePerkEvent& evt) {
 		ForEachListener([evt](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
@@ -202,13 +192,11 @@ namespace GTS {
 		});
 	}
 
-
 	void EventDispatcher::DoMenuChange(const RE::MenuOpenCloseEvent* menu_event) {
 		ForEachListener([menu_event](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName()); listener->MenuChange(menu_event);
 		});
 	}
-
 
 	void EventDispatcher::DoActorAnimEvent(RE::Actor* actor, const RE::BSFixedString& a_tag, const RE::BSFixedString& a_payload) {
 		std::string tag = a_tag.c_str();
@@ -219,14 +207,12 @@ namespace GTS {
 		});
 	}
 
-
 	void EventDispatcher::DoSerdePreSaveEvent() {
 		ForEachListener([](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->OnGameSave();
 		});
 	}
-
 
 	void EventDispatcher::DoSerdePostLoadEvent() {
 		ForEachListener([](EventListener* listener) {
@@ -242,14 +228,12 @@ namespace GTS {
 		});
 	}
 
-
 	void EventDispatcher::DoConfigResetEvent() {
 		ForEachListener([](EventListener* listener) {
 			GTS_PROFILE_SCOPE(listener->DebugName());
 			listener->OnConfigReset();
 		});
 	}
-
 
 	void EventDispatcher::DoConfigRefreshEvent() {
 		ForEachListener([](EventListener* listener) {
@@ -264,8 +248,6 @@ namespace GTS {
 			listener->OnPluginPostLoad();
 		});
 	}
-
-
 
 	void EventDispatcher::DoFurnitureEvent(const TESFurnitureEvent* a_event) {
 		Actor* actor = skyrim_cast<Actor*>(a_event->actor.get());
@@ -289,6 +271,13 @@ namespace GTS {
 			Actor* Victim = skyrim_cast<Actor*>(a_event->actorDying.get());
 			listener->DeathEvent(Killer, Victim, a_event->dead);
 
+		});
+	}
+
+	void EventDispatcher::DoGTSLevelUpEvent(RE::Actor* a_actor) {
+		ForEachListener([a_actor](EventListener* listener) {
+			GTS_PROFILE_SCOPE(listener->DebugName());
+			listener->OnGTSLevelUp(a_actor);
 		});
 	}
 }

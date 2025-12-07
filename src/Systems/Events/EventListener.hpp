@@ -43,5 +43,6 @@ namespace GTS {
 		virtual void OnConfigReset();
 		virtual void OnConfigRefresh();
 		virtual void OnPluginPostLoad();
+		virtual void OnGTSLevelUp(Actor* a_actor);
 	};
 }

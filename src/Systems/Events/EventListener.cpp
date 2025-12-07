@@ -94,4 +94,7 @@ namespace GTS {
 	//Fires On SKSE PostLoad event
 	void EventListener::OnPluginPostLoad() {}
 
+	//Fires when a GTS gains a level, the callback is fired when the preset perks change the skill level or when a follower gains a skill level through size exp.
+	void EventListener::OnGTSLevelUp(Actor* a_actor) {}
+
 }

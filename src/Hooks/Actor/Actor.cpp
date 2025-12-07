@@ -76,6 +76,34 @@ namespace Hooks {
 		FUNCTYPE_VFUNC_UNIQUE func;
 	};
 
+	struct Load3D {
+
+		static constexpr std::size_t funcIndex = 0x6A;
+
+		template<int ID>
+		static NiAVObject* thunk(Actor* actor, bool a_backgroundLoading) {
+
+			NiAVObject* Res = func<ID>(actor, a_backgroundLoading);
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Load3D", ID);
+				const auto& intfc = SKSE::GetTaskInterface();
+				intfc->AddTask([actor] {
+					//Moved this event dispatch here, The game events one runs before peristent data load
+					//plus it fires when an actor "unloads" as well.
+					if (State::InGame()) {
+						EventDispatcher::DoActorLoaded(actor);
+					}
+				});
+			}
+
+			return Res;
+		}
+
+		template<int ID>
+		FUNCTYPE_VFUNC_UNIQUE func;
+	};
+
 	void Hook_Actor::Install() {
 
 		logger::info("Installing Actor VTABLE MultiHooks...");
@@ -88,5 +116,8 @@ namespace Hooks {
 
 		stl::write_vfunc_unique<Update, 1>(VTABLE_Character[0]);
 		stl::write_vfunc_unique<Update, 2>(VTABLE_PlayerCharacter[0]);
+
+		stl::write_vfunc_unique<Load3D, 1>(VTABLE_Character[0]);
+		stl::write_vfunc_unique<Load3D, 2>(VTABLE_PlayerCharacter[0]);
 	}
 }

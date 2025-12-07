@@ -37,7 +37,7 @@ namespace GTS {
 	BSEventNotifyControl GameEvents::ProcessEvent(const TESObjectLoadedEvent* evn, BSTEventSource<TESObjectLoadedEvent>* dispatcher) {
 		if (evn) {
 			if (auto* actor = TESForm::LookupByID<Actor>(evn->formID)){
-				EventDispatcher::DoActorLoaded(actor);
+				//EventDispatcher::DoActorLoaded(actor);
 			}
 		}
 		return BSEventNotifyControl::kContinue;

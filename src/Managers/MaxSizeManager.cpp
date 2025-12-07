@@ -292,36 +292,5 @@ namespace GTS {
 		}
 		return 1.0f;
 	}
-
-	//GTS Skill Boosts For NPCs
-	void SetNPCSkillLevelByPerk(Actor* a_actor) {
-
-		if (auto data = Persistent::GetActorData(a_actor); data) {
-
-			if (Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled100) && data->fGTSSkillLevel < 100.f) {
-				data->fGTSSkillLevel = 100.0f;
-			}
-
-			else if (Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled90) && data->fGTSSkillLevel < 90.f) {
-				data->fGTSSkillLevel = static_cast<float>(RandomInt(90, 95));
-			}
-
-			else if (Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled70) && data->fGTSSkillLevel < 70.f) {
-				data->fGTSSkillLevel = static_cast<float>(RandomInt(70, 75));
-			}
-
-			else if (Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled50) && data->fGTSSkillLevel < 50.f) {
-				data->fGTSSkillLevel = static_cast<float>(RandomInt(50, 55));
-			}
-
-			else if (Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled30) && data->fGTSSkillLevel < 30.f) {
-				data->fGTSSkillLevel = static_cast<float>(RandomInt(30, 35));
-			}
-
-			else if (Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled10) && data->fGTSSkillLevel < 10.f) {
-				data->fGTSSkillLevel = static_cast<float>(RandomInt(10, 15));
-			}
-		}
-	}
 }
 

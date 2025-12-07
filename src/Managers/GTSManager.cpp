@@ -17,6 +17,8 @@
 
 #include "Hooks/Other/Values.hpp"
 
+#include "Perks/PerkHandler.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -384,10 +386,9 @@ void GTSManager::Update() {
 
 	UpdateInterractionDistance(); // Player exclusive
 	ShiftAudioFrequency();
-	ManageActorControl();         // Sadly have to call it non stop since im unsure how to easily fix it otherwise :(
+	ManageActorControl();
 	UpdateCameraINIs();
 	ApplyTalkToActor();
-	
 	UpdateFalling();              // Update player size damage when falling down
 	CheckTalkPerk();
 	FixActorFade();               // Self explanatory
@@ -402,7 +403,6 @@ void GTSManager::Update() {
 
 		if (actor) {
 
-			SetNPCSkillLevelByPerk(actor);
 			UpdateGlobalSizeLimit(actor);
 			UpdateMaxScale(actor);
 
