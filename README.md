@@ -11,15 +11,15 @@ Before building, ensure the following tools are installed and properly configure
 - [**Git**](https://gitforwindows.org/) — add git to your system PATH.
 - [**CMake**](https://cmake.org/download/) — add cmake to your system PATH.
 - [**vcpkg**](https://github.com/microsoft/vcpkg) — set the VCPKG_ROOT environment variable to your vcpkg installation directory.
-- [**Visual Studio 2022 or newer**](https://visualstudio.microsoft.com/vs/) — install with the Desktop development with C++ workload.
-- [**Ninja**](https://ninja-build.org/) — can be installed via the Visual Studio Installer or with:
+- [**Visual Studio 2022 (MSVC 14.39) or newer**](https://visualstudio.microsoft.com/vs/) — install with the Desktop development with C++ workload.
+- [**Ninja**](https://ninja-build.org/) — should be bundled with the C++ workload for VS but can alternatively be installed through winget with:
 ```
 winget install --id=Ninja-build.Ninja -e
 ```
 
 ## Building the project
 
-This is a standard **CMake**-based project. Once all requirements are met, you can build in one of two ways:
+This is a standard ``CMake with vcpgkg``-based project. Once all requirements are met, you can build in one of two ways:
 
 ### Option 1 — Visual Studio 
 1. Clone the repository using Git.
@@ -29,9 +29,9 @@ This is a standard **CMake**-based project. Once all requirements are met, you c
 ### Option 2 — Automated (Recommended)
 Simply run the provided batch file:
 ```
-CompileDLL.bat
+_CompileDLL.bat
 ```
-If successfull a `Package-Release` folder have been created within the `distribution` folder. Containing the built DLL along with other runtime requirements.
+If successfull a `Package-Release` folder should have been created within the `distribution` folder. Containing the built DLL along with other runtime requirements.
 > **Note:**  
 > You must clone the repository using Git.  
 > Direct downloads from GitHub (ZIP files) will **not** compile due to missing git data which the build process depends on.
