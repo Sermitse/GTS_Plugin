@@ -1779,7 +1779,7 @@ namespace GTS {
 
 	bool IsInsideCleavage(Actor* actor) { // For tinies
 		bool InCleavage = false;
-
+		if (!IsHuman(actor)) return true; // Bypass incase someone uses creatures...
 		actor->GetGraphVariableBool("GTS_IsinBoobs", InCleavage);
 
 		return InCleavage;
