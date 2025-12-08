@@ -3,9 +3,12 @@
 
 namespace GTS {
 
+	const wchar_t* const CloseMsg = L"\nThe game will now close.";
+
 	void ReportAndExit(std::string_view a_message) {
 		std::wstring wideMessage = Utf8ToUtf16(a_message);
-
+		wideMessage += CloseMsg;
+		
 		MessageBoxW(
 			nullptr,
 			wideMessage.c_str(),
@@ -17,6 +20,8 @@ namespace GTS {
 	}
 
 	void ReportAndExit(std::wstring_view a_message) {
+		std::wstring wideMessage (a_message);
+		wideMessage += CloseMsg;
 
 		MessageBoxW(
 			nullptr,

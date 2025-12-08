@@ -17,7 +17,6 @@
 
 #include "Hooks/Other/Values.hpp"
 
-#include "Perks/PerkHandler.hpp"
 
 using namespace GTS;
 

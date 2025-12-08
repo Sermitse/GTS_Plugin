@@ -2,10 +2,8 @@
 
 #include "Config/Config.hpp"
 
-#include "Managers/AttackManager.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/HugShrink.hpp"
-#include "Managers/Animation/Controllers/HugController.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
 using namespace GTS;

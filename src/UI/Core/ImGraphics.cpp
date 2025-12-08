@@ -31,16 +31,12 @@ namespace GTS {
 
 		if (FAILED(hr)) {
 			logger::critical("Failed to create WIC Imaging Factory. HRESULT={:X}", hr);
-			ReportAndExit("Could not initialize WIC Imaging Factory.\n"
-					      "The game will now close."
-			);
+			ReportAndExit("ImGraphics: Could not initialize WIC Imaging Factory.");
 		}
 
 		if (!CreateDefaultCheckerboardTexture()) {
 			logger::critical("Failed to create default checkerboard texture.");
-			ReportAndExit("Could not create the default texture.\n"
-				          "The game will now close."
-			);
+			ReportAndExit("ImGraphics: Could not create the default checkerboard texture.");
 
 		}
 
@@ -81,9 +77,8 @@ namespace GTS {
 		}
 		catch (const std::exception& e) {
 			logger::critical("Exception during icon load: {}", e.what());
-			ReportAndExit("Something went wrong while trying to load icons.\n"
-				          "Check GTSPlugin.log for more info.\n"
-				          "The game will now close."
+			ReportAndExit("ImGraphics: Something went wrong while trying to load icons.\n"
+				          "Check GTSPlugin.log for more info."
 			);
 		}
 	}

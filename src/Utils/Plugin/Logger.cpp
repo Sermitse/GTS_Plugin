@@ -30,7 +30,7 @@ namespace {
 		std::unique_ptr<wchar_t[], decltype(&::CoTaskMemFree)> knownPath(buffer, ::CoTaskMemFree);
 
 		if (!knownPath || result != 0) {
-			GTS::ReportAndExit("Something went wrong when trying to find the Skyrim Documents folder");
+			GTS::ReportAndExit("Something went wrong when trying to find the game's save data / log folder.");
 			return std::nullopt;
 		}
 
@@ -56,7 +56,7 @@ namespace SKSE::log {
 		auto path = log_directory_fixed();
 
 		if (!path) {
-			GTS::ReportAndExit("Could not find a valid log directory. The game will now close");
+			GTS::ReportAndExit("Could not find a valid log directory.");
 		}
 
 		*path /= PluginDeclaration::GetSingleton()->GetName();
@@ -120,7 +120,7 @@ namespace SKSE::log {
 		}
 		catch (std::exception& e) {
 			logger::critical("Could not load spdlog settings from config", e.what());
-			GTS::ReportAndExit("Could not load spdlog settings from config");
+			GTS::ReportAndExit("Logger: Could not load logger settings.");
 		}
 	}
 

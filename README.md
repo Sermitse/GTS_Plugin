@@ -37,6 +37,18 @@ If successfull a `Package-Release` folder should have been created within the `d
 > Direct downloads from GitHub (ZIP files) will **not** compile due to missing git data which the build process depends on.
 
 
+## Modder API
+The plugin exposes a few basic functions through both a papyrus and native interface.
+
+### Papyrus
+As long as you have the source psc's you can simply call the exported functions by doing `GTSScale.GetVisualScale()` for example.
+
+A full list of exported functions can be found in `distribution\PapyrusSource\`
+
+### Native API
+A native API for inter DLL communication also exists. To use it simply copy the 
+
+
 ## Current feature wishlist
 
 - [ ] [1] Blood feet/hands after crushing.

@@ -70,7 +70,7 @@ namespace GTS {
 
 		if (FAILED(hr)) {
 			logger::error("Could not get the swapchain, HRESULT: {}", hr);
-			ReportAndExit("Could not get the swapchain, HRESULT: {}");
+			ReportAndExit("GTSMenu: Could not get the D3D Swapchain, HRESULT: {}");
 		}
 
 		ImGui::CreateContext();
@@ -278,7 +278,7 @@ namespace GTS {
 		}
 
 		log::error("Failed to register GTSMenu");
-		ReportAndExit("Failed to register GTSMenu");
+		ReportAndExit("GTSMenu: Scaleform registration failed.");
 
 	}
 

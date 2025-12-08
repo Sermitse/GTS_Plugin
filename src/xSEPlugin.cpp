@@ -51,7 +51,7 @@ namespace {
 				default: {};
 			}
 		})) {
-			GTS::ReportAndExit("Unable to register message listener.");
+			GTS::ReportAndExit("Init: Unable to register message listener.");
 		}
 	}
 
@@ -72,7 +72,7 @@ namespace {
 			logger::info("Papyrus functions bound");
 			return;
 		}
-		GTS::ReportAndExit("Failure to register Papyrus bindings.");
+		GTS::ReportAndExit("Init: Could not register Papyrus bindings.");
 	}
 }
 

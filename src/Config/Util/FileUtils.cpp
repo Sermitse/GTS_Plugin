@@ -104,8 +104,7 @@ namespace GTS {
 				logger::critical("Plugin folder was mising and was created, MOD BROKEN.");
 				ReportAndExit("The GTSPlugin folder was missing and had to be created.\n"
 					"This indicates that the mod was not installed correctly.\n"
-					"The mod will not work if the Font Folder and Runtime.toml are missing.\n"
-					"The game will now close"
+					"The mod will not work if it's contents are missing."
 				);
 			}
 

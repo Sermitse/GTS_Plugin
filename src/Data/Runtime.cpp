@@ -228,8 +228,7 @@ namespace GTS {
 			if (File->compileIndex == 0xFF) {
 				ReportAndExit(
 				  "GTS.esp was not found in the active load order.\n"
-				  "Make sure it exists and is activated.\n"
-	              "The game will now close."
+				  "Make sure it exists and is activated."
 				);
 			}
 		}

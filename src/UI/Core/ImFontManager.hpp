@@ -54,7 +54,7 @@ namespace GTS {
                 // Check if all font files exist
                 for (size_t i = 0; i < a_paths.size() - 1; i++) {
                     if (!std::filesystem::exists(a_paths[i])) {
-                        ReportAndExit("Required font file not found: " + a_paths[i] + "\nReinstall the mod.\nPress OK to close the game.");
+                        ReportAndExit("Required font file not found: " + a_paths[i]);
                     }
                 }
 
