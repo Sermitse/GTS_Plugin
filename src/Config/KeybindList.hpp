@@ -291,7 +291,76 @@ namespace GTS {
 		        .Event = "ThighSandwichExit",
 		        .Keys = {"W"},
 		        .Exclusive = true,
+		    }
+        },
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "SandwichButtStart",
+		        .Keys = {"LSHIFT", "H"},
+		        .Exclusive = true,
+		    }
+        },
+        {        
+            InputCategory::kThighs,
+            {
+		        .Event = "SandwichLightAttack",
+		        .Keys = {"LMB"},
+		        .Exclusive = true,
+                .Trigger = "Release",
 		        .BlockInput = "Never"
+		    }
+        },
+        {        
+            InputCategory::kThighs,
+            {
+		        .Event = "SandwichHeavyAttack",
+		        .Keys = {"LMB"},
+		        .Exclusive = true,
+                .Trigger = "Continuous",
+                .Duration = 0.33f,
+                .BlockInput = "Never"
+		    }
+        },
+        {        
+            InputCategory::kThighs,
+            {
+		        .Event = "SandwichGrowth",
+		        .Keys = {"W"},
+		        .Exclusive = true,
+		    }
+        },
+        {        
+            InputCategory::kThighs,
+            {
+		        .Event = "SandwichGrindStart",
+		        .Keys = {"LSHIFT", "S"},
+		        .Exclusive = true,
+		    }
+        },
+        {        
+            InputCategory::kThighs,
+            {
+		        .Event = "SandwichGrindStop",
+		        .Keys = {"LSHIFT", "S"},
+		        .Exclusive = true,
+		    }
+        },
+        {
+            InputCategory::kThighs,
+            {
+		        .Event = "SandwichButtStop",
+		        .Keys = {"S"},
+		        .Exclusive = true,
+		    }
+        },
+        {        
+            InputCategory::kThighs,
+            {
+		        .Event = "SandwichUB",
+		        .Keys = {"V"},
+		        .Exclusive = true,
+                .Duration = 0.33f,
 		    }
         },
 

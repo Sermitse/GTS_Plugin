@@ -9,6 +9,7 @@
 #include "Magic/Effects/Common.hpp"
 
 #include "Managers/AI/Thigh/ThighSandwichAI.hpp"
+#include "Managers/Animation/Utils/TurnTowards.hpp"
 
 #include "Utils/DeathReport.hpp"
 
@@ -160,9 +161,13 @@ namespace GTS {
 
 				Actor* tiny_is_actor = skyrim_cast<Actor*>(tiny);
 				if (tiny_is_actor) {
-					ShutUp(tiny_is_actor);
-					ForceRagdoll(tiny_is_actor, false);
 					AttachToR ? AttachToObjectR(GiantRef, tiny_is_actor) : AttachToObjectA(GiantRef, tiny_is_actor);
+					//ForceRagdoll(tiny_is_actor, false);
+					ShutUp(tiny_is_actor);
+
+					if (FaceOpposite(GiantRef, tiny_is_actor)) {
+						// No need to do anything here
+					} 
 				}
 
 				float tinyScale = get_visual_scale(tiny);

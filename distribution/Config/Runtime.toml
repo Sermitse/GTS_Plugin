@@ -251,6 +251,9 @@ SLVoiceF8Hot = "Sexlab.esm|067537"
 [MGEF] 
 GTSEffectTinyCalamity = "GTS.esp|1A2568"
 
+# Rune MGEF (Thigh Sandwich)
+GTSThighRuneMGEF = "GTS.esp|90CFBE"
+
 # Spurt
 GTSEffectGrowthSpurt1 = "GTS.esp|007928"
 GTSEffectGrowthSpurt2 = "GTS.esp|1E42A5"
@@ -338,6 +341,9 @@ GTSPowerGrowthSpurt = "GTS.esp|00792A"
 GTSPowerGrowthSpurtMedium = "GTS.esp|1E42A3"
 GTSPowerGrowthSpurtMassive = "GTS.esp|1E42A7"
 GTSVoiceTinyCalamity = "GTS.esp|1A2566"
+
+# Rune Spell
+GTSStartRuneSpell = "GTS.esp|90CFBF"
 
 # Spells
 GTSSpellAbsorb = "GTS.esp|00B471"

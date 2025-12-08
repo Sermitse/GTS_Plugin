@@ -437,6 +437,7 @@ struct SettingsGameplay {
     bool bEnableCrushGrowth = true;
     bool bEnableGrowthOnHit = true;
     float fFullAssimilationLevelCap = 1.0f;
+    float fHitGrowthPower = 1.0f;
 
 };
 TOML_SERIALIZABLE(SettingsGameplay);

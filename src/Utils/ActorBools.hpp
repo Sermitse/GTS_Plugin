@@ -7,6 +7,8 @@ namespace GTS {
 	bool IsHandStomping_H(Actor* actor);
 	bool IsBeingKilledWithMagic(Actor* tiny);
 	bool IsGrabAttacking(Actor* actor);
+	bool IsInSecondSandwichBranch(Actor* actor);
+	bool IsThighGrinding(Actor* actor);
 	bool IsStrangling(Actor* giant);
 	bool IsExitingStrangle(Actor* giant);
 	bool IsUnderGrinding(Actor* giant);

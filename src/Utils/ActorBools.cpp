@@ -40,6 +40,20 @@ namespace GTS {
 		return Attacking;
 	}
 
+	bool IsInSecondSandwichBranch(Actor* actor) {
+		bool SecondTree = false;
+		actor->GetGraphVariableBool("GTS_IsButtState", SecondTree);
+
+		return SecondTree;
+	}
+
+	bool IsThighGrinding(Actor* actor) {
+		bool IsGrinding = false;
+		actor->GetGraphVariableBool("GTS_IsButtGrinding", IsGrinding);
+
+		return IsGrinding;
+	}
+
 	bool IsStrangling(Actor* giant) { // returns true When performing DOT on someone
 		bool strangling = false;
 		giant->GetGraphVariableBool("GTS_Isboobs_doting", strangling);
