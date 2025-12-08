@@ -41,12 +41,14 @@ If successfull a `Package-Release` folder should have been created within the `d
 The plugin exposes a few basic functions through both a papyrus and native interface.
 
 ### Papyrus
-As long as you have the source psc's you can simply call the exported functions by doing `GTSScale.GetVisualScale()` for example.
+As long as you have the source psc's you can simply call the exported functions in your script (eg. `float scale = GTSScale.GetVisualScale(akActor)`) .
 
 A full list of exported functions can be found in `distribution\PapyrusSource\`
 
 ### Native API
-A native API for inter DLL communication also exists. To use it simply copy the 
+A native API for inter DLL communication also exists. To use it simply copy `GTSPluginAPI.hpp`
+located in `src/API/External/` file into your project and call the RequestPluginAPI function
+in either `kPostPostLoad` or `kDataLoaded` SKSE message events.
 
 
 ## Current feature wishlist
