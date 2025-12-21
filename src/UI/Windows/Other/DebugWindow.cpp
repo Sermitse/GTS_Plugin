@@ -155,10 +155,12 @@ namespace GTS {
 
 		if (a_open) {
 
-			if (const auto msgQueue = UIMessageQueue::GetSingleton()) {
-				//The console draws above and since we disable input it becomes unclosable, we need to close it ourselves.
-				msgQueue->AddMessage(RE::Console::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-			}
+			SKSE::GetTaskInterface()->AddUITask([] {
+				if (const auto msgQueue = UIMessageQueue::GetSingleton()) {
+					//The console draws above and since we disable input it becomes unclosable, we need to close it ourselves.
+					msgQueue->AddMessage(RE::Console::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
+				}
+			});
 
 			m_show = true;
 		}

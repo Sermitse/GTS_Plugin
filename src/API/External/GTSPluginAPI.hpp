@@ -98,7 +98,7 @@ namespace GTSPluginAPI {
 
 	/// <summary>
 	/// Request the the plugin interface object.
-	/// Note: Should be done on or after kPostPostLoad at the earliest to ensure the dll has been loaed/Initialized by SKSE.
+	/// Note: Should be done on or after kPostPostLoad at the earliest to ensure the dll has been loaded/Initialized by SKSE.
 	/// If aquiring fails use the kDataLoaded event instead.
 	/// </summary>
 	/// <param name="a_interfaceVersion">The interface version to request</param>

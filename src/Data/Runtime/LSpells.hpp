@@ -27,6 +27,7 @@ namespace RuntimeData {
 		Entry(GTSSpellShrinkToNothing,       GTSP, 0x00997A);
 		Entry(GTSSpellSlowGrowth,            GTSP, 0x019C38);
 		Entry(GTSSpellTrueAbsorb,            GTSP, 0x22B0D6);
+		Entry(GTSSpellThighRune,             GTSP, 0x907EC3);
 
 		//Survival Mode
 		Entry(Survival_HungerStage0,         SRVM, 0x000876);

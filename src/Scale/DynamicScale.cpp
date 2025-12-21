@@ -78,7 +78,7 @@ namespace GTS {
 			}
 		}
 
-		float RAY_LENGTH = 200 * scale;
+		float RAY_LENGTH = 200.f * scale;
 		
 
 		// Ceiling

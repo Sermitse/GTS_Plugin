@@ -1,6 +1,6 @@
 #pragma once
 
-#include "API/External/SKEEBodyMorphInterface.hpp"
+#include "API/External/SKEEInterface.hpp"
 
 namespace GTS {
 
@@ -37,7 +37,8 @@ namespace GTS {
 		void OnPluginPostLoad() override;
 
 		private:
-		static inline SKEE::IBodyMorphInterface* RaceMenuInterface = nullptr;
+		static inline SKEE::IBodyMorphInterface* iBodyMorphIntfc = nullptr;
+		static inline SKEE::IInterfaceMap* iInterfaceMap = nullptr;
 		static inline const std::string MorphKey = "GTSPlugin";
 
 

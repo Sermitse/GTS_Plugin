@@ -54,7 +54,6 @@ struct SettingsUI_t {
     std::array<float, 3> f3AccentColor = { 0.273f, 0.0106f, 0.0106f }; // Default Menu UI Color
     std::array<float, 3> f3IconOverflowColor = { 0.273f, 0.0106f, 0.0106f };
 
-
 };
 TOML_SERIALIZABLE(SettingsUI_t);
 TOML_REGISTER_NAME(SettingsUI_t, "UI");
@@ -134,7 +133,15 @@ struct WindowSettingsKillFeed_t {
     uint16_t iFlags = 0;
     float fWidth = 400.0f;
     uint8_t iMaxVisibleEntries = 8;
-    std::array<float, 3> f3BGColor = {0.0f, 0.0f, 0.0f};
+    float fFontScaleMult = 1.0f;
+    bool bShowGameKills = true;
+    bool bShowWorldKills = true;
+     
+    std::array<float, 3> f3BGColor        = { 0.0f, 0.0f, 0.0f };
+    std::array<float, 3> f3AttackerColor  = { 1.0f, 1.0f, 1.0f };
+    std::array<float, 3> f3VictimColor    = { 1.0f, 1.0f, 1.0f };
+    std::array<float, 3> f3DeathTypeColor = { 0.6f, 0.6f, 0.6f };
+
 };
 TOML_SERIALIZABLE(WindowSettingsKillFeed_t);
 TOML_REGISTER_NAME(WindowSettingsKillFeed_t, "KillFeed");

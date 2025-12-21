@@ -97,6 +97,7 @@ struct SettingsCamera_t {
 
     // Distance and zoom controls
     bool bEnableAutoFNearDist = false;
+    bool bEnableAutoFFarDist= false;
     bool bEnableSkyrimCameraAdjustments = true;
     float fCameraDistMin = 150.0f;
     float fCameraDistMax = 600.0f;

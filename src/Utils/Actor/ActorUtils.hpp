@@ -311,20 +311,6 @@ namespace GTS {
 
 	float Sound_GetFallOff(NiAVObject* source, float mult);
 
-	// RE Fun:
-	void SetCriticalStage(Actor* actor, int stage);
-	void Attacked(Actor* victim, Actor* agressor);
-	void StartCombat(Actor* victim, Actor* agressor);
-  	void ApplyDamage(Actor* giant, Actor* tiny, float damage);
-	void SetObjectRotation_X(TESObjectREFR* ref, float X);
-	void StaggerActor_Directional(Actor* giant, float power, Actor* tiny);
-	void SetLinearImpulse(bhkRigidBody* body, const hkVector4& a_impulse);
-	void SetAngularImpulse(bhkRigidBody* body, const hkVector4& a_impulse);
-
-	std::int16_t GetItemCount(InventoryChanges* changes, TESBoundObject* a_obj);
-	int GetCombatState(Actor* actor);
-	bool IsMoving(Actor* giant);
-
 	bool IsPlayerFirstPerson(Actor* a_actor);
 
 	float get_corrected_scale(Actor* a_actor);

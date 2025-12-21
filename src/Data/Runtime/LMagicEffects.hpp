@@ -80,6 +80,8 @@ namespace RuntimeData {
 		Entry(GTSAlchEffectMight,                 GTSP, 0x89D946);
 		Entry(GTSAlchEffectResistShrink,          GTSP, 0x89D949);
 
+		Entry(GTSEffectThighRune,                 GTSP, 0x907EC4);
+
 	};
 
 }

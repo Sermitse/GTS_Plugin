@@ -160,27 +160,47 @@ namespace GTS {
 
 		std::string sFmtTxt;
 
-		if (ExtraSettings.bShowScale) {
-			sFmtTxt += !Configuring ? fmt::format("{:.2f}x", fAngleCurrent) : "1.00x";
+		// Resolve effective progress used for rendering
+		const float progress = (fScaleProgress == -1.0f) ? 1.0f : fScaleProgress;
+
+		// Extremes override everything
+		if (progress <= 1e-3f && !Configuring) {
+			sFmtTxt = "Far";
+		}
+		else if (progress >= 1.0f - 1e-3f && !Configuring) {
+			sFmtTxt = "Under";
 		}
 
-		if (ExtraSettings.bShowAbsoluteAngle) {
-			sFmtTxt += !Configuring ? fmt::format("{}{:.1f}°", ExtraSettings.bShowScale ? " " : "", fAngleAbs) : (ExtraSettings.bShowScale ? " 90.0°" : "90.0°") ;
+		else {
+			if (ExtraSettings.bShowScale) {
+				sFmtTxt += !Configuring ? fmt::format("{:.2f}x", fAngleCurrent) : "1.00x";
+			}
+
+			if (ExtraSettings.bShowAbsoluteAngle) {
+				if (!sFmtTxt.empty()) {
+					sFmtTxt += " | ";
+				}
+				sFmtTxt += !Configuring ? fmt::format("{:.1f}°", fAngleAbs) : "90.0°";
+			}
 		}
 
 		ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetBody);
 
 		ImGuiEx::ProgressBar(
-			fScaleProgress == -1.0f ? 1.0f : fScaleProgress,
+			progress,
 			{ ExtraSettings.f2Size[0], 0.0f },
 			sFmtTxt.c_str(),
 			ExtraSettings.iFlags,
-			ExtraSettings.f2Size[1], ExtraSettings.fBorderThickness,
+			ExtraSettings.f2Size[1],
+			ExtraSettings.fBorderThickness,
 			ExtraSettings.fRounding,
-			ExtraSettings.f2GradientRange[0], ExtraSettings.f2GradientRange[1],
+			ExtraSettings.f2GradientRange[0],
+			ExtraSettings.f2GradientRange[1],
 			ImUtil::Colors::fRGBToU32(ExtraSettings.f3ColorA),
 			ImUtil::Colors::fRGBToU32(ExtraSettings.f3ColorB),
-			ImUtil::Colors::AdjustGrayScaleLightness(ExtraSettings.fBorderLightness, ExtraSettings.fBorderAlpha)
+			ImUtil::Colors::AdjustGrayScaleLightness(
+				ExtraSettings.fBorderLightness,
+				ExtraSettings.fBorderAlpha)
 		);
 
 		ImFontManager::Pop();

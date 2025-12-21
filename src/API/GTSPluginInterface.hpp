@@ -9,7 +9,7 @@ namespace GTS {
 	class GTSPluginIntfc : public Interface {
 		private:
 		GTSPluginIntfc() noexcept = default;
-		~GTSPluginIntfc() noexcept = default;
+		~GTSPluginIntfc() noexcept override = default;
 
 		public:
 		static GTSPluginIntfc* GetSingleton() noexcept {

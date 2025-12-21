@@ -1,7 +1,10 @@
 #pragma once
 
+#include "RE/A/Actor.hpp"
+
 #include "RE/B/bhkCharacterRigidBody.hpp"
 #include "RE/B/bhkCharacterRigidBodyController.hpp"
+#include "RE/B/bhkRigidBody.hpp"
 #include "RE/B/BSAudioManager.hpp"
 #include "RE/B/BSDirectInputManager.hpp"
 

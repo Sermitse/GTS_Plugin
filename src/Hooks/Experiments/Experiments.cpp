@@ -110,11 +110,63 @@ struct MainUpdatePre {
 	FUNCTYPE_CALL func;
 };
 
+//Detour of the SetMoveFlags Function,
+//Intention was to force AI movement to not run.
+//Result is that the player can no longer jog only walk or sprint.
+struct SetMoveFlags {
+
+	static uint8_t thunk(RE::ActorState* state, uint16_t flags) {
+		constexpr uint16_t WALK = 1u << 6;
+		constexpr uint16_t RUN = 1u << 7;
+		constexpr uint16_t SPRINT = 1u << 8;
+
+		const bool wantsRun = (flags & RUN) != 0;
+		const bool wantsSprint = (flags & SPRINT) != 0;
+
+		flags &= ~RUN;
+		flags &= ~SPRINT;
+
+		if (wantsRun || wantsSprint) {
+			flags |= WALK;
+		}
+
+		state->actorState2.forceRun = 0;
+
+		return func(state, flags);
+	}
+
+
+	FUNCTYPE_DETOUR func;
+};
+
+//A Random Character member func. The follow procedure uses it to calculate the distance between Character and the person being followed (i think)
+//Or actually i think its the move function??? maybe? forcing 0 causes a follower to slide in place sometimes?
+struct Sub {
+
+	static float thunk(RE::Character* a_this) {
+		return 0.0f;
+	}
+
+	FUNCTYPE_DETOUR func;
+};
+
+
 namespace Hooks {
 
 	void Hook_Experiments::Install() {
-		stl::write_call<MainLoop, 6>(REL::VariantID(NULL, 36544, NULL), REL::VariantOffset(NULL, 0xd6, NULL));
-		stl::write_call<MainUpdatePre>(REL::VariantID(35565, 36564, NULL), REL::VariantOffset(0x1E, 0x3E, NULL));
+		//stl::write_call<MainLoop, 6>(REL::VariantID(NULL, 36544, NULL), REL::VariantOffset(NULL, 0xd6, NULL));
+		//stl::write_call<MainUpdatePre>(REL::VariantID(35565, 36564, NULL), REL::VariantOffset(0x1E, 0x3E, NULL));
+
+
+
+		//SE: 38026
+		//AE: 38982
+		//stl::write_detour<SetMoveFlags>(REL::RelocationID(38026, 38982));
+
+		//SE: 36460
+		//AE : 37458
+		//stl::write_detour<Sub>(REL::RelocationID(36460, 37458));
+
 	}
 
 }

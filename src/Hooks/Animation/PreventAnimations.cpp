@@ -104,23 +104,15 @@ namespace {
 
 		switch (idle) {
 			case KillMoveFrontSideRoot:
-				KillMove = true;
-				break;	
 			case KillMoveDragonToNPC:
-				KillMove = true;
-				break;
 			case KillMoveRootDragonFlight:
-				KillMove = true;
-				break;
 			case KillMoveBackSideRoot:
-				KillMove = true;
-				break;
 			case KillMoveFrontSideRoot00:
-				KillMove = true;
-				break;
 			case KillMoveBackSideRoot00:
+			{
 				KillMove = true;
-				break;
+			} break;
+			default: break;
 		}
 
 		if (KillMove) {
@@ -151,23 +143,15 @@ namespace {
 	bool IsDisallowed(FormID idle) {
 		switch (idle) {
 			case DefaultSheathe:
-				//log::info("Block DefaultSheathe");
-				return true;
 			case JumpRoot:
-				//log::info("Block JumpRoot");
-				return true;
 			case NonMountedDraw:
-				//log::info("Block NonMountedDraw");
-				return true;
 			case NonMountedForceEquip:
-				//log::info("Block NonMountedForceEquip");
-				return true;
 			case JumpStandingStart:
-				//log::info("Block JumpStandingStart");
-				return true;	
-			case JumpDirectionalStart:
-				//log::info("Block JumpDirectionalStart");
-				return true;	
+			case JumpDirectionalStart: 
+			{
+				return true;
+			}
+			default: break;
 		}
 		return false;
 	}
@@ -187,7 +171,23 @@ namespace {
 		return false;
 	}
 
-	
+	bool PreventNPCSprinint(FormID idle, Actor* performer) {
+
+		//Prevent NPC Sprinting past 2.0 scale
+		constexpr float scaleThreshold = 2.0f;
+		switch (idle) {
+			case SprintStart:
+			case SprintRootStart:
+			{	
+				if (get_visual_scale(performer) > scaleThreshold && !performer->IsPlayerRef()) {
+					return true;
+				}
+			} break;
+
+			default: break;
+		}
+		return false;
+	}
 
 	bool BlockAnimation(TESIdleForm* idle, ConditionCheckParams* params) {
 		if (!idle) {
@@ -198,6 +198,10 @@ namespace {
 		Actor* performer = params->actionRef->As<RE::Actor>();
 
 		if (performer) {
+
+			if (PreventNPCSprinint(Form, performer)) {
+				return true;
+			}
 
 			if (PreventKillMove(Form, params, performer, params->targetRef)) {
 				return true;
@@ -248,6 +252,7 @@ namespace {
 		return false;
 
 	}
+
 }
 
 namespace Hooks {

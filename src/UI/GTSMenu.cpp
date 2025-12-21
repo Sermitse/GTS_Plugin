@@ -93,7 +93,7 @@ namespace GTS {
 			ImGuiConfigFlags_NoMouse |
 			ImGuiConfigFlags_NoKeyboard;
 
-		ImGui_ImplWin32_Init(SwapChainDesc.OutputWindow);
+		//ImGui_ImplWin32_Init(SwapChainDesc.OutputWindow);
 		ImGui_ImplDX11_Init(D3DDevice, D3DContext);
 
 		logger::info("ImGraphics Init");
@@ -171,83 +171,104 @@ namespace GTS {
 
 	void GTSMenu::SetInputFlags(bool a_enable) {
 
-		if (const auto msgQueue = UIMessageQueue::GetSingleton(); const auto ui = RE::UI::GetSingleton()) {
+		if (const auto ui = RE::UI::GetSingleton()) {
+			if (const auto msgQueue = UIMessageQueue::GetSingleton()) {
 
-			if (m_cursorEnabled.exchange(a_enable) == a_enable) {
-				return;
-			}
-
-			if (a_enable) {
-				//The Flags don't behave as expected
-				//So we're forced to just outright show the cursor instead of relying on the game to manage it for us.
-				//You can sort of force a partial flag read by sending a kHide and kShow Ui message,
-				//Essentially turning it off and on again. This appears to make the mouse flags work however it seems to have no
-				//effect on other flags like pause game/blur backround.
-				menuFlags.set(UI_MENU_FLAGS::kUpdateUsesCursor);
-				menuFlags.set(UI_MENU_FLAGS::kUsesCursor);
-
-				//Enable Imgui's win32 input update code.
-				ImIO->ConfigFlags &= ~(ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard);
-
-				//Manually Show the cursor
-				msgQueue->AddMessage(RE::CursorMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
-			}
-			else {
-
-				menuFlags.reset(UI_MENU_FLAGS::kUpdateUsesCursor);
-				menuFlags.reset(UI_MENU_FLAGS::kUsesCursor);
-				ImIO->ConfigFlags |= ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard;
-
-				//Traverse the menu stack and check if another menu is currently being drawn that uses the cursor.
-				//If it does don't force hide the cursor as that would break said other menu.
-				for (const auto& menu : ui->menuStack) {
-
-					//If the menu is us skip over.
-					if (menu.get() == this) {
-						continue;
-					}
-
-					if ((menu->menuFlags & UI_MENU_FLAGS::kUsesCursor) != UI_MENU_FLAGS::kNone ||
-						(menu->menuFlags & UI_MENU_FLAGS::kUpdateUsesCursor) != UI_MENU_FLAGS::kNone) {
-						return;
-					}
+				if (m_cursorEnabled.exchange(a_enable) == a_enable) {
+					return;
 				}
 
-				msgQueue->AddMessage(RE::CursorMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-			}
+				if (a_enable) {
+					//The Flags don't behave as expected
+					//So we're forced to just outright show the cursor instead of relying on the game to manage it for us.
+					//You can sort of force a partial flag read by sending a kHide and kShow Ui message,
+					//Essentially turning it off and on again. This appears to make the mouse flags work however it seems to have no
+					//effect on other flags like pause game/blur backround.
+					menuFlags.set(UI_MENU_FLAGS::kUpdateUsesCursor);
+					menuFlags.set(UI_MENU_FLAGS::kUsesCursor);
 
-			logger::trace("GTSMenu Cursor: {}", a_enable);
+					//Enable Imgui's win32 input update code.
+					ImIO->ConfigFlags &= ~(ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard);
+
+					//Manually Show the cursor
+					msgQueue->AddMessage(RE::CursorMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
+				}
+				else {
+
+					menuFlags.reset(UI_MENU_FLAGS::kUpdateUsesCursor);
+					menuFlags.reset(UI_MENU_FLAGS::kUsesCursor);
+					ImIO->ConfigFlags |= ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard;
+
+					//Traverse the menu stack and check if another menu is currently being drawn that uses the cursor.
+					//If it does don't force hide the cursor as that would break said other menu.
+					for (const auto& menu : ui->menuStack) {
+
+						//If the menu is us skip over.
+						if (menu.get() == this) {
+							continue;
+						}
+
+						if ((menu->menuFlags & UI_MENU_FLAGS::kUsesCursor) != UI_MENU_FLAGS::kNone ||
+							(menu->menuFlags & UI_MENU_FLAGS::kUpdateUsesCursor) != UI_MENU_FLAGS::kNone) {
+							return;
+						}
+					}
+
+					msgQueue->AddMessage(RE::CursorMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
+				}
+
+				logger::trace("GTSMenu Cursor: {}", a_enable);
+			}
 		}
 	}
 
 	void GTSMenu::BlurBackground(bool a_enable) {
-		if (auto blur = RE::UIBlurManager::GetSingleton()) {
+		if (static UIBlurManager* const blur = RE::UIBlurManager::GetSingleton()) {
 			if (a_enable && Config::UI.bDoBGBlur) {
 				blur->IncrementBlurCount();
 			}
-			else {
-				if (blur->blurCount > 0) {
-					blur->DecrementBlurCount();
-				}
+			else if (blur->blurCount > 0) {
+				blur->DecrementBlurCount();
 			}
 		}
 	}
 
 	void GTSMenu::PauseGame(bool a_enable) {
-		if (auto ui = UI::GetSingleton()){
-			if (a_enable && Config::UI.bDoPause) {
-				ui->numPausesGame++;
+
+		if (static UI* const ui = UI::GetSingleton()) {
+
+			int32_t* ipauses = reinterpret_cast<int32_t*>(&ui->numPausesGame);
+
+			if (a_enable) {
+
+				if (!Config::UI.bDoPause) {
+					return;
+				}
+
+				// Increment local pause reference count; only the 0 to 1 transition
+				// actually increments the engine pause counter
+				if (m_localPauseCount.fetch_add(1, std::memory_order_acq_rel) == 0) {
+					++(*ipauses);
+				}
 			}
 			else {
-				if (ui->numPausesGame > 0) {
-					ui->numPausesGame--;
+				// Release a local pause reference if any are held
+				uint32_t prev = m_localPauseCount.load(std::memory_order_acquire);
+				while (prev > 0) {
+					// Attempt to decrement the local pause count
+					if (m_localPauseCount.compare_exchange_weak(prev, prev - 1, std::memory_order_acq_rel)) {
+						// Only the 1 to 0 transition decrements the engine pause counter
+						if (prev == 1 && *ipauses > 0) {
+							--(*ipauses);
+						}
+						break;
+					}
 				}
 			}
 		}
 	}
 
 	void GTSMenu::AlterTimeScale(bool a_enable) {
-		//I feel like im missing something here...
 		if (a_enable && Config::UI.bDoSlowdown) {
 			m_originalGameTime = Time::GGTM();
 			Time::SGTM(Config::UI.fSGTMMult);
@@ -333,7 +354,7 @@ namespace GTS {
 			return;
 		}
 
-		ImGui_ImplWin32_NewFrame();
+		//ImGui_ImplWin32_NewFrame();
 		ImGui_ImplDX11_NewFrame();
 		ImGui::NewFrame();
 		ImGraphics::ClearTransformedTextureCache();

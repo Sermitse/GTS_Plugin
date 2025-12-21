@@ -117,11 +117,14 @@ namespace GTS {
 	        PSString T4 = "Enable camera collision with statics (basically any solid, non-movable object).";
 	        PSString T5 = "Change the scale at which the above collision settings should apply.";
 
-			PSString T6 = "Dynamically change the camera near distance value to fix clipping issues when small.\n"
+			PSString T6 = "Dynamically change the camera's near distance value to fix clipping issues when small.\n"
 						  "May introduce visual issues such as moving/disappearing shadows.\n\n"
 	    				  "Starts applyng when smaller than 1.0x scale.\n"
 	    				  "Disables itself when past 1.0x scale\n\n"
 	    				  "Note: Can conflict with other mods that also change this value";
+
+			PSString T7 = "Dynamically change the camera's far distance value to fix actors/terrain/lod disapearing issues when extremely large.\n"
+						  "Note: Can conflict with other mods that also change this value";
 
 	        if (ImGui::CollapsingHeader("Camera Collision", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImGuiEx::CheckBox("Collide With Actors", &Config::Camera.bCamCollideActor, T0);
@@ -136,7 +139,9 @@ namespace GTS {
 
 	        	ImGui::Spacing();
 
-				ImGuiEx::CheckBox("Dynamic Near Distance", &Config::Camera.bEnableAutoFNearDist, T6);
+				ImGui::Text("Dynamic Camera Frustrum");
+				ImGuiEx::CheckBox("Enable - Near", &Config::Camera.bEnableAutoFNearDist, T6);
+				ImGuiEx::CheckBox("Enable - Far", &Config::Camera.bEnableAutoFFarDist, T7);
 
 	            ImGui::Spacing();
 	        }

@@ -190,4 +190,12 @@ namespace GTS {
 		}
 		return 1.0f;
 	}
+
+	float get_corrected_scale(Actor* a_actor) { // Used to take children scale into account so they will return 1.0 scale instead of 0.7 when at 100% scale
+		if (!a_actor) return 1.0f;
+		const float natural_scale = std::max(get_natural_scale((a_actor), false), 1.0f);
+		const float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
+
+		return scale;
+	}
 }

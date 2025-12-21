@@ -96,6 +96,19 @@ namespace GTS {
 	}
 
 	void KillFeedWindow::DeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead) {
+
+		static const WindowSettingsKillFeed_t& settings = GetExtraSettings<WindowSettingsKillFeed_t>();
+
+		// Check if we should show any vanilla kills at all
+		if (!settings.bShowGameKills) {
+			return;
+		}
+		
+		// Check if we should show kills that have no killer (world kills)
+		if (!a_killer && !settings.bShowWorldKills) {
+			return;
+		}
+
 		if (!a_dead) {
 			// I think the dead bool indicates whether the actor is in a critical stage
 			// We don't really need this event the normal death event which fires slightly earlier is more than enough for this use case.
@@ -232,7 +245,20 @@ namespace GTS {
 		const ImVec2 Offset{ BaseSettings.f2Position[0], BaseSettings.f2Position[1] };
 		ImGui::SetWindowPos(GetAnchorPos(StringToEnum<WindowAnchor>(BaseSettings.sAnchor), Offset, true));
 
-		ImFontManager::Push(ImFontManager::ActiveFontType::kLargeText);
+		
+		static ImGuiEx::KillFeedStyle Style = {};
+		{
+			Style.visDuration  = BaseSettings.fFadeAfter;
+			Style.neverFade    = Configuring ? true : !BaseSettings.bEnableFade;
+			Style.bgColor      = ImUtil::Colors::fRGBToU32(ExtraSettings.f3BGColor);
+			Style.attackerCol  = ImUtil::Colors::fRGBToU32(ExtraSettings.f3AttackerColor);
+			Style.victimCol    = ImUtil::Colors::fRGBToU32(ExtraSettings.f3VictimColor);
+			Style.deathTypeCol = ImUtil::Colors::fRGBToU32(ExtraSettings.f3DeathTypeColor);
+			Style.bgAlpha      = BaseSettings.fBGAlphaMult;
+			Style.fontScale    = ExtraSettings.fFontScaleMult;
+			Style.flags        = static_cast<ImGuiEx::KillFeedEntryFlags>(ExtraSettings.iFlags);
+		}
+
 
 		// Demo entries if configuring
 		if (Configuring) {
@@ -241,13 +267,7 @@ namespace GTS {
 			);
 
 			for (uint8_t i = 0; i < ExtraSettings.iMaxVisibleEntries; i++) {
-				ImGuiEx::DrawKillfeedEntry(
-					DemoEntry, 
-					BaseSettings.fFadeAfter, 
-					true, 
-					ImUtil::Colors::fRGBToU32(ExtraSettings.f3BGColor), 
-					BaseSettings.fBGAlphaMult, ExtraSettings.iFlags
-				);
+				ImGuiEx::DrawKillfeedEntry(DemoEntry, Style);
 			}
 		}
 		else {
@@ -264,13 +284,7 @@ namespace GTS {
 			// Draw visible entries and update lifetime
 			for (auto& Entry : KillEntries) {
 				Entry->lifetime += Time::WorldTimeDelta();
-				ImGuiEx::DrawKillfeedEntry(
-					Entry, 
-					BaseSettings.fFadeAfter, 
-					false, 
-					ImUtil::Colors::fRGBToU32(ExtraSettings.f3BGColor), 
-					BaseSettings.fBGAlphaMult, ExtraSettings.iFlags
-				);
+				ImGuiEx::DrawKillfeedEntry(Entry, Style);
 			}
 
 			// Remove expired entries
@@ -281,7 +295,6 @@ namespace GTS {
 		}
 
 		ImGui::Dummy({});
-		ImFontManager::Pop();
 	}
 
 }

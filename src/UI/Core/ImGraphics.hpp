@@ -25,18 +25,12 @@ namespace ImageList {
     PSString Generic_Reset            = "generic_reset";
     PSString Generic_Square           = "generic_square";
 
-    PSString BuffIcon_VoreStacks         = PlaceHolder;
-    PSString BuffIcon_DamageReduction    = PlaceHolder;
-    PSString BuffIcon_GTSAspect          = PlaceHolder;
-    PSString BuffIcon_LifeAbsorbStacks   = PlaceHolder;
-    PSString BuffIcon_OnTheEdge          = PlaceHolder;
-    PSString BuffIcon_SizeReserve        = PlaceHolder;
-
-
-
-
-
-
+    PSString BuffIcon_VoreStacks         = "bufficon_calaclystmicstomp";
+    PSString BuffIcon_DamageReduction    = "bufficon_damagereduction";
+    PSString BuffIcon_GTSAspect          = "bufficon_gtsaspect";
+    PSString BuffIcon_LifeAbsorbStacks   = "bufficon_lifeabsorbstacks";
+    PSString BuffIcon_OnTheEdge          = "bufficon_ontheedge";
+    PSString BuffIcon_SizeReserve        = "bufficon_sizereserve";
 
 }
 

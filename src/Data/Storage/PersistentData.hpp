@@ -1,8 +1,6 @@
 #pragma once
-
+#pragma pack(push, 1)
 namespace GTS {
-
-	#pragma pack(push, 1)
 
 	struct PersistentActorData {
 
@@ -95,7 +93,6 @@ namespace GTS {
 		uint32_t iGrinded = 0;             // Grinded to death
 
 	};
-
-	#pragma pack(pop)
 }
 
+#pragma pack(pop)

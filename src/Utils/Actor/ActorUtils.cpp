@@ -1303,7 +1303,7 @@ namespace GTS {
 			}
 			auto tiny = tinyref.get().get();
 
-			SetCriticalStage(tiny, 4);
+			SetCriticalStage(tiny, ACTOR_CRITICAL_STAGE::kDisintegrateEnd);
 		});
 	}
 
@@ -3596,96 +3596,10 @@ namespace GTS {
 		return 1.0f;
 	} 
 
-	// RE Fun
-	void SetCriticalStage(Actor* actor, int stage) {
-		if (stage < 5 && stage >= 0) {
-			typedef void (*DefSetCriticalStage)(Actor* actor, int stage);
-			REL::Relocation<DefSetCriticalStage> SkyrimSetCriticalStage{ RELOCATION_ID(36607, 37615) };
-			SkyrimSetCriticalStage(actor, stage);
-		}
-	}
-
-	void Attacked(Actor* victim, Actor* agressor) {
-		typedef void (*DefAttacked)(Actor* victim, Actor* agressor);
-		REL::Relocation<DefAttacked> SkyrimAttacked{ RELOCATION_ID(37672, 38626) }; // 6285A0 (SE) ; 64EE60 (AE)
-		SkyrimAttacked(victim, agressor); 
-	}
-
-	void StartCombat(Actor* victim, Actor* agressor) {
-		// This function starts combat and adds bounty. Sadly adds 40 bounty since it's not a murder, needs other hook for murder bounty.
-		typedef void (*DefStartCombat)(Actor* act_1, Actor* act_2, Actor* act_3, Actor* act_4);
-		REL::Relocation<DefStartCombat> SkyrimStartCombat{ RELOCATION_ID(36430, 37425) }; // sub_1405DE870 : 36430  (SE) ; 1406050c0 : 37425 (AE)
-		SkyrimStartCombat(victim, agressor, agressor, agressor);                          // Called from Attacked above at some point
-	}
-
-	void ApplyDamage(Actor* giant, Actor* tiny, float damage) { // applies correct amount of damage and kills actors properly
-		typedef void (*DefApplyDamage)(Actor* a_this, float dmg, Actor* aggressor, HitData* maybe_hitdata, TESObjectREFR* damageSrc);
-		REL::Relocation<DefApplyDamage> Skyrim_ApplyDamage{ RELOCATION_ID(36345, 37335) }; // 5D6300 (SE)
-		//TODO Figure out why the aggressor wasn't being passed here before.
-		Skyrim_ApplyDamage(tiny, damage, giant, nullptr, nullptr);
-	}
-
-	void SetObjectRotation_X(TESObjectREFR* ref, float X) {
-		typedef void (*DefSetRotX)(TESObjectREFR* ref, float rotation);
-		REL::Relocation<DefSetRotX> SetObjectRotation_X{ RELOCATION_ID(19360, 19360) }; // 140296680 (SE)
-		SetObjectRotation_X(ref, X);
-	}
-
-	void StaggerActor_Directional(Actor* giant, float power, Actor* tiny) {
-		//SE: 1405FA1B0 : 36700 (Character *param_1,float param_2,Actor *param_3)
-		//AE: 140621d80 : 37710
-		//log::info("Performing Directional Stagger");
-		//log::info("Giant: {}, Tiny: {}, Power: {}", giant->GetDisplayFullName(), tiny->GetDisplayFullName(), power);
-		typedef void (*DefStaggerActor_Directional)(Actor* tiny, float power, Actor* giant);
-		REL::Relocation<DefStaggerActor_Directional> StaggerActor_Directional{ RELOCATION_ID(36700, 37710) };
-		StaggerActor_Directional(tiny, power, giant);
-	}
-
-	void SetLinearImpulse(bhkRigidBody* body, const hkVector4& a_impulse)
-	{
-		using func_t = decltype(&SetLinearImpulse);
-		REL::Relocation<func_t> func{ RELOCATION_ID(76261, 78091) };
-		return func(body, a_impulse);
-	}
-
-	void SetAngularImpulse(bhkRigidBody* body, const hkVector4& a_impulse)
-	{
-		using func_t = decltype(&SetAngularImpulse);
-		REL::Relocation<func_t> func{ RELOCATION_ID(76262, 78092) };
-		return func(body, a_impulse);
-	}
-
-	std::int16_t GetItemCount(InventoryChanges* changes, RE::TESBoundObject* a_obj)
-	{
-		using func_t = decltype(&GetItemCount);
-		REL::Relocation<func_t> func{ RELOCATION_ID(15868, 16108) };
-		return func(changes, a_obj);
-	}
-
-	int GetCombatState(Actor* actor) { // Needs AE address
-        using func_t = decltype(GetCombatState);
-        REL::Relocation<func_t> func{ RELOCATION_ID(37603, 38556) };
-        return func(actor);
-		// 0 = non combat, 1 = combat, 2 = search
-    }
-
-	bool IsMoving(Actor* giant) { // New CommonLib version copy-paste
-		using func_t = decltype(&IsMoving);
-		REL::Relocation<func_t> func{ RELOCATION_ID(36928, 37953) };
-		return func(giant);
-	}
 
 	bool IsPlayerFirstPerson(Actor* a_actor) {
 		if (!a_actor) return false;
 		return a_actor->formID == 0x14 && IsFirstPerson();
-	}
-
-	float get_corrected_scale(Actor* a_actor) { // Used to take children scale into account so they will return 1.0 scale instead of 0.7 when at 100% scale
-		if (!a_actor) return 1.0f;
-		const float natural_scale = std::max(get_natural_scale((a_actor), false), 1.0f);
-		const float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
-
-		return scale;
 	}
 
 	std::tuple<float, float> CalculateVoicePitch(Actor* a_actor) {

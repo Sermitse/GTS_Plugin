@@ -182,6 +182,7 @@ namespace GTS {
 					if (ref) {
 						auto changes = ref->GetInventoryChanges();
 						if (changes) {
+							//Clib version produces garbage values
 							quantity = GetItemCount(changes, a_object); // obtain item count
 						}
 					}
@@ -249,11 +250,15 @@ namespace GTS {
 			TotalPos.z += (200.0f - (200.0f * scale_up)); // move it a bit upwards
 			RunScaleTask(dropboxHandle, actor, Start, Scale, soul, TotalPos); // Scale our pile over time
 		}
-		MoveItemsTowardsDropbox(actor, dropbox, removeQuestItems); // Launch transfer items task with a bit of delay
+		MoveItemsTowardsDropbox(actor, dropboxHandle.get().get(), removeQuestItems); // Launch transfer items task with a bit of delay
 	}
 
 	void MoveItemsTowardsDropbox(Actor* actor, TESObjectREFR* dropbox, bool removeQuestItems) {
 		int32_t quantity = 1;
+		//Removing Items from actors that have no 3d will crash the game.
+		if (!actor->Is3DLoaded() || !dropbox->Is3DLoaded()) {
+			return;
+		}
 		for (auto &[a_object, invData]: actor->GetInventory()) { // transfer loot
 			if (a_object->GetPlayable() && a_object->GetFormType() != FormType::LeveledItem) { // We don't want to move Leveled Items
 				if ((!invData.second->IsQuestObject() || removeQuestItems)) {
@@ -266,9 +271,11 @@ namespace GTS {
 							quantity = GetItemCount(changes, a_object); // obtain item count
 						}
 					}
-
+					quantity = std::max(0, quantity);
 					//log::info("Transfering item: {}, quantity: {}", a_object->GetName(), quantity);
-					actor->RemoveItem(a_object, quantity, ITEM_REMOVE_REASON::kRemove, nullptr, dropbox, nullptr, nullptr);
+					if (dropbox) {
+						actor->RemoveItem(a_object, quantity, ITEM_REMOVE_REASON::kRemove, nullptr, dropbox, nullptr, nullptr);
+					}
 				}
 			}
 		}

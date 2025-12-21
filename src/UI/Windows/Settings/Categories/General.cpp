@@ -290,23 +290,17 @@ namespace GTS {
 	                         "Use at your own risk.";
 
 			PSString T1 = "Apply computationally expensive damage calculations to all NPC's in the scene.\n"
-							 "This toggle can be EXTREMELY fps hungry, it is highly recommended to keep it off.";
+	    	              "This toggle can be EXTREMELY fps hungry, it is highly recommended to keep it off.";
 			
 			PSString T2 = "Enable or disable dynamic alteration of fActivatePickLength and fActivatePickRadius ini\n"
-			                 "It will be altered from 180 and 18 (default) to 180 and 18 * Player Scale";
-			PSString T3 = "Changes Size-Related Movement Speed calculation\n"
-                            "- from: 1.0 / animation slowdown\n"
-                            "- to:   1.0 * (size * anim slowdown)\n\n"
-                            "As a result, movement speed will be faster (which isn't always good)\n"
-                            "But it should drastically reduce or even fix ice-skating effect";
+	    	              "It will be altered from 180 and 18 (default) to 180 and 18 * Player Scale";
+
 
 
 	        if (ImGui::CollapsingHeader("Experimental")) {
 				ImGuiEx::CheckBox("Allow Male Actors", &Config::General.bEnableMales, T0);
 				ImGuiEx::CheckBox("Apply Size Effects to all Actors", &Config::General.bAllActorSizeEffects, T1);
 				ImGuiEx::CheckBox("Override Item/NPC Interaction Range", &Config::General.bOverrideInteractionDist, T2);
-				ImGuiEx::CheckBox("Alternative Movement Speed",&Config::General.bAlternativeSpeedFormula, T3);
-
 
 	        	ImGui::Spacing();
 	        }
@@ -329,7 +323,14 @@ namespace GTS {
 
 			PSString T3 = "Temporarily shrink grow the target actor to fit the target furniture";
 
+			PSString T4 = "Changes Size-Related Movement Speed calculation\n"
+						  "- from: 1.0 / animation slowdown\n"
+						  "- to:   1.0 * (size * anim slowdown)\n\n"
+						  "As a result, movement speed will be faster (which isn't always good)\n"
+						  "But it should drastically reduce or even fix ice-skating effect";
+
 	        if (ImGui::CollapsingHeader("Miscellaneous", ImUtil::HeaderFlagsDefaultOpen)) {
+
 				ImGuiEx::CheckBox("Dynamic Size (Player)", &Config::General.bDynamicSizePlayer, T0);
 				ImGui::SameLine();
 				ImGuiEx::CheckBox("Dynamic Size (Followers)", &Config::General.bDynamicSizeFollowers, T0);
@@ -340,6 +341,7 @@ namespace GTS {
 
 				ImGuiEx::CheckBox("Dynamic Animation Speed", &Config::General.bDynamicAnimspeed, T1);
 				ImGuiEx::CheckBox("Less Gore", &Config::General.bLessGore, T2);
+				ImGuiEx::CheckBox("Alternative Movement Speed", &Config::General.bAlternativeSpeedFormula, T4);
 
 	            ImGui::Spacing();
 	        }

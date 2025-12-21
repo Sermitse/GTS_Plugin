@@ -7,6 +7,7 @@
 #include "UI/Controls/Button.hpp"
 #include "UI/Controls/CheckBox.hpp"
 #include "UI/Controls/ComboBox.hpp"
+#include "UI/Controls/Misc.hpp"
 #include "UI/Controls/ProgressBar.hpp"
 #include "UI/Controls/Slider.hpp"
 #include "UI/Core/ImColorUtils.hpp"
@@ -66,6 +67,10 @@ namespace {
 	PSString KFMaxVis = "Set the max number of kill entries visible at the same time.\n"
 					    "Overflown entries are queued and will be shown once the currently visible ones expire.";
 
+	PSString KFResetFontColor = "Reset the font color";
+	PSString KFEnableVanillaKills = "Show vanilla game kills in the killfeed (eg. kills made during normal combat).";
+	PSString KFEnableWorldKills = "Show vanilla game kills that have no attacker (eg. from falling damage, scripted deaths, etc).";
+
 
 	void DrawKillFeedWindowBase(GTS::ImWindow* a_KillFeed) {
 
@@ -109,35 +114,78 @@ namespace {
 		{
 			
 			ImGuiEx::SliderF("Visibility Duration", &BaseSettings.fFadeAfter, 0.1f, 10.f, KFVisDur, "%.2f second(s)");
-			ImGuiEx::SliderF("Entry Width", &ExtraSettings.fWidth, 75.0f, 600.f, KFWidth, "%.2f");
+			ImGuiEx::SliderF("Entry Width", &ExtraSettings.fWidth, 75.0f, 600.f, KFWidth, "%.0f");
 			ImGuiEx::SliderU8("Max Visible Entries", &ExtraSettings.iMaxVisibleEntries, 2, 20, KFMaxVis, "%.d Entries");
 
-			static GTS::ImGraphics::ImageTransform T = {
-				.recolorEnabled = true,
-			};
-
-			T.targetColor = ImUtil::Colors::fRGBToImVec4(GTS::Config::UI.f3AccentColor);
 			float buttonWidth = 18 + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().FramePadding.x * 2;
-			if (ImGuiEx::ImageButtonTransform("##ResetA", ImageList::Generic_Square, T, 18, TCopyAccent)) {
-				ExtraSettings.f3BGColor = GTS::Config::UI.f3AccentColor;
+
+			{
+				static GTS::ImGraphics::ImageTransform T = {
+					.recolorEnabled = true,
+				};
+
+				T.targetColor = ImUtil::Colors::fRGBToImVec4(GTS::Config::UI.f3AccentColor);
+				
+				if (ImGuiEx::ImageButtonTransform("##ResetA", ImageList::Generic_Square, T, 18, TCopyAccent)) {
+					ExtraSettings.f3BGColor = GTS::Config::UI.f3AccentColor;
+				}
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(ImGui::CalcItemWidth() - buttonWidth);
+				ImGui::ColorEdit3("Background Color", ExtraSettings.f3BGColor.data(), ImGuiColorEditFlags_DisplayHSV);
+				ImGuiEx::SliderF("Backround Alpha", &BaseSettings.fBGAlphaMult, 0.0f, 1.0f, KFBGAlpha, "%.2fx");
 			}
+
+			{
+				
+				if (ImGuiEx::ImageButton("##ResetAtt", ImageList::Generic_Reset, 18, KFResetFontColor)) {
+					ExtraSettings.f3AttackerColor = {1.0f, 1.0f, 1.0f };
+				}
+
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(ImGui::CalcItemWidth() - buttonWidth);
+				ImGui::ColorEdit3("Attacker Text Color", ExtraSettings.f3AttackerColor.data(), ImGuiColorEditFlags_DisplayHSV);
+			}
+
+			{
+
+				if (ImGuiEx::ImageButton("##ResetVi", ImageList::Generic_Reset, 18, KFResetFontColor)) {
+					ExtraSettings.f3VictimColor = { 1.0f, 1.0f, 1.0f };
+				}
+
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(ImGui::CalcItemWidth() - buttonWidth);
+				ImGui::ColorEdit3("Victim Text Color", ExtraSettings.f3VictimColor.data(), ImGuiColorEditFlags_DisplayHSV);
+			}
+
+			{
+
+				if (ImGuiEx::ImageButton("##ResetDT", ImageList::Generic_Reset, 18, KFResetFontColor)) {
+					ExtraSettings.f3DeathTypeColor = { .6f, .6f, .6f };
+				}
+
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(ImGui::CalcItemWidth() - buttonWidth);
+				ImGui::ColorEdit3("Death Type Text Color", ExtraSettings.f3DeathTypeColor.data(), ImGuiColorEditFlags_DisplayHSV);
+			}
+
+			{
+				bool sNoKillType = !(ExtraSettings.iFlags & ImGuiEx::KillFeedEntryFlag_NoKillType);
+				bool sNoKiller = !(ExtraSettings.iFlags & ImGuiEx::KillFeedEntryFlag_NoKiller);
+
+				if (ImGuiEx::CheckBox("Show Kill Type", &sNoKillType, KFFlagNoKillType)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::KillFeedEntryFlag_NoKillType, !sNoKillType);
+				}
+
+				ImGui::SameLine();
+
+				if (ImGuiEx::CheckBox("Show Attacker", &sNoKiller, KFFlagNoKiller)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::KillFeedEntryFlag_NoKiller, !sNoKiller);
+				}
+			}
+
+			ImGuiEx::CheckBox("Enable Vanilla Deaths", &ExtraSettings.bShowGameKills, KFEnableVanillaKills);
 			ImGui::SameLine();
-			ImGui::SetNextItemWidth(ImGui::CalcItemWidth() - buttonWidth);
-			ImGui::ColorEdit3("Background Color", ExtraSettings.f3BGColor.data(), ImGuiColorEditFlags_DisplayHSV);
-			ImGuiEx::SliderF("Backround Alpha", &BaseSettings.fBGAlphaMult, 0.0f, 1.0f, KFBGAlpha, "%.2fx");
-
-			bool sNoKillType = !(ExtraSettings.iFlags & ImGuiEx::KillFeedEntryFlag_NoKillType);
-			bool sNoKiller = !(ExtraSettings.iFlags & ImGuiEx::KillFeedEntryFlag_NoKiller);
-
-			if (ImGuiEx::CheckBox("Show Kill Type", &sNoKillType, KFFlagNoKillType)) {
-				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::KillFeedEntryFlag_NoKillType, !sNoKillType);
-			}
-
-			ImGui::SameLine();
-
-			if (ImGuiEx::CheckBox("Show Killer", &sNoKiller, KFFlagNoKiller)) {
-				ImUtil::ToggleFlag(ExtraSettings.iFlags, ImGuiEx::KillFeedEntryFlag_NoKiller, !sNoKiller);
-			}
+			ImGuiEx::CheckBox("List World Deaths", &ExtraSettings.bShowWorldKills, KFEnableWorldKills, !ExtraSettings.bShowGameKills);
 
 		}
 		ImGui::EndDisabled();
@@ -580,6 +628,8 @@ namespace GTS {
 				}
 				ImGui::EndCombo();
 			}
+
+			ImGuiEx::SeperatorV();
 
 			if (CurrentOther == "Size Bars") {
 

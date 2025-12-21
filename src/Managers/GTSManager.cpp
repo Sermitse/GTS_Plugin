@@ -143,8 +143,14 @@ namespace {
 
 							if (!reset || IsGtsBusy(actor) || actor->formID == 0x14) {
 								model->GetFlags().set(RE::NiAVObject::Flag::kIgnoreFade);
+								model->GetFlags().set(RE::NiAVObject::Flag::kAlwaysDraw);
+								if (auto par = model->parent) {
+									par->GetFlags().set(RE::NiAVObject::Flag::kIgnoreFade);
+									par->GetFlags().set(RE::NiAVObject::Flag::kAlwaysDraw);
+								}
 							} else {
 								model->GetFlags().reset(RE::NiAVObject::Flag::kIgnoreFade);
+								model->GetFlags().reset(RE::NiAVObject::Flag::kAlwaysDraw);
 							}
 						}
 					}

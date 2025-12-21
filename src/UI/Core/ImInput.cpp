@@ -437,8 +437,18 @@ namespace GTS {
 	}
 
 	void ImInput::UpdateMousePos() {
-		if (static const auto& menuCursor = RE::MenuCursor::GetSingleton()) {
-			ImGui::GetIO().AddMousePosEvent(menuCursor->cursorPosX, menuCursor->cursorPosY);
+
+		if (static UI* const ui = RE::UI::GetSingleton()) {
+			if (auto cursorMenu = ui->GetMenu(CursorMenu::MENU_NAME)) {
+				if (GFxMovieView* movie = cursorMenu->uiMovie.get()) {
+
+					static float x = 0.0f, y = 0.0f;
+					static uint32_t buttons = 0;
+
+					movie->GetMouseState(0, &x, &y, &buttons);
+					ImGui::GetIO().AddMousePosEvent(x, y);
+				}
+			}
 		}
 	}
 

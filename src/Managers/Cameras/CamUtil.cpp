@@ -220,28 +220,90 @@ namespace {
 		return BoneTarget();
 	}
 
-	//https://www.desmos.com/calculator/5adrwyld6l
-	float CalcLOGFnear(float scale, const float a_ref = 15.0f) {
-		// Clamp scale between 0.05 and 1.0
-		scale = std::max(0.05f, std::min(scale, 1.0f));
-
-		// Normalize scale to [0, 1]
-		float t = (scale - 0.05f) / 0.95f;
-
-		// Exponential interpolation from 1.0 to 15.0
-		float result = std::pow(a_ref, t);
-		return result;
+	float EaseInOutSmoothstep(float t) {
+		return t * t * (3.0f - 2.0f * t);
 	}
 
-	void ComputeFrustrumNearDistance(const float a_ActorScale) {
+	float CalcNearFromScale(float scale, float ref = 15.0f) {
+		scale = std::clamp(scale, 0.05f, 1.0f);
+		const float t = (scale - 0.05f) / 0.95f;
+		return std::pow(ref, t);
+	}
 
-		if (!Config::Camera.bEnableAutoFNearDist || a_ActorScale > 1.0f) return;
+	void SetCameraNearFarPlanes(float a_ActorScale)
+	{
+		if (!Config::Camera.bEnableAutoFNearDist &&
+			!Config::Camera.bEnableAutoFFarDist) {
+			return;
+		}
 
-		if (auto niCamera = GetNiCamera()) {
+		NiCamera* niCamera = GetNiCamera();
+		if (!niCamera) {
+			return;
+		}
 
-			auto fnear = CalcLOGFnear(a_ActorScale);
+		auto& rt = niCamera->GetRuntimeData2();
+		auto& fr = rt.viewFrustum;
 
-			niCamera->GetRuntimeData2().viewFrustum.fNear = fnear;
+		if (fr.fNear <= 0.0f) {
+			fr.fNear = rt.minNearPlaneDist;
+		}
+
+		// ---------------- Far plane ----------------
+		constexpr float BaseFar = 353840.0f;
+		constexpr float MinScale = 0.10f;
+		constexpr float MaxScale = 50000.0f;
+		constexpr float MinMul = 0.1f;
+		constexpr float MaxMul = 100.0f;
+
+		float farPlane = fr.fFar;
+
+		if (Config::Camera.bEnableAutoFFarDist) {
+			const float clampedScale = std::clamp(a_ActorScale, MinScale, MaxScale);
+
+			const float logMin = std::log(MinScale);
+			const float logMax = std::log(MaxScale);
+			const float t = (std::log(clampedScale) - logMin) / (logMax - logMin);
+
+			const float eased = EaseInOutSmoothstep(t);
+			const float farMul = std::lerp(MinMul, MaxMul, eased);
+
+			farPlane = BaseFar * farMul;
+			fr.fFar = farPlane;
+		}
+
+		// ---------------- Near plane ----------------
+		float nearPlane = fr.fNear;
+
+		if (Config::Camera.bEnableAutoFNearDist) {
+			if (a_ActorScale <= 1.0f) {
+				nearPlane = CalcNearFromScale(a_ActorScale);
+			}
+			else if (a_ActorScale >= 50.0f) {
+				// Counteract far-plane growth at large scales
+				constexpr float NearStartScale = 50.0f;
+				constexpr float NearMaxScale = 50000.0f;
+				constexpr float NearMulMin = 1.0f;
+				constexpr float NearMulMax = 200.0f;
+
+				const float clamped = std::clamp(a_ActorScale, NearStartScale, NearMaxScale);
+				const float logMin = std::log(NearStartScale);
+				const float logMax = std::log(NearMaxScale);
+				const float t = (std::log(clamped) - logMin) / (logMax - logMin);
+
+				const float eased = EaseInOutSmoothstep(t);
+				const float nearMul = std::lerp(NearMulMin, NearMulMax, eased);
+
+				nearPlane = rt.minNearPlaneDist * nearMul;
+			}
+
+			fr.fNear = nearPlane;
+		}
+
+		// ---------------- Ratio enforcement ----------------
+		const float requiredRatio = fr.fFar / fr.fNear;
+		if (rt.maxFarNearRatio < requiredRatio) {
+			rt.maxFarNearRatio = requiredRatio;
 		}
 	}
 }
@@ -623,7 +685,7 @@ namespace GTS {
 					}
 
 					// Apply final transformations
-					ComputeFrustrumNearDistance(a_ActorScale);
+					SetCameraNearFarPlanes(a_ActorScale);
 					UpdatePlayerCamera(RayCastHitPosition);
 					UpdateNiCamera(RayCastHitPosition);
 

@@ -1,6 +1,7 @@
 #pragma once
 
 //Helper
+//can't use typedef due to the storage specifer
 #define PSString static const char* const
 
 namespace GTS {

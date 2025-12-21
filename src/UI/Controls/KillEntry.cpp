@@ -1,10 +1,14 @@
 #include "UI/Controls/KillEntry.hpp"
+
+#include "UI/Core/ImColorUtils.hpp"
+#include "UI/Core/ImFontManager.hpp"
 #include "UI/Lib/imgui_internal.h"
 
 namespace ImGuiEx {
 
+    void DrawKillfeedEntry(std::unique_ptr<KillEntry>& entry, const KillFeedStyle& a_style) {
 
-    void DrawKillfeedEntry(std::unique_ptr<KillEntry>& entry, const float a_visDuration, bool a_neverFade, ImU32 a_bgColor, float a_bgAlpha, uint16_t a_flags) {
+        GTS::ImFontManager::Push(GTS::ImFontManager::kWidgetBody, a_style.fontScale);
 
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
         ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -14,9 +18,9 @@ namespace ImGuiEx {
 
         // Calculate fade based on lifetime
         float fade = 1.0f;
-        if (!a_neverFade){
-	        if (entry->lifetime > a_visDuration - 1.0f) {
-	            fade = (a_visDuration - entry->lifetime);
+        if (!a_style.neverFade){
+	        if (entry->lifetime > a_style.visDuration - 1.0f) {
+	            fade = (a_style.visDuration - entry->lifetime);
 	        }
 	        fade = ImClamp(fade, 0.0f, 1.0f);
 		}
@@ -29,11 +33,20 @@ namespace ImGuiEx {
 
     	KilledBy = entry->type;
 
-        ImVec4 text_color = { 1.0f, 1.0f, 1.0f, fade * alpha };
-        ImVec4 weapon_color = { 0.8f, 0.8f, 0.8f, fade * alpha };
-        ImVec4 bg_color = ImGui::ColorConvertU32ToFloat4(a_bgColor);
-        bg_color.w *= fade * alpha * a_bgAlpha; // Apply fade to the alpha channel
-        ImVec4 border_color = { 1.0f, 1.0f, 1.0f, 0.3f * fade * alpha * a_bgAlpha };
+
+        ImVec4 attackerColor = ImUtil::Colors::CompensateForDarkColors(ImGui::ColorConvertU32ToFloat4(a_style.attackerCol), 0.3f);
+        attackerColor.w = fade * alpha; 
+
+        ImVec4 victimColor = ImUtil::Colors::CompensateForDarkColors(ImGui::ColorConvertU32ToFloat4(a_style.victimCol), 0.3f);
+        victimColor.w = fade * alpha;
+
+        ImVec4 deathTypeColor = ImUtil::Colors::CompensateForDarkColors(ImGui::ColorConvertU32ToFloat4(a_style.deathTypeCol), 0.3f);
+        deathTypeColor.w = fade * alpha;
+
+        ImVec4 bg_color = ImGui::ColorConvertU32ToFloat4(a_style.bgColor);
+        bg_color.w *= fade * alpha * a_style.bgAlpha; // Apply fade to the alpha channel
+
+        ImVec4 border_color = { 1.0f, 1.0f, 1.0f, 0.3f * fade * alpha * a_style.bgAlpha };
 
         float padding = style.FramePadding.y; // respect ImGui padding
         float height = ImGui::GetTextLineHeight() + padding * 2;
@@ -47,8 +60,8 @@ namespace ImGuiEx {
         // Draw text
         float cursor_x = pos.x + padding;
         float cursor_y = pos.y + padding;
-        const bool showKiller = !(a_flags & KillFeedEntryFlag_NoKiller);
-        const bool showKillType = !(a_flags & KillFeedEntryFlag_NoKillType);
+        const bool showKiller = !(a_style.flags & KillFeedEntryFlag_NoKiller);
+        const bool showKillType = !(a_style.flags & KillFeedEntryFlag_NoKillType);
 
         // Determine spacing
         int elements = 0;
@@ -74,23 +87,26 @@ namespace ImGuiEx {
 
         if (entry->attacker.empty() || !showKiller) {
             if (showKillType) {
-                draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(weapon_color), KilledBy.c_str());
+                draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(deathTypeColor), KilledBy.c_str());
                 cursor_x += text_size_weapon.x + spacing;
             }
-            draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(text_color), entry->victim.c_str());
+            draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(victimColor), entry->victim.c_str());
         }
         else {
-            draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(text_color), entry->attacker.c_str());
+            draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(attackerColor), entry->attacker.c_str());
             cursor_x += text_size_attacker.x + spacing;
             if (showKillType) {
-                draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(weapon_color), KilledBy.c_str());
+                draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(deathTypeColor), KilledBy.c_str());
                 cursor_x += text_size_weapon.x + spacing;
             }
-            draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(text_color), entry->victim.c_str());
+            draw_list->AddText(ImVec2(cursor_x, cursor_y), ImGui::GetColorU32(victimColor), entry->victim.c_str());
         }
 
         // Move cursor to next line
         ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + height + style.ItemSpacing.y));
+
+        GTS::ImFontManager::Pop();
+
     }
 
 
