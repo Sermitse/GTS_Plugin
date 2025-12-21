@@ -65,6 +65,8 @@ namespace GTS {
             PSString T1 = "Toggle whether followers should receive friendly size-related damage.";
             PSString T2 = "Toggle whether the player and followers stagger / ragdoll due to others' size.";
             PSString T3 = "Toggle whether other NPCs stagger / ragdoll due to others' size.";
+			PSString T4 = "Enable sharing of some player aquired perks with followers if they don't already have them.\n"
+					      "(Perks that affect maximum size are not shared)";
 
             if (ImGui::CollapsingHeader("Misc Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -84,6 +86,12 @@ namespace GTS {
                     ImGui::SameLine();
                     ImGuiEx::CheckBox("Allow Friendly", &Config::Balance.bAllowFriendlyStagger, T2);
 
+                }
+
+                ImGui::Spacing();
+
+                {
+                    ImGuiEx::CheckBox("Share Perks With Followers", &Config::Balance.bSharePerks, T4);
                 }
 
                 ImGui::Spacing();

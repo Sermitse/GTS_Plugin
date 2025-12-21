@@ -1,5 +1,7 @@
 #include "Data/Runtime.hpp"
 
+#include "Config/Config.hpp"
+
 namespace {
 
 	void CheckModLoaded(bool* a_res, const std::string_view& a_name) {
@@ -614,14 +616,27 @@ namespace GTS {
 
 	bool Runtime::HasPerk(Actor* a_actor, const std::string_view& a_tag) {
 		if (auto data = GetPerk(a_tag)) {
-			return a_actor->HasPerk(data);
+			if (a_actor->HasPerk(data)) {
+				return true;
+			}
+
+			if (a_actor->GetActorBase()->GetPerkIndex(data).has_value()) {
+				return true;
+			}
+
 		}
 		return false;
 	}
 
 	bool Runtime::HasPerk(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::BGSPerk>& a_entry) {
 		if (auto data = GetPerk(a_entry)) {
-			return a_actor->HasPerk(data);
+
+			if (a_actor->HasPerk(data)) {
+				return true;
+			}
+			if (a_actor->GetActorBase()->GetPerkIndex(data).has_value()) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -630,17 +645,20 @@ namespace GTS {
 		if (HasPerk(a_actor, a_tag)) {
 			return true;
 		}
-		if (IsTeammate(a_actor) || CountAsGiantess(a_actor)) {
+
+		if (Config::Balance.bSharePerks && (IsTeammate(a_actor) || CountAsGiantess(a_actor))) {
 			return HasPerk(PlayerCharacter::GetSingleton(), a_tag);
 		}
 		return false;
 	}
 
 	bool Runtime::HasPerkTeam(Actor* a_actor, const RuntimeData::RuntimeEntry<RE::BGSPerk>& a_entry) {
+
 		if (HasPerk(a_actor, a_entry)) {
 			return true;
 		}
-		if (IsTeammate(a_actor) || CountAsGiantess(a_actor)) {
+
+		if (Config::Balance.bSharePerks && (IsTeammate(a_actor) || CountAsGiantess(a_actor))) {
 			return HasPerk(PlayerCharacter::GetSingleton(), a_entry);
 		}
 		return false;

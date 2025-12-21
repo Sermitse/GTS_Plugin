@@ -1,4 +1,7 @@
 #include "Hooks/Animation/PreventAnimations.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Grab.hpp"
 #include "Hooks/Util/HookUtil.hpp"
 
@@ -179,7 +182,7 @@ namespace {
 			case SprintStart:
 			case SprintRootStart:
 			{	
-				if (get_visual_scale(performer) > scaleThreshold && !performer->IsPlayerRef()) {
+				if (get_visual_scale(performer) > Config::General.fPreventSprintAtScale && !performer->IsPlayerRef()) {
 					return true;
 				}
 			} break;

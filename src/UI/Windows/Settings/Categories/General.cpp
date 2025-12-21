@@ -329,6 +329,8 @@ namespace GTS {
 						  "As a result, movement speed will be faster (which isn't always good)\n"
 						  "But it should drastically reduce or even fix ice-skating effect";
 
+			PSString T5 = "Prevent NPCs from sprinting when they are above this size.";
+
 	        if (ImGui::CollapsingHeader("Miscellaneous", ImUtil::HeaderFlagsDefaultOpen)) {
 
 				ImGuiEx::CheckBox("Dynamic Size (Player)", &Config::General.bDynamicSizePlayer, T0);
@@ -342,7 +344,7 @@ namespace GTS {
 				ImGuiEx::CheckBox("Dynamic Animation Speed", &Config::General.bDynamicAnimspeed, T1);
 				ImGuiEx::CheckBox("Less Gore", &Config::General.bLessGore, T2);
 				ImGuiEx::CheckBox("Alternative Movement Speed", &Config::General.bAlternativeSpeedFormula, T4);
-
+				ImGuiEx::SliderF("Block NPC Sprinting", &Config::General.fPreventSprintAtScale, 0.5f, 20.0f, T5, "When larger than %.1fx");
 	            ImGui::Spacing();
 	        }
 	    }

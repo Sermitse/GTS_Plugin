@@ -132,7 +132,6 @@ namespace {
                 if (!gianthandle) {
                     return false;
                 }
-                Actor* giantref = gianthandle.get().get();
                 double Finish = Time::WorldTimeElapsed();
 
                 if (Finish - Start >= stack_duration) {
@@ -297,6 +296,7 @@ namespace GTS {
                                 //If level req. met give the perk.
                                 logger::trace("Gave Perk: {} to {}", perkptr->GetName(), a_actor->GetName());
                                 a_actor->GetActorBase()->AddPerk(perkptr, 1);
+                                a_actor->ApplyTemporaryPerk(perkptr);
                                 break;
                             }
                         }
@@ -305,6 +305,7 @@ namespace GTS {
                 cond = cond->next;
             }
         }
+        
         a_actor->ApplyPerksFromBase();
     }
 

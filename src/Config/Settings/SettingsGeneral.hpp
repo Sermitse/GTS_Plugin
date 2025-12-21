@@ -67,7 +67,7 @@ struct SettingsGeneral_t {
     bool bAlterPlayerGravity = false;
     float fAdditionalJumpEffectDelay = 0.15f;
     float fAdditionalJumpEffectDelay_Gravity = 0.0f;
-
+    float fPreventSprintAtScale = 2.0f;
 };
 TOML_SERIALIZABLE(SettingsGeneral_t);
 TOML_REGISTER_NAME(SettingsGeneral_t, "General");
