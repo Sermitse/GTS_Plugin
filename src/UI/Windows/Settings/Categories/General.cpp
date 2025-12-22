@@ -329,7 +329,15 @@ namespace GTS {
 						  "As a result, movement speed will be faster (which isn't always good)\n"
 						  "But it should drastically reduce or even fix ice-skating effect";
 
-			PSString T5 = "Prevent NPCs from sprinting when they are above this size.";
+			PSString T5Help = "Gradually reduces NPC movement speed as they exceed certain size thresholds.\n"
+				              "This prevents oversized NPCs from moving unrealistically fast. "
+				              "The speed reduction scales smoothly between the start and maximum thresholds.";
+
+			PSString T5_1 = "The scale at which sprinting is disabled and the speed reduction begins.";
+
+			PSString T5_2 = "The scale at which the NPC speed multiplier is fully clamped to the value set below.";
+
+			PSString T5_3 = "The target speed multiplier, the game's default is 2.0";
 
 	        if (ImGui::CollapsingHeader("Miscellaneous", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -344,7 +352,13 @@ namespace GTS {
 				ImGuiEx::CheckBox("Dynamic Animation Speed", &Config::General.bDynamicAnimspeed, T1);
 				ImGuiEx::CheckBox("Less Gore", &Config::General.bLessGore, T2);
 				ImGuiEx::CheckBox("Alternative Movement Speed", &Config::General.bAlternativeSpeedFormula, T4);
-				ImGuiEx::SliderF("Block NPC Sprinting", &Config::General.fPreventSprintAtScale, 0.5f, 20.0f, T5, "When larger than %.1fx");
+
+				ImGui::Spacing();
+				ImGui::Text("NPC Movement Speed Clamping (?)");
+				ImGuiEx::Tooltip(T5Help, true);
+				ImGuiEx::SliderF("Start NPC Slowdown", &Config::General.fNPCMaxSpeedMultClampStartAt, 1.0f, 20.0f, T5_1, "When larger than %.1fx");
+				ImGuiEx::SliderF("NPC Max Slowdown", &Config::General.fNPCMaxSpeedMultClampMaxAt, Config::General.fNPCMaxSpeedMultClampStartAt, Config::General.fNPCMaxSpeedMultClampStartAt + 20.f, T5_2, "At %.1fx");
+				ImGuiEx::SliderF("Target Speed Multiplier", &Config::General.fNPCMaxSpeedMultClampTarget, 0.1f, 2.0f, T5_3, "%.1fx");
 	            ImGui::Spacing();
 	        }
 	    }

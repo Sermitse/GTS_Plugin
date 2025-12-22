@@ -176,15 +176,18 @@ namespace {
 
 	bool PreventNPCSprinint(FormID idle, Actor* performer) {
 
-		//Prevent NPC Sprinting past 2.0 scale
-		constexpr float scaleThreshold = 2.0f;
 		switch (idle) {
 			case SprintStart:
 			case SprintRootStart:
-			{	
-				if (get_visual_scale(performer) > Config::General.fPreventSprintAtScale && !performer->IsPlayerRef()) {
-					return true;
+			case SprintRootStop:
+			{
+				//Fully prevent sprinting for npcs at the animation level if they are over the clamp start threshold
+				if (!performer->IsPlayerRef()){
+					if (get_visual_scale(performer) >= Config::General.fNPCMaxSpeedMultClampStartAt) {
+						return true;
+					}
 				}
+
 			} break;
 
 			default: break;

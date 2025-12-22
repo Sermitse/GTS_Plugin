@@ -67,7 +67,10 @@ struct SettingsGeneral_t {
     bool bAlterPlayerGravity = false;
     float fAdditionalJumpEffectDelay = 0.15f;
     float fAdditionalJumpEffectDelay_Gravity = 0.0f;
-    float fPreventSprintAtScale = 2.0f;
+
+	float fNPCMaxSpeedMultClampTarget = 1.2f;  //Max speed multiplier target at max clamp
+	float fNPCMaxSpeedMultClampStartAt = 2.5f; //Scale at which clamping begins
+	float fNPCMaxSpeedMultClampMaxAt = 3.5f;   //Scale at which speed is fully clamped to target
 };
 TOML_SERIALIZABLE(SettingsGeneral_t);
 TOML_REGISTER_NAME(SettingsGeneral_t, "General");
