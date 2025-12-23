@@ -48,6 +48,7 @@ namespace Hooks {
 			float bonus = 1.0f;
 
 			{
+				//This function is responsible for the resulting movement vector and applies to all actors.
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Move", ID);
 				if (a_this && a_this->Get3D1(false) && !a_this->IsInKillMove()) {
 					bonus = AttributeManager::AlterMovementSpeed(a_this);
@@ -91,6 +92,8 @@ namespace Hooks {
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Load3D", ID);
 				const auto& intfc = SKSE::GetTaskInterface();
+				//From my understanding skse tasks run as jobs on the main thread at the end of the frame.
+				//Which feels like the safest place to do this.
 				intfc->AddTask([actor] {
 					//Moved this event dispatch here, The game events one runs before peristent data load
 					//plus it fires when an actor "unloads" as well.
@@ -114,7 +117,12 @@ namespace Hooks {
 			if (actorState) {
 				// 0xB8 for versions up to 1.6.629 (SSE/older AE)
 				// 0xC0 for versions 1.6.640+ (newer AE)
-				// It's so funny that this just works....
+				// It's so funny that this just works.
+				// This basically hinges on the fact that the actor state only actually exists as a member of Actor in the game.
+				// So to be able to pass an actor state pointer you need to have an actor as well.
+				// Also fun fact for SE And probably AE too. If you subtract 0x1B8 ontop of this you can get the owning MovementControllerNPC Pointer.
+				// Fenix has RE'd a bunch of the AI/Movement Related classes in his SSE clib fork which is how i found this out.
+				// https://github.com/fenix31415/CommonLibSSE/blob/b4a2fc70d5709f8a6bb9023bb942ab65867ae8ab/include/RE/M/MovementControllerNPC.h#L17
 				const int offset = REL::Module::get().version() >= RUNTIME_SSE_1_6_629 ? 0xC0 : 0xB8;
 				return reinterpret_cast<Actor*>(reinterpret_cast<uintptr_t>(actorState) - offset);
 			}
@@ -167,6 +175,17 @@ namespace Hooks {
 
 		logger::info("Installing AI Procedure SpeedClamp Hooks");
 		/*
+		 
+			The speed clamp fix is made out of 2 parts.
+			one is detouring what appears to be an actorstate member subroutine that is only used by The BGSProcedure* system.
+			I think its just the GetMaxspeed Function.
+			The second is NOPing out the assembly that forces the speed clamp in the BGSProcedureFollowExecState function.
+			The follow procedure forcibly sets the speed to 2.0 and sets the movement state to sprint if the distance between the player and follower is too large.
+			This distance check use a gamesetting value and by default is at around 500.
+			This distance check is only relevant when the vanilla ai follow package runs.
+			NFF has a custom follow package that is actually made out of 3 state where each state has its own distance check and prefferered movement speed set as an oveeride.
+			The too far check happens right after the call to the GetMaxSpeed function. Its easier to just nop out this check than to inject an xbyak block with extra logic.
+		 
 			//1.6.1170
 
 			14046a1a2 c6 85 78        MOV        byte ptr [RBP + TooFar],0x1
@@ -212,6 +231,8 @@ namespace Hooks {
 		//14040e370 1.5.97
 		//char BGSProcedureFollowExecState::sub(RE::BGSProcedureFollowExecState* this, RE::Character*** a_runningActor, char unk1) Is the caller
 		//undefined8 ActorState::sub(longlong *param_1,undefined4 param_2) is the target.
+		//A detour is used instead of a call hook because i saw that other follow related functions (and combat flee apparently) are the only places where this function is called.
+		//Judging by their function/naming it usefull to enforce the clamping there as well.
 		stl::write_detour<ActorStateGetMaxSpeedMult>(REL::RelocationID(88499, 90925, NULL));
 	}
 }

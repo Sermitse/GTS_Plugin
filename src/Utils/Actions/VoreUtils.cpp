@@ -163,6 +163,10 @@ namespace GTS {
 			//Remove tiny from belly scale
 			if (!AllowDevourment()) {
 				MorphManager::AlterMorph(VoreInfo.giantess, MorphManager::Category::kBelly, MorphManager::Action::kModify, -Config::Gameplay.ActionSettings.fBellyAbsorbIncrementBy, MorphManager::UpdateKind::kGradual, 1.0f);
+				if (auto data = Transient::GetActorData(VoreInfo.giantess)) {
+					data->VoreCurrentlyAbsorbingCount -= 1;
+					data->VoreCurrentlyAbsorbingCount = std::max(data->VoreCurrentlyAbsorbingCount, 0); //Clamp to 0
+				}
 			}
 
             Rumbling::Once("GrowthRumble", giant, 1.75f, 0.30f);
@@ -191,6 +195,10 @@ namespace GTS {
 
 			if (Config::Gameplay.ActionSettings.bEnableBellyMorph) {
 				MorphManager::AlterMorph(VoreInfo.giantess, MorphManager::Category::kBelly, MorphManager::Action::kModify, Config::Gameplay.ActionSettings.fBellyAbsorbIncrementBy, MorphManager::UpdateKind::kGradual, 1.0f);
+			}
+
+			if (auto data = Transient::GetActorData(VoreInfo.giantess)) {
+				data->VoreCurrentlyAbsorbingCount += 1;
 			}
 
 			TaskManager::Run(name, [=](auto& progressData) {

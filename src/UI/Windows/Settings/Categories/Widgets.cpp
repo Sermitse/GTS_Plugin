@@ -56,6 +56,7 @@ namespace {
 	PSString TIcoVis = "Toggle icon visibility.";
 	PSString TIcoAlwaysVis = "Toggle whether icons should remain visible when empty.";
 	PSString TIcoSize = "Set the size of the icons.";
+	PSString TRelativeFontScale = "Set the font size relative to the icon size.";
 	PSString TCopyAccent = "Set the accent color as the gradient color";
 
 
@@ -333,6 +334,7 @@ namespace {
 		{
 
 			ImGuiEx::SliderU16("Icon Size", &ExtraSettings.iIconSize, 8, 128, TIcoSize, "%d px");
+			ImGuiEx::SliderF("Relative Font Scale", &ExtraSettings.fRelativeFontScale, 0.5f, 1.5f, TRelativeFontScale, "%.1fx");
 
 			bool sDamReduction   = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideDamageReduction);
 			bool sLifeAbsorbtion = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideLifeAbsorbtion);
@@ -340,6 +342,7 @@ namespace {
 			bool sVoreStacks     = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideVoreStacks);
 			bool sSizeReserve    = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideSizeReserve);
 			bool sOnTheEdge      = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideOnTheEdge);
+			bool sVoreAbsorbing  = !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideVoreBeingAbsorbed);
 
 			bool ASDamReduction   = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASDamageReduction);
 			bool ASLifeAbsorbtion = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASLifeAbsorbtion);
@@ -347,6 +350,7 @@ namespace {
 			bool ASVoreStacks     = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASVoreStacks);
 			bool ASSizeReserve    = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASSizeReserve);
 			bool ASOnTheEdge      = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASOnTheEdge);
+			bool ASVoreAbsorbing  = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASVoreBeingAbsorbed);
 
 			static GTS::ImGraphics::ImageTransform T = {
 				.recolorEnabled = true,
@@ -361,10 +365,12 @@ namespace {
 			ImGui::SetNextItemWidth(ImGui::CalcItemWidth() - buttonWidth);
 			ImGui::ColorEdit3("Background Color", ExtraSettings.f3BGColor.data(), ImGuiColorEditFlags_DisplayHSV);
 			ImGuiEx::SliderF("Backround Alpha", &BaseSettings.fBGAlphaMult, 0.0f, 1.0f, TFrameAlpha, "%.2fx");
+			ImGui::ColorEdit3("Overflow Color", GTS::Config::UI.f3IconOverflowColor.data(), ImGuiColorEditFlags_DisplayHSV);
 
 			ImGui::Spacing();
 
-			ImUtil_Unique{
+			ImUtil_Unique
+			{
 
 				ImGui::Text("Icon Visibility Toggles");
 
@@ -401,13 +407,20 @@ namespace {
 				if (ImGuiEx::CheckBox("On The Edge", &sOnTheEdge, TIcoVis)) {
 					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideOnTheEdge, !sOnTheEdge);
 				}
+
+				//------------ Line 3
+
+				if (ImGuiEx::CheckBox("Vore Absorbing", &sVoreAbsorbing, TIcoVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideVoreBeingAbsorbed, !sVoreAbsorbing);
+				}
 			}
 
 			// -------------- Always Show Toggles
 
 			ImGui::Spacing();
 
-			ImUtil_Unique {
+			ImUtil_Unique 
+			{
 
 				ImGui::Text("Always Show Icon Toggles");
 
@@ -443,6 +456,12 @@ namespace {
 
 				if (ImGuiEx::CheckBox("On The Edge", &ASOnTheEdge, TIcoAlwaysVis)) {
 					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASOnTheEdge, ASOnTheEdge);
+				}
+
+				//------------ Line 3
+
+				if (ImGuiEx::CheckBox("Vore Absorbing", &ASVoreAbsorbing, TIcoAlwaysVis)) {
+					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASVoreBeingAbsorbed, ASVoreAbsorbing);
 				}
 			}
 		}

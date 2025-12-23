@@ -945,9 +945,12 @@ namespace GTS {
 			ApplyAffineTransform(pixels, width, height, transform.affine);
 		}
 
-		// Apply cutoff last
-		if (transform.cutoffDir != CutoffDirection::None) {
-			ApplyCutoff(pixels, width, height, transform.cutoffDir, transform.cutoffPercent);
+		if (transform.transformDirection != Direction::None) {
+			ApplyCutoff(pixels, width, height, transform.transformDirection, transform.cutoffPercent);
+		}
+
+		if (transform.gradientFadeEnabled && transform.transformDirection != Direction::None) {
+			ApplyGradientFade(pixels, width, height, transform.transformDirection,transform.gradientStartPercent, transform.gradientTargetAlpha);
 		}
 
 		// Create or update the transformed texture
@@ -1032,7 +1035,7 @@ namespace GTS {
 		pixels = std::move(output);
 	}
 
-	void ImGraphics::ApplyCutoff(std::vector<uint32_t>& pixels, UINT width, UINT height, CutoffDirection direction, float percent) {
+	void ImGraphics::ApplyCutoff(std::vector<uint32_t>& pixels, UINT width, UINT height, Direction direction, float percent) {
 		percent = std::clamp(percent, 0.0f, 1.0f);
 
 		for (UINT y = 0; y < height; ++y) {
@@ -1040,16 +1043,16 @@ namespace GTS {
 				bool shouldCutoff = false;
 
 				switch (direction) {
-					case CutoffDirection::LeftToRight: shouldCutoff = (static_cast<float>(x) / width) > percent;
+					case Direction::LeftToRight: shouldCutoff = (static_cast<float>(x) / width) > percent;
 					break;
 
-					case CutoffDirection::RightToLeft: shouldCutoff = (static_cast<float>(x) / width) < (1.0f - percent);
+					case Direction::RightToLeft: shouldCutoff = (static_cast<float>(x) / width) < (1.0f - percent);
 					break;
 
-					case CutoffDirection::TopToBottom: shouldCutoff = (static_cast<float>(y) / height) > percent;
+					case Direction::TopToBottom: shouldCutoff = (static_cast<float>(y) / height) > percent;
 					break;
 
-					case CutoffDirection::BottomToTop: shouldCutoff = (static_cast<float>(y) / height) < (1.0f - percent);
+					case Direction::BottomToTop: shouldCutoff = (static_cast<float>(y) / height) < (1.0f - percent);
 					break;
 
 					default: break;
@@ -1106,5 +1109,59 @@ namespace GTS {
 		return true;
 	}
 
+	void ImGraphics::ApplyGradientFade(std::vector<uint32_t>& pixels, UINT width, UINT height, Direction direction, float startPercent, float targetAlpha) {
+		startPercent = std::clamp(startPercent, 0.0f, 1.0f);
+		targetAlpha = std::clamp(targetAlpha, 0.0f, 1.0f);
 
+		// Convert target alpha to 0-255 range
+		uint8_t targetAlpha8 = static_cast<uint8_t>(targetAlpha * 255.0f);
+
+		for (UINT y = 0; y < height; ++y) {
+			for (UINT x = 0; x < width; ++x) {
+				float position = 0.0f;
+
+				// Calculate position based on direction
+				switch (direction) {
+					case Direction::LeftToRight: {
+						position = static_cast<float>(x) / width;
+					} break;
+
+					case Direction::RightToLeft: {
+						position = 1.0f - (static_cast<float>(x) / width);
+					} break;
+
+					case Direction::TopToBottom: {
+						position = static_cast<float>(y) / height;
+					} break;
+
+					case Direction::BottomToTop: {
+						position = 1.0f - (static_cast<float>(y) / height);
+					} break;
+
+					default: continue;
+				}
+
+				// Only apply fade if we're past the start percentage
+				if (position > startPercent) {
+					uint32_t& pixel = pixels[y * width + x];
+
+					// Extract current alpha
+					uint8_t currentAlpha = (pixel >> 24) & 0xFF;
+
+					// Calculate fade factor (0.0 at startPercent, 1.0 at end)
+					float fadeProgress = (position - startPercent) / (1.0f - startPercent);
+					fadeProgress = std::clamp(fadeProgress, 0.0f, 1.0f);
+
+					//fadeProgress = std::pow(fadeProgress, 2.2f);  // sRGB gamma
+					fadeProgress = 1.0f - std::exp(-fadeProgress * 3.8f);
+
+					// Interpolate between current alpha and target alpha
+					uint8_t newAlpha = static_cast<uint8_t>(currentAlpha * (1.0f - fadeProgress) + targetAlpha8 * fadeProgress);
+
+					// Reconstruct pixel with new alpha
+					pixel = (pixel & 0x00FFFFFF) | (static_cast<uint32_t>(newAlpha) << 24);
+				}
+			}
+		}
+	}
 }

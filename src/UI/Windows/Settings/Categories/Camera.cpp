@@ -32,7 +32,8 @@ namespace GTS {
 	    if (ImGui::CollapsingHeader(a_title, ImUtil::HeaderFlagsDefaultOpen)) {
 			ImGuiEx::ComboEx<LCameraTrackBone_t>("Center On Bone", a_set->sCenterOnBone, T0);
 
-	        ImUtil_Unique {
+	        ImUtil_Unique 
+	    	{
 	            DrawCameraOffsets(
 	                "Offsets | Standing",
 	                "Adjust camera offsets when standing.\n"
@@ -41,7 +42,8 @@ namespace GTS {
 	            );
 	        }
 
-	        ImUtil_Unique {
+	        ImUtil_Unique 
+	    	{
 	            DrawCameraOffsets(
 	                "Offsets | Standing Combat",
 	                "Adjust camera offsets when standing and in combat.\n"
@@ -50,7 +52,8 @@ namespace GTS {
 	            );
 	        }
 
-	        ImUtil_Unique {
+	        ImUtil_Unique 
+	    	{
 	            DrawCameraOffsets(
 	                "Offsets | Crawling",
 	                "Adjust camera offsets while sneaking, crawling, or prone.\n"
@@ -59,7 +62,8 @@ namespace GTS {
 	            );
 	        }
 
-	        ImUtil_Unique {
+	        ImUtil_Unique 
+	    	{
 	            DrawCameraOffsets(
 	                "Offsets | Crawling Combat",
 	                "Adjust camera offsets while sneaking, crawling, or prone and in combat.\n"
@@ -78,7 +82,8 @@ namespace GTS {
 
 	void CategoryCamera::DrawLeft() {
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
 	        PSString T0 = "Change the intensity of camera shakes when performing actions as a player.";
 			PSString T1 = "Change the intensity of first-person camera shakes caused by your own size or size actions";
@@ -93,7 +98,8 @@ namespace GTS {
 	        }
 	    }
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
 	        PSString T0 = "Change the height multiplier of the camera while crawling.\n"
 							 "1st Person | 3rd Person\n\n"
@@ -108,7 +114,8 @@ namespace GTS {
 	        }
 	    }
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
 	        PSString T0 = "Enable camera collision with actors.";
 	        PSString T1 = "Enable camera collision with trees.";
@@ -116,15 +123,6 @@ namespace GTS {
 	        PSString T3 = "Enable camera collision with terrain.";
 	        PSString T4 = "Enable camera collision with statics (basically any solid, non-movable object).";
 	        PSString T5 = "Change the scale at which the above collision settings should apply.";
-
-			PSString T6 = "Dynamically change the camera's near distance value to fix clipping issues when small.\n"
-						  "May introduce visual issues such as moving/disappearing shadows.\n\n"
-	    				  "Starts applyng when smaller than 1.0x scale.\n"
-	    				  "Disables itself when past 1.0x scale\n\n"
-	    				  "Note: Can conflict with other mods that also change this value";
-
-			PSString T7 = "Dynamically change the camera's far distance value to fix actors/terrain/lod disapearing issues when extremely large.\n"
-						  "Note: Can conflict with other mods that also change this value";
 
 	        if (ImGui::CollapsingHeader("Camera Collision", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImGuiEx::CheckBox("Collide With Actors", &Config::Camera.bCamCollideActor, T0);
@@ -134,20 +132,13 @@ namespace GTS {
 	            ImGui::SameLine();
 				ImGuiEx::CheckBox("Collide With Terrain", &Config::Camera.bCamCollideTerrain, T3);
 				ImGuiEx::CheckBox("Collide With Statics", &Config::Camera.bCamCollideStatics, T4);
-
 				ImGuiEx::SliderF("Apply at Scale", &Config::Camera.fModifyCamCollideAt, 0.0f, 50.0f, T5, "%.1fx");
-
-	        	ImGui::Spacing();
-
-				ImGui::Text("Dynamic Camera Frustrum");
-				ImGuiEx::CheckBox("Enable - Near", &Config::Camera.bEnableAutoFNearDist, T6);
-				ImGuiEx::CheckBox("Enable - Far", &Config::Camera.bEnableAutoFFarDist, T7);
-
 	            ImGui::Spacing();
 	        }
 	    }
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
 	        PSString T0 = "Offsets the 3rd person camera's minimum zoom distance.\n"
 	    	              "Combined with the maximum distance this affects the distance from the player\n"
@@ -179,7 +170,7 @@ namespace GTS {
 							 " - Zoom: 0.8\n"
 							 " - Step: 0.075\n";
 
-	        if (ImGui::CollapsingHeader("Skyrim Camera Settings", ImGuiTreeNodeFlags_None)) {
+	        if (ImGui::CollapsingHeader("Skyrim Camera Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImGui::TextColored(ImUtil::Colors::Subscript, "What is this (?)");
 
 	            if (ImGui::IsItemHovered()) {
@@ -206,12 +197,11 @@ namespace GTS {
 
 	void CategoryCamera::DrawRight() {
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
 	        PSString T0 = "Enable automatic camera.";
-
-	        PSString T1 = "Change the third-person camera mode.\n"
-	    					 "Note: This setting is save file specific.";
+			PSString T1 = "Change the third-person camera mode.";
 
 			//Hack
             auto CamState = std::bit_cast<int*>(&Persistent::TrackedCameraState.value);
@@ -225,15 +215,37 @@ namespace GTS {
 
 	    ImGui::BeginDisabled(!Config::Camera.bAutomaticCamera);
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 	        DrawCameraSettings(&Config::Camera.OffsetsNormal, "Normal Camera");
 	    }
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 	        DrawCameraSettings(&Config::Camera.OffsetsAlt, "Alternative Camera");
 	    }
 
-	    ImGui::EndDisabled();
+		ImGui::EndDisabled();
+
+		ImUtil_Unique
+		{
+			if (ImGui::CollapsingHeader("Camera Frustrum", ImUtil::HeaderFlagsDefaultOpen)) {
+
+				PSString T1 = "Dynamically change the camera's near distance frustrum value to fix clipping issues when small.\n"
+					          "May introduce visual issues such as moving/disappearing shadows.\n\n"
+					          "Starts applyng when smaller than 1.0x scale.\n"
+					          "Disables itself when past 1.0x scale\n\n"
+					          "Note: Can conflict with other mods that also change this value";
+
+				PSString T2 = "Dynamically change the camera's far distance frustrum value to fix actors/terrain/lod disapearing issues when extremely large.\n"
+					          "Note: Can conflict with other mods that also change this value";
+
+				ImGuiEx::CheckBox("Dynamic Frustrum - Near", &Config::Camera.bEnableAutoFNearDist, T1);
+				ImGuiEx::CheckBox("Dynamic Frustrum - Far", &Config::Camera.bEnableAutoFFarDist, T2);
+			}
+		}
+
+	    
 
 	}
 }

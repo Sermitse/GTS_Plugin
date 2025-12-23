@@ -122,7 +122,8 @@ namespace GTS {
 
         //----- Perk Settings
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+    	{
 
             if (ImGui::CollapsingHeader("Perk Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -156,7 +157,8 @@ namespace GTS {
 
     	//----- Armor Stripping
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+    	{
 
             if (ImGui::CollapsingHeader("Armor Stripping", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -181,7 +183,8 @@ namespace GTS {
 
     	//----- Size Effects
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+    	{
 
             if (ImGui::CollapsingHeader("Size Effects", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -205,7 +208,8 @@ namespace GTS {
 
         //----- Random Growth
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+    	{
 
             const bool HasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkRandomGrowth);
             const bool BalancedMode = Config::Balance.bBalanceMode;

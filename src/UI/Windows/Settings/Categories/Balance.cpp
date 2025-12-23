@@ -21,7 +21,8 @@ namespace GTS {
 
     void CategoryBalance::DrawLeft() {
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
             PSString T0 = "Enable/disable balance mode.";
             PSString T1 = "Penalty multiplier to all size gain if balance mode is enabled.";
@@ -59,22 +60,21 @@ namespace GTS {
 
     	// ---- Misc
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
             PSString T0 = "Toggle whether the player should receive friendly size-related damage.";
             PSString T1 = "Toggle whether followers should receive friendly size-related damage.";
             PSString T2 = "Toggle whether the player and followers stagger / ragdoll due to others' size.";
             PSString T3 = "Toggle whether other NPCs stagger / ragdoll due to others' size.";
-			PSString T4 = "Enable sharing of some player aquired perks with followers if they don't already have them.\n"
-					      "(Perks that affect maximum size are not shared)";
 
             if (ImGui::CollapsingHeader("Misc Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
                 {
                     ImGui::Text("Friendly Size Damage Immunity");
-                    ImGuiEx::CheckBox("Player", &Config::Balance.bPlayerFriendlyImmunity, T0);
+                    ImGuiEx::CheckBox("For Player", &Config::Balance.bPlayerFriendlyImmunity, T0);
                     ImGui::SameLine();
-                    ImGuiEx::CheckBox("Followers", &Config::Balance.bFollowerFriendlyImmunity, T1);
+                    ImGuiEx::CheckBox("For Followers", &Config::Balance.bFollowerFriendlyImmunity, T1);
                 }
 
                 ImGui::Spacing();
@@ -89,11 +89,17 @@ namespace GTS {
                 }
 
                 ImGui::Spacing();
+            }
+        }
 
-                {
-                    ImGuiEx::CheckBox("Share Perks With Followers", &Config::Balance.bSharePerks, T4);
-                }
+		ImUtil_Unique
+        {
 
+            PSString T1 = "Enable sharing of some player aquired perks with followers if they don't already have them.\n"
+                          "(Perks that affect maximum size are not shared)";
+
+            if (ImGui::CollapsingHeader("Perks", ImUtil::HeaderFlagsDefaultOpen)) {
+            	ImGuiEx::CheckBox("Share Perks With Followers", &Config::Balance.bSharePerks, T1);
                 ImGui::Spacing();
             }
         }
@@ -101,7 +107,8 @@ namespace GTS {
 
     void CategoryBalance::DrawRight() {
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
             PSString T0 = "Change the formula used for all size gain.";
             PSString T1 = "Adjust the global multiplier for all size gains and losses.";
@@ -129,7 +136,8 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
             PSString Thelp = "Maximal Size isn't always determined only by these sliders\n"
                              "It is further affected by:\n"
@@ -288,7 +296,8 @@ namespace GTS {
 
         // ---- Multipiers
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
             PSString T0 = "Changes the amount of damage size-related actions do.";
             PSString T1 = "Changes the amount of damage increase regular melee and magic atacks gain.";

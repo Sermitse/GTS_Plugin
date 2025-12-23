@@ -1,8 +1,6 @@
 ﻿#include "UI/Windows/Settings/Categories/Advanced.hpp"
 
 #include "UI/Lib/imgui.h"
-
-#include "UI/Core/ImGraphics.hpp"
 #include "UI/Core/ImUtil.hpp"
 
 #include "UI/Controls/Button.hpp"
@@ -28,10 +26,10 @@ namespace GTS {
 
     void CategoryAdvanced::DrawLeft() {
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
-            PSString T0 = "Show or hide this page.\n"
-        	              "After Disabling you have to re-add the option to the settings toml again if you want to re-enable it.";
+            PSString T0 = "Show or hide this page.";
 
             if (ImGui::CollapsingHeader("Advanced", ImUtil::HeaderFlagsDefaultOpen)) {
                 ImGuiEx::CheckBox("Enable/Disable This Page", &Config::Hidden.IKnowWhatImDoing, T0);
@@ -40,7 +38,8 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
             PSString T0 = "Set the log severity level. The higher it is the more info is dumped into GTSPlugin.log";
 
@@ -55,27 +54,63 @@ namespace GTS {
 			}
         }
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
             PSString T0 = "Enable/Disable DamageAV for the player's stamina and magicka.";
             PSString T1 = "GTS actions will have cooldowns if this is enabled.";
             PSString T2 = "Enforce Min/Max Values In UI.";
 
             if (ImGui::CollapsingHeader("Cheats", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::CheckBox("Enable ActorValue Damage",&Config::Advanced.bDamageAV, T0);
-                ImGuiEx::CheckBox("Enable Size-Action Cooldowns",&Config::Advanced.bCooldowns, T1);
+                ImGuiEx::CheckBox("Enable ActorValue Damage", &Config::Advanced.bDamageAV, T0);
+                ImGuiEx::CheckBox("Enable Size-Action Cooldowns", &Config::Advanced.bCooldowns, T1);
                 ImGuiEx::CheckBox("Enforce Slider Range", &Config::Advanced.bEnforceUIClamps, T2);
+
+				{   // GTS Skill Level Setter
+                    std::string Name = "None";
+                    Actor* target = nullptr;
+                    if (static const auto pickdata = CrosshairPickData::GetSingleton()) {
+                        if (const auto actorhandle = pickdata->targetActor) {
+                            if (const auto actorref = actorhandle.get().get()) {
+                                if (const auto actor = skyrim_cast<Actor*>(actorref)) {
+                                    target = actor;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!target) {
+                        target = PlayerCharacter::GetSingleton();
+                    }
+
+                    if (auto data = Persistent::GetActorData(target)) {
+                        float& level = (target == PlayerCharacter::GetSingleton()) ? (Runtime::GetGlobal(Runtime::GLOB.GTSSkillLevel)->value) : data->fGTSSkillLevel;
+                        ImGui::Text("Current Target: %s [%0.f]", target->GetName(), level);
+
+                        static int TargetLevel = 50;
+                        ImGui::InputInt("Target Level", &TargetLevel, 1, 10);
+                        if (ImGuiEx::Button("Set GTS Skill Level")) {
+                            level = static_cast<float>(TargetLevel);
+                        }
+                    }
+                }
+                
+
 
                 ImGui::Spacing();
             }
         }
 
         
+
+
+        
     }
 
     void CategoryAdvanced::DrawRight() {
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
 	        PSString T1 = "Count Player as NPC, which makes Player perform random animations";
 	        PSString T2 = "Enable the experimental support for devourment using AI manager. Meant to partially replace DV's own PseudoAI";
@@ -126,7 +161,8 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
             PSString THelp = "Here you can erase the internal actor data of this mod.\n"
         					 "Make sure you do this in a cell like qasmoke. Only Unloaded actor data will deleted.\n"

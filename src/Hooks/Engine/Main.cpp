@@ -18,7 +18,6 @@ namespace Hooks {
 
 				if (State::Live()) {
 
-					//Cache all currently loaded Actors
 					// We are not loading or in the mainmenu
 					// Player loaded and not paused
 					if (started.exchange(true)) {

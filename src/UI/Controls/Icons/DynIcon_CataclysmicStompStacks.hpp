@@ -4,9 +4,9 @@
 
 namespace ImGuiEx {
 
-	class DynIconCataclysmicVoreStacks final : public IDynIcon {
+	class DynIconCataclysmicStompStacks final : public IDynIcon {
 	public:
-		explicit DynIconCataclysmicVoreStacks(uint32_t a_size);
+		explicit DynIconCataclysmicStompStacks(uint32_t a_size);
 		bool Draw(int a_stacks, bool a_alwaysShow) const;
 	};
 

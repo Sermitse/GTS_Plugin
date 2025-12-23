@@ -11,12 +11,13 @@ namespace Hooks {
 
 		static void thunk(uint32_t unk_01) {
 
-			GTS_PROFILE_ENTRYPOINT("EnginePresent::DXGISwapchainPresent");
-
 			func(unk_01);
 
-			if (GTSMenu::m_DrawOnPresent.load()) {
-				GTSMenu::GetSingleton().Present();
+			{
+				GTS_PROFILE_ENTRYPOINT("EnginePresent::DXGISwapchainPresent");
+				if (GTSMenu::m_DrawOnPresent.load()) {
+					GTSMenu::GetSingleton().Present();
+				}
 			}
 
 		}

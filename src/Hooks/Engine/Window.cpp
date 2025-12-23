@@ -36,9 +36,7 @@ namespace Hooks {
 		static uint16_t thunk(WNDCLASSA* a_wndClass) {
 
 			{
-
 				GTS_PROFILE_ENTRYPOINT("EnginePresent::RegisterClassA");
-
 				WndProcHandler::func = reinterpret_cast<uintptr_t>(a_wndClass->lpfnWndProc);
 				a_wndClass->lpfnWndProc = &WndProcHandler::thunk;
 			}
@@ -51,7 +49,7 @@ namespace Hooks {
 	};
 
 	void Hook_Window::Install() {
-		logger::info("Installing Present Hooks...");
+		logger::info("Installing Window Hooks...");
 		stl::write_call<RegisterClassA, 6>(REL::RelocationID(75591, 77226, NULL), REL::VariantOffset(0x8E, 0x15C, NULL));
 	}
 

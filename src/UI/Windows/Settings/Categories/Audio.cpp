@@ -56,7 +56,8 @@ namespace GTS {
 
 	void CategoryAudio::DrawLeft(){
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
 	        PSString T0 = "Enable footstep sounds when player size meets or exceeds a certain threshold.";
 	        PSString T1 = "Enable moaning sounds during spells like Slow Growth.";
@@ -122,7 +123,8 @@ namespace GTS {
 
 		if (Runtime::IsSexlabInstalled()) {
 
-			ImUtil_Unique {
+			ImUtil_Unique 
+			{
 
 				PSString THelp = "Sexlab is installed.\n"
 								 "This mod can now use it's voice files as an alternative\n\n"
@@ -156,7 +158,8 @@ namespace GTS {
 
 	void CategoryAudio::DrawRight() {
 
-		ImUtil_Unique {
+		ImUtil_Unique 
+		{
 
 			PSString TpLow = "The lowest voice pitch multipler when over 1.0x scale, lower values will lower the pitch when the actor is large(r).";
 			PSString TsMax = "Change the target scale at which the pitch will be the lowest.";

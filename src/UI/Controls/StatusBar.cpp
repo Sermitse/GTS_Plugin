@@ -1,8 +1,6 @@
 #include "UI/Controls/StatusBar.hpp"
 #include "UI/Controls/ToolTip.hpp"
-
 #include "UI/Core/ImUtil.hpp"
-
 #include "Managers/AttributeManager.hpp"
 
 namespace {
@@ -29,7 +27,9 @@ namespace {
 
 	PSString TLifeAbsorb = "TODO Tooltip";
 
-	PSString TVoreStacks = "TODO Tooltip";
+	PSString TCataclismicStompStacks = "TODO Tooltip";
+
+	PSString TVoreBeingAbsorbed = "Current count of tinies being digested/absorbed";
 
 }
 
@@ -42,7 +42,8 @@ namespace ImGuiEx {
 		m_enchantmentIcon           = std::make_unique<DynIconEnchantment>(m_iconSize);
 		m_sizeReserveIcon           = std::make_unique<DynIconSizeReserve>(m_iconSize);
 		m_onTheEdgeIcon             = std::make_unique<DynIconOnTheEdge>(m_iconSize);
-		m_CataclysmicVoreStacksIcon = std::make_unique<DynIconCataclysmicVoreStacks>(m_iconSize);
+		m_CataclysmicVoreStacksIcon = std::make_unique<DynIconCataclysmicStompStacks>(m_iconSize);
+		m_VoreBeingAbsorbedIcon     = std::make_unique<DynIconVoreBeingAbsorbed>(m_iconSize);
 	}
 
 	uint8_t StatusBar::Draw(RE::Actor* a_actor, uint32_t a_visFlags, uint32_t a_ASFlags, bool* a_stateChanged, bool a_preview) {
@@ -61,6 +62,7 @@ namespace ImGuiEx {
 		float fOnTheEdge = (GTS::GetPerkBonus_OnTheEdge(a_actor, 0.01f) - 1.0f) * 100.f;
 		int iLifeAbsorbStacks = T->Stacks_Perk_LifeForce;
 		int iVoreStacks = T->Stacks_Perk_CataclysmicStomp;
+		int iVoreAbsorbing = T->VoreCurrentlyAbsorbingCount;
 
 		// Dummy values for preview mode
 		if (a_preview) {
@@ -70,6 +72,7 @@ namespace ImGuiEx {
 			fOnTheEdge = 100.0f;
 			iLifeAbsorbStacks = 10;
 			iVoreStacks = 10;
+			iVoreAbsorbing = 4;
 		}
 
 		bool Draw_damageReductionIcon       = !(a_visFlags & StatusbarFlag_HideDamageReduction);
@@ -78,13 +81,15 @@ namespace ImGuiEx {
 		bool Draw_CataclysmicVoreStacksIcon = !(a_visFlags & StatusbarFlag_HideVoreStacks);
 		bool Draw_sizeReserveIcon           = !(a_visFlags & StatusbarFlag_HideSizeReserve);
 		bool Draw_onTheEdgeIcon             = !(a_visFlags & StatusbarFlag_HideOnTheEdge);
+		bool Draw_voreBeingAbsorbed         = !(a_visFlags & StatusbarFlag_HideVoreBeingAbsorbed);
 
-		bool AS_damageReductionIcon       = (a_ASFlags & StatusbarFlag_HideDamageReduction);
-		bool AS_lifeAbsorbIcon            = (a_ASFlags & StatusbarFlag_HideLifeAbsorbtion);
-		bool AS_enchantmentIcon           = (a_ASFlags & StatusbarFlag_HideEnchantment);
-		bool AS_CataclysmicVoreStacksIcon = (a_ASFlags & StatusbarFlag_HideVoreStacks);
-		bool AS_sizeReserveIcon           = (a_ASFlags & StatusbarFlag_HideSizeReserve);
-		bool AS_onTheEdgeIcon             = (a_ASFlags & StatusbarFlag_HideOnTheEdge);
+		bool AS_damageReductionIcon       = (a_ASFlags & StatusbarASFlag_ASDamageReduction);
+		bool AS_lifeAbsorbIcon            = (a_ASFlags & StatusbarASFlag_ASLifeAbsorbtion);
+		bool AS_enchantmentIcon           = (a_ASFlags & StatusbarASFlag_ASEnchantment);
+		bool AS_CataclysmicVoreStacksIcon = (a_ASFlags & StatusbarASFlag_ASVoreStacks);
+		bool AS_sizeReserveIcon           = (a_ASFlags & StatusbarASFlag_ASSizeReserve);
+		bool AS_onTheEdgeIcon             = (a_ASFlags & StatusbarASFlag_ASOnTheEdge);
+		bool AS_voreBeingAbsorbed         = (a_ASFlags & StatusbarASFlag_ASVoreBeingAbsorbed);
 
 		const float RowY = ImGui::GetCursorPosY();
 		float cursorX = ImGui::GetCursorPosX();
@@ -128,9 +133,20 @@ namespace ImGuiEx {
 		if (Draw_CataclysmicVoreStacksIcon) {
 			m_CataclysmicVoreStacksIcon->Resize(m_iconSize);
 			if (m_CataclysmicVoreStacksIcon->Draw(iVoreStacks, AS_CataclysmicVoreStacksIcon)) {
-				if (m_enableToolTips) Tooltip(TVoreStacks, true);
+				if (m_enableToolTips) Tooltip(TCataclismicStompStacks, true);
 				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
 				m_combiCurValueState += iVoreStacks;
+				drawnIcons++;
+			}
+		}
+
+		//m_VoreBeingAbsorbedIcon
+		if (Draw_voreBeingAbsorbed) {
+			m_VoreBeingAbsorbedIcon->Resize(m_iconSize);
+			if (m_VoreBeingAbsorbedIcon->Draw(iVoreAbsorbing, AS_voreBeingAbsorbed)) {
+				if (m_enableToolTips) Tooltip(TVoreBeingAbsorbed, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += iVoreAbsorbing;
 				drawnIcons++;
 			}
 		}

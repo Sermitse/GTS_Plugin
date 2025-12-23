@@ -1,4 +1,5 @@
 #pragma once
+
 #include "UI/Core/ImGraphics.hpp"
 
 namespace ImGuiEx {
@@ -11,10 +12,10 @@ namespace ImGuiEx {
 		}
 
 		virtual ~IDynIcon() = default;
-		//virtual void Draw(std::any a_var) = 0;
 
 		std::unique_ptr<GTS::ImGraphics::ImageTransform> m_transform = nullptr;
 		const std::string m_name = {};
+		static constexpr uint32_t m_referenceSize = 64;
 		uint32_t m_size = 32;
 
 		void Resize(uint32_t a_size) {

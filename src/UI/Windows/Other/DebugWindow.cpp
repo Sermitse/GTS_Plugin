@@ -47,6 +47,7 @@ namespace GTS {
 			static ImGraphics::ImageTransform transform2;
 			static ImGraphics::ImageTransform transform3;
 			static ImGraphics::ImageTransform transform4;
+			static ImGraphics::ImageTransform transform5;
 
 			static float time = 0.0f;
 
@@ -79,15 +80,28 @@ namespace GTS {
 			// Cycling cutoff direction every 5 seconds
 			int dirIndex = static_cast<int>(time / 5.0f) % 4;
 			switch (dirIndex) {
-				case 0: transform4.cutoffDir = ImGraphics::CutoffDirection::LeftToRight; break;
-				case 1: transform4.cutoffDir = ImGraphics::CutoffDirection::RightToLeft; break;
-				case 2: transform4.cutoffDir = ImGraphics::CutoffDirection::TopToBottom; break;
-				case 3: transform4.cutoffDir = ImGraphics::CutoffDirection::BottomToTop; break;
+				case 0: transform4.transformDirection = ImGraphics::Direction::LeftToRight; break;
+				case 1: transform4.transformDirection = ImGraphics::Direction::RightToLeft; break;
+				case 2: transform4.transformDirection = ImGraphics::Direction::TopToBottom; break;
+				case 3: transform4.transformDirection = ImGraphics::Direction::BottomToTop; break;
 				default: break;
 			}
 
 			// Oscillating cutoff percentage (0% to 100% and back)
 			transform4.cutoffPercent = 0.5f + 0.5f * std::sin(time);
+
+			transform5.gradientFadeEnabled  = true;
+			transform5.gradientStartPercent = std::sin(time) * 0.5f + 0.5f; // Varies between 0.0 and 1.0
+			transform5.gradientTargetAlpha = 0.0f;
+
+			switch (dirIndex) {
+				case 0: transform5.transformDirection = ImGraphics::Direction::LeftToRight; break;
+				case 1: transform5.transformDirection = ImGraphics::Direction::RightToLeft; break;
+				case 2: transform5.transformDirection = ImGraphics::Direction::TopToBottom; break;
+				case 3: transform5.transformDirection = ImGraphics::Direction::BottomToTop; break;
+				default: break;
+			}
+
 
 			ImGui::Text("Time: %.2f", time);
 			ImGui::Text("Color: R:%.2f G:%.2f B:%.2f", r, g, b);
@@ -95,13 +109,15 @@ namespace GTS {
 			ImGui::Text("Scale: %.2f", scaleValue);
 			ImGui::Text("Cutoff: %s %.1f%%", dirIndex == 0 ? "L->R" : dirIndex == 1 ? "R->L" : dirIndex == 2 ? "T->B" : "B->T", transform4.cutoffPercent * 100.0f);
 
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform,  { 64, 64 });
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform,  { 96, 96 });
 			ImGui::SameLine();
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform2, { 64, 64 }); 
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform2, { 96, 96 });
 			ImGui::SameLine();
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform3, { 64, 64 });
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform3, { 96, 96 });
 			ImGui::SameLine();
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform4, { 64, 64 });
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform4, { 96, 96 });
+			ImGui::SameLine();
+			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform5, { 96, 96 });
 
 			ImGui::Spacing();
 		}

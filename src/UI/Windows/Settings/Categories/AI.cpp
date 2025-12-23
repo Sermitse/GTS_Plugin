@@ -278,7 +278,8 @@ namespace GTS {
 
     void CategoryAI::DrawLeft() {
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
 
             PSString T0 = "Globaly Enable/Disable the follower action AI.";
 
@@ -338,7 +339,8 @@ namespace GTS {
             }
         }
 
-        ImUtil_Unique {
+        ImUtil_Unique 
+		{
             
             PSString T0 = "Toggle whether Followers should have movement speed further reduced past x1.25 size.\n"
                             "- This toggle makes Follower Sprinting less likely based on size, so Followers will try to menacingly walk instead of sprinting\n"

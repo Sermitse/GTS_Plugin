@@ -138,7 +138,8 @@ namespace GTS {
 
 		// ----- Animation Check
 
-		ImUtil_Unique {
+		ImUtil_Unique 
+		{
 
 			PSString T0 = "The automatic check can sometimes be unreliable.\n"
 						  "By pressing this you can forcefully try to play an animation.\n"
@@ -223,22 +224,57 @@ namespace GTS {
 
 		//----------- Settings Export
 
-		ImUtil_Unique {
+		ImUtil_Unique 
+		{
 			if (ImGui::CollapsingHeader("Export/Import Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 				DrawImportExport();
 			}
 		}
 
-		//----------- Skill Tree
+		//----------- Shortcuts
 
-		ImUtil_Unique {
+		ImUtil_Unique 
+		{
 
 			PSString T0 = "Open this mod's custom skill tree";
+			PSString T1 = "Automatically complete this mod's quest.";
+			PSString T2 = "Get all of the mod's spells";
+			PSString T3 = "Instantly complete the perk tree.";
+			PSString T4 = "Get all of the mod's shouts";
 
-			if (ImGui::CollapsingHeader("Skill Tree", ImUtil::HeaderFlagsDefaultOpen)) {
-				if (ImGuiEx::Button("Open Skill Tree",T0)) {
+			if (ImGui::CollapsingHeader("Shortcuts", ImUtil::HeaderFlagsDefaultOpen)) {
+				if (ImGuiEx::Button("Open Skill Tree", T0)) {
 					GTSMenu::CloseInputConsumers();
-					Runtime::SetFloat(Runtime::GLOB.GTSSkillMenu, 1.0);
+					Runtime::SetFloat(Runtime::GLOB.GTSSkillMenu, 1.0f);
+				}
+
+				ImGuiEx::SeperatorV();
+
+				const auto Complete = ProgressionQuestCompleted();
+
+				if (!Complete) {
+					if (ImGuiEx::Button("Skip Quest", T1)) {
+						SkipProgressionQuest();
+					}
+				}
+				else {
+					ImGui::SameLine();
+
+					if (ImGuiEx::Button("Get All Spells", T2, !Complete)) {
+						GiveAllSpellsToPlayer();
+					}
+
+					ImGui::SameLine();
+
+					if (ImGuiEx::Button("Get All Perks", T3, !Complete)) {
+						GiveAllPerksToPlayer();
+					}
+
+					ImGui::SameLine();
+
+					if (ImGuiEx::Button("Get All Shouts", T4, !Complete)) {
+						GiveAllShoutsToPlayer();
+					}
 				}
 
 				ImGui::Spacing();
@@ -247,7 +283,8 @@ namespace GTS {
 
 		//------ Protect Actors
 
-		ImUtil_Unique {
+		ImUtil_Unique 
+		{
 
 			PSString T0 = "Protect essential NPCs from being crushed, eaten, or affected by size-related spells/actions.";
 			PSString T1 = "Protect followers from being crushed, eaten, or affected by size-related spells/actions.";
@@ -261,7 +298,8 @@ namespace GTS {
 	}
 		//------ Compatibility
 
-		ImUtil_Unique {
+		ImUtil_Unique 
+		{
 
 			PSString T0 = "Enable or disable experimental compatibility with the Devourment mod.\n"
 							 "This compatibility toggle may lead to issues such as actors being swallowed with delay (because Papyrus lags) or other bugs\n\n"
@@ -272,22 +310,37 @@ namespace GTS {
 
 			if (ImGui::CollapsingHeader("Compatibility", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImGuiEx::CheckBox("Devourment Compatibility",&Config::General.bDevourmentCompat, T0, !Runtime::IsDevourmentInstalled());
+				ImGui::SameLine();
 				ImGuiEx::CheckBox("Alt Conversation Cam. Compatibility", &Config::General.bConversationCamCompat, T1, !Runtime::IsAltConversationCamInstalled());
 				ImGui::Spacing();
 
 			}
 		}
 
+		ImUtil_Unique
+		{
+			PSString T1 = "Adjust the speed of all animations based on an actor's scale.";
+			PSString T2 = "Reduce the amount of gore in some sound and visual effects.";
+
+			if (ImGui::CollapsingHeader("Miscellaneous", ImUtil::HeaderFlagsDefaultOpen)) {
+				ImGuiEx::CheckBox("Dynamic Animation Speed", &Config::General.bDynamicAnimspeed, T1);
+				ImGui::SameLine();
+				ImGuiEx::CheckBox("Less Gore", &Config::General.bLessGore, T2);
+				ImGui::Spacing();
+			}
+		}
+
 		//------ Experimental
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
 	        PSString T0 = "Male Actor Support:\n"
-	                         "No support is provided for this feature.\n"
-	                         "This mod was primarily designed with female NPCs in mind\n"
-	                         "and always assumes the player/followers are female.\n"
-	                         "Animations may not look good and could cause issues even.\n"
-	                         "Use at your own risk.";
+	                      "No support is provided for this feature.\n"
+	                      "This mod was primarily designed with female NPCs in mind\n"
+	                      "and always assumes the player/followers are female.\n"
+	                      "Animations may not look good and could cause issues even.\n"
+	                      "Use at your own risk.";
 
 			PSString T1 = "Apply computationally expensive damage calculations to all NPC's in the scene.\n"
 	    	              "This toggle can be EXTREMELY fps hungry, it is highly recommended to keep it off.";
@@ -297,12 +350,11 @@ namespace GTS {
 
 
 
-	        if (ImGui::CollapsingHeader("Experimental")) {
+	        if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImGuiEx::CheckBox("Allow Male Actors", &Config::General.bEnableMales, T0);
+				ImGui::SameLine();
 				ImGuiEx::CheckBox("Apply Size Effects to all Actors", &Config::General.bAllActorSizeEffects, T1);
 				ImGuiEx::CheckBox("Override Item/NPC Interaction Range", &Config::General.bOverrideInteractionDist, T2);
-
-	        	ImGui::Spacing();
 	        }
 	    }
 	}
@@ -310,62 +362,67 @@ namespace GTS {
 	void CategoryGeneral::DrawRight() {
 
 
-		//----- Misc
+		//----- Dynamic Scale
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
-	        PSString T0 = "This toggle enables automatic size adjustment:\n"
-	                         "If the player or their followers are too large to fit within a room, they will be temporarily scaled down to roughly 90%% of the room's current height.\n"
-	                         "Once outside the small room, they will regrow to their previous size.";
+			PSString T0 = "This toggle enables automatic size adjustment:\n"
+			              "If the player or their followers are too large to fit within a room, they will be temporarily shrunk down to roughly 90%% of the room's current height.\n"
+			              "Once outside the small room, they will regrow to their previous size.";
 
-	        PSString T1 = "Adjust the speed of all animations based on an actor's scale.";
-			PSString T2 = "Reduce the amount of gore in some sound and visual effects.";
+			PSString T1 = "Temporarily shrinks the target actor to fit the occupied furniture.";
 
-			PSString T3 = "Temporarily shrink grow the target actor to fit the target furniture";
+			if (ImGui::CollapsingHeader("Dynamic Scale", ImUtil::HeaderFlagsDefaultOpen)) {
 
-			PSString T4 = "Changes Size-Related Movement Speed calculation\n"
+				ImGuiEx::CheckBox("Scale To Room (Player)", &Config::General.bDynamicSizePlayer, T0);
+				ImGui::SameLine();
+				ImGuiEx::CheckBox("Scale To Room (Followers)", &Config::General.bDynamicSizeFollowers, T0);
+
+				ImGuiEx::CheckBox("Scale To Furniture (Player)", &Config::General.bDynamicFurnSizePlayer, T1);
+				ImGui::SameLine();
+				ImGuiEx::CheckBox("Scale To Furniture (Followers)", &Config::General.bDynamicFurnSizeFollowers, T1);
+			}
+
+			ImGui::Spacing();
+	    }
+
+		ImUtil_Unique
+		{
+
+			PSString T1 = "Changes Size-Related Movement Speed calculation\n"
 						  "- from: 1.0 / animation slowdown\n"
 						  "- to:   1.0 * (size * anim slowdown)\n\n"
 						  "As a result, movement speed will be faster (which isn't always good)\n"
 						  "But it should drastically reduce or even fix ice-skating effect";
 
-			PSString T5Help = "Gradually reduces NPC movement speed as they exceed certain size thresholds.\n"
-				              "This prevents oversized NPCs from moving unrealistically fast. "
-				              "The speed reduction scales smoothly between the start and maximum thresholds.";
+			PSString T2Help = "Gradually reduces NPC movement speed as they exceed certain size thresholds.\n"
+							  "This prevents large NPCs from moving unrealistically fast.\n"
+							  "The speed reduction scales smoothly between the start and maximum thresholds.";
 
-			PSString T5_1 = "The scale at which sprinting is disabled and the speed reduction begins.";
+			PSString T2_1 = "The scale at which sprinting is disabled and the speed reduction begins.";
+			PSString T2_2 = "The scale at which the NPC speed multiplier is fully clamped to the value set below.";
+			PSString T2_3 = "The target speed multiplier, the game's default is 2.0";
 
-			PSString T5_2 = "The scale at which the NPC speed multiplier is fully clamped to the value set below.";
 
-			PSString T5_3 = "The target speed multiplier, the game's default is 2.0";
+			if (ImGui::CollapsingHeader("Movement", ImUtil::HeaderFlagsDefaultOpen)) {
+				ImGuiEx::CheckBox("Alternative Movement Speed", &Config::General.bAlternativeSpeedFormula, T1);
+				ImGui::Text("NPC Movement Speed Clamping");
+				ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.x / 2.0f);
+				ImGui::TextColored(ImUtil::Colors::Subscript, "(?)");
+				ImGuiEx::Tooltip(T2Help, true);
 
-	        if (ImGui::CollapsingHeader("Miscellaneous", ImUtil::HeaderFlagsDefaultOpen)) {
-
-				ImGuiEx::CheckBox("Dynamic Size (Player)", &Config::General.bDynamicSizePlayer, T0);
-				ImGui::SameLine();
-				ImGuiEx::CheckBox("Dynamic Size (Followers)", &Config::General.bDynamicSizeFollowers, T0);
-
-				ImGuiEx::CheckBox("Scale to furniture (Player)", &Config::General.bDynamicFurnSizePlayer, T3);
-				ImGui::SameLine();
-				ImGuiEx::CheckBox("Scale to furniture (Followers)", &Config::General.bDynamicFurnSizeFollowers, T3);
-
-				ImGuiEx::CheckBox("Dynamic Animation Speed", &Config::General.bDynamicAnimspeed, T1);
-				ImGuiEx::CheckBox("Less Gore", &Config::General.bLessGore, T2);
-				ImGuiEx::CheckBox("Alternative Movement Speed", &Config::General.bAlternativeSpeedFormula, T4);
-
+				ImGuiEx::SliderF("Start NPC Speed Clamp", &Config::General.fNPCMaxSpeedMultClampStartAt, 1.0f, 20.0f, T2_1, "When larger than %.1fx");
+				ImGuiEx::SliderF("NPC Max Clamp", &Config::General.fNPCMaxSpeedMultClampMaxAt, Config::General.fNPCMaxSpeedMultClampStartAt, Config::General.fNPCMaxSpeedMultClampStartAt + 20.f, T2_2, "At %.1fx");
+				ImGuiEx::SliderF("Target Clamp Multiplier", &Config::General.fNPCMaxSpeedMultClampTarget, 0.1f, 2.0f, T2_3, "%.1fx");
 				ImGui::Spacing();
-				ImGui::Text("NPC Movement Speed Clamping (?)");
-				ImGuiEx::Tooltip(T5Help, true);
-				ImGuiEx::SliderF("Start NPC Slowdown", &Config::General.fNPCMaxSpeedMultClampStartAt, 1.0f, 20.0f, T5_1, "When larger than %.1fx");
-				ImGuiEx::SliderF("NPC Max Slowdown", &Config::General.fNPCMaxSpeedMultClampMaxAt, Config::General.fNPCMaxSpeedMultClampStartAt, Config::General.fNPCMaxSpeedMultClampStartAt + 20.f, T5_2, "At %.1fx");
-				ImGuiEx::SliderF("Target Speed Multiplier", &Config::General.fNPCMaxSpeedMultClampTarget, 0.1f, 2.0f, T5_3, "%.1fx");
-	            ImGui::Spacing();
-	        }
-	    }
+			}
+		}
 
 		//----- HH
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
 	        PSString T0 = "Enable height adjustment/correction for actors wearing high heels.";
 	        PSString T1 = "Disable HH height adjustments when using furniture to allow other mods to handle it.";
@@ -388,7 +445,8 @@ namespace GTS {
 
 		//------------- Looting
 
-	    ImUtil_Unique {
+	    ImUtil_Unique 
+		{
 
 	        PSString T0 = "Toggle whether actions like vore, shrink to death, or crushing\n"
 	                         "should spawn loot piles containing the dead actors' inventory.\n"
@@ -406,7 +464,8 @@ namespace GTS {
 
 		//------------- Gravity
 
-		ImUtil_Unique {
+		ImUtil_Unique 
+		{
 
 			PSString T0 = "Enables or Disables gravity acceleration based on size \n"
 							"- If enabled, gravity will slightly increase as the player grows: 1.0 * sqrt(size)\n"
@@ -428,46 +487,6 @@ namespace GTS {
 				ImGuiEx::CheckBox("Affect Player Gravity", &Config::General.bAlterPlayerGravity, T0);
 				ImGuiEx::SliderF("Damage Effect Delay - Gravity", &Config::General.fAdditionalJumpEffectDelay_Gravity, 0.0f, 1.0f, T2, "%.2fs", !Config::General.bAlterPlayerGravity);
 				ImGuiEx::SliderF("Damage Effect Delay", &Config::General.fAdditionalJumpEffectDelay, 0.0f, 1.0f, T1, "%.2fs");
-
-				ImGui::Spacing();
-			}
-		}
-
-
-		//----------- Progress
-
-		ImUtil_Unique {
-
-			PSString T0 = "Automatically complete this mod's quest.";
-			PSString T1 = "Get all of the mod's spells";
-			PSString T2 = "Instantly complete the perk tree.";
-			PSString T3 = "Get all of the mod's shouts";
-
-			if (ImGui::CollapsingHeader("Skip Progression")) {
-
-				const auto Complete = ProgressionQuestCompleted();
-
-				if (ImGuiEx::Button("Skip Quest",T0, Complete)) {
-					SkipProgressionQuest();
-				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::Button("Get All Spells", T1, !Complete)) {
-					GiveAllSpellsToPlayer();
-				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::Button("Get All Perks",T2, !Complete)) {
-					GiveAllPerksToPlayer();
-				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::Button("Get All Shouts", T3, !Complete)) {
-					GiveAllShoutsToPlayer();
-				}
 
 				ImGui::Spacing();
 			}

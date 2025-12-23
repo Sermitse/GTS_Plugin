@@ -140,6 +140,8 @@ namespace Hooks {
                 if (a_source) {
 
                     if (IsHuman(a_source)) {
+                        //Basically makes the holder blind to other npcs
+                        //If holding any actor
                         if (Grab::GetHeldActor(a_source)) {
                             a_detectionValue = -1000;
                             return nullptr;

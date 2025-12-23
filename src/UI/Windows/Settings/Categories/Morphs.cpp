@@ -144,7 +144,9 @@ namespace GTS {
                     } break;
 
 					case 1: {
-					  DrawMorphList(Config::Gameplay.ActionSettings.MorphListBelly);
+						ImGui::BeginDisabled(!Config::Gameplay.ActionSettings.bEnableBellyMorph);
+						DrawMorphList(Config::Gameplay.ActionSettings.MorphListBelly);
+						ImGui::EndDisabled();
 					} break;
 
                     default: break;

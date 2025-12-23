@@ -1,32 +1,35 @@
 #pragma once
 
-#include "UI/Controls/Icons/DynIcon_CataclysmicVoreStacks.hpp"
+#include "UI/Controls/Icons/DynIcon_CataclysmicStompStacks.hpp"
 #include "UI/Controls/Icons/DynIcon_LifeAbsorbStacks.hpp"
 #include "UI/Controls/Icons/DynIcon_DamageReduction.hpp"
 #include "UI/Controls/Icons/DynIcon_Enchantment.hpp"
 #include "UI/Controls/Icons/DynIcon_OnTheEdge.hpp"
 #include "UI/Controls/Icons/DynIcon_SizeReserve.hpp"
+#include "UI/Controls/Icons/DynIcon_VoreBeingAbsorbed.hpp"
 
 namespace ImGuiEx {
 
 	enum StatusbarIconFlags : uint32_t {
-		StatusbarFlag_None = 0,
-		StatusbarFlag_HideDamageReduction = 1 << 0,
-		StatusbarFlag_HideLifeAbsorbtion = 1 << 1,
-		StatusbarFlag_HideEnchantment = 1 << 2,
-		StatusbarFlag_HideVoreStacks = 1 << 3,
-		StatusbarFlag_HideSizeReserve = 1 << 4,
-		StatusbarFlag_HideOnTheEdge = 1 << 5,
+		StatusbarFlag_None                  = 0,
+		StatusbarFlag_HideDamageReduction   = 1 << 0,
+		StatusbarFlag_HideLifeAbsorbtion    = 1 << 1,
+		StatusbarFlag_HideEnchantment       = 1 << 2,
+		StatusbarFlag_HideVoreStacks        = 1 << 3,
+		StatusbarFlag_HideSizeReserve       = 1 << 4,
+		StatusbarFlag_HideOnTheEdge         = 1 << 5,
+		StatusbarFlag_HideVoreBeingAbsorbed = 1 << 6,
 	};
 
 	enum StatusbarAlwaysShowFlags : uint32_t {
-		StatusbarASFlag_None = 0,
-		StatusbarASFlag_ASDamageReduction = 1 << 0,
-		StatusbarASFlag_ASLifeAbsorbtion = 1 << 1,
-		StatusbarASFlag_ASEnchantment = 1 << 2,
-		StatusbarASFlag_ASVoreStacks = 1 << 3,
-		StatusbarASFlag_ASSizeReserve = 1 << 4,
-		StatusbarASFlag_ASOnTheEdge = 1 << 5,
+		StatusbarASFlag_None                = 0,
+		StatusbarASFlag_ASDamageReduction   = 1 << 0,
+		StatusbarASFlag_ASLifeAbsorbtion    = 1 << 1,
+		StatusbarASFlag_ASEnchantment       = 1 << 2,
+		StatusbarASFlag_ASVoreStacks        = 1 << 3,
+		StatusbarASFlag_ASSizeReserve       = 1 << 4,
+		StatusbarASFlag_ASOnTheEdge         = 1 << 5,
+		StatusbarASFlag_ASVoreBeingAbsorbed = 1 << 6,
 	};
 
 	class StatusBar {
@@ -48,7 +51,8 @@ namespace ImGuiEx {
         std::unique_ptr<DynIconEnchantment> m_enchantmentIcon;
         std::unique_ptr<DynIconSizeReserve> m_sizeReserveIcon;
         std::unique_ptr<DynIconOnTheEdge> m_onTheEdgeIcon;
-        std::unique_ptr<DynIconCataclysmicVoreStacks> m_CataclysmicVoreStacksIcon;
+        std::unique_ptr<DynIconCataclysmicStompStacks> m_CataclysmicVoreStacksIcon;
+		std::unique_ptr<DynIconVoreBeingAbsorbed> m_VoreBeingAbsorbedIcon;
 
 	};
 }

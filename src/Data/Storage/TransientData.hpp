@@ -48,6 +48,7 @@ namespace GTS {
 
 		int Stacks_Perk_CataclysmicStomp = 0;
 		int Stacks_Perk_LifeForce = 0;
+		int VoreCurrentlyAbsorbingCount = 0;
 		int CrushSound_Calc_CrushedTinies = 0;
 
 		bool ThrowWasThrown = false;
