@@ -7,10 +7,6 @@ namespace GTS {
 	/**
 	 * The class which manages some perk bonuses
 	 */
-	enum class PerkAction {
-		Increase,
-		Decrease
-	};
 	class PerkHandler : public EventListener  {
 		public:
             [[nodiscard]] static PerkHandler& GetSingleton() noexcept;
@@ -20,7 +16,7 @@ namespace GTS {
             virtual void OnRemovePerk(const RemovePerkEvent& evt) override;
 
 			static bool Perks_Cataclysmic_HasStacks(Actor* giant);
-			static void Perks_Cataclysmic_ManageStacks(Actor* giant, PerkAction action);
+			static void Perks_Cataclysmic_ManageStacks(Actor* giant, int stacks);
 			static float Perks_Cataclysmic_EmpowerStomp(Actor* giant);
 			static void Perks_Cataclysmic_BuffStompSpeed(AnimationEventData& data, bool reset);
 
