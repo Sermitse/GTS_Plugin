@@ -321,7 +321,7 @@ namespace GTS {
     void PerkHandler::Perks_Cataclysmic_ManageStacks(Actor* giant, int add_stacks) {
 		auto transient = Transient::GetActorData(giant);
 		if (transient) {
-            if (Runtime::HasPerkTeam(giant, "GTSPerkCataclysmicStomp")) {
+            if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkCataclysmicStomp)) {
                 constexpr int stack_limit = 3;
 
                 if (add_stacks > 0) {
