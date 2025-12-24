@@ -71,6 +71,7 @@ namespace {
 	PSString KFResetFontColor = "Reset the font color";
 	PSString KFEnableVanillaKills = "Show vanilla game kills in the killfeed (eg. kills made during normal combat).";
 	PSString KFEnableWorldKills = "Show vanilla game kills that have no attacker (eg. from falling damage, scripted deaths, etc).";
+	PSString KFFontScale = "Set the font size relative to the icon size.";
 
 
 	void DrawKillFeedWindowBase(GTS::ImWindow* a_KillFeed) {
@@ -100,7 +101,7 @@ namespace {
 		ImGui::EndDisabled();
 	}
 
-	void DrawKillfeedOptions(GTS::ImWindow* a_KillFeed) {
+	void DrawKillFeedOptions(GTS::ImWindow* a_KillFeed) {
 
 		if (!a_KillFeed) return;
 		auto Win = dynamic_cast<GTS::KillFeedWindow*>(a_KillFeed);
@@ -117,6 +118,7 @@ namespace {
 			ImGuiEx::SliderF("Visibility Duration", &BaseSettings.fFadeAfter, 0.1f, 10.f, KFVisDur, "%.2f second(s)");
 			ImGuiEx::SliderF("Entry Width", &ExtraSettings.fWidth, 75.0f, 600.f, KFWidth, "%.0f");
 			ImGuiEx::SliderU8("Max Visible Entries", &ExtraSettings.iMaxVisibleEntries, 2, 20, KFMaxVis, "%.d Entries");
+			ImGuiEx::SliderF("Font Scale Multiplier", &ExtraSettings.fFontScaleMult, 0.2f, 3.0f, KFFontScale, "%.2fx");
 
 			float buttonWidth = 18 + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().FramePadding.x * 2;
 
@@ -564,7 +566,7 @@ namespace GTS {
 
 			case 7: DrawUnderstompBarOptions(GTSMenu::WindowManager->wUBar);   break;
 			case 8: DrawStatusBarOptions(GTSMenu::WindowManager->wStatusBar);  break;
-			case 9: DrawKillfeedOptions(GTSMenu::WindowManager->wKillFeed);    break;
+			case 9: DrawKillFeedOptions(GTSMenu::WindowManager->wKillFeed);    break;
 
 			default: break;
 

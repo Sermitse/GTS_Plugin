@@ -402,7 +402,8 @@ namespace GTS {
 
 			PSString T2_1 = "The scale at which sprinting is disabled and the speed reduction begins.";
 			PSString T2_2 = "The scale at which the NPC speed multiplier is fully clamped to the value set below.";
-			PSString T2_3 = "The target speed multiplier, the game's default is 2.0";
+			PSString T2_3 = "The target speed multiplier, the game's default is 2.0. (Applies only to followers when not in combat)";
+			PSString T2_4 = "Modifies the target speed multiplier through a different method that works during combat, the game's default is 1.0";
 
 
 			if (ImGui::CollapsingHeader("Movement", ImUtil::HeaderFlagsDefaultOpen)) {
@@ -415,6 +416,7 @@ namespace GTS {
 				ImGuiEx::SliderF("Start NPC Speed Clamp", &Config::General.fNPCMaxSpeedMultClampStartAt, 1.0f, 20.0f, T2_1, "When larger than %.1fx");
 				ImGuiEx::SliderF("NPC Max Clamp", &Config::General.fNPCMaxSpeedMultClampMaxAt, Config::General.fNPCMaxSpeedMultClampStartAt, Config::General.fNPCMaxSpeedMultClampStartAt + 20.f, T2_2, "At %.1fx");
 				ImGuiEx::SliderF("Target Clamp Multiplier", &Config::General.fNPCMaxSpeedMultClampTarget, 0.1f, 2.0f, T2_3, "%.1fx");
+				ImGuiEx::SliderF("Target Clamp Multiplier (In Combat)", &Config::General.fNPCMaxSpeedMultClampTargetCombat, 0.5f, 1.0f, T2_4, "%.1fx");
 				ImGui::Spacing();
 			}
 		}

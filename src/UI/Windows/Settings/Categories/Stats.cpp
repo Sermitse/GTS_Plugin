@@ -7,6 +7,7 @@
 
 #include "UI/Controls/ActorInfoCard.hpp"
 #include "UI/Controls/Misc.hpp"
+#include "UI/Controls/QuestTracker.hpp"
 #include "UI/Core/ImColorUtils.hpp"
 #include "UI/Lib/imgui.h"
 
@@ -36,7 +37,11 @@ namespace GTS {
             Cards.try_emplace(Player->formID, std::make_unique<ImGuiEx::ActorInfoCard>());
         }
         else {
+            ImGui::BeginGroup();
             Cards[Player->formID]->Draw(PlayerCharacter::GetSingleton(), { Width, 0 });
+            ImGuiEx::DrawQuestProgress({ Width, 0 });
+			ImGui::EndGroup();
+			ImGui::SameLine();
         }
 
         ImGuiEx::SeperatorVFullLength();

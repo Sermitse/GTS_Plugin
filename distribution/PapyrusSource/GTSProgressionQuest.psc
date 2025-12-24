@@ -51,7 +51,7 @@ Event OnUpdate()
         float AbsorbedGiants = GTSPlugin.Quest_GetProgression(6)
 		
         if CurrentStage == 10
-            if StolenSize_Hugs >= 1.0 
+            if StolenSize_Hugs >= 2.0 
                 SetStage(20)
                 PlayerRef.AddSpell(GTSSpellShrinkEnemy)
             endif
@@ -59,7 +59,7 @@ Event OnUpdate()
 		
         if CurrentStage == 20 ; Steal size through Size Steal Spells
 
-            if StolenSize_Shrink >= 2.0 ; Shrink enemies with steal size stage
+            if StolenSize_Shrink >= 5.0 ; Shrink enemies with steal size stage
                 PlayerRef.AddSpell(GTSSpellShrink) ; Add Shrink Self spell
                 SetStage(30)
            endif 
@@ -73,7 +73,7 @@ Event OnUpdate()
 			
         elseif CurrentStage == 40 ; Crush / Shrink to nothing enemies 
 		
-            if TrampleAndSTNCount >= 6.0
+            if TrampleAndSTNCount >= 9.0
                 PlayerRef.AddSpell(GTSSpellRestoreSizeOther)
                 SetStage(50)
             endif

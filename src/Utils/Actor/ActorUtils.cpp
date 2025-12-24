@@ -3406,7 +3406,7 @@ namespace GTS {
 							float goal = 3.0f;
 							if (queststage == 40) { // Print this if in STN stage
 								progression = GetQuestProgression(static_cast<int>(QuestStage::ShrinkToNothing));
-								goal = 6.0f;
+								goal = 9.0f;
 							}
 							Notify("Progress: {:.1f}/{:.1f}", progression, goal);
 						}
@@ -3419,7 +3419,7 @@ namespace GTS {
 							} else {
 								SpawnCustomParticle(tiny, ParticleType::Red, NiPoint3(), "NPC Root [Root]", 1.0f);
 							}
-							Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::ShrinkToNothing)), 6.0f);
+							Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::ShrinkToNothing)), 9.0f);
 						}
 					break;
 					case QuestStage::HandCrush:				// Stage 4: hand crush 3 enemies
@@ -3457,8 +3457,8 @@ namespace GTS {
 				return Persistent::StolenSize.value;
 			case QuestStage::Crushing: 				// Stage 2: Crush 3 (*4 if dead) enemies
 				return Persistent::CrushCount.value;
-			case QuestStage::ShrinkToNothing:  		// Stage 3: Crush or Shrink to nothing 6 enemies in total
-				return Persistent::CrushCount.value - 3.0f + Persistent::STNCount.value;
+			case QuestStage::ShrinkToNothing:  		// Stage 3: Crush or Shrink to nothing 6 more enemies in total
+				return Persistent::CrushCount.value + Persistent::STNCount.value;
 			case QuestStage::HandCrush: 			// Stage 4: hand crush 3 enemies
 				return Persistent::HandCrushed.value;
 			case QuestStage::Vore: 					// Stage 5: Vore 6 enemies

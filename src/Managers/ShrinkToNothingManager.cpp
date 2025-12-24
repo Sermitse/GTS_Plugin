@@ -98,7 +98,7 @@ namespace GTS {
 			return false;
 		}
 		auto& m = GetSingleton().data;
-		return !(m.find(actor->formID) == m.end());
+		return !(!m.contains(actor->formID));
 	}
 
 	bool ShrinkToNothingManager::CanShrink(Actor* giant, Actor* tiny) {
@@ -172,8 +172,8 @@ namespace GTS {
 	}
 
 	ShrinkData::ShrinkData(Actor* giant) :
-		delay(Timer(0.01)),
 		state(ShrinkState::Healthy),
+		delay(Timer(0.01)),
 		giant(giant ? giant->CreateRefHandle() : ActorHandle()) {
 	}
 }

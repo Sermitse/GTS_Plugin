@@ -49,6 +49,7 @@ namespace Hooks {
 
 			{
 				//This function is responsible for the resulting movement vector and applies to all actors.
+				//It does not change the actual visible animation/walk speed, just the movement in the world.
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Move", ID);
 				if (a_this && a_this->Get3D1(false) && !a_this->IsInKillMove()) {
 					bonus = AttributeManager::AlterMovementSpeed(a_this);
