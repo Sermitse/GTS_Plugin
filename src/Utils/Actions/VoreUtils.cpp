@@ -141,7 +141,7 @@ namespace GTS {
 			if (tiny) {
             	ReportDeath(giant, tiny, DamageSource::Vored, true);
 			}
-			PerkHandler::Perks_Cataclysmic_ManageStacks(giant, PerkAction::Increase);
+			PerkHandler::Perks_Cataclysmic_ManageStacks(giant, amount_of_tinies);
 
             GainWeight(giant, 3.0f * tinySize * amount_of_tinies * multiplier); // Self explanatory
             ModSizeExperience(giant, 0.20f * multiplier + (tinySize * 0.02f)); // Gain Size Mastery XP

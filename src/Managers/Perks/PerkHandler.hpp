@@ -25,7 +25,7 @@ namespace GTS {
 
 
         static bool Perks_Cataclysmic_HasStacks(Actor* giant);
-		static void Perks_Cataclysmic_ManageStacks(Actor* giant, PerkAction action);
+		static void Perks_Cataclysmic_ManageStacks(Actor* giant, int add_stacks = 0);
 		static float Perks_Cataclysmic_EmpowerStomp(Actor* giant);
 		static void Perks_Cataclysmic_BuffStompSpeed(AnimationEventData& data, bool reset);
 		static void RuntimeGivePerksToNPC(Actor* a_actor, float a_currentSkillLevel);

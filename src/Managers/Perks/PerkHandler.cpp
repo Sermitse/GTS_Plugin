@@ -318,16 +318,20 @@ namespace GTS {
         return false;
     }
 
-    void PerkHandler::Perks_Cataclysmic_ManageStacks(Actor* giant, PerkAction action) {
+    void PerkHandler::Perks_Cataclysmic_ManageStacks(Actor* giant, int add_stacks) {
 		auto transient = Transient::GetActorData(giant);
 		if (transient) {
-            int current_stacks = transient->Stacks_Perk_CataclysmicStomp;
+            if (Runtime::HasPerkTeam(giant, "GTSPerkCataclysmicStomp")) {
+                constexpr int stack_limit = 3;
 
-            if (action == PerkAction::Increase && current_stacks < 3) { // Increase stack
-				transient->Stacks_Perk_CataclysmicStomp += 1;
-			} else if (current_stacks > 0) { // Consuming one stack
-                transient->Stacks_Perk_CataclysmicStomp -= 1;
-                Perk_Catalysmic_CheckForLaugh(giant);
+                if (add_stacks > 0) {
+                    transient->Stacks_Perk_CataclysmicStomp = std::min(transient->Stacks_Perk_CataclysmicStomp + add_stacks, stack_limit);
+                }
+                else {
+                    if (transient->Stacks_Perk_CataclysmicStomp > 0) {
+                        transient->Stacks_Perk_CataclysmicStomp -= 1;
+                    }
+                }
             }
 		}
     }
@@ -348,7 +352,8 @@ namespace GTS {
 
             Effect_Increase *= PowerBoost;
 
-            PerkHandler::Perks_Cataclysmic_ManageStacks(giant, PerkAction::Decrease);
+            PerkHandler::Perks_Cataclysmic_ManageStacks(giant);
+            Perk_Catalysmic_CheckForLaugh(giant);
         }
         return Effect_Increase;
     }
