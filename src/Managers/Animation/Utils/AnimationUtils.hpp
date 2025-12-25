@@ -59,6 +59,7 @@ namespace GTS {
 	void ApplyFingerDamage(Actor* giant, float radius, float damage, NiAVObject* node, float random, float bbmult, float crushmult, float Shrink, DamageSource Cause);
 
 	std::vector<NiPoint3> GetThighCoordinates(Actor* giant, std::string_view calf, std::string_view feet, std::string_view thigh);
+	std::vector<NiPoint3> GetFootPoints(float hh);
 	std::vector<NiPoint3> GetFootCoordinates(Actor* actor, bool Right, bool ignore_rotation);
 	NiPoint3 GetHeartPosition(Actor* giant, Actor* tiny, bool hugs);
 

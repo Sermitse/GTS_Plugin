@@ -1274,6 +1274,21 @@ namespace GTS {
 		return coordinates;
 	}
 
+	std::vector<NiPoint3> GetFootPoints(float hh) { 
+		// We're separating results so it checks slightly less points for normal footwear, saving a bit fps in towns with lots of npc's
+		std::vector<NiPoint3> result;
+		// Base foot
+		result.emplace_back(0.0f, hh / 10.0f, -(1.0f + hh * 0.25f)); // Point 1: ---()
+		// Toe
+		result.emplace_back(0.0f, 8.0f + hh / 10.0f, -(0.35f + hh)); // Point 2: ()---
+		
+		if (hh > 0.0f) { // Underheel (only for high heels)
+			result.emplace_back(0.0f, hh / 70.0f, -(1.25f + hh)); // Point 3: ---()
+		}
+		//log::info("Foot Zones: {}", result.size());
+		return result;
+	}
+
 	std::vector<NiPoint3> GetFootCoordinates(Actor* actor, bool Right, bool ignore_rotation) {
 		// Get world HH offset
 		NiPoint3 hhOffsetbase = HighHeelManager::GetBaseHHOffset(actor);
@@ -1281,7 +1296,7 @@ namespace GTS {
 		std::string_view FootLookup = leftFootLookup;
 		std::string_view CalfLookup = leftCalfLookup;
 		std::string_view ToeLookup = leftToeLookup;
-
+		
 		std::string_view ToeFailed = leftToeLookup_failed;
 		if (Right) {
 			FootLookup = rightFootLookup;
@@ -1341,26 +1356,17 @@ namespace GTS {
 
 		float hh = hhOffsetbase[2] / get_npcparentnode_scale(actor);
 		// Make a list of points to check
-		std::vector<NiPoint3> points = {
-			// x = side, y = forward, z = up/down      
-			NiPoint3(0.0f, hh/10, -(1.0f + hh * 0.25f)), 	// basic foot pos
-			// ^ Point 1: ---()  
-			NiPoint3(0.0f, 8.0f + hh/10, -(0.35f + hh)), // Toe point		
-			// ^ Point 2: ()---   
-			NiPoint3(0.0f, hh/70, -(1.25f + hh)), // Underheel point 
-			//            -----
-			// ^ Point 3: ---()  
-		};
 		std::tuple<NiAVObject*, NiMatrix3> CoordResult(Foot, RotMat);
 
 		for (const auto& [foot, rotMat]: {CoordResult}) {
 			if (!foot) {
 				return footPoints;
 			}
-			for (NiPoint3 point: points) {
+			for (NiPoint3 point: GetFootPoints(hh)) {
 				footPoints.push_back(foot->world*(rotMat*point));
 			}
 		}
+		//log::info("Applying foot stuff to {}", actor->GetDisplayFullName());
 		return footPoints;
 	}
 
