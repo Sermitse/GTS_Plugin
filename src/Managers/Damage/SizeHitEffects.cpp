@@ -27,7 +27,9 @@ namespace {
 	}
 
 	float Hit_CalculateGrowth(float damage, float SizeHunger, float Gigantism) {
-		return std::clamp((-damage/2000) * SizeHunger * Gigantism, 0.0f, 0.25f * Gigantism);
+		float Growth = std::clamp((-damage / 2000) * SizeHunger * Gigantism, 0.0f, 0.25f * Gigantism);
+		Growth *= Config::Gameplay.fHitGrowthPower;
+		return Growth;
 	}
 
 	float Hit_CalculateShrink(Actor* attacker, float damage, float SizeHunger, float Gigantism, float resistance) {

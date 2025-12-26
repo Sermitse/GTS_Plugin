@@ -182,19 +182,19 @@ namespace GTS {
         int nodeCollisions = 0;
         auto model = tiny->GetCurrent3D();
         if (model) {
-            for (auto &point : CoordsToCheck) {
-                bool StopDamageLookup = false;
-                if (!StopDamageLookup) {
-                    VisitNodes(model, [&nodeCollisions, point, maxFootDistance, &StopDamageLookup](NiAVObject& a_obj) {
+            bool StopDamageLookup = false;
+            if (!StopDamageLookup) {
+                VisitNodes(model, [&nodeCollisions, CoordsToCheck, maxFootDistance, &StopDamageLookup](NiAVObject& a_obj) {
+                    for (auto point : CoordsToCheck) {
                         float distance = (point - a_obj.world.translate).Length() - Collision_Distance_Override;
                         if (distance <= maxFootDistance) {
                             StopDamageLookup = true;
                             nodeCollisions += 1;
                             return false;
                         }
-                        return true;
-                    });
-                }
+                    }
+                    return true;
+                });
             }
             if (nodeCollisions > 0) {
                 if (ApplyCooldown) { // Needed to fix Thigh Crush stuff

@@ -96,6 +96,7 @@ namespace Hooks {
 				//From my understanding skse tasks run as jobs on the main thread at the end of the frame.
 				//Which feels like the safest place to do this.
 				intfc->AddTask([actor] {
+					GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Load3D::Task", ID);
 					//Moved this event dispatch here, The game events one runs before peristent data load
 					//plus it fires when an actor "unloads" as well.
 					if (State::InGame()) {

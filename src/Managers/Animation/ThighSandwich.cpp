@@ -140,7 +140,8 @@ namespace {
 
 	void GTSSandwich_EnableRune(AnimationEventData& data) {
 		ManageCamera(&data.giant, true, CameraTracking::Thigh_Sandwich); // Focus camera on AnimObjectA
-		SandwichingData::StartRuneTask(&data.giant, RuneTask::kEnlarge); // Start Growing the Rune
+		//SandwichingData::StartRuneTask(&data.giant, RuneTask::kEnlarge); // Start Growing the Rune
+		Runtime::CastSpell(&data.giant, &data.giant, Runtime::SPEL.GTSSpellThighRune);
 	}
 
 	void GTSSandwich_SitStart(AnimationEventData& data) {
@@ -250,7 +251,20 @@ namespace {
 	}
 
 	void GTSSandwich_DisableRune(AnimationEventData& data) {
+		auto caster = &data.giant;
+		bool HasEffect = Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSEffectThighRune);
+		auto Spell = Runtime::GetSpell(Runtime::SPEL.GTSSpellThighRune); // RE::SpellItem*
 
+		if (HasEffect && Spell) {
+			auto handle = caster->CreateRefHandle();
+			caster->AsMagicTarget()->DispelEffect(Spell, handle);
+			//Cprint("DISPELED SPELL");
+		}
+		else {
+			//Cprint("FAILED TO DISPEL RUNE SPELL");
+			//Cprint("SPELL FOUND: {}", Spell != nullptr);
+			//Cprint("HASEFFECT: {}", HasEffect);
+		}
 	}
 
 	void GTSSandwich_DropDown(AnimationEventData& data) {

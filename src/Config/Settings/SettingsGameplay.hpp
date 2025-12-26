@@ -161,8 +161,6 @@ struct SettingsGameplay_t {
     GameplayActorSettings_t GamemodeFollower = {};
     GameplayActionSettings_t ActionSettings = {};
 
-
-
     // Size Effects
     bool bPlayerAnimEffects = true;
     bool bNPCAnimEffects = true;
@@ -178,8 +176,7 @@ struct SettingsGameplay_t {
     bool bEnableCrushGrowth = true;
     bool bEnableGrowthOnHit = true;
     float fFullAssimilationLevelCap = 1.0f;
-
-
+    float fHitGrowthPower = 1.0f;
 
 };
 TOML_SERIALIZABLE(SettingsGameplay_t);

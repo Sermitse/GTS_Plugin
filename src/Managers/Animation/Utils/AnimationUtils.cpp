@@ -2,8 +2,6 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AttachPoint.hpp"
 
-#include "Managers/SpectatorManager.hpp"
-
 #include "Managers/Animation/Controllers/ThighSandwichController.hpp"
 #include "Managers/Animation/Controllers/GrabAnimationController.hpp"
 #include "Managers/Animation/Controllers/ButtCrushController.hpp"
@@ -134,11 +132,11 @@ namespace GTS {
 	void ForceFollowerAnimation(Actor* giant, FollowerAnimType Type) {
 		std::size_t numberOfPrey = 1000;
 
-		auto& Vore =        VoreController::GetSingleton();
+		auto& Vore      =   VoreController::GetSingleton();
 		auto& ButtCrush = 	ButtCrushController::GetSingleton();
-		auto& Hugs = 		HugAnimationController::GetSingleton();
-		auto& Grabs = 		GrabAnimationController::GetSingleton();
-		auto& Sandwich =    ThighSandwichController::GetSingleton();
+		auto& Hugs      =	HugAnimationController::GetSingleton();
+		auto& Grabs     = 	GrabAnimationController::GetSingleton();
+		auto& Sandwich  =   ThighSandwichController::GetSingleton();
 
 		switch (Type) {
 			// xxx.AllowMessage(true/false) are used to allow info messages when Follower can't do something with player
@@ -1054,101 +1052,152 @@ namespace GTS {
 
 	void ApplyThighDamage(Actor* actor, bool right, bool CooldownCheck, float radius, float damage, float bbmult, float crush_threshold, int random, DamageSource Cause) {
 		GTS_PROFILE_SCOPE("AnimUtils: ApplyThighDamage");
+		if (!actor) {
+			return;
+		}
 
-		if (actor) {
-			auto& sizemanager = SizeManager::GetSingleton();
-			float giantScale = get_visual_scale(actor);
-			float perk = GetPerkBonus_Thighs(actor);
-			constexpr float BASE_CHECK_DISTANCE = 90.0f;
-			float SCALE_RATIO = 1.75f;
+		float giantScale = get_visual_scale(actor);
+		float perk = GetPerkBonus_Thighs(actor);
+		constexpr float BASE_CHECK_DISTANCE = 90.0f;
+		float SCALE_RATIO = 1.75f;
 
-			if (HasSMT(actor)) {
-				giantScale += 0.20f;
-				SCALE_RATIO = 0.90f;
+		if (HasSMT(actor)) {
+			giantScale += 0.20f;
+			SCALE_RATIO = 0.90f;
+		}
+
+		// Use constexpr for bone names
+		constexpr std::string_view leg_right   = "NPC R Foot [Rft ]";
+		constexpr std::string_view knee_right  = "NPC R Calf [RClf]";
+		constexpr std::string_view thigh_right = "NPC R Thigh [RThg]";
+		constexpr std::string_view leg_left    = "NPC L Foot [Lft ]";
+		constexpr std::string_view knee_left   = "NPC L Calf [LClf]";
+		constexpr std::string_view thigh_left  = "NPC L Thigh [LThg]";
+
+		auto [leg, knee, thigh] = right ?
+			std::tuple{ leg_right, knee_right, thigh_right } :
+			std::tuple{ leg_left, knee_left, thigh_left };
+
+		// Reuse vector to avoid allocation - could be made static thread_local if thread-safe
+		thread_local std::vector<NiPoint3> ThighPoints;
+		GetThighCoordinates(actor, knee, leg, thigh, ThighPoints);
+
+		if (ThighPoints.empty()) {
+			return;
+		}
+
+		float speed = AnimationManager::GetBonusAnimationSpeed(actor);
+		crush_threshold *= (1.10f - speed * 0.10f);
+		float feet_damage = (Damage_ThighCrush_CrossLegs_FeetImpact * perk * speed);
+
+		if (CooldownCheck) {
+			CollisionDamage::DoFootCollision(actor, feet_damage, radius, random, bbmult, crush_threshold, DamageSource::ThighCrushed, true, true, false, false);
+			CollisionDamage::DoFootCollision(actor, feet_damage, radius, random, bbmult, crush_threshold, DamageSource::ThighCrushed, false, true, false, false);
+		}
+
+		float maxFootDistance = radius * giantScale;
+
+		// Debug visualization
+		if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor) || EffectsForEveryone(actor))) {
+			for (auto& point : ThighPoints) {
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance);
+			}
+		}
+
+		NiPoint3 giantLocation = actor->GetPosition();
+		float checkDistance = BASE_CHECK_DISTANCE * giantScale;
+
+		// Cache relevant nodes to avoid repeated allocation
+		std::vector<NiAVObject*> relevantNodes;
+		relevantNodes.reserve(64);
+
+		for (auto otherActor : find_actors()) {
+			if (otherActor == actor) {
+				continue;
 			}
 
-			std::string_view leg = "NPC R Foot [Rft ]";
-			std::string_view knee = "NPC R Calf [RClf]";
-			std::string_view thigh = "NPC R Thigh [RThg]";
+			float tinyScale = get_visual_scale(otherActor);
+			float scaleRatio = giantScale / tinyScale;
 
-			if (!right) {
-				leg = "NPC L Foot [Lft ]";
-				knee = "NPC L Calf [LClf]";
-				thigh = "NPC L Thigh [LThg]";
+			if (scaleRatio <= SCALE_RATIO) {
+				continue;
 			}
 
-
-			std::vector<NiPoint3> ThighPoints = GetThighCoordinates(actor, knee, leg, thigh);
-
-			float speed = AnimationManager::GetBonusAnimationSpeed(actor);
-			crush_threshold *= (1.10f - speed*0.10f);
-
-			float feet_damage = (Damage_ThighCrush_CrossLegs_FeetImpact * perk * speed);
-			
-			if (CooldownCheck) {
-				CollisionDamage::DoFootCollision(actor, feet_damage, radius, random, bbmult, crush_threshold, DamageSource::ThighCrushed, true, true, false, false);
-				CollisionDamage::DoFootCollision(actor, feet_damage, radius, random, bbmult, crush_threshold, DamageSource::ThighCrushed, false, true, false, false);
+			NiPoint3 actorLocation = otherActor->GetPosition();
+			if ((actorLocation - giantLocation).Length() >= checkDistance) {
+				continue;
 			}
 
-			float maxFootDistance = radius * giantScale;
+			// Early exit if on cooldown and we need to check
+			if (CooldownCheck && IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh)) {
+				continue;
+			}
 
-			if (!ThighPoints.empty()) {
-				if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor) || EffectsForEveryone(actor))) {
-					for (auto &point : ThighPoints) {
-						DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance);
+			auto model = otherActor->GetCurrent3D();
+			if (!model) {
+				continue;
+			}
+
+			// Collect relevant nodes in single pass
+			relevantNodes.clear();
+			VisitNodes(model, [&relevantNodes](NiAVObject& a_obj) {
+				relevantNodes.push_back(&a_obj);
+				return true;
+			});
+
+			// Check all points against all nodes
+			int nodeCollisions = 0;
+			float maxForce = 0.0f;
+
+			for (auto node : relevantNodes) {
+				for (auto& point : ThighPoints) {
+					float distance = (point - node->world.translate).Length() - Collision_Distance_Override;
+					if (distance <= maxFootDistance) {
+						nodeCollisions += 1;
+						float force = GetForceFromDistance(distance, maxFootDistance);
+						maxForce = std::max(maxForce, force);
 					}
 				}
-			
-				NiPoint3 giantLocation = actor->GetPosition();
-				for (auto otherActor: find_actors()) {
-					if (otherActor != actor) {
-						float tinyScale = get_visual_scale(otherActor);
-						if (giantScale / tinyScale > SCALE_RATIO) {
-							NiPoint3 actorLocation = otherActor->GetPosition();
+			}
 
-							if ((actorLocation-giantLocation).Length() < BASE_CHECK_DISTANCE*giantScale) {
-								int nodeCollisions = 0;
-								float force = 0.0f;
+			if (nodeCollisions > 0) {
+				if (CooldownCheck) {
+					float pushForce = std::clamp(maxForce, 0.04f, 0.10f);
+					float pushCalc = 0.06f * pushForce * speed;
 
-								auto model = otherActor->GetCurrent3D();
-								
-								if (model) {
-									for (auto &point : ThighPoints) {
-										VisitNodes(model, [&nodeCollisions, &force, point, maxFootDistance](NiAVObject& a_obj) {
-											float distance = (point - a_obj.world.translate).Length() - Collision_Distance_Override;
-											if (distance <= maxFootDistance) {
-												nodeCollisions += 1;
-												force = GetForceFromDistance(distance, maxFootDistance);
-												return false;
-											}
-											return true;
-										});
-									}
-								}
-								if (nodeCollisions > 0) {
-									//damage /= nodeCollisions;
-									if (CooldownCheck) {
-										float pushForce = std::clamp(force, 0.04f, 0.10f);
-										bool OnCooldown = IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh);
-										if (!OnCooldown) {
-											float pushCalc = 0.06f * pushForce * speed;
-											Laugh_Chance(actor, otherActor, 1.35f, "ThighCrush");
-											float difference = giantScale / (tinyScale * GetSizeFromBoundingBox(otherActor));
-											PushTowards(actor, otherActor, leg, pushCalc * difference, true);
-											CollisionDamage::DoSizeDamage(actor, otherActor, damage * speed * perk, bbmult, crush_threshold, random, Cause, true);
-											ApplyActionCooldown(otherActor, CooldownSource::Damage_Thigh);
-										}
-									} else {
-										Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause)); // pass original un-altered force
-										CollisionDamage::DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, true);
-									}
-								}
-							}
-						}
-					}
+					Laugh_Chance(actor, otherActor, 1.35f, "ThighCrush");
+
+					float sizeFromBB = GetSizeFromBoundingBox(otherActor);
+					float difference = scaleRatio / sizeFromBB; // Reuse scaleRatio
+
+					PushTowards(actor, otherActor, leg, pushCalc * difference, true);
+					CollisionDamage::DoSizeDamage(actor, otherActor, damage * speed * perk, bbmult, crush_threshold, random, Cause, true);
+					ApplyActionCooldown(otherActor, CooldownSource::Damage_Thigh);
+				}
+				else {
+					Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause));
+					CollisionDamage::DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, true);
 				}
 			}
 		}
+	}
+
+	[[nodiscard]] inline __forceinline std::pair<std::array<NiPoint3, 3>,size_t> GetFootPoints(float hh) {
+		// We're separating results so it checks slightly less points for normal footwear, saving a bit fps in towns with lots of npc's
+		std::array<NiPoint3, 3> result = {};
+		size_t count = 0;
+		// Base foot
+		result[count++] = { 0.0f, hh / 10.0f, -(1.0f + hh * 0.25f) }; // Point 1: ---()
+
+		// Toe
+		result[count++] = { 0.0f, 8.0f + hh / 10.0f, -(0.35f + hh )}; // Point 2: ()---
+
+		if (hh > 0.0f) { // Underheel (only for high heels)
+			result[count++] = { 0.0f, hh / 70.0f, -(1.25f + hh) }; // Point 3: ---()
+		}
+
+		//log::info("Foot Zones: {}", result.size());
+		return { result, count };
 	}
 
 	void ApplyFingerDamage(Actor* giant, float radius, float damage, NiAVObject* node, float random, float bbmult, float crushmult, float Shrink, DamageSource Cause) { // Apply crawl damage to each bone individually
@@ -1171,12 +1220,12 @@ namespace GTS {
 		float maxDistance = radius * giantScale;
 		float CheckDistance = 220 * giantScale;
 		// Make a list of points to check
-		std::vector<NiPoint3> points = {
+		std::vector points = {
 			NiPoint3(0.0f, 0.0f, 0.0f), // The standard position
 		};
 		std::vector<NiPoint3> FingerPoints = {};
 
-		for (NiPoint3 point: points) {
+		for (NiPoint3 _: points) {
 			FingerPoints.push_back(NodePosition);
 		}
 		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
@@ -1197,7 +1246,6 @@ namespace GTS {
 						if ((actorLocation-giantLocation).Length() <= CheckDistance) {
 
 							int nodeCollisions = 0;
-
 							auto model = otherActor->GetCurrent3D();
 
 							if (model) {
@@ -1217,9 +1265,7 @@ namespace GTS {
 									set_target_scale(otherActor, 0.08f / GetSizeFromBoundingBox(otherActor));
 								}
 								Laugh_Chance(giant, otherActor, 1.0f, "FingerGrind"); 
-
 								Utils_PushCheck(giant, otherActor, 1.0f);
-
 								CollisionDamage::DoSizeDamage(giant, otherActor, damage, bbmult, crushmult, static_cast<int>(random), Cause, true);
 							}
 						}
@@ -1229,36 +1275,33 @@ namespace GTS {
 		}
 	}
 
-	std::vector<NiPoint3> GetThighCoordinates(Actor* giant, std::string_view calf, std::string_view feet, std::string_view thigh) {
+	void GetThighCoordinates(Actor* giant, std::string_view calf, std::string_view feet, std::string_view thigh, std::vector<NiPoint3>& outCoordinates) {
+		outCoordinates.clear();
+
 		NiAVObject* Knee = find_node(giant, calf);
 		NiAVObject* Foot = find_node(giant, feet);
 		NiAVObject* Thigh = find_node(giant, thigh);
 
-		if (!Knee) {
-			return std::vector<NiPoint3>{};
-		}
-		if (!Foot) {
-			return std::vector<NiPoint3>{};
-		}
-		if (!Thigh) {
-			return std::vector<NiPoint3>{};
+		if (!Knee || !Foot || !Thigh) {
+			return;
 		}
 
-		NiPoint3 Knee_Point = Knee->world.translate;
-		NiPoint3 Foot_Point = Foot->world.translate;
-		NiPoint3 Thigh_Point = Thigh->world.translate;
+		const NiPoint3& Knee_Point = Knee->world.translate;
+		const NiPoint3& Foot_Point = Foot->world.translate;
+		const NiPoint3& Thigh_Point = Thigh->world.translate;
 
-		NiPoint3 Knee_Pos_Middle = (Knee_Point + Foot_Point) / 2.0f; 				// middle  |-----|-----|
-		NiPoint3 Knee_Pos_Up = (Knee_Point + Knee_Pos_Middle) / 2.0f;				//         |--|--|-----|
-		NiPoint3 Knee_Pos_Down = (Knee_Pos_Middle + Foot_Point) / 2.0f; 				//         |-----|--|--|
+		NiPoint3 Knee_Pos_Middle = (Knee_Point + Foot_Point) * 0.5f;
+		NiPoint3 Knee_Pos_Up = (Knee_Point + Knee_Pos_Middle) * 0.5f;
+		NiPoint3 Knee_Pos_Down = (Knee_Pos_Middle + Foot_Point) * 0.5f;
 
-		NiPoint3 Thigh_Pos_Middle = (Thigh_Point + Knee_Point) / 2.0f;               // middle  |-----|-----|
-		NiPoint3 Thigh_Pos_Up = (Thigh_Pos_Middle + Thigh_Point) / 2.0f;            	//         |--|--|-----|
-		NiPoint3 Thigh_Pos_Down = (Thigh_Pos_Middle + Knee_Point) / 2.0f;        	//         |-----|--|--|
+		NiPoint3 Thigh_Pos_Middle = (Thigh_Point + Knee_Point) * 0.5f;
+		NiPoint3 Thigh_Pos_Up = (Thigh_Pos_Middle + Thigh_Point) * 0.5f;
+		NiPoint3 Thigh_Pos_Down = (Thigh_Pos_Middle + Knee_Point) * 0.5f;
 
-		NiPoint3 Knee_Thigh_Middle = (Thigh_Pos_Down + Knee_Pos_Up) / 2.0f;          // middle between two
+		NiPoint3 Knee_Thigh_Middle = (Thigh_Pos_Down + Knee_Pos_Up) * 0.5f;
 
-		std::vector<NiPoint3> coordinates = { 	
+		outCoordinates.reserve(7);
+		outCoordinates = {
 			Knee_Pos_Middle,
 			Knee_Pos_Up,
 			Knee_Pos_Down,
@@ -1267,14 +1310,13 @@ namespace GTS {
 			Thigh_Pos_Down,
 			Knee_Thigh_Middle,
 		};
-
-		return coordinates;
 	}
 
 	std::vector<NiPoint3> GetFootCoordinates(Actor* actor, bool Right, bool ignore_rotation) {
 		// Get world HH offset
 		NiPoint3 hhOffsetbase = HighHeelManager::GetBaseHHOffset(actor);
 		std::vector<NiPoint3> footPoints = {};
+		footPoints.reserve(32);
 		std::string_view FootLookup = leftFootLookup;
 		std::string_view CalfLookup = leftCalfLookup;
 		std::string_view ToeLookup = leftToeLookup;
@@ -1337,26 +1379,18 @@ namespace GTS {
 		}
 
 		float hh = hhOffsetbase[2] / get_npcparentnode_scale(actor);
-		// Make a list of points to check
-		std::vector<NiPoint3> points = {
-			// x = side, y = forward, z = up/down      
-			NiPoint3(0.0f, hh/10, -(1.0f + hh * 0.25f)), 	// basic foot pos
-			// ^ Point 1: ---()  
-			NiPoint3(0.0f, 8.0f + hh/10, -(0.35f + hh)), // Toe point		
-			// ^ Point 2: ()---   
-			NiPoint3(0.0f, hh/70, -(1.25f + hh)), // Underheel point 
-			//            -----
-			// ^ Point 3: ---()  
-		};
-		std::tuple<NiAVObject*, NiMatrix3> CoordResult(Foot, RotMat);
+
+		std::tuple CoordResult(Foot, RotMat);
 
 		for (const auto& [foot, rotMat]: {CoordResult}) {
 			if (!foot) {
 				return footPoints;
 			}
-			for (NiPoint3 point: points) {
-				footPoints.push_back(foot->world*(rotMat*point));
+			const auto [pts, count] = GetFootPoints(hh);
+			for (std::size_t i = 0; i < count; ++i) {
+				footPoints.push_back(foot->world * (rotMat * pts[i]));
 			}
+			
 		}
 		return footPoints;
 	}

@@ -138,7 +138,9 @@ namespace GTS {
                               "Applies to both the player and followers.";
 
                 PSString T3 = "By default, the maximum amount of bonus attributes per player level is 2.\n"
-                              "You can adjust the multiplier for this here.\n";
+                              "You can adjust the multiplier for this here.";
+
+                const char* T4 = "Multipier for gaining size when being hit, comes from Hit Growth perk";
 
                 const std::string tGrowOnCrush = fmt::format("Grow On Crush {}", (!PerkCondCrush ? "[Missing Perk]" : ""));
                 ImGuiEx::CheckBox(tGrowOnCrush.c_str(), &Config::Gameplay.bEnableCrushGrowth, T1, !PerkCondCrush);
@@ -147,6 +149,9 @@ namespace GTS {
 
                 const std::string tGrowOnHit = fmt::format("Grow On Hit {}", (!PerkCondHit ? "[Missing Perk]" : ""));
                 ImGuiEx::CheckBox(tGrowOnHit.c_str(), &Config::Gameplay.bEnableGrowthOnHit, T2, !PerkCondHit);
+
+                const char* tGrowOnHitPower = (!PerkCondHit ? "[Missing Perk]" : "%.2fx");
+                ImGuiEx::SliderF("Grow On Hit Power", &Config::Gameplay.fHitGrowthPower, 0.01f, 3.0f, T4, tGrowOnHitPower, !PerkCondHit);
 
                 const char* tSizeConfFMT = (!PerkCondAtribCap ? "[Missing Perk]" : "%.2fx");
                 ImGuiEx::SliderF("Full Assimilation Attrib. Cap", &Config::Gameplay.fFullAssimilationLevelCap, 0.1f, 5.0f, T3, tSizeConfFMT, !PerkCondAtribCap);
