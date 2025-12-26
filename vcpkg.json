@@ -17,7 +17,8 @@
         "detours",
         "lunasvg",
         "tbb",
-        "abseil"
+        "abseil",
+        "re2"
       ]
     }
   },

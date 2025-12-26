@@ -262,32 +262,61 @@ namespace GTS {
 				}
 
 				// Fallback manual parser for malformed JSON
-				size_t posStart = parseView.find("\"pos\":[");
+				size_t posStart = parseView.find("\"pos\"");
 				if (posStart == std::string_view::npos) {
 					return true;
 				}
-				posStart += 7;
-				size_t posEnd = parseView.find(']', posStart);
-				if (posEnd == std::string_view::npos || posEnd == posStart) {
+
+				// Find opening bracket
+				size_t bracketStart = parseView.find('[', posStart);
+				if (bracketStart == std::string_view::npos) {
 					return true;
 				}
 
-				const char* ptr = parseView.data() + posStart;
-				const char* end = parseView.data() + posEnd;
-				char* endptr;
-				float vals[3];
-
-				for (int i = 0; i < 3; ++i) {
-					while (ptr < end && (*ptr == ',' || std::isspace(static_cast<unsigned char>(*ptr)))) ++ptr;
-					if (ptr >= end) return true;
-
-					vals[i] = std::strtof(ptr, &endptr);
-					if (endptr == ptr || !std::isfinite(vals[i])) return true;
-					ptr = endptr;
+				// Find closing bracket
+				size_t bracketEnd = parseView.find(']', bracketStart);
+				if (bracketEnd == std::string_view::npos || bracketEnd <= bracketStart + 1) {
+					return true;
 				}
 
-				result = NiPoint3(vals[0], vals[1], vals[2]);
-				return false;
+				// Extract array content safely
+				std::string_view arrayContent = parseView.substr(bracketStart + 1, bracketEnd - bracketStart - 1);
+
+				// Parse up to 3 floats, being defensive
+				float vals[3] = { 0.0f, 0.0f, 0.0f };
+				int parsed = 0;
+				const char* ptr = arrayContent.data();
+				const char* end = ptr + arrayContent.size();
+
+				for (int i = 0; i < 3 && ptr < end; ++i) {
+					// Skip whitespace and commas
+					while (ptr < end && (*ptr == ',' || *ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '\r')) {
+						++ptr;
+					}
+					if (ptr >= end) break;
+
+					// Try to parse float
+					char* endptr;
+					errno = 0;
+					float val = std::strtof(ptr, &endptr);
+
+					// Validate parse was successful
+					if (endptr == ptr || errno == ERANGE || !std::isfinite(val)) {
+						break;
+					}
+
+					vals[i] = val;
+					ptr = endptr;
+					++parsed;
+				}
+
+				// Only accept if we got all 3 values
+				if (parsed == 3) {
+					result = NiPoint3(vals[0], vals[1], vals[2]);
+					return false;
+				}
+
+				return true;
 			});
 		}
 

@@ -247,7 +247,8 @@ namespace GTS {
             return;
         }
 
-        static std::regex intRegex(R"((\d+))");
+
+        static const re2::RE2 intRegex(R"((\d+))");
 
         for (const auto& perk : Runtime::PERK.List) {
             const auto& nam = str_tolower(perk.first);
@@ -269,16 +270,11 @@ namespace GTS {
                 std::string pname = perkptr->GetName();
                 int reqLevel = -1;
 
-                std::sregex_iterator it(pname.begin(), pname.end(), intRegex);
-                std::sregex_iterator end;
-
-                if (it != end) {
-                    reqLevel = std::stoi((*it)[1].str());
-                }
-
-                if (reqLevel > 0 && a_currentSkillLevel >= reqLevel) {
-                    a_actor->GetActorBase()->AddPerk(perkptr, 0);
-                    logger::trace("Gave Conditionless Perk: {} to {}", perkptr->GetName(), a_actor->GetName());
+                if (RE2::PartialMatch(pname, intRegex, &reqLevel)) {
+                    if (reqLevel > 0 && a_currentSkillLevel >= reqLevel) {
+                        a_actor->GetActorBase()->AddPerk(perkptr, 0);
+                        logger::trace("Gave Conditionless Perk: {} to {}", perkptr->GetName(), a_actor->GetName());
+                    }
                 }
 
                 continue;

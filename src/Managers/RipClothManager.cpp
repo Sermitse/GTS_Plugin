@@ -60,13 +60,13 @@ namespace GTS {
 		// BGSBipedObjectForm::BipedObjectSlot::kFX01,					// 61
 	};
 
-	//Add A check bool to transient to decect npc_reequips
 
 	//I don't like this. Ideally we should call the same update func that the game does when the npc changes cells for example.
 	//But alas i have no idea how to do that :(
 	//This will equip all armor in the inventory
 	static void ReEquipClothing(Actor* a_actor) {
 		//log::info("ReEquip: {}", a_actor->GetName());
+		static const auto equipmgr = RE::ActorEquipManager::GetSingleton();
 		const auto inv = a_actor->GetInventory();
 		for (const auto& [item, invData] : inv) {
 			const auto& [count, entry] = invData;
@@ -76,7 +76,7 @@ namespace GTS {
 						return;
 					}
 					for (const auto& xList : *entry->extraLists) {
-						RE::ActorEquipManager::GetSingleton()->EquipObject(a_actor, item, xList, 1, nullptr, false, false, false);
+						equipmgr->EquipObject(a_actor, item, xList, 1, nullptr, false, false, false);
 					}
 				}
 			}
@@ -220,9 +220,7 @@ namespace GTS {
 
 		if (!a_actor) return;
 
-		auto& Settings = Config::Gameplay;
-
-		if (!Settings.bClothTearing || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return;
+		if (!Config::Gameplay.bClothTearing || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return;
 
 		static Timer timer = Timer(1.2);
 		if (!timer.ShouldRunFrame()) return;
@@ -239,8 +237,8 @@ namespace GTS {
 			return;
 		}
 
-		const float rip_threshold = Settings.fClothRipStart;
-		const float rip_tooBig = Settings.fClothRipThreshold;
+		const float rip_threshold = Config::Gameplay.fClothRipStart;
+		const float rip_tooBig = Config::Gameplay.fClothRipThreshold;
 
 		if (CurrentScale < rip_threshold) {
 			//If Smaller than rip_Threshold but offset was > 0 means we shrunk back down, so reset the offset
@@ -285,14 +283,12 @@ namespace GTS {
 		//If anthing is invallid let the native code handle it.
 		if (!a_actor || !a_object) return false;
 
-		auto& Settings = Config::Gameplay;
-
 		//Cached offset instead of getting the variable directly. 
 		//The Check can get spammed by the Equip hook when a lot of actors are around.
 		//If clothing rip is disabled or is not a follower, allow re-equip
-		if (!Settings.bClothTearing || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return false;
+		if (!Config::Gameplay.bClothTearing || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return false;
 
-		const float rip_threshold = Settings.fClothRipStart;
+		const float rip_threshold = Config::Gameplay.fClothRipStart;
 
 		//if smaller than rip_threhsold or target actor is the player allow re-equip
 		if (get_visual_scale(a_actor) < rip_threshold || a_actor->formID == 0x14) {

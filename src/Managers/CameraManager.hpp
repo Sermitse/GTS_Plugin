@@ -19,8 +19,9 @@ namespace GTS {
 		public:
 		virtual std::string DebugName() override;
 		virtual void DataReady() override;
-		virtual void Start() override;
 		virtual void CameraUpdate() override;
+		void Reset() override;
+		void Update() override;
 
 		CameraState* GetCameraState();
 
@@ -29,8 +30,7 @@ namespace GTS {
 
 		void AdjustLeftRight(float amt);
 		void ResetLeftRight();
-
-		void Reset() override;
+		static void ComputeAndApplyFinalCameraTransforms(float a_ActorScale, NiPoint3 a_CameraLocalOffset, NiPoint3 a_ActorLocalOffset);
 
 		private:
 		CameraState* GetCameraStateTP();

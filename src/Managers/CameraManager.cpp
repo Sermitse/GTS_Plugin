@@ -6,9 +6,12 @@
 
 #include "Config/Config.hpp"
 
+#include "Systems/Rays/raycast.hpp"
+
 using namespace GTS;
 
 namespace {
+
 	void HorizontalResetEvent(const ManagedInputEvent& data) {
 		auto& camera = CameraManager::GetSingleton();
 		camera.ResetLeftRight();
@@ -84,8 +87,6 @@ namespace GTS {
 		InputManager::RegisterInputEvent("SwitchCameraMode", SwitchCameraMode, AutoCamEnabledCondition);
 
 	}
-
-	void CameraManager::Start() {}
 
 	void CameraManager::CameraUpdate() {
 
@@ -188,7 +189,7 @@ namespace GTS {
 
 			// Apply camera scale and offset
 			if (CurrentState->PermitCameraTransforms()) {
-				UpdateCamera(this->SpringSmoothScale.value, offset, playerLocalOffset);
+				ComputeAndApplyFinalCameraTransforms(this->SpringSmoothScale.value, offset, playerLocalOffset);
 			}
 		}
 	}
@@ -339,5 +340,65 @@ namespace GTS {
 		TransitionState.reset(nullptr);
 
 		logger::info("CameraManager Reset");
+	}
+
+	void CameraManager::ComputeAndApplyFinalCameraTransforms(float a_ActorScale, NiPoint3 a_CameraLocalOffset, NiPoint3 a_ActorLocalOffset) {
+		static PlayerCamera* const PlayerCamera = PlayerCamera::GetSingleton();
+		NiPointer<NiNode>& CameraRoot = PlayerCamera->cameraRoot;
+		Actor* const CameraTargetActor = GetCameraActor();
+		BSTSmartPointer<TESCameraState>& CurrentCameraState = PlayerCamera->currentState;
+
+		if (CameraRoot && CurrentCameraState && CameraTargetActor) {
+			NiTransform CameraWorldTransform = GetCameraWorldTransform();
+			NiPoint3 CameraTranslation;
+			CurrentCameraState->GetTranslation(CameraTranslation);
+
+			if (a_ActorScale > 1e-4) {
+				NiAVObject* Actor3D = CameraTargetActor->Get3D(false);
+				if (Actor3D) {
+					NiTransform ActorTransform = Actor3D->world;
+					ActorTransform.scale = Actor3D->parent ? Actor3D->parent->world.scale : 1.0f;
+					NiTransform InverseTransform = ActorTransform.Invert();
+
+					// Standard transform calculations
+					NiTransform ActorAdjustments = NiTransform();
+					ActorAdjustments.scale = a_ActorScale;
+					ActorAdjustments.translate = a_ActorLocalOffset;
+					NiPoint3 TargetLocationWorld = ActorTransform * (ActorAdjustments * (InverseTransform * CameraTranslation));
+					CameraWorldTransform.translate = TargetLocationWorld;
+
+					NiTransform CameraAdjustments = NiTransform();
+					CameraAdjustments.translate = a_CameraLocalOffset * a_ActorScale;
+					NiPoint3 WorldShifted = CameraWorldTransform * CameraAdjustments * NiPoint3();
+					NiNode* CameraRootParent = CameraRoot->parent;
+					NiTransform InvertedRootTransform = CameraRootParent->world.Invert();
+
+					const NiPoint3 LocalSpacePosition = InvertedRootTransform * WorldShifted;
+					NiPoint3 RayCastHitPosition = LocalSpacePosition;
+
+					// Collision handling
+					NiPoint3 RayStart = GetAggregateBoneTarget(CameraTargetActor);
+					if (RayStart != NiPoint3()) {
+						RayCastHitPosition = ComputeRaycast(RayStart, LocalSpacePosition);
+
+						//If less than frustrum it means the camera is stuck to the raycast origin bone.
+						//"Revert" the colision position if this happens. Effectively disabling camera colision in this case.
+						if (abs(RayCastHitPosition.GetDistance(RayStart)) <= GetFrustrumNearDistance() + 1e-2) {
+							RayCastHitPosition = LocalSpacePosition;
+						}
+
+					}
+
+					// Apply final transformations
+					SetCameraNearFarPlanes(a_ActorScale);
+					UpdatePlayerCamera(RayCastHitPosition);
+					UpdateNiCamera(RayCastHitPosition);
+				}
+			}
+		}
+	}
+
+	void CameraManager::Update() {
+		EnforceCameraINISettings();
 	}
 }

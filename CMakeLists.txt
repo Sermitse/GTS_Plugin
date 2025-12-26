@@ -110,6 +110,7 @@ find_package(toml11 CONFIG REQUIRED)
 find_package(lunasvg CONFIG REQUIRED)
 find_package(tbb CONFIG REQUIRED)
 find_package(absl CONFIG REQUIRED)
+find_package(re2 CONFIG REQUIRED)
 
 # #######################################################################################################################
 # # Non-CLib Includes
@@ -136,7 +137,9 @@ target_link_libraries(
 	lz4::lz4
     lunasvg::lunasvg
     TBB::tbb
+	absl::base
 	absl::flat_hash_map
+	re2::re2
 	cmake_git_version_tracking
 )
 

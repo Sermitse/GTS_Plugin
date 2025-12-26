@@ -268,8 +268,8 @@ namespace GTS {
 						}
 					} 
 					// Do smth
-					if (currentnode->name.c_str() == node_name) {
-						log::info("Found bone: {}", node_name);
+					if (currentnode->name == node_name) {
+						log::trace("Found bone: {}", node_name);
 						return currentnode;
 					}
 
@@ -338,7 +338,7 @@ namespace GTS {
 						}
 					}
 					// Do smth
-					if (currentnode->name.c_str() == node_name) {
+					if (currentnode->name == node_name) {
 						return currentnode;
 					} else if (counter > loop_threshold) {
 						queue.clear();
@@ -367,19 +367,19 @@ namespace GTS {
 		return nullptr;
 	}
 
-	NiAVObject* find_node_regex(Actor* actor, std::string_view node_regex, bool first_person) {
-
+	NiAVObject* find_node_regex(Actor* actor, const std::string& node_regex, bool first_person)
+	{
 		if (!actor->Is3DLoaded()) {
 			return nullptr;
 		}
+
 		auto model = actor->Get3D(first_person);
 		if (!model) {
 			return nullptr;
 		}
 
-		std::regex the_regex(std::string(node_regex).c_str());
+		const re2::RE2 the_regex(node_regex);
 
-		// Game lookup failed we try and find it manually
 		std::deque<NiAVObject*> queue;
 		queue.push_back(model);
 
@@ -389,47 +389,25 @@ namespace GTS {
 			auto currentnode = queue.front();
 			queue.pop_front();
 
-			counter += 1;
+			++counter;
 
-			try {
-				if (currentnode) {
-					auto ninode = currentnode->AsNode();
-					if (ninode) {
-						for (auto &child : ninode->GetChildren()) {
-							// Bredth first search
-							if (child) {
-								queue.push_back(child.get());
-							}
-							// Depth first search
-							//queue.push_front(child.get());
-						}
-					}
+			if (!currentnode) {
+				continue;
+			}
 
-					// Do smth
-					if (std::regex_match(currentnode->name.c_str(), the_regex)) {
-						return currentnode;
-					}
-
-					if (counter > loop_threshold) {
-						queue.clear();
-						return nullptr;
+			if (const auto ninode = currentnode->AsNode()) {
+				for (auto& child : ninode->GetChildren()) {
+					if (child) {
+						queue.push_back(child.get());
 					}
 				}
 			}
-			catch (const std::overflow_error& e) {
-				log::warn("Overflow: {}", e.what());
-				return nullptr;
-			} // this executes if f() throws std::overflow_error (same type rule)
-			catch (const std::runtime_error& e) {
-				log::warn("Underflow: {}", e.what());
-				return nullptr;
-			} // this executes if f() throws std::underflow_error (base class rule)
-			catch (const std::exception& e) {
-				log::warn("Exception: {}", e.what());
-				return nullptr;
-			} // this executes if f() throws std::logic_error (base class rule)
-			catch (...) {
-				log::warn("Exception Other");
+			
+			if (RE2::FullMatch(std::string(currentnode->name), the_regex)) {
+				return currentnode;
+			}
+
+			if (counter > loop_threshold) {
 				return nullptr;
 			}
 		}
@@ -448,7 +426,7 @@ namespace GTS {
 		return result;
 	}
 
-	NiAVObject* find_node_regex_any(Actor* actor, std::string_view node_regex) {
+	NiAVObject* find_node_regex_any(Actor* actor, const std::string& node_regex) {
 		NiAVObject* result = nullptr;
 		for (auto person: {false, true}) {
 			result = find_node_regex(actor, node_regex, person);

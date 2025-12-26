@@ -15,7 +15,10 @@ namespace GTS {
 	void UpdateRenderManager(NiPoint3 camLoc);
 	void UpdateNiCamera(NiPoint3 camLoc);
 	void UpdatePlayerCamera(NiPoint3 camLoc);
-	void UpdateCamera(float a_ActorScale, NiPoint3 a_CameraLocalOffset, NiPoint3 a_ActorLocalOffset);
+	void EnforceCameraINISettings();
+	NiTransform GetCameraWorldTransform();
+	NiPoint3 GetAggregateBoneTarget(RE::Actor* a_actor);
+	void SetCameraNearFarPlanes(float a_ActorScale);
 
 	BoneTarget GetBoneTargets(CameraTracking Camera_Anim, LCameraTrackBone_t Camera_MCM);
 

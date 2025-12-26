@@ -44,28 +44,17 @@ namespace {
 		}
 	}
 
-	void UpdateCameraINIs() {
-
-		auto& CamSettings = Config::Camera;
-
-		if (!CamSettings.bEnableSkyrimCameraAdjustments) return;
-
-		*Hooks::Camera::fVanityModeMinDist = CamSettings.fCameraDistMin;
-		*Hooks::Camera::fVanityModeMaxDist = CamSettings.fCameraDistMax;
-		*Hooks::Camera::fMouseWheelZoomIncrement = CamSettings.fCameraIncrement;
-		*Hooks::Camera::fMouseWheelZoomSpeed = CamSettings.fCameraZoomSpeed;
-
-	}
-
 	void Foot_PerformIdleEffects_Main(Actor* actor) {
 		if (actor) {
 			if (GetBusyFoot(actor) != BusyFoot::RightFoot) { // These are needed to get rid of annoying pushing away during stomps, Does Right Leg Idle Damage Over Time
 				float FootDamage = std::clamp(Get_Bone_Movement_Speed(actor, NodeMovementType::Movement_RightLeg), 0.0f, 1.0f);
-				CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * FootDamage * TimeScale(), Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleR, true, false, false, false);
+				CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * FootDamage * TimeScale(), 
+					Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleR, true, false, false, false);
 			} 
 			if (GetBusyFoot(actor) != BusyFoot::LeftFoot) { // Does Left Leg Idle Damage Over Time
 				float FootDamage = std::clamp(Get_Bone_Movement_Speed(actor, NodeMovementType::Movement_LeftLeg), 0.0f, 1.0f);
-				CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * FootDamage * TimeScale(), Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleL, false, false, false, false);
+				CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * FootDamage * TimeScale(), 
+					Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleL, false, false, false, false);
 			}
 		}
 	}
@@ -74,10 +63,12 @@ namespace {
 		if (actor && Config::General.bAllActorSizeEffects) {
 			if (actor->formID != 0x14 && !IsTeammate(actor)) {
 				if (GetBusyFoot(actor) != BusyFoot::RightFoot) {
-					CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleR, true, false, false, false);
+					CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), 
+						Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleR, true, false, false, false);
 				}
 				if (GetBusyFoot(actor) != BusyFoot::LeftFoot) {
-					CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleL, false, false, false, false);
+					CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), 
+						Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleL, false, false, false, false);
 				}
 			}
 		}
@@ -392,7 +383,6 @@ void GTSManager::Update() {
 	UpdateInterractionDistance(); // Player exclusive
 	ShiftAudioFrequency();
 	ManageActorControl();
-	UpdateCameraINIs();
 	ApplyTalkToActor();
 	UpdateFalling();              // Update player size damage when falling down
 	CheckTalkPerk();
@@ -401,7 +391,7 @@ void GTSManager::Update() {
 	const auto& ActorList = find_actors();
 
 #ifdef GTS_PROFILER_ENABLED
-	GtsManager::LoadedActorCount = static_cast<uint32_t>(ActorList.size());
+	GTSManager::LoadedActorCount = static_cast<uint32_t>(ActorList.size());
 #endif
 
 	for (auto actor : ActorList) {
@@ -448,7 +438,7 @@ void GTSManager::reapply(bool force) {
 
 	GTS_PROFILE_SCOPE("GTSManager: ReApply");
 
-	for (auto actor: find_actors()) {
+	for (auto& actor: find_actors()) {
 		if (actor) {
 		   	if (actor->Is3DLoaded()) {
 				reapply_actor(actor, force);

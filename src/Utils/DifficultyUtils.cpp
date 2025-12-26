@@ -4,7 +4,7 @@ using namespace GTS;
 
 namespace {
 
-    const std::vector<const char*> Difficulty_ByPC{
+    constexpr std::array<const char* const, 6> Difficulty_ByPC {
         "fDiffMultHPByPCVE",
         "fDiffMultHPByPCE",
         "fDiffMultHPByPCN",
@@ -13,7 +13,7 @@ namespace {
         "fDiffMultHPByPCL"
     };
 
-    const std::vector<const char*> Difficulty_ToPC{
+    constexpr std::array<const char* const, 6> Difficulty_ToPC {
         "fDiffMultHPToPCVE",
         "fDiffMultHPToPCE",
         "fDiffMultHPToPCN",

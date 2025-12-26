@@ -224,6 +224,7 @@ namespace {
 		}
 	}
 }
+
 namespace GTS {
 
 	void ImpactManager::HookProcessEvent(BGSImpactManager* impact, const BGSFootstepEvent* a_event, BSTEventSource<BGSFootstepEvent>* a_eventSource) {

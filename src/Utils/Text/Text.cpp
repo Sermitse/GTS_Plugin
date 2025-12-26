@@ -22,9 +22,12 @@ namespace GTS {
 		return arg.compare(0, prefix.size(), prefix);
 	}
 
-	bool matches(std::string_view str, std::string_view reg) {
-		std::regex the_regex(std::string(reg).c_str());
-		return std::regex_match(std::string(str), the_regex);
+	bool matches(std::string_view str, std::string_view reg){
+		re2::StringPiece text(str.data(), str.size());
+		re2::StringPiece pattern(reg.data(), reg.size());
+
+		const re2::RE2 re(pattern);
+		return RE2::FullMatch(text, re);
 	}
 
 	std::string str_tolower(std::string s) {

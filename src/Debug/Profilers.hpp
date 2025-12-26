@@ -2,6 +2,7 @@
 #include "Debug/Profiler/EntrypointProfilerHandle.hpp"
 #include "Debug/Profiler/Profiler.hpp"
 #include "Debug/Profiler/ProfilerHandle.hpp"
+#include "Utils/Misc/Singleton.hpp"
 
 #ifdef GTS_PROFILER_ENABLED
 

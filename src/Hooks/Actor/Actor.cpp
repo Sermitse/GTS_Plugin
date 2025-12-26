@@ -175,9 +175,14 @@ namespace Hooks {
 		stl::write_vfunc_unique<Load3D, 1>(VTABLE_Character[0]);
 		stl::write_vfunc_unique<Load3D, 2>(VTABLE_PlayerCharacter[0]);
 
+		PatchFollowMoveSpeed();
+	}
+
+	void Hook_Actor::PatchFollowMoveSpeed() {
+
 		logger::info("Installing AI Procedure SpeedClamp Hooks");
 		/*
-		 
+
 			The speed clamp fix is made out of 2 parts.
 			one is detouring what appears to be an actorstate member subroutine that is only used by The BGSProcedure* system.
 			I think its just the GetMaxspeed Function.
@@ -187,7 +192,7 @@ namespace Hooks {
 			This distance check is only relevant when the vanilla ai follow package runs.
 			NFF has a custom follow package that is actually made out of 3 state where each state has its own distance check and prefferered movement speed set as an oveeride.
 			The too far check happens right after the call to the GetMaxSpeed function. Its easier to just nop out this check than to inject an xbyak block with extra logic.
-		 
+
 			//1.6.1170
 
 			14046a1a2 c6 85 78        MOV        byte ptr [RBP + TooFar],0x1
@@ -218,7 +223,7 @@ namespace Hooks {
 			uintptr_t address = REL::Relocation<std::uintptr_t>(REL::ID(28644), REL::Offset(0x1292)).address();
 			pattern_AE.match_or_fail(address);
 			REL::safe_fill(address, 0x90, 16);
-			
+
 		}
 		else if (REL::Module::IsSE()) {
 			uintptr_t address = REL::Relocation<std::uintptr_t>(REL::ID(27911), REL::Offset(0x1522)).address();

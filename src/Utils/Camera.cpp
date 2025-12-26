@@ -3,11 +3,11 @@
 namespace GTS {
 
 	void shake_camera_script(TESObjectREFR* actor, float intensity, float duration) { // TESObjectREFR*
-		CallFunction("Game", "ShakeCamera", actor, intensity, duration);
+		CallVMFunction("Game", "ShakeCamera", actor, intensity, duration);
 	}
 
 	void shake_camera(Actor* actor, float intensity, float duration) { // TESObjectREFR*
-		//CallFunction("Game", "ShakeCamera", actor, intensity, duration);
+		//CallVMFunction("Game", "ShakeCamera", actor, intensity, duration);
 		auto node = find_node(actor, "NPC COM [COM ]");
 		if (node) {
 			NiPoint3 position = node->world.translate;
@@ -28,11 +28,11 @@ namespace GTS {
 	}
 
 	void TriggerScreenBlood(int aiValue) {
-		CallFunction("Game", "TriggerScreenBlood", aiValue);
+		CallVMFunction("Game", "TriggerScreenBlood", aiValue);
 	}
 
 	void shake_controller(float left_intensity, float right_intensity, float duration) {
-		CallFunction("Game", "ShakeController", left_intensity, right_intensity, duration);
+		CallVMFunction("Game", "ShakeController", left_intensity, right_intensity, duration);
 	}
 
 	float get_distance_to_camera(const NiPoint3& point) {

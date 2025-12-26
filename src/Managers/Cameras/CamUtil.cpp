@@ -129,7 +129,7 @@ namespace {
 		return BoneTarget();
 	}
 
-	const BoneTarget GetBoneTargetFromSettings(LCameraTrackBone_t a_CamSetting) {
+	BoneTarget GetBoneTargetFromSettings(LCameraTrackBone_t a_CamSetting) {
 		if (HasFirstPersonBody()) {
 			return BoneTarget();
 		}
@@ -230,82 +230,6 @@ namespace {
 		return std::pow(ref, t);
 	}
 
-	void SetCameraNearFarPlanes(float a_ActorScale)
-	{
-		if (!Config::Camera.bEnableAutoFNearDist &&
-			!Config::Camera.bEnableAutoFFarDist) {
-			return;
-		}
-
-		NiCamera* niCamera = GetNiCamera();
-		if (!niCamera) {
-			return;
-		}
-
-		auto& rt = niCamera->GetRuntimeData2();
-		auto& fr = rt.viewFrustum;
-
-		if (fr.fNear <= 0.0f) {
-			fr.fNear = rt.minNearPlaneDist;
-		}
-
-		// ---------------- Far plane ----------------
-		constexpr float BaseFar = 353840.0f;
-		constexpr float MinScale = 0.10f;
-		constexpr float MaxScale = 50000.0f;
-		constexpr float MinMul = 0.1f;
-		constexpr float MaxMul = 100.0f;
-
-		float farPlane = fr.fFar;
-
-		if (Config::Camera.bEnableAutoFFarDist) {
-			const float clampedScale = std::clamp(a_ActorScale, MinScale, MaxScale);
-
-			const float logMin = std::log(MinScale);
-			const float logMax = std::log(MaxScale);
-			const float t = (std::log(clampedScale) - logMin) / (logMax - logMin);
-
-			const float eased = EaseInOutSmoothstep(t);
-			const float farMul = std::lerp(MinMul, MaxMul, eased);
-
-			farPlane = BaseFar * farMul;
-			fr.fFar = farPlane;
-		}
-
-		// ---------------- Near plane ----------------
-		float nearPlane = fr.fNear;
-
-		if (Config::Camera.bEnableAutoFNearDist) {
-			if (a_ActorScale <= 1.0f) {
-				nearPlane = CalcNearFromScale(a_ActorScale);
-			}
-			else if (a_ActorScale >= 50.0f) {
-				// Counteract far-plane growth at large scales
-				constexpr float NearStartScale = 50.0f;
-				constexpr float NearMaxScale = 50000.0f;
-				constexpr float NearMulMin = 1.0f;
-				constexpr float NearMulMax = 200.0f;
-
-				const float clamped = std::clamp(a_ActorScale, NearStartScale, NearMaxScale);
-				const float logMin = std::log(NearStartScale);
-				const float logMax = std::log(NearMaxScale);
-				const float t = (std::log(clamped) - logMin) / (logMax - logMin);
-
-				const float eased = EaseInOutSmoothstep(t);
-				const float nearMul = std::lerp(NearMulMin, NearMulMax, eased);
-
-				nearPlane = rt.minNearPlaneDist * nearMul;
-			}
-
-			fr.fNear = nearPlane;
-		}
-
-		// ---------------- Ratio enforcement ----------------
-		const float requiredRatio = fr.fFar / fr.fNear;
-		if (rt.maxFarNearRatio < requiredRatio) {
-			rt.maxFarNearRatio = requiredRatio;
-		}
-	}
 }
 
 namespace GTS {
@@ -396,7 +320,7 @@ namespace GTS {
 		}
 	}
 
-	static NiTransform GetCameraWorldTransform() {
+	NiTransform GetCameraWorldTransform() {
 		auto camera = PlayerCamera::GetSingleton();
 		if (camera) {
 			auto& cameraRoot = camera->cameraRoot;
@@ -578,7 +502,7 @@ namespace GTS {
 		return cameraRotMat * zoomOffsetVec + cameraTrans;
 	}
 
-	static NiPoint3 GetAggregateBoneTarget(RE::Actor* a_actor) {
+	NiPoint3 GetAggregateBoneTarget(RE::Actor* a_actor) {
 
 		if (CameraState* CurrentState = CameraManager::GetSingleton().GetCameraState()) {
 			if (auto TPState = dynamic_cast<ThirdPersonCameraState*>(CurrentState)){
@@ -637,60 +561,94 @@ namespace GTS {
 		return 15.0f;
 	}
 
-	void UpdateCamera(float a_ActorScale, NiPoint3 a_CameraLocalOffset, NiPoint3 a_ActorLocalOffset) {
-		PlayerCamera* PlayerCamera = PlayerCamera::GetSingleton();
-		NiPointer<NiNode>& CameraRoot = PlayerCamera->cameraRoot;
-		Actor* CameraTargetActor = GetCameraActor();
-		BSTSmartPointer<TESCameraState>& CurrentCameraState = PlayerCamera->currentState;
+	void EnforceCameraINISettings() {
 
-		if (CameraRoot && CurrentCameraState && CameraTargetActor) {
-			NiTransform CameraWorldTransform = GetCameraWorldTransform();
-			NiPoint3 CameraTranslation;
-			CurrentCameraState->GetTranslation(CameraTranslation);
+		if (!Config::Camera.bEnableSkyrimCameraAdjustments){
+			return;
+		}
 
-			if (a_ActorScale > 1e-4) {
-				NiAVObject* Actor3D = CameraTargetActor->Get3D(false);
-				if (Actor3D) {
-					NiTransform ActorTransform = Actor3D->world;
-					ActorTransform.scale = Actor3D->parent ? Actor3D->parent->world.scale : 1.0f;
-					NiTransform InverseTransform = ActorTransform.Invert();
+		*Hooks::Camera::fVanityModeMinDist       = Config::Camera.fCameraDistMin;
+		*Hooks::Camera::fVanityModeMaxDist       = Config::Camera.fCameraDistMax;
+		*Hooks::Camera::fMouseWheelZoomIncrement = Config::Camera.fCameraIncrement;
+		*Hooks::Camera::fMouseWheelZoomSpeed     = Config::Camera.fCameraZoomSpeed;
 
-					// Standard transform calculations
-					NiTransform ActorAdjustments = NiTransform();
-					ActorAdjustments.scale = a_ActorScale;
-					ActorAdjustments.translate = a_ActorLocalOffset;
-					NiPoint3 TargetLocationWorld = ActorTransform * (ActorAdjustments * (InverseTransform * CameraTranslation));
-					CameraWorldTransform.translate = TargetLocationWorld;
+	}
 
-					NiTransform CameraAdjustments = NiTransform();
-					CameraAdjustments.translate = a_CameraLocalOffset * a_ActorScale;
-					NiPoint3 WorldShifted = CameraWorldTransform * CameraAdjustments * NiPoint3();
-					NiNode* CameraRootParent = CameraRoot->parent;
-					NiTransform InvertedRootTransform = CameraRootParent->world.Invert();
+	void SetCameraNearFarPlanes(float a_ActorScale) {
 
-					const NiPoint3 LocalSpacePosition = InvertedRootTransform * WorldShifted;
-					NiPoint3 RayCastHitPosition = LocalSpacePosition;
+		if (!Config::Camera.bEnableAutoFNearDist && !Config::Camera.bEnableAutoFFarDist) {
+			return;
+		}
 
-					// Collision handling
-					NiPoint3 RayStart = GetAggregateBoneTarget(CameraTargetActor);
-					if (RayStart != NiPoint3()) {
-						RayCastHitPosition = ComputeRaycast(RayStart, LocalSpacePosition);
+		NiCamera* niCamera = GetNiCamera();
+		if (!niCamera) {
+			return;
+		}
 
-						//If less than frustrum it means the camera is stuck to the raycast origin bone.
-						//"Revert" the colision position if this happens. Effectively disabling camera colision in this case.
-						if (abs(RayCastHitPosition.GetDistance(RayStart)) <= GetFrustrumNearDistance() + 1e-2) {
-							RayCastHitPosition = LocalSpacePosition;
-						}
+		auto& rt = niCamera->GetRuntimeData2();
+		auto& fr = rt.viewFrustum;
 
-					}
+		if (fr.fNear <= 0.0f) {
+			fr.fNear = rt.minNearPlaneDist;
+		}
 
-					// Apply final transformations
-					SetCameraNearFarPlanes(a_ActorScale);
-					UpdatePlayerCamera(RayCastHitPosition);
-					UpdateNiCamera(RayCastHitPosition);
+		// ---------------- Far plane ----------------
+		constexpr float BaseFar = 353840.0f;
+		constexpr float MinScale = 0.10f;
+		constexpr float MaxScale = 50000.0f;
+		constexpr float MinMul = 0.1f;
+		constexpr float MaxMul = 100.0f;
 
-				}
+		float farPlane = fr.fFar;
+
+		if (Config::Camera.bEnableAutoFFarDist) {
+			const float clampedScale = std::clamp(a_ActorScale, MinScale, MaxScale);
+
+			const float logMin = std::log(MinScale);
+			const float logMax = std::log(MaxScale);
+			const float t = (std::log(clampedScale) - logMin) / (logMax - logMin);
+
+			const float eased = EaseInOutSmoothstep(t);
+			const float farMul = std::lerp(MinMul, MaxMul, eased);
+
+			farPlane = BaseFar * farMul;
+			fr.fFar = farPlane;
+		}
+
+		// ---------------- Near plane ----------------
+		float nearPlane = fr.fNear;
+
+		if (Config::Camera.bEnableAutoFNearDist) {
+			if (a_ActorScale <= 1.0f) {
+				nearPlane = CalcNearFromScale(a_ActorScale);
 			}
+			else if (a_ActorScale >= 50.0f) {
+				// Counteract far-plane growth at large scales
+				constexpr float NearStartScale = 50.0f;
+				constexpr float NearMaxScale = 50000.0f;
+				constexpr float NearMulMin = 1.0f;
+				constexpr float NearMulMax = 200.0f;
+
+				const float clamped = std::clamp(a_ActorScale, NearStartScale, NearMaxScale);
+				const float logMin = std::log(NearStartScale);
+				const float logMax = std::log(NearMaxScale);
+				const float t = (std::log(clamped) - logMin) / (logMax - logMin);
+
+				const float eased = EaseInOutSmoothstep(t);
+				const float nearMul = std::lerp(NearMulMin, NearMulMax, eased);
+
+				nearPlane = rt.minNearPlaneDist * nearMul;
+			}
+
+			fr.fNear = nearPlane;
+		}
+
+		// ---------------- Ratio enforcement ----------------
+		const float requiredRatio = fr.fFar / fr.fNear;
+		if (rt.maxFarNearRatio < requiredRatio) {
+			rt.maxFarNearRatio = requiredRatio;
 		}
 	}
+
+	
 }

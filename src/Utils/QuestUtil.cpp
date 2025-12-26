@@ -3,22 +3,16 @@
 namespace GTS {
 
 	void SkipProgressionQuest() {
-
-		auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression);
-		if (progressionQuest) {
-			CallFunctionOn(progressionQuest, "GTSProgressionQuest", "Proxy_SkipQuest");
+		if (auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression)) {
+			CallVMFunctionOn(progressionQuest, "GTSProgressionQuest", "Proxy_SkipQuest");
 		}
 	}
 
 	bool ProgressionQuestCompleted() {
-		auto Quest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression);
-
-		if (Quest) {
+		if (auto Quest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression)) {
 			return Quest->GetCurrentStageID() >= 200;
 		}
-
 		return false;
-
 	}
 
 	void GiveAllPerksToPlayer() {
@@ -56,7 +50,7 @@ namespace GTS {
 	void GiveAllShoutsToPlayer() {
 		auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression);
 		if (progressionQuest) {
-			CallFunctionOn(progressionQuest, "GTSProgressionQuest", "Proxy_GetAllShouts");
+			CallVMFunctionOn(progressionQuest, "GTSProgressionQuest", "Proxy_GetAllShouts");
 			Notify("All shouts have been given.");
 		}
 	}
@@ -218,14 +212,14 @@ namespace GTS {
 	// void CallVampire() {
 	// 	auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 	// 	if (progressionQuest) {
-	// 		CallFunctionOn(progressionQuest, "GTSProxy", "Proxy_SatisfyVampire");
+	// 		CallVMFunctionOn(progressionQuest, "GTSProxy", "Proxy_SatisfyVampire");
 	// 	}
 	// }
 	//
 	// void AddCalamityPerk() {
 	// 	auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 	// 	if (progressionQuest) {
-	// 		CallFunctionOn(progressionQuest, "GTSProxy", "Proxy_AddCalamityShout");
+	// 		CallVMFunctionOn(progressionQuest, "GTSProxy", "Proxy_AddCalamityShout");
 	// 	}
 	// }
 	//
@@ -234,7 +228,7 @@ namespace GTS {
 	// void RemoveCalamityPerk() {
 	// 	auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 	// 	if (progressionQuest) {
-	// 		CallFunctionOn(progressionQuest, "GTSProxy", "Proxy_RemoveCalamityShout");
+	// 		CallVMFunctionOn(progressionQuest, "GTSProxy", "Proxy_RemoveCalamityShout");
 	// 	}
 	// }
 }

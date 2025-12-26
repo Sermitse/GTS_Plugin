@@ -12,17 +12,17 @@ namespace {
 
 	void RunScaleTask(const ObjectRefHandle& dropboxHandle, Actor* actor, const double Start, const float Scale, const bool soul, const NiPoint3 TotalPos) {
 
-		std::string taskname = std::format("Dropbox {}", actor->formID); // create task name for main task
+		const std::string taskname = std::format("Dropbox {}", actor->formID); // create task name for main task
 		TaskManager::RunFor(taskname, 16, [=](auto& progressData) { // Spawn loot piles
 			if (!dropboxHandle) {
 				return false;
 			}
-			double Finish = Time::WorldTimeElapsed();
-			auto dropboxPtr = dropboxHandle.get().get();
+			const double Finish = Time::WorldTimeElapsed();
+			const auto dropboxPtr = dropboxHandle.get().get();
 			if (!dropboxPtr->Is3DLoaded()) {
 				return true;
 			}
-			auto dropbox3D = dropboxPtr->GetCurrent3D();
+			const auto dropbox3D = dropboxPtr->GetCurrent3D();
 			if (!dropbox3D) {
 				return true; // Retry next frame
 			} else {
@@ -30,8 +30,8 @@ namespace {
 				if (soul) {
 					timepassed *= 1.33; // faster soul scale
 				}
-				auto node = find_object_node(dropboxPtr, "GorePile_Obj");
-				auto trigger = find_object_node(dropboxPtr, "Trigger_Obj");
+				const auto node = find_object_node(dropboxPtr, "GorePile_Obj");
+				const auto trigger = find_object_node(dropboxPtr, "Trigger_Obj");
 				if (node) {
 					node->local.scale = (Scale * 0.33f) + static_cast<float>(timepassed*0.18);
 					if (!soul) {
@@ -84,7 +84,7 @@ namespace GTS {
 		ray_start.z += 40.0f; // overrize .z with giant .z + 40, so ray starts from above
 		NiPoint3 ray_direction(0.0f, 0.0f, -1.0f);
 
-		float ray_length = 40000;
+		constexpr float ray_length = 40000.f;
 
 		NiPoint3 pos = NiPoint3(0, 0, 0); // default pos
 		NiPoint3 endpos = CastRayStatics(tiny, ray_start, ray_direction, ray_length, success_first);

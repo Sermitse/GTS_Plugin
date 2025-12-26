@@ -1312,19 +1312,19 @@ namespace GTS {
 	}
 
 	void SetRestrained(Actor* actor) {
-		CallFunctionOn(actor, "Actor", "SetRestrained", true);
+		CallVMFunctionOn(actor, "Actor", "SetRestrained", true);
 	}
 
 	void SetUnRestrained(Actor* actor) {
-		CallFunctionOn(actor, "Actor", "SetRestrained", false);
+		CallVMFunctionOn(actor, "Actor", "SetRestrained", false);
 	}
 
 	void SetDontMove(Actor* actor) {
-		CallFunctionOn(actor, "Actor", "SetDontMove", true);
+		CallVMFunctionOn(actor, "Actor", "SetDontMove", true);
 	}
 
 	void SetMove(Actor* actor) {
-		CallFunctionOn(actor, "Actor", "SetDontMove", true);
+		CallVMFunctionOn(actor, "Actor", "SetDontMove", true);
 	}
 
 	void ForceRagdoll(Actor* actor, bool forceOn) {
@@ -1430,7 +1430,7 @@ namespace GTS {
 	}
 
 	void KnockAreaEffect(TESObjectREFR* source, float afMagnitude, float afRadius) {
-		CallFunctionOn(source, "ObjectReference", "KnockAreaEffect", afMagnitude, afRadius);
+		CallVMFunctionOn(source, "ObjectReference", "KnockAreaEffect", afMagnitude, afRadius);
 	}
 	
 	void ApplyManualHavokImpulse(Actor* target, float afX, float afY, float afZ, float Multiplier) {
@@ -1976,7 +1976,7 @@ namespace GTS {
 		}
 
 		if (ProxyQuest) {
-			CallFunctionOn(ProxyQuest, "GTSProxy", "Proxy_DevourmentForceSwallow", a_Pred, a_Prey, DoEndo);
+			CallVMFunctionOn(ProxyQuest, "GTSProxy", "Proxy_DevourmentForceSwallow", a_Pred, a_Prey, DoEndo);
 		}
 	}
 
@@ -2011,14 +2011,14 @@ namespace GTS {
 	void CallVampire() {
 		auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 		if (progressionQuest) {
-			CallFunctionOn(progressionQuest, "GTSProxy", "Proxy_SatisfyVampire");
+			CallVMFunctionOn(progressionQuest, "GTSProxy", "Proxy_SatisfyVampire");
 		}
 	}
 
 	void AddCalamityPerk() {
 		auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 		if (progressionQuest) {
-			CallFunctionOn(progressionQuest, "GTSProxy", "Proxy_AddCalamityShout");
+			CallVMFunctionOn(progressionQuest, "GTSProxy", "Proxy_AddCalamityShout");
 		}
 	}
 
@@ -2027,7 +2027,7 @@ namespace GTS {
 	void RemoveCalamityPerk() {
 		auto progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProxy);
 		if (progressionQuest) {
-			CallFunctionOn(progressionQuest, "GTSProxy", "Proxy_RemoveCalamityShout");
+			CallVMFunctionOn(progressionQuest, "GTSProxy", "Proxy_RemoveCalamityShout");
 		}
 	}
 
