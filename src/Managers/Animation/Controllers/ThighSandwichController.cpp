@@ -165,7 +165,7 @@ namespace GTS {
 				}
 
 				float tinyScale = get_visual_scale(tiny);
-				float sizedifference = GetSizeDifference(GiantRef, tiny, SizeType::VisualScale, true, false);
+				float sizedifference = get_scale_difference(GiantRef, tiny, SizeType::VisualScale, true, false);
 				float threshold = Action_Sandwich;
 
 				if (GiantRef->IsDead() || sizedifference < threshold || !IsThighSandwiching(GiantRef)) {
@@ -204,7 +204,7 @@ namespace GTS {
 	std::vector<Actor*> ThighSandwichController::GetSandwichTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor
 		auto& sizemanager = SizeManager::GetSingleton();
-		if (!CanPerformAnimation(pred, AnimationCondition::kGrabAndSandwich)) {
+		if (!CanDoActionBasedOnQuestProgress(pred, QuestAnimationType::kGrabAndSandwich)) {
 			return {};
 		}
 		if (IsGtsBusy(pred)) {
@@ -298,7 +298,7 @@ namespace GTS {
 
 		float pred_scale = get_visual_scale(pred);
 
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, true, false);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, true, false);
 
 		float MINIMUM_SANDWICH_SCALE = Action_Sandwich;
 
@@ -343,7 +343,7 @@ namespace GTS {
 			return;
 		}
 		
-		if (GetSizeDifference(pred, prey, SizeType::VisualScale, false, false) < Action_Sandwich) {
+		if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_Sandwich) {
 			ShrinkUntil(pred, prey, 6.0f, 0.20f, true);
 			return;
 		}

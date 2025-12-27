@@ -145,7 +145,7 @@ namespace GTS {
 	
 		float pred_scale = get_visual_scale(pred);
 
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, true, false);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, true, false);
 
 		float MINIMUM_GRAB_SCALE = Action_Grab;
 		float MINIMUM_DISTANCE = MINIMUM_GRAB_DISTANCE;
@@ -192,7 +192,7 @@ namespace GTS {
 			shrinkrate = 0.13f;
 		}
 
-		if (GetSizeDifference(pred, prey, SizeType::VisualScale, false, false) < Action_Grab) {
+		if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_Grab) {
 			ShrinkUntil(pred, prey, 10.2f, shrinkrate, true);
 			return;
 		}

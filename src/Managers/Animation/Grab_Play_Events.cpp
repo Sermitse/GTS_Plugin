@@ -2,6 +2,9 @@
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/Grab_Play_Events.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Grab_Throw.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
@@ -207,7 +210,7 @@ namespace Grab_Fixes {
                     mgr.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
                 }
 
-                TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * GetDamageSetting());
+                TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * Config::Balance.fSizeDamageMult);
 
                 SizeHitEffects::PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
                 InflictSizeDamage(giant, grabbedActor, damage);

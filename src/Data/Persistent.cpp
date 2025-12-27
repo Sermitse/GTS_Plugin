@@ -54,14 +54,7 @@ namespace GTS {
 		}
 	
 		logger::info("Persistent OnGameLoaded OK");
-
 		EventDispatcher::DoSerdePostLoadEvent();
-
-		//TODO Move this out of here when actorutils gets rewritten
-		#ifndef GTS_DISABLE_PLUGIN
-		FixAnimationsAndCamera(); // Call it from ActorUtils, needed to fix Grab anim on save-reload
-		#endif
-
 	}
 
 	void Persistent::OnGameSaved(SerializationInterface* serde) {

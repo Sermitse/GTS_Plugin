@@ -1,6 +1,8 @@
 #include "Utils/Units.hpp"
 #include "Config/Config.hpp"
 
+#include "Managers/HighHeel.hpp"
+
 namespace {
     // The game reports that the height of a slaughterfish is ~0.31861934.
 	// From inspecting the bounding box of the slaughterfish and applying the base actor scales a unit height becomes 22.300568.
@@ -130,4 +132,34 @@ namespace GTS {
 	NiPoint3 MeterToGameUnit(const NiPoint3& meter) {
 		return meter * CONVERSION_FACTOR;
 	}
+
+
+    //Returns Metric KG
+    float GetActorGTSWeight(Actor* giant) {
+
+        if (!giant) {
+            return 1.0f;
+        }
+
+        float HHOffset = HighHeelManager::GetBaseHHOffset(giant)[2] / 100;
+        float Scale = get_visual_scale(giant);
+        const uint8_t SMT = HasSMT(giant) ? 6 : 1;
+        float TotalScale = Scale + (HHOffset * 0.10f * Scale);
+        const float ActorWeight = giant->GetWeight();
+        constexpr float BaseWeight = 60.0f; //KG at 0 weight
+        return BaseWeight * ((1.0f + ActorWeight / 115.f) * static_cast<float>(std::pow(TotalScale, 3))) * SMT;
+    }
+
+    //Returns Metric Meters
+    float GetActorGTSHeight(Actor* giant) {
+
+        if (!giant) {
+            return 1.0f;
+        }
+
+        const float hh = HighHeelManager::GetBaseHHOffset(giant)[2] / 100;
+        const float bb = GetSizeFromBoundingBox(giant);
+        const float scale = get_visual_scale(giant);
+        return Characters_AssumedCharSize * bb * scale + (hh * scale); // meters;
+    }
 }

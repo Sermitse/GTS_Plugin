@@ -21,7 +21,7 @@ using namespace GTS;
 namespace {
 
 	void Prevent_Stagger(Actor* attacker, Actor* receiver) {
-		float sizedifference = GetSizeDifference(receiver, attacker, SizeType::GiantessScale, true, false);
+		float sizedifference = get_scale_difference(receiver, attacker, SizeType::GiantessScale, true, false);
 		receiver->SetGraphVariableFloat("GiantessScale", sizedifference); // Manages Stagger Resistance inside Behaviors.
 		// Prevent stagger anims from playing on GTS, Behaviors read GiantessScale value and disallow stagger if value is > 1.5
 	}
@@ -215,7 +215,7 @@ namespace {
 		const float SizeHunger = 1.0f + Ench_Hunger_GetPower(receiver);
 		const float Gigantism = 1.0f + Ench_Aspect_GetPower(receiver);
 		
-		const float SizeDifference = GetSizeDifference(receiver, attacker, SizeType::VisualScale, true, true);
+		const float SizeDifference = get_scale_difference(receiver, attacker, SizeType::VisualScale, true, true);
 		const float resistance = Potion_GetShrinkResistance(receiver);
 	
 		if (Hit_ShouldGrow(receiver)) { // if has perk. Wins over balance mode if true
@@ -227,7 +227,7 @@ namespace {
 	}
 
 	void ApplyToTinies(Actor* attacker, Actor* receiver, float damage) {
-		float sizedifference = GetSizeDifference(receiver, attacker, SizeType::VisualScale, true, true);
+		float sizedifference = get_scale_difference(receiver, attacker, SizeType::VisualScale, true, true);
 		DropTinyChance(receiver, -damage, sizedifference);
 		TinyAsShield(receiver, -damage);
 	}
@@ -253,7 +253,7 @@ namespace GTS {
 
 				int rng = (RandomInt(0, random));
 				if (rng <= 2) {
-					float sizediff = GetSizeDifference(giant, tiny, SizeType::VisualScale, true, true);
+					float sizediff = get_scale_difference(giant, tiny, SizeType::VisualScale, true, true);
 					if (sizediff < 3.0f) {
 						return;
 					}

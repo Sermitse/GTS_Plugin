@@ -25,7 +25,7 @@ namespace {
 		}
 
 		const float PredScale = get_visual_scale(a_Performer);
-		const float SizeDiff = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, false, true);
+		const float SizeDiff = get_scale_difference(a_Performer, a_Prey, SizeType::VisualScale, false, true);
 		const float MinimumDistance = MINIMUM_THIGH_DISTANCE + HighHeelManager::GetBaseHHOffset(a_Performer).Length();
 		constexpr float MinimumThighCrushScale = Action_AI_ThighCrush;
 		const float PreyDistance = (a_Performer->GetPosition() - a_Prey->GetPosition()).Length();

@@ -9,6 +9,8 @@ namespace GTS {
 		virtual std::string DebugName() override;
 		virtual void Start() override;
 		virtual void Update() override;
+		virtual void OnGameLoaded() override;
+
 
 		//Used for profiling
 		static inline uint32_t LoadedActorCount = 0;

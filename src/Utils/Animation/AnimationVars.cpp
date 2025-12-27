@@ -271,7 +271,7 @@ namespace GTS::AnimationVars {
 		float GetGiantessScale(RE::Actor* a_actor)                         { return GetFloat(a_actor, GraphVars::_GiantessScale); }
 		bool SetGiantessScale(RE::Actor* a_actor, float a_value)           { return SetFloat(a_actor, GraphVars::_GiantessScale, a_value); }
 
-		float GetSizeDifference(RE::Actor* a_actor)                        { return GetFloat(a_actor, GraphVars::_SizeDifference); }
+		float get_scale_difference(RE::Actor* a_actor)                        { return GetFloat(a_actor, GraphVars::_SizeDifference); }
 		bool SetSizeDifference(RE::Actor* a_actor, float a_value)          { return SetFloat(a_actor, GraphVars::_SizeDifference, a_value); }
 
 		float GetPitchOverride(RE::Actor* a_actor)                         { return GetFloat(a_actor, GraphVars::_PitchOverride); }
@@ -495,84 +495,161 @@ namespace GTS::AnimationVars {
 	}
 
 
-
-	// bool Get(RE::Actor* a_actor) {
-	// 	return GetBool(a_actor, GraphVars::);
-	// }
-	//
-	// bool Set(RE::Actor* a_actor, bool a_value) {
-	// 	return SetBool(a_actor, GraphVars::, a_value);
-	// }
-	//
-	// bool Get(RE::Actor* a_actor) {
-	// 	return GetBool(a_actor, GraphVars::);
-	// }
-	//
-	// bool Set(RE::Actor* a_actor, bool a_value) {
-	// 	return SetBool(a_actor, GraphVars::, a_value);
-	// }
-	//
-	// bool Get(RE::Actor* a_actor) {
-	// 	return GetBool(a_actor, GraphVars::);
-	// }
-	//
-	// bool Set(RE::Actor* a_actor, bool a_value) {
-	// 	return SetBool(a_actor, GraphVars::, a_value);
-	// }
-	//
-	// bool Get(RE::Actor* a_actor) {
-	// 	return GetBool(a_actor, GraphVars::);
-	// }
-	//
-	// bool Set(RE::Actor* a_actor, bool a_value) {
-	// 	return SetBool(a_actor, GraphVars::, a_value);
-	// }
-	//
-	// bool Get(RE::Actor* a_actor) {
-	// 	return GetBool(a_actor, GraphVars::);
-	// }
-	//
-	// bool Set(RE::Actor* a_actor, bool a_value) {
-	// 	return SetBool(a_actor, GraphVars::, a_value);
-	// }
-	//
-	// bool Get(RE::Actor* a_actor) {
-	// 	return GetBool(a_actor, GraphVars::);
-	// }
-	//
-	// bool Set(RE::Actor* a_actor, bool a_value) {
-	// 	return SetBool(a_actor, GraphVars::, a_value);
-	// }
-	// bool Get(RE::Actor* a_actor) {
-	// 	return GetBool(a_actor, GraphVars::);
-	// }
-	//
-	// bool Set(RE::Actor* a_actor, bool a_value) {
-	// 	return SetBool(a_actor, GraphVars::, a_value);
-	// }
-	// bool Get(RE::Actor* a_actor) {
-	// 	return GetBool(a_actor, GraphVars::);
-	// }
-	//
-	// bool Set(RE::Actor* a_actor, bool a_value) {
-	// 	return SetBool(a_actor, GraphVars::, a_value);
-	// }
-	// bool Get(RE::Actor* a_actor) {
-	// 	return GetBool(a_actor, GraphVars::);
-	// }
-	//
-	// bool Set(RE::Actor* a_actor, bool a_value) {
-	// 	return SetBool(a_actor, GraphVars::, a_value);
-	// }
 	
 
 
+	// bool Get(RE::Actor* a_actor) {
+	// 	return GetBool(a_actor, GraphVars::);
+	// }
+	//
+	// bool Set(RE::Actor* a_actor, bool a_value) {
+	// 	return SetBool(a_actor, GraphVars::, a_value);
+	// }
+	//
+	// bool Get(RE::Actor* a_actor) {
+	// 	return GetBool(a_actor, GraphVars::);
+	// }
+	//
+	// bool Set(RE::Actor* a_actor, bool a_value) {
+	// 	return SetBool(a_actor, GraphVars::, a_value);
+	// }
+	//
+	// bool Get(RE::Actor* a_actor) {
+	// 	return GetBool(a_actor, GraphVars::);
+	// }
+	//
+	// bool Set(RE::Actor* a_actor, bool a_value) {
+	// 	return SetBool(a_actor, GraphVars::, a_value);
+	// }
+	//
+	// bool Get(RE::Actor* a_actor) {
+	// 	return GetBool(a_actor, GraphVars::);
+	// }
+	//
+	// bool Set(RE::Actor* a_actor, bool a_value) {
+	// 	return SetBool(a_actor, GraphVars::, a_value);
+	// }
+	//
+	// bool Get(RE::Actor* a_actor) {
+	// 	return GetBool(a_actor, GraphVars::);
+	// }
+	//
+	// bool Set(RE::Actor* a_actor, bool a_value) {
+	// 	return SetBool(a_actor, GraphVars::, a_value);
+	// }
+	//
+	// bool Get(RE::Actor* a_actor) {
+	// 	return GetBool(a_actor, GraphVars::);
+	// }
+	//
+	// bool Set(RE::Actor* a_actor, bool a_value) {
+	// 	return SetBool(a_actor, GraphVars::, a_value);
+	// }
+	// bool Get(RE::Actor* a_actor) {
+	// 	return GetBool(a_actor, GraphVars::);
+	// }
+	//
+	// bool Set(RE::Actor* a_actor, bool a_value) {
+	// 	return SetBool(a_actor, GraphVars::, a_value);
+	// }
+	// bool Get(RE::Actor* a_actor) {
+	// 	return GetBool(a_actor, GraphVars::);
+	// }
+	//
+	// bool Set(RE::Actor* a_actor, bool a_value) {
+	// 	return SetBool(a_actor, GraphVars::, a_value);
+	// }
+	// bool Get(RE::Actor* a_actor) {
+	// 	return GetBool(a_actor, GraphVars::);
+	// }
+	//
+	// bool Set(RE::Actor* a_actor, bool a_value) {
+	// 	return SetBool(a_actor, GraphVars::, a_value);
+	// }
 
+}
 
+namespace GTS {
 
+	bool IsHandStomping_L(Actor* actor) { // Returns true when doing Hand Slam attacks during sneak and crawl states
+		bool stomping = false;
+		actor->GetGraphVariableBool("GTS_IsHandStomping", stomping); // When we do either the right or left LIGHT hand slam(Sneak/crawl Stomp)
+		return stomping;
+	}
 
+	bool IsHandStomping_H(Actor* actor) { // Returns true when doing Hand Slam attacks during sneak and crawl states
+		bool stomping = false;
+		actor->GetGraphVariableBool("GTS_IsHandStomping_Strong", stomping); // Enabled when we do either the right or left HEAVY hand slam(Sneak/crawl Stomp)
+		return stomping;
+	}
 
+	bool IsBeingKilledWithMagic(Actor* tiny) { // Returns true when performing Wrathful Calamity animation on someone
+		bool shrinking = false;
+		if (tiny) {
+			tiny->GetGraphVariableBool("GTS_Being_Shrunk", shrinking);
+		}
+		return shrinking;
+	}
 
+	bool IsGrabAttacking(Actor* actor) {
+		bool Attacking = false;
+		actor->GetGraphVariableBool("GTS_IsGrabAttacking", Attacking);
 
+		return Attacking;
+	}
 
+	bool IsStrangling(Actor* giant) { // returns true When performing DOT on someone
+		bool strangling = false;
+		giant->GetGraphVariableBool("GTS_Isboobs_doting", strangling);
+		return strangling;
+	}
+
+	bool IsExitingStrangle(Actor* giant) { // returns true when GTS leaves DOT state through another anim
+		bool leaving = false;
+		giant->GetGraphVariableBool("GTS_Isboobs_leaving", leaving);
+		return leaving;
+	}
+
+	bool IsUnderGrinding(Actor* giant) {
+		bool undergrinding = false;
+		giant->GetGraphVariableBool("GTS_IsUnderGrinding", undergrinding);
+		return undergrinding;
+	}
+
+	bool IsUnderTrampling(Actor* giant) {
+		bool undertrampling = false;
+		giant->GetGraphVariableBool("GTS_IsUnderTrampling", undertrampling);
+		return undertrampling;
+	}
+
+	bool IsInGrabPlayState(Actor* giant) { // Returns true when we enter Play State from Grab (Grab state where we play with tiny)
+		bool InPlayState = false;
+		giant->GetGraphVariableBool("GTS_IsInGrabPlayState", InPlayState);
+		return InPlayState;
+	}
+
+	//Not sure yet when its true, i assume its the same as GTSbusy but only when grab playing
+	bool IsGrabPlaySandwiching(Actor* giant) {
+		bool state = false;
+		giant->GetGraphVariableBool("GTS_IsPlaying", state);
+		return state;
+	}
+
+	bool IsHandCrushing(Actor* giant) {
+		bool state = false;
+		giant->GetGraphVariableBool("GTS_IsHandCrushing", state);
+		return state;
+	}
+
+	bool IsGrabPlayKissing(Actor* giant) {
+		bool state = false;
+		giant->GetGraphVariableBool("GTS_IsKissing", state);
+		return state;
+	}
+
+	bool AnimationsInstalled(Actor* giant) {
+		bool installed = false;
+		return giant->GetGraphVariableBool("GTS_Installed", installed);
+		//return installed;
+	}
 }

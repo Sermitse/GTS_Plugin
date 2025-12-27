@@ -63,7 +63,7 @@ namespace {
 		float shrink_bonus = std::clamp(tiny_size, 0.20f, 1.0f);
 		ShrinkByOverTime(otherActor, stare_threshold * 0.1f, tiny_size * (0.45f / shrink_bonus));
 
-		if (GetSizeDifference(giant, otherActor, SizeType::VisualScale, false, false) >= 0.92f) {
+		if (get_scale_difference(giant, otherActor, SizeType::VisualScale, false, false) >= 0.92f) {
 			StaggerActor_Directional(giant, difference, otherActor);
 		}
 
@@ -124,7 +124,7 @@ namespace {
 											});
 										}
 										if (nodeCollisions > 0) {
-											float difference = GetSizeDifference(giant, otherActor, SizeType::VisualScale, false, false);
+											float difference = get_scale_difference(giant, otherActor, SizeType::VisualScale, false, false);
 											float stare_threshold_s = std::clamp(3.25f * get_visual_scale(otherActor), 0.25f, 6.0f);
 											float tiny_size = get_visual_scale(otherActor);
 

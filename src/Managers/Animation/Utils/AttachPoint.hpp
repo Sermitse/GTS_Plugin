@@ -387,7 +387,7 @@ namespace GTS {
 
 
 		// Manual offsets
-		float difference = GetSizeDifference(giant, tiny, SizeType::GiantessScale, false, false) * 0.15f;
+		float difference = get_scale_difference(giant, tiny, SizeType::GiantessScale, false, false) * 0.15f;
 
 		const auto Offsets = Config::Gameplay.ActionSettings.f2CleavageOffset;
 

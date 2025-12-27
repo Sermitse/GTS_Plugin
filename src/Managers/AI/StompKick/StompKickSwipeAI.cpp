@@ -70,7 +70,7 @@ namespace {
 		}
 
 		const float PredScale = get_visual_scale(a_Pred);
-		const float SizeDiff = GetSizeDifference(a_Pred, a_Prey, SizeType::VisualScale, true, false);
+		const float SizeDiff = get_scale_difference(a_Pred, a_Prey, SizeType::VisualScale, true, false);
 
 		float bonus = 1.0f;
 		if (IsCrawling(a_Pred)) {

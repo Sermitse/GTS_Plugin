@@ -68,7 +68,7 @@ namespace GTS {
 
 			if (a_Tiny) {
 
-				const float SizeDiff = GetSizeDifference(a_Giant, a_Tiny, SizeType::VisualScale, true, false);
+				const float SizeDiff = get_scale_difference(a_Giant, a_Tiny, SizeType::VisualScale, true, false);
 				const float Threshold = 2.5f * (SizeDiff - 2.5f);
 				DisableAttacks_Melee(a_Giant, SizeDiff, Threshold, false);
 				DisableAttacks_Magic(a_Giant, SizeDiff, Threshold, false);

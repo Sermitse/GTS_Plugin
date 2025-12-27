@@ -1,6 +1,9 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Damage/SizeHitEffects.hpp"
 #include "Managers/Damage/TinyCalamity.hpp"
 #include "Managers/Audio/GoreAudio.hpp"
@@ -274,7 +277,7 @@ namespace GTS {
 		
 		bool SMT = HasSMT(giant);
 		auto& sizemanager = SizeManager::GetSingleton();
-		float size_difference = GetSizeDifference(giant, tiny, SizeType::VisualScale, false, true);
+		float size_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, true);
 
 		float size_threshold = 1.25f;
 
@@ -307,7 +310,7 @@ namespace GTS {
 
 				damage_result *= Might;
 
-				TinyCalamity_ShrinkActor(giant, tiny, damage_result * 0.35f * GetDamageSetting());
+				TinyCalamity_ShrinkActor(giant, tiny, damage_result * 0.35f * Config::Balance.fSizeDamageMult);
 
 				if (giant->IsSneaking()) {
 					damage_result *= 0.85f;

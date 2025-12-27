@@ -20,7 +20,7 @@ namespace GTS {
 			return;
 		}
 		if (!IsEssential_WithIcons(caster, target)) {
-			StaggerActor(caster, target, 0.25f * GetSizeDifference(caster, target, SizeType::VisualScale, true, false));
+			StaggerActor(caster, target, 0.25f * get_scale_difference(caster, target, SizeType::VisualScale, true, false));
 			Attacked(target, caster);
 		}
 	}
@@ -44,7 +44,7 @@ namespace GTS {
 			return; // Disallow shrinking Essentials
 		}
 
-		float size_difference = std::clamp(GetSizeDifference(caster, target, SizeType::VisualScale, true, false), 1.0f, 3.0f);
+		float size_difference = std::clamp(get_scale_difference(caster, target, SizeType::VisualScale, true, false), 1.0f, 3.0f);
 
 		if (HasSMT(caster)) {
 			size_difference += SMT_BONUS;

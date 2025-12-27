@@ -15,6 +15,8 @@ namespace GTS {
 		}
 	}
 
+	void NotifyWithSound(Actor* actor, std::string_view message);
+
 	template<typename ... Args>
 	void PrintMessageBox(std::string_view rt_fmt_str, Args&&... args) {
 		try {

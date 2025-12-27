@@ -83,7 +83,7 @@ namespace GTS {
 		}
 		if (target != caster) {
 			if (!IsEssential_WithIcons(caster, target)) {
-				float sizediff = GetSizeDifference(caster, target, SizeType::VisualScale, true, false);
+				float sizediff = get_scale_difference(caster, target, SizeType::VisualScale, true, false);
 				if (this->power >= 18.00f && sizediff > 4.0f) {
 					StaggerActor(caster, target, 100.0f);
 				}

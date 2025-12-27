@@ -49,7 +49,7 @@ namespace GTS {
 				ModSizeExperience(giant, 0.24f * GetXPModifier(tiny)); // Adjust Size Matter skill
 				Attacked(tiny, giant);
 				if (giant->formID == 0x14 && IsDragon(tiny)) {
-					CompleteDragonQuest(tiny, ParticleType::Red, tiny->IsDead());
+					CompleteDragonQuest(tiny, ParticleType::Red);
 				}
 
 				const bool silent = Config::Audio.bMuteShrinkToNothingDeathScreams;

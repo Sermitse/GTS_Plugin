@@ -209,7 +209,7 @@ namespace {
                     mgr.ModSizeVulnerability(tiny, damage * 0.0010f);
                 }
 
-                TinyCalamity_ShrinkActor(giant, tiny, damage * 0.20f * GetDamageSetting());
+                TinyCalamity_ShrinkActor(giant, tiny, damage * 0.20f * Config::Balance.fSizeDamageMult);
 
                 SizeHitEffects::PerformInjuryDebuff(giant, tiny, damage * 0.15f, 6);
                 if (!IsTeammate(tiny) || IsHostile(giant, tiny)) {

@@ -152,7 +152,7 @@ namespace GTS {
     }
 
     bool HandleGrabLogic(Actor* giantref, Actor* tinyref, ActorHandle gianthandle, ActorHandle tinyhandle) {
-        float sizedifference = GetSizeDifference(giantref, tinyref, SizeType::VisualScale, true, false);
+        float sizedifference = get_scale_difference(giantref, tinyref, SizeType::VisualScale, true, false);
 
         ForceRagdoll(tinyref, false); 
 

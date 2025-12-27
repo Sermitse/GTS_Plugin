@@ -50,7 +50,7 @@ namespace {
 		const float PredatorScale = get_visual_scale(a_Performer);
 		// No need to check for BB scale in this case
 
-		float SizeDifference = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, false, true);
+		float SizeDifference = get_scale_difference(a_Performer, a_Prey, SizeType::VisualScale, false, true);
 
 
 		float MinDist = MINIMUM_HUG_DISTANCE;
@@ -110,7 +110,7 @@ namespace {
 
 
 	bool HugAI_CanShrink(Actor* a_Performer, Actor* a_Prey) {
-		const float SizeDiff = GetSizeDifference(a_Performer, a_Prey, SizeType::TargetScale, false, true);
+		const float SizeDiff = get_scale_difference(a_Performer, a_Prey, SizeType::TargetScale, false, true);
 		const bool TooSmall = SizeDiff >= GetHugShrinkThreshold(a_Performer);
 		const bool CanStartShrink = Config::AI.Hugs.fShrinkProb > 0.01f;
 

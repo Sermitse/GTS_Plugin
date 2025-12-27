@@ -107,7 +107,7 @@ namespace GTS {
 
     void Vore_AdvanceQuest(Actor* pred, Actor* tiny, bool WasDragon, bool WasGiant) {
 		if (pred->formID == 0x14 && WasDragon) {
-			CompleteDragonQuest(tiny, ParticleType::Blue, false);
+			CompleteDragonQuest(tiny, ParticleType::Blue);
 			return;
 		}
 		if (WasGiant) {

@@ -25,7 +25,7 @@ namespace Hooks {
 	                float size_difference = 1.0f;
 
 	                if (ActorAsSource) {
-	                    size_difference = GetSizeDifference(a_target, ActorAsSource, SizeType::VisualScale, false, false);
+	                    size_difference = get_scale_difference(a_target, ActorAsSource, SizeType::VisualScale, false, false);
 	                }
 	                //Else source was not an actor, assume 1x scale
 	                else {

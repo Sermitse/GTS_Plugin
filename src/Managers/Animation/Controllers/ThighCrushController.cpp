@@ -109,7 +109,7 @@ namespace GTS {
 		float pred_scale = get_visual_scale(pred);
 		// No need to check for BB scale in this case
 
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, false, true);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, false, true);
 		
 		float MINIMUM_DISTANCE = MINIMUM_THIGH_DISTANCE + HighHeelManager::GetBaseHHOffset(pred).Length();
 		float MINIMUM_THIGHCRUSH_SCALE = Action_AI_ThighCrush;

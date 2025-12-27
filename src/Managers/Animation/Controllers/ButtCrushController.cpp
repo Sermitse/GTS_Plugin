@@ -58,7 +58,7 @@ namespace {
 
 			ForceRagdoll(tinyref, false);
 			float stamina = GetAV(giantref, ActorValue::kStamina);
-			float Difference = std::clamp(GetSizeDifference(giantref, tinyref, SizeType::VisualScale, true, false), 1.0f, 10.0f);
+			float Difference = std::clamp(get_scale_difference(giantref, tinyref, SizeType::VisualScale, true, false), 1.0f, 10.0f);
 
 			
 			DamageAV(giantref, ActorValue::kStamina, 0.04f * GetButtCrushCost(giantref, false));
@@ -157,7 +157,7 @@ namespace GTS {
 	std::vector<Actor*> ButtCrushController::GetButtCrushTargets(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor
 		auto& sizemanager = SizeManager::GetSingleton();
-		if (!CanPerformAnimation(pred, AnimationCondition::kGrabAndSandwich)) {
+		if (!CanDoActionBasedOnQuestProgress(pred, QuestAnimationType::kGrabAndSandwich)) {
 			return {};
 		}
 
@@ -245,7 +245,7 @@ namespace GTS {
 		}
 
 		float pred_scale = get_visual_scale(pred);
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, true, false);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, true, false);
 
 		float MINIMUM_BUTTCRUSH_SCALE = Action_ButtCrush;
 		float MINIMUM_DISTANCE = MINIMUM_BUTTCRUSH_DISTANCE;
@@ -296,7 +296,7 @@ namespace GTS {
 		if (CanDoButtCrush(pred, false) && !IsBeingHeld(pred, prey)) {
 			prey->NotifyAnimationGraph("GTS_EnterFear");
 			
-			if (GetSizeDifference(pred, prey, SizeType::VisualScale, false, false) < Action_ButtCrush) {
+			if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_ButtCrush) {
 				ShrinkUntil(pred, prey, 3.4f, 0.25f, true);
 				return;
 			}

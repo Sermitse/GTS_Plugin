@@ -2,6 +2,17 @@
 
 namespace GTS {
 
+	void NotifyWithSound(Actor* actor, std::string_view message) {
+		if (actor->IsPlayerRef()|| IsTeammate(actor)) {
+			static Timer Cooldown = Timer(1.2);
+			if (Cooldown.ShouldRun()) {
+				const float falloff = 0.13f * get_visual_scale(actor);
+				Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundFail, actor, 0.4f, "NPC COM [COM ]", falloff);
+				Notify(message);
+			}
+		}
+	}
+
 	std::wstring Utf8ToUtf16(std::string_view a_utf8) {
 		if (a_utf8.empty()) return {};
 		int size_needed = MultiByteToWideChar(CP_UTF8, 0, a_utf8.data(), static_cast<int>(a_utf8.size()), nullptr, 0);

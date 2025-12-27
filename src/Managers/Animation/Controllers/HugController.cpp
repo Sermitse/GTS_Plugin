@@ -204,7 +204,7 @@ namespace GTS {
 		float pred_scale = get_visual_scale(pred);
 		// No need to check for BB scale in this case
 
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, false, true);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, false, true);
 		
 
 		float MINIMUM_DISTANCE = MINIMUM_HUG_DISTANCE;
@@ -265,7 +265,7 @@ namespace GTS {
 		}
 
 		if (IsCrawling(pred)) {
-			if (!CanPerformAnimation(PlayerCharacter::GetSingleton(), AnimationCondition::kOthers)) {
+			if (!CanDoActionBasedOnQuestProgress(PlayerCharacter::GetSingleton(), QuestAnimationType::kOthers)) {
 				// Can Crawl Hug only after quest is done
 				if (pred->formID == 0x14) {
 					NotifyWithSound(pred, "You're not experienced enough for Crawl Hugs");

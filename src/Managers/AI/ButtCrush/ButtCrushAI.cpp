@@ -31,7 +31,7 @@ namespace {
 		}
 
 		const float PredScale = get_visual_scale(a_Performer);
-		const float SizeDiff = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
+		const float SizeDiff = get_scale_difference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
 
 		float MINIMUM_BUTTCRUSH_SCALE = Action_ButtCrush;
 		constexpr float MINIMUM_DISTANCE = MINIMUM_BUTTCRUSH_DISTANCE;

@@ -429,6 +429,28 @@ void GTSManager::Update() {
 	}
 }
 
+void GTSManager::OnGameLoaded() {
+
+
+	//Fix Animations And Camera
+	for (auto giant : find_actors()) {
+		if (!giant) {
+			continue;
+		}
+		int StateID;
+		int GTSStateID;
+
+		giant->GetGraphVariableInt("currentDefaultState", StateID);
+		giant->GetGraphVariableInt("GTS_Def_State", GTSStateID);
+		ResetCameraTracking(giant); // fix the camera tracking if loading previous save while voring/thigh crushing for example
+
+		ResetGrab(giant);
+		if (GTSStateID != StateID) {
+			giant->SetGraphVariableInt("GTS_Def_State", StateID);
+		}
+	}
+}
+
 void GTSManager::DragonSoulAbsorption() {
 	DragonAbsorptionBonuses(); 
 }

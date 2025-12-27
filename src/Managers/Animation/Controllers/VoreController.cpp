@@ -266,7 +266,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (!CanPerformAnimation(pred, AnimationCondition::kVore)) {
+		if (!CanDoActionBasedOnQuestProgress(pred, QuestAnimationType::kVore)) {
 			return false;
 		}
 
@@ -295,7 +295,7 @@ namespace GTS {
 		}
 
 		float pred_scale = get_visual_scale(pred);
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, true, false);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, true, false);
 		float prey_distance = (pred->GetPosition() - prey->GetPosition()).Length();
 
 		
@@ -376,7 +376,7 @@ namespace GTS {
 		}
 
 		
-		if (GetSizeDifference(pred, prey, SizeType::VisualScale, false, false) < Action_Vore) {
+		if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_Vore) {
 			if (pred->IsSneaking() && !IsCrawling(pred)) {
 				ShrinkUntil(pred, prey, 10.2f, 0.14f, true); // Shrink if we have SMT to allow 'same-size' vore
 			} else {

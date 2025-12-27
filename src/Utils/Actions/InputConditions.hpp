@@ -24,7 +24,7 @@ namespace GTS {
 		Actor* target = GetPlayerOrControlled();
 		auto player = PlayerCharacter::GetSingleton();
 
-		if (IsPlayerFirstPerson(target) || IsGtsBusy(target) || IsChangingSize(target) || !CanPerformAnimation(target, AnimationCondition::kGrabAndSandwich)) {
+		if (IsPlayerFirstPerson(target) || IsGtsBusy(target) || IsChangingSize(target) || !CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kGrabAndSandwich)) {
 			return false;
 		}
 
@@ -99,7 +99,7 @@ namespace GTS {
 
 	static bool SwipeCondition() {
 		auto target = PlayerCharacter::GetSingleton();
-		if (!CanPerformAnimation(target, AnimationCondition::kStompsAndKicks) || IsGtsBusy(target)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || IsGtsBusy(target)) {
 			return false;
 		}
 		if (!target->IsSneaking()) {
@@ -114,7 +114,7 @@ namespace GTS {
 
 	static bool TrampleCondition() {
 		auto target = PlayerCharacter::GetSingleton();
-		if (!CanPerformAnimation(target, AnimationCondition::kStompsAndKicks) || IsGtsBusy(target)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || IsGtsBusy(target)) {
 			return false;
 		}
 		if (IsCrawling(target) || target->IsSneaking() || IsProning(target)) {
@@ -129,7 +129,7 @@ namespace GTS {
 
 	static bool HugCondition_Start() {
 		auto target = GetPlayerOrControlled();
-		if (!CanPerformAnimation(target, AnimationCondition::kHugs)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kHugs)) {
 			return false;
 		}
 		if (IsGtsBusy(target)) {
@@ -211,7 +211,7 @@ namespace GTS {
 	static bool ProtectSmallOnesCondition() {
 		auto target = PlayerCharacter::GetSingleton();
 
-		if (target && CanPerformAnimation(target, AnimationCondition::kOthers)) {
+		if (target && CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kOthers)) {
 			return true;
 		}
 		return false;
@@ -239,7 +239,7 @@ namespace GTS {
 
 	static bool KickCondition() {
 		auto target = PlayerCharacter::GetSingleton();
-		if (!CanPerformAnimation(target, AnimationCondition::kStompsAndKicks) || IsGtsBusy(target)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || IsGtsBusy(target)) {
 			return false;
 		}
 
@@ -255,7 +255,7 @@ namespace GTS {
 
 	static bool StompCondition() {
 		auto target = PlayerCharacter::GetSingleton();
-		if (!CanPerformAnimation(target, AnimationCondition::kStompsAndKicks) || IsGtsBusy(target)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || IsGtsBusy(target)) {
 			return false;
 		}
 
@@ -268,7 +268,7 @@ namespace GTS {
 
 	static bool ThighCrushCondition_Start() {
 		auto target = PlayerCharacter::GetSingleton();
-		if (!CanPerformAnimation(target, AnimationCondition::kGrabAndSandwich)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kGrabAndSandwich)) {
 			return false;
 		}
 		return true;
@@ -282,7 +282,7 @@ namespace GTS {
 		auto target = PlayerCharacter::GetSingleton();
 
 
-		if (!CanPerformAnimation(target, AnimationCondition::kGrabAndSandwich)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kGrabAndSandwich)) {
 			return false;
 		}
 		if (IsGtsBusy(target)) {
@@ -305,7 +305,7 @@ namespace GTS {
 		if (grabbedActor) { //If we have actor, don't pick anyone up.
 			return false;
 		}
-		if (!CanPerformAnimation(target, AnimationCondition::kStompsAndKicks)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks)) {
 			return false;
 		}
 		if (IsGtsBusy(target) || IsEquipBusy(target) || IsTransitioning(target)) {
@@ -329,7 +329,7 @@ namespace GTS {
 	static bool GrabCondition_Vore() {
 		auto target = GetPlayerOrControlled();
 
-		if (!CanPerformAnimation(target, AnimationCondition::kVore)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kVore)) {
 			return false;
 		}
 		if (IsGtsBusy(target) && !IsUsingThighAnimations(target)) {
@@ -403,7 +403,7 @@ namespace GTS {
 	static bool VoreCondition() {
 		auto target = GetPlayerOrControlled();
 
-		if (!CanPerformAnimation(target, AnimationCondition::kVore)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kVore)) {
 			return false;
 		}
 		return true;
@@ -445,7 +445,7 @@ namespace GTS {
 	static bool ButtCrushCondition_Follower() {
 		auto player = PlayerCharacter::GetSingleton();
 
-		if (!CanPerformAnimation(player, AnimationCondition::kGrabAndSandwich)) {
+		if (!CanDoActionBasedOnQuestProgress(player, QuestAnimationType::kGrabAndSandwich)) {
 			return false;
 		}
 		return true;
@@ -454,7 +454,7 @@ namespace GTS {
 	static bool GrabCondition_Follower() {
 		auto player = PlayerCharacter::GetSingleton();
 
-		if (!CanPerformAnimation(player, AnimationCondition::kGrabAndSandwich)) {
+		if (!CanDoActionBasedOnQuestProgress(player, QuestAnimationType::kGrabAndSandwich)) {
 			return false;
 		}
 		return true;
@@ -463,7 +463,7 @@ namespace GTS {
 	static bool HugCondition_Follower() {
 		auto player = PlayerCharacter::GetSingleton();
 
-		if (!CanPerformAnimation(player, AnimationCondition::kHugs)) {
+		if (!CanDoActionBasedOnQuestProgress(player, QuestAnimationType::kHugs)) {
 			return false;
 		}
 		return true;
@@ -472,7 +472,7 @@ namespace GTS {
 	static bool ThighSandwitchCondition_Follower() {
 		auto player = PlayerCharacter::GetSingleton();
 
-		if (!CanPerformAnimation(player, AnimationCondition::kGrabAndSandwich)) {
+		if (!CanDoActionBasedOnQuestProgress(player, QuestAnimationType::kGrabAndSandwich)) {
 			return false;
 		}
 		return true;
@@ -481,7 +481,7 @@ namespace GTS {
 	static bool VoreCondition_Follower() {
 		auto player = PlayerCharacter::GetSingleton();
 
-		if (!CanPerformAnimation(player, AnimationCondition::kVore)) {
+		if (!CanDoActionBasedOnQuestProgress(player, QuestAnimationType::kVore)) {
 			return false;
 		}
 

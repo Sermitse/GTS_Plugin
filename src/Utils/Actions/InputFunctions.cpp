@@ -13,6 +13,7 @@
 
 #include "Magic/Effects/Common.hpp"
 
+#include "Managers/AttributeManager.hpp"
 #include "Managers/GTSSizeManager.hpp"
 
 
@@ -46,7 +47,7 @@ namespace {
 
 			Cprint("{} Size Difference With the Player: {:.2f}", 
 				actor->GetDisplayFullName(), 
-				GetSizeDifference(player, actor, SizeType::VisualScale, false, true)
+				get_scale_difference(player, actor, SizeType::VisualScale, false, true)
 			);
 		}
 		else {
@@ -469,7 +470,7 @@ namespace {
 
 		float gigantism = 1.0f + Ench_Aspect_GetPower(player);
 
-		float multi = GetDamageResistance(player);
+		float multi = AttributeManager::GetAttributeBonus(player, ActorValue::kHealth);
 
 		float healthMax = GetMaxAV(player, ActorValue::kHealth);
 		float healthCur = GetAV(player, ActorValue::kHealth);

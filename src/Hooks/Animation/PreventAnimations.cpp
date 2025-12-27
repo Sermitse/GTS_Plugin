@@ -122,7 +122,7 @@ namespace {
 			if (victim) {
 				Actor* victimref = skyrim_cast<Actor*>(victim);
 				if (victimref) {
-					float size_difference = GetSizeDifference(performer, victimref, SizeType::GiantessScale, true, false);
+					float size_difference = get_scale_difference(performer, victimref, SizeType::GiantessScale, true, false);
 					if (size_difference > KillMove_Threshold_High || size_difference < KillMove_Threshold_Low) {
 						Block = true;
 					}

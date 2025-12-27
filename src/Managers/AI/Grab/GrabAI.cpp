@@ -62,7 +62,7 @@ namespace {
 		}
 
 		const float PredScale        = get_visual_scale(a_Performer);
-		const float SizeDiff         = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
+		const float SizeDiff         = get_scale_difference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
 		constexpr float MinGrabScale = Action_Grab;
 		float MinDistance            = MINIMUM_GRAB_DISTANCE;
 

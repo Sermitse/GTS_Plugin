@@ -225,7 +225,7 @@ namespace GTS {
 		ActorHandle tinyHandle = tiny->CreateRefHandle();
 		ActorHandle giantHandle = giant->CreateRefHandle();
 		if (apply_size_difference) {
-			duration *= GetSizeDifference(giant, tiny, SizeType::VisualScale, false, true);
+			duration *= get_scale_difference(giant, tiny, SizeType::VisualScale, false, true);
 		}
 
 		SetAV(tiny, ActorValue::kConfidence, 0.0f);
@@ -283,7 +283,7 @@ namespace GTS {
 				if (IsBeingHeld(giant, tiny)) {
 					return;
 				}
-				float get_difference = GetSizeDifference(giant, tiny, SizeType::VisualScale, false, true); // Apply HH difference as well
+				float get_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, true); // Apply HH difference as well
 				float sizedifference = std::clamp(get_difference, 0.10f, 12.0f);
 
 				float distancecheck = 128.0f * GetMovementModifier(giant);

@@ -206,15 +206,30 @@ namespace logger = SKSE::log;
 #include "Utils/Camera.hpp"
 #include "Utils/Node.hpp"
 
+
 //Scale
 #include "Scale/Scale.hpp"
 #include "Scale/ModScale.hpp"
 #include "Scale/Height.hpp"
+#include "Scale/ScaleUtils.hpp"
 
 //Actor
-#include "Utils/Actor/FindActor.hpp"
+//CleanedUp
+#include "Utils/EffectUtils.hpp"
+#include "Papyrus/ProxyFunctions.hpp"
+#include "Utils/QuestUtil.hpp"
+#include "Utils/SoundUtils.hpp"
+#include "Utils/Actions/ActionUtils.hpp"
 #include "Utils/Actor/ActorUtils.hpp"
 #include "Utils/Actor/ActorBools.hpp"
+#include "Utils/Actor/GTSUtils.hpp"
+#include "Utils/Animation/AnimationUtils.hpp"
+#include "Utils/Animation/AnimationVars.hpp"
+#include "Utils/Actor/SkillUtils.hpp"
+
+
+
+#include "Utils/Actor/FindActor.hpp"
 #include "Utils/Actor/AV.hpp"
 
 //Data

@@ -1843,7 +1843,7 @@ namespace GTS {
 			return hp;
 		}
 
-		float difference = GetSizeDifference(giant, tiny, SizeType::GiantessScale, false, false);
+		float difference = get_scale_difference(giant, tiny, SizeType::GiantessScale, false, false);
 		float clamped_diff = std::clamp(difference, 1.0f, 100.0f);
 
 		return hp * clamped_diff;

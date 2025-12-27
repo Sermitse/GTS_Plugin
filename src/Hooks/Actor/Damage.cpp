@@ -10,8 +10,20 @@
 #include "Utils/DifficultyUtils.hpp"
 #include "Hooks/Util/HookUtil.hpp"
 
+#include "Managers/AttributeManager.hpp"
+
 namespace {
 	constexpr float AddToDamage = 1.75f; // It's needed so there's more room for error when calculating damage that should kill
+
+	bool DontAlterDamage(RE::Actor* a_this, float dmg, float Damage_Add) { // Used inside Damage.cpp (hook), a way to fix almost unkillable player in some cases
+		if (a_this->formID == 0x14) {
+			float currentHP = GTS::GetAV(a_this, RE::ActorValue::kHealth);
+			bool ShouldBeKilled = GTS::GetHealthPercentage(a_this) <= 0.05f && dmg + Damage_Add >= currentHP;
+			return ShouldBeKilled;
+		}
+		return false;
+	}
+
 }
 
 namespace GTS {
@@ -135,7 +147,7 @@ namespace GTS {
 
 	void DoOverkill(Actor* attacker, Actor* receiver, float damage) {
 		if (damage > GetMaxAV(receiver, ActorValue::kHealth)) { // Overkill effect
-			float size_difference = GetSizeDifference(attacker, receiver, SizeType::VisualScale, true, false);
+			float size_difference = get_scale_difference(attacker, receiver, SizeType::VisualScale, true, false);
 			if (size_difference >= 12.0f) {
 				OverkillManager::GetSingleton().Overkill(attacker, receiver);
 			}
@@ -244,15 +256,17 @@ namespace GTS {
 	}
 
 	float GetTotalDamageResistance(Actor* receiver, Actor* aggressor) {
-		float receiver_resistance = GetDamageResistance(receiver) * GetHugDamageResistance(receiver) * GetGrowthDamageResistance(receiver);
-		float attacker_multiplier = GetDamageMultiplier(aggressor) / game_getactorscale(aggressor); // take GetScale into account since it boosts damage as well
-		auto transient = Transient::GetActorData(receiver);
+
+		float receiver_resistance = AttributeManager::GetAttributeBonus(receiver, ActorValue::kHealth) * GetHugDamageResistance(receiver) * GetGrowthDamageResistance(receiver);
+
+		// Take GetScale into account since it boosts damage as well
+		float attacker_multiplier = AttributeManager::GetAttributeBonus(aggressor, ActorValue::kAttackDamageMult) / game_getactorscale(aggressor); 
+
 		float tiny_resistance = 1.0f; // Tiny in hands takes portion of damage (25%) instead of GTS
 		bool DamageImmunity = false;
-		
 		float TakenDamageMult = 1.0f; // 1.0 = take 100% damage
 
-		if (transient) {
+		if (const auto& transient = Transient::GetActorData(receiver)) {
 			if (receiver->formID == 0x14) {
 				DamageImmunity = transient->TemporaryDamageImmunity;
 				tiny_resistance = TinyAsShield(receiver);

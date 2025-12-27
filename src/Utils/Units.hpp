@@ -26,4 +26,7 @@ namespace GTS {
 
 	NiPoint3 GameUnitToMeter(const NiPoint3& unit);
 	NiPoint3 MeterToGameUnit(const NiPoint3& meter);
+
+    float GetActorGTSWeight(Actor* giant);
+    float GetActorGTSHeight(Actor* giant);
 }

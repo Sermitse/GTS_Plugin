@@ -39,7 +39,7 @@ namespace GTS {
 		}
 
 		const float PredScale = get_visual_scale(a_Pred);
-		const float SizeDiff = GetSizeDifference(a_Pred, a_Prey, SizeType::VisualScale, true, false);
+		const float SizeDiff = get_scale_difference(a_Pred, a_Prey, SizeType::VisualScale, true, false);
 		const float PreyDistance = (a_Pred->GetPosition() - a_Prey->GetPosition()).Length();
 
 		if (IsInsect(a_Prey, true) || IsBlacklisted(a_Prey)) {

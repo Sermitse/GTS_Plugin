@@ -1,4 +1,7 @@
 #include "Managers/Damage/LaunchActor.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Damage/LaunchPower.hpp"
 #include "Utils/DeathReport.hpp"
 
@@ -105,7 +108,7 @@ namespace GTS {
 			return; // Disallow to launch if we're grinding an actor
 		}
 
-		float DamageMult = 0.5f * GetDamageSetting();
+		float DamageMult = 0.5f * Config::Balance.fSizeDamageMult;
 		float giantSize = get_visual_scale(giant);
 		float tinySize = std::clamp(get_visual_scale(tiny), 0.5f, 1000000.0f); // clamp else they will fly into the sky
 		float highheel = GetHighHeelsBonusDamage(tiny, true);
@@ -146,7 +149,7 @@ namespace GTS {
 					if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDeadlyRumble) && CanDoDamage(giant, tiny, true)) {
 						float damage = LAUNCH_DAMAGE * sizeRatio * force * DamageMult * highheel;
 						if (OwnsPerk) { // Apply only when we have DisastrousTremor perk
-							update_target_scale(tiny, -(damage / 1500) * GetDamageSetting(), SizeEffectType::kShrink);
+							update_target_scale(tiny, -(damage / 1500) * Config::Balance.fSizeDamageMult, SizeEffectType::kShrink);
 
 							if (get_target_scale(tiny) < 0.12f/Adjustment) {
 								set_target_scale(tiny, 0.12f/Adjustment);

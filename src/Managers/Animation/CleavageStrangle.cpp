@@ -109,7 +109,7 @@ namespace {
             auto& sizemanager = SizeManager::GetSingleton();
 
             float power = std::clamp(SizeManager::GetSizeAttribute(giantref, SizeAttribute::Normal), 1.0f, 999999.0f);
-            float sizeDiff = GetSizeDifference(giantref, tinyref, SizeType::VisualScale, false, false);
+            float sizeDiff = get_scale_difference(giantref, tinyref, SizeType::VisualScale, false, false);
             float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(tinyref);
             float speed = AnimationManager::GetBonusAnimationSpeed(giantref);
 

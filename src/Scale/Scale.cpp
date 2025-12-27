@@ -18,11 +18,10 @@ namespace GTS {
 
 			if (scale < (max_scale + EPS)) { // If new value is below max: allow it
 				actor_data->fTargetScale = scale;
-			} else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are below max currently and we are trying to scale over max: make it max
+			} 
+			else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are below max currently and we are trying to scale over max: make it max
 				actor_data->fTargetScale = max_scale / natural_scale;
-			} else {
-				// If we are over max: forbid it
-			}
+			} 
 		}
 	}
 
@@ -37,18 +36,16 @@ namespace GTS {
 		auto actor_data = Persistent::GetActorData(&actor);
 		if (actor_data) {
 			return actor_data->fTargetScale * get_natural_scale(&actor, true);
-		} else {
-			return 1.0f;
-		}
+		} 
+		return 1.0f;
 	}
 
 	float get_target_scale(Actor* actor) {
 		if (actor) {
 			Actor& a = *actor;
 			return get_target_scale(a);
-		} else {
-			return 1.0f;
-		}
+		} 
+		return 1.0f;
 	}
 
 	void mod_target_scale(Actor& actor, float amt) {
@@ -63,12 +60,13 @@ namespace GTS {
 
             if (amt < -EPS) { // If negative change always: allow
                 actor_data->fTargetScale += amt;
-            } else if (target_scale + amt < (max_scale + EPS)) { // If change results is below max: allow it
+            } 
+        	else if (target_scale + amt < (max_scale + EPS)) { // If change results is below max: allow it
                 actor_data->fTargetScale += amt;
-            } else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are currently below max and we are scaling above max: make it max
+            } 
+        	else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are currently below max and we are scaling above max: make it max
                 set_target_scale(actor, max_scale);
-            } else { // if we are over max then forbid it
-            }
+            } 
         }
     }
 

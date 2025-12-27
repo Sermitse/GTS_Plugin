@@ -384,7 +384,7 @@ namespace {
 		Actor* player = GetPlayerOrControlled();
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 		if (huggedActor) {
-			if (GetSizeDifference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
+			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
 				if (!IsHugCrushing(player) && !IsHugHealing(player)) {
 					NotifyWithSound(player, "All available size was drained");
 					shake_camera(player, 0.45f, 0.30f);
@@ -402,7 +402,7 @@ namespace {
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 
 		if (huggedActor) {
-			if (GetSizeDifference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
+			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
 				if (!IsHugCrushing(player) && !IsHugHealing(player)) {
 					NotifyWithSound(player, "All available size was drained");
 					shake_camera(player, 0.45f, 0.30f);
@@ -482,7 +482,7 @@ namespace GTS {
 			auto giantref = gianthandle.get().get();
 			auto tinyref = tinyhandle.get().get();
 
-			float sizedifference = GetSizeDifference(giantref, tinyref, SizeType::VisualScale, false, true);
+			float sizedifference = get_scale_difference(giantref, tinyref, SizeType::VisualScale, false, true);
 			float steal = GetHugStealRate(giantref) * 0.85f;
 			
 			float stamina = 0.35f;
@@ -549,7 +549,7 @@ namespace GTS {
 				DrainReduction *= 1.5f; // less stamina drain for friendlies
 			}
 
-			float sizedifference = GetSizeDifference(giantref, tinyref, SizeType::VisualScale, false, true);
+			float sizedifference = get_scale_difference(giantref, tinyref, SizeType::VisualScale, false, true);
 
 			ShutUp(tinyref);
 			ShutUp(giantref);
