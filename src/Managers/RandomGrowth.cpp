@@ -107,7 +107,7 @@ namespace GTS {
 								if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowthAug) && TotalPower >= Get_Breach_Threshold(actor) && !IsGtsBusy(actor)) {
 									AnimationManager::StartAnim("StartRandomGrowth", actor);
 								} else {
-									if (!IsGrowing(actor)) {
+									if (!AnimationVars::Growth::GetIsGrowing(actor)) {
 										ActorHandle gianthandle = actor->CreateRefHandle();
 										std::string name = std::format("RandomGrowth_{}", actor->formID);
 										// Sounds

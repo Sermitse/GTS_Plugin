@@ -18,8 +18,8 @@ namespace {
 	bool DisableHighHeels(Actor* actor) {
 		bool disable = (
 			AnimationManager::HHDisabled(actor) || !Config::General.bEnableHighHeels ||
-			BehaviorGraph_DisableHH(actor) || IsCrawling(actor) || 
-			IsProning(actor)
+			BehaviorGraph_DisableHH(actor) || AnimationVars::Crawl::IsCrawling(actor) ||
+			AnimationVars::Prone::IsProne(actor)
 		);
 		return disable;
 	}
@@ -114,7 +114,7 @@ namespace GTS {
 				this->data.try_emplace(actor);
 				auto& hhData = this->data[actor];
 				float speedup = 1.0f;
-				if (IsCrawling(actor) || IsProning(actor) || BehaviorGraph_DisableHH(actor)) {
+				if (AnimationVars::Crawl::IsCrawling(actor) || AnimationVars::Prone::IsProne(actor) || BehaviorGraph_DisableHH(actor)) {
 					speedup = 4.0f; // To shift down a lot faster
 				}
 				else if (!IsGtsBusy(actor)) {

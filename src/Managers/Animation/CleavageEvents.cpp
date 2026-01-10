@@ -17,7 +17,6 @@
 
 #include "Magic/Effects/Common.hpp"
 #include "Utils/Looting.hpp"
-#include "API/Racemenu.hpp"
 
 #include "Config/Config.hpp"
 
@@ -44,7 +43,7 @@ namespace {
         const ActorHandle TinyHandle = Tiny->CreateRefHandle();
         const ActorHandle GiantHandle = aGiant->CreateRefHandle();
 
-		TaskManager::Run(TaskName, [=](auto& progressData) {
+		TaskManager::Run(TaskName, [=](auto&) {
 
 	        const auto TinyActor = TinyHandle.get().get();
 	        const auto GiantActor = GiantHandle.get().get();
@@ -81,12 +80,12 @@ namespace {
 
     void CancelAnimation(Actor* giant) {
         auto tiny = Grab::GetHeldActor(giant);
-        giant->SetGraphVariableBool("GTS_OverrideZ", false);
+        AnimationVars::Action::SetCleavageOverrideZ(giant, false);
+
         if (tiny) {
             KillActor(giant, tiny);
             PerkHandler::UpdatePerkValues(giant, PerkUpdate::Perk_LifeForceAbsorption);
             DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
-            tiny->SetGraphVariableBool("GTSBEH_T_InStorage", false);
             SetBetweenBreasts(tiny, false);
             SetBeingEaten(tiny, false);
             SetBeingHeld(tiny, false);
@@ -152,8 +151,6 @@ namespace {
         std::string name = std::format("SuffoTask_{}", giant->formID);
 		ActorHandle gianthandle = giant->CreateRefHandle();
 		ActorHandle tinyhandle = tiny->CreateRefHandle();
-
-        float starting_hppercentage = GetHealthPercentage(tiny);
 
 		TaskManager::Run(name, [=](auto& progressData) {
 			if (!gianthandle) {
@@ -289,7 +286,6 @@ namespace {
     void GTS_BS_OpenMouth(const AnimationEventData& data) {
         auto giant = &data.giant;
 		auto tiny = Grab::GetHeldActor(giant);
-		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
 		if (tiny) {
 			SetBeingEaten(tiny, true);
 			VoreController::GetSingleton().ShrinkOverTime(giant, tiny);
@@ -314,14 +310,14 @@ namespace {
             if (!AllowDevourment()) {
                 Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
             }
-			for (auto& tiny: VoreData.GetVories()) {
+			for (auto& tinyit: VoreData.GetVories()) {
 				if (!AllowDevourment()) {
 					VoreData.Swallow();
-					if (IsCrawling(&data.giant)) {
-						tiny->SetAlpha(0.0f); // Hide Actor
+					if (AnimationVars::Crawl::IsCrawling(&data.giant)) {
+						tinyit->SetAlpha(0.0f); // Hide Actor
 					}
 				} else {
-					CallDevourment(&data.giant, tiny);
+					CallDevourment(&data.giant, tinyit);
 				}
 			}
 		}
@@ -336,11 +332,12 @@ namespace {
 		if (tiny) {
 			SetBeingEaten(tiny, false);
 			auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
-			for (auto& tiny: VoreData.GetVories()) {
+			for ([[maybe_unused]] auto& _: VoreData.GetVories()) {
 				VoreData.KillAll();
 			}
-			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-			giant->SetGraphVariableInt("GTS_Grab_State", 0);
+
+            AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+            AnimationVars::Grab::SetGrabState(giant, false);
 
 			SetBeingHeld(tiny, false);
 			Grab::DetachActorTask(giant);
@@ -456,7 +453,7 @@ namespace {
 
                 TransferInventory(tinyref, giantref, get_visual_scale(tinyref) * GetSizeFromBoundingBox(tinyref), false, true, DamageSource::Vored, true);
                 // Actor Reset is done inside TransferInventory:StartActorResetTask!
-                });
+            });
 
             RecoverAttributes(giant, ActorValue::kHealth, 0.05f);
             ModSizeExperience(giant, 0.235f);
@@ -541,11 +538,12 @@ namespace {
         }
     }
 
-    void GTS_BS_OverrideZ_ON(const AnimationEventData& data) { 
-        data.giant.SetGraphVariableBool("GTS_OverrideZ", true);
+    void GTS_BS_OverrideZ_ON(const AnimationEventData& data) {
+        AnimationVars::Action::SetCleavageOverrideZ(&data.giant, true);
     }
+
     void GTS_BS_OverrideZ_OFF(const AnimationEventData& data) { 
-        data.giant.SetGraphVariableBool("GTS_OverrideZ", false);
+        AnimationVars::Action::SetCleavageOverrideZ(&data.giant, false);
     }
 
     ///===================================================================
@@ -579,16 +577,15 @@ namespace {
         Actor* giant = &data.giant;
         Actor* tiny = Grab::GetHeldActor(giant);
         if (tiny) {
-            tiny->SetGraphVariableBool("GTSBEH_T_InStorage", false);
             SetBetweenBreasts(tiny, false);
             SetBeingEaten(tiny, false);
             SetBeingHeld(tiny, false);
         }
 
         DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
-        giant->SetGraphVariableInt("GTS_GrabbedTiny", 0); // Tell behaviors 'we have nothing in our hands'. A must.
-        giant->SetGraphVariableInt("GTS_Grab_State", 0);
-        giant->SetGraphVariableInt("GTS_Storing_Tiny", 0);
+        AnimationVars::Grab::SetHasGrabbedTiny(giant, false); // Tell behaviors 'we have nothing in our hands'. A must.
+        AnimationVars::Grab::SetGrabState(giant, false);
+        AnimationVars::Action::SetIsStoringTiny(giant, false);
         Grab::DetachActorTask(giant);
         Grab::Release(giant);
     }

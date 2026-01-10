@@ -347,7 +347,7 @@ namespace GTS {
 
 	void PushActorAway(Actor* a_source, Actor* a_receiver, float a_force) {
 		
-		if (a_receiver->IsDead() || IsBeingKilledWithMagic(a_receiver)) {
+		if (a_receiver->IsDead() || AnimationVars::Tiny::GetIsBeingShrunk(a_receiver)) {
 			return;
 		}
 
@@ -548,7 +548,7 @@ namespace GTS {
 		if (a_target->IsDead() || IsRagdolled(a_target) || GetAV(a_target, ActorValue::kHealth) <= 0.0f) {
 			return;
 		}
-		a_target->SetGraphVariableFloat("staggerMagnitude", a_power);
+		AnimationVars::Other::SetStaggerMagnitude(a_target, a_power);
 		a_target->NotifyAnimationGraph("staggerStart");
 	}
 
@@ -556,7 +556,7 @@ namespace GTS {
 		if (a_target->IsDead() || IsRagdolled(a_target) || IsBeingHugged(a_target) || GetAV(a_target, ActorValue::kHealth) <= 0.0f) {
 			return;
 		}
-		if (!IsBeingKilledWithMagic(a_target)) {
+		if (!AnimationVars::Tiny::GetIsBeingShrunk(a_target)) {
 			StaggerActor_Directional(a_source, a_power, a_target);
 		}
 	}
@@ -800,8 +800,7 @@ namespace GTS {
 			PushActorAway(a_source, a_target, 1.0f); // Ragdoll
 		}
 		else if (sizedifference > 1.25f) { // Always Stagger
-			a_target->SetGraphVariableFloat("GiantessScale", sizedifference_tinypov); // enable stagger just in case
-
+			AnimationVars::General::SetGiantessScale(a_target, sizedifference_tinypov); // enable stagger just in case
 			float push = std::clamp(0.25f * (sizedifference - 0.25f), 0.25f, 1.0f);
 			StaggerActor(a_source, a_target, push);
 		}

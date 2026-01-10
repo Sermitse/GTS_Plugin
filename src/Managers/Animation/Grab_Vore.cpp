@@ -38,7 +38,7 @@ namespace {
 			for (auto& tiny: VoreData.GetVories()) {
 				if (!AllowDevourment()) {
 					VoreData.Swallow();
-					if (IsCrawling(&data.giant)) {
+					if (AnimationVars::Crawl::IsCrawling(&data.giant)) {
 						otherActor->SetAlpha(0.0f); // Hide Actor
 					}
 				} else {
@@ -60,8 +60,8 @@ namespace {
 			for (auto& tiny: VoreData.GetVories()) {
 				VoreData.KillAll();
 			}
-			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-			giant->SetGraphVariableInt("GTS_Grab_State", 0);
+			AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+			AnimationVars::Grab::SetGrabState(giant, false);
 			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
 			AnimationManager::StartAnim("TinyDied", giant);
 			//BlockFirstPerson(giant, false);

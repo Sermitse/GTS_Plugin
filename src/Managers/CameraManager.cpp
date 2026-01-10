@@ -155,11 +155,11 @@ namespace GTS {
 		if (CurrentState) {
 
 			auto player = PlayerCharacter::GetSingleton();
-			bool IsCurrentlyCrawling = IsCrawling(player);
-			if (IsGtsBusy(player) && IsCrawling(player) && GetCameraOverride(player)) {
+			bool IsCurrentlyCrawling = AnimationVars::Crawl::IsCrawling(player);
+			if (IsGtsBusy(player) && AnimationVars::Crawl::IsCrawling(player) && GetCameraOverride(player)) {
 				IsCurrentlyCrawling = false;
 			}
-			else if (IsProning(player)) {
+			else if (AnimationVars::Prone::IsProne(player)) {
 				IsCurrentlyCrawling = true;
 			}
 

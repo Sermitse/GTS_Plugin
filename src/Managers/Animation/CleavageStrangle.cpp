@@ -48,7 +48,7 @@ namespace {
                 return false; // end task in that case
             }
 
-            if (!IsStrangling(giantref)) {
+            if (!AnimationVars::Cleavage::GetIsBoobsDoting(giantref)) {
                 return false;
             }
 
@@ -116,7 +116,7 @@ namespace {
             float damage = Damage_Breast_Strangle * power * additionaldamage * sizeDiff * TimeScale() * speed;
             HasSMT(giantref) ? damage *= 1.5f : damage *= 1.0f;
 
-            if (!IsStrangling(giantref) && !IsGtsBusy(giantref)) {
+            if (!AnimationVars::Cleavage::GetIsBoobsDoting(giantref) && !IsGtsBusy(giantref)) {
                 AnimationManager::ResetAnimationSpeedData(giantref);
                 RestoreBreastAttachmentState(giantref, tinyref); // If someone suddenly ragdolls us during breast anims
                 return false;
@@ -176,7 +176,7 @@ namespace {
     }
 
     void GTS_BS_Smile(const AnimationEventData& data) {
-        if (IsStrangling(&data.giant)) { // This event belongs to Breast Vore originally, but time to smile is like 0.2 sec so it's unused, and used here instead
+        if (AnimationVars::Cleavage::GetIsBoobsDoting(&data.giant)) { // This event belongs to Breast Vore originally, but time to smile is like 0.2 sec so it's unused, and used here instead
             if (RandomBool(65.0f)) {
                 Task_FacialEmotionTask_SlightSmile(&data.giant, RandomFloat(3.75f, 5.5f), "StrangleSmile", RandomFloat(0.35f, 0.75f));
             }

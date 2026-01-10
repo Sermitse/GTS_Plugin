@@ -25,8 +25,12 @@ namespace {
 				double timepassed = Finish - Start;
 				if (timepassed > 0.10) {
 					auto giant = giantHandle.get().get();
-					bool Disable = !(IsCrawling(giant) || IsProning(giant) || IsHandStomping_L(actor) || IsHandStomping_H(actor));
-					giant->SetGraphVariableBool("bHeadTrackSpine", Disable);
+
+					bool Disable = !(AnimationVars::Crawl::IsCrawling(giant) || AnimationVars::Prone::IsProne(giant) ||
+						AnimationVars::Crawl::GetIsHandStomping(actor) || 
+						AnimationVars::Crawl::GetIsHandStompingStrong(actor));
+
+					AnimationVars::Other::SetSpineRotationEnabled(giant, Disable);
 					//log::info("Setting {} for {}", Disable, giant->GetDisplayFullName());
 					return false;
 				}
@@ -54,8 +58,11 @@ namespace Hooks {
 					// Done through hook since TDM seems to adjust it constantly
 					auto actor = skyrim_cast<Actor*>(a_graph);
 					if (actor) {
-						//log::info("Holder found: {}", actor->GetDisplayFullName());
-						bool ShouldDisable = (IsCrawling(actor) || IsProning(actor) || IsHandStomping_L(actor) || IsHandStomping_H(actor));
+
+						bool ShouldDisable = (AnimationVars::Crawl::IsCrawling(actor) || AnimationVars::Prone::IsProne(actor) ||
+							AnimationVars::Crawl::GetIsHandStomping(actor) || 
+							AnimationVars::Crawl::GetIsHandStompingStrong(actor));
+
 						if (ShouldDisable) {
 							result = false;
 						}

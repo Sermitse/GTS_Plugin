@@ -76,7 +76,7 @@ namespace {
 
 	void GTSGrab_Throw_FS_R(AnimationEventData& data) {
 
-		if (IsUsingThighAnimations(&data.giant) || IsCrawling(&data.giant)) {
+		if (IsUsingThighAnimations(&data.giant) || AnimationVars::Crawl::IsCrawling(&data.giant)) {
 			return; // Needed to not apply it during animation blending for thigh/crawling animations
 		}
 		float smt = 1.0f;
@@ -99,7 +99,7 @@ namespace {
 	}
 
 	void GTSGrab_Throw_FS_L(AnimationEventData& data) {
-		if (IsUsingThighAnimations(&data.giant) || IsCrawling(&data.giant)) {
+		if (IsUsingThighAnimations(&data.giant) || AnimationVars::Crawl::IsCrawling(&data.giant)) {
 			return; // Needed to not apply it during animation blending for thigh/crawling animations
 		}
 		float smt = 1.0f;
@@ -128,8 +128,8 @@ namespace {
 		Grab::DetachActorTask(giant);
 		Grab::Release(giant);
 
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-		giant->SetGraphVariableInt("GTS_Grab_State", 0);
+		AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+		AnimationVars::Grab::SetGrabState(giant, false);
 
 		if (otherActor) {
 
@@ -189,7 +189,7 @@ namespace {
 				float Z = 35.0f;
 				if (giant->IsSneaking()) {
 					throw_mult *= 0.2f; // Else it is too strong, literally throws 70+ meters at normal size
-					if (IsCrawling(giant)) {
+					if (AnimationVars::Crawl::IsCrawling(giant)) {
 						Z = 25.0f;
 					}
 				}
@@ -207,8 +207,8 @@ namespace {
 		// Throw frame 1
 		auto giant = &data.giant;
 
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-		giant->SetGraphVariableInt("GTS_Grab_State", 0);
+		AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+		AnimationVars::Grab::SetGrabState(giant, false);
 		ManageCamera(giant, false, CameraTracking::Grab_Left);
 		Rumbling::Once("ThrowFoe", &data.giant, 2.50f, 0.10f, "NPC L Hand [LHnd]", 0.0f);
 		AnimationManager::StartAnim("TinyDied", giant);

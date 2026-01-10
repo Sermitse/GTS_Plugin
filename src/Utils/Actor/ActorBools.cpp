@@ -10,14 +10,6 @@
 
 namespace GTS {
 
-	bool IsStaggered(Actor* tiny) {
-		bool staggered = false;
-		if (tiny) {
-			staggered = static_cast<bool>(tiny->AsActorState()->actorState2.staggered);
-		}
-		return staggered;
-	}
-
 	bool IsInSexlabAnim(Actor* actor_1, Actor* actor_2) {
 		if (Runtime::IsSexlabInstalled()) {
 			const auto& SLAnim = Runtime::FACT.SexLabAnimatingFaction;
@@ -26,6 +18,14 @@ namespace GTS {
 			}
 		}
 		return false;
+	}
+
+	bool IsStaggered(Actor* tiny) {
+		bool staggered = false;
+		if (tiny) {
+			staggered = static_cast<bool>(tiny->AsActorState()->actorState2.staggered);
+		}
+		return staggered;
 	}
 
 
@@ -175,8 +175,6 @@ namespace GTS {
 		return tiny->IsHostileToActor(giant);
 	}
 
-
-
 	bool IsEssential(Actor* giant, Actor* actor) {
 
 		auto& Settings = Config::General;
@@ -208,12 +206,6 @@ namespace GTS {
 	}
 
 	bool IsHeadtracking(Actor* giant) { // Used to report True when we lock onto something, should be Player Exclusive.
-		//Currently used to fix TDM mesh issues when we lock on someone.
-		/*bool tracking = false;
-		if (giant->formID == 0x14) {
-			giant->GetGraphVariableBool("TDM_TargetLock", tracking); // get HT value, requires newest versions of TDM to work properly
-		}
-		*/ // Old TDM Method, a bad idea since some still run old version for some reason.
 		if (giant->formID == 0x14) {
 			return HasHeadTrackingTarget(giant);
 		}
@@ -292,9 +284,7 @@ namespace GTS {
 	}
 
 	bool IsEquipBusy(Actor* actor) {
-		GTS_PROFILE_SCOPE("ActorUtils: IsEquipBusy");
-		int State;
-		actor->GetGraphVariableInt("currentDefaultState", State);
+		int State = AnimationVars::Other::GetCurrentDefaultState(actor);
 		if (State >= 10 && State <= 20) {
 			return true;
 		}
@@ -304,89 +294,6 @@ namespace GTS {
 	bool IsRagdolled(Actor* actor) {
 		bool ragdoll = actor->IsInRagdollState();
 		return ragdoll;
-	}
-
-	bool IsGrowing(Actor* actor) {
-		bool Growing = false;
-		actor->GetGraphVariableBool("GTS_IsGrowing", Growing);
-		return Growing;
-	}
-
-	bool IsChangingSize(Actor* actor) { // Used to disallow growth/shrink during specific animations
-		bool Growing = false;
-		bool Shrinking = false;
-		actor->GetGraphVariableBool("GTS_IsGrowing", Growing);
-		actor->GetGraphVariableBool("GTS_IsShrinking", Shrinking);
-
-		return Growing || Shrinking;
-	}
-
-	bool IsProning(Actor* actor) {
-		bool prone = false;
-		if (actor) {
-			auto transient = Transient::GetActorData(actor);
-			actor->GetGraphVariableBool("GTS_IsProne", prone);
-			if (actor->formID == 0x14 && actor->IsSneaking() && IsFirstPerson() && transient) {
-				return transient->FPProning; // Because we have no FP behaviors, 
-				// ^ it is Needed to fix proning being applied to FP even when Prone is off
-			}
-		}
-		return prone;
-	}
-
-	bool IsCrawling(Actor* actor) {
-		bool crawl = false;
-		if (actor) {
-			auto transient = Transient::GetActorData(actor);
-			actor->GetGraphVariableBool("GTS_IsCrawling", crawl);
-			if (actor->formID == 0x14 && actor->IsSneaking() && IsFirstPerson() && transient) {
-				return transient->FPCrawling; // Needed to fix crawling being applied to FP even when Prone is off
-			}
-			return actor->IsSneaking() && crawl;
-		}
-		return false;
-	}
-
-	bool IsHugCrushing(Actor* actor) {
-		bool IsHugCrushing = false;
-		actor->GetGraphVariableBool("IsHugCrushing", IsHugCrushing);
-		return IsHugCrushing;
-	}
-
-	bool IsHugHealing(Actor* actor) {
-		bool IsHugHealing = false;
-		actor->GetGraphVariableBool("GTS_IsHugHealing", IsHugHealing);
-		return IsHugHealing;
-	}
-
-	bool IsVoring(Actor* giant) {
-		bool Voring = false;
-		giant->GetGraphVariableBool("GTS_IsVoring", Voring);
-		return Voring;
-	}
-
-	bool IsHuggingFriendly(Actor* actor) {
-		bool friendly = false;
-		actor->GetGraphVariableBool("GTS_IsFollower", friendly);
-		return friendly;
-	}
-
-	bool IsTransitioning(Actor* actor) { // reports sneak transition to crawl
-		bool transition = false;
-		actor->GetGraphVariableBool("GTS_Transitioning", transition);
-		return transition;
-	}
-
-	bool IsFootGrinding(Actor* actor) {
-		bool grind = false;
-		actor->GetGraphVariableBool("GTS_IsFootGrinding", grind);
-		return grind;
-	}
-
-	bool IsJumping(Actor* actor) {
-		bool jumping = false;
-		actor->GetGraphVariableBool("bInJumpState", jumping);
-		return jumping;
 	}
 
 	bool IsBeingHeld(Actor* giant, Actor* tiny) {
@@ -413,126 +320,12 @@ namespace GTS {
 		return false;
 	}
 
-	bool IsTransferingTiny(Actor* actor) { // Reports 'Do we have someone grabed?'
-		int grabbed = 0;
-		actor->GetGraphVariableInt("GTS_GrabbedTiny", grabbed);
-		return grabbed > 0;
-	}
-
-	bool IsUsingThighAnimations(Actor* actor) { // Do we currently use Thigh Crush / Thigh Sandwich?
-		int sitting = false;
-		actor->GetGraphVariableInt("GTS_Sitting", sitting);
-		return sitting > 0;
-	}
-
-	bool IsSynced(Actor* actor) {
-		bool sync = false;
-		actor->GetGraphVariableBool("bIsSynced", sync);
-		return sync;
-	}
-
-	bool CanDoPaired(Actor* actor) {
-		bool paired = false;
-		actor->GetGraphVariableBool("GTS_CanDoPaired", paired);
-		return paired;
-	}
-
-	bool IsThighCrushing(Actor* actor) { // Are we currently doing Thigh Crush?
-		int crushing = 0;
-		actor->GetGraphVariableInt("GTS_IsThighCrushing", crushing);
-		return crushing > 0;
-	}
-
-	bool IsThighSandwiching(Actor* actor) { // Are we currently Thigh Sandwiching?
-		int sandwiching = 0;
-		actor->GetGraphVariableInt("GTS_IsThighSandwiching", sandwiching);
-		return sandwiching > 0;
-	}
-
 	bool IsBeingEaten(Actor* tiny) {
 		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			return transient->AboutToBeEaten;
 		}
 		return false;
-	}
-
-	bool IsGtsBusy(Actor* actor) {
-		GTS_PROFILE_SCOPE("ActorUtils: IsGtsBusy");
-		bool GTSBusy = false;
-		actor->GetGraphVariableBool("GTS_Busy", GTSBusy);
-
-		bool Busy = GTSBusy && !CanDoCombo(actor);
-		return Busy;
-	}
-
-	bool IsStomping(Actor* actor) {
-		bool Stomping = false;
-		actor->GetGraphVariableBool("GTS_IsStomping", Stomping);
-
-		return Stomping;
-	}
-
-	bool IsInCleavageState(Actor* actor) { // For GTS 
-		bool Cleavage = false;
-
-		actor->GetGraphVariableBool("GTS_IsBoobing", Cleavage);
-
-		return Cleavage;
-	}
-
-	bool IsCleavageZIgnored(Actor* actor) {
-		bool ignored = false;
-
-		actor->GetGraphVariableBool("GTS_OverrideZ", ignored);
-
-		return ignored;
-	}
-
-	bool IsInsideCleavage(Actor* actor) { // For tinies
-		bool InCleavage = false;
-		if (!IsHuman(actor)) return true; // Bypass incase someone uses creatures...
-		actor->GetGraphVariableBool("GTS_IsinBoobs", InCleavage);
-
-		return InCleavage;
-	}
-
-	bool IsKicking(Actor* actor) {
-		bool Kicking = false;
-		actor->GetGraphVariableBool("GTS_IsKicking", Kicking);
-
-		return Kicking;
-	}
-
-	bool IsTrampling(Actor* actor) {
-		bool Trampling = false;
-		actor->GetGraphVariableBool("GTS_IsTrampling", Trampling);
-
-		return Trampling;
-	}
-
-	bool CanDoCombo(Actor* actor) {
-		bool Combo = false;
-		actor->GetGraphVariableBool("GTS_CanCombo", Combo);
-		return Combo;
-	}
-
-	bool IsCameraEnabled(Actor* actor) {
-		bool Camera = false;
-		actor->GetGraphVariableBool("GTS_VoreCamera", Camera);
-		return Camera;
-	}
-
-	bool IsCrawlVoring(Actor* actor) {
-		bool Voring = false;
-		actor->GetGraphVariableBool("GTS_IsCrawlVoring", Voring);
-		return Voring;//Voring;
-	}
-
-	bool IsButtCrushing(Actor* actor) {
-		bool ButtCrushing = false;
-		actor->GetGraphVariableBool("GTS_IsButtCrushing", ButtCrushing);
-		return ButtCrushing;
 	}
 
 	bool ButtCrush_IsAbleToGrow(Actor* actor, float limit) {
@@ -545,28 +338,6 @@ namespace GTS {
 			return transient->ButtCrushGrowthAmount < limit;
 		}
 		return false;
-	}
-
-	bool IsBeingGrinded(Actor* actor) {
-		auto transient = Transient::GetActorData(actor);
-		bool grinded = false;
-		actor->GetGraphVariableBool("GTS_BeingGrinded", grinded);
-		if (transient) {
-			return transient->BeingFootGrinded;
-		}
-		return grinded;
-	}
-
-	bool IsHugging(Actor* actor) {
-		bool hugging = false;
-		actor->GetGraphVariableBool("GTS_Hugging", hugging);
-		return hugging;
-	}
-
-	bool IsBeingHugged(Actor* actor) {
-		bool hugged = false;
-		actor->GetGraphVariableBool("GTS_BeingHugged", hugged);
-		return hugged;
 	}
 
 	bool CanDoButtCrush(Actor* actor, bool apply_cooldown) {

@@ -417,7 +417,7 @@ void GTSManager::Update() {
 				UpdateFootStompType(actor);
 				UpdateSneakTransition(actor);
 
-				if (IsCrawling(actor)) {
+				if (AnimationVars::Crawl::IsCrawling(actor)) {
 					ApplyAllCrawlingDamage(actor, 1000, 0.25f);
 				}
 			}
@@ -431,22 +431,20 @@ void GTSManager::Update() {
 
 void GTSManager::OnGameLoaded() {
 
-
 	//Fix Animations And Camera
 	for (auto giant : find_actors()) {
 		if (!giant) {
 			continue;
 		}
-		int StateID;
-		int GTSStateID;
 
-		giant->GetGraphVariableInt("currentDefaultState", StateID);
-		giant->GetGraphVariableInt("GTS_Def_State", GTSStateID);
+		int StateID = AnimationVars::Other::GetCurrentDefaultState(giant);
+		int GTSStateID = AnimationVars::General::GetDefState(giant);
+
 		ResetCameraTracking(giant); // fix the camera tracking if loading previous save while voring/thigh crushing for example
 
 		ResetGrab(giant);
 		if (GTSStateID != StateID) {
-			giant->SetGraphVariableInt("GTS_Def_State", StateID);
+			AnimationVars::General::SetDefState(giant, StateID);
 		}
 	}
 }

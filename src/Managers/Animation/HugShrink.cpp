@@ -60,7 +60,7 @@ namespace {
 
 		if (!task) {
 			float steal = get_visual_scale(tiny) * 0.035f * increase * 0.6f;
-			if (IsCrawling(giant)) {
+			if (AnimationVars::Crawl::IsCrawling(giant)) {
 				steal *= 0.8f; // Crawl has one more shrink event so we compensate
 			}
 			update_target_scale(giant, steal, SizeEffectType::kGrow);
@@ -433,9 +433,7 @@ namespace {
 				return; // disallow manual release when it's true
 			}
 
-			bool Hugging;
-			player->GetGraphVariableBool("GTS_HuggingTeammate", Hugging);
-
+			bool Hugging = AnimationVars::Hug::GetIsHuggingTeammate(player);
 			AbortHugAnimation(player, huggedActor);
 
 			if (!Hugging) { // we don't want to stop task if it returns true
@@ -534,12 +532,11 @@ namespace GTS {
 			}
 			auto tinyref = tinyhandle.get().get();
 			auto giantref = gianthandle.get().get();
-			
-			bool GTS_HuggingAlly = false;
-			bool Tiny_HuggedAsAlly = false;
+
 			float DrainReduction = 3.4f;
-			tinyref->GetGraphVariableBool("GTS_IsFollower", Tiny_HuggedAsAlly);
-			giantref->GetGraphVariableBool("GTS_HuggingTeammate", GTS_HuggingAlly);
+
+			bool Tiny_HuggedAsAlly = AnimationVars::General::GetIsFollower(tinyref);
+			bool GTS_HuggingAlly = AnimationVars::Hug::GetIsHuggingTeammate(giantref);
 
 			ApplyActionCooldown(giantref, CooldownSource::Action_Hugs); // Send Hugs on cooldown non-stop
 
@@ -568,10 +565,8 @@ namespace GTS {
 			GrabStaminaDrain(giantref, tinyref, sizedifference * 2 * DrainReduction);
 			DamageAV(tinyref, ActorValue::kStamina, 0.125f * TimeScale()); // Drain Tiny Stamina
 			ModSizeExperience(giantref, 0.00005f);
-			
-			bool TinyAbsorbed;
-			giantref->GetGraphVariableBool("GTS_TinyAbsorbed", TinyAbsorbed);
 
+			bool TinyAbsorbed = AnimationVars::Hug::GetIsHasAbsorbedTiny(giantref);
 			float stamina = GetAV(giantref, ActorValue::kStamina);
 
 			Utils_UpdateHugBehaviors(giantref, tinyref); // Record GTS/Tiny Size-Difference value for animation blending
@@ -609,7 +604,7 @@ namespace GTS {
 			}
 			// Ensure they are NOT in ragdoll
 			ForceRagdoll(tinyref, false);
-			if (IsCrawling(giantref)) { // Always attach to ObjectA during Crawling (Crawl anims are configured for ObjectA)
+			if (AnimationVars::Crawl::IsCrawling(giantref)) { // Always attach to ObjectA during Crawling (Crawl anims are configured for ObjectA)
 				if (!AttachToObjectA(giantref, tinyref)) {
 					return false;
 				}

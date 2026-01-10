@@ -24,12 +24,12 @@ namespace GTS {
 		Actor* target = GetPlayerOrControlled();
 		auto player = PlayerCharacter::GetSingleton();
 
-		if (IsPlayerFirstPerson(target) || IsGtsBusy(target) || IsChangingSize(target) || !CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kGrabAndSandwich)) {
+		if (IsPlayerFirstPerson(target) || IsGtsBusy(target) || AnimationVars::Growth::IsChangingSize(target) || !CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kGrabAndSandwich)) {
 			return false;
 		}
 
 		auto grabbedActor = Grab::GetHeldActor(target);
-		if (grabbedActor && !IsCrawling(target)) { // IF we have someone in hands, allow only when we crawl
+		if (grabbedActor && !AnimationVars::Crawl::IsCrawling(target)) { // IF we have someone in hands, allow only when we crawl
 			return false;
 		}
 
@@ -47,7 +47,7 @@ namespace GTS {
 		if (IsPlayerFirstPerson(target)) {
 			return false;
 		}
-		if (IsButtCrushing(target) && !IsChangingSize(target) && Runtime::HasPerkTeam(target, Runtime::PERK.GTSPerkButtCrushAug2)) {
+		if (IsButtCrushing(target) && !AnimationVars::Growth::IsChangingSize(target) && Runtime::HasPerkTeam(target, Runtime::PERK.GTSPerkButtCrushAug2)) {
 			return true;
 		}
 		return false;
@@ -117,7 +117,7 @@ namespace GTS {
 		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || IsGtsBusy(target)) {
 			return false;
 		}
-		if (IsCrawling(target) || target->IsSneaking() || IsProning(target)) {
+		if (AnimationVars::Crawl::IsCrawling(target) || target->IsSneaking() || AnimationVars::Prone::IsProne(target)) {
 			return false;
 		}
 		return true;
@@ -180,10 +180,6 @@ namespace GTS {
 		if (!Runtime::HasPerk(target, Runtime::PERK.GTSPerkGrowthDesireAug)) {
 			return false;
 		}
-
-		//if (!IsGtsBusy(target) && !IsChangingSize(target)) {
-		//	return true;
-		//}
 
 		return true;
 	}
@@ -288,7 +284,7 @@ namespace GTS {
 		if (IsGtsBusy(target)) {
 			return false;
 		}
-		if (IsCrawling(target)) {
+		if (AnimationVars::Crawl::IsCrawling(target)) {
 			return false;
 		}
 
@@ -432,7 +428,7 @@ namespace GTS {
 
 	static bool GrabPlayActionCondition() {
 		auto target = GetPlayerOrControlled();
-		if (!IsInGrabPlayState(target)) {
+		if (!AnimationVars::Action::GetIsInGrabPlayState(target)) {
 			return false;
 		}
 		return true;

@@ -20,7 +20,7 @@ namespace {
 		if ((a_Prey->IsDead() || GetAV(a_Prey, ActorValue::kHealth) < 0.0f) && !ALLOW_DEAD) {
 			return false;
 		}
-		if (IsCrawling(a_Performer) || IsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
+		if (AnimationVars::Crawl::IsCrawling(a_Performer) || IsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
 			return false;
 		}
 

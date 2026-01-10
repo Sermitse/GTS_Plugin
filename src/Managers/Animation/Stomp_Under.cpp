@@ -24,7 +24,7 @@ namespace {
 	}
 
     void UnderStomp_CheckForFootGrind(Actor* giant, bool right, FootActionType Type) {
-        if (!IsCrawling(giant)) { // There's no anim for Crawling state
+        if (!AnimationVars::Crawl::IsCrawling(giant)) { // There's no anim for Crawling state
             const float PerformChancePlayer = Config::Gameplay.ActionSettings.fPlayerUnderstompGrindChance;
             const float PerformChanceNPC = Config::AI.Stomp.fUnderstompGrindProbability;
         	bool IsPlayer = giant->formID == 0x14;
@@ -104,7 +104,7 @@ namespace GTS {
         bool blend = false;
 
         if (distance <= min_distance) {
-            giant->SetGraphVariableFloat("GTS_StompBlend", blending);
+            AnimationVars::Stomp::SetStompBlend(giant, blending);
             blend = true;
         }
 
@@ -128,7 +128,7 @@ namespace GTS {
         // Allow to stomp when looking from above or below
         if (allow) {
             float blend = std::clamp(InvLookdownIntensity * 1.3f, 0.0f, 1.0f);
-            giant->SetGraphVariableFloat("GTS_StompBlend", blend);
+            AnimationVars::Stomp::SetStompBlend(giant, blend);
             // Blend between "close" and "far" under-stomps
         }
         return allow;

@@ -148,12 +148,10 @@ namespace GTS {
 
 			if (ImGui::CollapsingHeader("Animations Check", ImUtil::HeaderFlagsDefaultOpen)) {
 				const auto Player = PlayerCharacter::GetSingleton();
-				const bool WorkingAnims = AnimationsInstalled(Player);
+				const bool WorkingAnims = AnimationVars::Utility::GetIsInstalled(Player);
 
-				bool IsPandoraGenerated = false;
-				bool IsNemesisGenerated = false;
-				Player->GetGraphVariableBool("bIsPandoraGenerated", IsPandoraGenerated);
-				Player->GetGraphVariableBool("bIsNemesisGenerated", IsNemesisGenerated);
+				bool IsPandoraGenerated = AnimationVars::Other::GetIsPandoraGenerated(Player);
+				bool IsNemesisGenerated = AnimationVars::Other::GetIsNemesisGenerated(Player);
 
 				ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetTitle);
 

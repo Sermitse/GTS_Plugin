@@ -22,8 +22,8 @@ namespace {
 		std::string dot_name = std::format("FootGrindDOT_{}", giant->formID);
 		std::string rot_name = std::format("FootGrindRot_{}", giant->formID);
 
-		if (IsFootGrinding(giant)) {
-			giant->SetGraphVariableBool("GTS_IsFootGrinding", false); // stop foot grind manually
+		if (AnimationVars::Action::GetIsFootGrinding(giant)) {
+			AnimationVars::Action::SetIsFootGrinding(giant, false);
 		}
 
 		TaskManager::Cancel(task_name_1);
@@ -42,7 +42,7 @@ namespace {
 		// The purpose of this function is to fix Sonderbain's foot grind anims (I don't want to ask Sonder to redo events because of this issue)
 		// The issue: Sonder's anim has a bit wrong timing of _Exit event so Tiny stays attached to the foot when it's not needed (for ~ 1 sec)
 		// This function fixes the issue
-		if (!IsUsingAlternativeStomp(&data.giant) && !IsUnderGrinding(&data.giant)) {
+		if (!IsUsingAlternativeStomp(&data.giant) && !AnimationVars::Action::GetIsUnderGrinding(&data.giant)) {
 			if (data.stage >= 7) {
 				CancelGrindTasks(&data.giant);
 				data.stage = 0; // reset stage

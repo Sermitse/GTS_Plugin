@@ -54,7 +54,7 @@ namespace GTS {
 			return {};
 		}
 
-		if (IsCrawling(a_Performer)) {
+		if (AnimationVars::Crawl::IsCrawling(a_Performer)) {
 			return {};
 		}
 

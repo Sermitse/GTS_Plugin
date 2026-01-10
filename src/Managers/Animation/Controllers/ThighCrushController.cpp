@@ -98,7 +98,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (IsCrawling(pred) || IsTransitioning(pred) || IsBeingHeld(pred, prey)) {
+		if (AnimationVars::Crawl::IsCrawling(pred) || IsTransitioning(pred) || IsBeingHeld(pred, prey)) {
 			return false;
 		}
 

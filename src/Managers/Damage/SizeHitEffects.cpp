@@ -22,7 +22,7 @@ namespace {
 
 	void Prevent_Stagger(Actor* attacker, Actor* receiver) {
 		float sizedifference = get_scale_difference(receiver, attacker, SizeType::GiantessScale, true, false);
-		receiver->SetGraphVariableFloat("GiantessScale", sizedifference); // Manages Stagger Resistance inside Behaviors.
+		AnimationVars::General::SetGiantessScale(receiver, sizedifference); // Manages Stagger Resistance inside Behaviors.
 		// Prevent stagger anims from playing on GTS, Behaviors read GiantessScale value and disallow stagger if value is > 1.5
 	}
 

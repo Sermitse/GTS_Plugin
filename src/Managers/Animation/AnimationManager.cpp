@@ -180,14 +180,7 @@ namespace GTS {
 	void AnimationManager::Update() {
 		auto player = PlayerCharacter::GetSingleton();
 		if (player) {
-			// Updates fall Gravity of Player
-			auto charCont = player->GetCharController();
 			UpdateGravity(player);
-			/*if (charCont) {
-				float Velocity = (charCont->outVelocity.quad.m128_f32[2] * 100.0f) / get_giantess_scale(player);
-
-				player->SetGraphVariableFloat("GiantessVelocity", Velocity);
-			}*/
 		}
 	}
 
@@ -257,9 +250,9 @@ namespace GTS {
 						if (data.canEditAnimSpeed) {
 							data.animSpeed += (bonus * GetAnimationSlowdown(player));
 						}
-
-						float min = IsStrangling(player) ? 0.50f : 0.33f;
-						float max = IsStrangling(player) ? 1.75f : 3.0f;
+						const bool isBreastStrangling = AnimationVars::Cleavage::GetIsBoobsDoting(player);
+						float min = isBreastStrangling ? 0.50f : 0.33f;
+						float max = isBreastStrangling ? 1.75f : 3.0f;
 						data.animSpeed = std::clamp(data.animSpeed, min, max);
 					}
 				}

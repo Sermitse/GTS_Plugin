@@ -123,10 +123,10 @@ namespace GTS {
 		if (giant->IsSneaking()) { // If we sneak/prone/crawl = make threshold bigger so it's harder to scare actors
 			threshold += 0.8f;
 		}
-		if (IsCrawling(giant)) {
+		if (AnimationVars::Crawl::IsCrawling(giant)) {
 			threshold += 1.45f;
 		}
-		if (IsProning(giant)) {
+		if (AnimationVars::Prone::IsProne(giant)) {
 			threshold += 1.45f;
 		}
 		if (giant->AsActorState()->IsWalking()) { // harder to scare if we're approaching slowly

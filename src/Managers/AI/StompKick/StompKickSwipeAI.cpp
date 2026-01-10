@@ -73,7 +73,7 @@ namespace {
 		const float SizeDiff = get_scale_difference(a_Pred, a_Prey, SizeType::VisualScale, true, false);
 
 		float bonus = 1.0f;
-		if (IsCrawling(a_Pred)) {
+		if (AnimationVars::Crawl::IsCrawling(a_Pred)) {
 			bonus = 2.0f; // +100% stomp distance
 		}
 
@@ -243,7 +243,7 @@ namespace GTS {
 			}
 			case 2: {
 
-				if (!IsCrawling(a_Performer)) {
+				if (!AnimationVars::Crawl::IsCrawling(a_Performer)) {
 					Do_Tramples(a_Performer, a_Prey);
 				}
 				else {
@@ -257,7 +257,7 @@ namespace GTS {
 	void KickSwipeAI_Start(Actor* a_Performer) {
 
 		Utils_UpdateHighHeelBlend(a_Performer, false);
-		const bool Crawling = IsCrawling(a_Performer);
+		const bool Crawling = AnimationVars::Crawl::IsCrawling(a_Performer);
 
 		switch (RandomIntWeighted(10, 10)) {
 

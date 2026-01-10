@@ -75,8 +75,8 @@ namespace {
 		DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
 		StopLHandRumble("GrabMoveL", data.giant);
 		if (!grabbedActor) {
-			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-			giant->SetGraphVariableInt("GTS_Grab_State", 0);
+			AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+			AnimationVars::Grab::SetGrabState(giant, false);
 			Grab::ExitGrabState(giant);
 			Grab::DetachActorTask(giant);
 			Grab::Release(giant);

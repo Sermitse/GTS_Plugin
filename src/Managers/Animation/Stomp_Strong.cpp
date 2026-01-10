@@ -41,7 +41,7 @@ namespace {
 
 		if (player->IsSneaking()) {
 			if (AnimationUnderStomp::ShouldStompUnder(player)) {
-				if (!IsCrawling(player)) {
+				if (!AnimationVars::Crawl::IsCrawling(player)) {
 					message = "You're too tired to perform sneak butt crush";
 					WasteStamina *= 1.8f;
 				} else {

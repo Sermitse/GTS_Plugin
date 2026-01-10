@@ -98,7 +98,7 @@ namespace GTS {
 
 	void LaunchActor::ApplyLaunchTo(Actor* giant, Actor* tiny, float force, float launch_power) {
 		GTS_PROFILE_SCOPE("LaunchActor: ApplyLaunchTo");
-		if (IsBeingKilledWithMagic(tiny)) {
+		if (AnimationVars::Tiny::GetIsBeingShrunk(tiny)) {
 			return;
 		}
 		if (IsBeingHeld(giant, tiny)) {

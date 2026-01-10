@@ -66,7 +66,7 @@ namespace {
 		constexpr float MinGrabScale = Action_Grab;
 		float MinDistance            = MINIMUM_GRAB_DISTANCE;
 
-		if (HasSMT(a_Performer) || IsCrawling(a_Performer)) {
+		if (HasSMT(a_Performer) || AnimationVars::Crawl::IsCrawling(a_Performer)) {
 			MinDistance *= 1.5f;
 		}
 
@@ -182,7 +182,7 @@ namespace {
 
 			TransientData->ActionTimer.UpdateDelta(Config::AI.Grab.fInterval);
 			const bool IsDead    = PreyActor->IsDead() || GetAV(PreyActor, ActorValue::kHealth) <= 0.0f || PerformerActor->IsDead();
-			const bool IsBusy    = IsGrabAttacking(PerformerActor) || IsTransitioning(PerformerActor);
+			const bool IsBusy    = AnimationVars::Grab::GetIsGrabAttacking(PerformerActor) || IsTransitioning(PerformerActor);
 			const bool ValidPrey = Grab::GetHeldActor(PerformerActor) != nullptr;
 
 			if (!IsDead && !IsBusy) {
@@ -251,7 +251,7 @@ namespace {
 						}
 
 					}
-					else if (IsStrangling(PerformerActor)) {
+					else if (AnimationVars::Cleavage::GetIsBoobsDoting(PerformerActor)) {
 
 						//Small Chance to Stop, Basically guaranteed to happen after 30 ShouldRun Calls (100 / 3.333 = ~30)
 						//Shortest Timer is 1.0 sec so after ~30s max Stop DOT.
@@ -321,10 +321,10 @@ namespace {
 
 						}
 					}
-					else if (IsInGrabPlayState(PerformerActor)) {
+					else if (AnimationVars::Action::GetIsInGrabPlayState(PerformerActor)) {
 
-						const bool isGrinding = IsGrabPlaySandwiching(PerformerActor);
-						const bool isKissing = IsGrabPlayKissing(PerformerActor);
+						const bool isGrinding = AnimationVars::Action::GetIsGrabPlaying(PerformerActor);
+						const bool isKissing = AnimationVars::Action::GetIsKissing(PerformerActor);
 						const bool isInSubState = isGrinding || isKissing;
 
 						//Mult by the !bool so the chance is only > 0 if not in a substate
@@ -411,7 +411,7 @@ namespace {
 				}
 			}
 
-			bool Attacking = IsGrabAttacking(PerformerActor) || IsGrabPlaySandwiching(PerformerActor);
+			bool Attacking = AnimationVars::Grab::GetIsGrabAttacking(PerformerActor) || AnimationVars::Action::GetIsGrabPlaying(PerformerActor);
 			bool CanCancel = (IsDead || !IsVoring(PerformerActor)) && (!Attacking || IsBeingEaten(PreyActor));
 			if (ShouldAbortGrab(PerformerActor, PreyActor, CanCancel, IsDead, ValidPrey)) {
 				logger::info("GrabAI: Prey Dead or Invalid");

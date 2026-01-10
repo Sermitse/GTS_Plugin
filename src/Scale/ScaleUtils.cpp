@@ -165,10 +165,10 @@ namespace GTS {
 		float Normal = 1.0f;
 		float Reduction = 1.0f;
 
-		if (IsProning(giant)) {
+		if (AnimationVars::Prone::IsProne(giant)) {
 			return 0.30f;
 		}
-		else if (IsCrawling(giant)) {
+		else if (AnimationVars::Crawl::IsCrawling(giant)) {
 			return 0.46f;
 		}
 		else if (giant->IsSneaking()) {

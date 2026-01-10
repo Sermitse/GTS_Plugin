@@ -48,7 +48,7 @@ namespace Grab_Fixes {
 				}
 				Actor* giantref = gianthandle.get().get();
 				Actor* tinyref = tinyhandle.get().get();
-				if (!IsInGrabPlayState(giantref)) { // Exit Grab Play state as soon as attack bool is false
+				if (!AnimationVars::Action::GetIsInGrabPlayState(giantref)) { // Exit Grab Play state as soon as attack bool is false
 					Anims_FixAnimationDesync(giantref, tinyref, true);
 					return false;
 				} else {
@@ -66,8 +66,8 @@ namespace Grab_Fixes {
 		Grab::DetachActorTask(a_giant);
 		Grab::Release(a_giant);
 
-		a_giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-		a_giant->SetGraphVariableInt("GTS_Grab_State", 0);
+		AnimationVars::Grab::SetHasGrabbedTiny(a_giant, false);
+		AnimationVars::Grab::SetGrabState(a_giant, false);
 
 		if (otherActor) {
 
@@ -157,7 +157,7 @@ namespace Grab_Fixes {
 			for (auto& tiny: VoreData.GetVories()) {
 				if (!AllowDevourment()) {
 					VoreData.Swallow();
-					if (IsCrawling(giant)) {
+					if (AnimationVars::Crawl::IsCrawling(giant)) {
 						otherActor->SetAlpha(0.0f); // Hide Actor
 					}
 				} else {
@@ -175,8 +175,8 @@ namespace Grab_Fixes {
 			for (auto& tiny: VoreData.GetVories()) {
 				VoreData.KillAll();
 			}
-			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-			giant->SetGraphVariableInt("GTS_Grab_State", 0);
+			AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+			AnimationVars::Grab::SetGrabState(giant, false);
 			
 			AnimationManager::StartAnim("TinyDied", giant);
 			ManageCamera(giant, false, CameraTracking::Grab_Left);

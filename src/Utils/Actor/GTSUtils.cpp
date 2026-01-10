@@ -71,9 +71,8 @@ namespace {
 		}
 
 		if (sp <= 1.0f || a_doForceCancel) {
-			float OldScale;
-			a_actor->GetGraphVariableFloat("GiantessScale", OldScale); // save old scale
-			a_actor->SetGraphVariableFloat("GiantessScale", 1.0f);     // Needed to allow Stagger to play, else it won't work
+			float OldScale = AnimationVars::General::GetGiantessScale(a_actor);
+			AnimationVars::General::SetGiantessScale(a_actor, 1.0f);
 
 			if (!a_doForceCancel) {
 				StaggerActor(a_actor, 0.25f);
@@ -96,7 +95,7 @@ namespace {
 
 				SpawnParticle(a_actor, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), position, scale * 3.4f, 7, nullptr); // Spawn it
 			}
-			a_actor->SetGraphVariableFloat("GiantessScale", OldScale);
+			AnimationVars::General::SetGiantessScale(a_actor, OldScale);
 
 			return false;
 		}
@@ -450,13 +449,12 @@ namespace GTS {
 	}
 
 	bool BehaviorGraph_DisableHH(Actor* actor) { // should .dll disable HH if Behavior Graph has HH Disable data?
-		bool disable = false;
-		actor->GetGraphVariableBool("GTS_DisableHH", disable);
+		bool disable = AnimationVars::General::GetHHDisabled(actor);
+
 		if (actor->formID == 0x14 && IsFirstPerson()) {
 			return false;
 		}
-		bool anims = AnimationsInstalled(actor);
-		if (!anims) {
+		if (!AnimationVars::Utility::GetIsInstalled(actor)) {
 			return false; // prevent hh from being disabled if there's no Nemesis Generation
 		}
 

@@ -79,10 +79,10 @@ namespace GTS {
 	float GetProneAdjustment() {
 		auto player = PlayerCharacter::GetSingleton();
 		float value = 1.0f;
-		if (IsProning(player)) {
+		if (AnimationVars::Prone::IsProne(player)) {
 			return 0.18f;
 		}
-		if (IsCrawling(player)) {
+		if (AnimationVars::Crawl::IsCrawling(player)) {
 			value = Config::Camera.fFPCrawlHeightMult;
 		}
 
@@ -108,7 +108,7 @@ namespace GTS {
 			constexpr float BASE_DISTANCE = 124.0f;
 			float CheckDistance = BASE_DISTANCE * giantScale;
 
-			if (IsCrawling(giant)) {
+			if (AnimationVars::Crawl::IsCrawling(giant)) {
 				CheckDistance *= 1.5f;
 			}
 
@@ -158,7 +158,7 @@ namespace GTS {
 										NiPoint3 Position = node->world.translate;
 										float bounding_z = get_bounding_box_z(otherActor);
 										if (bounding_z > 0.0f) {
-											if (IsCrawling(giant) && IsBeingHugged(otherActor)) {
+											if (AnimationVars::Crawl::IsCrawling(giant) && IsBeingHugged(otherActor)) {
 												bounding_z *= 0.25f; // Move the icon down
 											}
 											Position.z += (bounding_z * get_visual_scale(otherActor) * 2.35f); // 2.25 to be slightly above the head
@@ -267,9 +267,9 @@ namespace GTS {
 		if (giant->formID == 0x14 || IsTeammate(giant)) {
 			Grab::ExitGrabState(giant);
 
-			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0); // Tell behaviors 'we have nothing in our hands'. A must.
-			giant->SetGraphVariableInt("GTS_Grab_State", 0);
-			giant->SetGraphVariableInt("GTS_Storing_Tiny", 0);
+			AnimationVars::Grab::SetHasGrabbedTiny(giant, false); // Tell behaviors 'we have nothing in our hands'. A must.
+			AnimationVars::Grab::SetGrabState(giant, false);
+			AnimationVars::Action::SetIsStoringTiny(giant, false);
 		}
 	}
 
@@ -356,14 +356,6 @@ namespace GTS {
 			}
 		}
 		return controlled;
-	}
-
-	bool IsUsingAlternativeStomp(Actor* giant) { // Used for alternative grind
-		bool alternative = false;
-
-		giant->GetGraphVariableBool("GTS_IsAlternativeGrind", alternative);
-
-		return alternative;
 	}
 
 	//RenameTo CanPerformActionOn

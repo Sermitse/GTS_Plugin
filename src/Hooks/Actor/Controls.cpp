@@ -7,20 +7,13 @@ using namespace GTS;
 
 namespace {
 
-	bool IsGtsBusy_ForControls(Actor* actor) {
-		bool GTSBusy = false;
-		actor->GetGraphVariableBool("GTS_Busy", GTSBusy);
-		// Have to use this because Hand Swipes make original bool return false
-		return GTSBusy;
-	}
-
 	bool AllowToPerformSneak(RE::IDEvent* id) {
 		bool allow = true;
 		if (id) {
 			auto player = PlayerCharacter::GetSingleton();
 			if (player) {
 				auto as_str = id->userEvent;
-				if (as_str == "Sneak" && IsProning(player)) {
+				if (as_str == "Sneak" && AnimationVars::Prone::IsProne(player)) {
 					if (player->IsSneaking()) {
 						allow = false;
 						AnimationManager::StartAnim("SBO_ProneOff", player);
@@ -54,16 +47,16 @@ namespace {
 		if (IsFreeCameraEnabled()) {
 			return true;
 		}
-		if (!AnimationsInstalled(player)) { // Don't mess with movement if user didn't install anims correctly
+		if (!AnimationVars::Utility::GetIsInstalled(player)) { // Don't mess with movement if user didn't install anims correctly
 			return true;
 		}
 		if (IsTransitioning(player)) { // Disallow to move during transition
 			return false;
 		}
-		if (IsGrabAttacking(player)) { // Allow movement for Grab Attacking
+		if (AnimationVars::Grab::GetIsGrabAttacking(player)) { // Allow movement for Grab Attacking
 			return true;
 		}
-		return !IsGtsBusy_ForControls(player); // Else return GTS Busy
+		return !AnimationVars::General::GetIsBusy(player); // Else return GTS Busy
 	}
 }
 

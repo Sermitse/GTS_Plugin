@@ -232,9 +232,8 @@ namespace GTS {
         
         ReportDeath(giant, tiny, DamageSource::Collision);
 
-        float OldScale;
-        giant->GetGraphVariableFloat("GiantessScale", OldScale); // save old scale
-        giant->SetGraphVariableFloat("GiantessScale", 1.0f); // Needed to allow Stagger to play, else it won't work
+        float OldScale = AnimationVars::General::GetGiantessScale(giant);
+        AnimationVars::General::SetGiantessScale(giant, 1.0f);
 
         int Random = RandomInt(1, 4);
 		if (Random >= 4 && !IsActionOnCooldown(giant, CooldownSource::Emotion_Moan_Crush) && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkGrowthDesire)) {
@@ -256,16 +255,15 @@ namespace GTS {
         }
         
         Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Crush, giant, 1.0f, "NPC COM [COM ]");
-        giant->SetGraphVariableFloat("GiantessScale", OldScale);
+        AnimationVars::General::SetGiantessScale(giant, OldScale);
         DecreaseShoutCooldown(giant);
 
         ScareEnemies(giant);
     }
 
     void TinyCalamity_StaggerActor(Actor* giant, Actor* tiny, float giantHp) { // when we can't crush the target
-        float OldScale; 
-        giant->GetGraphVariableFloat("GiantessScale", OldScale); // record old slace
-        giant->SetGraphVariableFloat("GiantessScale", 1.0f); // Needed to allow Stagger to play, else it won't work
+        float OldScale = AnimationVars::General::GetGiantessScale(giant);
+        AnimationVars::General::SetGiantessScale(giant, 1.0f);
 
         PushForward(giant, tiny, 800);
         AddSMTDuration(giant, 2.5f);
@@ -290,7 +288,7 @@ namespace GTS {
             Notify("{} is too tough to be crushed", tiny->GetDisplayFullName());
         }
 
-        giant->SetGraphVariableFloat("GiantessScale", OldScale);
+        AnimationVars::General::SetGiantessScale(giant, OldScale);
         RefreshDuration(giant);
     }
 

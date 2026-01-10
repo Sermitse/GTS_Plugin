@@ -161,7 +161,7 @@ namespace GTS {
             ShutUp(muted);
         }
 
-        bool Attacking = IsGrabAttacking(giantref);
+        bool Attacking = AnimationVars::Grab::GetIsGrabAttacking(giantref);
 
         bool Dead = (giantref->IsDead() || tinyref->IsDead() || GetAV(tinyref, ActorValue::kHealth) <= 0.0f);
         bool CanCancel = (Dead || !IsVoring(giantref)) && (!Attacking || IsBeingEaten(tinyref));
@@ -171,7 +171,7 @@ namespace GTS {
             return false;
         }
         // Switch to always using Grab Play logic in that case, we need it since it doesn't cancel properly without it
-        if (IsInGrabPlayState(giantref)) {
+        if (AnimationVars::Action::GetIsInGrabPlayState(giantref)) {
             return ManageGrabPlayAttachment(giantref, tinyref);
         }
 
@@ -217,7 +217,9 @@ namespace GTS {
                     }
                 }
 
-                if (IsStrangling(giantref) && (small_size || Dead) && !IsExitingStrangle(giantref)) {// If size is too small 
+                if (AnimationVars::Cleavage::GetIsBoobsDoting(giantref) && 
+                    (small_size || Dead) && 
+                    !AnimationVars::Cleavage::GetIsExitingStrangle(giantref)) {// If size is too small 
                     AnimationManager::StartAnim("Cleavage_DOT_Stop", giantref);
                 }
 
@@ -276,8 +278,9 @@ namespace GTS {
     }
 
     bool FailSafeAbort(Actor* giantref, Actor* tinyref) {
-        if (IsGrabAttacking(giantref)) { // Breast state also counts as attacking, so we reset only when NOT grab attacking/in breast state
-            if (IsStrangling(giantref) && !IsExitingStrangle(giantref)) { // These checks are important so we don't spam StartAnim
+        if (AnimationVars::Grab::GetIsGrabAttacking(giantref)) { // Breast state also counts as attacking, so we reset only when NOT grab attacking/in breast state
+            if (AnimationVars::Cleavage::GetIsBoobsDoting(giantref) && 
+				!AnimationVars::Cleavage::GetIsExitingStrangle(giantref)) { // These checks are important so we don't spam StartAnim
                 AnimationManager::StartAnim("Cleavage_DOT_Stop", giantref);
                 return true; // True = try again, do not abort
             }

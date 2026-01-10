@@ -15,11 +15,11 @@ namespace {
 	constexpr float PI = std::numbers::pi_v<float>;
 
 	void RecordSneakingState(Actor* a_Performer, Actor* a_Prey) {
-		bool Crawling = IsCrawling(a_Performer);
+		bool Crawling = AnimationVars::Crawl::IsCrawling(a_Performer);
 		bool Sneaking = a_Performer->IsSneaking();
 
-		a_Prey->SetGraphVariableBool("GTS_Hug_Sneak_Tny", Sneaking); // Is Sneaking?
-		a_Prey->SetGraphVariableBool("GTS_Hug_Crawl_Tny", Crawling); // Is Crawling?
+		AnimationVars::Tiny::SetIsBeingCrawlHugged(a_Prey, Crawling);
+		AnimationVars::Tiny::SetIsBeingSneakHugged(a_Prey, Sneaking);
 	}
 
 	bool ActorStateCheck(Actor* a_Actor) {
@@ -57,7 +57,7 @@ namespace {
 		constexpr float MinScale = Action_Hug;
 
 		if (a_Performer->IsSneaking()) {
-			if (IsCrawling(a_Performer)) {
+			if (AnimationVars::Crawl::IsCrawling(a_Performer)) {
 				MinDist *= 2.35f;
 			}
 			else {

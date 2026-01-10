@@ -47,11 +47,11 @@ namespace {
 	}
 
 	void RecordSneakState(Actor* giant, Actor* tiny) {
-		bool Crawling = IsCrawling(giant);
+		bool Crawling = AnimationVars::Crawl::IsCrawling(giant);
 		bool Sneaking = giant->IsSneaking();
 
-		tiny->SetGraphVariableBool("GTS_Hug_Sneak_Tny", Sneaking); // Is Sneaking?
-		tiny->SetGraphVariableBool("GTS_Hug_Crawl_Tny", Crawling); // Is Crawling?
+		AnimationVars::Tiny::SetIsBeingCrawlHugged(tiny, Crawling);
+		AnimationVars::Tiny::SetIsBeingSneakHugged(tiny, Sneaking);
 	}
 
 	void Task_PerformHugs(Actor* giant, Actor* tiny) {
@@ -73,7 +73,7 @@ namespace {
 			AnimationManager::StartAnim("Huggies_Try", pred);
 
 			if (pred->IsSneaking()) {
-				if (!IsCrawling(pred)) {
+				if (!AnimationVars::Crawl::IsCrawling(pred)) {
 					SetSneaking(pred, true, 0); // If just sneaking, disable sneaking so footstep sounds will work properly
 				}
 				AnimationManager::StartAnim("Huggies_Try_Victim_S", prey); // GTSBEH_HugAbsorbStart_Sneak_V
@@ -211,7 +211,7 @@ namespace GTS {
 		float MINIMUM_HUG_SCALE = Action_Hug;
 
 		if (pred->IsSneaking()) {
-			if (IsCrawling(pred)) {
+			if (AnimationVars::Crawl::IsCrawling(pred)) {
 				MINIMUM_DISTANCE *= 2.35f;
 			} else {
 				MINIMUM_DISTANCE *= 1.6f;
@@ -264,7 +264,7 @@ namespace GTS {
 			return;
 		}
 
-		if (IsCrawling(pred)) {
+		if (AnimationVars::Crawl::IsCrawling(pred)) {
 			if (!CanDoActionBasedOnQuestProgress(PlayerCharacter::GetSingleton(), QuestAnimationType::kOthers)) {
 				// Can Crawl Hug only after quest is done
 				if (pred->formID == 0x14) {

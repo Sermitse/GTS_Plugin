@@ -392,8 +392,7 @@ namespace {
 		auto Cache = Persistent::GetActorData(player);
 		if (Cache) {
 			if (Cache->fSizeReserve > 0.0f) {
-				bool Attacking = false;
-				player->GetGraphVariableBool("GTS_IsGrabAttacking", Attacking);
+				bool Attacking = AnimationVars::Grab::GetIsGrabAttacking(player);
 
 				if (!Attacking) {
 					float duration = data.Duration();

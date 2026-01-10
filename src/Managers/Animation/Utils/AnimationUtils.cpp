@@ -84,7 +84,7 @@ namespace GTS {
 	void RestoreBreastAttachmentState(Actor* giant, Actor* tiny) { // Fixes tiny going under our foot if someone suddenly ragdolls us during breast anims such as Absorb
 		if (IsRagdolled(giant) && Attachment_GetTargetNode(giant) != AttachToNode::None) {
 			Attachment_SetTargetNode(giant, AttachToNode::None);
-			giant->SetGraphVariableBool("GTS_OverrideZ", false);
+			AnimationVars::Action::SetCleavageOverrideZ(giant, false);
 
 			if (IsHostile(giant, tiny)) {
 				AnimationManager::StartAnim("Breasts_Idle_Unwilling", tiny);
@@ -271,11 +271,12 @@ namespace GTS {
 		bool perk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace);
 
 		if (perk && !hostile && teammate && !force) {
-			tiny->SetGraphVariableBool("GTS_IsFollower", true);
-			giant->SetGraphVariableBool("GTS_HuggingTeammate", true);
-		} else {
-			tiny->SetGraphVariableBool("GTS_IsFollower", false);
-			giant->SetGraphVariableBool("GTS_HuggingTeammate", false);
+			AnimationVars::General::SetIsFollower(tiny, true);
+			AnimationVars::Hug::SetIsHuggingTeammate(tiny, true);
+		} 
+		else {
+			AnimationVars::General::SetIsFollower(tiny, false);
+			AnimationVars::Hug::SetIsHuggingTeammate(tiny, false);
 		}
 		// This function determines the following:
 		// Should the Tiny play "willing" or "Unwilling" hug idle?
@@ -351,9 +352,7 @@ namespace GTS {
 
 	// Cancels all hug-related things
 	void AbortHugAnimation(Actor* giant, Actor* tiny) {
-		
-		bool Friendly;
-		giant->GetGraphVariableBool("GTS_HuggingTeammate", Friendly);
+		bool Friendly = AnimationVars::Hug::GetIsHuggingTeammate(giant);
 
 		SetSneaking(giant, false, 0);
 
@@ -363,7 +362,7 @@ namespace GTS {
 
 		AnimationManager::StartAnim("Huggies_Spare", giant); // Start "Release" animation on Giant
 
-		if (Friendly && !IsCrawling(giant) && tiny) { // If friendly, we don't want to push/release actor
+		if (Friendly && !AnimationVars::Crawl::IsCrawling(giant) && tiny) { // If friendly, we don't want to push/release actor
 			EnableCollisions(tiny);
 			SetBeingHeld(tiny, false);
 			UpdateFriendlyHugs(giant, tiny, true); // set GTS_IsFollower (tiny) and GTS_HuggingTeammate (GTS) bools to false
@@ -396,19 +395,19 @@ namespace GTS {
 		float OldValue = size_difference;
 		float NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin;
 
-		tiny->SetGraphVariableFloat("GTS_SizeDifference", NewValue); // pass Tiny / Giant size diff POV to Tiny
-		giant->SetGraphVariableFloat("GTS_SizeDifference", NewValue); // pass Tiny / Giant size diff POV to GTS
+
+		AnimationVars::General::SetSizeDifference(tiny, NewValue); // pass Tiny / Giant size diff POV to Tiny
+		AnimationVars::General::SetSizeDifference(giant, NewValue); // pass Tiny / Giant size diff POV to GTS
     }
 
 	void Utils_UpdateHighHeelBlend(Actor* giant, bool reset) { // needed to blend between 2 animations so hand will go lower
 		if (!reset) {
-			float max_heel_height = 0.215f; // All animations are configured with this value in mind. Blending isn't configured for heels bigger than this value.
-			float hh_value = HighHeelManager::GetBaseHHOffset(giant)[2]/100;
-			float hh_offset = std::clamp(hh_value / max_heel_height, 0.0f, 1.0f); // reach max HH at 0.215 offset (highest i've seen and the max that we support)
-		
-			giant->SetGraphVariableFloat("GTS_HHoffset", hh_offset);
+			constexpr float max_heel_height = 0.215f; // All animations are configured with this value in mind. Blending isn't configured for heels bigger than this value.
+			const float hh_value = HighHeelManager::GetBaseHHOffset(giant)[2]/100;
+			const float hh_offset = std::clamp(hh_value / max_heel_height, 0.0f, 1.0f); // reach max HH at 0.215 offset (highest i've seen and the max that we support)
+			AnimationVars::General::SetHHOffset(giant, hh_offset);
 		} else {
-			giant->SetGraphVariableFloat("GTS_HHoffset", 0.0f); // reset it
+			AnimationVars::General::SetHHOffset(giant, 0.0f);
 		}
 	}
 
@@ -495,9 +494,6 @@ namespace GTS {
 				return;
 			}
 			auto giant = giantref.get().get();
-
-			//giant->SetGraphVariableBool("GTS_IsStomping", false);
-
 			DoLaunch(giant, radius, power, kind);
 		});
 	}
@@ -1360,7 +1356,7 @@ namespace GTS {
 			NiPoint3 up = inverseFoot*((up_1 + foot->world.translate) / 2);
 
 			if (!actor->IsSneaking()) { // So foot zones face straigth, a very rough fix
-				if (!IsCrawling(actor)) {
+				if (!AnimationVars::Crawl::IsCrawling(actor)) {
 					bool ignore = (IsStomping(actor) || IsVoring(actor) || IsTrampling(actor) || IsThighSandwiching(actor));
 					if (ignore_rotation || ignore) {
 						up = (toe->world.translate + foot->world.translate) / 2;
@@ -1421,7 +1417,7 @@ namespace GTS {
 		float adjustment = 45.0f * get_visual_scale(giant);
 
 		if (hugs) {
-			if (IsCrawling(giant)) { // if doing healing crawl hugs
+			if (AnimationVars::Crawl::IsCrawling(giant)) { // if doing healing crawl hugs
 				targetPoint = TargetA; // just target the breasts
 			} else {
 				adjustment = 85 * get_visual_scale(giant);
@@ -1852,20 +1848,15 @@ namespace GTS {
 
 	void SetAltFootStompAnimation(RE::Actor* a_actor, const bool a_state) {
 
-
 		if (!a_actor) {
 			return;
 		}
 
-		bool PrevState = false;
-		if (a_actor->GetGraphVariableBool("GTS_EnableAlternativeStomp", PrevState)) {
-
-			if (PrevState == a_state) {
-				return;
-			}
-
-			a_actor->SetGraphVariableBool("GTS_EnableAlternativeStomp", a_state);
+		if (AnimationVars::Stomp::GetEnableAlternativeStomp(a_actor) == a_state) {
+			return;
 		}
+
+		AnimationVars::Stomp::SetEnableAlternativeStomp(a_actor, a_state);
 	}
 
 	void SetEnableSneakTransition(RE::Actor* a_actor, const bool a_state) {
@@ -1874,15 +1865,11 @@ namespace GTS {
 			return;
 		}
 
-		bool PrevState = false;
-		if (a_actor->GetGraphVariableBool("GTS_DisableSneakTrans", PrevState)) {
-
-			if (PrevState == a_state) {
-				return;
-			}
-
-			a_actor->SetGraphVariableBool("GTS_DisableSneakTrans", a_state);
+		if (AnimationVars::General::GetDisableSneakTransition(a_actor) ==  a_state) {
+			return;
 		}
+		AnimationVars::General::SetDisableSneakTransition(a_actor, a_state);
+		
 	}
 
 
@@ -1892,26 +1879,22 @@ namespace GTS {
 			return false;
 		}
 
-		bool PrevState = false;
 		if (auto transient = Transient::GetActorData(a_actor)) {
 			transient->FPCrawling = a_state;
 		}
 
-		if (a_actor->GetGraphVariableBool("GTS_CrawlEnabled", PrevState)) {
-
-			if (PrevState == a_state) {
-				return false;
-			}
-
-			a_actor->SetGraphVariableBool("GTS_CrawlEnabled", a_state);
-
-
-			if (a_actor->IsSneaking() && !IsProning(a_actor) && !IsGtsBusy(a_actor) && !IsTransitioning(a_actor)) {
-				return PrevState != a_state;
-			}
+		if (AnimationVars::Crawl::GetIsCrawlEnabled(a_actor) == a_state) {
 			return false;
 		}
+
+		AnimationVars::Crawl::SetIsCrawlEnabled(a_actor, a_state);
+
+		if (a_actor->IsSneaking() && !AnimationVars::Prone::IsProne(a_actor) && !IsGtsBusy(a_actor) && !IsTransitioning(a_actor)) {
+			return true;
+		}
+
 		return false;
+
 	}
 
 	void UpdateCrawlAnimations(Actor* a_actor, bool a_state) {

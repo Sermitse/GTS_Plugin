@@ -36,7 +36,7 @@ namespace {
 		float MINIMUM_BUTTCRUSH_SCALE = Action_ButtCrush;
 		constexpr float MINIMUM_DISTANCE = MINIMUM_BUTTCRUSH_DISTANCE;
 
-		if (IsCrawling(a_Performer)) {
+		if (AnimationVars::Crawl::IsCrawling(a_Performer)) {
 			MINIMUM_BUTTCRUSH_SCALE *= 1.5f;
 		}
 
@@ -76,7 +76,7 @@ namespace {
 			const bool CanGrow = ButtCrush_IsAbleToGrow(ActorRef, GetGrowthLimit(ActorRef));
 			const bool BlockGrowth = IsActionOnCooldown(ActorRef, CooldownSource::Misc_AiGrowth);
 
-			if (IsChangingSize(ActorRef)) { // Growing/shrinking
+			if (AnimationVars::Growth::IsChangingSize(ActorRef)) { // Growing/shrinking
 				ApplyActionCooldown(ActorRef, CooldownSource::Misc_AiGrowth);
 			}
 
@@ -85,7 +85,7 @@ namespace {
 				return true;
 			}
 
-			if (!IsChangingSize(ActorRef)){
+			if (!AnimationVars::Growth::IsChangingSize(ActorRef)){
 				//If we dont have the perk or for some reason the action needs to be canceled just play the attack anim immediatly
 				if (!Runtime::HasPerkTeam(ActorRef, Runtime::PERK.GTSPerkButtCrushAug2) || !IsButtCrushing(ActorRef)) {
 					AnimationManager::StartAnim("ButtCrush_Attack", ActorRef);
@@ -117,7 +117,7 @@ namespace GTS {
 			return {};
 		}
 
-		if (IsGtsBusy(a_Performer) || IsChangingSize(a_Performer)) {
+		if (IsGtsBusy(a_Performer) || AnimationVars::Growth::IsChangingSize(a_Performer)) {
 			return {};
 		}
 

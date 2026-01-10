@@ -58,7 +58,7 @@ namespace {
 
 			bool IsDead = tinyref->IsDead();
 			bool OnCooldown = IsActionOnCooldown(tinyref, CooldownSource::Misc_ShrinkParticle);
-			if (IsDead || !IsBeingKilledWithMagic(tinyref)) {
+			if (IsDead || !AnimationVars::Tiny::GetIsBeingShrunk(tinyref)) {
 				return false;
 			}
 			if (!OnCooldown) {

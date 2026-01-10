@@ -77,7 +77,7 @@ namespace GTS {
 				NiAVObject* Node_LeftFoot = find_node(a_Giant, "NPC L Foot [Lft ]");
 				NiAVObject* Node_RightFoot = find_node(a_Giant, "NPC R Foot [Rft ]");
 				
-				if (a_Giant->IsSneaking() || IsCrawling(a_Giant)) {
+				if (a_Giant->IsSneaking() || AnimationVars::Crawl::IsCrawling(a_Giant)) {
 					NiAVObject* Node_LeftHand = find_node(a_Giant, "NPC L Hand [LHnd]");
 					NiAVObject* Node_RightHand = find_node(a_Giant, "NPC R Hand [RHnd]");
 					if (Node_LeftHand && Node_RightHand) {
