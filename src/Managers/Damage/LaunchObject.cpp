@@ -7,7 +7,7 @@
 
 #include "RE/T/TES.hpp"
 
-#include "Debug/DebugDraw.hpp"
+
 
 using namespace GTS;
 
@@ -111,7 +111,7 @@ namespace GTS {
 
 		std::vector<ObjectRefHandle> Refs = GetNearbyObjects(giant);
 
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
 			for (auto point: footPoints) {
 				if (IsFoot) {
 					point.z -= HH;
@@ -194,7 +194,7 @@ namespace GTS {
 			point.z -= HH * 0.75f;
 		}
 
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
 			DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 20, {0.5f, 0.0f, 0.5f, 1.0f});
 		}
 

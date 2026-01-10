@@ -44,8 +44,6 @@ namespace GTS {
 
 	bool IsInGodMode(Actor* giant);
 
-	bool IsDebugEnabled();
-
 	bool CanDoDamage(Actor* giant, Actor* tiny, bool HoldCheck);
 
 	bool AllowDevourment();

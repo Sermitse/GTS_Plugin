@@ -4,7 +4,7 @@
 #include "Managers/Perks/PerkHandler.hpp"
 
 #include "Managers/Animation/AnimationManager.hpp"
-#include "Debug/DebugDraw.hpp"
+
 
 
 using namespace GTS;
@@ -51,11 +51,9 @@ namespace {
 		NiAVObject* node = find_node(giant, "NPC Root [Root]");
         if (node) {
             NiPoint3 point = node->world.translate;
-			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
+			if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
 				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
 			}
-
-			NiPoint3 giantLocation = giant->GetPosition();
 
 			for (auto otherActor: find_actors()) {
 				if (otherActor != giant && !otherActor->IsDead()) {

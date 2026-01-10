@@ -35,26 +35,27 @@ namespace {
 
     bool ManageGrabPlayAttachment(Actor* giantref, Actor* tinyref) {
         auto TargetBone = Attachment_GetTargetNode(giantref);
-        std::string_view node_lookup = "none";
+        std::string_view node_lookup;
 
-        auto Transient = Transient::GetActorData(giantref);
+        
 
         switch (TargetBone) {
             case AttachToNode::ObjectL: {
-                node_lookup = "AnimObjectL";            break;
+                node_lookup = "AnimObjectL"; break;
             }
             case AttachToNode::ObjectR: {
-                node_lookup = "AnimObjectR";            break;
+                node_lookup = "AnimObjectR"; break;
             }
             case AttachToNode::ObjectA: {
-                node_lookup = "AnimObjectA";            break;
+                node_lookup = "AnimObjectA"; break;
             }
             case AttachToNode::ObjectB: {
-                node_lookup = "AnimObjectB";            break;
+                node_lookup = "AnimObjectB"; break;
             }
             case AttachToNode::None: {
-                node_lookup = "AnimObjectL";
+                node_lookup = "AnimObjectL"; break;
             }
+            default: return false;
         }
 
         NiAVObject* Object = find_node(giantref, node_lookup);
@@ -66,7 +67,7 @@ namespace {
                 FaceSame(giantref, tinyref);
             }
 
-            if (Transient) {
+            if (TransientActorData* Transient = Transient::GetActorData(giantref)) {
                 if (Transient->KissVoring) {
                     const auto Offset = Config::Gameplay.ActionSettings.fGrabPlayVoreOffset_Z;
                     float offset = (0.6f + Offset) * get_visual_scale(giantref);
@@ -207,7 +208,7 @@ namespace GTS {
                 }
                 return true;
             } else if (Attachment_GetTargetNode(giantref) == AttachToNode::ObjectB) { // Used in Cleavage state
-                if (IsDebugEnabled()) {
+                if (DebugDraw::CanDraw()) {
                     auto node = find_node(tinyref, "NPC Root [Root]");
                     if (node) {
                         NiPoint3 point = node->world.translate;

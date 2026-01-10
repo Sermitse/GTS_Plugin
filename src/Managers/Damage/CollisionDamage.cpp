@@ -12,7 +12,7 @@
 
 #include "Magic/Effects/Common.hpp"
 
-#include "Debug/DebugDraw.hpp"
+
 
 #include "Utils/DeathReport.hpp"
 #include "Utils/MovementForce.hpp"
@@ -182,7 +182,7 @@ namespace GTS {
 
 		if (CoordsToCheck.empty()) return;
 
-		if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor) || EffectsForEveryone(actor))) {
+		if (DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kAnyGTS)) {
 			constexpr int duration = 300;
 			if (Cause != DamageSource::FootIdleL && Cause != DamageSource::FootIdleR) {
 				for (auto footPoints : CoordsToCheck) {

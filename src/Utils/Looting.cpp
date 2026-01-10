@@ -4,7 +4,7 @@
 
 #include "Managers/AI/AIFunctions.hpp"
 #include "Systems/Rays/Raycast.hpp"
-#include "Debug/DebugDraw.hpp"
+
 
 using namespace GTS;
 
@@ -13,7 +13,7 @@ namespace {
 	void RunScaleTask(const ObjectRefHandle& dropboxHandle, Actor* actor, const double Start, const float Scale, const bool soul, const NiPoint3 TotalPos) {
 
 		const std::string taskname = std::format("Dropbox {}", actor->formID); // create task name for main task
-		TaskManager::RunFor(taskname, 16, [=](auto& progressData) { // Spawn loot piles
+		TaskManager::RunFor(taskname, 16, [=](auto&) { // Spawn loot piles
 			if (!dropboxHandle) {
 				return false;
 			}
@@ -130,10 +130,10 @@ namespace GTS {
 		}
 
 		if (reset) {
-			StartResetTask(from); // reset actor data.
+			StartActorResetTask(from); // reset actor data.
 		}
 
-		TaskManager::RunFor(name, 3.0f, [=](auto& progressData) {
+		TaskManager::RunFor(name, 3.0f, [=](auto&) {
 			if (!tinyhandle) {
 				return false;
 			}
@@ -229,7 +229,7 @@ namespace GTS {
 		}
 
 		NiPoint3 TotalPos = GetContainerSpawnLocation(giant, actor); // obtain goal of container position by doing ray-cast
-		if (IsDebugEnabled()) {
+		if (DebugDraw::CanDraw()) {
 			DebugDraw::DrawSphere(glm::vec3(TotalPos.x, TotalPos.y, TotalPos.z), 8.0f, 6000, {1.0f, 1.0f, 0.0f, 1.0f});
 		}
 		auto dropbox = Runtime::PlaceContainerAtPos(actor, TotalPos, *container); // Place chosen container
@@ -255,10 +255,6 @@ namespace GTS {
 
 	void MoveItemsTowardsDropbox(Actor* actor, TESObjectREFR* dropbox, bool removeQuestItems) {
 		int32_t quantity = 1;
-		//Removing Items from actors that have no 3d will crash the game.
-		if (!actor->Is3DLoaded() || !dropbox->Is3DLoaded()) {
-			return;
-		}
 		for (auto &[a_object, invData]: actor->GetInventory()) { // transfer loot
 			if (a_object->GetPlayable() && a_object->GetFormType() != FormType::LeveledItem) { // We don't want to move Leveled Items
 				if ((!invData.second->IsQuestObject() || removeQuestItems)) {
@@ -283,7 +279,7 @@ namespace GTS {
 
 	void MoveItems(const ActorHandle& giantHandle, const ActorHandle& tinyHandle, FormID ID, DamageSource Cause) {
 		std::string taskname = std::format("MoveItems_{}", ID);
-		TaskManager::RunOnce(taskname, [=](auto& update){
+		TaskManager::RunOnce(taskname, [=](auto&){
 			if (!tinyHandle || !giantHandle) {
 				return;
 			}

@@ -16,7 +16,7 @@
 #include "Managers/Audio/MoansLaughs.hpp"
 #include "Managers/Audio/GoreAudio.hpp"
 
-#include "Debug/DebugDraw.hpp"
+
 
 using namespace GTS;
 
@@ -86,7 +86,7 @@ namespace {
 		if (min_radius > 0.0f && distance < min_radius) {
 			return;
 		}
-		if (AllowStagger(giant, otherActor)) {
+		if (AllowStagger(otherActor)) {
 			float force = GetForceFromDistance(distance, maxDistance);
 			LaunchActor::ApplyLaunchTo(giant, otherActor, force, power);
 		}
@@ -245,7 +245,7 @@ namespace GTS {
 
 			float maxDistance = BASE_CHECK_DISTANCE * radius * giantScale;
 			
-			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
+			if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
 				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
 			}
 			
@@ -292,8 +292,8 @@ namespace GTS {
 		float HH = HighHeelManager::GetHHOffset(giant).Length();
 
 		if (!CoordsToCheck.empty()) {
-			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
-				for (auto footPoints: CoordsToCheck) {
+			if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
+				for (NiPoint3 footPoints : CoordsToCheck) {
 					footPoints.z -= HH;
 					DebugDraw::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
 				}
@@ -311,7 +311,7 @@ namespace GTS {
 							point.z -= HH;
 							float distance = (point - actorLocation).Length();
 							if (distance <= maxFootDistance) {
-								if (AllowStagger(giant, otherActor)) {
+								if (AllowStagger(otherActor)) {
 									float force = GetForceFromDistance(distance, maxFootDistance);
 									ApplyLaunchTo(giant, otherActor, force, power);
 								}

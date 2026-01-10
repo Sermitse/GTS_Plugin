@@ -171,7 +171,7 @@ namespace GTS {
 
 			const uint16_t queststage = progressionQuest->GetCurrentStageID();
 
-			logger::debug("CanDoActionBasedOnQuestProgress (Stage: {} / Type: {})", queststage, static_cast<int>(type));
+			//logger::debug("CanDoActionBasedOnQuestProgress (Stage: {} / Type: {})", queststage, static_cast<int>(type));
 
 			switch (type) {
 				case QuestAnimationType::kHugs:            return queststage >= 10;  // allow hugs

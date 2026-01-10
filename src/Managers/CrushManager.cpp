@@ -190,7 +190,7 @@ namespace GTS {
 					auto giant = giantHandle.get().get();
 					auto tiny = tinyHandle.get().get();
 					TransferInventory(tiny, giant, currentSize * GetSizeFromBoundingBox(tiny), false, true, DamageSource::Crushed, true);
-					// Actor Reset is done inside TransferInventory:StartResetTask!
+					// Actor Reset is done inside TransferInventory:StartActorResetTask!
 				});
 
 				if (tiny->formID != 0x14) {

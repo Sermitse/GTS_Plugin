@@ -22,7 +22,6 @@ namespace GTS {
 	void AddPerkPoints(float a_Level) {
 
 		const auto _Level = static_cast<int>(std::round(a_Level));
-
 		auto GtsSkillPerkPoints = Runtime::GetGlobal(Runtime::GLOB.GTSSkillPerkPoints);
 
 		if (!GtsSkillPerkPoints) {
@@ -30,7 +29,7 @@ namespace GTS {
 		}
 
 		if (static_cast<int>(_Level) % 5 == 0) {
-			Notify("You've learned a bonus perk point.");
+			Notify("You've earned a bonus perk point.");
 			GtsSkillPerkPoints->value += 1.0f;
 		}
 

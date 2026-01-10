@@ -8,8 +8,8 @@ namespace GTS {
 	};
 
 	[[nodiscard]] vector<Actor*> __forceinline inline find_actors();
-	[[nodiscard]]  vector<Actor*> FindSomeActors(std::string_view tag, uint32_t howMany);
-	[[nodiscard]]  vector<Actor*> FindTeammates();
-	[[nodiscard]]  vector<Actor*> FindFemaleTeammates();
+	[[nodiscard]] vector<Actor*> FindSomeActors(std::string_view tag, uint32_t howMany);
+	[[nodiscard]] vector<Actor*> FindTeammates();
+	[[nodiscard]] vector<Actor*> FindFemaleTeammates();
 
 }

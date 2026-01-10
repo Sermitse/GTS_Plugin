@@ -455,7 +455,7 @@ namespace {
                 PerkHandler::UpdatePerkValues(giantref, PerkUpdate::Perk_LifeForceAbsorption);
 
                 TransferInventory(tinyref, giantref, get_visual_scale(tinyref) * GetSizeFromBoundingBox(tinyref), false, true, DamageSource::Vored, true);
-                // Actor Reset is done inside TransferInventory:StartResetTask!
+                // Actor Reset is done inside TransferInventory:StartActorResetTask!
                 });
 
             RecoverAttributes(giant, ActorValue::kHealth, 0.05f);

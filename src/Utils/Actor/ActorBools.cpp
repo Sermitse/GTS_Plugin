@@ -228,12 +228,6 @@ namespace GTS {
 		return *singleton;
 	}
 
-
-
-	bool IsDebugEnabled() {
-		return Config::Advanced.bShowOverlay;
-	}
-
 	bool CanDoDamage(Actor* giant, Actor* tiny, bool HoldCheck) {
 		if (HoldCheck) {
 			if (IsBeingHeld(giant, tiny)) {
@@ -610,9 +604,6 @@ namespace GTS {
 		}
 		if (!dragon && !animal && !dwemer && !creature && undead && vampire) {
 			return true; // Detect Vampire
-		}
-		else {
-			return false;
 		}
 		return false;
 	}

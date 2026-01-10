@@ -1,13 +1,5 @@
 #pragma once
 
-//Project-Wide Defines
-//#define GTS_PROFILER_ENABLED
-//#define GTS_DISABLE_PLUGIN
-
-//Imgui Defines
-#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <algorithm>
 #include <any>
 #include <array>
@@ -174,22 +166,31 @@ namespace RE {
 
 namespace logger = SKSE::log;
 
+//Project-Wide Defines
+//#define GTS_PROFILER_ENABLED
+//#define GTS_DISABLE_PLUGIN
+
+//Imgui Defines
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 // ---- Own Includes ----
 #include "RE/RE.hpp"
 #include "Constants.hpp"
 
 //Debugging
 #include "Debug/Profilers.hpp"
+#include "Debug/DebugDraw.hpp"
 
-//Utils
+//Base Utils
 #include "Utils/Misc/Singleton.hpp"
 #include "Utils/Misc/Enum.hpp"
 #include "Utils/Misc/Random.hpp"
 #include "Utils/Misc/TryLockMutex.hpp"
-#include "Utils/Input/DInput.hpp"
-#include "Utils/Win32/Messagebox.hpp"
 #include "Utils/Text/Text.hpp"
 #include "Utils/Text/Format.hpp"
+#include "Utils/Input/DInput.hpp"
+#include "Utils/Win32/Messagebox.hpp"
 
 //Systems
 #include "Systems/Events/EventListener.hpp"
@@ -201,11 +202,14 @@ namespace logger = SKSE::log;
 #include "Systems/Motion/Spring.hpp"
 #include "Systems/Motion/Smooth.hpp"
 
+//GTS Utils
 #include "Utils/PapyrusUtils.hpp"
 #include "Utils/Units.hpp"
 #include "Utils/Camera.hpp"
 #include "Utils/Node.hpp"
-
+#include "Utils/EffectUtils.hpp"
+#include "Utils/QuestUtil.hpp"
+#include "Utils/SoundUtils.hpp"
 
 //Scale
 #include "Scale/Scale.hpp"
@@ -213,24 +217,19 @@ namespace logger = SKSE::log;
 #include "Scale/Height.hpp"
 #include "Scale/ScaleUtils.hpp"
 
-//Actor
-//CleanedUp
-#include "Utils/EffectUtils.hpp"
+//Other
 #include "Papyrus/ProxyFunctions.hpp"
-#include "Utils/QuestUtil.hpp"
-#include "Utils/SoundUtils.hpp"
+
+//Actor
 #include "Utils/Actions/ActionUtils.hpp"
 #include "Utils/Actor/ActorUtils.hpp"
 #include "Utils/Actor/ActorBools.hpp"
 #include "Utils/Actor/GTSUtils.hpp"
-#include "Utils/Animation/AnimationUtils.hpp"
-#include "Utils/Animation/AnimationVars.hpp"
 #include "Utils/Actor/SkillUtils.hpp"
-
-
-
 #include "Utils/Actor/FindActor.hpp"
 #include "Utils/Actor/AV.hpp"
+#include "Utils/Animation/AnimationUtils.hpp"
+#include "Utils/Animation/AnimationVars.hpp"
 
 //Data
 #include "Data/Runtime.hpp"

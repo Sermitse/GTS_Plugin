@@ -17,6 +17,13 @@ namespace GTS {
 		static constexpr float DRAW_LOC_MAX_DIF = 1.0f;
 		static constexpr float CLAMP_MAX_OVERSHOOT = 10000.0f;
 
+		enum class DrawTarget : uint8_t {
+			kPlayerOnly,
+			kPlayerAndFollowers,
+			kAnyGTS,
+			kAll,
+		};
+
 		static void Update();
 
 		static RE::GPtr<RE::IMenu> GetHUD();
@@ -41,6 +48,8 @@ namespace GTS {
 		static void FastClampToScreen(glm::vec2& point);
 		static bool IsOnScreen(glm::vec2 from, glm::vec2 to);
 		static bool IsOnScreen(glm::vec2 point);
+		static bool CanDraw();
+		static bool CanDraw(RE::Actor* a_actor, DrawTarget a_draw_target);
 		static void CacheMenuData();
 
 		private:

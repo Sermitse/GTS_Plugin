@@ -19,14 +19,14 @@ namespace GTS {
     std::string GetFormatedWeight(RE::Actor* a_Actor);
 
     std::string GetFormatedHeight(RE::Actor* a_Actor);
-    std::string GetFormatedHeight(float Value);
+    std::string GetFormatedHeight(float a_value);
 
-	float GameUnitToMeter(const float& unit);
-	float MeterToGameUnit(const float& meter);
+	float GameUnitToMeter(const float& a_unit);
+	float MeterToGameUnit(const float& a_meter);
 
-	NiPoint3 GameUnitToMeter(const NiPoint3& unit);
-	NiPoint3 MeterToGameUnit(const NiPoint3& meter);
+	NiPoint3 GameUnitToMeter(const NiPoint3& a_unit);
+	NiPoint3 MeterToGameUnit(const NiPoint3& a_meter);
 
-    float GetActorGTSWeight(Actor* giant);
-    float GetActorGTSHeight(Actor* giant);
+    float GetMetricActorWeight(Actor* a_actor);
+    float GetMetricActorHeight(Actor* a_actor);
 }

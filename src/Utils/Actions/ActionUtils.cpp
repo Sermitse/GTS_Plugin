@@ -1,15 +1,12 @@
 #include "Utils/Actions/ActionUtils.hpp"
 
-#include "Config/Config.hpp"
-
-#include "Debug/DebugDraw.hpp"
-
-#include "Magic/Effects/Common.hpp"
-
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/HugShrink.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
+#include "Magic/Effects/Common.hpp"
+
+#include "Config/Config.hpp"
 
 namespace GTS {
 	
@@ -51,9 +48,7 @@ namespace GTS {
 				transient->IsInControl = nullptr;
 				return;
 			}
-			else {
-				transient->IsInControl = target;
-			}
+			transient->IsInControl = target;
 		}
 	}
 
@@ -87,7 +82,7 @@ namespace GTS {
 		if (IsProning(player)) {
 			return 0.18f;
 		}
-		else if (IsCrawling(player)) {
+		if (IsCrawling(player)) {
 			value = Config::Camera.fFPCrawlHeightMult;
 		}
 
@@ -117,7 +112,7 @@ namespace GTS {
 				CheckDistance *= 1.5f;
 			}
 
-			if (IsDebugEnabled()) {
+			if (DebugDraw::CanDraw()) {
 				DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 60, { 0.5f, 1.0f, 0.0f, 0.5f });
 			}
 
@@ -141,7 +136,7 @@ namespace GTS {
 											return false;
 										}
 										return true;
-										});
+									});
 								}
 								if (nodeCollisions > 0) {
 									auto node = find_node(otherActor, "NPC Root [Root]");
@@ -396,18 +391,16 @@ namespace GTS {
 		if (allow_teammate) { // allow if type is (teammate - teammate), and if bool is true
 			return true;
 		}
-		else if (essential) { // disallow to perform on essentials
+		if (essential) { // disallow to perform on essentials
 			return false;
 		}
-		else if (hostile) { // always allow for non-essential enemies. Will return true if Teammate is hostile towards someone (even player)
+		if (hostile) { // always allow for non-essential enemies. Will return true if Teammate is hostile towards someone (even player)
 			return true;
 		}
-		else if (!Teammate) { // always allow for non-teammates
+		if (!Teammate) { // always allow for non-teammates
 			return true;
 		}
-		else {
-			return true; // else allow
-		}
+		return true; // else allow
 	}
 
 }

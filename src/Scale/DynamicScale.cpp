@@ -1,6 +1,6 @@
 #include "Scale/DynamicScale.hpp"
 #include "Systems/Rays/Raycast.hpp"
-#include "Debug/DebugDraw.hpp"
+
 
 namespace GTS {
 
@@ -20,7 +20,7 @@ namespace GTS {
 			return std::numeric_limits<float>::infinity();
 		}
 
-		bool debug = IsDebugEnabled();
+		bool debug = DebugDraw::CanDraw();
 
 		float scale = get_visual_scale(giant);
 		// === Calculation of ray directions ===

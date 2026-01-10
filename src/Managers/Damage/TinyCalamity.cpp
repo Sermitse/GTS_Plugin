@@ -13,7 +13,7 @@
 #include "Managers/AI/AIFunctions.hpp"
 #include "Managers/GTSSizeManager.hpp"
 #include "Magic/Effects/Common.hpp"
-#include "Debug/DebugDraw.hpp"
+
 
 #include "Utils/DeathReport.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
@@ -309,7 +309,7 @@ namespace GTS {
                 constexpr float BASE_DISTANCE = 48.0f;
                 float CheckDistance = BASE_DISTANCE*giantScale;
 
-                if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
+                if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kPlayerAndFollowers)) {
                     DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 100, {0.0f, 1.0f, 1.0f, 1.0f});
                 }
 

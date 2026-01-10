@@ -1,120 +1,28 @@
-#include "Utils/Actor/GTSUtils.hpp"
 #include "Utils/Actor/FindActor.hpp"
 
 #include "Magic/Effects/Common.hpp"
-#include "Managers/Animation/Utils/AnimationUtils.hpp"
-#include "Managers/Animation/TinyCalamity_Shrink.hpp"
+
+#include "Managers/AI/AIfunctions.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
+#include "Managers/Animation/TinyCalamity_Shrink.hpp"
+#include "Managers/Animation/Utils/AnimationUtils.hpp"
+#include "Managers/Audio/MoansLaughs.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
 #include "Managers/Damage/LaunchPower.hpp"
-#include "Managers/AI/AIfunctions.hpp"
-#include "Managers/Rumble.hpp"
 #include "Managers/GTSSizeManager.hpp"
 #include "Managers/HighHeel.hpp"
-#include "Managers/Audio/MoansLaughs.hpp"
+#include "Managers/Rumble.hpp"
 
 #include "Config/Config.hpp"
-#include "Debug/DebugDraw.hpp"
 
-
-using namespace GTS;
+/* GTS Utils
+ * Contains general helper functions
+ * for everything general Mod-related functionality
+ */
 
 namespace {
 
-	
-	
-
-	//constexpr SoftPotential getspeed {
-	//	// https://www.desmos.com/calculator/vyofjrqmrn
-	//	.k = 0.142f, 
-	//	.n = 0.82f,
-	//	.s = 1.90f, 
-	//	.o = 1.0f,
-	//	.a = 0.0f,  //Default is 0
-	//};
-
-	void ApplyAttributesOnShrink(float& health, float& magick, float& stamin, float value, float limit) {
-		switch (RandomInt(0, 2)) {
-			case 0: { health += (value); if (health >= limit) { health = limit; } break; }
-			case 1: { magick += (value); if (magick >= limit) { magick = limit; } break; }
-			case 2: { stamin += (value); if (stamin >= limit) { stamin = limit; } break; }
-			default: break ;
-		}	
-	}
-
-
-
-	bool Utils_ManageTinyProtection(Actor* giantref, bool force_cancel, bool Balance) {
-		float sp = GetAV(giantref, ActorValue::kStamina);
-
-		if (!force_cancel && Balance) {
-			float perk = Perk_GetCostReduction(giantref);
-			float damage = 0.08f * TimeScale() * perk;
-			if (giantref->formID != 0x14) {
-				damage *= 0.5f; // less stamina drain for NPC's
-			}
-			DamageAV(giantref, ActorValue::kStamina, damage);
-		}
-
-		if (sp <= 1.0f || force_cancel) {
-			float OldScale;
-			giantref->GetGraphVariableFloat("GiantessScale", OldScale); // save old scale
-			giantref->SetGraphVariableFloat("GiantessScale", 1.0f); // Needed to allow Stagger to play, else it won't work
-
-			if (!force_cancel) {
-				StaggerActor(giantref, 0.25f);
-			}
-			float scale = get_visual_scale(giantref);
-
-			StaggerActor_Around(giantref, 48.0f, false);
-
-			auto node = find_node(giantref, "NPC Root [Root]");
-			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundMagicBreak, giantref, 1.0f, "NPC COM [COM ]");
-			
-			if (node) {
-				NiPoint3 position = node->world.translate;
-
-				std::string name_com = std::format("BreakProtect_{}", giantref->formID);
-				std::string name_root = std::format("BreakProtect_Root_{}", giantref->formID);
-
-				Rumbling::Once(name_com, giantref, Rumble_Misc_FailTinyProtection, 0.20f, "NPC COM [COM ]", 0.0f);
-				Rumbling::Once(name_root, giantref, Rumble_Misc_FailTinyProtection, 0.20f, "NPC Root [Root]", 0.0f);
-
-				SpawnParticle(giantref, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), position, scale * 3.4f, 7, nullptr); // Spawn it
-			}
-			giantref->SetGraphVariableFloat("GiantessScale", OldScale);
-
-			return false;
-		}
-		return true;
-	}
-
-	float ShakeStrength(Actor* Source) {
-		float Size = get_visual_scale(Source);
-		float k = 0.065f;
-		float n = 1.0f;
-		float s = 1.12f;
-		float Result = 1.0f/(pow(1.0f+pow(k*(Size),n*s),1.0f/s));
-		return Result;
-	}
-
-	ExtraDataList* CreateExDataList() {
-		size_t a_size;
-		if (SKYRIM_REL_CONSTEXPR (REL::Module::IsAE()) && (REL::Module::get().version() >= SKSE::RUNTIME_SSE_1_6_629)) {
-			a_size = 0x20;
-		} else {
-			a_size = 0x18;
-		}
-		auto memory = RE::malloc(a_size);
-		std::memset(memory, 0, a_size);
-		if (SKYRIM_REL_CONSTEXPR (REL::Module::IsAE()) && (REL::Module::get().version() >= SKSE::RUNTIME_SSE_1_6_629)) {
-			// reinterpret_cast<std::uintptr_t*>(memory)[0] = a_vtbl; // Unknown vtable location add once REd
-			REL::RelocateMember<BSReadWriteLock>(memory, 0x18) = BSReadWriteLock();
-		} else {
-			REL::RelocateMember<BSReadWriteLock>(memory, 0x10) = BSReadWriteLock();
-		}
-		return static_cast<ExtraDataList*>(memory);
-	}
+	using namespace GTS;
 
 	struct SpringGrowData {
 		Spring amount = Spring(0.0f, 1.0f);
@@ -122,10 +30,10 @@ namespace {
 		bool drain = false;
 		ActorHandle actor;
 
-		SpringGrowData(Actor* actor, float amountToAdd, float halfLife) : actor(actor->CreateRefHandle()) {
+		SpringGrowData(Actor* a_actor, float a_addAmt, float a_halfLife) : actor(a_actor->CreateRefHandle()) {
 			amount.value = 0.0f;
-			amount.target = amountToAdd;
-			amount.halflife = halfLife;
+			amount.target = a_addAmt;
+			amount.halflife = a_halfLife;
 		}
 	};
 
@@ -134,54 +42,128 @@ namespace {
 		float addedSoFar = 0.0f;
 		ActorHandle actor;
 
-		SpringShrinkData(Actor* actor, float amountToAdd, float halfLife) : actor(actor->CreateRefHandle()) {
+		SpringShrinkData(Actor* a_actor, float a_addAmt, float a_halfLife) : actor(a_actor->CreateRefHandle()) {
 			amount.value = 0.0f;
-			amount.target = amountToAdd;
-			amount.halflife = halfLife;
+			amount.target = a_addAmt;
+			amount.halflife = a_halfLife;
 		}
 	};
-}
 
-//RE::ExtraDataList::~ExtraDataList() = default;
+	void ApplyAttributesOnShrink(float& a_health, float& a_magicka, float& a_stamina, float a_value, float a_limit) {
+		switch (RandomInt(0, 2)) {
+			case 0: { a_health  += (a_value); if (a_health  >= a_limit) { a_health  = a_limit; } break; }
+			case 1: { a_magicka += (a_value); if (a_magicka >= a_limit) { a_magicka = a_limit; } break; }
+			case 2: { a_stamina += (a_value); if (a_stamina >= a_limit) { a_stamina = a_limit; } break; }
+			default: break ;
+		}	
+	}
 
-namespace GTS {
+	bool Utils_ManageTinyProtection(Actor* a_actor, bool a_doForceCancel, bool a_BalanceMode) {
+		float sp = GetAV(a_actor, ActorValue::kStamina);
 
-	void Task_AdjustHalfLifeTask(Actor* tiny, float halflife, double revert_after) {
-		auto actor_data = Persistent::GetActorData(tiny);
+		if (!a_doForceCancel && a_BalanceMode) {
+			float perk = Perk_GetCostReduction(a_actor);
+			float damage = 0.08f * TimeScale() * perk;
+			if (a_actor->formID != 0x14) {
+				damage *= 0.5f; // less stamina drain for NPC's
+			}
+			DamageAV(a_actor, ActorValue::kStamina, damage);
+		}
+
+		if (sp <= 1.0f || a_doForceCancel) {
+			float OldScale;
+			a_actor->GetGraphVariableFloat("GiantessScale", OldScale); // save old scale
+			a_actor->SetGraphVariableFloat("GiantessScale", 1.0f);     // Needed to allow Stagger to play, else it won't work
+
+			if (!a_doForceCancel) {
+				StaggerActor(a_actor, 0.25f);
+			}
+			float scale = get_visual_scale(a_actor);
+
+			StaggerActor_Around(a_actor, 48.0f, false);
+
+			auto node = find_node(a_actor, "NPC Root [Root]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundMagicBreak, a_actor, 1.0f, "NPC COM [COM ]");
+			
+			if (node) {
+				NiPoint3 position = node->world.translate;
+
+				std::string name_com = std::format("BreakProtect_{}", a_actor->formID);
+				std::string name_root = std::format("BreakProtect_Root_{}", a_actor->formID);
+
+				Rumbling::Once(name_com, a_actor, Rumble_Misc_FailTinyProtection, 0.20f, "NPC COM [COM ]", 0.0f);
+				Rumbling::Once(name_root, a_actor, Rumble_Misc_FailTinyProtection, 0.20f, "NPC Root [Root]", 0.0f);
+
+				SpawnParticle(a_actor, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), position, scale * 3.4f, 7, nullptr); // Spawn it
+			}
+			a_actor->SetGraphVariableFloat("GiantessScale", OldScale);
+
+			return false;
+		}
+		return true;
+	}
+
+	void Task_AdjustHalfLifeTask(Actor* a_target, float a_halfLife, double a_revertAfterTime) {
+		auto actor_data = Persistent::GetActorData(a_target);
 		float old_halflife = 0.0f;
 		if (actor_data) {
 			old_halflife = actor_data->fHalfLife; // record old half life
-			actor_data->fHalfLife = halflife;
+			actor_data->fHalfLife = a_halfLife;
 		}
 
-		double Start = Time::WorldTimeElapsed();
-		ActorHandle tinyhandle = tiny->CreateRefHandle();
-		std::string name = std::format("AdjustHalfLife_{}", tiny->formID);
+		const double Start = Time::WorldTimeElapsed();
+		ActorHandle tinyhandle = a_target->CreateRefHandle();
+		std::string name = std::format("AdjustHalfLife_{}", a_target->formID);
 		TaskManager::Run(name, [=](auto& progressData) {
 			if (!tinyhandle) {
 				return false;
 			}
-			auto tinyref = tinyhandle.get().get();
-			double timepassed = Time::WorldTimeElapsed() - Start;
-			if (timepassed > revert_after) {
+			const double timepassed = Time::WorldTimeElapsed() - Start;
+			if (timepassed > a_revertAfterTime) {
 				if (actor_data) {
 					actor_data->fHalfLife = old_halflife;
 				}
 				return false;
 			}
-
 			return true;
 		});
 	}
+}
 
-	void StartResetTask(Actor* tiny) {
-		if (tiny->formID == 0x14) {
+namespace GTS {
+
+	//----------------------------------------------------
+	// OTHER
+	//----------------------------------------------------
+
+	float GetMovementModifier(Actor* a_target) {
+		float modifier = 1.0f;
+		if (a_target->AsActorState()->IsSprinting()) {
+			modifier *= 1.33f;
+		}
+		if (a_target->AsActorState()->IsWalking()) {
+			modifier *= 0.75f;
+		}
+		if (a_target->AsActorState()->IsSneaking()) {
+			modifier *= 0.75f;
+		}
+		return modifier;
+	}
+
+	float GetRandomBoost() {
+		float rng = (RandomFloat(0, 150));
+		float random = rng / 100.f;
+		return random;
+	}
+
+	void StartActorResetTask(Actor* a_target) {
+		if (a_target->formID == 0x14) {
 			return; //Don't reset Player
 		}
-		std::string name = std::format("ResetActor_{}", tiny->formID);
+		std::string name = std::format("ResetActor_{}", a_target->formID);
 		double Start = Time::WorldTimeElapsed();
-		ActorHandle tinyhandle = tiny->CreateRefHandle();
-		TaskManager::Run(name, [=](auto& progressData) {
+		ActorHandle tinyhandle = a_target->CreateRefHandle();
+		TaskManager::Run(name, [=](auto&) {
 			if (!tinyhandle) {
 				return false;
 			}
@@ -196,86 +178,151 @@ namespace GTS {
 		});
 	}
 
-	//----------------------------------------------------
-	// MAGIC
-	//----------------------------------------------------
-
-	void Potion_SetMightBonus(Actor* giant, float value, bool add) {
-		auto transient = Transient::GetActorData(giant);
+	float GetFallModifier(Actor* a_target) {
+		auto transient = Transient::GetActorData(a_target);
+		float fallmod = 1.0f;
 		if (transient) {
-			if (add) {
-				transient->MightValue += value;
-			} else {
-				transient->MightValue = value;
+			fallmod = transient->FallTimer;
+			//log::info("Fall mult :{}", transient->FallTimer);
+		}
+		return fallmod;
+	}
+
+	bool AllowStagger(Actor* a_target) {
+		bool giantIsFriendly = (a_target->formID == 0x14 || IsTeammate(a_target));
+		bool tinyIsFriendly = (a_target->formID == 0x14 || IsTeammate(a_target));
+
+		//If Tiny is follower or player dont allow stagger
+		if (tinyIsFriendly && giantIsFriendly) {
+			return Config::Balance.bAllowFriendlyStagger;
+		}
+
+		//If tiny is Other npc return settings option
+		return Config::Balance.bAllowOthersStagger;
+
+	}
+
+	void GainWeight(Actor* a_target, float a_value) {
+
+		if (Config::Gameplay.ActionSettings.bVoreWeightGain) {
+
+			if (a_target->formID == 0x14) {
+				std::string_view name = "Vore_Weight";
+				auto gianthandle = a_target->CreateRefHandle();
+				TaskManager::RunOnce(name, [=](auto&) {
+					if (!gianthandle) {
+						return false;
+					}
+					auto giantref = gianthandle.get().get();
+					float& original_weight = giantref->GetActorBase()->weight;
+					if (original_weight >= 100.0f) {
+						return false;
+					}
+					if (original_weight + a_value >= 100.0f) {
+						original_weight = 100.0f;
+					}
+					else {
+						original_weight += a_value;
+					}
+					giantref->DoReset3D(true);
+					return false;
+				});
 			}
 		}
 	}
 
-	float Potion_GetMightBonus(Actor* giant) {
-		auto transient = Transient::GetActorData(giant);
+	bool DisallowSizeDamage(Actor* a_source, Actor* a_target) {
+		auto transient = Transient::GetActorData(a_source);
 		if (transient) {
+			if (transient->Protection == false) {
+				return false;
+			}
+
+			bool Hostile = IsHostile(a_source, a_target);
+			return transient->Protection && !Hostile;
+		}
+
+		return false;
+	}
+
+	// determines if we want to apply size effects for literally every single actor
+	bool EffectsForEveryone(Actor* a_target) { 
+		if (a_target->formID == 0x14) { // don't enable for Player
+			return false;
+		}
+		bool dead = a_target->IsDead();
+		bool everyone = Config::General.bAllActorSizeEffects || CountAsGiantess(a_target);
+		if (!dead && everyone) {
+			return true;
+		}
+		return false;
+	}
+
+	//----------------------------------------------------
+	// MAGIC
+	//----------------------------------------------------
+
+	void Potion_SetMightBonus(Actor* a_target, float a_value, bool a_Add) {
+		if (TransientActorData* transient = Transient::GetActorData(a_target)) {
+			a_Add ? transient->MightValue += a_value : transient->MightValue = a_value;
+		}
+	}
+
+	float Potion_GetMightBonus(Actor* a_target) {
+		if (TransientActorData* transient = Transient::GetActorData(a_target)) {
 			return transient->MightValue; // return raw bonus
 		}
 		return 0.0f;
 	}
 
-	float Potion_GetSizeMultiplier(Actor* giant) {
-		auto transient = Transient::GetActorData(giant);
-		if (transient) {
-			float bonus = std::clamp(transient->PotionMaxSize, 0.0f, 10.0f);
-			return 1.0f + bonus;
+	float Potion_GetSizeMultiplier(Actor* a_target) {
+		if (TransientActorData* transient = Transient::GetActorData(a_target)) {
+			return 1.0f + std::clamp(transient->PotionMaxSize, 0.0f, 10.0f);
 		}
 		return 1.0f;
 	}
 
-	void Potion_ModShrinkResistance(Actor* giant, float value) {
-		auto transient = Transient::GetActorData(giant);
-		if (transient) {
-			transient->ShrinkResistance += value;
+	void Potion_ModShrinkResistance(Actor* a_target, float a_value) {
+		if (TransientActorData* transient = Transient::GetActorData(a_target)) {
+			transient->ShrinkResistance += a_value;
 		}
 	}
 
-	void Potion_SetShrinkResistance(Actor* giant, float value) {
-		auto transient = Transient::GetActorData(giant);
-		if (transient) {
-			transient->ShrinkResistance = value;
+	void Potion_SetShrinkResistance(Actor* a_target, float a_value) {
+		if (TransientActorData* transient = Transient::GetActorData(a_target)) {
+			transient->ShrinkResistance = a_value;
 		}
 	}
 
-	float Potion_GetShrinkResistance(Actor* giant) {
-		auto transient = Transient::GetActorData(giant);
+	float Potion_GetShrinkResistance(Actor* a_target) {
 		float Resistance = 1.0f;
-
-		if (transient) {
+		if (TransientActorData* transient = Transient::GetActorData(a_target)) {
 			Resistance -= transient->ShrinkResistance;
 		}
 		return std::clamp(Resistance, 0.05f, 1.0f);
 	}
 
-	void Potion_SetUnderGrowth(Actor* actor, bool set) {
-		auto transient = Transient::GetActorData(actor);
-		if (transient) {
-			transient->GrowthPotion = set;
+	void Potion_SetUnderGrowth(Actor* a_target, bool a_set) {
+		if (TransientActorData* transient = Transient::GetActorData(a_target)) {
+			transient->GrowthPotion = a_set;
 		}
 	}
 
-	bool Potion_IsUnderGrowthPotion(Actor* actor) {
+	bool Potion_IsUnderGrowthPotion(Actor* a_actor) {
 		bool UnderGrowth = false;
-		auto transient = Transient::GetActorData(actor);
-		if (transient) {
+		if (TransientActorData* transient = Transient::GetActorData(a_actor)) {
 			UnderGrowth = transient->GrowthPotion;
 		}
 		return UnderGrowth;
 	}
 
-	float Ench_Aspect_GetPower(Actor* giant) {
-		float aspect = SizeManager::GetSingleton().GetEnchantmentBonus(giant) * 0.01f;
-		return aspect;
+	float Ench_Aspect_GetPower(Actor* a_actor) {
+		return SizeManager::GetSingleton().GetEnchantmentBonus(a_actor) * 0.01f;
+
 	}
 
-	float Ench_Hunger_GetPower(Actor* giant) {
-		float hunger = SizeManager::GetSingleton().GetSizeHungerBonus(giant) * 0.01f;
-		return hunger;
+	float Ench_Hunger_GetPower(Actor* a_actor) {
+		return SizeManager::GetSingleton().GetSizeHungerBonus(a_actor) * 0.01f;
 	}
 
 	//----------------------------------------------------
@@ -325,23 +372,59 @@ namespace GTS {
 		return cost;
 	}
 
+	void DragonAbsorptionBonuses() { // The function is ugly but im a bit lazy to make it look pretty
+		int rng = RandomInt(0, 6);
+		int dur_rng = RandomInt(0, 3);
+		float size_increase = 0.12f / Characters_AssumedCharSize; // +12 cm;
+		float size_boost = 1.0f;
 
-	//----------------------------------------------------
-	// PERKS
-	//----------------------------------------------------
+		Actor* player = PlayerCharacter::GetSingleton();
 
-	float GetFallModifier(Actor* giant) {
-		auto transient = Transient::GetActorData(giant);
-		float fallmod = 1.0f;
-		if (transient) {
-			fallmod = transient->FallTimer;
-			//log::info("Fall mult :{}", transient->FallTimer);
+		if (!Runtime::HasPerk(player, Runtime::PERK.GTSPerkMightOfDragons)) {
+			return;
 		}
-		return fallmod;
+
+		if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkColossalGrowth)) {
+			size_boost = 1.2f;
+		}
+
+		if (auto data = Persistent::GetActorData(PlayerCharacter::GetSingleton())) {
+			data->fExtraPotionMaxScale += size_increase * size_boost;
+		}
+
+		ModSizeExperience(player, 0.45f);
+		Notify("You feel like something is filling you");
+
+		if (rng <= 1) {
+			Sound_PlayMoans(player, 1.0f, 0.14f, EmotionTriggerSource::Absorption);
+			Task_FacialEmotionTask_Moan(player, 1.6f, "DragonVored");
+			shake_camera(player, 0.5f, 0.33f);
+		}
+
+		SpawnCustomParticle(player, ParticleType::Red, NiPoint3(), "NPC COM [COM ]", get_visual_scale(player) * 1.6f);
+
+		ActorHandle gianthandle = player->CreateRefHandle();
+		std::string name = std::format("DragonGrowth_{}", player->formID);
+
+		float HpRegen = GetMaxAV(player, ActorValue::kHealth) * 0.00125f;
+		float Gigantism = 1.0f + Ench_Aspect_GetPower(player);
+
+		float duration = 6.0f + dur_rng;
+
+		TaskManager::RunFor(name, duration, [=](auto& progressData) {
+			if (!gianthandle) {
+				return false;
+			}
+			auto giantref = gianthandle.get().get();
+			ApplyShakeAtNode(giantref, Rumble_Misc_MightOfDragons, "NPC COM [COM ]");
+			update_target_scale(giantref, 0.0026f * Gigantism * TimeScale(), SizeEffectType::kGrow);
+			giantref->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, ActorValue::kHealth, HpRegen * TimeScale());
+			return true;
+			});
 	}
 
 	//----------------------------------------------------
-	// MAGIC
+	// HIGH HEEL
 	//----------------------------------------------------
 
 	float GetHighHeelsBonusDamage(Actor* actor, bool multiply) {
@@ -366,32 +449,6 @@ namespace GTS {
 		return value;
 	}
 
-	bool DisallowSizeDamage(Actor* giant, Actor* tiny) {
-		auto transient = Transient::GetActorData(giant);
-		if (transient) {
-			if (transient->Protection == false) {
-				return false;
-			} 
-
-			bool Hostile = IsHostile(giant, tiny);
-			return transient->Protection && !Hostile;
-		}
-		
-		return false;
-	}
-
-	bool EffectsForEveryone(Actor* giant) { // determines if we want to apply size effects for literally every single actor
-		if (giant->formID == 0x14) { // don't enable for Player
-			return false;
-		}
-		bool dead = giant->IsDead();
-		bool everyone = Config::General.bAllActorSizeEffects || CountAsGiantess(giant);
-		if (!dead && everyone) {
-			return true;
-		}
-		return false;
-	}
-
 	bool BehaviorGraph_DisableHH(Actor* actor) { // should .dll disable HH if Behavior Graph has HH Disable data?
 		bool disable = false;
 		actor->GetGraphVariableBool("GTS_DisableHH", disable);
@@ -404,50 +461,6 @@ namespace GTS {
 		}
 
 		return disable;
-	}
-
-	bool AllowStagger(Actor* giant, Actor* tiny) {
-		const auto& Settings = Config::Balance;
-
-		bool giantIsFriendly = (tiny->formID == 0x14 || IsTeammate(tiny));
-		bool tinyIsFriendly = (tiny->formID == 0x14 || IsTeammate(tiny));
-
-		//If Tiny is follower or player dont allow stagger
-		if (tinyIsFriendly && giantIsFriendly) {
-			return Settings.bAllowFriendlyStagger;
-		}
-
-		//If tiny is Other npc return settings option
-		return Settings.bAllowOthersStagger;
-
-	}
-
-	void GainWeight(Actor* giant, float value) {
-
-		if (Config::Gameplay.ActionSettings.bVoreWeightGain) {
-
-			if (giant->formID == 0x14) {
-				std::string_view name = "Vore_Weight";
-				auto gianthandle = giant->CreateRefHandle();
-				TaskManager::RunOnce(name, [=](auto& progressData) {
-					if (!gianthandle) {
-						return false;
-					}
-					auto giantref = gianthandle.get().get();
-					float& original_weight = giantref->GetActorBase()->weight;
-					if (original_weight >= 100.0f) {
-						return false;
-					} 
-					if (original_weight + value >= 100.0f) {
-						original_weight = 100.0f;
-					} else {
-						original_weight += value;
-					}
-					giantref->DoReset3D(true);
-					return false;
-				});
-			}
-		}
 	}
 
 	//----------------------------------------------------
@@ -576,11 +589,56 @@ namespace GTS {
 		}
 		if (kind == FootEvent::Right) {
 			CollisionDamage::DoFootCollision(giant, damage, radius, random, bonedamage, crushmult, Cause, true, false, ignore_rotation, true);
-			//                                                                                  ^        ^           ^ - - - - Normal Crush
+			//                                                                                  ^         ^         ^ - - - - Normal Crush
 			//                                                       Chance to trigger bone crush   Damage of            Threshold multiplication
 			//                                                                                      Bone Crush
 		}
 	}
+
+	void InflictSizeDamage(Actor* attacker, Actor* receiver, float value) {
+
+		if (attacker->formID == 0x14 && IsTeammate(receiver)) {
+			if (Config::Balance.bFollowerFriendlyImmunity) {
+				return;
+			}
+		}
+
+		if (receiver->formID == 0x14 && IsTeammate(attacker)) {
+			if (Config::Balance.bPlayerFriendlyImmunity) {
+				return;
+			}
+		}
+
+		if (!receiver->IsDead()) {
+			float HpPercentage = GetHealthPercentage(receiver);
+			float difficulty = 2.0f; // taking Legendary Difficulty as a base
+			float levelbonus = 1.0f + ((GetGtsSkillLevel(attacker) * 0.01f) * 0.50f);
+			value *= levelbonus;
+
+			if (receiver->formID != 0x14) { // Mostly a warning to indicate that actor dislikes it (They don't always aggro right away, with mods at least)
+				if (value >= GetAV(receiver, ActorValue::kHealth) * 0.50f || HpPercentage < 0.70f) { // in that case make hostile
+					if (!IsTeammate(receiver) && !IsHostile(attacker, receiver)) {
+						StartCombat(receiver, attacker); // Make actor hostile and add bounty of 40 (can't be configured, needs different hook probably). 
+					}
+				}
+				if (value > 1.0f) { // To prevent aggro when briefly colliding
+					Attacked(receiver, attacker);
+				}
+			}
+
+			ApplyDamage(attacker, receiver, value * difficulty * Config::Balance.fSizeDamageMult);
+		}
+		else if (receiver->IsDead()) {
+			Task_InitHavokTask(receiver);
+			// ^ Needed to fix this issue:
+			//   https://www.reddit.com/r/skyrimmods/comments/402b69/help_looking_for_a_bugfix_dead_enemies_running_in/
+		}
+
+	}
+
+	//----------------------------------------------------
+	// TINY CALAMITY
+	//----------------------------------------------------
 
 	void TinyCalamityExplosion(Actor* giant, float radius) { // Meant to just stagger actors
 		if (!giant) {
@@ -595,7 +653,7 @@ namespace GTS {
 		const float maxDistance = radius;
 		float totaldistance = maxDistance * giantScale;
 		// Make a list of points to check
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kPlayerOnly)) {
 			DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), totaldistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
 		}
 
@@ -630,46 +688,32 @@ namespace GTS {
 		}
 	}
 
-	void ShrinkOutburst_Shrink(Actor* giant, Actor* tiny, float shrink, float gigantism) {
-		if (IsEssential_WithIcons(giant, tiny)) { // Protect followers/essentials
-			return;
-		}
-		bool DarkArts1 = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsAug1);
-		bool DarkArts2 = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsAug2);
-		bool DarkArts_Legendary = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsLegendary);
-
-		float shrinkpower = (shrink * 0.35f) * (1.0f + (GetGtsSkillLevel(giant) * 0.005f)) * CalcEffeciency(giant, tiny);
-
-		float Adjustment = GetSizeFromBoundingBox(tiny);
-
-		float sizedifference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
-		if (DarkArts1) {
-			giant->AsActorValueOwner()->RestoreActorValue(ACTOR_VALUE_MODIFIER::kDamage, ActorValue::kHealth, 8.0f);
-		}
-		if (DarkArts2 && (IsGrowthSpurtActive(giant) || HasSMT(giant))) {
-			shrinkpower *= 1.40f;
-		}
-
-		update_target_scale(tiny, -(shrinkpower * gigantism), SizeEffectType::kShrink);
-		Attacked(tiny, giant);
-
-		ModSizeExperience(giant, (shrinkpower * gigantism) * 0.60f);
-
-		float MinScale = SHRINK_TO_NOTHING_SCALE / Adjustment;
-
-		if (get_target_scale(tiny) <= MinScale) {
-			set_target_scale(tiny, MinScale);
-			if (DarkArts_Legendary && ShrinkToNothing(giant, tiny, true, 0.01f, 0.75f, false, true)) {
-				return;
-			}
-		}
-		if (!IsBetweenBreasts(tiny)) {
-			if (sizedifference >= 0.9f) { // Stagger or Push
-				float stagger = std::clamp(sizedifference, 1.0f, 4.0f);
-				StaggerActor(giant, tiny, 0.25f * stagger);
+	void AddSMTDuration(Actor* actor, float duration, bool perk_check) {
+		if (HasSMT(actor)) {
+			if (!perk_check || Runtime::HasPerk(actor, Runtime::PERK.GTSPerkTinyCalamityRefresh)) {
+				auto transient = Transient::GetActorData(actor);
+				if (transient) {
+					transient->SMTBonusDuration += duration;
+					//log::info("Adding perk duration");
+				}
 			}
 		}
 	}
+
+	void AddSMTPenalty(Actor* actor, float penalty) {
+		auto transient = Transient::GetActorData(actor);
+		if (transient) {
+			float skill_level = (GetGtsSkillLevel(actor) * 0.01f) - 0.65f;
+			float level_bonus = std::clamp(skill_level, 0.0f, 0.35f) * 2.0f;
+			float reduction = 1.0f - level_bonus; // up to 70% reduction of penalty
+
+			transient->SMTPenaltyDuration += penalty * reduction;
+		}
+	}
+
+	//----------------------------------------------------
+	// IMMUNITY
+	//----------------------------------------------------
 
 	void Utils_ProtectTinies(bool Balance) { // This is used to avoid damaging friendly actors in towns and in general
 		auto player = PlayerCharacter::GetSingleton();
@@ -728,77 +772,48 @@ namespace GTS {
 		});
 	}
 
-	void DragonAbsorptionBonuses() { // The function is ugly but im a bit lazy to make it look pretty
-		int rng = RandomInt(0, 6);
-		int dur_rng = RandomInt(0, 3);
-		float size_increase = 0.12f / Characters_AssumedCharSize; // +12 cm;
-		float size_boost = 1.0f;
+	//----------------------------------------------------
+	// SIZE RELATED
+	//----------------------------------------------------
 
-		Actor* player = PlayerCharacter::GetSingleton();
-
-		if (!Runtime::HasPerk(player, Runtime::PERK.GTSPerkMightOfDragons)) {
+	void ShrinkOutburst_Shrink(Actor* giant, Actor* tiny, float shrink, float gigantism) {
+		if (IsEssential_WithIcons(giant, tiny)) { // Protect followers/essentials
 			return;
 		}
+		bool DarkArts1 = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsAug1);
+		bool DarkArts2 = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsAug2);
+		bool DarkArts_Legendary = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDarkArtsLegendary);
 
-		if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkColossalGrowth)) {
-			size_boost = 1.2f;
+		float shrinkpower = (shrink * 0.35f) * (1.0f + (GetGtsSkillLevel(giant) * 0.005f)) * CalcEffeciency(giant, tiny);
+
+		float Adjustment = GetSizeFromBoundingBox(tiny);
+
+		float sizedifference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
+		if (DarkArts1) {
+			giant->AsActorValueOwner()->RestoreActorValue(ACTOR_VALUE_MODIFIER::kDamage, ActorValue::kHealth, 8.0f);
+		}
+		if (DarkArts2 && (IsGrowthSpurtActive(giant) || HasSMT(giant))) {
+			shrinkpower *= 1.40f;
 		}
 
-		if (auto data = Persistent::GetActorData(PlayerCharacter::GetSingleton())) {
-			data->fExtraPotionMaxScale += size_increase * size_boost;
-		}
+		update_target_scale(tiny, -(shrinkpower * gigantism), SizeEffectType::kShrink);
+		Attacked(tiny, giant);
 
-		ModSizeExperience(player, 0.45f);
-		Notify("You feel like something is filling you");
+		ModSizeExperience(giant, (shrinkpower * gigantism) * 0.60f);
 
-		if (rng <= 1) {
-			Sound_PlayMoans(player, 1.0f, 0.14f, EmotionTriggerSource::Absorption);
-			Task_FacialEmotionTask_Moan(player, 1.6f, "DragonVored");
-			shake_camera(player, 0.5f, 0.33f);
-		}
+		float MinScale = SHRINK_TO_NOTHING_SCALE / Adjustment;
 
-		SpawnCustomParticle(player, ParticleType::Red, NiPoint3(), "NPC COM [COM ]", get_visual_scale(player) * 1.6f); 
-		
-		ActorHandle gianthandle = player->CreateRefHandle();
-		std::string name = std::format("DragonGrowth_{}", player->formID);
-
-		float HpRegen = GetMaxAV(player, ActorValue::kHealth) * 0.00125f;
-		float Gigantism = 1.0f + Ench_Aspect_GetPower(player);
-
-		float duration = 6.0f + dur_rng;
-
-		TaskManager::RunFor(name, duration, [=](auto& progressData) {
-			if (!gianthandle) {
-				return false;
-			}
-			auto giantref = gianthandle.get().get();
-			ApplyShakeAtNode(giantref, Rumble_Misc_MightOfDragons, "NPC COM [COM ]");
-			update_target_scale(giantref, 0.0026f * Gigantism * TimeScale(), SizeEffectType::kGrow);
-			giantref->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, ActorValue::kHealth, HpRegen * TimeScale());
-			return true;
-		});
-	}
-
-	void AddSMTDuration(Actor* actor, float duration, bool perk_check) {
-		if (HasSMT(actor)) {
-			if (!perk_check || Runtime::HasPerk(actor, Runtime::PERK.GTSPerkTinyCalamityRefresh)) {
-				auto transient = Transient::GetActorData(actor);
-				if (transient) {
-					transient->SMTBonusDuration += duration;
-					//log::info("Adding perk duration");
-				}
+		if (get_target_scale(tiny) <= MinScale) {
+			set_target_scale(tiny, MinScale);
+			if (DarkArts_Legendary && ShrinkToNothing(giant, tiny, true, 0.01f, 0.75f, false, true)) {
+				return;
 			}
 		}
-	}
-
-	void AddSMTPenalty(Actor* actor, float penalty) {
-		auto transient = Transient::GetActorData(actor);
-		if (transient) {
-			float skill_level = (GetGtsSkillLevel(actor) * 0.01f) - 0.65f;
-			float level_bonus = std::clamp(skill_level, 0.0f, 0.35f) * 2.0f;
-			float reduction = 1.0f - level_bonus; // up to 70% reduction of penalty
-
-			transient->SMTPenaltyDuration += penalty * reduction;
+		if (!IsBetweenBreasts(tiny)) {
+			if (sizedifference >= 0.9f) { // Stagger or Push
+				float stagger = std::clamp(sizedifference, 1.0f, 4.0f);
+				StaggerActor(giant, tiny, 0.25f * stagger);
+			}
 		}
 	}
 
@@ -837,18 +852,17 @@ namespace GTS {
 		}
 	}
 
-	void SpringGrow(Actor* actor, float amt, float halfLife, std::string_view naming, bool drain) {
-		if (!actor) {
+	void SpringGrow(Actor* a_actor, float a_amt, float a_halfLife, std::string_view a_taskName, bool a_drain) {
+		if (!a_actor) {
 			return;
 		}
 
-		auto growData = std::make_shared<SpringGrowData>(actor, amt, halfLife);
-		std::string name = std::format("SpringGrow_{}_{}", naming, actor->formID);
-		const float DURATION = halfLife * 3.2f;
-		growData->drain = drain;
+		auto growData = std::make_shared<SpringGrowData>(a_actor, a_amt, a_halfLife);
+		std::string name = std::format("SpringGrow_{}_{}", a_taskName, a_actor->formID);
+		const float DURATION = a_halfLife * 3.2f;
+		growData->drain = a_drain;
 
-		TaskManager::RunFor(DURATION,
-		                    [ growData ](const auto& progressData) {
+		TaskManager::RunFor(DURATION, [ growData ](const auto&) {
 			float totalScaleToAdd = growData->amount.value;
 			float prevScaleAdded = growData->addedSoFar;
 			float deltaScale = totalScaleToAdd - prevScaleAdded;
@@ -863,7 +877,7 @@ namespace GTS {
 				auto actorData = Persistent::GetActorData(actor);
 				if (actorData) {
 					float scale = get_target_scale(actor);
-					float max_scale = get_max_scale(actor);// * get_natural_scale(actor);
+					float max_scale = get_max_scale(actor);
 					if (scale < max_scale) {
 						if (!drain_stamina) { // Apply only to growth with animation
 							actorData->fVisualScale += deltaScale;
@@ -877,16 +891,15 @@ namespace GTS {
 		});
 	}
 
-	void SpringShrink(Actor* actor, float amt, float halfLife, std::string_view naming) {
-		if (!actor) {
+	void SpringShrink(Actor* a_actor, float a_amt, float a_halfLife, std::string_view a_taskName) {
+		if (!a_actor) {
 			return;
 		}
 
-		auto growData = std::make_shared<SpringShrinkData>(actor, amt, halfLife);
-		std::string name = std::format("SpringShrink_{}_{}", naming, actor->formID);
-		const float DURATION = halfLife * 3.2f;
-		TaskManager::RunFor(DURATION,
-		                    [ growData ](const auto& progressData) {
+		shared_ptr<SpringShrinkData> growData = std::make_shared<SpringShrinkData>(a_actor, a_amt, a_halfLife);
+		std::string name = std::format("SpringShrink_{}_{}", a_taskName, a_actor->formID);
+		const float DURATION = a_halfLife * 3.2f;
+		TaskManager::RunFor(DURATION,[ growData ](const auto&) {
 			float totalScaleToAdd = growData->amount.value;
 			float prevScaleAdded = growData->addedSoFar;
 			float deltaScale = totalScaleToAdd - prevScaleAdded;
@@ -902,75 +915,7 @@ namespace GTS {
 					growData->addedSoFar = totalScaleToAdd;
 				}
 			}
-
 			return fabs(growData->amount.value - growData->amount.target) > 1e-4;
 		});
 	}
-
-
-	void InflictSizeDamage(Actor* attacker, Actor* receiver, float value) {
-
-		if (attacker->formID == 0x14 && IsTeammate(receiver)) {
-			if (Config::Balance.bFollowerFriendlyImmunity) {
-				return;
-			}
-		}
-
-		if (receiver->formID == 0x14 && IsTeammate(attacker)) {
-			if (Config::Balance.bPlayerFriendlyImmunity) {
-				return;
-			}
-		}
-
-		if (!receiver->IsDead()) {
-			float HpPercentage = GetHealthPercentage(receiver);
-			float difficulty = 2.0f; // taking Legendary Difficulty as a base
-			float levelbonus = 1.0f + ((GetGtsSkillLevel(attacker) * 0.01f) * 0.50f);
-			value *= levelbonus;
-
-			if (receiver->formID != 0x14) { // Mostly a warning to indicate that actor dislikes it (They don't always aggro right away, with mods at least)
-				if (value >= GetAV(receiver, ActorValue::kHealth) * 0.50f || HpPercentage < 0.70f) { // in that case make hostile
-					if (!IsTeammate(receiver) && !IsHostile(attacker, receiver)) {
-						StartCombat(receiver, attacker); // Make actor hostile and add bounty of 40 (can't be configured, needs different hook probably). 
-					}
-				}
-				if (value > 1.0f) { // To prevent aggro when briefly colliding
-					Attacked(receiver, attacker);
-				}
-			} 
-			
-			ApplyDamage(attacker, receiver, value * difficulty * Config::Balance.fSizeDamageMult);
-		}
-		else if (receiver->IsDead()) {
-			Task_InitHavokTask(receiver);
-			// ^ Needed to fix this issue:
-			//   https://www.reddit.com/r/skyrimmods/comments/402b69/help_looking_for_a_bugfix_dead_enemies_running_in/
-		}
-
-	}
-
-	//----------------------------------------------------
-	// OTHER
-	//----------------------------------------------------
-
-	float GetMovementModifier(Actor* giant) {
-		float modifier = 1.0f;
-		if (giant->AsActorState()->IsSprinting()) {
-			modifier *= 1.33f;
-		}
-		if (giant->AsActorState()->IsWalking()) {
-			modifier *= 0.75f;
-		}
-		if (giant->AsActorState()->IsSneaking()) {
-			modifier *= 0.75f;
-		}
-		return modifier;
-	}
-
-	float GetRandomBoost() {
-		float rng = (RandomFloat(0, 150));
-		float random = rng / 100.f;
-		return random;
-	}
-
 }

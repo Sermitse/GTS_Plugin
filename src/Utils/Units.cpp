@@ -55,7 +55,7 @@ namespace GTS {
         }
 
         if (a_feet < 1.0)    return fmt::format("{}\"", inches);
-        if (a_feet > 2000.0) return fmt::format("{:.2f} mi", a_feet / 5280);
+        if (a_feet > 2000.0) return fmt::format("{:.2f} mi", a_feet / 5280.f);
 
         return fmt::format("{}'{}\"", feet, inches);
     }
@@ -65,17 +65,17 @@ namespace GTS {
     }
 
     std::string FormatMetricWeight(const double a_kg) {
-        if (a_kg < 1.0f)      return fmt::format("{:.0f} g", a_kg * 100.f);
+        if (a_kg < 1.0f)      return fmt::format("{:.0f} g", a_kg  * 100.f);
         if (a_kg > 300000.0f) return fmt::format("{:.2f} kt", a_kg / 1000000.f);
-        if (a_kg > 30000.0f)  return fmt::format("{:.2f} t", a_kg / 1000.f);
+        if (a_kg > 30000.0f)  return fmt::format("{:.2f} t", a_kg  / 1000.f);
 
         return fmt::format("{:.2f} kg", a_kg);
     }
 
     std::string FormatImperialWeight(const double a_lb) {
-        if (a_lb < 1.0)        return fmt::format("{:.0f} oz", a_lb * 16.0);
-        if (a_lb > 2000000.0)  return fmt::format("{:.2f} kt", a_lb / 2000000.0);
-        if (a_lb > 2000.0)     return fmt::format("{:.2f} t", a_lb / 2000.0);
+        if (a_lb < 1.0)        return fmt::format("{:.0f} oz", a_lb * 16.f);
+        if (a_lb > 2000000.0)  return fmt::format("{:.2f} kt", a_lb / 2000000.f);
+        if (a_lb > 2000.0)     return fmt::format("{:.2f} t", a_lb  / 2000.f);
 
         return fmt::format("{:.2f} lb", a_lb);
     }
@@ -87,79 +87,78 @@ namespace GTS {
     std::string GetFormatedWeight(RE::Actor* a_Actor) {
         std::string displayUnits = Config::UI.sDisplayUnits;
         if (displayUnits == "kImperial")
-            return FormatImperialWeight(KiloToPound(GetActorGTSWeight(a_Actor)));
+            return FormatImperialWeight(KiloToPound(GetMetricActorWeight(a_Actor)));
 
         if (displayUnits == "kMammoth")
-            return FormatMammothWeight(KiloToMammoth(GetActorGTSWeight(a_Actor)));
+            return FormatMammothWeight(KiloToMammoth(GetMetricActorWeight(a_Actor)));
 
-    	return FormatMetricWeight(GetActorGTSWeight(a_Actor));
+    	return FormatMetricWeight(GetMetricActorWeight(a_Actor));
     }
 
     std::string GetFormatedHeight(RE::Actor* a_Actor) {
         std::string displayUnits = Config::UI.sDisplayUnits;
         if (displayUnits == "kImperial")
-            return FormatImperialHeight(MetersToFeet(GetActorGTSHeight(a_Actor)));
+            return FormatImperialHeight(MetersToFeet(GetMetricActorHeight(a_Actor)));
 
         if (displayUnits == "kMammoth")
-            return FormatMammothHeight(MetersToMammoth(GetActorGTSHeight(a_Actor)));
+            return FormatMammothHeight(MetersToMammoth(GetMetricActorHeight(a_Actor)));
 
-    	return FormatMetricHeight(GetActorGTSHeight(a_Actor));
+    	return FormatMetricHeight(GetMetricActorHeight(a_Actor));
     }
 
-    std::string GetFormatedHeight(const float Value) {
+    std::string GetFormatedHeight(const float a_value) {
         std::string displayUnits = Config::UI.sDisplayUnits;
         if (displayUnits == "kImperial")
-            return FormatImperialHeight(MetersToFeet(Value));
+            return FormatImperialHeight(MetersToFeet(a_value));
 
         if (displayUnits == "kMammoth")
-            return FormatMammothHeight(MetersToMammoth(Value));
+            return FormatMammothHeight(MetersToMammoth(a_value));
 
-    	return FormatMetricHeight(Value);
+    	return FormatMetricHeight(a_value);
     }
 
-	float GameUnitToMeter(const float& unit) {
-		return unit / CONVERSION_FACTOR;
+	float GameUnitToMeter(const float& a_unit) {
+		return a_unit / CONVERSION_FACTOR;
 	}
 
-	float MeterToGameUnit(const float& meter) {
-		return meter * CONVERSION_FACTOR;
+	float MeterToGameUnit(const float& a_meter) {
+		return a_meter * CONVERSION_FACTOR;
 	}
 
-	NiPoint3 GameUnitToMeter(const NiPoint3& unit) {
-		return unit / CONVERSION_FACTOR;
+	NiPoint3 GameUnitToMeter(const NiPoint3& a_unit) {
+		return a_unit / CONVERSION_FACTOR;
 	}
 
-	NiPoint3 MeterToGameUnit(const NiPoint3& meter) {
-		return meter * CONVERSION_FACTOR;
+	NiPoint3 MeterToGameUnit(const NiPoint3& a_meter) {
+		return a_meter * CONVERSION_FACTOR;
 	}
-
 
     //Returns Metric KG
-    float GetActorGTSWeight(Actor* giant) {
+    float GetMetricActorWeight(Actor* a_actor) {
 
-        if (!giant) {
+        if (!a_actor) {
             return 1.0f;
         }
 
-        float HHOffset = HighHeelManager::GetBaseHHOffset(giant)[2] / 100;
-        float Scale = get_visual_scale(giant);
-        const uint8_t SMT = HasSMT(giant) ? 6 : 1;
+        float HHOffset = HighHeelManager::GetBaseHHOffset(a_actor)[2] / 100;
+        float Scale = get_visual_scale(a_actor);
+        const uint8_t SMT = HasSMT(a_actor) ? 6 : 1;
         float TotalScale = Scale + (HHOffset * 0.10f * Scale);
-        const float ActorWeight = giant->GetWeight();
+        const float ActorWeight = a_actor->GetWeight();
         constexpr float BaseWeight = 60.0f; //KG at 0 weight
         return BaseWeight * ((1.0f + ActorWeight / 115.f) * static_cast<float>(std::pow(TotalScale, 3))) * SMT;
     }
 
     //Returns Metric Meters
-    float GetActorGTSHeight(Actor* giant) {
+    float GetMetricActorHeight(Actor* a_actor) {
 
-        if (!giant) {
+        if (!a_actor) {
             return 1.0f;
         }
 
-        const float hh = HighHeelManager::GetBaseHHOffset(giant)[2] / 100;
-        const float bb = GetSizeFromBoundingBox(giant);
-        const float scale = get_visual_scale(giant);
+        const float hh = HighHeelManager::GetBaseHHOffset(a_actor)[2] / 100;
+        const float bb = GetSizeFromBoundingBox(a_actor);
+        const float scale = get_visual_scale(a_actor);
         return Characters_AssumedCharSize * bb * scale + (hh * scale); // meters;
     }
 }

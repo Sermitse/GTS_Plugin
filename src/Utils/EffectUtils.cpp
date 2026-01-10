@@ -1,7 +1,7 @@
 
 #include "Config/Config.hpp"
 
-#include "Debug/DebugDraw.hpp"
+
 
 #include "Managers/Rumble.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
@@ -64,7 +64,7 @@ namespace GTS {
 				return;
 				break;
 			}
-			NiPoint3 pos = NiPoint3(); // Empty point 3
+			NiPoint3 pos;
 
 			if (spawn_at_point.Length() > 1.0f) {
 				pos = spawn_at_point;
@@ -173,7 +173,7 @@ namespace GTS {
 
 		SpawnParticle(giant, 6.00f, "GTS/Shouts/ShrinkOutburst.nif", NiMatrix3(), NodePosition, giantScale * explosion * 3.0f, 7, nullptr); // Spawn effect
 
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kPlayerAndFollowers)) {
 			DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 600, { 0.0f, 1.0f, 0.0f, 1.0f });
 		}
 
@@ -194,7 +194,7 @@ namespace GTS {
 								return false;
 							}
 							return true;
-							});
+						});
 					}
 					if (nodeCollisions > 0) {
 						ShrinkOutburst_Shrink(giant, otherActor, shrink, gigantism);
@@ -203,6 +203,4 @@ namespace GTS {
 			}
 		}
 	}
-
-
 }

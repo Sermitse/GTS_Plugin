@@ -10,15 +10,11 @@
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Managers/Rumble.hpp"
 #include "Managers/HighHeel.hpp"
-
-#include "Magic/Effects/Common.hpp"
-
 #include "Managers/AttributeManager.hpp"
 #include "Managers/GTSSizeManager.hpp"
-
-
 #include "Managers/Audio/MoansLaughs.hpp"
 
+#include "Magic/Effects/Common.hpp"
 
 using namespace GTS;
 
@@ -250,22 +246,17 @@ namespace {
 
 			std::string name = std::format("ShrinkPlayer_{}", casterRef->formID);
 
-			TaskManager::RunFor(name, DURATION, [=](auto& progressData){
+			TaskManager::RunFor(name, DURATION, [=](auto&){
+
 				if (!casterHandle) {
 					return false;
 				}
 
-				auto caster = casterHandle.get().get();
+				Actor* caster = casterHandle.get().get();
 
 				float caster_scale = get_visual_scale(caster);
 				float target_scale = get_target_scale(caster);
-
 				float stamina = std::clamp(GetStaminaPercentage(caster), 0.05f, 1.0f);
-
-				float bonus = 1.0f;
-				if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
-					bonus = target_scale * 0.25f + 0.75f;
-				}
 
 				if (target_scale > Minimum_Actor_Scale * 2.0f) {
 					DamageAV(caster, ActorValue::kStamina, 0.25f * (caster_scale * 0.5f + 0.5f) * stamina * TimeScale());

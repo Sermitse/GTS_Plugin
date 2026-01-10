@@ -4,7 +4,7 @@
 
 #include "Managers/Cameras/CamUtil.hpp"
 #include "Managers/GTSSizeManager.hpp"
-#include "Debug/DebugDraw.hpp"
+
 
 using namespace GTS;
 
@@ -56,14 +56,14 @@ namespace GTS {
 						auto bone_count = bones.size();
 						for (auto bone: bones) {
 							auto worldPos = bone->world * NiPoint3();
-							if (IsDebugEnabled()) {
+							if (DebugDraw::CanDraw()) {
 								DebugDraw::DrawSphere(glm::vec3(worldPos.x, worldPos.y, worldPos.z), 1.0f, 10, {1.0f, 1.0f, 0.0f, 1.0f});
 							}
 							auto localPos = transform * worldPos;
 							bonePos += localPos * (1.0f/bone_count);
 						}
 						NiPoint3 worldBonePos = playerTrans * bonePos;
-						if (IsDebugEnabled()) {
+						if (DebugDraw::CanDraw()) {
 							DebugDraw::DrawSphere(glm::vec3(worldBonePos.x, worldBonePos.y, worldBonePos.z), 1.0f, 10, {0.0f, 1.0f, 0.0f, 1.0f});
 						}
 						SpringSmoothedBonePos.target = bonePos;

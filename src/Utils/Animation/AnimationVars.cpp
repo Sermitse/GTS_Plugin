@@ -356,7 +356,7 @@ namespace GTS::AnimationVars {
 
 	namespace Grab {
 
-		bool GetIsGrabAttacking(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsGrabAttacking); }
+		bool GetIsGrabAttacking(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsGrabAttacking); }
 		bool SetIsGrabAttacking(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsGrabAttacking, a_value); }
 
 	}
@@ -364,133 +364,133 @@ namespace GTS::AnimationVars {
 
 	namespace Crawl {
 
-		bool GetIsCrawling(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsCrawling); }
-		bool SetIsCrawling(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsCrawling, a_value); }
+		bool GetIsCrawling(RE::Actor* a_actor)                         { return GetBool(a_actor, GraphVars::_IsCrawling); }
+		bool SetIsCrawling(RE::Actor* a_actor, bool a_value)           { return SetBool(a_actor, GraphVars::_IsCrawling, a_value); }
 
-		bool GetIsCrawlEnabled(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsCrawlEnabled); }
-		bool SetIsCrawlEnabled(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsCrawlEnabled, a_value); }
+		bool GetIsCrawlEnabled(RE::Actor* a_actor)                     { return GetBool(a_actor, GraphVars::_IsCrawlEnabled); }
+		bool SetIsCrawlEnabled(RE::Actor* a_actor, bool a_value)       { return SetBool(a_actor, GraphVars::_IsCrawlEnabled, a_value); }
 
-		bool GetIsCrawlVoring(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsCrawlVoring); }
-		bool SetIsCrawlVoring(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsCrawlVoring, a_value); }
+		bool GetIsCrawlVoring(RE::Actor* a_actor)                      { return GetBool(a_actor, GraphVars::_IsCrawlVoring); }
+		bool SetIsCrawlVoring(RE::Actor* a_actor, bool a_value)        { return SetBool(a_actor, GraphVars::_IsCrawlVoring, a_value); }
 
-		bool GetIsHandStomping(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsHandStomping); }
-		bool SetIsHandStomping(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsHandStomping, a_value); }
+		bool GetIsHandStomping(RE::Actor* a_actor)                     { return GetBool(a_actor, GraphVars::_IsHandStomping); }
+		bool SetIsHandStomping(RE::Actor* a_actor, bool a_value)       { return SetBool(a_actor, GraphVars::_IsHandStomping, a_value); }
 
-		bool GetIsHandStompingStrong(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsHandStompingStrong); }
+		bool GetIsHandStompingStrong(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsHandStompingStrong); }
 		bool SetIsHandStompingStrong(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsHandStompingStrong, a_value); }
 
-		bool GetIsCrawlButtCrush(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsCrawlButtCrush); }
-		bool SetIsCrawlButtCrush(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsCrawlButtCrush, a_value); }
+		bool GetIsCrawlButtCrush(RE::Actor* a_actor)                   { return GetBool(a_actor, GraphVars::_IsCrawlButtCrush); }
+		bool SetIsCrawlButtCrush(RE::Actor* a_actor, bool a_value)     { return SetBool(a_actor, GraphVars::_IsCrawlButtCrush, a_value); }
 		
-		bool GetIsNotCrawling(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsNotCrawling); }
-		bool SetIsNotCrawling(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsNotCrawling, a_value); }
+		bool GetIsNotCrawling(RE::Actor* a_actor)                      { return GetBool(a_actor, GraphVars::_IsNotCrawling); }
+		bool SetIsNotCrawling(RE::Actor* a_actor, bool a_value)        { return SetBool(a_actor, GraphVars::_IsNotCrawling, a_value); }
 		
-		bool GetIsHandAttacking(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsHandAttacking); }
-		bool SetIsHandAttacking(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsHandAttacking, a_value); }
+		bool GetIsHandAttacking(RE::Actor* a_actor)                    { return GetBool(a_actor, GraphVars::_IsHandAttacking); }
+		bool SetIsHandAttacking(RE::Actor* a_actor, bool a_value)      { return SetBool(a_actor, GraphVars::_IsHandAttacking, a_value); }
 
 	}
 
 	namespace Prone {
 
-		bool GetIsProne(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsProne); }
-		bool SetIsProne(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsProne, a_value); }
+		bool GetIsProne(RE::Actor* a_actor)                      { return GetBool(a_actor, GraphVars::_IsProne); }
+		bool SetIsProne(RE::Actor* a_actor, bool a_value)        { return SetBool(a_actor, GraphVars::_IsProne, a_value); }
+		 
+		bool GetIsSBECrawling(RE::Actor* a_actor)                { return GetBool(a_actor, GraphVars::_IsSBECrawling); }
+		bool SetIsSBECrawling(RE::Actor* a_actor, bool a_value)  { return SetBool(a_actor, GraphVars::_IsSBECrawling, a_value); }
 
-		bool GetIsSBECrawling(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsSBECrawling); }
-		bool SetIsSBECrawling(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsSBECrawling, a_value); }
-
-		bool GetIsProneRolling(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsProneRolling); }
+		bool GetIsProneRolling(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsProneRolling); }
 		bool SetIsProneRolling(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsProneRolling, a_value); }
 
-		bool GetIsProneDiving(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsProneDiving); }
-		bool SetIsProneDiving(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsProneDiving, a_value); }
+		bool GetIsProneDiving(RE::Actor* a_actor)                { return GetBool(a_actor, GraphVars::_IsProneDiving); }
+		bool SetIsProneDiving(RE::Actor* a_actor, bool a_value)  { return SetBool(a_actor, GraphVars::_IsProneDiving, a_value); }
 
 	}
 
 	namespace ButtCrush {
 
-		bool GetIsButtCrushing(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsButtCrushing); }
+		bool GetIsButtCrushing(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsButtCrushing); }
 		bool SetIsButtCrushing(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsButtCrushing, a_value); }
 
 	}
 
 	namespace Trample {
 
-		bool Get_IsTrampling(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsTrampling); }
+		bool Get_IsTrampling(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsTrampling); }
 		bool Set_IsTrampling(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsTrampling, a_value); }
 
 	}
 
 	namespace Tiny {
 
-		bool GetHasGrabbedTiny(RE::Actor* a_actor) { return GetInt(a_actor, GraphVars::_HasGrabbedTiny) > 0; }
-		bool SetHasGrabbedTiny(RE::Actor* a_actor, bool a_value) { return SetInt(a_actor, GraphVars::_HasGrabbedTiny, a_value ? 1 : 0); }
+		bool GetHasGrabbedTiny(RE::Actor* a_actor)                   { return GetInt(a_actor, GraphVars::_HasGrabbedTiny) > 0; }
+		bool SetHasGrabbedTiny(RE::Actor* a_actor, bool a_value)     { return SetInt(a_actor, GraphVars::_HasGrabbedTiny, a_value ? 1 : 0); }
 
-		bool GetIsStoringTiny(RE::Actor* a_actor) { return GetInt(a_actor, GraphVars::_IsStoringTiny) > 0; }
-		bool SetIsStoringTiny(RE::Actor* a_actor, bool a_value) { return SetInt(a_actor, GraphVars::_IsStoringTiny, a_value ? 1 : 0); }
+		bool GetIsStoringTiny(RE::Actor* a_actor)                    { return GetInt(a_actor, GraphVars::_IsStoringTiny) > 0; }
+		bool SetIsStoringTiny(RE::Actor* a_actor, bool a_value)      { return SetInt(a_actor, GraphVars::_IsStoringTiny, a_value ? 1 : 0); }
 
-		bool GetIsBeingHugged(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsBeingHugged); }
-		bool SetIsBeingHugged(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsBeingHugged, a_value); }
+		bool GetIsBeingHugged(RE::Actor* a_actor)                    { return GetBool(a_actor, GraphVars::_IsBeingHugged); }
+		bool SetIsBeingHugged(RE::Actor* a_actor, bool a_value)      { return SetBool(a_actor, GraphVars::_IsBeingHugged, a_value); }
 
-		bool GetIsBeingGrinded(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsBeingGrinded); }
-		bool SetIsBeingGrinded(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsBeingGrinded, a_value); }
+		bool GetIsBeingGrinded(RE::Actor* a_actor)                   { return GetBool(a_actor, GraphVars::_IsBeingGrinded); }
+		bool SetIsBeingGrinded(RE::Actor* a_actor, bool a_value)     { return SetBool(a_actor, GraphVars::_IsBeingGrinded, a_value); }
 
-		bool GetIsinBoobs(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsinBoobs); }
-		bool SetIsinBoobs(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsinBoobs, a_value); }
+		bool GetIsinBoobs(RE::Actor* a_actor)                        { return GetBool(a_actor, GraphVars::_IsinBoobs); }
+		bool SetIsinBoobs(RE::Actor* a_actor, bool a_value)          { return SetBool(a_actor, GraphVars::_IsinBoobs, a_value); }
 
-		bool GetIsBeingSneakHugged(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsBeingSneakHugged); }
+		bool GetIsBeingSneakHugged(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsBeingSneakHugged); }
 		bool SetIsBeingSneakHugged(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsBeingSneakHugged, a_value); }
 
-		bool GetIsBeingCrawlHugged(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsBeingCrawlHugged); }
+		bool GetIsBeingCrawlHugged(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsBeingCrawlHugged); }
 		bool SetIsBeingCrawlHugged(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsBeingCrawlHugged, a_value); }
 
-		bool GetIsBeingShrunk(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsBeingShrunk); }
-		bool SetIsBeingShrunk(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsBeingShrunk, a_value); }
+		bool GetIsBeingShrunk(RE::Actor* a_actor)                    { return GetBool(a_actor, GraphVars::_IsBeingShrunk); }
+		bool SetIsBeingShrunk(RE::Actor* a_actor, bool a_value)      { return SetBool(a_actor, GraphVars::_IsBeingShrunk, a_value); }
 
-		bool GetIsUnderButt(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsUnderButt); }
-		bool SetIsUnderButt(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsUnderButt, a_value); }
+		bool GetIsUnderButt(RE::Actor* a_actor)                      { return GetBool(a_actor, GraphVars::_IsUnderButt); }
+		bool SetIsUnderButt(RE::Actor* a_actor, bool a_value)        { return SetBool(a_actor, GraphVars::_IsUnderButt, a_value); }
 
-		bool GetIsInThighs(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsInThighs); }
-		bool SetIsInThighs(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsInThighs, a_value); }
+		bool GetIsInThighs(RE::Actor* a_actor)                       { return GetBool(a_actor, GraphVars::_IsInThighs); }
+		bool SetIsInThighs(RE::Actor* a_actor, bool a_value)         { return SetBool(a_actor, GraphVars::_IsInThighs, a_value); }
 
 	}
 
 	namespace Growth {
 
-		bool GetIsGrowing(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsGrowing); }
-		bool SetIsGrowing(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsGrowing, a_value); }
+		bool GetIsGrowing(RE::Actor* a_actor)                 { return GetBool(a_actor, GraphVars::_IsGrowing); }
+		bool SetIsGrowing(RE::Actor* a_actor, bool a_value)   { return SetBool(a_actor, GraphVars::_IsGrowing, a_value); }
 
-		bool GetIsShrinking(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsShrinking); }
+		bool GetIsShrinking(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsShrinking); }
 		bool SetIsShrinking(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsShrinking, a_value); }
 
-		bool GetGrowthRoll(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_GrowthRoll); }
-		bool SetGrowthRoll(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_GrowthRoll, a_value); }
+		bool GetGrowthRoll(RE::Actor* a_actor)                { return GetBool(a_actor, GraphVars::_GrowthRoll); }
+		bool SetGrowthRoll(RE::Actor* a_actor, bool a_value)  { return SetBool(a_actor, GraphVars::_GrowthRoll, a_value); }
 
 	}
 
 	namespace Spell {
 
-		bool GetIsCastingShrink(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsCastingShrink); }
+		bool GetIsCastingShrink(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsCastingShrink); }
 		bool SetIsCastingShrink(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsCastingShrink, a_value); }
 
 	}
 
 	namespace Cleavage {
 
-		bool GetIsBoobsDoting(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsBoobsDoting); }
+		bool GetIsBoobsDoting(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsBoobsDoting); }
 		bool SetIsBoobsDoting(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsBoobsDoting, a_value); }
 
-		bool GetIsSuffocating(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsSuffocating); }
+		bool GetIsSuffocating(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsSuffocating); }
 		bool SetIsSuffocating(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsSuffocating, a_value); }
 
 	}
 
 	namespace Hands {
 
-		bool GetIsHandCrushing(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_IsHandCrushing); }
+		bool GetIsHandCrushing(RE::Actor* a_actor)               { return GetBool(a_actor, GraphVars::_IsHandCrushing); }
 		bool SetIsHandCrushing(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_IsHandCrushing, a_value); }
 
-		bool GetCanAim(RE::Actor* a_actor) { return GetBool(a_actor, GraphVars::_CanAim); }
-		bool SetCanAim(RE::Actor* a_actor, bool a_value) { return SetBool(a_actor, GraphVars::_CanAim, a_value); }
+		bool GetCanAim(RE::Actor* a_actor)                       { return GetBool(a_actor, GraphVars::_CanAim); }
+		bool SetCanAim(RE::Actor* a_actor, bool a_value)         { return SetBool(a_actor, GraphVars::_CanAim, a_value); }
 
 	}
 

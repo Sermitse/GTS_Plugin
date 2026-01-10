@@ -42,7 +42,16 @@ struct SettingsAdvanced_t {
     float fAnimSpeedAdjMultTeammate = 1.0f;
     bool bEnableExperimentalDevourmentAI = false;
     float fExperimentalDevourmentAIProb = 25.0f;
-    std::array<float, 5> fAnimSpeedFormula = { 0.142f, 0.82f, 1.90f, 1.0f, 0.0f };
+    std::array<float, 5> fAnimSpeedFormula = 
+    {
+        // https://www.desmos.com/calculator/vyofjrqmrn
+	    0.142f, //.k = 0.142f, 
+    	0.82f,  //.n = 0.82f,
+    	1.90f,  //.s = 1.90f, 
+    	1.0f,   //.o = 1.0f,
+    	0.0f    //.a = 0.0f,  //Default is 0
+    };
+
     bool bGTSAnimsFullSpeed = false;
     float fAnimspeedLowestBoundAllowed = 0.01f;
 

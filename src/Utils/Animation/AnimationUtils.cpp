@@ -19,7 +19,7 @@ namespace GTS {
 					return 1.0f; // For some reason makes furniture angles funny if there's anim slowdown. So we prevent that
 				}
 
-				const auto SpeedVars = Adv.fAnimSpeedFormula;
+				const std::array<float, 5>& SpeedVars = Adv.fAnimSpeedFormula;
 
 				const SoftPotential Speed = {
 					SpeedVars[0],
@@ -36,10 +36,10 @@ namespace GTS {
 				if (IsGtsBusy(giant) && Adv.bGTSAnimsFullSpeed) {
 					return 1.0f;
 				}
-				else if (giant->formID == 0x14) {
+				if (giant->formID == 0x14) {
 					return Adv.fAnimSpeedAdjMultPlayer * speedmultcalc;
 				}
-				else if (IsTeammate(giant)) {
+				if (IsTeammate(giant)) {
 					return Adv.fAnimSpeedAdjMultTeammate * speedmultcalc;
 				}
 

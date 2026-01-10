@@ -10,7 +10,7 @@
 
 #include "Systems/Rays/Raycast.hpp"
 #include "Utils/MovementForce.hpp"
-#include "Debug/DebugDraw.hpp"
+
 
 using namespace GTS;
 
@@ -130,7 +130,7 @@ namespace GTS {
 		float CheckDistance = 220 * giantScale;
 		// Make a list of points to check
 
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
 			DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance, 300);
 		}
 

@@ -794,11 +794,11 @@ namespace GTS {
 		};
 		std::vector<NiPoint3> CrawlPoints = {};
 
-		for (NiPoint3 point: points) {
+		for ([[maybe_unused]] NiPoint3 point: points) {
 			CrawlPoints.push_back(NodePosition);
 		}
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
-			for (auto &point : CrawlPoints) {
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
+			for (NiPoint3& point : CrawlPoints) {
 				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance);
 			}
 		}
@@ -855,8 +855,8 @@ namespace GTS {
 			}
 			std::vector<NiPoint3> CoordsToCheck = GetFootCoordinates(actor, Right, false);
 			if (!CoordsToCheck.empty()) {
-				if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor))) {
-					for (const auto& footPoints : CoordsToCheck) {
+				if (DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kPlayerAndFollowers)) {
+					for (const NiPoint3& footPoints : CoordsToCheck) {
 						DebugDraw::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, 800, { 0.0f, 1.0f, 0.0f, 1.0f });
 					}
 				}
@@ -968,7 +968,7 @@ namespace GTS {
 			float maxDistance = radius * giantScale;
 			float CheckDistance = 220 * giantScale;
 
-			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
+			if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kPlayerAndFollowers)) {
 				DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance, 400);
 			}
 
@@ -1098,7 +1098,7 @@ namespace GTS {
 		float maxFootDistance = radius * giantScale;
 
 		// Debug visualization
-		if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor) || EffectsForEveryone(actor))) {
+		if (DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kAnyGTS)) {
 			for (auto& point : ThighPoints) {
 				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance);
 			}
@@ -1228,7 +1228,7 @@ namespace GTS {
 		for (NiPoint3 _: points) {
 			FingerPoints.push_back(NodePosition);
 		}
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
 			for (auto &point : FingerPoints) {
 				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 400);
 			}

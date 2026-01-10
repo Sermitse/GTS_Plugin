@@ -1,5 +1,7 @@
 #include "Debug/DebugDraw.hpp"
 
+#include "Config/Config.hpp"
+
 #include "UI/DebugMenu.hpp"
 
 #include "Debug/Util/DebugUtil.hpp"
@@ -261,7 +263,7 @@ namespace GTS {
 
 		auto apply_transform = [](glm::vec3 vec, const glm::mat4& mat) {
 			return glm::vec3(mat * glm::vec4(vec, 1.0f));
-			};
+		};
 
 		DrawLineForMS(apply_transform(pointA, transform), apply_transform(pointB, transform), liftetimeMS, color, lineThickness);
 		DrawLineForMS(apply_transform(pointB, transform), apply_transform(pointC, transform), liftetimeMS, color, lineThickness);
@@ -413,5 +415,30 @@ namespace GTS {
 
 	bool DebugDraw::IsOnScreen(glm::vec2 point) {
 		return (point.x <= ScreenResX && point.x >= 0.0f && point.y <= ScreenResY && point.y >= 0.0f);
+	}
+
+	bool DebugDraw::CanDraw() {
+		return Config::Advanced.bShowOverlay;
+	}
+
+	bool DebugDraw::CanDraw(RE::Actor* a_actor, DrawTarget a_draw_target) {
+		if (Config::Advanced.bShowOverlay) {
+			switch (a_draw_target) {
+				default:
+				case DrawTarget::kPlayerOnly: {
+					return a_actor->IsPlayerRef();
+				}
+				case DrawTarget::kPlayerAndFollowers: {
+					return a_actor->IsPlayerRef() || IsGtsTeammate(a_actor);
+				}
+				case DrawTarget::kAnyGTS: {
+					return a_actor->IsPlayerRef() || IsGtsTeammate(a_actor) || EffectsForEveryone(a_actor);
+				}
+				case DrawTarget::kAll: {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }
