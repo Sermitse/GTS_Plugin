@@ -231,7 +231,7 @@ namespace GTS {
         PlayGoreEffects(tiny, giant);    
         MoveItems(giantHandle, tinyHandle, tiny->formID, DamageSource::Collision);
 
-        Attacked(tiny, giant);
+        tiny->Attacked(giant);
         
         ReportDeath(giant, tiny, DamageSource::Collision);
 
@@ -272,7 +272,7 @@ namespace GTS {
         AddSMTDuration(giant, 2.5f);
         StaggerActor(giant, 0.5f); // play stagger on the player
 
-        Attacked(tiny, giant);
+        tiny->Attacked(giant);
 
         DamageAV(tiny, ActorValue::kHealth, giantHp * 0.75f);
         DamageAV(giant, ActorValue::kHealth, giantHp * 0.25f);
@@ -361,10 +361,10 @@ namespace GTS {
 				}
 
 				if (Collision_AllowTinyCalamityCrush(giant, tiny)) {
-                    StartCombat(tiny, giant);
+                    tiny->StartCombat(giant);
                     TinyCalamity_ExplodeActor(giant, tiny);
 				} else {
-                    StartCombat(tiny, giant);
+                    tiny->StartCombat(giant);
                     TinyCalamity_StaggerActor(giant, tiny, giantHp);
 				}
 			}

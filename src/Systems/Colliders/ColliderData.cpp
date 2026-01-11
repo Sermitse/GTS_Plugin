@@ -7,7 +7,7 @@ namespace GTS {
 		log::info("Activate RBs");
 		for (auto rb: GetRigidBodies()) {
 			log::info("  - Activating");
-			SetMotionType(rb, hkpMotion::MotionType::kCharacter, hkpEntityActivation::kDoActivate, hkpUpdateCollisionFilterOnEntityMode::kFullCheck);
+			rb->SetMotionType(hkpMotion::MotionType::kCharacter, hkpEntityActivation::kDoActivate, hkpUpdateCollisionFilterOnEntityMode::kFullCheck);
 		}
 	}
 
@@ -15,14 +15,14 @@ namespace GTS {
 		for (auto ent: GetRigidBodies()) {
 			if (ent) {
 				if (ent->world) {
-					UpdateCollisionFilterOnEntity(ent->world, ent, hkpUpdateCollisionFilterOnEntityMode::kFullCheck, hkpUpdateCollectionFilterMode::kIncludeCollections);
+					ent->world->UpdateCollisionFilterOnEntity(ent, hkpUpdateCollisionFilterOnEntityMode::kFullCheck, hkpUpdateCollectionFilterMode::kIncludeCollections);
 				}
 			}
 		}
 		for (auto ent: GetPhantoms()) {
 			if (ent) {
 				if (ent->world) {
-					UpdateCollisionFilterOnPhantom(ent->world, ent, hkpUpdateCollectionFilterMode::kIncludeCollections);
+					ent->world->UpdateCollisionFilterOnPhantom(ent, hkpUpdateCollectionFilterMode::kIncludeCollections);
 				}
 			}
 		}

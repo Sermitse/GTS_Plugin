@@ -299,7 +299,6 @@ namespace GTS {
 				}
 			}
 
-			NiPoint3 giantLocation = giant->GetPosition();
 			PushObjectsUpwards(giant, CoordsToCheck, maxFootDistance, power, true);
 
 			for (auto otherActor: find_actors()) {

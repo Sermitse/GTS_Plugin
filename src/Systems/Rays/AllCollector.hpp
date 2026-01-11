@@ -18,7 +18,7 @@ namespace GTS {
 		static unique_ptr<AllRayCollector> Create();
 
 		// Reset, if you want to resuse the collector
-		void Reset() noexcept;;
+		void Reset() noexcept;
 
 		// Check if it has hit anything
 		bool HasHit() const;

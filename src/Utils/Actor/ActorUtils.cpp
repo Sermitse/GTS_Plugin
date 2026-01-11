@@ -243,7 +243,7 @@ namespace GTS {
 				return;
 			}
 			Actor* tiny = targetRef.get().get();
-			SetCriticalStage(tiny, ACTOR_CRITICAL_STAGE::kDisintegrateEnd);
+			tiny->SetCriticalStage(ACTOR_CRITICAL_STAGE::kDisintegrateEnd);
 		});
 	}
 
@@ -377,7 +377,7 @@ namespace GTS {
 		if (bhkCollisionObject* collision = a_target->Get3D(false)->GetCollisionObject()) {
 			if (auto rigidbody = collision->GetRigidBody()) {
 				if (auto body = rigidbody->AsBhkRigidBody()) {
-					SetLinearImpulse(body, impulse);
+					body->SetLinearImpulse(impulse);
 					//log::info("Bdy found, Applying impulse {} to {}", Vector2Str(impulse), a_target->GetDisplayFullName());
 				}
 			}
@@ -557,7 +557,7 @@ namespace GTS {
 			return;
 		}
 		if (!AnimationVars::Tiny::GetIsBeingShrunk(a_target)) {
-			StaggerActor_Directional(a_source, a_power, a_target);
+			a_target->StaggerDirectional(a_source, a_power);
 		}
 	}
 

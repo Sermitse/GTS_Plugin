@@ -659,15 +659,15 @@ namespace GTS {
 			if (receiver->formID != 0x14) { // Mostly a warning to indicate that actor dislikes it (They don't always aggro right away, with mods at least)
 				if (value >= GetAV(receiver, ActorValue::kHealth) * 0.50f || HpPercentage < 0.70f) { // in that case make hostile
 					if (!IsTeammate(receiver) && !IsHostile(attacker, receiver)) {
-						StartCombat(receiver, attacker); // Make actor hostile and add bounty of 40 (can't be configured, needs different hook probably). 
+						receiver->StartCombat(attacker); // Make actor hostile and add bounty of 40 (can't be configured, needs different hook probably). 
 					}
 				}
 				if (value > 1.0f) { // To prevent aggro when briefly colliding
-					Attacked(receiver, attacker);
+					receiver->Attacked(attacker);
 				}
 			}
 
-			ApplyDamage(attacker, receiver, value * difficulty * Config::Balance.fSizeDamageMult);
+			receiver->ApplyDamage(attacker, value * difficulty * Config::Balance.fSizeDamageMult);
 		}
 		else if (receiver->IsDead()) {
 			Task_InitHavokTask(receiver);
@@ -838,7 +838,7 @@ namespace GTS {
 		}
 
 		update_target_scale(tiny, -(shrinkpower * gigantism), SizeEffectType::kShrink);
-		Attacked(tiny, giant);
+		tiny->Attacked(giant);
 
 		ModSizeExperience(giant, (shrinkpower * gigantism) * 0.60f);
 
@@ -887,7 +887,7 @@ namespace GTS {
 				Task_AdjustHalfLifeTask(tiny, halflife, 1.2); // to make them shrink faster
 				AddSMTPenalty(giant, 5.0f * Adjustment_Tiny);
 				set_target_scale(tiny, targetScale);
-				StartCombat(tiny, giant);
+				tiny->StartCombat(giant);
 				
 			}
 		}

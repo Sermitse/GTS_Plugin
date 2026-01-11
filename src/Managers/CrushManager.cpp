@@ -132,7 +132,7 @@ namespace GTS {
 				SetReanimatedState(tiny);
 				data.state = CrushState::Crushing;
 			} else if (data.state == CrushState::Crushing) {
-				Attacked(tiny, giant);
+				tiny->Attacked(giant);
 
 				float currentSize = get_visual_scale(tiny);
 

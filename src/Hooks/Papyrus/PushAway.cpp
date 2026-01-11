@@ -36,7 +36,7 @@ namespace Hooks {
 	                    return;
 	                }
 	                if (size_difference >= 1.25f && ActorAsSource) {
-	                    StaggerActor_Directional(ActorAsSource, a_force, a_target);
+						a_target->StaggerDirectional(ActorAsSource, a_force);
 	                    return;
 	                }
 				}

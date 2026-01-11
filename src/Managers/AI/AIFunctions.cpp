@@ -200,7 +200,7 @@ namespace GTS {
 		}
 
 		if (tiny && tiny->Is3DLoaded() && !tiny->IsDead()) {
-			StartCombat(tiny, giant);
+			tiny->StartCombat(giant);
 		}
 
 		float hp = GetMaxAV(tiny, ActorValue::kHealth) * 9.0f;	
@@ -255,7 +255,7 @@ namespace GTS {
 			ApplyActionCooldown(tinyRef, CooldownSource::Action_ScareOther);
 
 			double timepassed = Finish - Start;
-			if (IsMoving(tinyRef)) {
+			if (tinyRef->IsMoving()) {
 				int FallChance = RandomInt(0, 6000);// Chance to Trip
 				if (FallChance <= 2 && !IsRagdolled(tinyRef)) {
 					PushActorAway(giantRef, tinyRef, 1.0f);

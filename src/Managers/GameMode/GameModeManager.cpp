@@ -264,7 +264,7 @@ namespace {
 
 	void CurseOfDiminishing(Actor* a_Actor, const float a_CurrentTargetScale) {
 
-		if (GetCombatState(a_Actor) > RE::ACTOR_COMBAT_STATE::kNone || IsGtsBusy(a_Actor)) return;
+		if (a_Actor->GetCombatState() > RE::ACTOR_COMBAT_STATE::kNone || IsGtsBusy(a_Actor)) return;
 
 		// Slider that determines max size cap.
 		float CurseTargetScale;
@@ -323,7 +323,7 @@ namespace {
 
 	void LevelLocked(Actor* a_Actor, const float a_CurrentTargetScale, const float a_MaxScale) {
 
-		if (GetCombatState(a_Actor) > RE::ACTOR_COMBAT_STATE::kNone || IsGtsBusy(a_Actor)) return;
+		if (a_Actor->GetCombatState() > RE::ACTOR_COMBAT_STATE::kNone || IsGtsBusy(a_Actor)) return;
 
 		// Slider that determines max size cap.
 		float CurseTargetScale;

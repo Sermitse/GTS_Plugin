@@ -60,8 +60,7 @@ namespace {
 			if (RE::TESObjectREFR* refget = ref.get().get()) {
 
 				soundHandle.SetVolume(a_volume);
-
-				SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+				audioManager->SetSoundHandleFrequency(soundHandle.soundID, a_frequency);
 
 				if (RE::NiAVObject* current_3d = refget->GetCurrent3D()) {
 					RE::NiAVObject* follow = current_3d;
@@ -106,7 +105,7 @@ namespace {
 			float falloff = GTS::Sound_GetFallOff(a_node, a_falloff);
 			soundHandle.SetVolume(a_volume * falloff);
 
-			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+			audioManager->SetSoundHandleFrequency(soundHandle.soundID, a_frequency);
 
 			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();
@@ -139,7 +138,7 @@ namespace {
 		if (audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor)) {
 			soundHandle.SetVolume(a_volume);
 
-			SetSoundHandleFrequency(audioManager, soundHandle.soundID, a_frequency);
+			audioManager->SetSoundHandleFrequency(soundHandle.soundID, a_frequency);
 
 			soundHandle.SetObjectToFollow(a_node);
 			soundHandle.Play();

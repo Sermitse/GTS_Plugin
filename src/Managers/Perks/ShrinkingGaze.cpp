@@ -64,7 +64,7 @@ namespace {
 		ShrinkByOverTime(otherActor, stare_threshold * 0.1f, tiny_size * (0.45f / shrink_bonus));
 
 		if (get_scale_difference(giant, otherActor, SizeType::VisualScale, false, false) >= 0.92f) {
-			StaggerActor_Directional(giant, difference, otherActor);
+			otherActor->StaggerDirectional(giant, difference);
 		}
 
 		if (tiny_size <= 0.50f) {

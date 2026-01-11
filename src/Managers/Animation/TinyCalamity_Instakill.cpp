@@ -27,7 +27,7 @@ namespace {
 		AdvanceQuestProgression(giant, tiny, QuestStage::ShrinkToNothing, 0.25f, false);
 		ModSizeExperience(giant, 0.24f * 0.25f); // Adjust Size Matter skill
 		ShrinkToNothingManager::SpawnDeathEffects(tiny);
-		Attacked(tiny, giant);
+		tiny->Attacked(giant);
 
 		const auto& MuteSnapDeath = Config::Audio.bMuteFingerSnapDeathScreams;
 		
@@ -221,7 +221,7 @@ namespace {
 			if (tiny) {
 				ChanceToScare(&data.giant, tiny, 6.0f, 1, false); // force actor to flee 
 				AttachToObjectBTask(&data.giant);
-				StartCombat(tiny, &data.giant);
+				tiny->StartCombat(&data.giant);
 			}
 		}
     }

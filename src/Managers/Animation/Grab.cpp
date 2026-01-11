@@ -189,7 +189,7 @@ namespace {
 
 		if (auto grabbed = Grab::GetHeldActor(&data.giant)) {
 			if (Config::Gameplay.ActionSettings.bGrabStartIsHostile && !IsTeammate(grabbed)) {
-				Attacked(grabbed, &data.giant);
+				grabbed->Attacked(&data.giant);
 			}
 			Grab::AttachActorTask(&data.giant, grabbed);
 			DisableCollisions(grabbed, &data.giant); // Do it once more just in case
@@ -455,8 +455,7 @@ namespace GTS {
                 AdjustSizeReserve(giantess, get_visual_scale(tiny)/10);
                 SpawnHurtParticles(giantess, tiny, 3.0f, 1.6f);
                 SpawnHurtParticles(giantess, tiny, 3.0f, 1.6f);
-            
-                StartCombat(tiny, giantess);
+				tiny->StartCombat(giantess);
                 
                 AdvanceQuestProgression(giantess, tiny, stage, 1.0f, false);
                 
@@ -486,7 +485,7 @@ namespace GTS {
 		auto& sizemanager = SizeManager::GetSingleton();
 
         if (grabbed) {
-            Attacked(grabbed, giant); // force combat
+			grabbed->Attacked(giant); // force combat
 
             float bonus = 1.0f;
 

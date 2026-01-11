@@ -151,9 +151,7 @@ namespace GTS {
 		float HealthPercent = std::clamp(GetHealthPercentage(target), 0.25f, 1.0f);
 		shrink /= HealthPercent;
 
-		
-
-		Attacked(target, caster); // make it work like a hostile spell
+		target->Attacked(caster); // make it work like a hostile spell
 
 		ChanceToScare(caster, target, 5.0f, 1200, true);
 

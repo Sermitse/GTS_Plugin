@@ -193,7 +193,7 @@ namespace Grab_Fixes {
 		auto grabbedActor = Grab::GetHeldActor(giant);
 
 		if (grabbedActor) {
-			Attacked(grabbedActor, giant); // force combat
+			grabbedActor->Attacked(giant); // force combat
 
 			float tiny_scale = get_visual_scale(grabbedActor) * GetSizeFromBoundingBox(grabbedActor);
 			float gts_scale = get_visual_scale(giant) * GetSizeFromBoundingBox(giant);

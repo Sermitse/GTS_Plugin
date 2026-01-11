@@ -47,7 +47,7 @@ namespace GTS {
 				data.state = ShrinkState::Shrinking;
 			} else if (data.state == ShrinkState::Shrinking) {
 				ModSizeExperience(giant, 0.24f * GetXPModifier(tiny)); // Adjust Size Matter skill
-				Attacked(tiny, giant);
+				tiny->Attacked(giant);
 				if (giant->formID == 0x14 && IsDragon(tiny)) {
 					CompleteDragonQuest(tiny, ParticleType::Red);
 				}

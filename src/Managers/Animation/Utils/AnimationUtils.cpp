@@ -284,7 +284,7 @@ namespace GTS {
 
 	void HugCrushOther(Actor* giant, Actor* tiny) {
 		AdvanceQuestProgression(giant, tiny, QuestStage::Crushing, 1.0f, false);
-		Attacked(tiny, giant);
+		tiny->Attacked(giant);
 
 		ModSizeExperience(giant, 0.22f); // Adjust Size Matter skill
 

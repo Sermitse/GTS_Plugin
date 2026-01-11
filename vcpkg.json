@@ -8,7 +8,7 @@
       "description": "Build the plugin.",
       "dependencies": [
         "clib-util",
-        "commonlibsse-ng",
+        "commonlibsse-ng-gts",
         "glm",
         "toml11",
         "magic-enum",

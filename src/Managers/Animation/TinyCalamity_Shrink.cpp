@@ -105,7 +105,7 @@ namespace {
 				SpawnRuneOnTiny(victim);
 				float until = Animation_TinyCalamity::GetShrinkUntil(victim);
 				ShrinkUntil(&data.giant, victim, until, 0.26f, false);
-				StartCombat(victim, &data.giant);
+				victim->StartCombat(&data.giant);
 
 				ChanceToScare(&data.giant, victim, 6.0f, 6, false); // chance to force actor to flee 
 

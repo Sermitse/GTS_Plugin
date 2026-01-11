@@ -5,9 +5,6 @@
 
 #include "Managers/HighHeel.hpp"
 
-#include "RE/T/TES.hpp"
-
-
 
 using namespace GTS;
 
@@ -65,7 +62,7 @@ namespace {
 				if (body) {
 					push *= Multiply_By_Mass(body);
 					//log::info("Applying force to object, Push: {}, Force: {}, Result: {}", Vector2Str(push), force, Vector2Str(push * force));
-					SetLinearImpulse(body, hkVector4(push.x * force, push.y * force, push.z * force, 1.0f));
+					body->SetLinearImpulse(hkVector4(push.x * force, push.y * force, push.z * force, 1.0f));
 				}
 			}
 		}
@@ -147,7 +144,7 @@ namespace GTS {
 										auto body = collision->GetRigidBody();
 										if (body) {
 											push *= Multiply_By_Mass(body);
-											SetLinearImpulse(body, hkVector4(0, 0, push, push));
+											body->SetLinearImpulse(hkVector4(0, 0, push, push));
 										}
 									}
 								}
@@ -301,7 +298,7 @@ namespace GTS {
     	else { // Else scan Entire world
 			TESObjectREFR* GiantRef = skyrim_cast<TESObjectREFR*>(giant);
 			if (GiantRef) {
-				TESEx::ForEachReferenceInRangeEx(GiantRef, maxDistance, [&](RE::TESObjectREFR* a_ref){
+				TES::GetSingleton()->ForEachReferenceInRange(GiantRef, maxDistance, [&](RE::TESObjectREFR* a_ref){
 					const bool IsActor = a_ref->Is(FormType::ActorCharacter);
 					if (!IsActor) { // we don't want to apply it to actors
 						const NiPoint3 objectlocation = a_ref->GetPosition();

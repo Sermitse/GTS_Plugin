@@ -156,14 +156,6 @@ namespace Hooks {
 	using namespace GTS;
 }
 
-//Add Missing Game versions to our old version of clib-ng
-namespace RE {
-	constexpr REL::Version RUNTIME_SSE_1_6_659(1, 6, 659, 0);
-	constexpr REL::Version RUNTIME_SSE_1_6_678(1, 6, 678, 0);
-	constexpr REL::Version RUNTIME_SSE_1_6_1130(1, 6, 1130, 0);
-	constexpr REL::Version RUNTIME_SSE_1_6_1170(1, 6, 1170, 0);
-}
-
 namespace logger = SKSE::log;
 
 //Project-Wide Defines
@@ -175,7 +167,6 @@ namespace logger = SKSE::log;
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 // ---- Own Includes ----
-#include "RE/RE.hpp"
 #include "Constants.hpp"
 
 //Debugging

@@ -204,7 +204,7 @@ namespace {
 		for (auto tiny: sandwichdata.GetActors()) {
 			if (tiny) {
 				DoThighDamage(&data.giant, tiny, data.animSpeed, 2.2f, 0.75f);
-				Attacked(tiny, &data.giant);
+				tiny->Attacked(&data.giant);
 				tiny->NotifyAnimationGraph("ragdoll");
 				AllowToBeCrushed(tiny, true);
 			}

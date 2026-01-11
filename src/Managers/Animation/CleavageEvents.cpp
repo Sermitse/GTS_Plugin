@@ -181,7 +181,7 @@ namespace {
         Actor* tiny = Grab::GetHeldActor(giant);
         if (tiny) {
             if (!IsTeammate(tiny)) {
-                Attacked(tiny, giant); // force combat
+                tiny->Attacked(giant); // force combat
             }
 
             float bonus = 1.0f;
@@ -406,7 +406,7 @@ namespace {
         if (tiny) {
 
             SpawnHearts(giant, tiny, 35.0f, 1.15f, false);
-            Attacked(tiny, giant);
+            tiny->Attacked(giant);
 
             AdvanceQuestProgression(giant, tiny, QuestStage::HugSteal, 1.0f, false);
 

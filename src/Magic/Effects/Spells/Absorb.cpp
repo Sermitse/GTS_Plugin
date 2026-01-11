@@ -21,7 +21,7 @@ namespace GTS {
 		}
 		if (!IsEssential_WithIcons(caster, target)) {
 			StaggerActor(caster, target, 0.25f * get_scale_difference(caster, target, SizeType::VisualScale, true, false));
-			Attacked(target, caster);
+			target->Attacked(caster);
 		}
 	}
 
@@ -57,9 +57,8 @@ namespace GTS {
 			shrink_power *= 3.0f;
 			gain_size *= 0.20f;
 		}
-
-		
-		Attacked(target, caster);// make it seen as hostile action
+		 
+		target->Attacked(caster); // make it seen as hostile action
 
 		if (ShrinkToNothing(caster, target, false, 1.0f)) { // chance to receive more size xp and grow even bigger
 			AbsorbShout_BuffCaster(caster, target);

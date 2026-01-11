@@ -26,7 +26,7 @@ namespace {
 				VoreData.GrabAll();
 			}
 			tiny->NotifyAnimationGraph("JumpFall");
-			Attacked(tiny, &data.giant);
+			tiny->Attacked(&data.giant);
 		}
 		if (IsTransferingTiny(&data.giant)) {
 			ManageCamera(&data.giant, true, CameraTracking::ObjectA);

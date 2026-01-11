@@ -84,8 +84,8 @@ namespace {
         float threshold = 0.075f;
 
         if (!IsTeammate(tiny)) {
-            StartCombat(tiny, giant);
-            Attacked(tiny, giant); // force combat
+            tiny->StartCombat(giant);
+            tiny->Attacked(giant); // force combat
         }
 
         TaskManager::Run(task_name, [=](auto& progressData) {

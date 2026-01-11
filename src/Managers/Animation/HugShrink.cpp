@@ -154,7 +154,7 @@ namespace {
 			if (!IsTeammate(huggedActor)) {
 
 				if (!IsTeammate(huggedActor) && Config::Gameplay.ActionSettings.bNonLethalHugsHostile) {
-					Attacked(huggedActor, giant);
+					huggedActor->Attacked(giant);
 				}
 			}
 
@@ -200,7 +200,7 @@ namespace {
 			auto scale = get_visual_scale(huggedActor);
 
 			if (!IsTeammate(huggedActor) && Config::Gameplay.ActionSettings.bNonLethalHugsHostile) {
-				Attacked(huggedActor, giant);
+				huggedActor->Attacked(giant);
 			}
 
 			ShrinkPulse_DecreaseSize(huggedActor, scale);
@@ -503,7 +503,7 @@ namespace GTS {
 			ModSizeExperience(giantref, 0.00020f);
 
 			if (!IsTeammate(tinyref) && Config::Gameplay.ActionSettings.bNonLethalHugsHostile) {
-				Attacked(tinyref, giantref); // make it look like we attack the tiny
+				tinyref->Attacked(giantref); // make it look like we attack the tiny
 			}
 
 			Rumbling::Once("HugSteal", giantref, Rumble_Hugs_Shrink, 0.12f, "NPC COM [COM ]", 0.0f, true);

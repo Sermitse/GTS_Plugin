@@ -80,7 +80,7 @@ namespace GTS {
                     }
 
                     data.state = OverkillState::Overkilled;
-					Attacked(tiny, giant);
+					tiny->Attacked(giant);
 				}
 			}
 		}

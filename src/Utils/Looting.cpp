@@ -182,8 +182,7 @@ namespace GTS {
 					if (ref) {
 						auto changes = ref->GetInventoryChanges();
 						if (changes) {
-							//Clib version produces garbage values
-							quantity = GetItemCount(changes, a_object); // obtain item count
+							quantity = changes->GetItemCount(a_object); // obtain item count
 						}
 					}
 
@@ -264,7 +263,7 @@ namespace GTS {
 						//log::info("Transfering item: {}, looking for quantity", a_object->GetName());
 						auto changes = ref->GetInventoryChanges();
 						if (changes) {
-							quantity = GetItemCount(changes, a_object); // obtain item count
+							quantity = changes->GetItemCount(a_object); // obtain item count
 						}
 					}
 					quantity = std::max(0, quantity);

@@ -174,7 +174,7 @@ namespace {
 		VoreData.GrabAll();
 		for (auto& tiny: VoreData.GetVories()) {
 			tiny->NotifyAnimationGraph("JumpFall");
-			Attacked(tiny, giant);
+			tiny->Attacked(giant);
 		}
 
 		ManageCamera(giant, false, CameraTracking::Hand_Right);
