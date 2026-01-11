@@ -101,7 +101,7 @@ namespace {
 					Task_FacialEmotionTask_Smile(receiver, 1.25f, "CrushSmile", RandomFloat(0.0f, 0.7f), 0.4f);
 				}
 
-				if (!LessGore()) {
+				if (!Config::General.bLessGore) {
 					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
 					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
 					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");

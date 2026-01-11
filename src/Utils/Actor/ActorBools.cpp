@@ -5,8 +5,6 @@
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 
-// I'm planning to switch to it later and remove these functions from ActorUtils.cpp
-// delayed because it's hard to see important changes since there's like 100+ file changes when switching to it
 
 namespace GTS {
 
@@ -252,14 +250,6 @@ namespace GTS {
 
 	bool AllowDevourment() {
 		return Config::General.bDevourmentCompat && Runtime::IsDevourmentInstalled();
-	}
-
-	bool AllowCameraTracking() {
-		return Config::General.bTrackBonesDuringAnim;
-	}
-
-	bool LessGore() {
-		return Config::General.bLessGore;
 	}
 
 	bool IsTeammate(Actor* actor) {

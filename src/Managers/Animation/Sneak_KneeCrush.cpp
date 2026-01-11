@@ -1,5 +1,7 @@
 #include "Managers/Animation/Sneak_KneeCrush.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/Utils/CrawlUtils.hpp"
@@ -21,14 +23,14 @@ namespace {
 	constexpr std::string_view LNode = "NPC L Foot [Lft ]";
 
     void TrackKnee(Actor* giant, bool enable) {
-		if (AllowCameraTracking()) {
+		if (Config::General.bTrackBonesDuringAnim) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			sizemanager.SetTrackedBone(giant, enable, CameraTracking::ObjectB);
 		}
 	}
 
     void TrackBooty(Actor* giant, bool enable) {
-		if (AllowCameraTracking()) {
+		if (Config::General.bTrackBonesDuringAnim) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			sizemanager.SetTrackedBone(giant, enable, CameraTracking::Mid_Butt_Legs);
 		}

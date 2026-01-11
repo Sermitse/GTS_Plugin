@@ -161,10 +161,10 @@ namespace GTS {
 				DecreaseShoutCooldown(giant);
 				PerkHandler::UpdatePerkValues(giant, PerkUpdate::Perk_LifeForceAbsorption);
 
-				if (!IsLiving(tiny) || LessGore()) {
+				if (!IsLiving(tiny) || Config::General.bLessGore) {
 					SpawnDustParticle(giant, tiny, "NPC Root [Root]", 3.0f);
 				} else {
-					if (!LessGore()) {
+					if (!Config::General.bLessGore) {
 						auto root = find_node(tiny, "NPC Root [Root]");
 						if (root) {
 							SpawnParticle(tiny, 0.60f, "GTS/Damage/Explode.nif", root->world.rotate, root->world.translate, currentSize * 2.5f, 7, root);

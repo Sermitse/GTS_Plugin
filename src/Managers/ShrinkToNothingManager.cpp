@@ -122,7 +122,7 @@ namespace GTS {
 		if (!IsLiving(tiny)) {
 			SpawnDustParticle(tiny, tiny, "NPC Root [Root]", 3.6f);
 		} else {
-			if (!LessGore()) {
+			if (!Config::General.bLessGore) {
 				std::random_device rd;
 				std::mt19937 gen(rd());
 				std::uniform_real_distribution<float> dis(-0.2f, 0.2f);

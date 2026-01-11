@@ -299,7 +299,7 @@ namespace GTS {
 		if (!IsLiving(tiny)) {
 			SpawnDustParticle(tiny, tiny, "NPC Root [Root]", 3.6f);
 		} else {
-			if (!LessGore()) {
+			if (!Config::General.bLessGore) {
 				auto root = find_node(tiny, "NPC Root [Root]");
 				if (root) {
 					SpawnParticle(tiny, 1.20f, "GTS/Damage/Explode.nif", NiMatrix3(), root->world.translate, 2.0f, 7, root);
@@ -462,7 +462,7 @@ namespace GTS {
 	}
 
 	void ManageCamera(Actor* giant, bool enable, CameraTracking type) {
-		if (AllowCameraTracking()) {
+		if (Config::General.bTrackBonesDuringAnim) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			sizemanager.SetTrackedBone(giant, enable, type);
 		}
@@ -566,10 +566,10 @@ namespace GTS {
 		auto hand = find_node(giant, "NPC L Hand [LHnd]");
 		if (hand) {
 			if (IsLiving(grabbedActor)) {
-				if (!LessGore()) {
+				if (!Config::General.bLessGore) {
 					SpawnParticle(giant, 25.0f, "GTS/Damage/Explode.nif", hand->world.rotate, hand->world.translate, get_visual_scale(grabbedActor) * 3* mult, 4, hand);
 					SpawnParticle(giant, 25.0f, "GTS/Damage/Crush.nif", hand->world.rotate, hand->world.translate, get_visual_scale(grabbedActor) * 3 *  mult, 4, hand);
-				} else if (LessGore()) {
+				} else if (Config::General.bLessGore) {
 					Runtime::PlaySound("SKSoundBloodGush", grabbedActor, 1.0f, 0.5f);
 				}
 			} else {

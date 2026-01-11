@@ -5,6 +5,7 @@ namespace GTS {
 	//----------------------------------------------------
 	// OTHER
 	//----------------------------------------------------
+	float GetAnimationSlowdown(Actor* giant);
 	float GetMovementModifier(Actor* a_target);
 	float GetRandomBoost();
 	void StartActorResetTask(Actor* a_target);

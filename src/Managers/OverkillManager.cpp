@@ -1,4 +1,7 @@
 #include "Managers/OverkillManager.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/AI/AIFunctions.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
 #include "Utils/Looting.hpp"
@@ -12,7 +15,7 @@ namespace {
         if (!IsLiving(tiny)) {
             SpawnDustParticle(tiny, giant, "NPC Root [Root]", 3.0f);
         } else {
-            if (!LessGore()) {
+            if (!Config::General.bLessGore) {
                 auto root = find_node(tiny, "NPC Root [Root]");
                 if (root) {
                     float currentSize = get_visual_scale(tiny);

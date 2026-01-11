@@ -1,4 +1,7 @@
 #include "Managers/Animation/Crawling.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab.hpp"
 
@@ -16,7 +19,7 @@ using namespace GTS;
 namespace {
 
 	void EnableHandTracking(Actor* giant, CrawlEvent kind, bool enable) {
-		if (AllowCameraTracking()) {
+		if (Config::General.bTrackBonesDuringAnim) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			if (kind == CrawlEvent::RightHand) {
 				sizemanager.SetTrackedBone(giant, enable, CameraTracking::Hand_Right);

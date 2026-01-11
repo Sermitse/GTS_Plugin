@@ -11,8 +11,8 @@
 #include "Config/Settings/SettingsGeneral.hpp"
 #include "Config/Settings/SettingsHidden.hpp"
 #include "Config/Settings/SettingsUI.hpp"
+#include "Config/Settings/SettingsPersistent.hpp"
 
-#include "Settings/SettingsPersistent.hpp"
 
 namespace GTS {
 
@@ -28,15 +28,15 @@ namespace GTS {
 		static inline toml::ordered_value PersistentTomlData = {};
 
         public:
-        static inline SettingsHidden_t Hidden = {};
-        static inline SettingsAdvanced_t Advanced = {};
-        static inline SettingsGeneral_t General = {};
-        static inline SettingsGameplay_t Gameplay = {};
-        static inline SettingsBalance_t Balance = {};
-        static inline SettingsAudio_t Audio = {};
-        static inline SettingsAI_t AI = {};
-        static inline SettingsCamera_t Camera = {};
-        static inline SettingsUI_t UI = {};
+        static inline SettingsHidden_t Hidden         = {};
+        static inline SettingsAdvanced_t Advanced     = {};
+        static inline SettingsGeneral_t General       = {};
+        static inline SettingsGameplay_t Gameplay     = {};
+        static inline SettingsBalance_t Balance       = {};
+        static inline SettingsAudio_t Audio           = {};
+        static inline SettingsAI_t AI                 = {};
+        static inline SettingsCamera_t Camera         = {};
+        static inline SettingsUI_t UI                 = {};
         static inline SettingsPersistent_t Persistent = {};
 
         void DataReady() override;

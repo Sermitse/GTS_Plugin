@@ -444,7 +444,7 @@ namespace GTS {
                 Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrushDefault, giantess, 1.0f, "NPC L Hand [LHnd]");
 
 				if (do_sound) {
-					if (!LessGore()) {
+					if (!Config::General.bLessGore) {
 						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, giantess, 1.0f, "NPC L Hand [LHnd]");
 						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, giantess, 1.0f, "NPC L Hand [LHnd]");
 					} else {
@@ -463,7 +463,7 @@ namespace GTS {
                 ReportDeath(giantess, tiny, source);
             } else {
 				if (do_sound) {
-					if (!LessGore()) {
+					if (!Config::General.bLessGore) {
 						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, giantess, 1.0f, "NPC L Hand [LHnd]");
 						SpawnHurtParticles(giantess, tiny, 1.0f, 1.0f);
 					} else {

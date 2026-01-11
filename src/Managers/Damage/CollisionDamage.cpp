@@ -367,7 +367,7 @@ namespace GTS {
 
 				CrushBonuses(giant, tiny);
 				ReportDeath(giant, tiny, Cause);
-				if (!LessGore()) {
+				if (!Config::General.bLessGore) {
 					auto node = find_node(giant, GetDeathNodeName(Cause));
 					if (!IsMechanical(tiny)) {
 						PlayCrushSound(giant, node, StrongGore(Cause), get_corrected_scale(tiny)); // Run Crush Sound task that will determine which exact type of crushing audio to play

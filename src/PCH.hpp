@@ -228,7 +228,6 @@ namespace logger = SKSE::log;
 #include "Utils/Actor/SkillUtils.hpp"
 #include "Utils/Actor/FindActor.hpp"
 #include "Utils/Actor/AV.hpp"
-#include "Utils/Animation/AnimationUtils.hpp"
 #include "Utils/Animation/AnimationVars.hpp"
 
 //Data

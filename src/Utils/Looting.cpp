@@ -212,7 +212,7 @@ namespace GTS {
 			name = std::format("{} Soul Remains", actor->GetDisplayFullName());
 			soul = true;
 		} 
-		else if (LessGore()) { // Always Spawn soul if Less Gore is on
+		else if (Config::General.bLessGore) { // Always Spawn soul if Less Gore is on
 			container = &Runtime::CONT.GTSDropboxSoul;
 			name = std::format("Crushed Soul of {} ", actor->GetDisplayFullName());
 			soul = true;

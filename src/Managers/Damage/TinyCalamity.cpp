@@ -1,4 +1,7 @@
 #include "Managers/Damage/TinyCalamity.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Managers/Animation/Utils/TurnTowards.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
@@ -33,7 +36,7 @@ namespace {
         if (!IsLiving(tiny)) {
             SpawnDustParticle(tiny, giant, "NPC Root [Root]", 3.0f);
         } else {
-            if (!LessGore()) {
+            if (!Config::General.bLessGore) {
                 auto root = find_node(tiny, "NPC Root [Root]");
                 if (root) {
                     float currentSize = get_visual_scale(tiny);
