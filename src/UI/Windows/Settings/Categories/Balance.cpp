@@ -1,6 +1,5 @@
 #include "UI/Windows/Settings/Categories/Balance.hpp"
 
-#include "UI/Lib/imgui.h"
 #include "UI/Core/ImUtil.hpp"
 
 #include "UI/Controls/CheckBox.hpp"

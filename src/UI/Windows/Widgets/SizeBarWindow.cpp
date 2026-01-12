@@ -3,8 +3,6 @@
 
 #include "Config/Config.hpp"
 
-#include "UI/Lib/imgui.h"
-
 #include "UI/Core/ImFontManager.hpp"
 #include "UI/Controls/ProgressBar.hpp"
 #include "UI/Core/ImColorUtils.hpp"

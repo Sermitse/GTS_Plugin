@@ -10,8 +10,6 @@
 #include "UI/Controls/ToolTip.hpp"
 
 #include "UI/Core/ImUtil.hpp"
-#include "UI/Lib/imgui.h"
-#include "UI/Lib/imgui_stdlib.h"
 #include "UI/Windows/Settings/SettingsWindow.hpp"
 
 namespace {

@@ -1,5 +1,3 @@
-#include "UI/Lib/imgui.h"
-#include "UI/Lib/imgui_internal.h"
 #include "UI/Controls/Misc.hpp"
 
 namespace ImGuiEx {

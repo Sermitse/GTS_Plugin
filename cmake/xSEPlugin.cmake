@@ -1,6 +1,12 @@
 find_package(CommonLibSSE CONFIG REQUIRED)
 
-add_commonlibsse_plugin(${PROJECT_NAME} DECLARATIVE SOURCES ${headers} ${sources})
+
+#mimicks add_commonlibsse_plugin but without the PluginInfo Insertion
+add_library("${PROJECT_NAME}" SHARED ${headers} ${sources})
+target_compile_definitions("${PROJECT_NAME}"PRIVATE __CMAKE_COMMONLIBSSE_PLUGIN=1)
+target_link_libraries("${PROJECT_NAME}" PUBLIC CommonLibSSE::CommonLibSSE)
+target_include_directories("${PROJECT_NAME}" PUBLIC ${CommonLibSSE_INCLUDE_DIRS})
+
 add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
 
 target_compile_features(

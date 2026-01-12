@@ -107,12 +107,7 @@
 #include <tchar.h>
 #include <Windows.h>
 
-//WinAPI Fix
-#undef PlaySound 
-#undef DeleteFile
-#undef LoadImage
 // For console sink
-
 #include <spdlog/sinks/msvc_sink.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -127,9 +122,19 @@
 #include <detours/detours.h>			  //https://github.com/microsoft/Detours
 #include <glaze/json/read.hpp>            //https://github.com/stephenberry/glaze
 #include <absl/container/flat_hash_map.h> //https://github.com/abseil/abseil-cpp
-#include <re2/re2.h>
+#include <re2/re2.h>                      //https://github.com/google/re2
 
-//Tbb
+//Imgui Defines
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+#define IMGUI_DEFINE_MATH_OPERATORS
+
+//Imgui
+#include "UI/Lib/imgui.h"
+#include "UI/Lib/imgui_internal.h"
+#include "UI/Lib/imgui_stdlib.h"
+#include "UI/Lib/imgui_impl_dx11.h"
+
+//Tbb - https://github.com/uxlfoundation/oneTBB
 #include <tbb/concurrent_vector.h>
 #include <tbb/concurrent_map.h>
 #include <tbb/concurrent_unordered_map.h>
@@ -162,9 +167,10 @@ namespace logger = SKSE::log;
 //#define GTS_PROFILER_ENABLED
 //#define GTS_DISABLE_PLUGIN
 
-//Imgui Defines
-#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-#define IMGUI_DEFINE_MATH_OPERATORS
+//WinAPI Fix
+#undef PlaySound 
+#undef DeleteFile
+#undef LoadImage
 
 // ---- Own Includes ----
 #include "Constants.hpp"

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "UI/Lib/imgui.h"
-
 namespace GTS {
 
     class ImStyleManager {

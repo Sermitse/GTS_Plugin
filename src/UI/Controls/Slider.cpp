@@ -3,7 +3,6 @@
 #include "UI/Controls/ToolTip.hpp"
 
 #include "Config/Config.hpp"
-#include "UI/Lib/imgui.h"
 
 namespace ImGuiEx {
 

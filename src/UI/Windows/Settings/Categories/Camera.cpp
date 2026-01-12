@@ -1,7 +1,6 @@
 #include "UI/Windows/Settings/Categories/Camera.hpp"
 
 #include "UI/Controls/Slider.hpp"
-#include "UI/Lib/imgui.h"
 #include "UI/Core/ImUtil.hpp"
 
 #include "Config/Config.hpp"

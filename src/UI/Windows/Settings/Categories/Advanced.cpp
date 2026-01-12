@@ -1,6 +1,5 @@
 ﻿#include "UI/Windows/Settings/Categories/Advanced.hpp"
 
-#include "UI/Lib/imgui.h"
 #include "UI/Core/ImUtil.hpp"
 
 #include "UI/Controls/Button.hpp"

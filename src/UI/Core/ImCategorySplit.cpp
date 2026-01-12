@@ -1,5 +1,4 @@
 #include "UI/Core/ImCategorySplit.hpp"
-#include "UI/Lib/imgui_internal.h"
 #include "Config/Config.hpp"
 
 namespace GTS {

@@ -1,9 +1,6 @@
-
-
-#include "UI/Lib/imgui.h"
+#include "UI/Core/ImColorUtils.hpp"
 
 namespace ImUtil::Colors {
-
 
     std::array<float, 3> HSVtoRGB(const std::array<float, 3>& hsv) {
         float H = hsv[0], S = hsv[1], V = hsv[2];
@@ -119,7 +116,7 @@ namespace ImUtil::Colors {
         return { mask, mask, mask, 1.0f };
     }
 
-    ImVec4 RGBAToImVec4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept {
+    ImVec4 RGBAToImVec4(uint8_t r, uint8_t g, uint8_t b, uint8_t a) noexcept {
         constexpr float scale = 1.0f / 255.0f;
         return ImVec4(r * scale, g * scale, b * scale, a * scale);
     }

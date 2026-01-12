@@ -1,6 +1,4 @@
 #include "UI/Controls/ProgressBar.hpp"
-#include "UI/Lib/imgui_internal.h"
-
 
 namespace {
 

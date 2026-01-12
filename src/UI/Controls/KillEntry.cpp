@@ -2,7 +2,6 @@
 
 #include "UI/Core/ImColorUtils.hpp"
 #include "UI/Core/ImFontManager.hpp"
-#include "UI/Lib/imgui_internal.h"
 
 namespace ImGuiEx {
 

@@ -1,6 +1,4 @@
 #pragma once
-#include "UI/Lib/imgui.h"
-#include "UI/Lib/imgui_internal.h"
 
 // RAII helper to push an ID on construction and pop it on destruction
 struct ImGuiUniqueID {

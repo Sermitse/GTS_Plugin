@@ -2,7 +2,6 @@
 #pragma once
 
 #include "UI/Core/ImCategory.hpp"
-#include "UI/Lib/imgui.h"
 #include "Config/Keybinds.hpp"
 
 namespace GTS {

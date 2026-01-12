@@ -92,10 +92,9 @@ FetchContent_MakeAvailable(boost_ext_reflect)
 FetchContent_Declare(
   glaze
   GIT_REPOSITORY https://github.com/stephenberry/glaze.git
-  GIT_TAG v6.1.0
-  GIT_SHALLOW TRUE
+  GIT_TAG v7.0.0
+  GIT_SHALLOW ON
 )
-
 FetchContent_MakeAvailable(glaze)
 
 # #######################################################################################################################

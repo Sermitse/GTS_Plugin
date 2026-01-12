@@ -1,7 +1,5 @@
 #pragma once
 
-#include "UI/Lib/imgui.h"
-
 namespace ImGuiEx {
     void HelpMarker(const char* a_desc);
     void TextShadow(const char* a_cfmt, ...);

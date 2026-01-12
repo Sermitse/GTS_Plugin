@@ -1,7 +1,6 @@
 #include "UI/Windows/Settings/Categories/AI.hpp"
 
 #include "UI/Core/ImUtil.hpp"
-#include "UI/Lib/imgui.h"
 
 #include "UI/Controls/CheckBox.hpp"
 #include "UI/Controls/CollapsingTabHeader.hpp"

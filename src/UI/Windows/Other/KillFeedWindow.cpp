@@ -3,9 +3,6 @@
 
 #include "UI/Controls/KillEntry.hpp"
 #include "UI/Core/ImColorUtils.hpp"
-#include "UI/Lib/imgui.h"
-
-#include "UI/Core/ImFontManager.hpp"
 
 #include "UI/Windows/Settings/SettingsWindow.hpp"
 

@@ -1,5 +1,4 @@
 #include "UI/Core/ImFontManager.hpp"
-#include "UI/Lib/imgui_impl_dx11.h"
 
 namespace GTS {
 

@@ -1,5 +1,4 @@
 #include "UI/Controls/Text.hpp"
-#include "UI/Lib/imgui_internal.h"
 
 namespace ImGuiEx {
 

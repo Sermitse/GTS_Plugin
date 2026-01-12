@@ -5,7 +5,6 @@
 #include "UI/Controls/CheckBox.hpp"
 #include "UI/Controls/Slider.hpp"
 #include "UI/Controls/ToolTip.hpp"
-#include "UI/Lib/imgui.h"
 #include "UI/Core/ImUtil.hpp"
 
 using namespace GTS;

@@ -1,7 +1,6 @@
 ﻿#include "UI/Windows/Settings/Categories/General.hpp"
 
 #include "UI/Core/ImUtil.hpp"
-#include "UI/Lib/imgui.h"
 
 #include "UI/Controls/Button.hpp"
 #include "UI/Controls/CheckBox.hpp"

@@ -4,8 +4,6 @@
 #include "Config/Util/WindowSettingsHolder.hpp"
 #include "Config/Util/WindowSettingsRegistry.hpp"
 
-#include "UI/Lib/imgui.h"
-
 namespace GTS {
 
     class ImWindow {

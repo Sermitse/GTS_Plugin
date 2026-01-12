@@ -1,8 +1,6 @@
 #include "Debug/Profilers.hpp"
 
 #include "Managers/GTSManager.hpp"
-
-#include "UI/Lib/imgui.h"
 #include "UI/Core/ImFontManager.hpp"
 #include "UI/GTSMenu.hpp"
 

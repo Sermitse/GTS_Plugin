@@ -6,8 +6,6 @@
 #include "Managers/Animation/Stomp_Under.hpp"
 #include "Managers/Cameras/CamUtil.hpp"
 
-#include "UI/Lib/imgui.h"
-
 #include "UI/Core/ImFontManager.hpp"
 #include "UI/Controls/ProgressBar.hpp"
 #include "UI/Core/ImColorUtils.hpp"

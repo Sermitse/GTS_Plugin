@@ -2,9 +2,6 @@
 
 #include "Config/Config.hpp"
 
-#include "UI/Lib/imgui.h"
-#include "UI/Lib/imgui_internal.h"
-
 #include "UI/Core/ImColorUtils.hpp"
 #include "UI/Core/ImFontManager.hpp"
 

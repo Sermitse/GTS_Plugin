@@ -1,3 +1,4 @@
+#include "Version.hpp"
 #include "Hooks/Hooks.hpp"
 #include "Papyrus/Papyrus.hpp"
 #include "Systems/Events/EventRegistry.hpp"
@@ -98,3 +99,13 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse){
 
 	return true;
 }
+
+SKSEPluginInfo(
+	.Version = GTSPlugin::ModVersion,
+	.Name = GTSPlugin::ModName,
+	.Author = {},
+	.SupportEmail = {},
+	.StructCompatibility = SKSE::StructCompatibility::Independent,
+	.RuntimeCompatibility = SKSE::VersionIndependence::AddressLibrary,
+	.MinimumSKSEVersion = {},
+)

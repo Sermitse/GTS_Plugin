@@ -1,6 +1,5 @@
 ﻿#include "UI/GTSMenu.hpp"
 #include "UI/Windows/Settings/SettingsWindow.hpp"
-#include "UI/Lib/imgui.h"
 
 #include "UI/Core/ImFontManager.hpp"
 #include "UI/Core/ImStyleManager.hpp"

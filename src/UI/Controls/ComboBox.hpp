@@ -1,7 +1,6 @@
 #pragma once
 
 #include "UI/Controls/ToolTip.hpp"
-#include "UI/Lib/imgui.h"
 
 namespace ImGuiEx {
 

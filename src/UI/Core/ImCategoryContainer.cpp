@@ -1,6 +1,5 @@
 #include "UI/Core/ImCategoryContainer.hpp"
 #include "UI/Core/ImUtil.hpp"
-#include "UI/Lib/imgui.h"
 
 namespace GTS {
 

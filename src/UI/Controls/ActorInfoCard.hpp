@@ -1,8 +1,6 @@
 #pragma once
 
 #include "UI/Controls/StatusBar.hpp"
-
-#include "UI/Lib/imgui.h"
 #include "Utils/KillDataUtils.hpp"
 
 namespace ImGuiEx {

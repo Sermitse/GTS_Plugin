@@ -1,15 +1,7 @@
 #include "UI/GTSMenu.hpp"
-
 #include "Config/Config.hpp"
-
 #include "Core/ImGraphics.hpp"
-
-#include "UI/Lib/imgui.h"
-#include "UI/Lib/imgui_impl_dx11.h"
-#include "UI/Lib/imgui_impl_win32.h"
-
 #include "UI/Util/ScaleformLogger.hpp"
-
 
 namespace GTS {
 

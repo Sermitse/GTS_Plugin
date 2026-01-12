@@ -9,8 +9,6 @@
 #include "UI/Controls/Misc.hpp"
 #include "UI/Controls/QuestTracker.hpp"
 #include "UI/Core/ImColorUtils.hpp"
-#include "UI/Lib/imgui.h"
-
 
 namespace GTS {
 

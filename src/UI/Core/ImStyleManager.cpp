@@ -1,10 +1,6 @@
 #include "UI/Core/ImStyleManager.hpp"
-
 #include "ImColorUtils.hpp"
-
-#include "UI/Lib/imgui.h"
 #include "Config/Config.hpp"
-
 
 namespace GTS {
 

@@ -10,10 +10,6 @@
 #include "UI/Core/ImUtil.hpp"
 #include "UI/Core/ImInput.hpp"
 
-#include "UI/Lib/imgui_internal.h"
-#include "UI/Lib/imgui_stdlib.h"
-#include "UI/Lib/imgui.h"
-
 #include "Config/Keybinds.hpp"
 
 #include "Config/Config.hpp"

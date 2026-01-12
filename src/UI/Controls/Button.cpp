@@ -1,6 +1,5 @@
 #include "UI/Controls/ToolTip.hpp"
 #include "UI/Core/ImGraphics.hpp"
-#include "UI/Lib/imgui.h"
 
 namespace ImGuiEx {
 

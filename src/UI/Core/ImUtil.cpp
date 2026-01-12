@@ -1,5 +1,4 @@
 #include "UI/Core/ImUtil.hpp"
-#include "UI/Lib/imgui_internal.h"
 
 namespace ImUtil {
 
