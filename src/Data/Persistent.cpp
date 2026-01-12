@@ -54,35 +54,35 @@ namespace GTS {
 		}
 	
 		logger::info("Persistent OnGameLoaded OK");
+#ifndef GTS_DISABLE_PLUGIN
 		EventDispatcher::DoSerdePostLoadEvent();
+#endif
 	}
 
 	void Persistent::OnGameSaved(SerializationInterface* serde) {
 
+#ifndef GTS_DISABLE_PLUGIN
 		EventDispatcher::DoSerdePreSaveEvent();
-
+#endif
 		logger::debug("Persistent OnGameSaved Start");
 
-		std::unique_lock lock(_Lock);
-		SavePersistent(serde);
+		{
+			std::unique_lock lock(_Lock);
+			SavePersistent(serde);
+		}
 
 		logger::info("Persistent OnGameSaved OK");
 	}
 
 	void Persistent::OnRevert(SerializationInterface*) {
-
+#ifndef GTS_DISABLE_PLUGIN
 		{
-			#ifndef GTS_DISABLE_PLUGIN
-
 			std::unique_lock lock(_Lock);
 			logger::info("Persistent::OnRevert");
 			GetSingleton().Reset();
-
-			#endif
 		}
-
 		EventDispatcher::DoSerdeRevert();
-
+#endif
 	}
 
 	//---------------------------
