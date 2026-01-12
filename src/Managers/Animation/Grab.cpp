@@ -373,7 +373,7 @@ namespace {
 		if (!grabbedActor) {
 			return;
 		}
-		if (IsGtsBusy(player) && !IsUsingThighAnimations(player) || IsTransitioning(player)) {
+		if (IsGtsBusy(player) && !IsUsingThighAnimations(player) || AnimationVars::General::GetIsTransitioning(player)) {
 			return;
 		}
 		if (!player->AsActorState()->IsWeaponDrawn()) {

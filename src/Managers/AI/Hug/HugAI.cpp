@@ -39,7 +39,7 @@ namespace {
 			return false;
 		}
 
-		if (IsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
+		if (AnimationVars::General::GetIsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
 			return false;
 		}
 
@@ -166,7 +166,7 @@ namespace {
 			TransientData->ActionTimer.UpdateDelta(Config::AI.Hugs.fInterval);
 
 			const bool IsDead = PreyActor->IsDead() || PerformerActor->IsDead();
-			const bool IsBusy = IsHugCrushing(PerformerActor) || IsHugHealing(PerformerActor);
+			const bool IsBusy = AnimationVars::Hug::GetIsHugCrushing(PerformerActor) || AnimationVars::Hug::GetIsHugHealing(PerformerActor);
 			const bool GentleAnim = IsTeammate(PreyActor) || PreyActor->formID == 0x14;
 
 			if (!HugShrink::GetHuggiesActor(PerformerActor) || IsRagdolled(PerformerActor)) {

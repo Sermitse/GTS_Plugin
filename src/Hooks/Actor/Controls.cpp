@@ -50,7 +50,7 @@ namespace {
 		if (!AnimationVars::Utility::GetIsInstalled(player)) { // Don't mess with movement if user didn't install anims correctly
 			return true;
 		}
-		if (IsTransitioning(player)) { // Disallow to move during transition
+		if (AnimationVars::General::GetIsTransitioning(player)) { // Disallow to move during transition
 			return false;
 		}
 		if (AnimationVars::Grab::GetIsGrabAttacking(player)) { // Allow movement for Grab Attacking

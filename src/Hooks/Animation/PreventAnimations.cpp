@@ -213,7 +213,7 @@ namespace {
 				return true;
 			}
 
-			if (IsTransitioning(performer)) {
+			if (AnimationVars::General::GetIsTransitioning(performer)) {
 				return IsDisallowed(Form);
 			}
 

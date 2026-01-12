@@ -53,7 +53,7 @@ namespace {
 		float hp = GetAV(tinyref, ActorValue::kHealth);
 		float maxhp = GetMaxAV(tinyref, ActorValue::kHealth);
 		
-		bool Healing = IsHugHealing(giantref);
+		bool Healing = AnimationVars::Hug::GetIsHugHealing(giantref);
 
 		const bool Teammate = IsTeammate(tinyref);
 		const bool Player = tinyref->formID == 0x14;
@@ -125,7 +125,7 @@ namespace {
 			}
 			stamina *= Perk_GetCostReduction(giantref);
 
-			if (!IsHugHealing(giantref) && (sizedifference >= threshold || sizedifference < Action_Hug)) {
+			if (!AnimationVars::Hug::GetIsHugHealing(giantref) && (sizedifference >= threshold || sizedifference < Action_Hug)) {
 				SetBeingHeld(tinyref, false);
 				AbortHugAnimation(giantref, tinyref);
 				if (giantref->formID == 0x14) {

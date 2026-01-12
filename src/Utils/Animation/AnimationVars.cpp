@@ -21,7 +21,7 @@ namespace GraphVars {
 	constexpr PSString _IsBusy                 = "GTS_Busy";                   // Enabled when performing a GTS action of some kind
 	constexpr PSString _IsSwimming             = "GTS_Swimming";               // Enabled when we're swimming
 	constexpr PSString _DisableHH              = "GTS_DisableHH";              // Enabling this disables any High Heal Offset
-	constexpr PSString _IsFollower             = "GTS_IsFollower";             // Used to check if the Actor is  Follower or not
+	constexpr PSString _IsFollower             = "GTS_IsFollower";             // Used to check if the Actor is Follower or not Used By Hugs
 	constexpr PSString _IsInDialogue           = "GTSIsInDialogue";            // Enabled on Followers, Checking if their in dialogue
 	constexpr PSString _EnableAlternativeStomp = "GTS_EnableAlternativeStomp"; // When Enabled it makes the GTS play different light stomp Animations
 	constexpr PSString _IsAlternativeGrind     = "GTS_IsAlternativeGrind";     // When Enabled it makes the GTS play different light grind Animations
@@ -578,36 +578,6 @@ namespace GTS::AnimationVars {
 }
 
 namespace GTS {
-
-	bool IsHugCrushing(Actor* actor) {
-		bool IsHugCrushing = false;
-		actor->GetGraphVariableBool("IsHugCrushing", IsHugCrushing);
-		return IsHugCrushing;
-	}
-
-	bool IsHugHealing(Actor* actor) {
-		bool IsHugHealing = false;
-		actor->GetGraphVariableBool("GTS_IsHugHealing", IsHugHealing);
-		return IsHugHealing;
-	}
-
-	bool IsVoring(Actor* giant) {
-		bool Voring = false;
-		giant->GetGraphVariableBool("GTS_IsVoring", Voring);
-		return Voring;
-	}
-
-	bool IsHuggingFriendly(Actor* actor) {
-		bool friendly = false;
-		actor->GetGraphVariableBool("GTS_IsFollower", friendly);
-		return friendly;
-	}
-
-	bool IsTransitioning(Actor* actor) { // reports sneak transition to crawl
-		bool transition = false;
-		actor->GetGraphVariableBool("GTS_Transitioning", transition);
-		return transition;
-	}
 
 	bool IsFootGrinding(Actor* actor) {
 		bool grind = false;

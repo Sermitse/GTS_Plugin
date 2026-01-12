@@ -190,7 +190,7 @@ namespace GTS {
 		if (prey->IsDead()) {
 			return false;
 		}
-		if (IsTransitioning(pred) || IsBeingHeld(pred, prey)) {
+		if (AnimationVars::General::GetIsTransitioning(pred) || IsBeingHeld(pred, prey)) {
 			return false;
 		}
 		if (DisallowHugs(pred) || DisallowHugs(prey)) {

@@ -57,7 +57,7 @@ namespace {
 			return false;
 		}
 
-		if (IsEquipBusy(a_Prey) || IsTransitioning(a_Prey) || IsEquipBusy(a_Performer) || IsTransitioning(a_Performer)) {
+		if (IsEquipBusy(a_Prey) || AnimationVars::General::GetIsTransitioning(a_Prey) || IsEquipBusy(a_Performer) || AnimationVars::General::GetIsTransitioning(a_Performer)) {
 			return false;
 		}
 
@@ -126,7 +126,7 @@ namespace {
 		if (!grabbedActor) {
 			return false;
 		}
-		if (IsGtsBusy(a_Performer) && !IsUsingThighAnimations(a_Performer) || IsTransitioning(a_Performer)) {
+		if (IsGtsBusy(a_Performer) && !IsUsingThighAnimations(a_Performer) || AnimationVars::General::GetIsTransitioning(a_Performer)) {
 			return false;
 		}
 		if (!a_Performer->AsActorState()->IsWeaponDrawn()) {
@@ -182,7 +182,7 @@ namespace {
 
 			TransientData->ActionTimer.UpdateDelta(Config::AI.Grab.fInterval);
 			const bool IsDead    = PreyActor->IsDead() || GetAV(PreyActor, ActorValue::kHealth) <= 0.0f || PerformerActor->IsDead();
-			const bool IsBusy    = AnimationVars::Grab::GetIsGrabAttacking(PerformerActor) || IsTransitioning(PerformerActor);
+			const bool IsBusy    = AnimationVars::Grab::GetIsGrabAttacking(PerformerActor) || AnimationVars::General::GetIsTransitioning(PerformerActor);
 			const bool ValidPrey = Grab::GetHeldActor(PerformerActor) != nullptr;
 
 			if (!IsDead && !IsBusy) {
@@ -412,7 +412,7 @@ namespace {
 			}
 
 			bool Attacking = AnimationVars::Grab::GetIsGrabAttacking(PerformerActor) || AnimationVars::Action::GetIsGrabPlaying(PerformerActor);
-			bool CanCancel = (IsDead || !IsVoring(PerformerActor)) && (!Attacking || IsBeingEaten(PreyActor));
+			bool CanCancel = (IsDead || !AnimationVars::Action::GetIsVoring(PerformerActor)) && (!Attacking || IsBeingEaten(PreyActor));
 			if (ShouldAbortGrab(PerformerActor, PreyActor, CanCancel, IsDead, ValidPrey)) {
 				logger::info("GrabAI: Prey Dead or Invalid");
 				Utils_UpdateHighHeelBlend(PerformerActor, false);

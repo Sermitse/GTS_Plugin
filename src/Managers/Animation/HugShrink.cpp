@@ -258,7 +258,7 @@ namespace {
 		/*Actor* giant = &data.giant;
 		Actor* tiny = HugShrink::GetHuggiesActor(giant);
 
-		if (IsHugCrushing(giant)) {
+		if (AnimationVars::Hug::GetIsHugCrushing(giant)) {
 			Attachment_SetTargetNode(giant, AttachToNode::None);
 		} else {
 			if (tiny) {
@@ -310,7 +310,7 @@ namespace {
 					return false;
 				}
 				Actor* giantref = gianthandle.get().get();
-				if (!IsHugging(giantref) && !IsHugCrushing(giantref) && !IsGtsBusy(giantref)) {
+				if (!IsHugging(giantref) && !AnimationVars::Hug::GetIsHugCrushing(giantref) && !IsGtsBusy(giantref)) {
 					ManageCamera(giantref, false, CameraTracking::None);
 					return false;
 				}
@@ -385,7 +385,7 @@ namespace {
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 		if (huggedActor) {
 			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
-				if (!IsHugCrushing(player) && !IsHugHealing(player)) {
+				if (!AnimationVars::Hug::GetIsHugCrushing(player) && !AnimationVars::Hug::GetIsHugHealing(player)) {
 					NotifyWithSound(player, "All available size was drained");
 					shake_camera(player, 0.45f, 0.30f);
 				}
@@ -403,7 +403,7 @@ namespace {
 
 		if (huggedActor) {
 			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
-				if (!IsHugCrushing(player) && !IsHugHealing(player)) {
+				if (!AnimationVars::Hug::GetIsHugCrushing(player) && !AnimationVars::Hug::GetIsHugHealing(player)) {
 					NotifyWithSound(player, "All available size was drained");
 					shake_camera(player, 0.45f, 0.30f);
 				}
@@ -429,7 +429,7 @@ namespace {
 		Actor* player = GetPlayerOrControlled();
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 		if (huggedActor) {
-			if (IsHugCrushing(player) || IsHugHealing(player)) {
+			if (AnimationVars::Hug::GetIsHugCrushing(player) || AnimationVars::Hug::GetIsHugHealing(player)) {
 				return; // disallow manual release when it's true
 			}
 
@@ -572,7 +572,7 @@ namespace GTS {
 			Utils_UpdateHugBehaviors(giantref, tinyref); // Record GTS/Tiny Size-Difference value for animation blending
 			Anims_FixAnimationDesync(giantref, tinyref, false); // Share GTS Animation Speed with hugged actor to avoid de-sync
 
-			if (IsHugHealing(giantref)) {
+			if (AnimationVars::Hug::GetIsHugHealing(giantref)) {
 				ForceRagdoll(tinyref, false);
 				if (!HugAttach(gianthandle, tinyhandle)) {
 					AbortHugAnimation(giantref, tinyref);
@@ -584,7 +584,7 @@ namespace GTS {
 			bool GotTiny = HugShrink::GetHuggiesActor(giantref);
 			bool IsDead = (giantref->IsDead() || tinyref->IsDead());
 			
-			if (!IsHugCrushing(giantref)) {
+			if (!AnimationVars::Hug::GetIsHugCrushing(giantref)) {
 				if (sizedifference < Action_Hug || IsDead || stamina <= 2.0f || !GotTiny) {
 					if (HuggingAlly) { 
 						// this is needed to still attach the actor while we have ally hugged (with Loving Embrace Perk)
@@ -596,7 +596,7 @@ namespace GTS {
 					AbortHugAnimation(giantref, tinyref);
 					return false;
 				}
-			} else if (IsHugCrushing(giantref) && !TinyAbsorbed) {
+			} else if (AnimationVars::Hug::GetIsHugCrushing(giantref) && !TinyAbsorbed) {
 				if (IsDead || !GotTiny) {
 					AbortHugAnimation(giantref, tinyref);
 					return false;

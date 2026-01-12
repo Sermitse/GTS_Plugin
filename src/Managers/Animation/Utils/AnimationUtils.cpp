@@ -105,7 +105,7 @@ namespace GTS {
 
             auto giant_get = giantHandle.get().get();
             if (giant_get) {
-                if (IsInCleavageState(giant_get) || IsHugCrushing(giant_get)) {
+                if (IsInCleavageState(giant_get) || AnimationVars::Hug::GetIsHugCrushing(giant_get)) {
                     ApplyActionCooldown(giant_get, CooldownSource::Action_AbsorbOther);
                     return true; // reapply
                 }
@@ -426,7 +426,7 @@ namespace GTS {
 			Utils_UpdateHighHeelBlend(giantref, false);
 			// make behaviors read the value to blend between anims
 
-			if (!IsVoring(giantref)) {
+			if (!AnimationVars::Action::GetIsVoring(giantref)) {
 				Utils_UpdateHighHeelBlend(giantref, true);
 				return false; // just a fail-safe to cancel the task if we're outside of Vore anim
 			}
@@ -1357,7 +1357,7 @@ namespace GTS {
 
 			if (!actor->IsSneaking()) { // So foot zones face straigth, a very rough fix
 				if (!AnimationVars::Crawl::IsCrawling(actor)) {
-					bool ignore = (IsStomping(actor) || IsVoring(actor) || IsTrampling(actor) || IsThighSandwiching(actor));
+					bool ignore = (IsStomping(actor) || AnimationVars::Action::GetIsVoring(actor) || IsTrampling(actor) || IsThighSandwiching(actor));
 					if (ignore_rotation || ignore) {
 						up = (toe->world.translate + foot->world.translate) / 2;
 						up.z += 35.0f * get_visual_scale(actor);
@@ -1889,7 +1889,7 @@ namespace GTS {
 
 		AnimationVars::Crawl::SetIsCrawlEnabled(a_actor, a_state);
 
-		if (a_actor->IsSneaking() && !AnimationVars::Prone::IsProne(a_actor) && !IsGtsBusy(a_actor) && !IsTransitioning(a_actor)) {
+		if (a_actor->IsSneaking() && !AnimationVars::Prone::IsProne(a_actor) && !IsGtsBusy(a_actor) && !AnimationVars::General::GetIsTransitioning(a_actor)) {
 			return true;
 		}
 

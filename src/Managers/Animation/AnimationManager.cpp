@@ -329,7 +329,7 @@ namespace GTS {
 
 	void AnimationManager::StartAnim(std::string_view trigger, Actor& giant, TESObjectREFR* tiny) {
 
-		if (IsTransitioning(&giant)) {
+		if (AnimationVars::General::GetIsTransitioning(&giant)) {
 			return;
 		}
 

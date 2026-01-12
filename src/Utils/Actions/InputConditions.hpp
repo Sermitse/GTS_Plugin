@@ -153,7 +153,7 @@ namespace GTS {
 	static bool HugCondition_Release() {
 		Actor* target = GetPlayerOrControlled();
 		auto huggedActor = HugShrink::GetHuggiesActor(target);
-		if (!huggedActor || IsHugCrushing(target) || IsHugHealing(target)) {
+		if (!huggedActor || AnimationVars::Hug::GetIsHugCrushing(target) || AnimationVars::Hug::GetIsHugHealing(target)) {
 			return false;
 		}
 		return true;
@@ -304,7 +304,7 @@ namespace GTS {
 		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks)) {
 			return false;
 		}
-		if (IsGtsBusy(target) || IsEquipBusy(target) || IsTransitioning(target)) {
+		if (IsGtsBusy(target) || IsEquipBusy(target) || AnimationVars::General::GetIsTransitioning(target)) {
 			return false; // Disallow Grabbing if Behavior is busy doing other stuff.
 		}
 		return true;
@@ -316,7 +316,7 @@ namespace GTS {
 		if (IsGtsBusy(target) && !IsUsingThighAnimations(target)) {
 			return false;
 		}
-		if (IsStomping(target) && IsTransitioning(target)) {
+		if (IsStomping(target) && AnimationVars::General::GetIsTransitioning(target)) {
 			return false;
 		}
 		return true;
@@ -332,7 +332,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (!IsTransitioning(target)) {
+		if (!AnimationVars::General::GetIsTransitioning(target)) {
 			auto grabbedActor = Grab::GetHeldActor(target);
 			if (!grabbedActor) {
 				return false;
@@ -352,7 +352,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (!IsTransitioning(target)) {
+		if (!AnimationVars::General::GetIsTransitioning(target)) {
 			auto grabbedActor = Grab::GetHeldActor(target);
 			if (!grabbedActor) {
 				return false;
@@ -370,7 +370,7 @@ namespace GTS {
 		if (!grabbedActor) {
 			return false;
 		}
-		if (IsGtsBusy(target) && !IsUsingThighAnimations(target) || IsTransitioning(target)) {
+		if (IsGtsBusy(target) && !IsUsingThighAnimations(target) || AnimationVars::General::GetIsTransitioning(target)) {
 			return false;
 		}
 		if (!target->AsActorState()->IsWeaponDrawn()) {
@@ -384,7 +384,7 @@ namespace GTS {
 		auto target = GetPlayerOrControlled();
 
 		auto grabbedActor = Grab::GetHeldActor(target);
-		if (!grabbedActor || IsTransitioning(target)) {
+		if (!grabbedActor || AnimationVars::General::GetIsTransitioning(target)) {
 			return false;
 		}
 

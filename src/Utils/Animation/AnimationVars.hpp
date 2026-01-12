@@ -331,11 +331,6 @@ namespace GTS::AnimationVars {
 
 namespace GTS {
 
-	bool IsHugCrushing(Actor* actor);
-	bool IsHugHealing(Actor* actor);
-	bool IsVoring(Actor* giant);
-	bool IsHuggingFriendly(Actor* actor);
-	bool IsTransitioning(Actor* actor);
 	bool IsFootGrinding(Actor* actor);
 	bool IsJumping(Actor* actor);
 	bool IsTransferingTiny(Actor* actor);

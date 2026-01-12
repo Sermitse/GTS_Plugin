@@ -36,7 +36,7 @@ namespace {
 	//Set Reset attack blocking based on if we have a list of prey
 	void HandleAttackBlocking(Actor* a_Performer, const std::vector<Actor*>& a_ValidPreyList) {
 
-		if (a_ValidPreyList.empty() && !IsGtsBusy(a_Performer) && !IsTransitioning(a_Performer)) {
+		if (a_ValidPreyList.empty() && !IsGtsBusy(a_Performer) && !AnimationVars::General::GetIsTransitioning(a_Performer)) {
 			AttackManager::PreventAttacks(a_Performer, nullptr);
 			return;
 		}

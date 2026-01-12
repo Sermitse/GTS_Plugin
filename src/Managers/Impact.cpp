@@ -36,9 +36,8 @@ namespace {
 
 	FootEvent get_foot_kind(Actor* actor, std::string_view tag) {
 		GTS_PROFILE_SCOPE("Impact: GetFootKind");
-		
 
-		bool hugging = actor ? IsHuggingFriendly(actor) : false; 
+		bool hugging = actor ? AnimationVars::General::GetIsFollower(actor) : false; 
 		bool is_jumping = actor ? IsJumping(actor) : false;
 		bool in_air = actor ? actor->IsInMidair() : false;
 		FootEvent foot_kind = FootEvent::Unknown;

@@ -153,7 +153,7 @@ namespace GTS {
 										float iconScale = std::clamp(tinyScale, 1.0f, 9999.0f) * 2.4f;
 										bool Ally = !IsHostile(giant, otherActor) && IsTeammate(otherActor);
 										bool HasLovingEmbrace = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace);
-										bool Healing = IsHugHealing(giant);
+										bool Healing = AnimationVars::Hug::GetIsHugHealing(giant);
 
 										NiPoint3 Position = node->world.translate;
 										float bounding_z = get_bounding_box_z(otherActor);
@@ -177,7 +177,7 @@ namespace GTS {
 										else if (huggedActor && huggedActor == otherActor && Ally && HasLovingEmbrace && !Healing) {
 											SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_LovingEmbrace.nif", NiMatrix3(), Position, iconScale, 7, node);
 										}
-										else if (huggedActor && huggedActor == otherActor && !IsHugCrushing(giant) && !Healing) {
+										else if (huggedActor && huggedActor == otherActor && !AnimationVars::Hug::GetIsHugCrushing(giant) && !Healing) {
 											bool LowHealth = (GetHealthPercentage(huggedActor) < GetHugCrushThreshold(giant, otherActor, true));
 											bool ForceCrush = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugMightyCuddles);
 											float Stamina = GetStaminaPercentage(giant);

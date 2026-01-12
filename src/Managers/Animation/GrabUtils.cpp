@@ -164,7 +164,7 @@ namespace GTS {
         bool Attacking = AnimationVars::Grab::GetIsGrabAttacking(giantref);
 
         bool Dead = (giantref->IsDead() || tinyref->IsDead() || GetAV(tinyref, ActorValue::kHealth) <= 0.0f);
-        bool CanCancel = (Dead || !IsVoring(giantref)) && (!Attacking || IsBeingEaten(tinyref));
+        bool CanCancel = (Dead || !AnimationVars::Action::GetIsVoring(giantref)) && (!Attacking || IsBeingEaten(tinyref));
         bool small_size = sizedifference < Action_Grab;
 
         if (ShouldAbortGrab(giantref, tinyref, CanCancel, Dead, small_size)) {

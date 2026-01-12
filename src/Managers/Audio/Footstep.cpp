@@ -17,7 +17,7 @@ namespace {
 		return blend ? blended : normal;
 	}
 
-	static inline const float& choose_param(const float if_blend, const float no_blend, bool blend) {
+	static inline const float& choose_param(const float& if_blend, const float& no_blend, bool blend) {
 		return blend ? if_blend : no_blend; // By default, non-blend sounds are very quiet (since they start from 0.01 and such)
 		//so we have to manually add volume on top through this function
 	}
