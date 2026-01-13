@@ -248,8 +248,7 @@ namespace {
 		DrainStamina(&data.giant, "StaminaDrain_Sandwich", Runtime::PERK.GTSPerkThighAbilities, false, 2.5f);
 	}
 
-	void GTSSandwich_ThighAttack_start(AnimationEventData& data) {
-	}
+	void GTSSandwich_ThighAttack_start(AnimationEventData& data) {}
 
 	void GTSSandwich_DisableRune(AnimationEventData& data) {
 		auto caster = &data.giant;

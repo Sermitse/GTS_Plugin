@@ -9,7 +9,6 @@
 #include "Managers/Animation/Stomp_Under_Slam.hpp"
 #include "Managers/Animation/Stomp_Under_Butt.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
-
 #include "Managers/Animation/FurnitureAnimations.hpp"
 
 #include "Config/Config.hpp"
@@ -21,6 +20,7 @@
 #include "Managers/Animation/CleavageState.hpp"
 #include "Managers/Animation/Vore_Standing.hpp"
 #include "Managers/Animation/ThighSandwich.hpp"
+#include "Managers/Animation/ThighSandwichPart2.hpp"
 #include "Managers/Animation/Sneak_Swipes.hpp"
 #include "Managers/Animation/RandomGrowth.hpp"
 #include "Managers/Animation/Stomp_Normal.hpp"
@@ -49,13 +49,8 @@
 #include "Managers/Animation/Kicks.hpp"
 #include "Managers/Animation/Grab.hpp"
 
-
 #include "Managers/Perks/PerkHandler.hpp"
-
 #include "Utils/Actions/InputFunctions.hpp"
-
-
-using namespace GTS;
 
 namespace GTS {
 
@@ -92,6 +87,9 @@ namespace GTS {
 
 		AnimationThighSandwich::RegisterEvents();
 		AnimationThighSandwich::RegisterTriggers();
+
+		AnimationThighSandwich_P2::RegisterEvents();
+		AnimationThighSandwich_P2::RegisterTriggers();
 
 		AnimationThighCrush::RegisterEvents();
 		AnimationThighCrush::RegisterTriggers();

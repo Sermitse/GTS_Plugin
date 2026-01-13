@@ -1,4 +1,4 @@
-#include "ThighSandwichPart2.hpp"
+#include "Managers/Animation/ThighSandwichPart2.hpp"
 
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Controllers/ThighSandwichController.hpp"
@@ -16,6 +16,36 @@ using namespace GTS;
 
 namespace AnimEvents {
 
+
+
+	//Used in the Intro to Butt State when the GTS sits back down softly on the Tiny
+	void GTS_TSB_SitDownSoft(AnimationEventData& data) {}
+
+	//Used in the exit of the butt state when the gts's sits down onto the rune with no tiny underneath
+	void GTS_TSB_SitDown(AnimationEventData& data) {}
+
+	//Used in the exit when the Tiny falls back onto the GTS's thigh
+	void GTS_TSB_TinyThigh(AnimationEventData& data) {}
+
+	//Used when the GTS starts to lift her self up from sitting down mostly for sfx
+	void GTS_TSB_Stand(AnimationEventData& data) {}
+
+	//Used when the GTS starts to fall down to butt crush
+	void GTS_TSB_Fall(AnimationEventData& data) {}
+
+	//Used when the GTS lands the first two hits during the Butt state finisher, doesn't do damage
+	void GTS_TSB_LandMid(AnimationEventData& data) {}
+
+	//Used when the GTS lands the light butt attack
+	void GTS_TSB_LandSmall(AnimationEventData& data) {}
+
+	//Used when the GTS lands the heavy butt attack
+	void GTS_TSB_LandHeavy(AnimationEventData& data) {}
+
+	//Used for the final hit when the GTS kills the tiny and cracks the butt rune
+	void GTS_TSB_LandFinisher(AnimationEventData& data) {}
+
+	//Used when the GTS lands on the Floor after cracking the butt rune
 	void GTS_TSB_LandFloor(AnimationEventData& data) {
 		/*auto caster = &data.giant;
 		bool HasEffect = Runtime::HasMagicEffect(caster, "GTSThighRuneMGEF");
@@ -31,6 +61,10 @@ namespace AnimEvents {
 			Cprint("HASEFFECT: {}", HasEffect);
 		}*/
 	}
+
+	//Used when the GTS dust off her butt after standing up from the Finisher mostly for SFX
+	void GTS_TSB_DustButt(AnimationEventData& data) {}
+
 }
 
 namespace {

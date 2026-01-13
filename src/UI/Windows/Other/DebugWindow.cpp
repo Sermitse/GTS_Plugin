@@ -122,12 +122,6 @@ namespace GTS {
 			ImGui::Spacing();
 		}
 
-		
-
-
-
-		
-
 		//Multi-Language Font Test
 		if (ImGui::CollapsingHeader("Font Test")) {
 			ImGui::Text("This îs à fónt tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève");

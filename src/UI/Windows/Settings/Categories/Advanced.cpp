@@ -93,17 +93,9 @@ namespace GTS {
                         }
                     }
                 }
-                
-
-
                 ImGui::Spacing();
             }
         }
-
-        
-
-
-        
     }
 
     void CategoryAdvanced::DrawRight() {
@@ -191,6 +183,26 @@ namespace GTS {
                 ImGui::Spacing();
 
 	        }
+
+            if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
+
+                if (ImGuiEx::Button("Clear World Decals", "Removes All Loaded World Decals. Needs cell reload to fully take effect.", false, 1.0f)) {
+
+                    RE::TES::GetSingleton()->ForEachCell([&](RE::TESObjectCELL* a_ref) {
+                        if (const NiPointer<NiNode>& cell = a_ref->GetRuntimeData().loadedData->cell3D) {
+                            if (RE::BGSDecalNode* node = static_cast<RE::BGSDecalNode*>(cell->GetObjectByName(RE::FixedStrings::GetSingleton()->decalNode))) {
+                                for (NiPointer<BSTempEffect>& decal : node->GetRuntimeData().decals) {
+                                    decal.get()->lifetime = 0.0f;
+                                    decal->Detach();
+                                    decal->Update(0.0f);
+                                    decal->Get3D()->CullNode(true);
+                                    decal->Get3D()->UpdateMaterialAlpha(0.0f, false);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
         }
     }
 }
