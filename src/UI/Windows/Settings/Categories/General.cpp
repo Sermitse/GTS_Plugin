@@ -147,10 +147,10 @@ namespace GTS {
 
 			if (ImGui::CollapsingHeader("Animations Check", ImUtil::HeaderFlagsDefaultOpen)) {
 				const auto Player = PlayerCharacter::GetSingleton();
-				const bool WorkingAnims = AnimationVars::Utility::GetIsInstalled(Player);
+				const bool WorkingAnims = AnimationVars::Utility::BehaviorsInstalled(Player);
 
-				bool IsPandoraGenerated = AnimationVars::Other::GetIsPandoraGenerated(Player);
-				bool IsNemesisGenerated = AnimationVars::Other::GetIsNemesisGenerated(Player);
+				bool IsPandoraGenerated = AnimationVars::Other::IsPandoraGenerated(Player);
+				bool IsNemesisGenerated = AnimationVars::Other::IsNemesisGenerated(Player);
 
 				ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetTitle);
 
@@ -203,7 +203,7 @@ namespace GTS {
 
 							if (progressData.runtime > 0.5) {
 
-								if (IsGtsBusy(Player)) {
+								if (AnimationVars::General::IsGTSBusy(Player)) {
 									PrintMessageBox("Animations should be working.");
 								}
 								else {

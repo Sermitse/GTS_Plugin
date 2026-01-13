@@ -22,7 +22,7 @@ namespace {
 		std::string dot_name = std::format("FootGrindDOT_{}", giant->formID);
 		std::string rot_name = std::format("FootGrindRot_{}", giant->formID);
 
-		if (AnimationVars::Action::GetIsFootGrinding(giant)) {
+		if (AnimationVars::Action::IsFootGrinding(giant)) {
 			AnimationVars::Action::SetIsFootGrinding(giant, false);
 		}
 
@@ -42,7 +42,7 @@ namespace {
 		// The purpose of this function is to fix Sonderbain's foot grind anims (I don't want to ask Sonder to redo events because of this issue)
 		// The issue: Sonder's anim has a bit wrong timing of _Exit event so Tiny stays attached to the foot when it's not needed (for ~ 1 sec)
 		// This function fixes the issue
-		if (!IsUsingAlternativeStomp(&data.giant) && !AnimationVars::Action::GetIsUnderGrinding(&data.giant)) {
+		if (!AnimationVars::Stomp::IsAlternativeGrindEnabled(&data.giant) && !AnimationVars::Action::IsUnderGrinding(&data.giant)) {
 			if (data.stage >= 7) {
 				CancelGrindTasks(&data.giant);
 				data.stage = 0; // reset stage
@@ -71,7 +71,7 @@ namespace {
 				return false;
 			} 
 			auto giantref = gianthandle.get().get();
-			if (!IsFootGrinding(giantref)) {
+			if (!AnimationVars::Action::IsFootGrinding(giantref)) {
 				return false; 
 			}
 			Laugh_Chance(giantref, 2.2f, "FootGrind");
@@ -86,11 +86,11 @@ namespace {
 	void ApplyRotateDamage(Actor* giant, std::string_view node, FootEvent kind, DamageSource source) {
 		Laugh_Chance(giant, 2.2f, "FootGrind");
 		float speed = AnimationManager::GetBonusAnimationSpeed(giant);
-		float damage_mult = 1.0f;
+		//float damage_mult = 1.0f;
 
-		if (IsUsingAlternativeStomp(giant)) {
-			damage_mult = 0.6f; // Since there's more total rotate events (15 vs 7)
-		}
+		//if (AnimationVars::Stomp::IsAlternativeGrindEnabled(giant)) {
+		//	damage_mult = 0.6f; // Since there's more total rotate events (15 vs 7)
+		//}
 
 		std::string r_name = std::format("FootGrindRot_{}", giant->formID);
 

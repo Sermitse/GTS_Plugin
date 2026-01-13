@@ -104,7 +104,7 @@ namespace GTS {
         bool blend = false;
 
         if (distance <= min_distance) {
-            AnimationVars::Stomp::SetStompBlend(giant, blending);
+            AnimationVars::Stomp::SetUnderStompBlend(giant, blending);
             blend = true;
         }
 
@@ -128,7 +128,7 @@ namespace GTS {
         // Allow to stomp when looking from above or below
         if (allow) {
             float blend = std::clamp(InvLookdownIntensity * 1.3f, 0.0f, 1.0f);
-            AnimationVars::Stomp::SetStompBlend(giant, blend);
+            AnimationVars::Stomp::SetUnderStompBlend(giant, blend);
             // Blend between "close" and "far" under-stomps
         }
         return allow;

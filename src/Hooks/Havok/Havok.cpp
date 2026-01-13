@@ -109,7 +109,7 @@ namespace {
 			}
 
 			bool ignore = (sizedifference_gts >= actor_ignore_limit);
-			bool busy = IsGtsBusy(actor_a) && IsGtsBusy(actor_b);
+			bool busy = AnimationVars::General::IsGTSBusy(actor_a) && AnimationVars::General::IsGTSBusy(actor_b);
 			bool grabbed = IsBeingHeld(actor_a, actor_b) || IsBeingHeld(actor_b, actor_a);
 			if (ignore) {
 				return true;

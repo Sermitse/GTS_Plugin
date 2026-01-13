@@ -250,7 +250,7 @@ namespace GTS {
 						if (data.canEditAnimSpeed) {
 							data.animSpeed += (bonus * GetAnimationSlowdown(player));
 						}
-						const bool isBreastStrangling = AnimationVars::Cleavage::GetIsBoobsDoting(player);
+						const bool isBreastStrangling = AnimationVars::Cleavage::IsBoobsDoting(player);
 						float min = isBreastStrangling ? 0.50f : 0.33f;
 						float max = isBreastStrangling ? 1.75f : 3.0f;
 						data.animSpeed = std::clamp(data.animSpeed, min, max);
@@ -329,7 +329,7 @@ namespace GTS {
 
 	void AnimationManager::StartAnim(std::string_view trigger, Actor& giant, TESObjectREFR* tiny) {
 
-		if (AnimationVars::General::GetIsTransitioning(&giant)) {
+		if (AnimationVars::General::IsTransitioning(&giant)) {
 			return;
 		}
 

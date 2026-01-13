@@ -84,7 +84,7 @@ namespace {
 			if (grabbed && grabbed->formID == 0x14) {
 				return;
 			}
-			if (!IsGtsBusy(target) && !IsBeingHeld(target, PlayerCharacter::GetSingleton())) {
+			if (!AnimationVars::General::IsGTSBusy(target) && !IsBeingHeld(target, PlayerCharacter::GetSingleton())) {
 				ControlAnother(target, true);
 			}
 		}
@@ -132,7 +132,7 @@ namespace {
 						if (model) {
 							get_visual_scale(actor) < 1.5f ? reset = true : reset = false; 
 
-							if (!reset || IsGtsBusy(actor) || actor->formID == 0x14) {
+							if (!reset || AnimationVars::General::IsGTSBusy(actor) || actor->formID == 0x14) {
 								model->GetFlags().set(RE::NiAVObject::Flag::kIgnoreFade);
 								model->GetFlags().set(RE::NiAVObject::Flag::kAlwaysDraw);
 								if (auto par = model->parent) {
@@ -437,8 +437,8 @@ void GTSManager::OnGameLoaded() {
 			continue;
 		}
 
-		int StateID = AnimationVars::Other::GetCurrentDefaultState(giant);
-		int GTSStateID = AnimationVars::General::GetDefState(giant);
+		int StateID = AnimationVars::Other::CurrentDefaultState(giant);
+		int GTSStateID = AnimationVars::General::DefState(giant);
 
 		ResetCameraTracking(giant); // fix the camera tracking if loading previous save while voring/thigh crushing for example
 

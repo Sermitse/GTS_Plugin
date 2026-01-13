@@ -246,7 +246,7 @@ namespace GTS {
 		if (!tiny->IsDead() && Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRavagingInjuries)) {
 			if (random > 0) {
 
-				if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkSprintDamageMult2) && giant->AsActorState()->IsSprinting() && !IsGtsBusy(giant)) {
+				if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkSprintDamageMult2) && giant->AsActorState()->IsSprinting() && !AnimationVars::General::IsGTSBusy(giant)) {
 					damage *= 3.0f;
 					random = 1; // always apply
 				}

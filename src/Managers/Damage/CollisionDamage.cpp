@@ -112,7 +112,7 @@ namespace {
 		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
 			auto& sizemanager = SizeManager::GetSingleton();
 
-			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRavagingInjuries) && giant->AsActorState()->IsSprinting() && !IsGtsBusy(giant)) {
+			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRavagingInjuries) && giant->AsActorState()->IsSprinting() && !AnimationVars::General::IsGTSBusy(giant)) {
 				damage *= 3.0f; // x3 stronger during sprint
 			}
 

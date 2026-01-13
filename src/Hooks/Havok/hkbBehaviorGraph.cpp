@@ -21,7 +21,7 @@ namespace {
 		if (data) {
 			float speed = data->PerkBonusSpeed;
 			if (speed > 1.0f) {
-				bool CanApply = IsStomping(giant) || IsFootGrinding(giant) || AnimationVars::Action::GetIsVoring(giant) || IsTrampling(giant);
+				bool CanApply = AnimationVars::Action::IsStomping(giant) || AnimationVars::Action::IsFootGrinding(giant) || AnimationVars::Action::IsVoring(giant) || AnimationVars::Stomp::IsTrampling(giant);
 				if (CanApply) {
 					anim_speed *= speed;
 				}

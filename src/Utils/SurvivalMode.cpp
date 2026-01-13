@@ -1,5 +1,7 @@
 #include "Utils/SurvivalMode.hpp"
 
+#include "Actions/VoreUtils.hpp"
+
 namespace GTS {
 
 	void SurvivalMode_RemoveAllSpells(Actor* actor, SpellItem* stage0, SpellItem* stage1, SpellItem* stage2, SpellItem* stage3, SpellItem* stage4, SpellItem* stage5) {

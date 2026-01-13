@@ -226,9 +226,9 @@ namespace GTS {
 		// Applies extra layer of damage reduction when Growth Animations are triggered
 		// Growth animations = the ones that trigger randomly through Random Growth
 		float reduction = 1.0f;
-		if (AnimationVars::Growth::GetIsGrowing(receiver)) {
+		if (AnimationVars::Growth::IsGrowing(receiver)) {
 
-			if (AnimationVars::Growth::GetGrowthRoll(receiver) > 0) {
+			if (AnimationVars::Growth::GrowthRoll(receiver) > 0) {
 				if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkRandomGrowthAug)) {
 					reduction -= 0.6f;
 				}

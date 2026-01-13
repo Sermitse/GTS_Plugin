@@ -66,12 +66,12 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Sneaking/Crawling", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                bool PlayerBusy = AnimationVars::General::GetIsTransitioning(PlayerCharacter::GetSingleton());
+                bool PlayerBusy = AnimationVars::General::IsTransitioning(PlayerCharacter::GetSingleton());
                 bool FollowersBusy = false;
 
                 for (const auto& Fol : FindTeammates()) {
                     if (Fol) {
-                        if (AnimationVars::General::GetIsTransitioning(Fol)) {
+                        if (AnimationVars::General::IsTransitioning(Fol)) {
                             FollowersBusy = true;
                             break;
                         }

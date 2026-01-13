@@ -14,7 +14,7 @@ using namespace GTS;
 namespace {
 
 	GrowthAnimation GetGrowthType(Actor* giant) { // Used as a way to read which exact Growth was triggered (it is full RNG on Behavior side)
-		int growthtype = AnimationVars::Growth::GetGrowthRoll(giant);
+		int growthtype = AnimationVars::Growth::GrowthRoll(giant);
 		GrowthAnimation Anim = static_cast<GrowthAnimation>(growthtype);
 		return Anim;
 	}
@@ -113,7 +113,7 @@ namespace {
 				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, actor, Volume * gain, "NPC Pelvis [Pelv]");
 			}
 			
-			if (!AnimationVars::Growth::GetIsGrowing(giant) || elapsed > 1.8f && gain < 0.0f) {
+			if (!AnimationVars::Growth::IsGrowing(giant) || elapsed > 1.8f && gain < 0.0f) {
 				return false;
 			}
 			return true;
@@ -162,7 +162,7 @@ namespace {
 				return false; // end task in that case
 			}
 
-            if (!AnimationVars::Growth::GetIsGrowing(giantref)) {
+            if (!AnimationVars::Growth::IsGrowing(giantref)) {
 				AnimationVars::Growth::SetGrowthRoll(giantref, 0);
                 return false;
             }

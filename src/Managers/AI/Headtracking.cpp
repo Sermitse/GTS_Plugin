@@ -104,8 +104,8 @@ namespace {
 
 			/*
 			float Collision_PitchMult = 0.0f;
-			if (AnimationVars::Other::GetIsCollisionInstalled(giant)) { //Detects 'Precision' mod
-				Collision_PitchMult = AnimationVars::Other::GetCollisionPitchMult(giant); // If true, obtain value to apply it
+			if (AnimationVars::Other::IsCollisionInstalled(giant)) { //Detects 'Precision' mod
+				Collision_PitchMult = AnimationVars::Other::CollisionPitchMult(giant); // If true, obtain value to apply it
 				//log::info("Collision Pitch Mult: {}", Collision_PitchMult);
 			}
 			*/

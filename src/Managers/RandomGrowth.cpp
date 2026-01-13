@@ -104,10 +104,10 @@ namespace GTS {
 								float base_power = ((0.00750f * TotalPower * 25) * SpellEfficiency);  // The power of it
 								float Gigantism = 1.0f + Ench_Aspect_GetPower(actor);
 
-								if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowthAug) && TotalPower >= Get_Breach_Threshold(actor) && !IsGtsBusy(actor)) {
+								if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowthAug) && TotalPower >= Get_Breach_Threshold(actor) && !AnimationVars::General::IsGTSBusy(actor)) {
 									AnimationManager::StartAnim("StartRandomGrowth", actor);
 								} else {
-									if (!AnimationVars::Growth::GetIsGrowing(actor)) {
+									if (!AnimationVars::Growth::IsGrowing(actor)) {
 										ActorHandle gianthandle = actor->CreateRefHandle();
 										std::string name = std::format("RandomGrowth_{}", actor->formID);
 										// Sounds

@@ -36,7 +36,7 @@ namespace {
 	//Set Reset attack blocking based on if we have a list of prey
 	void HandleAttackBlocking(Actor* a_Performer, const std::vector<Actor*>& a_ValidPreyList) {
 
-		if (a_ValidPreyList.empty() && !IsGtsBusy(a_Performer) && !AnimationVars::General::GetIsTransitioning(a_Performer)) {
+		if (a_ValidPreyList.empty() && !AnimationVars::General::IsGTSBusy(a_Performer) && !AnimationVars::General::IsTransitioning(a_Performer)) {
 			AttackManager::PreventAttacks(a_Performer, nullptr);
 			return;
 		}
@@ -91,13 +91,13 @@ namespace {
 
 			const bool HasHP = GetAV(a_Actor, ActorValue::kHealth) > 0;
 			const bool IsInNormalState = a_Actor->AsActorState()->GetSitSleepState() == SIT_SLEEP_STATE::kNormal;
-			const bool IsHoldingSomeone = Grab::GetHeldActor(a_Actor) != nullptr || IsInCleavageState(a_Actor);
+			const bool IsHoldingSomeone = Grab::GetHeldActor(a_Actor) != nullptr || AnimationVars::Action::IsInCleavageState(a_Actor);
 			const bool IsInCombat = (a_Actor->IsInCombat()) || (a_Actor->GetActorRuntimeData().currentCombatTarget.get().get() != nullptr);
 
 			const bool IsPlayer = a_Actor->formID == 0x14 && Config::Advanced.bPlayerAI;
 
 			//Is In combat or do we allow ai outside of combat?
-			if ((IsInCombat || !a_CombatOnly) && !IsGtsBusy(a_Actor) && HasHP && IsVisible(a_Actor) && IsInNormalState && !IsHoldingSomeone) {
+			if ((IsInCombat || !a_CombatOnly) && !AnimationVars::General::IsGTSBusy(a_Actor) && HasHP && IsVisible(a_Actor) && IsInNormalState && !IsHoldingSomeone) {
 
 				//Follower Check
 				if (IsTeammate(a_Actor) || IsPlayer) {
@@ -138,7 +138,7 @@ namespace {
 			return false;
 		}
 
-		if (!IsGtsBusy(a_Prey) && IsVisible(a_Prey)) {
+		if (!AnimationVars::General::IsGTSBusy(a_Prey) && IsVisible(a_Prey)) {
 
 			//If not a teammate and they are essential but we allow essentials
 			if (a_Prey->formID == 0x14) {

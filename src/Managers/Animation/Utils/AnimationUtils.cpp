@@ -84,7 +84,7 @@ namespace GTS {
 	void RestoreBreastAttachmentState(Actor* giant, Actor* tiny) { // Fixes tiny going under our foot if someone suddenly ragdolls us during breast anims such as Absorb
 		if (IsRagdolled(giant) && Attachment_GetTargetNode(giant) != AttachToNode::None) {
 			Attachment_SetTargetNode(giant, AttachToNode::None);
-			AnimationVars::Action::SetCleavageOverrideZ(giant, false);
+			AnimationVars::Action::SetIsCleavageZOverrideEnabled(giant, false);
 
 			if (IsHostile(giant, tiny)) {
 				AnimationManager::StartAnim("Breasts_Idle_Unwilling", tiny);
@@ -105,7 +105,7 @@ namespace GTS {
 
             auto giant_get = giantHandle.get().get();
             if (giant_get) {
-                if (IsInCleavageState(giant_get) || AnimationVars::Hug::GetIsHugCrushing(giant_get)) {
+                if (AnimationVars::Action::IsInCleavageState(giant_get) || AnimationVars::Hug::IsHugCrushing(giant_get)) {
                     ApplyActionCooldown(giant_get, CooldownSource::Action_AbsorbOther);
                     return true; // reapply
                 }
@@ -257,7 +257,7 @@ namespace GTS {
 	}
 	
 	bool Vore_ShouldAttachToRHand(Actor* giant, Actor* tiny) {
-		if (IsTransferingTiny(giant)) {
+		if (AnimationVars::Grab::HasGrabbedTiny(giant)) {
 			Vore_AttachToRightHandTask(giant, tiny); // start "attach to hand" task outside of vore.cpp
 			return true;
 		} else {
@@ -352,7 +352,7 @@ namespace GTS {
 
 	// Cancels all hug-related things
 	void AbortHugAnimation(Actor* giant, Actor* tiny) {
-		bool Friendly = AnimationVars::Hug::GetIsHuggingTeammate(giant);
+		bool Friendly = AnimationVars::Hug::IsHuggingTeammate(giant);
 
 		SetSneaking(giant, false, 0);
 
@@ -426,7 +426,7 @@ namespace GTS {
 			Utils_UpdateHighHeelBlend(giantref, false);
 			// make behaviors read the value to blend between anims
 
-			if (!AnimationVars::Action::GetIsVoring(giantref)) {
+			if (!AnimationVars::Action::IsVoring(giantref)) {
 				Utils_UpdateHighHeelBlend(giantref, true);
 				return false; // just a fail-safe to cancel the task if we're outside of Vore anim
 			}
@@ -479,7 +479,7 @@ namespace GTS {
 			auto giantref = gianthandle.get().get();
 
 			ApplyActionCooldown(giant, CooldownSource::Action_ButtCrush); // Set butt crush on the cooldown
-			if (!IsGtsBusy(giantref)) {
+			if (!AnimationVars::General::IsGTSBusy(giantref)) {
 				return false;
 			}
 			return true;
@@ -656,7 +656,7 @@ namespace GTS {
 				return true;
 			}
 
-			if (!IsTrampling(giantref) || coordinates.Length() <= 0.0f) {
+			if (!AnimationVars::Stomp::IsTrampling(giantref) || coordinates.Length() <= 0.0f) {
 				SetBeingGrinded(tinyref, false);
 				return false;
 			}
@@ -702,7 +702,7 @@ namespace GTS {
 			}
 
 			AttachTo(giantref, tinyref, coordinates);
-			if (!IsFootGrinding(giantref)) {
+			if (!AnimationVars::Action::IsFootGrinding(giantref)) {
 				SetBeingGrinded(tinyref, false);
 				return false;
 			}
@@ -746,7 +746,7 @@ namespace GTS {
 			}
 
 			AttachTo(giantref, tinyref, coordinates);
-			if (!IsFootGrinding(giantref)) {
+			if (!AnimationVars::Action::IsFootGrinding(giantref)) {
 				SetBeingGrinded(tinyref, false);
 				return false;
 			}
@@ -1357,7 +1357,7 @@ namespace GTS {
 
 			if (!actor->IsSneaking()) { // So foot zones face straigth, a very rough fix
 				if (!AnimationVars::Crawl::IsCrawling(actor)) {
-					bool ignore = (IsStomping(actor) || AnimationVars::Action::GetIsVoring(actor) || IsTrampling(actor) || IsThighSandwiching(actor));
+					bool ignore = (AnimationVars::Action::IsStomping(actor) || AnimationVars::Action::IsVoring(actor) || AnimationVars::Stomp::IsTrampling(actor) || AnimationVars::Action::IsThighSandwiching(actor));
 					if (ignore_rotation || ignore) {
 						up = (toe->world.translate + foot->world.translate) / 2;
 						up.z += 35.0f * get_visual_scale(actor);
@@ -1852,11 +1852,11 @@ namespace GTS {
 			return;
 		}
 
-		if (AnimationVars::Stomp::GetEnableAlternativeStomp(a_actor) == a_state) {
+		if (AnimationVars::Stomp::IsAlternativeStompEnabled(a_actor) == a_state) {
 			return;
 		}
 
-		AnimationVars::Stomp::SetEnableAlternativeStomp(a_actor, a_state);
+		AnimationVars::Stomp::SetAlternativeStompEnabled(a_actor, a_state);
 	}
 
 	void SetEnableSneakTransition(RE::Actor* a_actor, const bool a_state) {
@@ -1865,10 +1865,10 @@ namespace GTS {
 			return;
 		}
 
-		if (AnimationVars::General::GetDisableSneakTransition(a_actor) ==  a_state) {
+		if (AnimationVars::General::SneakTransitionsDisabled(a_actor) ==  a_state) {
 			return;
 		}
-		AnimationVars::General::SetDisableSneakTransition(a_actor, a_state);
+		AnimationVars::General::SetSneakTransitionsDisabled(a_actor, a_state);
 		
 	}
 
@@ -1883,13 +1883,13 @@ namespace GTS {
 			transient->FPCrawling = a_state;
 		}
 
-		if (AnimationVars::Crawl::GetIsCrawlEnabled(a_actor) == a_state) {
+		if (AnimationVars::Crawl::IsCrawlEnabled(a_actor) == a_state) {
 			return false;
 		}
 
 		AnimationVars::Crawl::SetIsCrawlEnabled(a_actor, a_state);
 
-		if (a_actor->IsSneaking() && !AnimationVars::Prone::IsProne(a_actor) && !IsGtsBusy(a_actor) && !AnimationVars::General::GetIsTransitioning(a_actor)) {
+		if (a_actor->IsSneaking() && !AnimationVars::Prone::IsProne(a_actor) && !AnimationVars::General::IsGTSBusy(a_actor) && !AnimationVars::General::IsTransitioning(a_actor)) {
 			return true;
 		}
 

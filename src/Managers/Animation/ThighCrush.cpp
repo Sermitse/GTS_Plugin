@@ -130,7 +130,7 @@ namespace {
 			}
 			auto giantref = gianthandle.get().get();
 
-			if (!IsThighCrushing(giantref)) {
+			if (!AnimationVars::Action::IsThighCrushing(giantref)) {
 				return false; //Disable it once we leave Thigh Crush state
 			}
 			float animspeed = AnimationManager::GetBonusAnimationSpeed(giantref);
@@ -151,7 +151,7 @@ namespace {
 			auto ThighL = find_node(giantref, "NPC L Thigh [LThg]");
 			auto ThighR = find_node(giantref, "NPC R Thigh [RThg]");
 
-			if (!IsThighCrushing(giantref)) {
+			if (!AnimationVars::Action::IsThighCrushing(giantref)) {
 				return false; //Disable it once we leave Thigh Crush state
 			}
 			if (ThighL && ThighR) {
@@ -354,7 +354,7 @@ namespace {
 
 	void ThighCrushKillEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		if (IsGtsBusy(player)) {
+		if (AnimationVars::General::IsGTSBusy(player)) {
 			float WasteStamina = 40.0f;
 			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkThighAbilities)) {
 				WasteStamina *= 0.65f;
@@ -362,7 +362,7 @@ namespace {
 			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
 				AnimationManager::StartAnim("ThighLoopAttack", player);
 			} else {
-				if (IsThighCrushing(player)) {
+				if (AnimationVars::Action::IsThighCrushing(player)) {
 					NotifyWithSound(player, "You're too tired to perform thighs attack");
 				}
 			}
@@ -372,7 +372,7 @@ namespace {
 	void ThighCrushSpareEvent(const ManagedInputEvent& data) {
 		if (!IsFreeCameraEnabled()) {
 			auto player = PlayerCharacter::GetSingleton();
-			if (IsGtsBusy(player)) {
+			if (AnimationVars::General::IsGTSBusy(player)) {
 				AnimationManager::StartAnim("ThighLoopExit", player);
 			}
 		}

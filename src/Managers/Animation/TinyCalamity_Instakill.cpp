@@ -58,7 +58,7 @@ namespace {
 
 			bool IsDead = tinyref->IsDead();
 			bool OnCooldown = IsActionOnCooldown(tinyref, CooldownSource::Misc_ShrinkParticle);
-			if (IsDead || !AnimationVars::Tiny::GetIsBeingShrunk(tinyref)) {
+			if (IsDead || !AnimationVars::Tiny::IsBeingShrunk(tinyref)) {
 				return false;
 			}
 			if (!OnCooldown) {
@@ -94,7 +94,7 @@ namespace {
 					Anims_FixAnimationDesync(giantref, tinyref, false); // Share GTS Animation Speed with hugged actor to avoid de-sync
 
 					bool IsDead = (giantref->IsDead() || tinyref->IsDead());
-					if (IsDead || !IsGtsBusy(giantref)) {
+					if (IsDead || !AnimationVars::General::IsGTSBusy(giantref)) {
 						return false;
 					}
 					// Ensure they are NOT in ragdoll

@@ -7,6 +7,8 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Rumble.hpp"
 
+#include "Utils/Actions/VoreUtils.hpp"
+
 using namespace GTS;
 
 

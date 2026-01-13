@@ -1,6 +1,10 @@
 #pragma once
 
 namespace GTS {
+
+    bool AllowDevourment();
+    bool IsBeingEaten(Actor* tiny);
+
 	float GetGrowthFormula(float a_giantScale, float a_tinyScale, bool a_devourment);
 
     void VoreMessage_SwallowedAbsorbing(Actor* pred, Actor* prey);

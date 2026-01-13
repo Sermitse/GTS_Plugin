@@ -26,6 +26,7 @@
 #include "Managers/Morphs/MorphManager.hpp"
 
 #include "Utils/DeathReport.hpp"
+#include "Utils/Actions/VoreUtils.hpp"
 
 using namespace GTS;
 
@@ -52,7 +53,7 @@ namespace {
 	            return false;
 	        }
 
-	        const bool InCleavage = IsInCleavageState(GiantActor);
+	        const bool InCleavage = AnimationVars::Action::IsInCleavageState(GiantActor);
 	        if (InCleavage) {
 	            return true;
 	        }
@@ -80,7 +81,7 @@ namespace {
 
     void CancelAnimation(Actor* giant) {
         auto tiny = Grab::GetHeldActor(giant);
-        AnimationVars::Action::SetCleavageOverrideZ(giant, false);
+        AnimationVars::Action::SetIsCleavageZOverrideEnabled(giant, false);
 
         if (tiny) {
             KillActor(giant, tiny);
@@ -539,11 +540,11 @@ namespace {
     }
 
     void GTS_BS_OverrideZ_ON(const AnimationEventData& data) {
-        AnimationVars::Action::SetCleavageOverrideZ(&data.giant, true);
+        AnimationVars::Action::SetIsCleavageZOverrideEnabled(&data.giant, true);
     }
 
     void GTS_BS_OverrideZ_OFF(const AnimationEventData& data) { 
-        AnimationVars::Action::SetCleavageOverrideZ(&data.giant, false);
+        AnimationVars::Action::SetIsCleavageZOverrideEnabled(&data.giant, false);
     }
 
     ///===================================================================

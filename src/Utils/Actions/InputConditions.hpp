@@ -3,6 +3,8 @@
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/HugShrink.hpp"
 
+#include "Utils/Animation/AnimationVars.hpp"
+
 /* 
 	Input Conditions.
 	If a condition returns true it assumed a bound action can play or some other form of feedback will be displayed.
@@ -24,7 +26,7 @@ namespace GTS {
 		Actor* target = GetPlayerOrControlled();
 		auto player = PlayerCharacter::GetSingleton();
 
-		if (IsPlayerFirstPerson(target) || IsGtsBusy(target) || AnimationVars::Growth::IsChangingSize(target) || !CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kGrabAndSandwich)) {
+		if (IsPlayerFirstPerson(target) || AnimationVars::General::IsGTSBusy(target) || AnimationVars::Growth::IsChangingSize(target) || !CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kGrabAndSandwich)) {
 			return false;
 		}
 
@@ -47,7 +49,7 @@ namespace GTS {
 		if (IsPlayerFirstPerson(target)) {
 			return false;
 		}
-		if (IsButtCrushing(target) && !AnimationVars::Growth::IsChangingSize(target) && Runtime::HasPerkTeam(target, Runtime::PERK.GTSPerkButtCrushAug2)) {
+		if (AnimationVars::ButtCrush::IsButtCrushing(target) && !AnimationVars::Growth::IsChangingSize(target) && Runtime::HasPerkTeam(target, Runtime::PERK.GTSPerkButtCrushAug2)) {
 			return true;
 		}
 		return false;
@@ -55,7 +57,7 @@ namespace GTS {
 
 	static bool ButtCrushCondition_Attack() {
 		Actor* target = GetPlayerOrControlled();
-		if (IsButtCrushing(target)) {
+		if (AnimationVars::ButtCrush::IsButtCrushing(target)) {
 			return true;
 		}
 		return false;
@@ -85,7 +87,7 @@ namespace GTS {
 		if (target) {
 			if (Runtime::HasPerkTeam(target, Runtime::PERK.GTSPerkBreastsStrangle)) {
 				Actor* tiny = Grab::GetHeldActor(target);
-				if (IsInCleavageState(target) && tiny && IsBetweenBreasts(tiny)) {
+				if (AnimationVars::Action::IsInCleavageState(target) && tiny && IsBetweenBreasts(tiny)) {
 					return true;
 				}
 			}
@@ -99,7 +101,7 @@ namespace GTS {
 
 	static bool SwipeCondition() {
 		auto target = PlayerCharacter::GetSingleton();
-		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || IsGtsBusy(target)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || AnimationVars::General::IsGTSBusy(target)) {
 			return false;
 		}
 		if (!target->IsSneaking()) {
@@ -114,7 +116,7 @@ namespace GTS {
 
 	static bool TrampleCondition() {
 		auto target = PlayerCharacter::GetSingleton();
-		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || IsGtsBusy(target)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || AnimationVars::General::IsGTSBusy(target)) {
 			return false;
 		}
 		if (AnimationVars::Crawl::IsCrawling(target) || target->IsSneaking() || AnimationVars::Prone::IsProne(target)) {
@@ -132,10 +134,10 @@ namespace GTS {
 		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kHugs)) {
 			return false;
 		}
-		if (IsGtsBusy(target)) {
+		if (AnimationVars::General::IsGTSBusy(target)) {
 			return false;
 		}
-		if (CanDoPaired(target) && !IsSynced(target) && !IsTransferingTiny(target)) {
+		if (AnimationVars::General::CanDoPaired(target) && !AnimationVars::Other::IsSynched(target) && !AnimationVars::Grab::HasGrabbedTiny(target)) {
 			return true;
 		}
 		return false;
@@ -153,7 +155,7 @@ namespace GTS {
 	static bool HugCondition_Release() {
 		Actor* target = GetPlayerOrControlled();
 		auto huggedActor = HugShrink::GetHuggiesActor(target);
-		if (!huggedActor || AnimationVars::Hug::GetIsHugCrushing(target) || AnimationVars::Hug::GetIsHugHealing(target)) {
+		if (!huggedActor || AnimationVars::Hug::IsHugCrushing(target) || AnimationVars::Hug::IsHugHealing(target)) {
 			return false;
 		}
 		return true;
@@ -235,7 +237,7 @@ namespace GTS {
 
 	static bool KickCondition() {
 		auto target = PlayerCharacter::GetSingleton();
-		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || IsGtsBusy(target)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || AnimationVars::General::IsGTSBusy(target)) {
 			return false;
 		}
 
@@ -251,7 +253,7 @@ namespace GTS {
 
 	static bool StompCondition() {
 		auto target = PlayerCharacter::GetSingleton();
-		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || IsGtsBusy(target)) {
+		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks) || AnimationVars::General::IsGTSBusy(target)) {
 			return false;
 		}
 
@@ -281,7 +283,7 @@ namespace GTS {
 		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kGrabAndSandwich)) {
 			return false;
 		}
-		if (IsGtsBusy(target)) {
+		if (AnimationVars::General::IsGTSBusy(target)) {
 			return false;
 		}
 		if (AnimationVars::Crawl::IsCrawling(target)) {
@@ -304,7 +306,7 @@ namespace GTS {
 		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kStompsAndKicks)) {
 			return false;
 		}
-		if (IsGtsBusy(target) || IsEquipBusy(target) || AnimationVars::General::GetIsTransitioning(target)) {
+		if (AnimationVars::General::IsGTSBusy(target) || IsEquipBusy(target) || AnimationVars::General::IsTransitioning(target)) {
 			return false; // Disallow Grabbing if Behavior is busy doing other stuff.
 		}
 		return true;
@@ -313,10 +315,10 @@ namespace GTS {
 	static bool GrabCondition_Attack() {
 		auto target = GetPlayerOrControlled();
 
-		if (IsGtsBusy(target) && !IsUsingThighAnimations(target)) {
+		if (AnimationVars::General::IsGTSBusy(target) && !AnimationVars::Action::IsSitting(target)) {
 			return false;
 		}
-		if (IsStomping(target) && AnimationVars::General::GetIsTransitioning(target)) {
+		if (AnimationVars::Action::IsStomping(target) && AnimationVars::General::IsTransitioning(target)) {
 			return false;
 		}
 		return true;
@@ -328,11 +330,11 @@ namespace GTS {
 		if (!CanDoActionBasedOnQuestProgress(target, QuestAnimationType::kVore)) {
 			return false;
 		}
-		if (IsGtsBusy(target) && !IsUsingThighAnimations(target)) {
+		if (AnimationVars::General::IsGTSBusy(target) && !AnimationVars::Action::IsSitting(target)) {
 			return false;
 		}
 
-		if (!AnimationVars::General::GetIsTransitioning(target)) {
+		if (!AnimationVars::General::IsTransitioning(target)) {
 			auto grabbedActor = Grab::GetHeldActor(target);
 			if (!grabbedActor) {
 				return false;
@@ -348,11 +350,11 @@ namespace GTS {
 	static bool GrabCondition_Throw() {
 		auto target = GetPlayerOrControlled();
 
-		if (IsGtsBusy(target) && !IsUsingThighAnimations(target)) {
+		if (AnimationVars::General::IsGTSBusy(target) && !AnimationVars::Action::IsSitting(target)) {
 			return false;
 		}
 
-		if (!AnimationVars::General::GetIsTransitioning(target)) {
+		if (!AnimationVars::General::IsTransitioning(target)) {
 			auto grabbedActor = Grab::GetHeldActor(target);
 			if (!grabbedActor) {
 				return false;
@@ -370,7 +372,7 @@ namespace GTS {
 		if (!grabbedActor) {
 			return false;
 		}
-		if (IsGtsBusy(target) && !IsUsingThighAnimations(target) || AnimationVars::General::GetIsTransitioning(target)) {
+		if (AnimationVars::General::IsGTSBusy(target) && !AnimationVars::Action::IsSitting(target) || AnimationVars::General::IsTransitioning(target)) {
 			return false;
 		}
 		if (!target->AsActorState()->IsWeaponDrawn()) {
@@ -384,7 +386,7 @@ namespace GTS {
 		auto target = GetPlayerOrControlled();
 
 		auto grabbedActor = Grab::GetHeldActor(target);
-		if (!grabbedActor || AnimationVars::General::GetIsTransitioning(target)) {
+		if (!grabbedActor || AnimationVars::General::IsTransitioning(target)) {
 			return false;
 		}
 
@@ -428,7 +430,7 @@ namespace GTS {
 
 	static bool GrabPlayActionCondition() {
 		auto target = GetPlayerOrControlled();
-		if (!AnimationVars::Action::GetIsInGrabPlayState(target)) {
+		if (!AnimationVars::Action::IsInGrabPlayState(target)) {
 			return false;
 		}
 		return true;

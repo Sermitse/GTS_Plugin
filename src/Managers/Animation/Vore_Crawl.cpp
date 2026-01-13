@@ -6,6 +6,8 @@
 #include "Managers/Animation/Utils/CrawlUtils.hpp"
 #include "Managers/Rumble.hpp"
 
+#include "Utils/Actions/VoreUtils.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -73,7 +75,7 @@ namespace {
 			tiny->NotifyAnimationGraph("JumpFall");
 			tiny->Attacked(giant);
 		}
-		if (IsTransferingTiny(giant)) {
+		if (AnimationVars::Grab::HasGrabbedTiny(giant)) {
 			ManageCamera(giant, true, CameraTracking::ObjectA);
 		} else {
 			ManageCamera(giant, true, CameraTracking::Hand_Right);

@@ -1,10 +1,5 @@
 #include "Utils/Actor/ActorBools.hpp"
-
 #include "Config/Config.hpp"
-
-#include "Managers/Animation/Grab.hpp"
-#include "Managers/Animation/Utils/CooldownManager.hpp"
-
 
 namespace GTS {
 
@@ -247,11 +242,6 @@ namespace GTS {
 		return true;
 	}
 
-
-	bool AllowDevourment() {
-		return Config::General.bDevourmentCompat && Runtime::IsDevourmentInstalled();
-	}
-
 	bool IsTeammate(Actor* actor) {
 
 		if (!actor) {
@@ -265,7 +255,7 @@ namespace GTS {
 
 		if ((Runtime::InFaction(actor, Runtime::FACT.FollowerFaction) ||
 			actor->IsPlayerTeammate() ||
-			IsGtsTeammate(actor)) &&
+			IsGTSTeammate(actor)) &&
 			IsHumanoid(actor)) { //Disallow Creature NPC's
 			return true;
 		}
@@ -274,7 +264,7 @@ namespace GTS {
 	}
 
 	bool IsEquipBusy(Actor* actor) {
-		int State = AnimationVars::Other::GetCurrentDefaultState(actor);
+		int State = AnimationVars::Other::CurrentDefaultState(actor);
 		if (State >= 10 && State <= 20) {
 			return true;
 		}
@@ -284,60 +274,6 @@ namespace GTS {
 	bool IsRagdolled(Actor* actor) {
 		bool ragdoll = actor->IsInRagdollState();
 		return ragdoll;
-	}
-
-	bool IsBeingHeld(Actor* giant, Actor* tiny) {
-		auto grabbed = Grab::GetHeldActor(giant);
-
-		if (grabbed) {
-			if (grabbed == tiny) {
-				return true;
-			}
-		}
-
-		auto transient = Transient::GetActorData(tiny);
-		if (transient) {
-			return transient->BeingHeld && !tiny->IsDead();
-		}
-		return false;
-	}
-
-	bool IsBetweenBreasts(Actor* actor) {
-		auto transient = Transient::GetActorData(actor);
-		if (transient) {
-			return transient->BetweenBreasts;
-		}
-		return false;
-	}
-
-	bool IsBeingEaten(Actor* tiny) {
-		auto transient = Transient::GetActorData(tiny);
-		if (transient) {
-			return transient->AboutToBeEaten;
-		}
-		return false;
-	}
-
-	bool ButtCrush_IsAbleToGrow(Actor* actor, float limit) {
-		auto transient = Transient::GetActorData(actor);
-		float stamina = GetAV(actor, ActorValue::kStamina);
-		if (stamina <= 4.0f) {
-			return false;
-		}
-		if (transient) {
-			return transient->ButtCrushGrowthAmount < limit;
-		}
-		return false;
-	}
-
-	bool CanDoButtCrush(Actor* actor, bool apply_cooldown) {
-		bool Allow = IsActionOnCooldown(actor, CooldownSource::Action_ButtCrush);
-
-		if (!Allow && apply_cooldown) { // send it to cooldown if it returns 'not busy'
-			ApplyActionCooldown(actor, CooldownSource::Action_ButtCrush);
-		}
-
-		return !Allow; // return flipped OnCooldown. By default it false, we flip it so it returns True (Can perform butt crush)
 	}
 
 	bool InBleedout(Actor* actor) {
@@ -374,7 +310,7 @@ namespace GTS {
 		return blacklist;
 	}
 
-	bool IsGtsTeammate(Actor* actor) {
+	bool IsGTSTeammate(Actor* actor) {
 		return Runtime::HasKeyword(actor, Runtime::KYWD.GTSKeywordCountAsFollower);
 	}
 

@@ -93,7 +93,7 @@ namespace {
 				float HH = HighHeelManager::GetHHOffset(giantref).Length();
 				coords.z -= HH;
 			} 
-			if (!IsButtCrushing(giantref)) {
+			if (!AnimationVars::ButtCrush::IsButtCrushing(giantref)) {
 				AnimationBoobCrush::GetSingleton().Reset();
 				SetBeingEaten(tinyref, false);
 				EnableCollisions(tinyref);
@@ -142,7 +142,7 @@ namespace GTS {
 			}
 			shake_camera(giant, 0.45f, 0.30f);
 			NotifyWithSound(giant, message);
-		} else if (IsTeammate(giant) && !IsGtsBusy(giant)) {
+		} else if (IsTeammate(giant) && !AnimationVars::General::IsGTSBusy(giant)) {
 			if (!AnimationVars::Crawl::IsCrawling(giant) && !giant->IsSneaking()) {
 				message = std::format("Follower's Butt Crush is on a cooldown: {:.1f} sec", cooldown);
 			} else if (giant->IsSneaking() && !AnimationVars::Crawl::IsCrawling(giant)) {
@@ -273,7 +273,7 @@ namespace GTS {
 			if (IsFlying(prey)) {
 				return false; // Disallow to butt crush flying dragons
 			}
-			if ((prey->formID != 0x14 && !CanPerformAnimationOn(pred, prey, false))) {
+			if ((prey->formID != 0x14 && !CanPerformActionOn(pred, prey, false))) {
 				std::string_view message = std::format("{} is Essential", prey->GetDisplayFullName());
 				NotifyWithSound(pred, message);
 				return false;

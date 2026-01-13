@@ -38,7 +38,7 @@ namespace {
 
 		Actor* Controlled = GetPlayerOrControlled();
 		if (Controlled->formID != 0x14) {
-			if (IsThighSandwiching(Controlled)) { // Disallow player movement if we have control over other actor and actor does thigh sandwich
+			if (AnimationVars::Action::IsThighSandwiching(Controlled)) { // Disallow player movement if we have control over other actor and actor does thigh sandwich
 				return false;
 			} if (IsBetweenBreasts(Controlled)) {
 				return false;
@@ -47,16 +47,16 @@ namespace {
 		if (IsFreeCameraEnabled()) {
 			return true;
 		}
-		if (!AnimationVars::Utility::GetIsInstalled(player)) { // Don't mess with movement if user didn't install anims correctly
+		if (!AnimationVars::Utility::BehaviorsInstalled(player)) { // Don't mess with movement if user didn't install anims correctly
 			return true;
 		}
-		if (AnimationVars::General::GetIsTransitioning(player)) { // Disallow to move during transition
+		if (AnimationVars::General::IsTransitioning(player)) { // Disallow to move during transition
 			return false;
 		}
-		if (AnimationVars::Grab::GetIsGrabAttacking(player)) { // Allow movement for Grab Attacking
+		if (AnimationVars::Grab::IsGrabAttacking(player)) { // Allow movement for Grab Attacking
 			return true;
 		}
-		return !AnimationVars::General::GetIsBusy(player); // Else return GTS Busy
+		return !AnimationVars::General::IsBusy(player); // Else return GTS Busy
 	}
 }
 

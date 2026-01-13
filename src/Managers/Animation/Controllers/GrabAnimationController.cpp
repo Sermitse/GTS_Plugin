@@ -39,7 +39,7 @@ namespace {
 
 			auto giant = giantHandle.get().get();
 			auto tiny = tinyHandle.get().get();
-			if (!IsGtsBusy(giant)) { // Means anim isn't applied so we cancel everything
+			if (!AnimationVars::General::IsGTSBusy(giant)) { // Means anim isn't applied so we cancel everything
 				Grab::CancelGrab(giant, tiny);
 			}
 		});
@@ -51,7 +51,7 @@ namespace GTS {
 	std::vector<Actor*> GrabAnimationController::GetGrabTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor
 		auto& sizemanager = SizeManager::GetSingleton();
-		if (IsGtsBusy(pred)) {
+		if (AnimationVars::General::IsGTSBusy(pred)) {
 			return {};
 		}
 		if (!pred) {
@@ -170,7 +170,7 @@ namespace GTS {
 			if (IsFlying(prey)) {
 				return false; // Disallow to grab flying dragons
 			}
-			if ((prey->formID != 0x14 && !CanPerformAnimationOn(pred, prey, false))) {
+			if ((prey->formID != 0x14 && !CanPerformActionOn(pred, prey, false))) {
 				return false;
 			} else {
 				return true;

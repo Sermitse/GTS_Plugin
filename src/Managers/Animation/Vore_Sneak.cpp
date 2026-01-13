@@ -3,6 +3,8 @@
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
+#include "Utils/Actions/VoreUtils.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -28,7 +30,7 @@ namespace {
 			tiny->NotifyAnimationGraph("JumpFall");
 			tiny->Attacked(&data.giant);
 		}
-		if (IsTransferingTiny(&data.giant)) {
+		if (AnimationVars::Grab::HasGrabbedTiny(&data.giant)) {
 			ManageCamera(&data.giant, true, CameraTracking::ObjectA);
 		} else {
 			ManageCamera(&data.giant, true, CameraTracking::Hand_Right);

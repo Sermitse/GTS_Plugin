@@ -24,20 +24,14 @@ namespace GTS {
 	bool IsHeadtracking(Actor* giant);
 	bool IsInGodMode(Actor* giant);
 	bool CanDoDamage(Actor* giant, Actor* tiny, bool HoldCheck);
-	bool AllowDevourment();
 	bool IsTeammate(Actor* actor);
 	bool IsEquipBusy(Actor* actor);
 	bool IsRagdolled(Actor* actor);
-	bool IsBeingHeld(Actor* giant, Actor* tiny);
-	bool IsBetweenBreasts(Actor* actor);
-	bool IsBeingEaten(Actor* tiny);
-	bool ButtCrush_IsAbleToGrow(Actor* actor, float limit);
-	bool CanDoButtCrush(Actor* actor, bool apply_cooldown);
 	bool InBleedout(Actor* actor);
 	bool IsMechanical(Actor* actor);
 	bool IsHuman(Actor* actor);
 	bool IsBlacklisted(Actor* actor);
-	bool IsGtsTeammate(Actor* actor);
+	bool IsGTSTeammate(Actor* actor);
 	bool HasSMT(Actor* giant);
 
 }

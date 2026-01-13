@@ -20,7 +20,7 @@ namespace {
 		if ((a_Prey->IsDead() || GetAV(a_Prey, ActorValue::kHealth) < 0.0f) && !ALLOW_DEAD) {
 			return false;
 		}
-		if (AnimationVars::Crawl::IsCrawling(a_Performer) || AnimationVars::General::GetIsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
+		if (AnimationVars::Crawl::IsCrawling(a_Performer) || AnimationVars::General::IsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
 			return false;
 		}
 
@@ -34,7 +34,7 @@ namespace {
 
 			if (SizeDiff > MinimumThighCrushScale) {
 
-				if (CanPerformAnimationOn(a_Performer, a_Prey, false)) {
+				if (CanPerformActionOn(a_Performer, a_Prey, false)) {
 					return true;
 				}
 			}
@@ -72,7 +72,7 @@ namespace {
 			if (FinishTime - StartTime > 0.10) {
 
 				//Are we in a thigh crush anim (idle or acting)
-				if (!IsThighCrushing(ActorRef)) {
+				if (!AnimationVars::Action::IsThighCrushing(ActorRef)) {
 					return false;
 				}
 
@@ -178,7 +178,7 @@ namespace GTS {
 
 	void ThighCrushAI_Start(Actor* a_Performer) {
 
-		if (IsThighCrushing(a_Performer)) {
+		if (AnimationVars::Action::IsThighCrushing(a_Performer)) {
 			return;
 		}
 

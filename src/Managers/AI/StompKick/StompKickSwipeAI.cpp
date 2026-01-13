@@ -65,7 +65,7 @@ namespace {
 			return false;
 		}
 
-		if (!CanPerformAnimationOn(a_Pred, a_Prey, false)) {
+		if (!CanPerformActionOn(a_Pred, a_Prey, false)) {
 			return false;
 		}
 

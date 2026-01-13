@@ -23,9 +23,9 @@ namespace {
 	}
 
 	bool ActorStateCheck(Actor* a_Actor) {
-		bool Jumping = IsJumping(a_Actor);
+		bool Jumping = AnimationVars::Other::IsJumping(a_Actor);
 		bool Ragdolled = IsRagdolled(a_Actor);
-		bool Busy = IsGtsBusy(a_Actor);
+		bool Busy = AnimationVars::General::IsGTSBusy(a_Actor);
 		return Jumping || Ragdolled || Busy;
 	}
 
@@ -39,7 +39,7 @@ namespace {
 			return false;
 		}
 
-		if (AnimationVars::General::GetIsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
+		if (AnimationVars::General::IsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
 			return false;
 		}
 
@@ -71,7 +71,7 @@ namespace {
 
 			if (SizeDifference > MinScale) {
 
-				if (a_Prey->formID != 0x14 && !CanPerformAnimationOn(a_Performer, a_Prey, true)) {
+				if (a_Prey->formID != 0x14 && !CanPerformActionOn(a_Performer, a_Prey, true)) {
 					return false;
 				}
 
@@ -166,7 +166,7 @@ namespace {
 			TransientData->ActionTimer.UpdateDelta(Config::AI.Hugs.fInterval);
 
 			const bool IsDead = PreyActor->IsDead() || PerformerActor->IsDead();
-			const bool IsBusy = AnimationVars::Hug::GetIsHugCrushing(PerformerActor) || AnimationVars::Hug::GetIsHugHealing(PerformerActor);
+			const bool IsBusy = AnimationVars::Hug::IsHugCrushing(PerformerActor) || AnimationVars::Hug::IsHugHealing(PerformerActor);
 			const bool GentleAnim = IsTeammate(PreyActor) || PreyActor->formID == 0x14;
 
 			if (!HugShrink::GetHuggiesActor(PerformerActor) || IsRagdolled(PerformerActor)) {
@@ -241,7 +241,7 @@ namespace GTS {
 			return {};
 		}
 
-		if (IsGtsBusy(a_Performer)) {
+		if (AnimationVars::General::IsGTSBusy(a_Performer)) {
 			return {};
 		}
 
@@ -249,7 +249,7 @@ namespace GTS {
 			return {};
 		}
 
-		if (!CanDoPaired(a_Performer) && !IsSynced(a_Performer) && !IsTransferingTiny(a_Performer)) {
+		if (!AnimationVars::General::CanDoPaired(a_Performer) && !AnimationVars::Other::IsSynched(a_Performer) && !AnimationVars::Grab::HasGrabbedTiny(a_Performer)) {
 			return {};
 		}
 

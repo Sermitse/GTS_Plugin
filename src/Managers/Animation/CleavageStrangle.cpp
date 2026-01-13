@@ -48,16 +48,16 @@ namespace {
                 return false; // end task in that case
             }
 
-            if (!AnimationVars::Cleavage::GetIsBoobsDoting(giantref)) {
+            if (!AnimationVars::Cleavage::IsBoobsDoting(giantref)) {
                 return false;
             }
 
-            /*if (!IsGtsBusy(tinyref)) {
+            /*if (!AnimationVars::General::IsGTSBusy(tinyref)) {
                 AnimationManager::StartAnim("Cleavage_Absorb_Tiny", tinyref);
                 // Hide the Tiny by making tiny roll into a ball
             }*/
 
-            if (!IsGtsBusy(tinyref)) { // If for some reason Tiny isn't in expected anim
+            if (!AnimationVars::General::IsGTSBusy(tinyref)) { // If for some reason Tiny isn't in expected anim
                 AnimationManager::StartAnim("Cleavage_DOT_Start_Tiny", tinyref);
             }
             
@@ -116,7 +116,7 @@ namespace {
             float damage = Damage_Breast_Strangle * power * additionaldamage * sizeDiff * TimeScale() * speed;
             HasSMT(giantref) ? damage *= 1.5f : damage *= 1.0f;
 
-            if (!AnimationVars::Cleavage::GetIsBoobsDoting(giantref) && !IsGtsBusy(giantref)) {
+            if (!AnimationVars::Cleavage::IsBoobsDoting(giantref) && !AnimationVars::General::IsGTSBusy(giantref)) {
                 AnimationManager::ResetAnimationSpeedData(giantref);
                 RestoreBreastAttachmentState(giantref, tinyref); // If someone suddenly ragdolls us during breast anims
                 return false;
@@ -176,7 +176,7 @@ namespace {
     }
 
     void GTS_BS_Smile(const AnimationEventData& data) {
-        if (AnimationVars::Cleavage::GetIsBoobsDoting(&data.giant)) { // This event belongs to Breast Vore originally, but time to smile is like 0.2 sec so it's unused, and used here instead
+        if (AnimationVars::Cleavage::IsBoobsDoting(&data.giant)) { // This event belongs to Breast Vore originally, but time to smile is like 0.2 sec so it's unused, and used here instead
             if (RandomBool(65.0f)) {
                 Task_FacialEmotionTask_SlightSmile(&data.giant, RandomFloat(3.75f, 5.5f), "StrangleSmile", RandomFloat(0.35f, 0.75f));
             }

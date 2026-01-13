@@ -6,6 +6,8 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/CleavageState.hpp"
 
+#include "Utils/Actions/VoreUtils.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -53,11 +55,11 @@ namespace {
 			return false;
 		}
 
-		if (!CanPerformAnimationOn(a_Performer, a_Prey, false)) {
+		if (!CanPerformActionOn(a_Performer, a_Prey, false)) {
 			return false;
 		}
 
-		if (IsEquipBusy(a_Prey) || AnimationVars::General::GetIsTransitioning(a_Prey) || IsEquipBusy(a_Performer) || AnimationVars::General::GetIsTransitioning(a_Performer)) {
+		if (IsEquipBusy(a_Prey) || AnimationVars::General::IsTransitioning(a_Prey) || IsEquipBusy(a_Performer) || AnimationVars::General::IsTransitioning(a_Performer)) {
 			return false;
 		}
 
@@ -126,7 +128,7 @@ namespace {
 		if (!grabbedActor) {
 			return false;
 		}
-		if (IsGtsBusy(a_Performer) && !IsUsingThighAnimations(a_Performer) || AnimationVars::General::GetIsTransitioning(a_Performer)) {
+		if (AnimationVars::General::IsGTSBusy(a_Performer) && !AnimationVars::Action::IsSitting(a_Performer) || AnimationVars::General::IsTransitioning(a_Performer)) {
 			return false;
 		}
 		if (!a_Performer->AsActorState()->IsWeaponDrawn()) {
@@ -182,7 +184,7 @@ namespace {
 
 			TransientData->ActionTimer.UpdateDelta(Config::AI.Grab.fInterval);
 			const bool IsDead    = PreyActor->IsDead() || GetAV(PreyActor, ActorValue::kHealth) <= 0.0f || PerformerActor->IsDead();
-			const bool IsBusy    = AnimationVars::Grab::GetIsGrabAttacking(PerformerActor) || AnimationVars::General::GetIsTransitioning(PerformerActor);
+			const bool IsBusy    = AnimationVars::Grab::IsGrabAttacking(PerformerActor) || AnimationVars::General::IsTransitioning(PerformerActor);
 			const bool ValidPrey = Grab::GetHeldActor(PerformerActor) != nullptr;
 
 			if (!IsDead && !IsBusy) {
@@ -192,9 +194,9 @@ namespace {
 					PreventCombat(PerformerActor);
 
 					if (!IsBetweenBreasts(PreyActor) && 
-						!IsInCleavageState(PerformerActor) && 
-						!IsInsideCleavage(PreyActor) && 
-						!IsGtsBusy(PerformerActor)) {
+						!AnimationVars::Action::IsInCleavageState(PerformerActor) &&
+						!AnimationVars::Tiny::IsInBoobs(PreyActor) && 
+						!AnimationVars::General::IsGTSBusy(PerformerActor)) {
 
 						const int AttackChance      = GrabAI_CanAttack(PerformerActor)  ? static_cast<int>(Settings.fCrushProb)   : 0;
 						const int ThrowChance       = GrabAI_CanThrow(PerformerActor)   ? static_cast<int>(Settings.fThrowProb)   : 0;
@@ -242,7 +244,7 @@ namespace {
 						}
 
 					}
-					else if (IsBetweenBreasts(PreyActor) && !IsGtsBusy(PerformerActor)) {
+					else if (IsBetweenBreasts(PreyActor) && !AnimationVars::General::IsGTSBusy(PerformerActor)) {
 
 						if (RandomBool(80)) {
 							Utils_UpdateHighHeelBlend(PerformerActor, false);
@@ -251,7 +253,7 @@ namespace {
 						}
 
 					}
-					else if (AnimationVars::Cleavage::GetIsBoobsDoting(PerformerActor)) {
+					else if (AnimationVars::Cleavage::IsBoobsDoting(PerformerActor)) {
 
 						//Small Chance to Stop, Basically guaranteed to happen after 30 ShouldRun Calls (100 / 3.333 = ~30)
 						//Shortest Timer is 1.0 sec so after ~30s max Stop DOT.
@@ -261,8 +263,8 @@ namespace {
 							AnimationManager::StartAnim("Cleavage_DOT_Stop_Tiny", PreyActor);
 						}
 					}
-					//IsGtsBusy(PerformerActor) is true when in this state
-					else if (IsInCleavageState(PerformerActor) && IsInsideCleavage(PreyActor)) {
+					//AnimationVars::General::IsGTSBusy(PerformerActor) is true when in this state
+					else if (AnimationVars::Action::IsInCleavageState(PerformerActor) && AnimationVars::Tiny::IsInBoobs(PreyActor)) {
 
 						const int AttackChance    = static_cast<int>(Settings.fCleavageAttackProb);
 						const int SuffocateChance = static_cast<int>(Settings.fCleavageSuffocateProb);
@@ -321,10 +323,10 @@ namespace {
 
 						}
 					}
-					else if (AnimationVars::Action::GetIsInGrabPlayState(PerformerActor)) {
+					else if (AnimationVars::Action::IsInGrabPlayState(PerformerActor)) {
 
-						const bool isGrinding = AnimationVars::Action::GetIsGrabPlaying(PerformerActor);
-						const bool isKissing = AnimationVars::Action::GetIsKissing(PerformerActor);
+						const bool isGrinding = AnimationVars::Action::IsGrabPlaying(PerformerActor);
+						const bool isKissing = AnimationVars::Action::IsKissing(PerformerActor);
 						const bool isInSubState = isGrinding || isKissing;
 
 						//Mult by the !bool so the chance is only > 0 if not in a substate
@@ -411,8 +413,8 @@ namespace {
 				}
 			}
 
-			bool Attacking = AnimationVars::Grab::GetIsGrabAttacking(PerformerActor) || AnimationVars::Action::GetIsGrabPlaying(PerformerActor);
-			bool CanCancel = (IsDead || !AnimationVars::Action::GetIsVoring(PerformerActor)) && (!Attacking || IsBeingEaten(PreyActor));
+			bool Attacking = AnimationVars::Grab::IsGrabAttacking(PerformerActor) || AnimationVars::Action::IsGrabPlaying(PerformerActor);
+			bool CanCancel = (IsDead || !AnimationVars::Action::IsVoring(PerformerActor)) && (!Attacking || IsBeingEaten(PreyActor));
 			if (ShouldAbortGrab(PerformerActor, PreyActor, CanCancel, IsDead, ValidPrey)) {
 				logger::info("GrabAI: Prey Dead or Invalid");
 				Utils_UpdateHighHeelBlend(PerformerActor, false);

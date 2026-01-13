@@ -30,7 +30,7 @@ namespace Triggers {
 			NotifyWithSound(player, message);
 			return;
 		}
-		if (!IsGtsBusy(player) && !IsInCleavageState(player)) {
+		if (!AnimationVars::General::IsGTSBusy(player) && !AnimationVars::Action::IsInCleavageState(player)) {
 			PassAnimation("GrabPlay_Enter", "GrabPlay_Enter_T");
 		}
 	}

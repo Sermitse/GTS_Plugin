@@ -27,8 +27,8 @@ namespace {
 					auto giant = giantHandle.get().get();
 
 					bool Disable = !(AnimationVars::Crawl::IsCrawling(giant) || AnimationVars::Prone::IsProne(giant) ||
-						AnimationVars::Crawl::GetIsHandStomping(actor) || 
-						AnimationVars::Crawl::GetIsHandStompingStrong(actor));
+						AnimationVars::Crawl::IsHandStomping(actor) || 
+						AnimationVars::Crawl::IsHandStompingStrong(actor));
 
 					AnimationVars::Other::SetSpineRotationEnabled(giant, Disable);
 					//log::info("Setting {} for {}", Disable, giant->GetDisplayFullName());
@@ -60,8 +60,8 @@ namespace Hooks {
 					if (actor) {
 
 						bool ShouldDisable = (AnimationVars::Crawl::IsCrawling(actor) || AnimationVars::Prone::IsProne(actor) ||
-							AnimationVars::Crawl::GetIsHandStomping(actor) || 
-							AnimationVars::Crawl::GetIsHandStompingStrong(actor));
+							AnimationVars::Crawl::IsHandStomping(actor) || 
+							AnimationVars::Crawl::IsHandStompingStrong(actor));
 
 						if (ShouldDisable) {
 							result = false;

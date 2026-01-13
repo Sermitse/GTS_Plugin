@@ -17,9 +17,9 @@ namespace {
 	constexpr float PI = std::numbers::pi_v<float>;;
 
 	bool DisallowHugs(Actor* actor) {
-		bool jumping = IsJumping(actor);
+		bool jumping = AnimationVars::Other::IsJumping(actor);
 		bool ragdolled = IsRagdolled(actor);
-		bool busy = IsGtsBusy(actor);
+		bool busy = AnimationVars::General::IsGTSBusy(actor);
 		return jumping || ragdolled || busy;
 	}
 
@@ -94,7 +94,7 @@ namespace GTS {
 			std::string message = std::format("Hugs are on a cooldown: {:.1f} sec", cooldown);
 			shake_camera(giant, 0.75f, 0.35f);
 			NotifyWithSound(giant, message);
-		} else if (IsTeammate(giant) && !IsGtsBusy(giant)) {
+		} else if (IsTeammate(giant) && !AnimationVars::General::IsGTSBusy(giant)) {
 			std::string message = std::format("Follower's Hugs are on a cooldown: {:.1f} sec", cooldown);
 			NotifyWithSound(giant, message);
 		}
@@ -105,7 +105,7 @@ namespace GTS {
 	std::vector<Actor*> HugAnimationController::GetHugTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor
 		auto& sizemanager = SizeManager::GetSingleton();
-		if (IsGtsBusy(pred)) {
+		if (AnimationVars::General::IsGTSBusy(pred)) {
 			return {};
 		}
 		if (!pred) {
@@ -190,7 +190,7 @@ namespace GTS {
 		if (prey->IsDead()) {
 			return false;
 		}
-		if (AnimationVars::General::GetIsTransitioning(pred) || IsBeingHeld(pred, prey)) {
+		if (AnimationVars::General::IsTransitioning(pred) || IsBeingHeld(pred, prey)) {
 			return false;
 		}
 		if (DisallowHugs(pred) || DisallowHugs(prey)) {
@@ -226,7 +226,7 @@ namespace GTS {
 
 		if (prey_distance <= (MINIMUM_DISTANCE * pred_scale)) {
 			if (sizedifference > MINIMUM_HUG_SCALE) {
-				if ((prey->formID != 0x14 && !CanPerformAnimationOn(pred, prey, true))) {
+				if ((prey->formID != 0x14 && !CanPerformActionOn(pred, prey, true))) {
 					return false;
 				}
 				if (!IsHuman(prey)) { // Allow hugs with humanoids only

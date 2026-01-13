@@ -1,6 +1,30 @@
 #include "Utils/Actions/ButtCrushUtils.hpp"
+#include "Managers/Animation/Utils/CooldownManager.hpp"
 
 namespace GTS {
+
+
+	bool CanDoButtCrush(Actor* actor, bool apply_cooldown) {
+		bool Allow = IsActionOnCooldown(actor, CooldownSource::Action_ButtCrush);
+
+		if (!Allow && apply_cooldown) { // send it to cooldown if it returns 'not busy'
+			ApplyActionCooldown(actor, CooldownSource::Action_ButtCrush);
+		}
+
+		return !Allow; // return flipped OnCooldown. By default it false, we flip it so it returns True (Can perform butt crush)
+	}
+
+	bool ButtCrush_IsAbleToGrow(Actor* actor, float limit) {
+		auto transient = Transient::GetActorData(actor);
+		float stamina = GetAV(actor, ActorValue::kStamina);
+		if (stamina <= 4.0f) {
+			return false;
+		}
+		if (transient) {
+			return transient->ButtCrushGrowthAmount < limit;
+		}
+		return false;
+	}
 
 	float GetButtCrushSize(Actor* giant) {
 		auto saved_data = Transient::GetActorData(giant);

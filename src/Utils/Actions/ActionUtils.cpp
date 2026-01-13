@@ -9,7 +9,31 @@
 #include "Config/Config.hpp"
 
 namespace GTS {
-	
+
+	bool IsBeingHeld(Actor* giant, Actor* tiny) {
+		auto grabbed = Grab::GetHeldActor(giant);
+
+		if (grabbed) {
+			if (grabbed == tiny) {
+				return true;
+			}
+		}
+
+		auto transient = Transient::GetActorData(tiny);
+		if (transient) {
+			return transient->BeingHeld && !tiny->IsDead();
+		}
+		return false;
+	}
+
+	bool IsBetweenBreasts(Actor* actor) {
+		auto transient = Transient::GetActorData(actor);
+		if (transient) {
+			return transient->BetweenBreasts;
+		}
+		return false;
+	}
+
 	void Attachment_SetTargetNode(Actor* giant, AttachToNode Node) {
 		auto transient = Transient::GetActorData(giant);
 		if (transient) {
@@ -153,12 +177,12 @@ namespace GTS {
 										float iconScale = std::clamp(tinyScale, 1.0f, 9999.0f) * 2.4f;
 										bool Ally = !IsHostile(giant, otherActor) && IsTeammate(otherActor);
 										bool HasLovingEmbrace = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace);
-										bool Healing = AnimationVars::Hug::GetIsHugHealing(giant);
+										bool Healing = AnimationVars::Hug::IsHugHealing(giant);
 
 										NiPoint3 Position = node->world.translate;
 										float bounding_z = get_bounding_box_z(otherActor);
 										if (bounding_z > 0.0f) {
-											if (AnimationVars::Crawl::IsCrawling(giant) && IsBeingHugged(otherActor)) {
+											if (AnimationVars::Crawl::IsCrawling(giant) && AnimationVars::Tiny::IsBeingHugged(otherActor)) {
 												bounding_z *= 0.25f; // Move the icon down
 											}
 											Position.z += (bounding_z * get_visual_scale(otherActor) * 2.35f); // 2.25 to be slightly above the head
@@ -177,7 +201,7 @@ namespace GTS {
 										else if (huggedActor && huggedActor == otherActor && Ally && HasLovingEmbrace && !Healing) {
 											SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_LovingEmbrace.nif", NiMatrix3(), Position, iconScale, 7, node);
 										}
-										else if (huggedActor && huggedActor == otherActor && !AnimationVars::Hug::GetIsHugCrushing(giant) && !Healing) {
+										else if (huggedActor && huggedActor == otherActor && !AnimationVars::Hug::IsHugCrushing(giant) && !Healing) {
 											bool LowHealth = (GetHealthPercentage(huggedActor) < GetHugCrushThreshold(giant, otherActor, true));
 											bool ForceCrush = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugMightyCuddles);
 											float Stamina = GetStaminaPercentage(giant);
@@ -185,11 +209,11 @@ namespace GTS {
 												SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_Hug_Crush.nif", NiMatrix3(), Position, iconScale, 7, node); // Spawn 'can be hug crushed'
 											}
 										}
-										else if (!IsGtsBusy(giant) && IsEssential(giant, otherActor)) {
+										else if (!AnimationVars::General::IsGTSBusy(giant) && IsEssential(giant, otherActor)) {
 											SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_Essential.nif", NiMatrix3(), Position, iconScale, 7, node);
 											// Spawn Essential icon
 										}
-										else if (!IsGtsBusy(giant) && difference >= Action_Crush) {
+										else if (!AnimationVars::General::IsGTSBusy(giant) && difference >= Action_Crush) {
 											if (CanDoActionBasedOnQuestProgress(giant, QuestAnimationType::kVore)) {
 												SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_Crush_All.nif", NiMatrix3(), Position, iconScale, 7, node);
 												// Spawn 'can be crushed and any action can be done'
@@ -199,7 +223,7 @@ namespace GTS {
 												// just spawn can be crushed, can happen at any quest stage
 											}
 										}
-										else if (!IsGtsBusy(giant) && difference >= Action_Grab) {
+										else if (!AnimationVars::General::IsGTSBusy(giant) && difference >= Action_Grab) {
 											if (CanDoActionBasedOnQuestProgress(giant, QuestAnimationType::kVore)) {
 												SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_Vore_Grab.nif", NiMatrix3(), Position, iconScale, 7, node);
 												// Spawn 'Can be grabbed/vored'
@@ -209,7 +233,7 @@ namespace GTS {
 												// Spawn 'Can be grabbed'
 											}
 										}
-										else if (!IsGtsBusy(giant) && difference >= Action_Sandwich && CanDoActionBasedOnQuestProgress(giant, QuestAnimationType::kGrabAndSandwich)) {
+										else if (!AnimationVars::General::IsGTSBusy(giant) && difference >= Action_Sandwich && CanDoActionBasedOnQuestProgress(giant, QuestAnimationType::kGrabAndSandwich)) {
 											SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_Sandwich.nif", NiMatrix3(), Position, iconScale, 7, node); // Spawn 'Can be sandwiched'
 										}
 										// 1 = stomps and kicks
@@ -359,9 +383,9 @@ namespace GTS {
 	}
 
 	//RenameTo CanPerformActionOn
-	bool CanPerformAnimationOn(Actor* giant, Actor* tiny, bool HugCheck) {
+	bool CanPerformActionOn(Actor* giant, Actor* tiny, bool HugCheck) {
 
-		bool Busy = IsBeingGrinded(tiny) || IsBeingHugged(tiny) || IsHugging(giant);
+		bool Busy = AnimationVars::Tiny::IsBeingGrinded(tiny) || AnimationVars::Tiny::IsBeingHugged(tiny) || AnimationVars::Hug::IsHugging(giant);
 		// If any of these is true = we disallow animation
 
 		bool Teammate = IsTeammate(tiny);

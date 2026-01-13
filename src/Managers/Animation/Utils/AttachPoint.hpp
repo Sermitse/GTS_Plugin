@@ -416,7 +416,7 @@ namespace GTS {
 			DebugDraw::DrawSphere(glm::vec3(clevagePos.x, clevagePos.y, clevagePos.z), 2.0f, 10, {1.0f, 0.0f, 0.0f, 1.0f});
 		}
 
-		if (IsCleavageZIgnored(giant)) {
+		if (AnimationVars::Action::IsCleavageZOverrideEnabled(giant)) {
 			auto objectB = find_node(giant, "AnimObjectB");
 			if (objectB) {
 				clevagePos.z = objectB->world.translate.z;

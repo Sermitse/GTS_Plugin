@@ -429,10 +429,10 @@ namespace GTS {
 					return a_actor->IsPlayerRef();
 				}
 				case DrawTarget::kPlayerAndFollowers: {
-					return a_actor->IsPlayerRef() || IsGtsTeammate(a_actor);
+					return a_actor->IsPlayerRef() || IsGTSTeammate(a_actor);
 				}
 				case DrawTarget::kAnyGTS: {
-					return a_actor->IsPlayerRef() || IsGtsTeammate(a_actor) || EffectsForEveryone(a_actor);
+					return a_actor->IsPlayerRef() || IsGTSTeammate(a_actor) || EffectsForEveryone(a_actor);
 				}
 				case DrawTarget::kAll: {
 					return true;

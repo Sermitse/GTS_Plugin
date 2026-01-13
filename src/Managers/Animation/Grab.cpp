@@ -373,7 +373,7 @@ namespace {
 		if (!grabbedActor) {
 			return;
 		}
-		if (IsGtsBusy(player) && !IsUsingThighAnimations(player) || AnimationVars::General::GetIsTransitioning(player)) {
+		if (AnimationVars::General::IsGTSBusy(player) && !AnimationVars::Action::IsSitting(player) || AnimationVars::General::IsTransitioning(player)) {
 			return;
 		}
 		if (!player->AsActorState()->IsWeaponDrawn()) {
@@ -524,7 +524,7 @@ namespace GTS {
 
 	void Grab::DetachActorTask(Actor* giant) {
 		std::string name = std::format("GrabAttach_{}", giant->formID);
-		AnimationVars::Action::SetCleavageOverrideZ(giant, false);
+		AnimationVars::Action::SetIsCleavageZOverrideEnabled(giant, false);
 		AnimationVars::Grab::SetHasGrabbedTiny(giant, false); // Tell behaviors 'we have nothing in our hands'. A must.
 		AnimationVars::Grab::SetGrabState(giant, false);
 		AnimationVars::Action::SetIsStoringTiny(giant, false);

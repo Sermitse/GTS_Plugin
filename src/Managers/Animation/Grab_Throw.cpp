@@ -76,7 +76,7 @@ namespace {
 
 	void GTSGrab_Throw_FS_R(AnimationEventData& data) {
 
-		if (IsUsingThighAnimations(&data.giant) || AnimationVars::Crawl::IsCrawling(&data.giant)) {
+		if (AnimationVars::Action::IsSitting(&data.giant) || AnimationVars::Crawl::IsCrawling(&data.giant)) {
 			return; // Needed to not apply it during animation blending for thigh/crawling animations
 		}
 		float smt = 1.0f;
@@ -99,7 +99,7 @@ namespace {
 	}
 
 	void GTSGrab_Throw_FS_L(AnimationEventData& data) {
-		if (IsUsingThighAnimations(&data.giant) || AnimationVars::Crawl::IsCrawling(&data.giant)) {
+		if (AnimationVars::Action::IsSitting(&data.giant) || AnimationVars::Crawl::IsCrawling(&data.giant)) {
 			return; // Needed to not apply it during animation blending for thigh/crawling animations
 		}
 		float smt = 1.0f;

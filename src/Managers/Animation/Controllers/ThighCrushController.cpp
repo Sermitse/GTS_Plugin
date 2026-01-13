@@ -98,7 +98,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (AnimationVars::Crawl::IsCrawling(pred) || AnimationVars::General::GetIsTransitioning(pred) || IsBeingHeld(pred, prey)) {
+		if (AnimationVars::Crawl::IsCrawling(pred) || AnimationVars::General::IsTransitioning(pred) || IsBeingHeld(pred, prey)) {
 			return false;
 		}
 
@@ -122,7 +122,7 @@ namespace GTS {
 		
 		if (prey_distance <= (MINIMUM_DISTANCE * pred_scale)) {
 			if (sizedifference > MINIMUM_THIGHCRUSH_SCALE) {
-				if ((prey->formID != 0x14 && !CanPerformAnimationOn(pred, prey, false))) {
+				if ((prey->formID != 0x14 && !CanPerformActionOn(pred, prey, false))) {
 					return false;
 				}
 				return true;

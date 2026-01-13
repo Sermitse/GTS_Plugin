@@ -27,8 +27,6 @@ GTSBEh_T_Boobs_Crush_Heavy
 GTSBEh_T_Boobs_Vore
 GTSBEh_T_Boobs_Absorb 
 
-
-IsInCleavageState(Actor* actor)
 */
 
 namespace {
@@ -72,7 +70,7 @@ namespace {
 
     bool AttemptBreastAction(const std::string& pass_anim, CooldownSource Source, std::string cooldown_msg, const RuntimeData::RuntimeEntry<RE::BGSPerk>& perk, bool ignore_checks = false) {
         Actor* player = GetPlayerOrControlled();
-        if (IsInCleavageState(player)) {
+        if (AnimationVars::Action::IsInCleavageState(player)) {
             auto tiny = Grab::GetHeldActor(player);
             if (tiny) {
                 if (ignore_checks) {
@@ -119,7 +117,7 @@ namespace {
     bool PassAnimation(const std::string& animation, bool check_cleavage) {
         Actor* player = GetPlayerOrControlled();
         if (player) {
-            bool BetweenCleavage = IsInCleavageState(player);
+            bool BetweenCleavage = AnimationVars::Action::IsInCleavageState(player);
             if (BetweenCleavage || !check_cleavage) {
                 AnimationManager::StartAnim(animation, player);
                 return true;
@@ -185,7 +183,7 @@ namespace GTS
 {   
     void Animation_Cleavage::AttemptBreastActionOnTiny(const std::string& pass_anim, Actor* giant) {
         if (giant) {
-            if (IsInCleavageState(giant)) {
+            if (AnimationVars::Action::IsInCleavageState(giant)) {
                 auto tiny = Grab::GetHeldActor(giant);
                 if (tiny) {
                     AnimationManager::StartAnim(pass_anim, tiny);
@@ -202,7 +200,7 @@ namespace GTS
 			}
 			auto giantref = gianthandle.get().get();
 
-            if (!IsInCleavageState(giantref)) {
+            if (!AnimationVars::Action::IsInCleavageState(giantref)) {
                 return false;
             }
 

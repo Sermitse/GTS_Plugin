@@ -321,7 +321,7 @@ namespace GTS {
 			if (IsFlying(prey)) {
 				return false; // Disallow to vore flying dragons
 			}
-			if ((prey->formID != 0x14 && !CanPerformAnimationOn(pred, prey, false))) {
+			if ((prey->formID != 0x14 && !CanPerformActionOn(pred, prey, false))) {
 				Notify("{} is important and shouldn't be eaten.", prey->GetDisplayFullName());
 				return false;
 			}

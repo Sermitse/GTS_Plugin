@@ -117,7 +117,7 @@ namespace GTS {
 				if (AnimationVars::Crawl::IsCrawling(actor) || AnimationVars::Prone::IsProne(actor) || BehaviorGraph_DisableHH(actor)) {
 					speedup = 4.0f; // To shift down a lot faster
 				}
-				else if (!IsGtsBusy(actor)) {
+				else if (!AnimationVars::General::IsGTSBusy(actor)) {
 					speedup = 3.0f;
 				}
 
@@ -339,7 +339,7 @@ namespace GTS {
 	}
 
 	NiPoint3 HighHeelManager::GetHHOffset(Actor* actor) { // Scaled .z offset of HH
-		GTS_PROFILE_SCOPE("HHMgr: GetHHOffset");
+		GTS_PROFILE_SCOPE("HHMgr: HHOffset");
 		auto Scale = get_visual_scale(actor);
 		return HighHeelManager::GetBaseHHOffset(actor) * Scale;
 	}

@@ -74,7 +74,7 @@ namespace {
 			auto giantref = gianthandle.get().get();
 
 			double Finish = Time::WorldTimeElapsed();
-			if ((Finish - Start) / AnimationManager::GetAnimSpeed(giantref) > 12.0f || !IsButtCrushing(giantref) && !IsGtsBusy(giantref)) {
+			if ((Finish - Start) / AnimationManager::GetAnimSpeed(giantref) > 12.0f || !AnimationVars::ButtCrush::IsButtCrushing(giantref) && !AnimationVars::General::IsGTSBusy(giantref)) {
 				ManageCamera(giantref, false, CameraTracking::Butt);
 				return false;
 			}

@@ -10,6 +10,7 @@
 
 #include "Systems/Rays/Raycast.hpp"
 #include "Utils/MovementForce.hpp"
+#include "Utils/Actions/VoreUtils.hpp"
 
 
 using namespace GTS;
@@ -160,7 +161,7 @@ namespace GTS {
 						if (nodeCollisions > 0) {
 							Utils_PushCheck(giant, otherActor, Get_Bone_Movement_Speed(giant, Cause)); 
 
-							if (IsButtCrushing(giant) && !IsBeingEaten(otherActor) && get_scale_difference(giant, otherActor, SizeType::VisualScale, false, true) > 1.2f) {
+							if (AnimationVars::ButtCrush::IsButtCrushing(giant) && !IsBeingEaten(otherActor) && get_scale_difference(giant, otherActor, SizeType::VisualScale, false, true) > 1.2f) {
 								PushActorAway(giant, otherActor, 1.0f);
 							}
 							
@@ -194,7 +195,7 @@ namespace GTS {
 		DoDamageAtPoint(giant, Radius_Crawl_KneeIdle, Damage_Crawl_Idle, LC, static_cast<float>(random), bonedamage, 2.5f, DamageSource::KneeIdleL);         // Call Left Calf
 		DoDamageAtPoint(giant, Radius_Crawl_KneeIdle, Damage_Crawl_Idle, RC, static_cast<float>(random), bonedamage, 2.5f, DamageSource::KneeIdleR);        // Call Right Calf
 
-		if (!IsTransferingTiny(giant)) { // Only do if we don't have someone in our left hand
+		if (!AnimationVars::Grab::HasGrabbedTiny(giant)) { // Only do if we don't have someone in our left hand
 			DoDamageAtPoint(giant, Radius_Crawl_HandIdle, Damage_Crawl_Idle, LH, static_cast<float>(random), bonedamage, 2.5f, DamageSource::HandIdleL); // Call Left Hand
 		}
 

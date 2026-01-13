@@ -61,7 +61,7 @@ namespace {
 	void GTSCrawl_HandImpact_L(AnimationEventData& data) {
 		auto giant = &data.giant;
 		float scale = get_visual_scale(giant);
-		if (IsTransferingTiny(giant)) {
+		if (AnimationVars::Grab::HasGrabbedTiny(giant)) {
 			return; // Prevent effects from left hand
 		}
 		DoCrawlingFunctions(giant, scale, 1.70f, Damage_Crawl_HandImpact, CrawlEvent::LeftHand, "LeftHand", 1.0f, Radius_Crawl_HandImpact, 1.25f, DamageSource::HandCrawlLeft);

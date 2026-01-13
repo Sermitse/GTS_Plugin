@@ -168,7 +168,7 @@ namespace {
 				return false;
 			}
 
-			if (!IsGtsBusy(giantref)) {	
+			if (!AnimationVars::General::IsGTSBusy(giantref)) {	
 				PerformShrinkOnActor(giantref);
 			}
 

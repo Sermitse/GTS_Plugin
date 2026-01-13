@@ -213,11 +213,11 @@ namespace {
 				return true;
 			}
 
-			if (AnimationVars::General::GetIsTransitioning(performer)) {
+			if (AnimationVars::General::IsTransitioning(performer)) {
 				return IsDisallowed(Form);
 			}
 
-			if (IsThighSandwiching(performer)) { // Disallow anims in these 2 cases 
+			if (AnimationVars::Action::IsThighSandwiching(performer)) { // Disallow anims in these 2 cases 
 				//log::info("Block IsThighSandwiching");
 				return IsDisallowed(Form);
 			}
@@ -240,13 +240,12 @@ namespace {
 				return true;
 			}
 
-			if (performer->formID == 0x14 && IsGtsBusy(performer) && IsFreeCameraEnabled()) {
-				//log::info("Block performer->formID == 0x14 && IsGtsBusy(performer) && IsFreeCameraEnabled()");
+			if (performer->formID == 0x14 && AnimationVars::General::IsGTSBusy(performer) && IsFreeCameraEnabled()) {
 				return IsDisallowed(Form); 							// One of cases when we alter anims for Player. 
 				// Needed because it's problematic to disallow specific controls through controls.hpp
 			}
 
-			if (!IsGtsBusy(performer) && !AnimationVars::Prone::IsProne(performer)) {
+			if (!AnimationVars::General::IsGTSBusy(performer) && !AnimationVars::Prone::IsProne(performer)) {
                 // Do not affect non-gts-busy actors!
 				return false;
 			}

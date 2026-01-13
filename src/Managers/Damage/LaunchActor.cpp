@@ -98,13 +98,13 @@ namespace GTS {
 
 	void LaunchActor::ApplyLaunchTo(Actor* giant, Actor* tiny, float force, float launch_power) {
 		GTS_PROFILE_SCOPE("LaunchActor: ApplyLaunchTo");
-		if (AnimationVars::Tiny::GetIsBeingShrunk(tiny)) {
+		if (AnimationVars::Tiny::IsBeingShrunk(tiny)) {
 			return;
 		}
 		if (IsBeingHeld(giant, tiny)) {
 			return;
 		}
-		if (IsBeingGrinded(tiny)) {
+		if (AnimationVars::Tiny::IsBeingGrinded(tiny)) {
 			return; // Disallow to launch if we're grinding an actor
 		}
 

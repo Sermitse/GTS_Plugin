@@ -26,7 +26,7 @@ namespace {
 			return false;
 		}
 
-		if (!CanPerformAnimationOn(a_Performer, a_Prey, false)) {
+		if (!CanPerformActionOn(a_Performer, a_Prey, false)) {
 			return false;
 		}
 
@@ -87,7 +87,7 @@ namespace {
 
 			if (!AnimationVars::Growth::IsChangingSize(ActorRef)){
 				//If we dont have the perk or for some reason the action needs to be canceled just play the attack anim immediatly
-				if (!Runtime::HasPerkTeam(ActorRef, Runtime::PERK.GTSPerkButtCrushAug2) || !IsButtCrushing(ActorRef)) {
+				if (!Runtime::HasPerkTeam(ActorRef, Runtime::PERK.GTSPerkButtCrushAug2) || !AnimationVars::ButtCrush::IsButtCrushing(ActorRef)) {
 					AnimationManager::StartAnim("ButtCrush_Attack", ActorRef);
 				}
 				else if (CanGrow && RandomBool(Config::AI.ButtCrush.fGrowProb)) {
@@ -100,7 +100,7 @@ namespace {
 				}
 			}
 
-			if (!IsButtCrushing(ActorRef)) {
+			if (!AnimationVars::ButtCrush::IsButtCrushing(ActorRef)) {
 				return false; // End the task
 			}
 
@@ -117,7 +117,7 @@ namespace GTS {
 			return {};
 		}
 
-		if (IsGtsBusy(a_Performer) || AnimationVars::Growth::IsChangingSize(a_Performer)) {
+		if (AnimationVars::General::IsGTSBusy(a_Performer) || AnimationVars::Growth::IsChangingSize(a_Performer)) {
 			return {};
 		}
 

@@ -52,6 +52,18 @@ namespace {
 
 namespace GTS {
 
+	bool IsBeingEaten(Actor* tiny) {
+		auto transient = Transient::GetActorData(tiny);
+		if (transient) {
+			return transient->AboutToBeEaten;
+		}
+		return false;
+	}
+
+	bool AllowDevourment() {
+		return Config::General.bDevourmentCompat && Runtime::IsDevourmentInstalled();
+	}
+
 	VoreInformation GetVoreInfo(Actor* giant, Actor* tiny, float growth_mult) {
 		float recorded_scale = VoreController::ReadOriginalScale(tiny);
 		float Health_Regeneration = 0.0f; // No hp regen by default

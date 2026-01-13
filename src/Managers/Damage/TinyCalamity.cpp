@@ -235,7 +235,7 @@ namespace GTS {
         
         ReportDeath(giant, tiny, DamageSource::Collision);
 
-        float OldScale = AnimationVars::General::GetGiantessScale(giant);
+        float OldScale = AnimationVars::General::GiantessScale(giant);
         AnimationVars::General::SetGiantessScale(giant, 1.0f);
 
         int Random = RandomInt(1, 4);
@@ -265,7 +265,7 @@ namespace GTS {
     }
 
     void TinyCalamity_StaggerActor(Actor* giant, Actor* tiny, float giantHp) { // when we can't crush the target
-        float OldScale = AnimationVars::General::GetGiantessScale(giant);
+        float OldScale = AnimationVars::General::GiantessScale(giant);
         AnimationVars::General::SetGiantessScale(giant, 1.0f);
 
         PushForward(giant, tiny, 800);

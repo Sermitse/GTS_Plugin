@@ -117,7 +117,7 @@ namespace {
 			auto BreastL02 = find_node(giantref, "L Breast02");
 			auto BreastR02 = find_node(giantref, "R Breast02");
 
-			if (!IsButtCrushing(giantref)) {
+			if (!AnimationVars::ButtCrush::IsButtCrushing(giantref)) {
 				return false;
 			}
 
@@ -168,7 +168,7 @@ namespace {
 			float stamina = GetAV(giantref, ActorValue::kStamina);
 			DamageAV(giantref, ActorValue::kStamina, 0.12f * GetButtCrushCost(giant, false));
 
-			if (!IsButtCrushing(giantref)) {
+			if (!AnimationVars::ButtCrush::IsButtCrushing(giantref)) {
 				return false;
 			}
 			return true;

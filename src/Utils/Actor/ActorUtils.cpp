@@ -347,7 +347,7 @@ namespace GTS {
 
 	void PushActorAway(Actor* a_source, Actor* a_receiver, float a_force) {
 		
-		if (a_receiver->IsDead() || AnimationVars::Tiny::GetIsBeingShrunk(a_receiver)) {
+		if (a_receiver->IsDead() || AnimationVars::Tiny::IsBeingShrunk(a_receiver)) {
 			return;
 		}
 
@@ -461,7 +461,7 @@ namespace GTS {
 						object->local.scale = 0.01f;
 						update_node(object);
 
-						if (Finish - Start > 0.25 && !IsGtsBusy(Tiny)) {
+						if (Finish - Start > 0.25 && !AnimationVars::General::IsGTSBusy(Tiny)) {
 							object->local.scale = 1.0f;
 							update_node(object);
 							return false;
@@ -553,10 +553,10 @@ namespace GTS {
 	}
 
 	void StaggerActor(Actor* a_source, Actor* a_target, float a_power) {
-		if (a_target->IsDead() || IsRagdolled(a_target) || IsBeingHugged(a_target) || GetAV(a_target, ActorValue::kHealth) <= 0.0f) {
+		if (a_target->IsDead() || IsRagdolled(a_target) || AnimationVars::Tiny::IsBeingHugged(a_target) || GetAV(a_target, ActorValue::kHealth) <= 0.0f) {
 			return;
 		}
-		if (!AnimationVars::Tiny::GetIsBeingShrunk(a_target)) {
+		if (!AnimationVars::Tiny::IsBeingShrunk(a_target)) {
 			a_target->StaggerDirectional(a_source, a_power);
 		}
 	}
@@ -796,7 +796,7 @@ namespace GTS {
 		float sizedifference_tinypov = tinySize / giantSize;
 
 		int ragdollchance = RandomInt(0, 30);
-		if ((giantSize >= 2.0f || IsBeingGrinded(a_target)) && !IsRagdolled(a_target) && sizedifference > 2.8f && ragdollchance < 4.0f * sizedifference) { // Chance for ragdoll. Becomes 100% at high scales
+		if ((giantSize >= 2.0f || AnimationVars::Tiny::IsBeingGrinded(a_target)) && !IsRagdolled(a_target) && sizedifference > 2.8f && ragdollchance < 4.0f * sizedifference) { // Chance for ragdoll. Becomes 100% at high scales
 			PushActorAway(a_source, a_target, 1.0f); // Ragdoll
 		}
 		else if (sizedifference > 1.25f) { // Always Stagger
@@ -809,7 +809,7 @@ namespace GTS {
 	void Utils_PushCheck(Actor* giant, Actor* tiny, float force) {
 		if (tiny->GetCurrent3D()) {
 			bool isdamaging = IsActionOnCooldown(tiny, CooldownSource::Push_Basic);
-			if (!isdamaging && (force >= 0.12f || IsFootGrinding(giant))) {
+			if (!isdamaging && (force >= 0.12f || AnimationVars::Action::IsFootGrinding(giant))) {
 				//log::info("Check passed, pushing {}, force: {}", tiny->GetDisplayFullName(), force);
 				StaggerOr(giant, tiny);
 				ApplyActionCooldown(tiny, CooldownSource::Push_Basic);

@@ -8,6 +8,7 @@
 #include "Magic/Effects/Common.hpp"
 
 #include "Utils/AttachPoint.hpp"
+#include "Utils/Actions/VoreUtils.hpp"
 
 using namespace GTS;
 using namespace std;
@@ -120,7 +121,7 @@ namespace {
                 if (timepassed > 0.25) {
                     tinyref->MoveTo(giantref);
                     DisableCollisions(tinyref, giantref);
-                    if (IsBetweenBreasts(tinyref) && !IsGtsBusy(tinyref)) {
+                    if (IsBetweenBreasts(tinyref) && !AnimationVars::General::IsGTSBusy(tinyref)) {
                         if (IsHostile(giantref, tinyref)) {
                             AnimationManager::StartAnim("Breasts_Idle_Unwilling", tinyref);
                         } else {
@@ -161,21 +162,21 @@ namespace GTS {
             ShutUp(muted);
         }
 
-        bool Attacking = AnimationVars::Grab::GetIsGrabAttacking(giantref);
+        bool Attacking = AnimationVars::Grab::IsGrabAttacking(giantref);
 
         bool Dead = (giantref->IsDead() || tinyref->IsDead() || GetAV(tinyref, ActorValue::kHealth) <= 0.0f);
-        bool CanCancel = (Dead || !AnimationVars::Action::GetIsVoring(giantref)) && (!Attacking || IsBeingEaten(tinyref));
+        bool CanCancel = (Dead || !AnimationVars::Action::IsVoring(giantref)) && (!Attacking || IsBeingEaten(tinyref));
         bool small_size = sizedifference < Action_Grab;
 
         if (ShouldAbortGrab(giantref, tinyref, CanCancel, Dead, small_size)) {
             return false;
         }
         // Switch to always using Grab Play logic in that case, we need it since it doesn't cancel properly without it
-        if (AnimationVars::Action::GetIsInGrabPlayState(giantref)) {
+        if (AnimationVars::Action::IsInGrabPlayState(giantref)) {
             return ManageGrabPlayAttachment(giantref, tinyref);
         }
 
-        if (IsBeingEaten(tinyref) && !IsBetweenBreasts(tinyref) && !IsInCleavageState(giantref)) {
+        if (IsBeingEaten(tinyref) && !IsBetweenBreasts(tinyref) && !AnimationVars::Action::IsInCleavageState(giantref)) {
             if (!AttachToObjectA(gianthandle, tinyhandle)) {
                 // Unable to attach
                 log::info("Can't attach to ObjectA");
@@ -217,9 +218,9 @@ namespace GTS {
                     }
                 }
 
-                if (AnimationVars::Cleavage::GetIsBoobsDoting(giantref) && 
+                if (AnimationVars::Cleavage::IsBoobsDoting(giantref) && 
                     (small_size || Dead) && 
-                    !AnimationVars::Cleavage::GetIsExitingStrangle(giantref)) {// If size is too small 
+                    !AnimationVars::Cleavage::IsExitingStrangle(giantref)) {// If size is too small 
                     AnimationManager::StartAnim("Cleavage_DOT_Stop", giantref);
                 }
 
@@ -278,9 +279,9 @@ namespace GTS {
     }
 
     bool FailSafeAbort(Actor* giantref, Actor* tinyref) {
-        if (AnimationVars::Grab::GetIsGrabAttacking(giantref)) { // Breast state also counts as attacking, so we reset only when NOT grab attacking/in breast state
-            if (AnimationVars::Cleavage::GetIsBoobsDoting(giantref) && 
-				!AnimationVars::Cleavage::GetIsExitingStrangle(giantref)) { // These checks are important so we don't spam StartAnim
+        if (AnimationVars::Grab::IsGrabAttacking(giantref)) { // Breast state also counts as attacking, so we reset only when NOT grab attacking/in breast state
+            if (AnimationVars::Cleavage::IsBoobsDoting(giantref) && 
+				!AnimationVars::Cleavage::IsExitingStrangle(giantref)) { // These checks are important so we don't spam StartAnim
                 AnimationManager::StartAnim("Cleavage_DOT_Stop", giantref);
                 return true; // True = try again, do not abort
             }

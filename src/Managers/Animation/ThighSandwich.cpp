@@ -351,7 +351,7 @@ namespace {
 	void ThighSandwichAttackEvent(const ManagedInputEvent& data) {
 		Actor* player = GetPlayerOrControlled();
 		
-		if (IsGtsBusy(player)) {
+		if (AnimationVars::General::IsGTSBusy(player)) {
 			float WasteStamina = 20.0f;
 			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkThighAbilities)) {
 				WasteStamina *= 0.65f;
@@ -359,7 +359,7 @@ namespace {
 			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
 				AnimationManager::StartAnim("ThighAttack", player);
 			} else {
-				if (IsThighSandwiching(player)) {
+				if (AnimationVars::Action::IsThighSandwiching(player)) {
 					NotifyWithSound(player, "You're too tired to perform thigh sandwich");
 				}
 			}
@@ -368,7 +368,7 @@ namespace {
 
 	void ThighSandwichHeavyAttackEvent(const ManagedInputEvent& data) {
 		auto player = GetPlayerOrControlled();
-		if (IsGtsBusy(player)) {
+		if (AnimationVars::General::IsGTSBusy(player)) {
 			float WasteStamina = 35.0f;
 			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkThighAbilities)) {
 				WasteStamina *= 0.65f;
@@ -376,7 +376,7 @@ namespace {
 			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
 				AnimationManager::StartAnim("ThighAttack_Heavy", player);
 			} else {
-				if (IsThighSandwiching(player)) {
+				if (AnimationVars::Action::IsThighSandwiching(player)) {
 					NotifyWithSound(player, "You're too tired to perform strong thigh sandwich");
 				}
 			}
@@ -386,7 +386,7 @@ namespace {
 	void ThighSandwichExitEvent(const ManagedInputEvent& data) {
 		if (!IsFreeCameraEnabled()) {
 			auto player = GetPlayerOrControlled();
-			if (IsGtsBusy(player)) {
+			if (AnimationVars::General::IsGTSBusy(player)) {
 				AnimationManager::StartAnim("ThighExit", player);
 			}
 		}

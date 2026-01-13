@@ -392,7 +392,7 @@ namespace {
 		auto Cache = Persistent::GetActorData(player);
 		if (Cache) {
 			if (Cache->fSizeReserve > 0.0f) {
-				bool Attacking = AnimationVars::Grab::GetIsGrabAttacking(player);
+				bool Attacking = AnimationVars::Grab::IsGrabAttacking(player);
 
 				if (!Attacking) {
 					float duration = data.Duration();
@@ -522,7 +522,7 @@ namespace {
 	void VoreInputEvent(const ManagedInputEvent& data) {
 		static Timer voreTimer = Timer(0.25);
 		auto pred = PlayerCharacter::GetSingleton();
-		if (IsGtsBusy(pred)) {
+		if (AnimationVars::General::IsGTSBusy(pred)) {
 			return;
 		}
 

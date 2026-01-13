@@ -32,7 +32,7 @@ namespace {
 
 			auto giantref = gianthandle.get().get();
 
-			if (IsFootGrinding(giantref)) {
+			if (AnimationVars::Action::IsFootGrinding(giantref)) {
 				NiAVObject* node = find_node(giantref, NodeLookup);
 				ApplyFingerDamage(giantref, Radius, Damage, node, 200, 0.05f, CrushMult, -0.0004f, source);
 				return true;

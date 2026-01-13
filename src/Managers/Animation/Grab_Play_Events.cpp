@@ -16,6 +16,8 @@
 
 #include "Magic/Effects/Common.hpp"
 
+#include "Utils/Actions/VoreUtils.hpp"
+
 using namespace GTS;
 using namespace std;
 
@@ -48,7 +50,7 @@ namespace Grab_Fixes {
 				}
 				Actor* giantref = gianthandle.get().get();
 				Actor* tinyref = tinyhandle.get().get();
-				if (!AnimationVars::Action::GetIsInGrabPlayState(giantref)) { // Exit Grab Play state as soon as attack bool is false
+				if (!AnimationVars::Action::IsInGrabPlayState(giantref)) { // Exit Grab Play state as soon as attack bool is false
 					Anims_FixAnimationDesync(giantref, tinyref, true);
 					return false;
 				} else {
@@ -143,7 +145,6 @@ namespace Grab_Fixes {
 	}
 
 	void GTSGrab_SetBeingEaten(Actor* giant) {
-		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
 		auto otherActor = Grab::GetHeldActor(giant);
 		if (otherActor) {
 			SetBeingEaten(otherActor, true);

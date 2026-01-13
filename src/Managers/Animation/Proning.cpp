@@ -162,7 +162,7 @@ namespace {
 	void GTS_Prone_EnterSneak(AnimationEventData& data) {
 		Actor* giant = &data.giant;
 		SetSneaking(giant, true, 1);
-		AnimationVars::Other::SetIsVanillaSneaking(giant, true);
+		AnimationVars::Other::SetVanillaSneaking(giant, true);
 	}
 
 	void SBOProneOnEvent(const ManagedInputEvent& data) {

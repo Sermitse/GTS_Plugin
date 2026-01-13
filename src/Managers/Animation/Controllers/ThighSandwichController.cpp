@@ -47,7 +47,7 @@ namespace {
 				node->local.scale = static_cast<float>(std::clamp(timepassed, 0.01, 1.0));
 				update_node(node);
 			}
-			if (timepassed >= 0.98 || !IsGtsBusy(giantref)) {
+			if (timepassed >= 0.98 || !AnimationVars::General::IsGTSBusy(giantref)) {
 				return false; // end it
 			}
 			return true;
@@ -71,7 +71,7 @@ namespace {
 				node->local.scale = static_cast<float>(std::clamp(1.0 - timepassed, 0.005, 1.0));
 				update_node(node);
 			}
-			if (!IsGtsBusy(giantref)) {
+			if (!AnimationVars::General::IsGTSBusy(giantref)) {
 				return false; // end it
 			}
 			return true;
@@ -168,7 +168,7 @@ namespace GTS {
 				float sizedifference = get_scale_difference(GiantRef, tiny, SizeType::VisualScale, true, false);
 				float threshold = Action_Sandwich;
 
-				if (GiantRef->IsDead() || sizedifference < threshold || !IsThighSandwiching(GiantRef)) {
+				if (GiantRef->IsDead() || sizedifference < threshold || !AnimationVars::Action::IsThighSandwiching(GiantRef)) {
 					Attachment_SetTargetNode(GiantRef, AttachToNode::None);
 
 					EnableCollisions(tiny);
@@ -207,7 +207,7 @@ namespace GTS {
 		if (!CanDoActionBasedOnQuestProgress(pred, QuestAnimationType::kGrabAndSandwich)) {
 			return {};
 		}
-		if (IsGtsBusy(pred)) {
+		if (AnimationVars::General::IsGTSBusy(pred)) {
 			return {};
 		}
 		if (!pred) {

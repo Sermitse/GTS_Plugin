@@ -71,7 +71,7 @@ namespace {
 		}
 
 		if (sp <= 1.0f || a_doForceCancel) {
-			float OldScale = AnimationVars::General::GetGiantessScale(a_actor);
+			float OldScale = AnimationVars::General::GiantessScale(a_actor);
 			AnimationVars::General::SetGiantessScale(a_actor, 1.0f);
 
 			if (!a_doForceCancel) {
@@ -162,7 +162,7 @@ namespace GTS {
 				float speedmultcalc = soft_core(scale, Speed);
 				speedmultcalc = std::clamp(speedmultcalc, Adv.fAnimspeedLowestBoundAllowed, 1.0f);
 
-				if (IsGtsBusy(giant) && Adv.bGTSAnimsFullSpeed) {
+				if (AnimationVars::General::IsGTSBusy(giant) && Adv.bGTSAnimsFullSpeed) {
 					return 1.0f;
 				}
 				if (giant->formID == 0x14) {
@@ -492,12 +492,12 @@ namespace GTS {
 	}
 
 	bool BehaviorGraph_DisableHH(Actor* actor) { // should .dll disable HH if Behavior Graph has HH Disable data?
-		bool disable = AnimationVars::General::GetHHDisabled(actor);
+		bool disable = AnimationVars::General::IsHHDisabled(actor);
 
 		if (actor->formID == 0x14 && IsFirstPerson()) {
 			return false;
 		}
-		if (!AnimationVars::Utility::GetIsInstalled(actor)) {
+		if (!AnimationVars::Utility::BehaviorsInstalled(actor)) {
 			return false; // prevent hh from being disabled if there's no Nemesis Generation
 		}
 
