@@ -144,7 +144,7 @@ namespace GTS {
 			gainpower *= 0.20f;
 		}
 
-		if (caster->formID == 0x14 && SizeManager::BalancedMode()) { // This is checked only if Balance Mode is enabled.
+		if (caster->IsPlayerRef() && SizeManager::BalancedMode()) { // This is checked only if Balance Mode is enabled.
 			balancemodebonus = 0.5f;
 		}
 

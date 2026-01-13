@@ -72,7 +72,7 @@ namespace GTS {
 		float scale = impact.scale;
 		float minimal_size = 2.0f;
 		
-		if (actor->formID == 0x14) {
+		if (actor->IsPlayerRef()) {
 			if (HasSMT(actor)) {
 				minimal_size = 1.0f;
 				scale += 0.33f;
@@ -112,9 +112,9 @@ namespace GTS {
 						explosion_pos.z -= 3.0f * scale;
 					}
 				}
-				if (actor->formID == 0x14 && Config::Gameplay.bPlayerAnimEffects) {
+				if (actor->IsPlayerRef() && Config::Gameplay.bPlayerAnimEffects) {
 					make_explosion_at(impact.kind, actor, explosion_pos, scale);
-				} else if (actor->formID != 0x14 && Config::Gameplay.bNPCAnimEffects) {
+				} else if (!actor->IsPlayerRef() && Config::Gameplay.bNPCAnimEffects) {
 					make_explosion_at(impact.kind, actor, explosion_pos, scale);
 				}
 			}

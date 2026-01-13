@@ -333,7 +333,7 @@ namespace GTS {
 			return;
 		}
 
-		if (giant.formID == 0x14) {
+		if (giant.IsPlayerRef()) {
 			if (IsFirstPerson() || State::IsInRaceMenu()) { 
 				//Time::WorldTimeElapsed() > 1.0
 				//ForceThirdPerson(&giant);

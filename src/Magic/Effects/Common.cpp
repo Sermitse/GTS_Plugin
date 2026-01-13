@@ -37,7 +37,7 @@ namespace GTS {
 	// Pretty much the same Essential check but with visualization in terms of icons/messages
 	bool IsEssential_WithIcons(Actor* giant, Actor* tiny) {
 
-		if (tiny->formID == 0x14) { // always allow with player
+		if (tiny->IsPlayerRef()) { // always allow with player
 			return false;
 		}
 
@@ -46,7 +46,7 @@ namespace GTS {
 			const bool OnCooldown = IsActionOnCooldown(tiny, CooldownSource::Misc_ShrinkParticle_Animation);
 			const bool icons_enabled = Config::General.bShowIcons;
 
-			if (giant->formID == 0x14 && !OnCooldown) { // player exclusive
+			if (giant->IsPlayerRef() && !OnCooldown) { // player exclusive
 				if (icons_enabled) { 
 					auto node = find_node(tiny, "NPC Root [Root]");
 					if (node) {
@@ -75,7 +75,7 @@ namespace GTS {
 
 	void AdvanceSkill(Actor* giant, ActorValue Attribute, float points, float multiplier) {
 		// Native Equivalent of Papyrus' AdvanceSkill
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			//log::info("Advancing skill, points: {}, Mult: {}, TimeScale: {}, Result: {}, * 60: {}", points, multiplier, TimeScale(), points * multiplier * TimeScale(), points * 60 * multiplier * TimeScale());
 			//float Level = GetAV(giant, Attribute) + 1.0f;
 			//log::info("Level: {}", Level);
@@ -85,7 +85,7 @@ namespace GTS {
 
 	// Normal NPC's just die if they drink them
 	void Potion_Penalty(Actor* giant) { 
-		if (giant->formID != 0x14 && !IsTeammate(giant)) {
+		if (!giant->IsPlayerRef() && !IsTeammate(giant)) {
 			float currentscale = get_visual_scale(giant);
 			update_target_scale(giant, -currentscale * 0.5f, SizeEffectType::kNeutral);
 			giant->KillImmediate();
@@ -299,7 +299,7 @@ namespace GTS {
 
 		if (Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth)) {
 
-			if (actor->formID == 0x14) {
+			if (actor->IsPlayerRef()) {
 				const auto Mode = StringToEnum<LActiveGamemode_t>(Config::Gameplay.GamemodePlayer.sGameMode);
 				if (Mode == LActiveGamemode_t::kSizeLocked ||
 					Mode == LActiveGamemode_t::kCurseOfDiminishing ||
@@ -488,7 +488,7 @@ namespace GTS {
 
 	void CrushBonuses(Actor* caster, Actor* target) {
 		float target_scale = get_visual_scale(target) * GetSizeFromBoundingBox(target);
-		if (caster->formID == 0x14) {
+		if (caster->IsPlayerRef()) {
 			AdjustSizeReserve(caster, target_scale/25);
 			AdjustMassLimit(0.0066f * target_scale, caster);
 		}

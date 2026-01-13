@@ -11,7 +11,7 @@ namespace Hooks {
                 GTS_PROFILE_ENTRYPOINT("ActorRace::SwitchRace");
 
                 if (actor) {
-                    if (actor->formID == 0x14) { // Updates natural scale of Player when changing races
+                    if (actor->IsPlayerRef()) { // Updates natural scale of Player when changing races
                         RefreshInitialScales(actor);
                     }
                 }

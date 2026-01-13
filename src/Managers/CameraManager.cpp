@@ -248,7 +248,7 @@ namespace GTS {
 			auto ui = RE::UI::GetSingleton();
 			if (ui) {
 				if (ui->IsMenuOpen(DialogueMenu::MENU_NAME)) {
-					if (GetCameraActor() && GetCameraActor()->formID != 0x14) {
+					if (GetCameraActor() && !GetCameraActor()->IsPlayerRef()) {
 						return nullptr;
 					}
 				}

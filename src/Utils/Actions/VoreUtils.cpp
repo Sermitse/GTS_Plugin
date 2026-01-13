@@ -118,7 +118,7 @@ namespace GTS {
 	}
 
     void Vore_AdvanceQuest(Actor* pred, Actor* tiny, bool WasDragon, bool WasGiant) {
-		if (pred->formID == 0x14 && WasDragon) {
+		if (pred->IsPlayerRef() && WasDragon) {
 			CompleteDragonQuest(tiny, ParticleType::Blue);
 			return;
 		}
@@ -163,7 +163,7 @@ namespace GTS {
             AdjustSizeReserve(giant, size_gain);
             BuffAttributes(giant);
 
-            if (giant->formID == 0x14) {
+            if (giant->IsPlayerRef()) {
 				SurvivalMode_AdjustHunger(giant, tinySize * Box_Scale * multiplier, WasLiving, true);
                 AdjustMassLimit(0.0106f * multiplier, giant);
             }
@@ -237,7 +237,7 @@ namespace GTS {
 
 				if (timepassed >= Duration) {
 					Task_Vore_FinishVoreBuff(VoreInfo, tinyhandle.get().get(), amount_of_tinies, false);
-					if (giantref->formID == 0x14) {
+					if (giantref->IsPlayerRef()) {
 						shake_camera(giantref, 0.50f, 0.75f);
 					}
 					return false; // Finish Task
@@ -253,7 +253,7 @@ namespace GTS {
 
 		if (Digested) {
 			Vore_AdvanceQuest(Pred, Prey, IsDragon(Prey), IsGiant(Prey)); // Progress quest
-			if (Pred->formID == 0x14) {
+			if (Pred->IsPlayerRef()) {
 				shake_camera(Pred, 0.50f, 0.75f);
 			}
 		}

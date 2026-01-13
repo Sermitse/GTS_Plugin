@@ -16,7 +16,7 @@ namespace {
 	constexpr float AddToDamage = 1.75f; // It's needed so there's more room for error when calculating damage that should kill
 
 	bool DontAlterDamage(RE::Actor* a_this, float dmg, float Damage_Add) { // Used inside Damage.cpp (hook), a way to fix almost unkillable player in some cases
-		if (a_this->formID == 0x14) {
+		if (a_this->IsPlayerRef()) {
 			float currentHP = GTS::GetAV(a_this, RE::ActorValue::kHealth);
 			bool ShouldBeKilled = GTS::GetHealthPercentage(a_this) <= 0.05f && dmg + Damage_Add >= currentHP;
 			return ShouldBeKilled;
@@ -121,7 +121,7 @@ namespace GTS {
 	}
 
 	void StartTemporaryDamageImmunity(Actor* actor) {
-		if (actor->formID == 0x14) {
+		if (actor->IsPlayerRef()) {
 			auto camera = PlayerCamera::GetSingleton();
 			if (!camera) {
 				return;
@@ -156,7 +156,7 @@ namespace GTS {
 
 	float TinyAsShield(Actor* receiver) {
 		float protection = 1.0f;
-		if (receiver->formID == 0x14) {
+		if (receiver->IsPlayerRef()) {
 			auto grabbedActor = Grab::GetHeldActor(receiver);
 			if (grabbedActor) {
 				protection = 0.75f; // 25% damage reduction
@@ -167,7 +167,7 @@ namespace GTS {
 
 	bool HealthGateProtection(Actor* receiver, Actor* attacker, float a_damage) {
 		bool NullifyDamage = false;
-		if (receiver->formID == 0x14) {
+		if (receiver->IsPlayerRef()) {
 
 			a_damage *= GetDifficultyMultiplier(attacker, receiver); // Take difficulty into account
 
@@ -266,7 +266,7 @@ namespace GTS {
 		float TakenDamageMult = 1.0f; // 1.0 = take 100% damage
 
 		if (const auto& transient = Transient::GetActorData(receiver)) {
-			if (receiver->formID == 0x14) {
+			if (receiver->IsPlayerRef()) {
 				DamageImmunity = transient->TemporaryDamageImmunity;
 				tiny_resistance = TinyAsShield(receiver);
 			}
@@ -316,7 +316,7 @@ namespace Hooks {
 
 					const bool ShouldBeKilled = DontAlterDamage(a_this, a_dmg, AddToDamage);
 					// ^ Attempt to fix being unkillable below 5% hp, the bug seems to be player exclusive
-					/*if (a_this->formID == 0x14) {
+					/*if (a_this->IsPlayerRef()) {
 						log::info("Damage Pre: {}", a_dmg);
 						log::info("Should be killed: {}", ShouldBeKilled);
 					}*/
@@ -342,7 +342,7 @@ namespace Hooks {
 			//    - then we further affect said 5 damage by damage resistance
 			//    - which in some cases may make player unkillable since health never reaches 0...
 
-			/*if (a_this->formID == 0x14) {
+			/*if (a_this->IsPlayerRef()) {
 				log::info("Damage Post: {}", a_dmg);
 			}*/
 

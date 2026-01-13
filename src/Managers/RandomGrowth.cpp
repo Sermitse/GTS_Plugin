@@ -94,7 +94,7 @@ namespace GTS {
 		if (GrowthTimer.ShouldRunFrame()) {
 			for (auto actor: find_actors()) {
 				if (actor && actor->Is3DLoaded() && IsVisible(actor)) {
-					if (actor->formID == 0x14 || IsTeammate(actor) || CountAsGiantess(actor)) {
+					if (actor->IsPlayerRef() || IsTeammate(actor) || CountAsGiantess(actor)) {
 						if (ShouldGrow(actor)) {
 							if (get_target_scale(actor) < get_max_scale(actor)) {
 								float scale = get_visual_scale(actor);

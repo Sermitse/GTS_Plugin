@@ -114,7 +114,7 @@ namespace GTS {
 		float MINIMUM_DISTANCE = MINIMUM_THIGH_DISTANCE + HighHeelManager::GetBaseHHOffset(pred).Length();
 		float MINIMUM_THIGHCRUSH_SCALE = Action_AI_ThighCrush;
 
-		if (pred->formID == 0x14) {
+		if (pred->IsPlayerRef()) {
 			MINIMUM_THIGHCRUSH_SCALE = 1.5f; // Used to freeze tinies, Player Only
 		}
 
@@ -122,7 +122,7 @@ namespace GTS {
 		
 		if (prey_distance <= (MINIMUM_DISTANCE * pred_scale)) {
 			if (sizedifference > MINIMUM_THIGHCRUSH_SCALE) {
-				if ((prey->formID != 0x14 && !CanPerformActionOn(pred, prey, false))) {
+				if ((!prey->IsPlayerRef() && !CanPerformActionOn(pred, prey, false))) {
 					return false;
 				}
 				return true;

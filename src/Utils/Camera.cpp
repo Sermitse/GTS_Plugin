@@ -128,7 +128,7 @@ namespace GTS {
 	}
 
 	void SetCameraOverride(Actor* actor, bool enable) {
-		if (actor->formID == 0x14) {
+		if (actor->IsPlayerRef()) {
 			auto transient = Transient::GetActorData(actor);
 			if (transient) {
 				transient->OverrideCamera = enable;
@@ -143,11 +143,11 @@ namespace GTS {
 
 	bool IsPlayerFirstPerson(Actor* a_actor) {
 		if (!a_actor) return false;
-		return a_actor->formID == 0x14 && IsFirstPerson();
+		return a_actor->IsPlayerRef() && IsFirstPerson();
 	}
 
 	void ForceThirdPerson(Actor* giant) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			auto camera = RE::PlayerCamera::GetSingleton();
 			if (camera) {
 				camera->ForceThirdPerson();
@@ -195,7 +195,7 @@ namespace GTS {
 	}
 
 	bool GetCameraOverride(Actor* actor) {
-		if (actor->formID == 0x14) {
+		if (actor->IsPlayerRef()) {
 			auto transient = Transient::GetActorData(actor);
 			if (transient) {
 				return transient->OverrideCamera;

@@ -218,7 +218,7 @@ namespace GTS {
 
 	void DecreaseShoutCooldown(Actor* a_target) {
 		AIProcess* process = a_target->GetActorRuntimeData().currentProcess;
-		if (a_target->formID == 0x14 && process && Runtime::HasPerk(a_target, Runtime::PERK.GTSPerkTinyCalamityRefresh)) {
+		if (a_target->IsPlayerRef() && process && Runtime::HasPerk(a_target, Runtime::PERK.GTSPerkTinyCalamityRefresh)) {
 			HighProcessData* high = process->high;
 			float by = 0.90f;
 			if (high) {
@@ -525,7 +525,7 @@ namespace GTS {
 	}
 
 	void ChanceToScare(Actor* a_giant, Actor* a_tiny, float a_duration, int a_random, bool a_useSizeDifference) {
-		if (a_tiny->formID == 0x14 || IsTeammate(a_tiny)) {
+		if (a_tiny->IsPlayerRef() || IsTeammate(a_tiny)) {
 			return;
 		}
 		float sizedifference = get_scale_difference(a_giant, a_tiny, SizeType::VisualScale, true, true);
@@ -788,7 +788,7 @@ namespace GTS {
 
 		if (HasSMT(a_source)) {
 			giantSize += 1.0f;
-		} if (a_target->formID == 0x14 && HasSMT(a_target)) {
+		} if (a_target->IsPlayerRef() && HasSMT(a_target)) {
 			tinySize += 1.25f;
 		}
 

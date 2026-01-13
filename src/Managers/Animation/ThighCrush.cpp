@@ -70,7 +70,7 @@ namespace {
 
 	void AdjustAnimationSpeed(Actor* giant, AnimationEventData& data, float force, int range, bool reset) {
 		// Works on non-player only
-		if (giant->formID != 0x14) {
+		if (!giant->IsPlayerRef()) {
 			if (reset) {
 				data.animSpeed = 1.0f;
 			} else {
@@ -85,7 +85,7 @@ namespace {
 		if (!tinies.empty()) {
 			for (auto tiny: tinies) {
 				if (tiny) {
-					if (tiny->formID != 0x14 && !IsTeammate(tiny)) {
+					if (!tiny->IsPlayerRef() && !IsTeammate(tiny)) {
 						ForceFlee(giant, tiny, duration, false);
 					}
 				}

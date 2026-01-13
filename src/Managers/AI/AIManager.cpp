@@ -77,7 +77,7 @@ namespace {
 			return false;
 		}
 
-		if (a_Actor->formID == 0x14 && !Config::Advanced.bPlayerAI) {
+		if (a_Actor->IsPlayerRef() && !Config::Advanced.bPlayerAI) {
 			return false;
 		}
 
@@ -94,7 +94,7 @@ namespace {
 			const bool IsHoldingSomeone = Grab::GetHeldActor(a_Actor) != nullptr || AnimationVars::Action::IsInCleavageState(a_Actor);
 			const bool IsInCombat = (a_Actor->IsInCombat()) || (a_Actor->GetActorRuntimeData().currentCombatTarget.get().get() != nullptr);
 
-			const bool IsPlayer = a_Actor->formID == 0x14 && Config::Advanced.bPlayerAI;
+			const bool IsPlayer = a_Actor->IsPlayerRef() && Config::Advanced.bPlayerAI;
 
 			//Is In combat or do we allow ai outside of combat?
 			if ((IsInCombat || !a_CombatOnly) && !AnimationVars::General::IsGTSBusy(a_Actor) && HasHP && IsVisible(a_Actor) && IsInNormalState && !IsHoldingSomeone) {
@@ -141,7 +141,7 @@ namespace {
 		if (!AnimationVars::General::IsGTSBusy(a_Prey) && IsVisible(a_Prey)) {
 
 			//If not a teammate and they are essential but we allow essentials
-			if (a_Prey->formID == 0x14) {
+			if (a_Prey->IsPlayerRef()) {
 				if (a_AllowPlayer) {
 					return true;
 				}

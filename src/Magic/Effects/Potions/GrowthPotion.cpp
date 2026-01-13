@@ -63,7 +63,7 @@ namespace GTS {
 				Sound_PlayMoans(caster, 1.0f, 0.14f, EmotionTriggerSource::Growth, CooldownSource::Emotion_Voice_Long);
 				ApplyActionCooldown(caster, CooldownSource::Emotion_Moan);
 			}
-			if (caster->formID == 0x14) {
+			if (caster->IsPlayerRef()) {
 				shake_camera(caster, 0.75f, 0.55f);
 			}
 		}

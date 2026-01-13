@@ -56,7 +56,7 @@ namespace {
 		bool Healing = AnimationVars::Hug::IsHugHealing(giantref);
 
 		const bool Teammate = IsTeammate(tinyref);
-		const bool Player = tinyref->formID == 0x14;
+		const bool Player = tinyref->IsPlayerRef();
 		const bool IsPlayerOrMate = (Player || Teammate);
 		const bool BothTeammates = IsTeammate(giantref) && Teammate;
 		
@@ -74,14 +74,14 @@ namespace {
 
 			AbortHugAnimation(giantref, tinyref);
 
-			if (giantref->formID == 0x14) {
+			if (giantref->IsPlayerRef()) {
 				Notify("{} health is full", tinyref->GetDisplayFullName());
 			}
 			return false;
 
 		} 
 
-		if (giantref->formID == 0x14) {
+		if (giantref->IsPlayerRef()) {
 			float sizedifference = get_visual_scale(giantref)/get_visual_scale(tinyref);
 			shake_camera(giantref, 0.30f * sizedifference, 0.05f);
 		} else {
@@ -128,7 +128,7 @@ namespace {
 			if (!AnimationVars::Hug::IsHugHealing(giantref) && (sizedifference >= threshold || sizedifference < Action_Hug)) {
 				SetBeingHeld(tinyref, false);
 				AbortHugAnimation(giantref, tinyref);
-				if (giantref->formID == 0x14) {
+				if (giantref->IsPlayerRef()) {
 					shake_camera(giantref, 0.50f, 0.15f);
 					Notify("It's difficult to gently hug {}", tinyref->GetDisplayFullName());
 				}

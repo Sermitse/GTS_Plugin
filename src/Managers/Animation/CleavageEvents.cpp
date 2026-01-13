@@ -427,7 +427,7 @@ namespace {
 
             KillActor(giant, tiny, MuteAbsorptionScreams);
 
-            if (tiny->formID != 0x14) {
+            if (!tiny->IsPlayerRef()) {
                 Disintegrate(tiny);
                 SendDeathEvent(giant, tiny);
             }

@@ -7,7 +7,7 @@ namespace GTS {
 		const auto& AllowEndo = Config::Gameplay.ActionSettings.bDVDoEndoOnTeam;
 		bool DoEndo = false;
 
-		if (AllowEndo && ((IsTeammate(a_Pred) || a_Pred->formID == 0x14) && (IsTeammate(a_Prey) || a_Prey->formID == 0x14))) {
+		if (AllowEndo && ((IsTeammate(a_Pred) || a_Pred->IsPlayerRef()) && (IsTeammate(a_Prey) || a_Prey->IsPlayerRef()))) {
 			DoEndo = true;
 		}
 

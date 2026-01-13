@@ -136,7 +136,7 @@ namespace GTS {
                             
                             perform = true;
                         } else {
-                            if (giant->formID == 0x14) {
+                            if (giant->IsPlayerRef()) {
                                 if (!OnCooldown) {
                                     std::string message = std::format("{} is too healthy for Wrathful Calamity", tiny->GetDisplayFullName());
                                     Notify("Health: {:.0f}%; Requirement: {:.0f}%", health * 100.0f, threshold * 100.0f);
@@ -250,9 +250,9 @@ namespace GTS {
 
         Runtime::PlaySound(Runtime::SNDR.GTSSoundCrushDefault, giant, 1.0f, 1.0f);
 
-        if (tiny->formID != 0x14) {
+        if (!tiny->IsPlayerRef()) {
             Disintegrate(tiny); // Set critical stage 4 on actors
-        } else if (tiny->formID == 0x14) {
+        } else if (tiny->IsPlayerRef()) {
             TriggerScreenBlood(50);
             tiny->SetAlpha(0.0f); // Player can't be disintegrated, so we make player Invisible
         }
@@ -297,7 +297,7 @@ namespace GTS {
 
     void TinyCalamity_SeekActors(Actor* giant) {
        GTS_PROFILE_SCOPE("TinyCalamity: SeekActors");
-        if (giant->formID == 0x14) {
+        if (giant->IsPlayerRef()) {
             if (giant->AsActorState()->IsSprinting() && HasSMT(giant)) {
                 auto node = find_node(giant, "NPC Pelvis [Pelv]");
                 if (!node) {

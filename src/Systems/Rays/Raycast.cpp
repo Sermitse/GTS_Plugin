@@ -218,7 +218,7 @@ namespace GTS {
 					layer_as_int != 56) {
 					// 8 = kBiped
 					// 56 = Supposedly weapon collisions
-					/*if (ref->formID == 0x14) {
+					/*if (ref->IsPlayerRef()) {
 						log::info("------Hitting Layer: {}, as int: {}", collision_layer, layer_as_int); // Weapons hit "unknown" layer :/
 					}*/
 					success = true;

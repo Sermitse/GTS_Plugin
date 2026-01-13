@@ -42,7 +42,7 @@ namespace GTS {
 		if (actor) {
 			GTS_PROFILE_SCOPE("CrawlUtils: DoCrawlingSounds");
 			auto player = PlayerCharacter::GetSingleton();
-			if (actor->formID == 0x14 && HasSMT(actor)) {
+			if (actor->IsPlayerRef() && HasSMT(actor)) {
 				scale *= 1.85f;
 			}
 			const bool LegacySounds = Config::Audio.bUseOldSounds; // Determine if we should play old pre 2.00 update sounds
@@ -70,7 +70,7 @@ namespace GTS {
 		LaunchActor::LaunchAtCustomNode(actor, launch_dist, damage_dist, multiplier, node); // Launch actors
 		// Order matters here since we don't want to make it even stronger during SMT, so that's why SMT check is after this function
 		
-		if (actor->formID == 0x14) {
+		if (actor->IsPlayerRef()) {
 			if (HasSMT(actor)) {
 				smt = 2.0f; // Stronger Camera Shake
 				multiplier *= 1.8f;
@@ -100,10 +100,10 @@ namespace GTS {
 				explosion_pos = node_location;
 				explosion_pos.z = actor->GetPosition().z;
 			}
-			if (actor->formID == 0x14 && Config::Gameplay.bPlayerAnimEffects) {
+			if (actor->IsPlayerRef() && Config::Gameplay.bPlayerAnimEffects) {
 				SpawnCrawlParticle(actor, scale * multiplier, explosion_pos);
 			}
-			if (actor->formID != 0x14 && Config::Gameplay.bNPCAnimEffects) {
+			if (!actor->IsPlayerRef() && Config::Gameplay.bNPCAnimEffects) {
 				SpawnCrawlParticle(actor, scale * multiplier, explosion_pos);
 			}
 		}

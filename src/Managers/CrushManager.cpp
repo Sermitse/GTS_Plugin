@@ -55,7 +55,7 @@ namespace {
 	void GrowthText(Actor* actor) {
 		int Random = RandomInt(0, 5);
 		if (Random <= 0) {
-			if (actor->formID == 0x14) {
+			if (actor->IsPlayerRef()) {
 				Notify("Crushing your foes feels good and makes you bigger");
 			} else {
 				Notify("Your companion grows bigger by crushing your foes");
@@ -137,7 +137,7 @@ namespace GTS {
 				float currentSize = get_visual_scale(tiny);
 
 				data.state = CrushState::Crushed;
-				if (giant->formID == 0x14 && IsDragon(tiny)) {
+				if (giant->IsPlayerRef() && IsDragon(tiny)) {
 					CompleteDragonQuest(tiny, ParticleType::Red);
 				}
 				
@@ -146,7 +146,7 @@ namespace GTS {
 				GrowAfterTheKill(giant, tiny, 2.0f); // Grow first time
 				MoanOrLaugh(giant, tiny); // Grow second time if lucky
 			
-				if (giant->formID == 0x14) {
+				if (giant->IsPlayerRef()) {
 					if (IsLiving(tiny)) {
 						TriggerScreenBlood(50);
 					}
@@ -193,9 +193,9 @@ namespace GTS {
 					// Actor Reset is done inside TransferInventory:StartActorResetTask!
 				});
 
-				if (tiny->formID != 0x14) {
+				if (!tiny->IsPlayerRef()) {
 					Disintegrate(tiny); // Set critical stage 4 on actors
-				} else if (tiny->formID == 0x14) {
+				} else if (tiny->IsPlayerRef()) {
 					TriggerScreenBlood(50);
 					tiny->SetAlpha(0.0f); // Player can't be disintegrated, so we make player Invisible
 				}

@@ -94,7 +94,7 @@ namespace {
 
 	// Rotate spine to look at an actor either leaning back or looking down
 	void RotateSpine(Actor* giant, Actor* tiny, HeadtrackingData& data) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			return;
 		}
 
@@ -161,7 +161,7 @@ namespace GTS {
 	void Headtracking::Update() {
 		for (auto actor: find_actors()) {
 			this->data.try_emplace(actor->formID);
-			if (actor->formID == 0x14 || IsTeammate(actor)) {
+			if (actor->IsPlayerRef() || IsTeammate(actor)) {
 				SpineUpdate(actor);
 			}
 		}
@@ -169,7 +169,7 @@ namespace GTS {
 
 	void Headtracking::SpineUpdate(Actor* me) {
 		GTS_PROFILE_SCOPE("Headtracking: SpineUpdate");
-		if (me->formID == 0x14) {
+		if (me->IsPlayerRef()) {
 			return;
 		}
 		auto ai = me->GetActorRuntimeData().currentProcess;

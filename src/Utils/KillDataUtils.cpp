@@ -11,7 +11,7 @@ namespace GTS {
 			return;
 		}
 
-		if (a_giant->formID == 0x14 || IsTeammate(a_giant)) {
+		if (a_giant->IsPlayerRef() || IsTeammate(a_giant)) {
 
 			PersistentKillCountData* KillData = Persistent::GetKillCountData(a_giant);
 
@@ -55,7 +55,7 @@ namespace GTS {
 			return 0;
 		}
 
-		if (giant->formID == 0x14 || IsTeammate(giant)) {
+		if (giant->IsPlayerRef() || IsTeammate(giant)) {
 
 			PersistentKillCountData* KillData = Persistent::GetKillCountData(giant);
 

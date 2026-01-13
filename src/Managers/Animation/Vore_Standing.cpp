@@ -124,7 +124,7 @@ namespace {
 		}
 		const bool Freelook = Config::Gameplay.ActionSettings.bVoreFreecam;
 
-		if (Freelook && giant->formID == 0x14) {
+		if (Freelook && giant->IsPlayerRef()) {
 			EnableFreeCamera();
 		} else {
 			ManageCamera(giant, true, CameraTracking::Hand_Right);
@@ -245,7 +245,7 @@ namespace {
 		TaskManager::Cancel(name_2);
 
 		for (auto& tiny: VoreData.GetVories()) {
-			if (tiny->formID == 0x14) {
+			if (tiny->IsPlayerRef()) {
 				PlayerCamera::GetSingleton()->cameraTarget = giant->CreateRefHandle();
 			}
 		}
@@ -305,7 +305,7 @@ namespace {
 		auto giant = &data.giant;
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		VoreData.ReleaseAll();
-		if (Config::Gameplay.ActionSettings.bVoreFreecam && giant->formID == 0x14) {
+		if (Config::Gameplay.ActionSettings.bVoreFreecam && giant->IsPlayerRef()) {
 			EnableFreeCamera();
 		}
 		Rumbling::Stop("BodyRumble", &data.giant);

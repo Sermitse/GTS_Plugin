@@ -205,7 +205,7 @@ namespace GTS {
 				float sizedifference = sourcesize/receiversize;
 				float scale_bonus = 0.0f;
 
-				if (caster->formID == 0x14) {
+				if (caster->IsPlayerRef()) {
 					distance = get_distance_to_camera(coords); // use player camera distance (for player only)
 					tremor_scale = Config::Camera.fCameraShakePlayer;
 					sizedifference = sourcesize;

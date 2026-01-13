@@ -94,7 +94,7 @@ namespace {
 
 	void GTScrush_victim(AnimationEventData& data) { // Compatibility with Thick Thighs Take Lives mod
 		//data.stage = 0;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			TriggerKillZone(PlayerCharacter::GetSingleton());
 		}
 	}

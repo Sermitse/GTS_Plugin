@@ -71,7 +71,7 @@ namespace {
 
 			if (SizeDifference > MinScale) {
 
-				if (a_Prey->formID != 0x14 && !CanPerformActionOn(a_Performer, a_Prey, true)) {
+				if (!a_Prey->IsPlayerRef() && !CanPerformActionOn(a_Performer, a_Prey, true)) {
 					return false;
 				}
 
@@ -97,7 +97,7 @@ namespace {
 		const bool HasLowHP = HealthPercentage <= HPCrushThreshold;
 		const bool StaminaCheck = Runtime::HasPerkTeam(a_Performer, Runtime::PERK.GTSPerkHugMightyCuddles) && StaminaPercentage >= 0.75f;
 		const auto& Settings = Config::AI.Hugs;
-		const bool Teammate = IsTeammate(a_Prey) || a_Prey->formID == 0x14;
+		const bool Teammate = IsTeammate(a_Prey) || a_Prey->IsPlayerRef();
 		const bool Hostile = IsHostile(a_Performer, a_Prey) || IsHostile(a_Prey, a_Performer);
 		const bool CanStartCrush = Config::AI.Hugs.fKillProb > 0.01f;
 
@@ -118,7 +118,7 @@ namespace {
 	}
 
 	bool HugAI_CanHeal(Actor* a_Performer, Actor* a_Prey) {
-		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->formID == 0x14);
+		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->IsPlayerRef());
 		const bool HasPerk = Runtime::HasPerkTeam(a_Performer, Runtime::PERK.GTSPerkHugsLovingEmbrace);
 		const bool Hostile = IsHostile(a_Performer, a_Prey) || IsHostile(a_Prey, a_Performer);
 		const bool CanStartHeal = Config::AI.Hugs.fHealProb > 0.01f;
@@ -127,7 +127,7 @@ namespace {
 	}
 
 	bool HugAI_ShouldStop(Actor* a_Performer, Actor* a_Prey) {
-		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->formID == 0x14);
+		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->IsPlayerRef());
 		const bool CanCrush = HugAI_CanHugCrush(a_Performer, a_Prey);
 		const bool CanHeal = HugAI_CanHeal(a_Performer, a_Prey);
 		const bool CanShrink = HugAI_CanShrink(a_Performer, a_Prey) || (!Config::AI.Hugs.bStopIfCantShrink && Teammate);
@@ -167,7 +167,7 @@ namespace {
 
 			const bool IsDead = PreyActor->IsDead() || PerformerActor->IsDead();
 			const bool IsBusy = AnimationVars::Hug::IsHugCrushing(PerformerActor) || AnimationVars::Hug::IsHugHealing(PerformerActor);
-			const bool GentleAnim = IsTeammate(PreyActor) || PreyActor->formID == 0x14;
+			const bool GentleAnim = IsTeammate(PreyActor) || PreyActor->IsPlayerRef();
 
 			if (!HugShrink::GetHuggiesActor(PerformerActor) || IsRagdolled(PerformerActor)) {
 				if (!GentleAnim) {
@@ -182,7 +182,7 @@ namespace {
 			if (TransientData->ActionTimer.ShouldRun() && !IsBusy && !IsDead && !ShouldStop) {
 
 				UpdateFriendlyHugs(PerformerActor, PreyActor, !GentleAnim);
-				const bool Teammate = (IsTeammate(PerformerActor) && (IsTeammate(PreyActor) || PreyActor->formID == 0x14));
+				const bool Teammate = (IsTeammate(PerformerActor) && (IsTeammate(PreyActor) || PreyActor->IsPlayerRef()));
 				//Reduce if folllower or player
 
 				const float ShrinkProbability = Teammate ? Settings.fFriendlyShrinkProb : Settings.fShrinkProb;

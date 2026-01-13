@@ -50,7 +50,7 @@ namespace GTS {
             return;
         }
 
-        if (actor->formID != 0x14 && Config::Audio.bMoanLaughPCExclusive) {
+        if (!actor->IsPlayerRef() && Config::Audio.bMoanLaughPCExclusive) {
             return;
         }
 
@@ -92,7 +92,7 @@ namespace GTS {
             return;
         }
 
-    	if (actor->formID != 0x14 && Config::Audio.bMoanLaughPCExclusive) {
+    	if (!actor->IsPlayerRef() && Config::Audio.bMoanLaughPCExclusive) {
             return;
         }
         if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CD_Source)) {

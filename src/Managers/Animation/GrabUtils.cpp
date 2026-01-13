@@ -64,7 +64,7 @@ namespace {
         if (Object) {
             NiPoint3 coords = Object->world.translate;
             
-            if (tinyref->formID != 0x14) {
+            if (!tinyref->IsPlayerRef()) {
                 FaceSame(giantref, tinyref);
             }
 

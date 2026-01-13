@@ -22,7 +22,7 @@ namespace Hooks {
 					if (auto userData = Object->GetUserData()) {
 						Actor* actor = skyrim_cast<Actor*>(userData);
 						if (actor) {
-							if (actor->formID == 0x14) {
+							if (actor->IsPlayerRef()) {
 								float scale = get_visual_scale(actor);
 								if (HasSMT(actor)) {
 									scale *= 2.0f;

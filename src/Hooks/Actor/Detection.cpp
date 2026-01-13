@@ -63,7 +63,7 @@ namespace Hooks {
             {
                 GTS_PROFILE_ENTRYPOINT("ActorDetection::CalculateFootStepDetection");
 
-                if (a_this->formID == 0x14 || IsTeammate(a_this)) {
+                if (a_this->IsPlayerRef() || IsTeammate(a_this)) {
                     //log::info("Hook Weight Result for {} is {}", giant->GetDisplayFullName(), result);
                     float alter = modify_footstep_detection(a_this, result);
                     result = alter;

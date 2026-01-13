@@ -422,7 +422,7 @@ namespace ImGuiEx {
 
 		if (!a_actor) return;
 
-		const bool isPlayer = a_actor->formID == 0x14;
+		const bool isPlayer = a_actor->IsPlayerRef();
 		const bool isTargeted = SpectatorManager::GetCameraTarget() == a_actor;
 		const bool isCameraOnPlayer = SpectatorManager::IsCameraTargetPlayer();
 

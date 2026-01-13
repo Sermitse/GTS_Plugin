@@ -70,7 +70,7 @@ namespace GTS {
 
 		// Apply it
 		float pushpower = GetPushPower(size_difference);
-		if (attacker->formID == 0x14 && size_difference >= 4.0f) {
+		if (attacker->IsPlayerRef() && size_difference >= 4.0f) {
 			FormType formType = HitId->GetFormType();
 			if (formType != FormType::Weapon) {
 				return;

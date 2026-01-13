@@ -16,7 +16,7 @@ namespace {
 			}
 		}
 
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			float shake = 12.0f * power;
 			shake_camera(giant, 0.50f * shake, 0.38f * shake);
 		}

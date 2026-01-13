@@ -13,7 +13,7 @@ using namespace GTS;
 namespace {
 
 	bool CanDoImpact(Actor* actor, FootEvent kind) { // This function is needed to prevent sound spam from followers at large sizes
-		if (IsTeammate(actor) && actor->formID != 0x14) {
+		if (IsTeammate(actor) && !actor->IsPlayerRef()) {
 			if (get_visual_scale(actor) < 6.0f) {
 				return true;
 			}

@@ -91,7 +91,7 @@ namespace {
             node->local.scale = 0.60f;
             update_node(node);
         }
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			shake_camera(giant, 0.80f, 0.35f);
 		} else {
 			Rumbling::Once("Calamity_R", giant, 4.25f, 0.15f, "NPC R Hand [RHnd]", 0.0f);

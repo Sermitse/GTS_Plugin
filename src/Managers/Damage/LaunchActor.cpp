@@ -194,7 +194,7 @@ namespace GTS {
 	}
 
 	void LaunchActor::ApplyLaunch_At(Actor* giant, float radius, float power, FootEvent kind) {
-		if (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant)) {
+		if (giant->IsPlayerRef() || IsTeammate(giant) || EffectsForEveryone(giant)) {
 			switch (kind) {
 				case FootEvent::Left: 
 					LaunchAtFoot(giant, radius, power, false);
@@ -226,7 +226,7 @@ namespace GTS {
 
 	void LaunchActor::LaunchAtCustomNode(Actor* giant, float radius, float min_radius, float power, NiAVObject* node) {
 		GTS_PROFILE_SCOPE("LaunchActor: LaunchAtCustomNode");
-		if (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant)) {
+		if (giant->IsPlayerRef() || IsTeammate(giant) || EffectsForEveryone(giant)) {
 			if (!node) {
 				return;
 			}

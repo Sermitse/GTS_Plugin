@@ -160,7 +160,7 @@ namespace {
 		if (ObjectA && ObjectB) {
 			auto Layer_A = GetCollisionLayer(collidableA);
 			auto Layer_B = GetCollisionLayer(collidableB);
-			if (ObjectA->formID == 0x14 || ObjectB->formID == 0x14) {
+			if (ObjectA->IsPlayerRef() || ObjectB->IsPlayerRef()) {
 				log::info("{} is colliding with {}", ObjectA->GetDisplayFullName(), ObjectB->GetDisplayFullName());
 				log::info("{} Collision Layer: {}", ObjectA->GetDisplayFullName(), Layer_A);
 				log::info("{} Collision Layer: {}", ObjectB->GetDisplayFullName(), Layer_B);

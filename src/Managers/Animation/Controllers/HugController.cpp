@@ -36,9 +36,9 @@ namespace {
 	}
 
 	bool ShouldAllowWhenTooLarge(Actor* giant, Actor* tiny, float sizedifference, bool allow) {
-		if (giant->formID != 0x14 && IsTeammate(giant) && sizedifference > GetHugShrinkThreshold(giant)) {
+		if (!giant->IsPlayerRef() && IsTeammate(giant) && sizedifference > GetHugShrinkThreshold(giant)) {
 			// Disallow FOLLOWERS to hug someone when size difference is too massive
-			if (tiny->formID == 0x14) {
+			if (tiny->IsPlayerRef()) {
 				CantHugPlayerMessage(giant, tiny, sizedifference, allow);
 			}
 			return false;
@@ -90,7 +90,7 @@ namespace GTS {
 
 	void HugAnimationController::Hugs_OnCooldownMessage(Actor* giant) {
 		double cooldown = GetRemainingCooldown(giant, CooldownSource::Action_Hugs);
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			std::string message = std::format("Hugs are on a cooldown: {:.1f} sec", cooldown);
 			shake_camera(giant, 0.75f, 0.35f);
 			NotifyWithSound(giant, message);
@@ -226,11 +226,11 @@ namespace GTS {
 
 		if (prey_distance <= (MINIMUM_DISTANCE * pred_scale)) {
 			if (sizedifference > MINIMUM_HUG_SCALE) {
-				if ((prey->formID != 0x14 && !CanPerformActionOn(pred, prey, true))) {
+				if ((!prey->IsPlayerRef() && !CanPerformActionOn(pred, prey, true))) {
 					return false;
 				}
 				if (!IsHuman(prey)) { // Allow hugs with humanoids only
-					if (pred->formID == 0x14) {
+					if (pred->IsPlayerRef()) {
 						std::string_view message = std::format("You have no desire to hug {}", prey->GetDisplayFullName());
 						NotifyWithSound(pred, message); // Just no. We don't have Creature Anims.
 						shake_camera(pred, 0.45f, 0.30f);
@@ -239,11 +239,11 @@ namespace GTS {
 				}
 				return ShouldAllowWhenTooLarge(pred, prey, sizedifference, this->allow_message);
 			} else {
-				if (pred->formID == 0x14) {
+				if (pred->IsPlayerRef()) {
 					std::string_view message = std::format("{} is too big to be hugged: x{:.2f}/{:.2f}", prey->GetDisplayFullName(), sizedifference, MINIMUM_HUG_SCALE);
 					shake_camera(pred, 0.45f, 0.30f);
 					NotifyWithSound(pred, message);
-				} else if (prey->formID == 0x14 && IsTeammate(pred)) {
+				} else if (prey->IsPlayerRef() && IsTeammate(pred)) {
 					CantHugPlayerMessage(pred, prey, sizedifference, this->allow_message);
 				}
 				return false;
@@ -267,7 +267,7 @@ namespace GTS {
 		if (AnimationVars::Crawl::IsCrawling(pred)) {
 			if (!CanDoActionBasedOnQuestProgress(PlayerCharacter::GetSingleton(), QuestAnimationType::kOthers)) {
 				// Can Crawl Hug only after quest is done
-				if (pred->formID == 0x14) {
+				if (pred->IsPlayerRef()) {
 					NotifyWithSound(pred, "You're not experienced enough for Crawl Hugs");
 				}
 				return;

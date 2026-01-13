@@ -55,7 +55,7 @@ namespace GTS {
 
 	void SurvivalMode_AdjustHunger(Actor* giant, float tinyscale, bool IsLiving, bool Finished) {
 
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 
 			if (Runtime::IsSurvivalModeInstalled()) {
 

@@ -147,7 +147,7 @@ namespace GTS {
 			float scale = impact.scale;
 			auto actor = impact.actor;
 			
-			if (actor->formID == 0x14 && HasSMT(actor)) {
+			if (actor->IsPlayerRef() && HasSMT(actor)) {
 				scale *= 2.5f; // Affect Sound threshold itself
 			}
 

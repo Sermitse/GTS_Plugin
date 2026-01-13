@@ -163,7 +163,7 @@ namespace {
 		auto giant = &data.giant;
 		data.stage = 1;
 		data.canEditAnimSpeed = true;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed += GetRandomBoost()/3;
 		}
 		ManageCamera(giant, true, CameraTracking::R_Foot);
@@ -177,7 +177,7 @@ namespace {
 		auto giant = &data.giant;
 		data.stage = 1;
 		data.canEditAnimSpeed = true;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed += GetRandomBoost()/3;
 		}
 		ManageCamera(giant, true, CameraTracking::L_Foot);
@@ -190,14 +190,14 @@ namespace {
 
 	void GTS_StrongStomp_LR_Middle(AnimationEventData& data) {
 		data.animSpeed = 1.55f;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed = 1.55f + GetRandomBoost();
 		}
 		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);
 	}
 	void GTS_StrongStomp_LL_Middle(AnimationEventData& data) {
 		data.animSpeed = 1.55f;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed = 1.55f + GetRandomBoost();
 		}
 		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);

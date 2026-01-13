@@ -41,7 +41,7 @@ namespace {
 		bool NPC = Config::General.bProtectFollowers;
 		bool Hostile = IsHostile(a_Pred, a_Prey);
 
-		if (a_Prey->formID != 0x14 && !Hostile && NPC && (IsTeammate(a_Pred)) && (IsTeammate(a_Prey))) {
+		if (!a_Prey->IsPlayerRef() && !Hostile && NPC && (IsTeammate(a_Pred)) && (IsTeammate(a_Prey))) {
 			return true; // Disallow NPC's to perform stomps on followers
 		}
 
@@ -82,7 +82,7 @@ namespace {
 		}
 
 		float prey_distance = (a_Pred->GetPosition() - a_Prey->GetPosition()).Length();
-		if (a_Pred->formID == 0x14 && prey_distance <= (MINIMUM_STOMP_DISTANCE * PredScale * bonus) && SizeDiff < MINIMUM_STOMP_SCALE_RATIO) {
+		if (a_Pred->IsPlayerRef() && prey_distance <= (MINIMUM_STOMP_DISTANCE * PredScale * bonus) && SizeDiff < MINIMUM_STOMP_SCALE_RATIO) {
 			return false;
 		}
 

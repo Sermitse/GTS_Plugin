@@ -48,7 +48,7 @@ namespace GTS {
 			} else if (data.state == ShrinkState::Shrinking) {
 				ModSizeExperience(giant, 0.24f * GetXPModifier(tiny)); // Adjust Size Matter skill
 				tiny->Attacked(giant);
-				if (giant->formID == 0x14 && IsDragon(tiny)) {
+				if (giant->IsPlayerRef() && IsDragon(tiny)) {
 					CompleteDragonQuest(tiny, ParticleType::Red);
 				}
 
@@ -163,7 +163,7 @@ namespace GTS {
 			TransferInventory(tiny, giant, currentSize * GetSizeFromBoundingBox(tiny), false, true, DamageSource::Crushed, true);
 			// Actor reset is done within TransferInventory
 		});
-		if (tiny->formID != 0x14) {
+		if (!tiny->IsPlayerRef()) {
 			Disintegrate(tiny); // Set critical stage 4 on actors
 		} else {
 			TriggerScreenBlood(50);

@@ -7,7 +7,7 @@ namespace {
 
     float GetPushMult(Actor* giant) {
 		float result = 1.0f;
-		if (giant->formID == 0x14 || IsTeammate(giant)) {
+		if (giant->IsPlayerRef() || IsTeammate(giant)) {
 			auto tranData = Transient::GetActorData(giant);
 			if (tranData) {
 				result = tranData->PushForce;

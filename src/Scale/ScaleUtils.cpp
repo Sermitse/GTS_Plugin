@@ -37,17 +37,17 @@ namespace GTS {
 			float OnTheEdge = 1.0f;
 			float scale = get_visual_scale(giant);
 
-			if (amt > 0 && (giant->formID == 0x14 || IsTeammate(giant))) {
+			if (amt > 0 && (giant->IsPlayerRef() || IsTeammate(giant))) {
 				if (scale >= 1.0f) {
 					amt /= GetGrowthReduction(scale); // Enabled if BalanceMode is True. Decreases Grow Efficiency.
 				}
 			}
-			else if (giant->formID == 0x14 && amt - EPS < 0.0f) {
+			else if (giant->IsPlayerRef() && amt - EPS < 0.0f) {
 				// If negative change: add stolen attributes
 				DistributeStolenAttributes(giant, -amt * GetGrowthReduction(scale)); // Adjust max attributes
 			}
 
-			if (giant->formID == 0x14 && type == SizeEffectType::kShrink) {
+			if (giant->IsPlayerRef() && type == SizeEffectType::kShrink) {
 				OnTheEdge = GetPerkBonus_OnTheEdge(giant, amt); // Player Exclusive
 			}
 
@@ -64,19 +64,19 @@ namespace GTS {
 	void update_target_scale(Actor* giant, float amt, SizeEffectType type) { // used to mod scale with perk bonuses taken into account
 		float OnTheEdge = 1.0f;
 		
-		if (amt > 0 && (giant->formID == 0x14 || IsTeammate(giant))) {
+		if (amt > 0 && (giant->IsPlayerRef() || IsTeammate(giant))) {
 			float scale = get_visual_scale(giant);
 			if (scale >= 1.0f) {
 				amt /= GetGrowthReduction(scale); // Enabled if BalanceMode is True. Decreases Grow Efficiency.
 			}
 		}
-		else if (giant->formID == 0x14 && amt - EPS < 0.0f) {
+		else if (giant->IsPlayerRef() && amt - EPS < 0.0f) {
 			// If negative change: add stolen attributes
 			float scale = get_visual_scale(giant);
 			DistributeStolenAttributes(giant, -amt * GetGrowthReduction(scale)); // Adjust max attributes
 		}
 
-		if (giant->formID == 0x14 && type == SizeEffectType::kShrink) {
+		if (giant->IsPlayerRef() && type == SizeEffectType::kShrink) {
 			OnTheEdge = GetPerkBonus_OnTheEdge(giant, amt); // Player Exclusive
 		}
 
@@ -86,19 +86,19 @@ namespace GTS {
 	float get_update_target_scale(Actor* giant, float amt, SizeEffectType type) { // Used for growth spurt
 		float OnTheEdge = 1.0f;
 
-		if (amt > 0 && (giant->formID == 0x14 || IsTeammate(giant))) {
+		if (amt > 0 && (giant->IsPlayerRef() || IsTeammate(giant))) {
 			float scale = get_visual_scale(giant);
 			if (scale >= 1.0f) {
 				amt /= GetGrowthReduction(scale); // Enabled if BalanceMode is True. Decreases Grow Efficiency.
 			}
 		}
-		else if (giant->formID == 0x14 && amt - EPS < 0.0f) {
+		else if (giant->IsPlayerRef() && amt - EPS < 0.0f) {
 			// If negative change: add stolen attributes
 			float scale = get_visual_scale(giant);
 			DistributeStolenAttributes(giant, -amt * GetGrowthReduction(scale)); // Adjust max attributes
 		}
 
-		if (giant->formID == 0x14 && type == SizeEffectType::kShrink) {
+		if (giant->IsPlayerRef() && type == SizeEffectType::kShrink) {
 			OnTheEdge = GetPerkBonus_OnTheEdge(giant, amt); // Player Exclusive
 		}
 
@@ -140,12 +140,12 @@ namespace GTS {
 			}
 		}
 
-		if (tiny->formID == 0x14 && HasSMT(tiny)) {
+		if (tiny->IsPlayerRef() && HasSMT(tiny)) {
 			TinyScale += 1.50f;
 		}
 
 		float Difference = GiantScale / TinyScale;
-		/*if (giant->formID == 0x14 && !tiny->IsDead()) {
+		/*if (giant->IsPlayerRef() && !tiny->IsDead()) {
 			log::info("Size Difference between {} and {} is {}", giant->GetDisplayFullName(), tiny->GetDisplayFullName(), Difference);
 			log::info("Tiny Data: TS: {} ; HH: {} ; BB: {}, target: {}", TinyScale, hh_tiny, GetSizeFromBoundingBox(tiny), get_target_scale(tiny));
 			log::info("GTS Data: TS {} ; HH: {} BB :{}", GiantScale, hh_gts, GetSizeFromBoundingBox(giant));

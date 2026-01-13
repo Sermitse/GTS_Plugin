@@ -7,7 +7,7 @@ namespace {
 
 	void ForceLookAtCleavage(Actor* actor, NiPoint3& target) { // Forces someone to look at breasts
 		// Experimental function just for fun, it even works if enabled
-		if (actor->formID != 0x14) {
+		if (!actor->IsPlayerRef()) {
 			auto process = actor->GetActorRuntimeData().currentProcess;
 			if (process) {
 				auto high = process->high;
@@ -15,7 +15,7 @@ namespace {
 					auto target_actor = process->GetHeadtrackTarget();
 					if (target_actor) {
 						auto true_target_ref = target_actor.get().get();
-						if (true_target_ref && true_target_ref->formID == 0x14) {
+						if (true_target_ref && true_target_ref->IsPlayerRef()) {
 							
 							auto true_target = skyrim_cast<Actor*>(true_target_ref);
 							if (true_target) {
@@ -47,7 +47,7 @@ namespace {
 	}
 
 	float Headtracking_CalculateNewHT(Actor* giant, const float original) {
-		bool Player = giant->formID == 0x14;
+		bool Player = giant->IsPlayerRef();
 
 		if (!Player) { 	// NPC
 			return original * get_raw_scale(giant) * GetRacemenuScale(giant); // Old Pre 3.0.0 method 
@@ -64,7 +64,7 @@ namespace {
 		Actor* giant = skyrim_cast<Actor*>(ref);
 		if (giant) {
 			if (giant->Is3DLoaded()) {
-				if (giant->formID == 0x14 && IsHeadtracking(giant)) { // Apply with TDM lock enabled
+				if (giant->IsPlayerRef() && IsHeadtracking(giant)) { // Apply with TDM lock enabled
 					const bool ApplyScaling = !(IsinRagdollState(giant) || IsDragon(giant));
 					// If in ragdoll / is dragon = do nothing, else bones will stretch and npc/player will cosplay slenderman
 					if (ApplyScaling) {
@@ -81,7 +81,7 @@ namespace {
 	void HT_ScaleNonTargeted_Impl(Actor* actor, NiPoint3& target) { // NPC's always use this one, Player also uses this one when in non-tdm tracking mode
 		if (actor) {
 			if (actor->Is3DLoaded()) {
-				if (actor->formID != 0x14 || (actor->formID == 0x14 && !IsHeadtracking(actor))) {
+				if (!actor->IsPlayerRef() || (actor->IsPlayerRef() && !IsHeadtracking(actor))) {
 					// We don't want to apply it when TDM lock is enabled
 					const bool ApplyScaling = !(IsinRagdollState(actor) || IsDragon(actor)); 
 					if (ApplyScaling) {

@@ -98,7 +98,7 @@ namespace GTS {
 			set_target_scale(caster, 1.0f);
 		} else if (CasterScale > 1.5f) {
 			update_target_scale(caster, -0.0300f, SizeEffectType::kNeutral);
-			if (warningtimer.ShouldRun() && caster->formID == 0x14) {
+			if (warningtimer.ShouldRun() && caster->IsPlayerRef()) {
 				Notify("Im getting too big, it becomes hard to handle such power.");
 			}
 		} // <- Disallow having it when scale is > natural scale * 1.50

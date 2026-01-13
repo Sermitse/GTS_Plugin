@@ -32,7 +32,7 @@ namespace GTS {
 			return;
 		}
 
-		if (!Config::Advanced.bDamageAV && actor->formID == 0x14) {
+		if (!Config::Advanced.bDamageAV && actor->IsPlayerRef()) {
 			return;
 		}
 

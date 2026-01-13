@@ -64,7 +64,7 @@ namespace {
 		if (!a_doForceCancel && a_BalanceMode) {
 			float perk = Perk_GetCostReduction(a_actor);
 			float damage = 0.08f * TimeScale() * perk;
-			if (a_actor->formID != 0x14) {
+			if (!a_actor->IsPlayerRef()) {
 				damage *= 0.5f; // less stamina drain for NPC's
 			}
 			DamageAV(a_actor, ActorValue::kStamina, damage);
@@ -165,7 +165,7 @@ namespace GTS {
 				if (AnimationVars::General::IsGTSBusy(giant) && Adv.bGTSAnimsFullSpeed) {
 					return 1.0f;
 				}
-				if (giant->formID == 0x14) {
+				if (giant->IsPlayerRef()) {
 					return Adv.fAnimSpeedAdjMultPlayer * speedmultcalc;
 				}
 				if (IsTeammate(giant)) {
@@ -199,7 +199,7 @@ namespace GTS {
 	}
 
 	void StartActorResetTask(Actor* a_target) {
-		if (a_target->formID == 0x14) {
+		if (a_target->IsPlayerRef()) {
 			return; //Don't reset Player
 		}
 		std::string name = std::format("ResetActor_{}", a_target->formID);
@@ -231,8 +231,8 @@ namespace GTS {
 	}
 
 	bool AllowStagger(Actor* a_target) {
-		bool giantIsFriendly = (a_target->formID == 0x14 || IsTeammate(a_target));
-		bool tinyIsFriendly = (a_target->formID == 0x14 || IsTeammate(a_target));
+		bool giantIsFriendly = (a_target->IsPlayerRef() || IsTeammate(a_target));
+		bool tinyIsFriendly = (a_target->IsPlayerRef() || IsTeammate(a_target));
 
 		//If Tiny is follower or player dont allow stagger
 		if (tinyIsFriendly && giantIsFriendly) {
@@ -248,7 +248,7 @@ namespace GTS {
 
 		if (Config::Gameplay.ActionSettings.bVoreWeightGain) {
 
-			if (a_target->formID == 0x14) {
+			if (a_target->IsPlayerRef()) {
 				std::string_view name = "Vore_Weight";
 				auto gianthandle = a_target->CreateRefHandle();
 				TaskManager::RunOnce(name, [=](auto&) {
@@ -289,7 +289,7 @@ namespace GTS {
 
 	// determines if we want to apply size effects for literally every single actor
 	bool EffectsForEveryone(Actor* a_target) { 
-		if (a_target->formID == 0x14) { // don't enable for Player
+		if (a_target->IsPlayerRef()) { // don't enable for Player
 			return false;
 		}
 		bool dead = a_target->IsDead();
@@ -399,7 +399,7 @@ namespace GTS {
 		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkExperiencedGiantess)) {
 			reduction_1 += std::clamp(GetGtsSkillLevel(giant) * 0.0035f, 0.0f, 0.35f);
 		}
-		if (giant->formID == 0x14 && HasGrowthSpurt(giant)) {
+		if (giant->IsPlayerRef() && HasGrowthSpurt(giant)) {
 			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowthAug1)) {
 				reduction_2 -= 0.10f;
 			}
@@ -494,7 +494,7 @@ namespace GTS {
 	bool BehaviorGraph_DisableHH(Actor* actor) { // should .dll disable HH if Behavior Graph has HH Disable data?
 		bool disable = AnimationVars::General::IsHHDisabled(actor);
 
-		if (actor->formID == 0x14 && IsFirstPerson()) {
+		if (actor->IsPlayerRef() && IsFirstPerson()) {
 			return false;
 		}
 		if (!AnimationVars::Utility::BehaviorsInstalled(actor)) {
@@ -518,7 +518,7 @@ namespace GTS {
 	}
 
 	void AddStolenAttributes(Actor* giant, float value) {
-		if (giant->formID == 0x14 && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkFullAssimilation)) {
+		if (giant->IsPlayerRef() && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkFullAssimilation)) {
 			auto attributes = Persistent::GetActorData(giant);
 			if (attributes) {
 				const float cap = GetStolenAttributeCap(giant);
@@ -539,7 +539,7 @@ namespace GTS {
 	}
 
 	void AddStolenAttributesTowards(Actor* giant, ActorValue type, float value) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			auto Persistent = Persistent::GetActorData(giant);
 			if (Persistent) {
 				float& health = Persistent->fStolenHealth;
@@ -565,7 +565,7 @@ namespace GTS {
 	}
 
 	float GetStolenAttributes_Values(Actor* giant, ActorValue type) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			auto Persistent = Persistent::GetActorData(giant);
 			if (Persistent) {
 				float max = GetStolenAttributeCap(giant);
@@ -593,7 +593,7 @@ namespace GTS {
 	}
 
 	void DistributeStolenAttributes(Actor* giant, float value) {
-		if (value > 0 && giant->formID == 0x14 && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkFullAssimilation)) { // Permamently increases random AV after shrinking and stuff
+		if (value > 0 && giant->IsPlayerRef() && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkFullAssimilation)) { // Permamently increases random AV after shrinking and stuff
 			float scale = std::clamp(get_visual_scale(giant), 0.01f, 1000000.0f);
 			float Storage = GetStolenAttributes(giant);
 			float limit = GetStolenAttributeCap(giant);
@@ -638,13 +638,13 @@ namespace GTS {
 
 	void InflictSizeDamage(Actor* attacker, Actor* receiver, float value) {
 
-		if (attacker->formID == 0x14 && IsTeammate(receiver)) {
+		if (attacker->IsPlayerRef() && IsTeammate(receiver)) {
 			if (Config::Balance.bFollowerFriendlyImmunity) {
 				return;
 			}
 		}
 
-		if (receiver->formID == 0x14 && IsTeammate(attacker)) {
+		if (receiver->IsPlayerRef() && IsTeammate(attacker)) {
 			if (Config::Balance.bPlayerFriendlyImmunity) {
 				return;
 			}
@@ -656,7 +656,7 @@ namespace GTS {
 			float levelbonus = 1.0f + ((GetGtsSkillLevel(attacker) * 0.01f) * 0.50f);
 			value *= levelbonus;
 
-			if (receiver->formID != 0x14) { // Mostly a warning to indicate that actor dislikes it (They don't always aggro right away, with mods at least)
+			if (!receiver->IsPlayerRef()) { // Mostly a warning to indicate that actor dislikes it (They don't always aggro right away, with mods at least)
 				if (value >= GetAV(receiver, ActorValue::kHealth) * 0.50f || HpPercentage < 0.70f) { // in that case make hostile
 					if (!IsTeammate(receiver) && !IsHostile(attacker, receiver)) {
 						receiver->StartCombat(attacker); // Make actor hostile and add bounty of 40 (can't be configured, needs different hook probably). 

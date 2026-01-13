@@ -72,9 +72,9 @@ namespace GTS {
                     MoveItems(giantHandle, tinyHandle, tiny->formID, DamageSource::Overkill);
                     ReportDeath(giant, tiny, DamageSource::Overkill);
 
-                    if (tiny->formID != 0x14) {
+                    if (!tiny->IsPlayerRef()) {
                         Disintegrate(tiny); // Set critical stage 4 on actors
-                    } else if (tiny->formID == 0x14) {
+                    } else if (tiny->IsPlayerRef()) {
                         TriggerScreenBlood(50);
                         tiny->SetAlpha(0.0f); // Player can't be disintegrated, so we make player Invisible
                     }

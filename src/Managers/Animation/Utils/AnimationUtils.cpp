@@ -146,7 +146,7 @@ namespace GTS {
 					if (IsTeammate(new_gts)) {
 						ButtCrush.AllowMessage(true);
 						for (auto new_tiny: ButtCrush.GetButtCrushTargets(new_gts, numberOfPrey)) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								ButtCrush.StartButtCrush(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -161,7 +161,7 @@ namespace GTS {
 					if (IsTeammate(new_gts)) {
 						Hugs.AllowMessage(true);
 						for (auto new_tiny: Hugs.GetHugTargetsInFront(new_gts, numberOfPrey)) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								Hugs.StartHug(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -177,7 +177,7 @@ namespace GTS {
 						Grabs.AllowMessage(true);
 						std::vector<Actor*> FindTiny = Grabs.GetGrabTargetsInFront(new_gts, numberOfPrey);
 						for (auto new_tiny: FindTiny) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								Grabs.StartGrab(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -192,7 +192,7 @@ namespace GTS {
 					if (IsTeammate(new_gts)) {
 						Vore.AllowMessage(true);
 						for (auto new_tiny: Vore.GetVoreTargetsInFront(new_gts, numberOfPrey)) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								Vore.StartVore(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -207,7 +207,7 @@ namespace GTS {
 					if (IsTeammate(new_gts)) {
 						Sandwich.AllowMessage(true);
 						for (auto new_tiny: Sandwich.GetSandwichTargetsInFront(new_gts, numberOfPrey)) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								Sandwich.StartSandwiching(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -267,7 +267,7 @@ namespace GTS {
 
 	void UpdateFriendlyHugs(Actor* giant, Actor* tiny, bool force) {
 		bool hostile = IsHostile(tiny, giant);
-		bool teammate = IsTeammate(tiny) || tiny->formID == 0x14;
+		bool teammate = IsTeammate(tiny) || tiny->IsPlayerRef();
 		bool perk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace);
 
 		if (perk && !hostile && teammate && !force) {
@@ -322,7 +322,7 @@ namespace GTS {
 		DecreaseShoutCooldown(giant);
 		KillActor(giant, tiny, MuteHugCrush);
 
-		if (tiny->formID != 0x14) {
+		if (!tiny->IsPlayerRef()) {
 			Disintegrate(tiny); // Set critical stage 4 on actor
             SendDeathEvent(giant, tiny);
 		} else {
@@ -525,7 +525,7 @@ namespace GTS {
 		}
 		WasteMult *= Perk_GetCostReduction(giant);
 
-		if (giant->formID != 0x14) {
+		if (!giant->IsPlayerRef()) {
 			WasteMult *= 0.33f; // less drain for non-player
 		}
 
@@ -1016,7 +1016,7 @@ namespace GTS {
 								//log::info("Roll: {}, RandomChance {}, Threshold: {}", roll, RagdollChance, Random);
 								//eventually it reaches 100% chance to ragdoll an actor (at ~x3.0 size difference)
 
-								if (otherActor->formID == 0x14 && !Config::Gameplay.ActionSettings.bEnablePlayerPushBack) {
+								if (otherActor->IsPlayerRef() && !Config::Gameplay.ActionSettings.bEnablePlayerPushBack) {
 									continue;
 								}
 

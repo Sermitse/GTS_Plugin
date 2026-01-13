@@ -132,7 +132,7 @@ namespace Hooks {
 
 				//log::info("Original jump height: {}", result);
 				if (a_actor) {
-					if (a_actor->formID == 0x14) {
+					if (a_actor->IsPlayerRef()) {
 						float size = get_giantess_scale(a_actor);
 
 						const float might = 1.0f + Potion_GetMightBonus(a_actor);

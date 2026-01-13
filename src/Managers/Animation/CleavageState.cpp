@@ -132,7 +132,7 @@ namespace {
         PassAnimation("Cleavage_EnterState", false);
         Animation_Cleavage::AttemptBreastActionOnTiny("Cleavage_EnterState_Tiny");
 
-        if (giant->formID == 0x14 && Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkBreastsIntro) && Grab::GetHeldActor(giant)) {
+        if (giant->IsPlayerRef() && Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkBreastsIntro) && Grab::GetHeldActor(giant)) {
             auto Camera = PlayerCamera::GetSingleton();
             bool Sheathed = Camera->isWeapSheathed;
             if (!Sheathed) {

@@ -323,7 +323,7 @@ namespace GTS {
 					ModSizeExperience(giant, experience);
 				}
 
-				if (tiny->formID == 0x14 && GetAV(tiny, ActorValue::kStamina) > 2.0f) {
+				if (tiny->IsPlayerRef() && GetAV(tiny, ActorValue::kStamina) > 2.0f) {
 					DamageAV(tiny, ActorValue::kStamina, damage_result * 2.0f);
 					damage_result -= GetAV(tiny, ActorValue::kStamina); // Reduce damage by stamina amount
 

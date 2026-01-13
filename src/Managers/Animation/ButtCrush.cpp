@@ -136,7 +136,7 @@ namespace {
 
 		float WasteStamina = 100.0f * GetButtCrushCost(giant, false);
 
-		if (giant->formID != 0x14) {
+		if (!giant->IsPlayerRef()) {
 			WasteStamina *= 0.25f;
 		}
 		

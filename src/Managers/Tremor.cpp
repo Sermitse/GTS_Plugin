@@ -69,7 +69,7 @@ namespace GTS {
 				float threshold = 1.25f; // tremor starts to appear past this scale
 				float size = impact.scale;
 
-				if (actor->formID == 0x14) {
+				if (actor->IsPlayerRef()) {
 					tremor *= 1.20f; // slightly stronger footstep tremor for player
 					if (HasSMT(actor)) {
 						threshold = 0.55f;
@@ -86,13 +86,13 @@ namespace GTS {
 								const bool npcEffects = Config::Gameplay.bNPCAnimEffects;
 								const bool pcEffects = Config::Gameplay.bPlayerAnimEffects;
 
-								if (actor->formID == 0x14 && pcEffects) {
+								if (actor->IsPlayerRef() && pcEffects) {
 									if (impact.kind == FootEvent::JumpLand) { // let Rumble Manager handle it.
 										DoJumpingRumble(actor, tremor * calamity, 0.03f, node->name, duration);
 									} else {
 										ApplyShakeAtPoint(actor, tremor * calamity, node->world.translate, duration);
 									}
-								} else if (actor->formID != 0x14 && npcEffects) {
+								} else if (!actor->IsPlayerRef() && npcEffects) {
 									if (impact.kind == FootEvent::JumpLand) { // let Rumble Manager handle it.
 										DoJumpingRumble(actor, tremor * calamity, 0.03f, node->name, duration);
 									} else {

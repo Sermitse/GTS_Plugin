@@ -42,7 +42,7 @@ namespace GTS {
 
 	void AttackManager::PreventAttacks(Actor* a_Giant, Actor* a_Tiny) {
 
-		if (a_Giant && a_Giant->formID != 0x14 && IsHumanoid(a_Giant)) {
+		if (a_Giant && !a_Giant->IsPlayerRef() && IsHumanoid(a_Giant)) {
 
 			//If disabled in settings each call to this should always enable instead.
 			if (!Config::AI.bDisableAttacks) {

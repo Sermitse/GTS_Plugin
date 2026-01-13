@@ -143,7 +143,7 @@ namespace {
 
 		for (auto& tiny: VoreData.GetVories()) {
 			AllowToBeCrushed(tiny, true);
-			if (tiny->formID == 0x14) {
+			if (tiny->IsPlayerRef()) {
 				PlayerCamera::GetSingleton()->cameraTarget = giant->CreateRefHandle();
 			}
 			if (AllowDevourment()) {

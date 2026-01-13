@@ -164,7 +164,7 @@ namespace {
 			case NonMountedDraw:
 			case DrawMagic:
 			case DefaultDrawWeapon: {
-				if (performer->formID != 0x14 && Grab::GetHeldActor(performer) != nullptr) {
+				if (!performer->IsPlayerRef() && Grab::GetHeldActor(performer) != nullptr) {
 					return true;
 				}
 				break;
@@ -236,11 +236,11 @@ namespace {
 				return true;
 			}
 
-			if (performer->formID != 0x14 && PreventSprinting(Form, performer)) {
+			if (!performer->IsPlayerRef() && PreventSprinting(Form, performer)) {
 				return true;
 			}
 
-			if (performer->formID == 0x14 && AnimationVars::General::IsGTSBusy(performer) && IsFreeCameraEnabled()) {
+			if (performer->IsPlayerRef() && AnimationVars::General::IsGTSBusy(performer) && IsFreeCameraEnabled()) {
 				return IsDisallowed(Form); 							// One of cases when we alter anims for Player. 
 				// Needed because it's problematic to disallow specific controls through controls.hpp
 			}

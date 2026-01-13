@@ -139,7 +139,7 @@ namespace {
 		if (!IntervalTimer) return;
 
 		//Set Values based on Settings and actor type.
-		if (a_Actor->formID == 0x14) {
+		if (a_Actor->IsPlayerRef()) {
 			const auto& Settings =  Config::Gameplay.GamemodePlayer;
 
 			//SkillLevel = GetGtsSkillLevel(a_Actor);
@@ -216,7 +216,7 @@ namespace {
 		Timer* IntervalTimer = &ActorData->ActionTimer;
 
 		//Set Values based on Settings and actor type.
-		if (a_Actor->formID == 0x14) {
+		if (a_Actor->IsPlayerRef()) {
 			const auto& Settings = Config::Gameplay.GamemodePlayer;
 			CurseTargetScale = Settings.fCurseTargetScale;
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
@@ -277,7 +277,7 @@ namespace {
 		Timer* IntervalTimer = &ActorData->ActionTimer;
 
 		//Set Values based on Settings and actor type.
-		if (a_Actor->formID == 0x14) {
+		if (a_Actor->IsPlayerRef()) {
 			const auto& Settings = Config::Gameplay.GamemodePlayer;
 			PowerMult = Settings.fShrinkRate + 0.030f;
 			CurseTargetScale = Settings.fCurseTargetScale;
@@ -336,7 +336,7 @@ namespace {
 		Timer* IntervalTimer = &ActorData->ActionTimer;
 
 		//Set Values based on Settings and actor type.
-		if (a_Actor->formID == 0x14) {
+		if (a_Actor->IsPlayerRef()) {
 			const auto& Settings = Config::Gameplay.GamemodePlayer;
 			CurseTargetScale = (Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel;
 
@@ -399,7 +399,7 @@ namespace GTS {
 
 		if (IsFemale(a_Actor, true)) {
 
-			if (Settings.GamemodePlayer.bMultiplyGrowthrate && a_Actor->formID == 0x14) {
+			if (Settings.GamemodePlayer.bMultiplyGrowthrate && a_Actor->IsPlayerRef()) {
 				RateMultiplier = clamp(get_visual_scale(a_Actor) * 0.25f, 1.0f, 10.0f);
 			}
 			else if (Settings.GamemodeFollower.bMultiplyGrowthrate && IsTeammate(a_Actor)) {
@@ -495,7 +495,7 @@ namespace GTS {
 
 		if (QuestStage < 100 || BalanceModeEnabled) {
 
-			if (actor->formID == 0x14 || IsTeammate(actor)) {
+			if (actor->IsPlayerRef() || IsTeammate(actor)) {
 
 				DoQuestShrink = true;
 
@@ -538,7 +538,7 @@ namespace GTS {
 
 			const auto& Settings = Config::Gameplay;
 
-			if (actor->formID == 0x14) {
+			if (actor->IsPlayerRef()) {
 
 				if (Runtime::HasMagicEffect(actor, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 					BonusGrowth = CurrentScale * 0.25f + 0.75f;

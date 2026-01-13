@@ -220,7 +220,7 @@ namespace GTS {
 
 		if (!a_actor) return;
 
-		if (!Config::Gameplay.bClothTearing || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return;
+		if (!Config::Gameplay.bClothTearing || (!IsTeammate(a_actor) && !a_actor->IsPlayerRef())) return;
 
 		static Timer timer = Timer(1.2);
 		if (!timer.ShouldRunFrame()) return;
@@ -246,7 +246,7 @@ namespace GTS {
 				actordata->ClothRipOffset = 0.0f;
 
 				//ReEquip Ripped Clothing On Follower NPC's
-				if (a_actor->formID != 0x14 && IsTeammate(a_actor)) {
+				if (!a_actor->IsPlayerRef() && IsTeammate(a_actor)) {
 					ReEquipClothing(a_actor);
 				}
 			}
@@ -286,12 +286,12 @@ namespace GTS {
 		//Cached offset instead of getting the variable directly. 
 		//The Check can get spammed by the Equip hook when a lot of actors are around.
 		//If clothing rip is disabled or is not a follower, allow re-equip
-		if (!Config::Gameplay.bClothTearing || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return false;
+		if (!Config::Gameplay.bClothTearing || (!IsTeammate(a_actor) && !a_actor->IsPlayerRef())) return false;
 
 		const float rip_threshold = Config::Gameplay.fClothRipStart;
 
 		//if smaller than rip_threhsold or target actor is the player allow re-equip
-		if (get_visual_scale(a_actor) < rip_threshold || a_actor->formID == 0x14) {
+		if (get_visual_scale(a_actor) < rip_threshold || a_actor->IsPlayerRef()) {
 			return false;
 		}
 

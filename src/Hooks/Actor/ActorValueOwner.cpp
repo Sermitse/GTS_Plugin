@@ -24,7 +24,7 @@ namespace Hooks {
 					if (a_akValue == ActorValue::kCarryWeight) {
 						value = AttributeManager::AlterCarryWeightAV(actor, a_akValue, value);
 					}
-					else if (a_akValue == ActorValue::kSpeedMult && actor->formID != 0x14) {
+					else if (a_akValue == ActorValue::kSpeedMult && !actor->IsPlayerRef()) {
 						value = GetNPCSpeedOverride(actor, value);
 					}
 				}
@@ -73,7 +73,7 @@ namespace Hooks {
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorValueOwner::GetBaseActorValue", ID);
 
 				const auto actor = skyrim_cast<Actor*>(a_owner);
-				if (actor && actor->formID == 0x14) { // Player Exclusive
+				if (actor && actor->IsPlayerRef()) { // Player Exclusive
 					value = AttributeManager::AlterGetBaseAv(actor, a_akValue, value);
 				}
 

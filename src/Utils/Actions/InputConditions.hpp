@@ -35,7 +35,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (target->formID != 0x14) {
+		if (!target->IsPlayerRef()) {
 			if (IsBeingHeld(target, player)) {
 				return false;
 			}
@@ -417,7 +417,7 @@ namespace GTS {
 
 		if (Grab::GetHeldActor(target)) {
 			if (!IsHumanoid(Grab::GetHeldActor(target))) {
-				if (target->formID == 0x14) {
+				if (target->IsPlayerRef()) {
 					std::string_view message = std::format("You don't want to play with {}", Grab::GetHeldActor(target)->GetDisplayFullName());
 					NotifyWithSound(target, message);
 				}

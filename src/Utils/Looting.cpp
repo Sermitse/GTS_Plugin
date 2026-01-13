@@ -156,11 +156,11 @@ namespace GTS {
 					return true; // retry, not enough time has passed yet
 				}
 
-				if (giant->formID == 0x14 && !PCLoot) {
+				if (giant->IsPlayerRef() && !PCLoot) {
 					TransferInventory_Normal(giant, tiny, removeQuestItems);
 					return false;
 				}
-				if (giant->formID != 0x14 && !NPCLoot) {
+				if (!giant->IsPlayerRef() && !NPCLoot) {
 					TransferInventory_Normal(giant, tiny, removeQuestItems);
 					return false;
 				}

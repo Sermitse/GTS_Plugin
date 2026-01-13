@@ -71,7 +71,7 @@ namespace {
     }
 
     void ManageSpellPerks(const AddPerkEvent& evt) {
-        if (evt.actor->formID == 0x14) {
+        if (evt.actor->IsPlayerRef()) {
             if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkGrowthDesireAug)) {
                 PrintMessageBox("You're now able to grow and shrink yourself manually at will. By default, press L.Shift + 1 or 2. You can affect followers by pressing L.Shift + Left Arrow + Arrow Up, and can also affect self by pressing Left Arrow + Arrow Up");
             }
@@ -90,7 +90,7 @@ namespace {
     void ManageOtherPerks(const AddPerkEvent& evt) {
         Actor* actor = evt.actor;
         if (actor) {
-            if (actor->formID == 0x14 || IsTeammate(actor)) {
+            if (actor->IsPlayerRef() || IsTeammate(actor)) {
                 auto data = Transient::GetActorData(actor);
                 if (data) {
                     if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkAcceleration)) {
@@ -182,7 +182,7 @@ namespace GTS {
     void PerkHandler::OnRemovePerk(const RemovePerkEvent& evt) {
         Actor* actor = evt.actor;
         if (actor) {
-            if (actor->formID == 0x14 || IsTeammate(actor)) {
+            if (actor->IsPlayerRef() || IsTeammate(actor)) {
                 auto data = Transient::GetActorData(actor);
                 if (data) {
                     if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkAcceleration)) {

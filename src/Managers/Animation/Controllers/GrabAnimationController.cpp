@@ -157,11 +157,11 @@ namespace GTS {
 
 		float prey_distance = (pred->GetPosition() - prey->GetPosition()).Length();
 		if (prey_distance <= MINIMUM_DISTANCE * pred_scale && sizedifference < MINIMUM_GRAB_SCALE) {
-			if (pred->formID == 0x14) {
+			if (pred->IsPlayerRef()) {
 				std::string_view message = std::format("{} is too big to be grabbed: x{:.2f}/{:.2f}.", prey->GetDisplayFullName(), sizedifference, MINIMUM_GRAB_SCALE);
 				shake_camera(pred, 0.45f, 0.30f);
 				NotifyWithSound(pred, message);
-			} else if (this->allow_message && prey->formID == 0x14 && IsTeammate(pred)) {
+			} else if (this->allow_message && prey->IsPlayerRef() && IsTeammate(pred)) {
 				CantGrabPlayerMessage(pred, prey, sizedifference);
 			}
 			return false;
@@ -170,7 +170,7 @@ namespace GTS {
 			if (IsFlying(prey)) {
 				return false; // Disallow to grab flying dragons
 			}
-			if ((prey->formID != 0x14 && !CanPerformActionOn(pred, prey, false))) {
+			if ((!prey->IsPlayerRef() && !CanPerformActionOn(pred, prey, false))) {
 				return false;
 			} else {
 				return true;

@@ -61,7 +61,7 @@ namespace {
 
 	void Foot_PerformIdle_Headtracking_Effects_Others(Actor* actor) {
 		if (actor && Config::General.bAllActorSizeEffects) {
-			if (actor->formID != 0x14 && !IsTeammate(actor)) {
+			if (!actor->IsPlayerRef() && !IsTeammate(actor)) {
 				if (GetBusyFoot(actor) != BusyFoot::RightFoot) {
 					CollisionDamage::DoFootCollision(actor, Damage_Default_Underfoot * TimeScale(), 
 						Radius_Default_Idle, 0, 0.0f, Minimum_Actor_Crush_Scale_Idle, DamageSource::FootIdleR, true, false, false, false);
@@ -79,9 +79,9 @@ namespace {
 		GTS_PROFILE_SCOPE("GTSManager: ManageActorControl");
 
 		Actor* target = GetPlayerOrControlled();
-		if (target->formID != 0x14) {
+		if (!target->IsPlayerRef()) {
 			auto grabbed = Grab::GetHeldActor(target);
-			if (grabbed && grabbed->formID == 0x14) {
+			if (grabbed && grabbed->IsPlayerRef()) {
 				return;
 			}
 			if (!AnimationVars::General::IsGTSBusy(target) && !IsBeingHeld(target, PlayerCharacter::GetSingleton())) {
@@ -132,7 +132,7 @@ namespace {
 						if (model) {
 							get_visual_scale(actor) < 1.5f ? reset = true : reset = false; 
 
-							if (!reset || AnimationVars::General::IsGTSBusy(actor) || actor->formID == 0x14) {
+							if (!reset || AnimationVars::General::IsGTSBusy(actor) || actor->IsPlayerRef()) {
 								model->GetFlags().set(RE::NiAVObject::Flag::kIgnoreFade);
 								model->GetFlags().set(RE::NiAVObject::Flag::kAlwaysDraw);
 								if (auto par = model->parent) {
@@ -153,7 +153,7 @@ namespace {
 	void PerformRoofRaycastAdjustments(Actor* actor, float& target_scale, float currentOtherScale) {
 
 		const auto& Settings = Config::General;
-		const bool DoRayCast = (actor->formID == 0x14) ? Settings.bDynamicSizePlayer : Settings.bDynamicSizeFollowers;
+		const bool DoRayCast = (actor->IsPlayerRef()) ? Settings.bDynamicSizePlayer : Settings.bDynamicSizeFollowers;
 
 		if (DoRayCast && !actor->IsDead() && target_scale > 1.025f) {
 
@@ -289,7 +289,7 @@ namespace {
 		}
 		float visual_scale = persi_actor_data->fVisualScale;
 
-		if(actor->formID == 0x14) {
+		if(actor->IsPlayerRef()) {
 			if (IsFirstPerson()) {
 				visual_scale *= GetProneAdjustment();
 			}
@@ -401,7 +401,7 @@ void GTSManager::Update() {
 			UpdateGlobalSizeLimit(actor);
 			UpdateMaxScale(actor);
 
-			if (actor->formID == 0x14 || IsTeammate(actor)) {
+			if (actor->IsPlayerRef() || IsTeammate(actor)) {
 
 				ClothManager::CheckClothingRip(actor);
 				GameModeManager::GameMode(actor);    // Handle Game Modes

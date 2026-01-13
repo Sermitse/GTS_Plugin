@@ -27,7 +27,7 @@ namespace {
         if (!AnimationVars::Crawl::IsCrawling(giant)) { // There's no anim for Crawling state
             const float PerformChancePlayer = Config::Gameplay.ActionSettings.fPlayerUnderstompGrindChance;
             const float PerformChanceNPC = Config::AI.Stomp.fUnderstompGrindProbability;
-        	bool IsPlayer = giant->formID == 0x14;
+        	bool IsPlayer = giant->IsPlayerRef();
 
             if (RandomBool(IsPlayer ? PerformChancePlayer : PerformChanceNPC)) {
                 FootGrindCheck(giant, Radius_Trample, right, Type);
@@ -114,7 +114,7 @@ namespace GTS {
     }
 
     bool AnimationUnderStomp::ShouldStompUnder(Actor* giant) {
-        if (giant->formID == 0x14 && IsFreeCameraEnabled()) {
+        if (giant->IsPlayerRef() && IsFreeCameraEnabled()) {
             return false;
         }
         //Range is between -1 (looking down) and 1 (looking up)

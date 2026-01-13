@@ -318,7 +318,7 @@ namespace {
 			if (!actor) {
 				continue;
 			}
-			if (actor->formID != 0x14 && (IsTeammate(actor))) {
+			if (!actor->IsPlayerRef() && (IsTeammate(actor))) {
 
 				float perk = Perk_GetCostReduction(player);
 
@@ -342,7 +342,7 @@ namespace {
 			if (!actor) {
 				continue;
 			}
-			if (actor->formID != 0x14 && (IsTeammate(actor))) {
+			if (!actor->IsPlayerRef() && (IsTeammate(actor))) {
 				
 				float perk = Perk_GetCostReduction(player);
 
@@ -444,7 +444,7 @@ namespace {
 
 	void DebugReportEvent(const ManagedInputEvent& data) { // Report enemy scale into console
 		for (auto actor : find_actors()) {
-			if (actor->formID != 0x14) {
+			if (!actor->IsPlayerRef()) {
 				ReportScaleIntoConsole(actor, !IsTeammate(actor));
 			}
 		}

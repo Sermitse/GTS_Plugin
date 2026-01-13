@@ -123,7 +123,7 @@ namespace GTS {
 			return;
 		}
 		static Timer EffectTimer = Timer(3.0);
-		if (giant->formID == 0x14 && EffectTimer.ShouldRunFrame()) {
+		if (giant->IsPlayerRef() && EffectTimer.ShouldRunFrame()) {
 			NiPoint3 NodePosition = giant->GetPosition();
 
 			float giantScale = get_visual_scale(giant);
@@ -258,7 +258,7 @@ namespace GTS {
 	}
 
 	void SetProneState(Actor* giant, bool enable) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			auto transient = Transient::GetActorData(giant);
 			if (transient) {
 				transient->FPProning = enable;
@@ -288,7 +288,7 @@ namespace GTS {
 	}
 
 	void ResetGrab(Actor* giant) {
-		if (giant->formID == 0x14 || IsTeammate(giant)) {
+		if (giant->IsPlayerRef() || IsTeammate(giant)) {
 			Grab::ExitGrabState(giant);
 
 			AnimationVars::Grab::SetHasGrabbedTiny(giant, false); // Tell behaviors 'we have nothing in our hands'. A must.
@@ -303,7 +303,7 @@ namespace GTS {
 			return;
 		}
 
-		bool CrawlState = (actor->formID == 0x14) ? Persistent::EnableCrawlPlayer.value : Persistent::EnableCrawlFollower.value;
+		bool CrawlState = (actor->IsPlayerRef()) ? Persistent::EnableCrawlPlayer.value : Persistent::EnableCrawlFollower.value;
 
 		//SetCrawlAnimation Returns true if the state has changed
 		if (SetCrawlAnimation(actor, CrawlState)) {
@@ -317,7 +317,7 @@ namespace GTS {
 		}
 
 		auto& ActionS = Config::Gameplay.ActionSettings;
-		bool StompState = (a_actor->formID == 0x14) ? ActionS.bStompAlternative : ActionS.bStomAlternativeOther;
+		bool StompState = (a_actor->IsPlayerRef()) ? ActionS.bStompAlternative : ActionS.bStomAlternativeOther;
 		SetAltFootStompAnimation(a_actor, StompState);
 	}
 
@@ -327,7 +327,7 @@ namespace GTS {
 		}
 
 		auto& ActionS = Config::Gameplay.ActionSettings;
-		bool SneaktState = (a_actor->formID == 0x14) ? ActionS.bSneakTransitions : ActionS.bSneakTransitionsOther;
+		bool SneaktState = (a_actor->IsPlayerRef()) ? ActionS.bSneakTransitions : ActionS.bSneakTransitionsOther;
 		SetEnableSneakTransition(a_actor, !SneaktState);
 	}
 
@@ -392,8 +392,8 @@ namespace GTS {
 		bool hostile = IsHostile(giant, tiny);
 		bool essential = IsEssential_WithIcons(giant, tiny); // Teammate check is also done here, spawns icons
 		bool no_protection = Config::AI.bAllowFollowers;
-		bool Ignore_Protection = (HugCheck && giant->formID == 0x14 && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace));
-		bool allow_teammate = (giant->formID != 0x14 && no_protection && IsTeammate(tiny) && IsTeammate(giant));
+		bool Ignore_Protection = (HugCheck && giant->IsPlayerRef() && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace));
+		bool allow_teammate = (!giant->IsPlayerRef() && no_protection && IsTeammate(tiny) && IsTeammate(giant));
 
 		if (IsFlying(tiny)) {
 			return false; // Disallow to do stuff with flying dragons

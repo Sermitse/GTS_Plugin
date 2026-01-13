@@ -176,7 +176,7 @@ namespace GTS {
 		const bool ProtectFollowers = Settings.bProtectFollowers;
 		const bool Teammate = IsTeammate(actor);
 
-		if (actor->formID == 0x14) {
+		if (actor->IsPlayerRef()) {
 			return false; // we don't want to make the player immune
 		}
 
@@ -199,14 +199,14 @@ namespace GTS {
 	}
 
 	bool IsHeadtracking(Actor* giant) { // Used to report True when we lock onto something, should be Player Exclusive.
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			return HasHeadTrackingTarget(giant);
 		}
 		return false;
 	}
 
 	bool IsInGodMode(Actor* giant) {
-		if (giant->formID != 0x14) {
+		if (!giant->IsPlayerRef()) {
 			return false;
 		}
 		REL::Relocation<bool*> singleton{ RELOCATION_ID(517711, 404238) };
@@ -230,13 +230,13 @@ namespace GTS {
 		if (hostile) {
 			return true;
 		}
-		if (NPCImmunity && giant->formID == 0x14 && (IsTeammate(tiny)) && !hostile) {
+		if (NPCImmunity && giant->IsPlayerRef() && (IsTeammate(tiny)) && !hostile) {
 			return false; // Protect NPC's against player size-related effects
 		}
 		if (NPCImmunity && (IsTeammate(giant)) && (IsTeammate(tiny))) {
 			return false; // Disallow NPC's to damage each-other if they're following Player
 		}
-		if (PlayerImmunity && tiny->formID == 0x14 && (IsTeammate(giant)) && !hostile) {
+		if (PlayerImmunity && tiny->IsPlayerRef() && (IsTeammate(giant)) && !hostile) {
 			return false; // Protect Player against friendly NPC's damage
 		}
 		return true;
@@ -249,7 +249,7 @@ namespace GTS {
 		}
 
 		//A player can't be their own teammate
-		if (actor->formID == 0x14) {
+		if (actor->IsPlayerRef()) {
 			return false;
 		}
 

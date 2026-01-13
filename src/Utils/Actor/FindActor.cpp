@@ -52,7 +52,7 @@ namespace GTS {
 
 		for (const auto actor: find_actors()) {
 			// Player or teammate are always updated
-			if (actor->formID == 0x14 || IsTeammate(actor)) {
+			if (actor->IsPlayerRef() || IsTeammate(actor)) {
 				finalActors.push_back(actor);
 				//log::info(" - Adding: {}", actor->GetDisplayFullName());
 			}

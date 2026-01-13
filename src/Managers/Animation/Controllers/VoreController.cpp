@@ -37,7 +37,7 @@ namespace GTS {
 			auto tiny = tinyref.get().get();
 			auto giant = this->giant.get().get();
 			
-			if (giant->formID == 0x14) {
+			if (giant->IsPlayerRef()) {
 				if (IsLiving(tiny) && IsHuman(tiny)) {
 					CallVampire();
 				}
@@ -65,11 +65,11 @@ namespace GTS {
 
 				const auto& MuteVore = Config::Audio.bMuteVoreDeathScreams;
 
-				if (tiny->formID != 0x14) {
+				if (!tiny->IsPlayerRef()) {
 					KillActor(giantref.get().get(), tiny, MuteVore);
 					PerkHandler::UpdatePerkValues(giantref.get().get(), PerkUpdate::Perk_LifeForceAbsorption);
 				}
-				else if (tiny->formID == 0x14) {
+				else if (tiny->IsPlayerRef()) {
 					InflictSizeDamage(giantref.get().get(), tiny, 900000);
 					KillActor(giantref.get().get(), tiny, MuteVore);
 					TriggerScreenBlood(50);
@@ -91,7 +91,7 @@ namespace GTS {
 					auto giant = giantref.get().get();
 					auto smoll = tinyref.get().get();
 
-					if (smoll->formID != 0x14) {
+					if (!smoll->IsPlayerRef()) {
 						Disintegrate(smoll);
 					}
 					TransferInventory(smoll, giant, 1.0f, false, true, DamageSource::Vored, true);
@@ -307,11 +307,11 @@ namespace GTS {
 				return false;
 			}
 			
-			if (pred->formID == 0x14) {
+			if (pred->IsPlayerRef()) {
 				std::string_view message = fmt::format("{} is too big to be eaten: x{:.2f}/{:.2f}", prey->GetDisplayFullName(), sizedifference, MINIMUM_VORE_SCALE);
 				shake_camera(pred, 0.45f, 0.30f);
 				NotifyWithSound(pred, message);
-			} else if (this->allow_message && prey->formID == 0x14 && IsTeammate(pred)) {
+			} else if (this->allow_message && prey->IsPlayerRef() && IsTeammate(pred)) {
 				CantVorePlayerMessage(pred, prey, sizedifference);
 			}
 			return false;
@@ -321,7 +321,7 @@ namespace GTS {
 			if (IsFlying(prey)) {
 				return false; // Disallow to vore flying dragons
 			}
-			if ((prey->formID != 0x14 && !CanPerformActionOn(pred, prey, false))) {
+			if ((!prey->IsPlayerRef() && !CanPerformActionOn(pred, prey, false))) {
 				Notify("{} is important and shouldn't be eaten.", prey->GetDisplayFullName());
 				return false;
 			}
@@ -358,7 +358,7 @@ namespace GTS {
 		float wastestamina = 45; // Drain stamina, should be 300 once tests are over
 		float staminacheck = pred->AsActorValueOwner()->GetActorValue(ActorValue::kStamina);
 
-		if (pred->formID != 0x14) {
+		if (!pred->IsPlayerRef()) {
 			wastestamina = 30; // Less tamina drain for non Player
 		}
 
@@ -366,7 +366,7 @@ namespace GTS {
 			if (staminacheck < wastestamina) {
 				Notify("{} is too tired for vore.", pred->GetDisplayFullName());
 				DamageAV(prey, ActorValue::kHealth, 3 * sizedifference);
-				if (pred->formID == 0x14) {
+				if (pred->IsPlayerRef()) {
 					Runtime::PlaySound(Runtime::SNDR.GTSSoundFail, pred, 0.4f, 1.0f);
 				}
 				StaggerActor(pred, prey, 0.25f);
@@ -386,7 +386,7 @@ namespace GTS {
 			return;
 		}
 
-		if (pred->formID == 0x14) {
+		if (pred->IsPlayerRef()) {
 			Runtime::PlaySound(Runtime::SNDR.GTSSoundFail, pred, 0.4f, 1.0f);
 		}
 		auto& voreData = this->GetVoreData(pred);

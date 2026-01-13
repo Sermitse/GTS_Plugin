@@ -103,7 +103,7 @@ namespace {
 	void UpdateActors(Actor* actor) {
 		if (actor) {
 			ManagePerkBonuses(actor);
-			if (actor->formID == 0x14) {
+			if (actor->IsPlayerRef()) {
 				TinyCalamity_BonusSpeed(actor); // Manages SMT bonuses
 			}
 		}
@@ -165,7 +165,7 @@ namespace GTS {
 			case ActorValue::kHealth: {
 				float might = 1.0f + Potion_GetMightBonus(actor);
 
-				if (actor->formID == 0x14) {
+				if (actor->IsPlayerRef()) {
 					if (HasSMT(actor)) {
 						scale += 1.0f;
 					}
@@ -186,7 +186,7 @@ namespace GTS {
 
 				float might = 1.0f + Potion_GetMightBonus(actor);
 
-				if (actor->formID == 0x14 && HasSMT(actor)) {
+				if (actor->IsPlayerRef() && HasSMT(actor)) {
 					scale += 3.0f;
 				}
 				if (scale > 1.0f) {
@@ -214,7 +214,7 @@ namespace GTS {
 			}
 
 			case ActorValue::kAttackDamageMult: {
-				if (actor->formID == 0x14 && HasSMT(actor)) {
+				if (actor->IsPlayerRef() && HasSMT(actor)) {
 					scale += 1.0f;
 				}
 				const float BonusDamageMult = Config::Balance.fStatBonusDamageMult;

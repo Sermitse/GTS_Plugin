@@ -404,7 +404,7 @@ namespace GTS {
 		NiPoint3 globalOffset = breastRotation * offset;
 
 		// rotate tiny to face the same direction as gts
-		if (tiny->formID == 0x14 && IsFirstPerson()) {
+		if (tiny->IsPlayerRef() && IsFirstPerson()) {
 			// do nothing
 		} else {
 			tiny->data.angle.z = giant->data.angle.z;

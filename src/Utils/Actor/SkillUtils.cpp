@@ -45,7 +45,7 @@ namespace GTS {
 	}
 
 	float GetLegendaryLevel(Actor* giant) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			auto LegendaryLevel = Runtime::GetFloat(Runtime::GLOB.GTSSkillLegendary);
 			return LegendaryLevel;
 		}

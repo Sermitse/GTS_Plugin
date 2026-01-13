@@ -78,7 +78,7 @@ namespace GTS {
 				// If the current target is the player, we need to check if it's because our tracked actor was lost
 				// or if an external source changed to the player deliberately
 
-				if (currentCameraTarget->formID == 0x14) {
+				if (currentCameraTarget->IsPlayerRef()) {
 
 					if (TrackedActorLost) {
 
@@ -140,7 +140,7 @@ namespace GTS {
 
 	bool SpectatorManager::IsCameraTargetPlayer() {
 		if (const auto CamTarget = GetCameraActor()) {
-			return CamTarget->formID == 0x14;
+			return CamTarget->IsPlayerRef();
 		}
 		return false;
 	}

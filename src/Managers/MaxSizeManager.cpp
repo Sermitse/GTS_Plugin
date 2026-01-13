@@ -150,10 +150,10 @@ namespace GTS {
 			GetLimit = get_mass_based_limit(a_actor, NaturalScale); // Apply Player Mass-Based max size
 		}
 
-		/*else if (QuestStage > 100 && FollowerLimit > 0.0f && FollowerLimit != 1.0f && a_actor->formID != 0x14 && IsTeammate(a_actor)) {
+		/*else if (QuestStage > 100 && FollowerLimit > 0.0f && FollowerLimit != 1.0f && !a_actor->IsPlayerRef() && IsTeammate(a_actor)) {
 			GetLimit = get_follower_size_limit(NaturalScale, FollowerLimit); // Apply Follower Max Size
 		}
-		else if (QuestStage > 100 && NPCLimit > 0.0f && NPCLimit != 1.0f && a_actor->formID != 0x14 && !IsTeammate(a_actor)) {
+		else if (QuestStage > 100 && NPCLimit > 0.0f && NPCLimit != 1.0f && !a_actor->IsPlayerRef() && !IsTeammate(a_actor)) {
             GetLimit = get_npc_size_limit(NaturalScale, NPCLimit); // Apply Other NPC's max size
 		}*/
 
@@ -266,7 +266,7 @@ namespace GTS {
 			const float FollowerLimit = Config::Balance.fMaxFollowerSize;
 			if (IsTeammate(actor)) {
 				ScaleMult = std::clamp(FollowerLimit, 0.1f, 1.0f);
-			} else if (actor->formID == 0x14) {
+			} else if (actor->IsPlayerRef()) {
 				ScaleMult = std::clamp(PCLimit, 0.1f, 1.0f);
 			} else {
 				ScaleMult = std::clamp(NPCLimit, 0.1f, 1.0f);

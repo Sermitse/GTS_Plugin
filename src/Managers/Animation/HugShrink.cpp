@@ -96,7 +96,7 @@ namespace {
 	}
 
 	void Hugs_ShakeCamera(Actor* giant) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			shake_camera(giant, 0.75f, 0.35f);
 		} else {
 			Rumbling::Once("HugGrab_L", giant, Rumble_Hugs_Catch, 0.15f, "NPC L Hand [LHnd]", 0.0f);
@@ -237,7 +237,7 @@ namespace {
 			Task_FacialEmotionTask_Moan(giant, 1.85f, "HugMoan", RandomFloat(0.0f, 0.45f));
 			Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Absorption, CooldownSource::Emotion_Voice_Long);
 
-			if (giant->formID == 0x14) {
+			if (giant->IsPlayerRef()) {
 				float target_scale = get_visual_scale(huggedActor);
 				AdjustSizeReserve(giant, 0.0225f);
 				AdjustMassLimit(0.0075f, giant);
@@ -302,7 +302,7 @@ namespace {
 
 	void GTS_CH_BoobCameraOn(AnimationEventData& data) {
 		ManageCamera(&data.giant, true, CameraTracking::Breasts_02);
-		if (data.giant.formID == 0x14) {
+		if (data.giant.IsPlayerRef()) {
 			std::string name = std::format("ChangeCamera_{}", data.giant.formID);
 			ActorHandle gianthandle = data.giant.CreateRefHandle();
 			TaskManager::Run(name, [=](auto& progressData) {
@@ -411,7 +411,7 @@ namespace {
 			}
 
 			if (Runtime::HasPerkTeam(player, Runtime::PERK.GTSPerkHugsLovingEmbrace)) {
-				if (!IsHostile(huggedActor, player) && (IsTeammate(huggedActor) || huggedActor->formID == 0x14)) {
+				if (!IsHostile(huggedActor, player) && (IsTeammate(huggedActor) || huggedActor->IsPlayerRef())) {
 					StartHealingAnimation(player, huggedActor);
 					return;
 				} else {
@@ -651,7 +651,7 @@ namespace GTS {
 		if (huggedActor) {
 			std::string_view message = fmt::format("{} was saved from hugs of {}", huggedActor->GetDisplayFullName(), giant->GetDisplayFullName());
 			float sizedifference = get_visual_scale(giant)/get_visual_scale(huggedActor);
-			if (giant->formID == 0x14) {
+			if (giant->IsPlayerRef()) {
 				shake_camera(giant, 0.25f * sizedifference, 0.35f);
 			} else {
 				Rumbling::Once("HugRelease", giant, Rumble_Hugs_Release, 0.10f, true);

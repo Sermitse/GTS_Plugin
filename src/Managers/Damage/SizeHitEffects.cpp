@@ -43,7 +43,7 @@ namespace {
 		bool GrowthEnabled = Config::Gameplay.bEnableGrowthOnHit;
 		bool HasPerk = Runtime::HasPerkTeam(receiver, Runtime::PERK.GTSPerkHitGrowth);
 		bool Teammate = (IsTeammate(receiver) || CountAsGiantess(receiver)) && IsFemale(receiver, true);
-		bool IsPlayer = receiver->formID == 0x14;
+		bool IsPlayer = receiver->IsPlayerRef();
 		
 		if (IsPlayer || Teammate) {
 			if (IsHuman(receiver) && GrowthEnabled && HasPerk){
@@ -58,7 +58,7 @@ namespace {
 		const bool HasPerk = Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkHitGrowth);
 		const bool BalanceMode = SizeManager::BalancedMode();
 
-		if (BalanceMode && receiver->formID == 0x14 && !HasPerk) {
+		if (BalanceMode && receiver->IsPlayerRef() && !HasPerk) {
 			if (get_target_scale(receiver) > get_natural_scale(receiver, true)) {
 				return true;
 			}

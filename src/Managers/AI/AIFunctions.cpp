@@ -29,7 +29,7 @@ namespace {
 			}
 			auto actor = tinyRef.get().get();
 
-			if (actor && actor->formID != 0x14) {
+			if (actor && !actor->IsPlayerRef()) {
 				auto process = actor->GetActorRuntimeData().currentProcess;
 				if (process) {
 					auto high = process->high;
@@ -49,7 +49,7 @@ namespace {
 	}
 
 	bool ShouldBeAltered(Actor* giant) {
-		bool Alter = giant && giant->formID != 0x14 && IsTeammate(giant) && 
+		bool Alter = giant && !giant->IsPlayerRef() && IsTeammate(giant) && 
 					IsHuman(giant) && IsFemale(giant, true) 
 					&& get_visual_scale(giant) > 1.25f;
 		return Alter;
@@ -207,7 +207,7 @@ namespace GTS {
 
 		InflictSizeDamage(giant, tiny, hp); // just to make sure
 
-		if (tiny->formID == 0x14) {
+		if (tiny->IsPlayerRef()) {
 			tiny->KillImpl(giant, 1, true, true);
 			tiny->SetAlpha(0.0f);
 		} 
@@ -276,7 +276,7 @@ namespace GTS {
 			return; // Disallow Panic if bool is false.
 		}
 		for (auto tiny: FindSomeActors("AiActors", 2)) {
-			if (tiny != giant && tiny->formID != 0x14 && !IsTeammate(tiny)) {
+			if (tiny != giant && !tiny->IsPlayerRef() && !IsTeammate(tiny)) {
 				if (tiny->IsDead() || IsInSexlabAnim(tiny, giant)) {
 					return;
 				}
