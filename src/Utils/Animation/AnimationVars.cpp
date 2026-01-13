@@ -78,8 +78,8 @@ namespace GraphVars {
 	constexpr PSString _IsKissing              = "GTS_IsKissing";              // Enabled when we Kiss a Tiny during grab-play
 	constexpr PSString _IsPlaying              = "GTS_IsPlaying";              // Enabled when we Play with a Tiny, mostly used in the hand state
 	constexpr PSString _AllowInterupt          = "GTS_AllowInterupt";          // Only used in one place as of April 2025(Hand State kiss vore) but allows some actions to be cancelled into other anims
-	constexpr PSString _IsButtState            = "GTS_IsButtState";            // Enabled when we're in the butt state while sitting on a rune
-	constexpr PSString _IsButtGrinding         = "GTS_IsButtGrinding";         // Enabled when we're grinding a tiny to death while sitting on a rune
+	constexpr PSString _IsButtState            = "GTS_IsButtState";            // Enabled when we're in the butt state while sitting on a rune, Part of thigh sandwich Part 2.
+	constexpr PSString _IsButtGrinding         = "GTS_IsButtGrinding";         // Enabled when we're grinding a tiny to death while sitting on a rune, Part of thigh sandwich Part 2.
 	constexpr PSString _IsUnderGrinding        = "GTS_IsUnderGrinding";        // Enabled when performing a grinding action that resulted from an understomp
 	constexpr PSString _IsUnderTrampling       = "GTS_IsUnderTrampling";       // True when peforming a trample animation that resulted from an understomp
 
@@ -342,8 +342,8 @@ namespace GTS::AnimationVars {
 		bool IsInGrabPlayState(RE::Actor* a_actor)          { return GetBool(a_actor, GraphVars::_IsInGrabPlayState); }
 		bool IsKissing(RE::Actor* a_actor)                  { return GetBool(a_actor, GraphVars::_IsKissing); }
 		bool IsGrabPlaying(RE::Actor* a_actor)              { return GetBool(a_actor, GraphVars::_IsPlaying); }
-		bool IsButtState(RE::Actor* a_actor)                { return GetBool(a_actor, GraphVars::_IsButtState); }
-		bool IsButtGrinding(RE::Actor* a_actor)             { return GetBool(a_actor, GraphVars::_IsButtGrinding); }
+		bool IsInSecondSandwichBranch(RE::Actor* a_actor)   { return GetBool(a_actor, GraphVars::_IsButtState); }
+		bool IsThighGrinding(RE::Actor* a_actor)             { return GetBool(a_actor, GraphVars::_IsButtGrinding); }
 		bool IsUnderGrinding(RE::Actor* a_actor)            { return GetBool(a_actor, GraphVars::_IsUnderGrinding); }
 		bool IsUnderTrampling(RE::Actor* a_actor)           { return GetBool(a_actor, GraphVars::_IsUnderTrampling); }
 		bool IsStoringTiny(RE::Actor* a_actor)              { return GetInt(a_actor, GraphVars::_IsStoringTiny) > 0; }
@@ -364,8 +364,7 @@ namespace GTS::AnimationVars {
 		bool SetIsInGrabPlayState(RE::Actor* a_actor, bool a_value)           { return SetBool(a_actor, GraphVars::_IsInGrabPlayState, a_value); }
 		bool SetIsKissing(RE::Actor* a_actor, bool a_value)                   { return SetBool(a_actor, GraphVars::_IsKissing, a_value); }
 		bool SetIsGrabPlaying(RE::Actor* a_actor, bool a_value)               { return SetBool(a_actor, GraphVars::_IsPlaying, a_value); }
-		bool SetIsButtState(RE::Actor* a_actor, bool a_value)                 { return SetBool(a_actor, GraphVars::_IsButtState, a_value); }
-		bool SetIsButtGrinding(RE::Actor* a_actor, bool a_value)              { return SetBool(a_actor, GraphVars::_IsButtGrinding, a_value); }
+		bool SetIsThighGrinding(RE::Actor* a_actor, bool a_value)              { return SetBool(a_actor, GraphVars::_IsButtGrinding, a_value); }
 		bool SetIsUnderGrinding(RE::Actor* a_actor, bool a_value)             { return SetBool(a_actor, GraphVars::_IsUnderGrinding, a_value); }
 		bool SetIsUnderTrampling(RE::Actor* a_actor, bool a_value)            { return SetBool(a_actor, GraphVars::_IsUnderTrampling, a_value); }
 		bool SetIsStoringTiny(RE::Actor* a_actor, bool a_value)               { return SetInt(a_actor, GraphVars::_IsStoringTiny, a_value ? 1 : 0); }

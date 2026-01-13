@@ -121,8 +121,8 @@ namespace GTS::AnimationVars {
 		bool IsInGrabPlayState(RE::Actor* a_actor);
 		bool IsKissing(RE::Actor* a_actor);
 		bool IsGrabPlaying(RE::Actor* a_actor);
-		bool IsButtState(RE::Actor* a_actor);
-		bool IsButtGrinding(RE::Actor* a_actor);
+		bool IsInSecondSandwichBranch(RE::Actor* a_actor);
+		bool IsThighGrinding(RE::Actor* a_actor);
 		bool IsUnderGrinding(RE::Actor* a_actor);
 		bool IsUnderTrampling(RE::Actor* a_actor);
 		bool IsStoringTiny(RE::Actor* a_actor);
@@ -141,8 +141,7 @@ namespace GTS::AnimationVars {
 		bool SetIsInGrabPlayState(RE::Actor* a_actor, bool a_value);
 		bool SetIsKissing(RE::Actor* a_actor, bool a_value);
 		bool SetIsGrabPlaying(RE::Actor* a_actor, bool a_value);
-		bool SetIsButtState(RE::Actor* a_actor, bool a_value);
-		bool SetIsButtGrinding(RE::Actor* a_actor, bool a_value);
+		bool SetIsThighGrinding(RE::Actor* a_actor, bool a_value);
 		bool SetIsUnderGrinding(RE::Actor* a_actor, bool a_value);
 		bool SetIsUnderTrampling(RE::Actor* a_actor, bool a_value);
 		bool SetIsStoringTiny(RE::Actor* a_actor, bool a_value);

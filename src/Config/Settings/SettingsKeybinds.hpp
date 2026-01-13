@@ -404,6 +404,73 @@ namespace GTS {
 		        .BlockInput = "Never"
 		    }
         },
+		{
+			.UICategory = LInputCategory_t::kThighs,
+			.AdvFeature = false,
+			.UIName = "Thigh-Sandwich Butt Start",
+			.UIDescription = "TODO",
+			.Event = {
+				.Event = "SandwichButtStart",
+				.Keys = {"LSHIFT", "H"},
+				.Exclusive = true,
+			}
+		},
+		{
+			.UICategory = LInputCategory_t::kThighs,
+			.AdvFeature = false,
+			.UIName = "Thigh-Sandwich Grow",
+			.UIDescription = "TODO",
+			.Event = {
+				.Event = "SandwichGrowth",
+				.Keys = {"W"},
+				.Exclusive = true
+			}
+		},
+		{
+			.UICategory = LInputCategory_t::kThighs,
+			.AdvFeature = false,
+			.UIName = "Thigh-Sandwich Grind Start",
+			.UIDescription = "TODO",
+			.Event = {
+				.Event = "SandwichGrindStart",
+				.Keys = {"LSHIFT", "S"},
+				.Exclusive = true,
+			}
+		},
+		{
+			.UICategory = LInputCategory_t::kThighs,
+			.AdvFeature = false,
+			.UIName = "Thigh-Sandwich Grind Stop",
+			.UIDescription = "TODO",
+			.Event = {
+				.Event = "SandwichGrindStop",
+				.Keys = {"LSHIFT", "S"},
+				.Exclusive = true,
+			}
+		},
+		{
+			.UICategory = LInputCategory_t::kThighs,
+			.AdvFeature = false,
+			.UIName = "Thigh-Sandwich Butt Stop",
+			.UIDescription = "TODO",
+			.Event = {
+				.Event = "SandwichButtStop",
+				.Keys = {"S"},
+				.Exclusive = true,
+			}
+		},
+		{
+			.UICategory = LInputCategory_t::kThighs,
+			.AdvFeature = false,
+			.UIName = "Thigh-Sandwich Unbirth",
+			.UIDescription = "TODO",
+			.Event = {
+				.Event = "SandwichUB",
+				.Keys = {"V"},
+				.Exclusive = true,
+				.Duration = 0.33f,
+			}
+		},
 
         //========================================================
 	    //============ K I C K S

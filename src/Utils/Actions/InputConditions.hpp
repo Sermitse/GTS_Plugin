@@ -293,6 +293,45 @@ namespace GTS {
 		return true;
 	}
 
+	static bool ThighSandwichGrind_Start() {
+		auto target = PlayerCharacter::GetSingleton();
+		if (!AnimationVars::Action::IsInSecondSandwichBranch(target) || AnimationVars::Action::IsThighGrinding(target)) {
+			return false;
+		}
+		return true;
+	}
+	static bool ThighSandwichGrind() {
+		auto target = PlayerCharacter::GetSingleton();
+		if (!AnimationVars::Action::IsThighGrinding(target)) {
+			return false;
+		}
+		return true;
+	}
+
+	static bool SecondThighSandwichBranch_Start() {
+		auto target = PlayerCharacter::GetSingleton();
+		if (AnimationVars::Action::IsInSecondSandwichBranch(target) || !AnimationVars::Action::IsThighSandwiching(target)) {
+			return false;
+		}
+		return true;
+	}
+
+	static bool SecondThighSandwichBranch() {
+		auto target = PlayerCharacter::GetSingleton();
+		if (!AnimationVars::Action::IsInSecondSandwichBranch(target)) {
+			return false;
+		}
+		return true;
+	}
+
+	static bool UBCondition() {
+		auto target = PlayerCharacter::GetSingleton();
+		if (!AnimationVars::Action::IsThighSandwiching(target)) {
+			return false;
+		}
+		return true;
+	}
+
 	//---------------------------
 	// Grab
 	//---------------------------

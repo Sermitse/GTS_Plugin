@@ -141,6 +141,7 @@ namespace {
 	void GTSSandwich_EnableRune(AnimationEventData& data) {
 		ManageCamera(&data.giant, true, CameraTracking::Thigh_Sandwich); // Focus camera on AnimObjectA
 		//SandwichingData::StartRuneTask(&data.giant, RuneTask::kEnlarge); // Start Growing the Rune
+		// THIS EVENT IS ALREADY USED BY OTHER THIGH SANDWICH ATTACK
 		Runtime::CastSpell(&data.giant, &data.giant, Runtime::SPEL.GTSSpellThighRune);
 	}
 

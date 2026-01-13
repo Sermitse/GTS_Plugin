@@ -156,8 +156,6 @@ namespace GTS {
 
 				Actor* tiny_is_actor = skyrim_cast<Actor*>(tiny);
 				if (tiny_is_actor) {
-					ShutUp(tiny_is_actor);
-					ForceRagdoll(tiny_is_actor, false);
 					AttachToR ? AttachToObjectR(GiantRef, tiny_is_actor) : AttachToObjectA(GiantRef, tiny_is_actor);
 					//ForceRagdoll(tiny_is_actor, false);
 					ShutUp(tiny_is_actor);
