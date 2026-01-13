@@ -124,11 +124,9 @@
 #include <absl/container/flat_hash_map.h> //https://github.com/abseil/abseil-cpp
 #include <re2/re2.h>                      //https://github.com/google/re2
 
-//Imgui Defines
+//Imgui
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #define IMGUI_DEFINE_MATH_OPERATORS
-
-//Imgui
 #include "UI/Lib/imgui.h"
 #include "UI/Lib/imgui_internal.h"
 #include "UI/Lib/imgui_stdlib.h"
@@ -164,8 +162,8 @@ namespace Hooks {
 namespace logger = SKSE::log;
 
 //Project-Wide Defines
-//#define GTS_PROFILER_ENABLED
-//#define GTS_DISABLE_PLUGIN
+//#define GTS_PROFILER_ENABLED //<---- Enable The Performance Profiller. Accessible by opening the debug menu.
+//#define GTS_DISABLE_PLUGIN   //<---- If defined, Disables the entire plugin but keeps serialization active to preserve cosave data.
 
 //WinAPI Fix
 #undef PlaySound 
