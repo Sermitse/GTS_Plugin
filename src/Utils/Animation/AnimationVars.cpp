@@ -170,7 +170,7 @@ namespace GraphVars {
 	// constexpr PSString _Unk = "GTS_VoreCamera";
 	// constexpr PSString _Unk = "GTS_WantBlock_Invert";
 	// constexpr PSString _Unk = "GTS_WeapOut";
-	// constexpr PSString _Unk = "GTS_isGrowing";
+	// constexpr PSString _Unk = "GTS_isGrowing"; //Yeah this one has a lowercase i in "is".
 
 	//Ints
 	// constexpr PSString _Unk = "iState_GTSProne";
