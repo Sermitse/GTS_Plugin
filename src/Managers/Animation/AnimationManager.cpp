@@ -13,7 +13,6 @@
 
 #include "Config/Config.hpp"
 
-#include "Managers/Animation/ThighSandwich_Part2.hpp"
 #include "Managers/Animation/CleavageStrangle.hpp"
 #include "Managers/Animation/Grab_Sneak_Vore.hpp"
 #include "Managers/Animation/Sneak_KneeCrush.hpp"
@@ -85,9 +84,6 @@ namespace GTS {
 		AnimationUnderStompFullBody::RegisterEvents();
 		AnimationUnderStompSlam::RegisterEvents();
 		AnimationUnderStompButt::RegisterEvents();
-		
-		AnimationThighSandwich_P2::RegisterEvents();
-		AnimationThighSandwich_P2::RegisterTriggers();
 
 		AnimationThighSandwich::RegisterEvents();
 		AnimationThighSandwich::RegisterTriggers();
