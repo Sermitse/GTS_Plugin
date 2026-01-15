@@ -58,6 +58,4 @@ in either `kPostPostLoad` or `kDataLoaded` SKSE message events.
 ## Implemented features that need improving
 - [X] [1] Correct Collider Scaling (Currently done through Side-Mod)
 - [X] [2] Affect detection based on scale (Partially done)
-
-
-
+- [X] [3] NPC Movement state correction (Limit NPC Movement to just walk and jog states). Partially works and only on the AI Follow procedure.
