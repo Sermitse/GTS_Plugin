@@ -321,13 +321,13 @@ namespace {
 
 	void ButtCrushGrowEvent(const ManagedInputEvent& data) {
 		Actor* player = GetPlayerOrControlled();
-			float GrowthCount = GetGrowthLimit(player);
-			bool CanGrow = ButtCrush_IsAbleToGrow(player, GrowthCount);
-			if (CanGrow) {
-				AnimationManager::StartAnim("ButtCrush_Growth", player);
-			} else {
-				NotifyWithSound(player, "Your body can't grow any further");
-			}
+		float GrowthCount = GetGrowthLimit(player);
+		bool CanGrow = ButtCrush_IsAbleToGrow(player, GrowthCount);
+		if (CanGrow) {
+			AnimationManager::StartAnim("ButtCrush_Growth", player);
+		} else {
+			NotifyWithSound(player, "Your body can't grow any further");
+		}
 	}
 
 	void ButtCrushAttackEvent(const ManagedInputEvent& data) {
