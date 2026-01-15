@@ -27,6 +27,8 @@
 	- Aspect Of Giantess (buff);
 	- Vore Stacks (passive);
 	- On The Edge (Perk);
+- [X] [21] Quest progression UI.
+- [X] [22] Improved code structure.
 
 ## Easier Things
 - [X] Scale

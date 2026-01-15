@@ -53,9 +53,7 @@ in either `kPostPostLoad` or `kDataLoaded` SKSE message events.
 
 ## Current feature wishlist
 
-- [ ] [1] Blood feet/hands after crushing.
-- [ ] [2] Quest progression UI.
-- [ ] [3] Improved code structure.
+- [ ] [1] Blood on feet/hands after crushing.
 
 ## Implemented features that need improving
 - [X] [1] Correct Collider Scaling (Currently done through Side-Mod)
