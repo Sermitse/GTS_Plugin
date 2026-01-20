@@ -39,9 +39,6 @@ namespace GTS {
 		.maxCosAngleForBevelPlanes = -0.1f,
 	};
 
-
-
-
 	bool GetShapes(RE::bhkCharacterController* a_charController, RE::hkpConvexVerticesShape*& a_outConvexShape, std::vector<RE::hkpCapsuleShape*>& a_OutCollisionShapes);
 	bool GetConvexShape(RE::bhkCharacterController* a_charController, RE::hkpCharacterProxy*& a_outProxy, RE::hkpCharacterRigidBody*& a_outRigidBody, RE::hkpListShape*& a_outListShape, RE::hkpConvexVerticesShape*& a_outConvexShape);
 	hkpCapsuleShape* CloneCapsule(const hkpCapsuleShape* src);
@@ -49,13 +46,10 @@ namespace GTS {
 	hkpShape* DeepCloneShape(hkpShape* s);
 	bool GetCapsules(bhkCharacterController* a_controller, std::vector<hkpCapsuleShape*>& a_outCapsules);
 	bool GetNPCCapsules(bhkShape* a_bhkshape, std::vector<hkpCapsuleShape*>& a_outCapsules);
-	void ToggleCharacterBumper(RE::Actor* a_actor, bool a_enable);
 
 	void FillCloningProcess(RE::NiCloningProcess& a_cloningProcess);
-	
-	void DrawCollisionShapes(RE::bhkCharacterController* a_controller, const RE::Actor* a_actor);
+	void DrawCollisionShapes(const RE::Actor* a_actor, bool isBoneDriven);
 
-	glm::vec3 hkVec4ToGlVec3(const RE::hkVector4& a);
 	glm::vec3 NiPointToVec3(const RE::NiPoint3& a);
 	hkVector4 NiPointToHk4(const RE::NiPoint3& a);
 	NiPoint3 hkVec4ToNiPoint(const RE::hkVector4& a);
@@ -74,16 +68,17 @@ namespace GTS {
 		auto clone = reinterpret_cast<T*>(a_object->Clone(cloningProcess));
 		return clone;
 	}
-	__m128 NormalizeXYAndScale(__m128 vec, float scale, float zValue);
-	float GetVerticesWidthMult(RE::Actor* actor);
+
+	__m128 ScaleRingWidth(__m128 vec, float scale, float zValue);
+	float GetVerticesWidthMult(Actor* actor, bool isBoneDriven);
 	bool MoveVertZ(RE::Actor* a_actor, std::vector<RE::hkVector4>& a_modVerts, const uint8_t a_vertIdx, const std::string_view& a_boneToFollow, absl::flat_hash_map<std::string, RE::NiAVObject*>& a_boneCache, const float a_refPos);
 	float GetLargestBoneDistance(RE::Actor* a_actor, absl::flat_hash_map<std::string, RE::NiAVObject*>& a_boneCache);
-	bool MoveRingsZAggregate(RE::Actor* a_actor, std::vector<RE::hkVector4>& a_modVerts, const std::array<uint8_t, 8>& ringIdxs, const std::vector<std::string_view>& bonesToFollow, absl::flat_hash_map<std::string, RE::NiAVObject*>& a_boneCache, const float& a_botOfs, const float& a_distance);
+	bool MoveRings(RE::Actor* a_actor, std::vector<RE::hkVector4>& a_modVerts, const std::array<uint8_t, 8>& ringIdxs, const std::vector<std::string_view>& bonesToFollow, absl::flat_hash_map<std::string, RE::NiAVObject*>& a_boneCache, const float& a_botOfs, const float& a_distance);
 	void ScaleCapsuleFromData(RE::hkpCapsuleShape& outCapsule, const GTS::DynamicController::CapsuleData& src, float scale);
 	bool UpdateCapsuleScale(RE::bhkShape* a_shape, const GTS::DynamicController::ShapeData& a_data, const float scale);
-	bool UpdatePlayerCapsuleScale(RE::bhkCharacterController* a_controller, const GTS::DynamicController::ShapeData& a_data, const float scale);
-	void UpdateControllerData(RE::bhkCharacterController* a_controller, const GTS::DynamicController::ShapeData& a_data, const float& a_currentScale);
-	void CreateAndSetVerticesShape(RE::bhkWorld* a_world, RE::hkpConvexVerticesShape* a_convexShape, RE::hkpListShape* a_listShape, RE::hkpCharacterProxy* a_proxy, RE::hkpCharacterRigidBody* a_rigidBody, std::vector<RE::hkVector4>& a_modVerts);
-	void CorrectCollapsedVertexShape(std::vector<RE::hkVector4>& a_modVerts);
+	bool ScaleBumper(RE::bhkCharacterController* a_controller, const GTS::DynamicController::ShapeData& a_data, const float scale);
+	void UpdateControllerData(RE::bhkCharacterController* a_controller, const GTS::DynamicController::ShapeData& a_origData, const float& a_currentScale);
+	void SetNewVerticesShape(RE::hkpConvexVerticesShape* a_convexShape, RE::hkpListShape* a_listShape, RE::hkpCharacterProxy* a_proxy, RE::hkpCharacterRigidBody* a_rigidBody, std::vector<RE::hkVector4>& a_modVerts);
+	void CheckAndCorrectCollapsedVertexShape(std::vector<RE::hkVector4>& a_modVerts);
 	bool ScaleorStateChange(const RE::ActorState::ActorState1& a_currentState, const RE::ActorState::ActorState1& a_Prevstate, const float& a_currentScale, const float& a_prevScale);
 }

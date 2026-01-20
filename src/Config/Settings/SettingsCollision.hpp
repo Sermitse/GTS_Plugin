@@ -25,12 +25,32 @@ Reflection based serializer limitations:
 //-------------------------------------------------------------------------------------------------------------------
 //  BASE STRUCT
 //  (Directly Serialized)
-//  Note: This struct is loaded at the main menu and its settings are independent of the currently loaded save.
 //-------------------------------------------------------------------------------------------------------------------
 
-struct SettingsPersistent_t {
-	bool bShowSplashScreen = true;
-	bool bEnableDynamicCollision = true;
+struct SettingsCollision_t {
+
+	bool bEnableBoneDrivenCollisionUpdatesFollowers = false;
+	bool bDrawDebugShapes = false;
+
+	float fBoneDrivenWidthMultBase = 1.25f;
+    float fBoneDrivenWidthMultSwimming = 2.0f;
+	float fBoneDrivenWidthMultSneaking = 1.5f;
+	float fBoneDrivenWidthMultCrawling = 1.5f;
+	float fBoneDrivenWidthMultProning = 2.0f;
+
+	float fMSimpleDrivenColliderMaxScale = 1.0f;
+	float fMSimpleDrivenColliderMinScale = 0.05f;
+    float fSimpleDrivenWidthMultBase = 1.25f;
+    float fSimpleDrivenWidthMultSwimming = 2.0f;
+    float fSimpleDrivenWidthMultSneaking = 1.5f;
+    float fSimpleDrivenWidthMultCrawling = 1.5f;
+	float fSimpleDrivenHeightMultSwimming = 0.25f;
+	float fSimpleDrivenHeightMultSneaking = 0.5f;
+	float fSimpleDrivenHeightMultCrawling = 0.4f;
+
+	uint32_t iMaxSlopeAngle = 85;
+	uint32_t iMinSlopeAngle = 60;
+
 };
-TOML_SERIALIZABLE(SettingsPersistent_t);
-TOML_REGISTER_NAME(SettingsPersistent_t, "Persistent");
+TOML_SERIALIZABLE(SettingsCollision_t);
+TOML_REGISTER_NAME(SettingsCollision_t, "Collision");

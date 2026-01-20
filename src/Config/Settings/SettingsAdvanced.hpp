@@ -54,12 +54,6 @@ struct SettingsAdvanced_t {
 
     bool bGTSAnimsFullSpeed = false;
     float fAnimspeedLowestBoundAllowed = 0.01f;
-    float fColliderWidthMultBase = 1.25f;
-    float fColliderWidthMultSwimming = 1.0f;
-    float fColliderWidthMultSneaking = 1.5f;
-    float fColliderWidthMultCrawling = 1.5f;
-    float fColliderWidthMultProning = 2.0f;
-    float fColliderExtraHeadHeight = 0.07f;
 
 };
 TOML_SERIALIZABLE(SettingsAdvanced_t);

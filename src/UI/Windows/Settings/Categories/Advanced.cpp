@@ -225,13 +225,6 @@ namespace GTS {
                     ImGui::Text("Deleted %d NPC's", deletedcnt);
                 }
 
-                ImGuiEx::SliderF("Base", &Config::Advanced.fColliderWidthMultBase, 0.01f, 10.0f);
-                ImGuiEx::SliderF("Sneak", &Config::Advanced.fColliderWidthMultSneaking, 0.01f, 10.0f);
-                ImGuiEx::SliderF("Crawl", &Config::Advanced.fColliderWidthMultCrawling, 0.01f, 10.0f);
-                ImGuiEx::SliderF("Prone", &Config::Advanced.fColliderWidthMultProning, 0.01f, 10.0f);
-                ImGuiEx::SliderF("Swim", &Config::Advanced.fColliderWidthMultSwimming, 0.01f, 10.0f);
-                ImGuiEx::SliderF("Extra Head", &Config::Advanced.fColliderExtraHeadHeight, 0.01f, 10.0f);
-
             }
         }
     }

@@ -5,6 +5,7 @@
 #include "Config/Settings/SettingsAudio.hpp"
 #include "Config/Settings/SettingsBalance.hpp"
 #include "Config/Settings/SettingsCamera.hpp"
+#include "Config/Settings/SettingsCollision.hpp"
 #include "Config/Settings/SettingsGameplay.hpp"
 #include "Config/Settings/SettingsGeneral.hpp"
 #include "Config/Settings/SettingsUI.hpp"
@@ -32,6 +33,7 @@ namespace GTS {
                 updateRes &= a_conf.UpdateTOMLFromStruct(a_toml, a_conf.AI,        std::string(toml::refl::GetFriendlyName(a_conf.AI)));
                 updateRes &= a_conf.UpdateTOMLFromStruct(a_toml, a_conf.Camera,    std::string(toml::refl::GetFriendlyName(a_conf.Camera)));
                 updateRes &= a_conf.UpdateTOMLFromStruct(a_toml, a_conf.UI,        std::string(toml::refl::GetFriendlyName(a_conf.UI)));
+                updateRes &= a_conf.UpdateTOMLFromStruct(a_toml, a_conf.Collision, std::string(toml::refl::GetFriendlyName(a_conf.Collision)));
 
                 // Serialize window settings
                 if (WindowSettingsRegistry::GetSingleton().HasWindowSettings()) {
@@ -75,6 +77,7 @@ namespace GTS {
                 loadRes &= a_conf.LoadStructFromTOML(a_toml, a_conf.AI,         std::string(toml::refl::GetFriendlyName(a_conf.AI)));
                 loadRes &= a_conf.LoadStructFromTOML(a_toml, a_conf.Camera,     std::string(toml::refl::GetFriendlyName(a_conf.Camera)));
                 loadRes &= a_conf.LoadStructFromTOML(a_toml, a_conf.UI,         std::string(toml::refl::GetFriendlyName(a_conf.UI)));
+                loadRes &= a_conf.LoadStructFromTOML(a_toml, a_conf.Collision,  std::string(toml::refl::GetFriendlyName(a_conf.Collision)));
 
                 // Deserialize window settings
                 if (WindowSettingsRegistry::GetSingleton().HasWindowSettings()) {
@@ -106,14 +109,15 @@ namespace GTS {
         template<typename Config>
         static void ResetAllStructsToDefaults(Config& a_conf) {
             // Reset static settings
-            a_conf.Advanced = SettingsAdvanced_t{};
-            a_conf.General = SettingsGeneral_t{};
-            a_conf.AI = SettingsAI_t{};
-            a_conf.Audio = SettingsAudio_t{};
-            a_conf.Balance = SettingsBalance_t{};
-            a_conf.Camera = SettingsCamera_t{};
-            a_conf.Gameplay = SettingsGameplay_t{};
-            a_conf.UI = SettingsUI_t{};
+            a_conf.Advanced  = SettingsAdvanced_t{};
+            a_conf.General   = SettingsGeneral_t{};
+            a_conf.AI        = SettingsAI_t{};
+            a_conf.Audio     = SettingsAudio_t{};
+            a_conf.Balance   = SettingsBalance_t{};
+            a_conf.Camera    = SettingsCamera_t{};
+            a_conf.Gameplay  = SettingsGameplay_t{};
+            a_conf.UI        = SettingsUI_t{};
+            a_conf.Collision = SettingsCollision_t{};
 
             // Reset window settings
             WindowSettingsRegistry::GetSingleton().ResetAllWindowSettings();

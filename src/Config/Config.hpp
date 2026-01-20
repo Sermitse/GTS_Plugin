@@ -7,11 +7,12 @@
 #include "Config/Settings/SettingsAudio.hpp"
 #include "Config/Settings/SettingsBalance.hpp"
 #include "Config/Settings/SettingsCamera.hpp"
+#include "Config/Settings/SettingsCollision.hpp"
 #include "Config/Settings/SettingsGameplay.hpp"
 #include "Config/Settings/SettingsGeneral.hpp"
 #include "Config/Settings/SettingsHidden.hpp"
-#include "Config/Settings/SettingsUI.hpp"
 #include "Config/Settings/SettingsPersistent.hpp"
+#include "Config/Settings/SettingsUI.hpp"
 
 
 namespace GTS {
@@ -38,6 +39,7 @@ namespace GTS {
         static inline SettingsCamera_t Camera         = {};
         static inline SettingsUI_t UI                 = {};
         static inline SettingsPersistent_t Persistent = {};
+		static inline SettingsCollision_t Collision   = {};
 
         void DataReady() override;
         std::string DebugName() override;
