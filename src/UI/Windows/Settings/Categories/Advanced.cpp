@@ -202,6 +202,36 @@ namespace GTS {
                         }
                     });
                 }
+                static uint32_t deletedcnt = -1;
+                if (ImGuiEx::Button("Delete Dead Dynamic NPC's", "", false, 1.0f)) {
+                    deletedcnt = 0;
+
+                    RE::TES::GetSingleton()->ForEachReferenceInRange(PlayerCharacter::GetSingleton(), 16384.0f, [&](RE::TESObjectREFR* a_ref) {
+
+                        if (Actor* asActor = skyrim_cast<Actor*>(a_ref)) {
+	                        
+                            if (asActor->IsDynamicForm() && asActor->IsDead()) {
+                                asActor->Disable();
+                            	asActor->SetDelete(true);
+                                deletedcnt++;
+                            } 
+
+                        }
+                        return RE::BSContainer::ForEachResult::kContinue;
+                    });
+                }
+
+                if (deletedcnt > 0) {
+                    ImGui::Text("Deleted %d NPC's", deletedcnt);
+                }
+
+                ImGuiEx::SliderF("Base", &Config::Advanced.fColliderWidthMultBase, 0.01f, 10.0f);
+                ImGuiEx::SliderF("Sneak", &Config::Advanced.fColliderWidthMultSneaking, 0.01f, 10.0f);
+                ImGuiEx::SliderF("Crawl", &Config::Advanced.fColliderWidthMultCrawling, 0.01f, 10.0f);
+                ImGuiEx::SliderF("Prone", &Config::Advanced.fColliderWidthMultProning, 0.01f, 10.0f);
+                ImGuiEx::SliderF("Swim", &Config::Advanced.fColliderWidthMultSwimming, 0.01f, 10.0f);
+                ImGuiEx::SliderF("Extra Head", &Config::Advanced.fColliderExtraHeadHeight, 0.01f, 10.0f);
+
             }
         }
     }

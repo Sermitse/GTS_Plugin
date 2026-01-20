@@ -41,6 +41,7 @@
 
 #include "Magic/Magic.hpp"
 
+#include "Managers/Collision/DynamicCollisionManager.hpp"
 #include "Managers/Morphs/MorphManager.hpp"
 
 #include "Scale/DynamicScale.hpp"
@@ -99,6 +100,7 @@ namespace GTS {
 		EventDispatcher::AddListener(&ItemDistributor::GetSingleton());
 		EventDispatcher::AddListener(&ConfigModHandler::GetSingleton());
 		EventDispatcher::AddListener(&MorphManager::GetSingleton());
+		EventDispatcher::AddListener(&DynamicCollisionManager::GetSingleton());
 
 		log::info("Managers Registered");
 	}
