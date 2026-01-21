@@ -129,8 +129,8 @@ namespace GTS {
 			m_currentVisualScale = get_visual_scale(Target);
 			bhkCharacterController* controller = Target->GetCharController();
 
-			if (m_currentVisualScale > 250.f) {
-				return; //Stop updating past this scale, same scale used in the old DCA version. I have no idea how havok will behave past this scale or what can happen if the hkVector scalars become NaN or Inf.
+			if (m_currentVisualScale > 50.f) {
+				return; //Stop updating past this scale. While Havok can handle larger the large shape causes massive lag due to all the collision checks.
 			}
 
 			if (Target->IsPlayerRef() || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
