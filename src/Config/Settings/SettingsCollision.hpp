@@ -31,6 +31,7 @@ struct SettingsCollision_t {
 
 	bool bEnableBoneDrivenCollisionUpdatesFollowers = false;
 	bool bDrawDebugShapes = false;
+	bool bDrawBumpers = false;
 
 	float fBoneDrivenWidthMultBase = 1.25f;
     float fBoneDrivenWidthMultSwimming = 2.0f;
@@ -47,9 +48,6 @@ struct SettingsCollision_t {
 	float fSimpleDrivenHeightMultSwimming = 0.25f;
 	float fSimpleDrivenHeightMultSneaking = 0.5f;
 	float fSimpleDrivenHeightMultCrawling = 0.4f;
-
-	uint32_t iMaxSlopeAngle = 85;
-	uint32_t iMinSlopeAngle = 60;
 
 };
 TOML_SERIALIZABLE(SettingsCollision_t);

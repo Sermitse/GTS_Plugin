@@ -4,6 +4,7 @@
 
 #include "UI/Controls/CheckBox.hpp"
 #include "UI/Controls/Slider.hpp"
+#include "UI/Controls/Text.hpp"
 #include "UI/Controls/ToolTip.hpp"
 #include "UI/Core/ImUtil.hpp"
 
@@ -90,8 +91,7 @@ namespace GTS {
 	    					 "(Your Skyrim Folder)\\Data\\Sound\\fx\\GTS\\Moans_Laughs";
 	        
 	        if(ImGui::CollapsingHeader("Sounds",ImUtil::HeaderFlagsDefaultOpen)){
-				ImGui::TextColored(ImUtil::Colors::Subscript, "A Note On Sounds (?)");
-				ImGuiEx::Tooltip(THelp ,true);
+				ImGuiEx::HelpText("A Note On Sounds", THelp);
 
 				ImGuiEx::CheckBox("Enable Moans", &Config::Audio.bMoanEnable, T6);
 				ImGui::SameLine();
@@ -131,10 +131,9 @@ namespace GTS {
 								 "If this menu is empty it means none of the currently loaded npc's are elidgible for this feature.";
 				ImGui::BeginDisabled(!Config::Audio.bMoanEnable);
 				if (ImGui::CollapsingHeader("Alternative Voice Options", ImUtil::HeaderFlagsDefaultOpen)) {
-					ImGui::TextColored(ImUtil::Colors::Subscript, "What is this (?)");
-					ImGuiEx::Tooltip(THelp, true);
+					ImGuiEx::HelpText("What is this", THelp);
 
-					const auto Player = PlayerCharacter::GetSingleton();
+					static const auto Player = PlayerCharacter::GetSingleton();
 
 					if (IsFemale(Player)){
 						SelectVoiceBank(Player);

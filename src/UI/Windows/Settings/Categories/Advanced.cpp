@@ -183,59 +183,6 @@ namespace GTS {
                 ImGui::Spacing();
 
 	        }
-
-            if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
-
-                if (ImGuiEx::Button("Clear World Decals", "Removes All Loaded World Decals. Needs cell reload to fully take effect.", false, 1.0f)) {
-
-                    RE::TES::GetSingleton()->ForEachCell([&](RE::TESObjectCELL* a_ref) {
-                        if (const NiPointer<NiNode>& cell = a_ref->GetRuntimeData().loadedData->cell3D) {
-                            if (RE::BGSDecalNode* node = static_cast<RE::BGSDecalNode*>(cell->GetObjectByName(RE::FixedStrings::GetSingleton()->decalNode))) {
-                                for (NiPointer<BSTempEffect>& decal : node->GetRuntimeData().decals) {
-                                    decal.get()->lifetime = 0.0f;
-                                    decal->Detach();
-                                    decal->Update(0.0f);
-                                    decal->Get3D()->CullNode(true);
-                                    decal->Get3D()->UpdateMaterialAlpha(0.0f, false);
-                                }
-                            }
-                        }
-                    });
-                }
-                static int32_t deletedcnt = -1;
-                if (ImGuiEx::Button("Delete Dead Dynamic NPC's", "", false, 1.0f)) {
-                    deletedcnt = 0;
-
-                    RE::TES::GetSingleton()->ForEachReferenceInRange(PlayerCharacter::GetSingleton(), 16384.0f, [&](RE::TESObjectREFR* a_ref) {
-
-                        if (Actor* asActor = skyrim_cast<Actor*>(a_ref)) {
-	                        
-                            if (asActor->IsDynamicForm() && asActor->IsDead()) {
-                                asActor->Disable();
-                            	asActor->SetDelete(true);
-                                deletedcnt++;
-                            } 
-
-                        }
-                        return RE::BSContainer::ForEachResult::kContinue;
-                    });
-                }
-
-                if (deletedcnt > 0) {
-                    ImGui::Text("Deleted %d NPC's", deletedcnt);
-                }
-
-                auto& maxSlopeRaw = PlayerCharacter::GetSingleton()->GetCharController()->maxSlope;
-                float asFloat = std::bit_cast<float>(maxSlopeRaw);
-                ImGui::Text("Player bhkCharacterController maxSlope Test");
-                ImGui::Text("Raw uint32: %u", maxSlopeRaw);
-                ImGui::Text("As float: %.6f", asFloat);
-                ImGui::Text("Radians to degrees: %.2f°", asFloat * 180.0f / std::numbers::pi);
-                ImGui::Text("As tan(angle): %.2f°", std::atan(asFloat) * 180.0f / std::numbers::pi);
-                ImGui::Text("As cos(angle): %.2f°", std::acos(asFloat) * 180.0f / std::numbers::pi);
-                ImGui::Text("As slope ratio (rise/run): %.2f%%", asFloat * 100.0f);
-
-            }
         }
     }
 }

@@ -11,6 +11,8 @@
 #include "Managers/MaxSizeManager.hpp"
 #include "Config/Config.hpp"
 
+#include "UI/Controls/Text.hpp"
+
 
 namespace GTS {
 
@@ -37,11 +39,7 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Balance Mode", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                ImGui::TextColored(ImUtil::Colors::Subscript,"What is balance mode (?)");
-                if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip(THelp);
-                }
-
+                ImGuiEx::HelpText("What is balance mode", THelp);
                 ImGuiEx::CheckBox("Enable Balance Mode", &Config::Balance.bBalanceMode, T0);
 
                 ImGui::BeginDisabled(!Config::Balance.bBalanceMode);
@@ -112,7 +110,7 @@ namespace GTS {
             PSString T0 = "Change the formula used for all size gain.";
             PSString T1 = "Adjust the global multiplier for all size gains and losses.";
 
-            PSString Thelp = "Size gain mode defines the way you gain maximum size.\n"
+            PSString THelp = "Size gain mode defines the way you gain maximum size.\n"
         					 "In normal mode the maximum size you can grow to is defined by:\n"
 							 "Current perks, GTS skill level, player level, and essense absorbed (through potions or by killing dragons while having a perk) and how far you are into the quest.\n"
         					 "In \"Mass Based\" mode your maximum size is determiend by how many things you have absorbed/eaten/etc...\n"
@@ -121,8 +119,7 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Size Options", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                ImGui::TextColored(ImUtil::Colors::Subscript, "What is this (?)");
-                ImGuiEx::Tooltip(Thelp, true);
+                ImGuiEx::HelpText("What is this", THelp);
 
                 if (ImGuiEx::ComboEx<LSizeMode_t>("Size Gain Mode", Config::Balance.sSizeMode, T0)) {
                     if (Config::Balance.sSizeMode == "kNormal") Config::Balance.fSpellEfficiency = 0.55f;
@@ -138,7 +135,7 @@ namespace GTS {
         ImUtil_Unique 
 		{
 
-            PSString Thelp = "Maximal Size isn't always determined only by these sliders\n"
+            PSString THelp = "Maximal Size isn't always determined only by these sliders\n"
                              "It is further affected by:\n"
                              "- Game Scale (SetScale)\n"
                              "- Natural Size";
@@ -164,10 +161,7 @@ namespace GTS {
                 const bool IsMassBased = Config::Balance.sSizeMode == "kMassBased";
                 const float MassLimit = get_max_scale(PlayerCharacter::GetSingleton());
 
-                ImGui::TextColored(ImUtil::Colors::Subscript, "How is Max Size Determined (?)");
-                if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip(Thelp);
-                }
+                ImGuiEx::HelpText("What is max size determined", THelp);
 
                 {   //Player Size
                     float* Scale = &Config::Balance.fMaxPlayerSizeOverride;

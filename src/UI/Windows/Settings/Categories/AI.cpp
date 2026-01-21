@@ -8,6 +8,8 @@
 
 #include "Config/Config.hpp"
 
+#include "UI/Controls/Text.hpp"
+
 namespace {
 
     using namespace GTS;
@@ -124,12 +126,7 @@ namespace {
         PSString T10 = "Should the hugged actor be let go if they can't be shrunk any further.\nApplies only to Followers/Player. Others will be always let go.";
         PSString T11 = HugsInfo.c_str();
 
-
-        ImGui::TextColored(ImUtil::Colors::Subscript, "Why aren't hugs starting (?)");
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip(T11);
-        }
-
+        ImGuiEx::HelpText("Why aren't hugs starting", T11);
         ImGuiEx::CheckBox("Enable Action", &Config::AI.Hugs.bEnableAction, T0);
         
         ImGui::BeginDisabled(!Config::AI.Hugs.bEnableAction);
@@ -307,12 +304,7 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("AI Settings",ImUtil::HeaderFlagsDefaultOpen)) {
 
-
-                ImGui::TextColored(ImUtil::Colors::Subscript,"How does this work (?)");
-                if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip(THelp);
-                }
-
+                ImGuiEx::HelpText("How does this work", THelp);
                 ImGuiEx::CheckBox("Enable AI",&Config::AI.bEnableActionAI, T0);
 
                 {

@@ -27,6 +27,7 @@
 #include "UI/Windows/Settings/Categories/Balance.hpp"
 #include "UI/Windows/Settings/Categories/Actions.hpp"
 #include "UI/Windows/Settings/Categories/Widgets.hpp"
+#include "UI/Windows/Settings/Categories/Collision.hpp"
 
 #include "Version.hpp"
 #include "git.h"
@@ -143,6 +144,7 @@ namespace GTS {
 		CategoryMgr->AddCategory(std::make_unique<CategoryAudio>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryAI>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryCamera>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryCollision>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryInterface>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryWidgets>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryKeybinds>());

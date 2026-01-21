@@ -129,10 +129,14 @@ namespace GTS {
 			m_currentVisualScale = get_visual_scale(Target);
 			bhkCharacterController* controller = Target->GetCharController();
 
+			if (m_currentVisualScale > 250.f) {
+				return; //Stop updating past this scale, same scale used in the old DCA version. I have no idea how havok will behave past this scale or what can happen if the hkVector scalars become NaN or Inf.
+			}
+
 			if (Target->IsPlayerRef() || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
 				AdjustBoneDriven();
 				UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
-				
+				m_lastVisualScale = 0.0f; // Set it to 0 to force an update if followers are switched to simple scaling
 				if (Config::Collision.bDrawDebugShapes) {
 					DrawCollisionShapes(Target, true);
 				}
@@ -141,14 +145,14 @@ namespace GTS {
 			}
 
 			if (ActorState* state = Target->AsActorState()) {
+
+				if (Config::Collision.bDrawDebugShapes) {
+					DrawCollisionShapes(Target, false);
+				}
+
 				if (ScaleorStateChange(state->actorState1, m_lastActorState1, m_currentVisualScale, m_lastVisualScale)) {
 					AdjustScale();
 					UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
-
-					if (Config::Collision.bDrawDebugShapes) {
-						DrawCollisionShapes(Target, false);
-					}
-
 				}
 				m_lastActorState1 = state->actorState1;
 			}
@@ -217,9 +221,9 @@ namespace GTS {
 						hkpCharacterRigidBody* CharRigidBody = nullptr;
 
 						std::vector<hkVector4> modifiedVerts = m_originalData.convexVerteces;
-
+						const float fClampedScale = std::clamp(Config::Collision.fMSimpleDrivenColliderMinScale, Config::Collision.fMSimpleDrivenColliderMaxScale, m_currentVisualScale);
 						if (m_originalData.hasVertecesShape) {
-							float widthMult = GetVerticesWidthMult(actor, false) * m_currentVisualScale;
+							float widthMult = GetVerticesWidthMult(actor, false) * fClampedScale;
 
 							float heightMult = 1.0f;
 							if (AnimationVars::Crawl::IsCrawling(actor) && Runtime::HasKeyword(actor, Runtime::KYWD.ActorTypeNPC)){
@@ -239,7 +243,7 @@ namespace GTS {
 								}
 							}
 
-							const float sZ = m_currentVisualScale * heightMult;
+							const float sZ = fClampedScale * heightMult;
 							const float& zB0 = m_originalData.convexVerteces[Vertex_Bot].quad.m128_f32[2];
 
 							auto ScaleZFromBottom = [&](float z0) -> float {return zB0 + (z0 - zB0) * sZ;};
@@ -265,7 +269,7 @@ namespace GTS {
 						}
 						{
 							BSWriteLockGuard lock(world->worldLock);
-							UpdateCapsuleScale(m_uniqueShape.get(), m_originalData, m_currentVisualScale);
+							UpdateCapsuleScale(m_uniqueShape.get(), m_originalData, fClampedScale);
 						}
 					}
 				}

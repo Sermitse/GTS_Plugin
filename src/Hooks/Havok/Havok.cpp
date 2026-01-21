@@ -7,7 +7,7 @@ using namespace GTS;
 
 namespace {
 
-	constexpr float tree_ignore_threshold = 16.0f;
+	constexpr float tree_ignore_threshold = 12.0f;
 	constexpr float actor_ignore_limit = 3.0f;
 
 	COL_LAYER GetCollisionLayer(const std::uint32_t& collisionFilterInfo) {

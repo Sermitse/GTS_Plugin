@@ -135,7 +135,7 @@ namespace GTS {
 
 		if (ImGui::CollapsingHeader("Misc")) {
 			if (ImGuiEx::Button("Quit", "This will immediatly close the game.", false, 1.0f)) {
-				SKSE::WinAPI::TerminateProcess(SKSE::WinAPI::GetCurrentProcess(), EXIT_SUCCESS);
+				WinAPI::TerminateProcess(WinAPI::GetCurrentProcess(), EXIT_SUCCESS);
 			}
 
 			ImGui::SameLine();
@@ -145,6 +145,61 @@ namespace GTS {
 				FuncType func = nullptr;
 				func();
 			}
+		}
+
+		if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
+
+			if (ImGuiEx::Button("Clear World Decals", "Removes All Loaded World Decals. Needs cell reload to fully take effect.", false, 1.0f)) {
+
+				TES::GetSingleton()->ForEachCell([&](TESObjectCELL* a_ref) {
+					if (const NiPointer<NiNode>& cell = a_ref->GetRuntimeData().loadedData->cell3D) {
+						if (BGSDecalNode* node = static_cast<BGSDecalNode*>(cell->GetObjectByName(FixedStrings::GetSingleton()->decalNode))) {
+							for (NiPointer<BSTempEffect>& decal : node->GetRuntimeData().decals) {
+								decal.get()->lifetime = 0.0f;
+								decal->Detach();
+								decal->Update(0.0f);
+								decal->Get3D()->CullNode(true);
+								decal->Get3D()->UpdateMaterialAlpha(0.0f, false);
+							}
+						}
+					}
+					});
+			}
+			static int32_t deletedcnt = -1;
+			if (ImGuiEx::Button("Delete Dead Dynamic NPC's", "Disables and deletes dynamic form NPC's (Refid starting with FF) in a 4x4 cell radius.", false, 1.0f)) {
+				deletedcnt = 0;
+
+				TES::GetSingleton()->ForEachReferenceInRange(PlayerCharacter::GetSingleton(), 16384.0f, [&](TESObjectREFR* a_ref) {
+
+					if (Actor* asActor = skyrim_cast<Actor*>(a_ref)) {
+
+						if (asActor->IsDynamicForm() && asActor->IsDead()) {
+							asActor->Disable();
+							asActor->SetDelete(true);
+							deletedcnt++;
+						}
+
+					}
+					return BSContainer::ForEachResult::kContinue;
+				});
+			}
+
+			if (deletedcnt > 0) {
+				ImGui::Text("Deleted %d NPC's", deletedcnt);
+			}
+		}
+
+		if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
+			//Value is mislabeled in clib, its a float storing the inverse cosine of the max slope angle in radians.
+			auto& maxSlopeRaw = PlayerCharacter::GetSingleton()->GetCharController()->maxSlope;
+			float asFloat = std::bit_cast<float>(maxSlopeRaw);
+			ImGui::Text("Player bhkCharacterController maxSlope Test");
+			ImGui::Text("Raw uint32: %u", maxSlopeRaw);
+			ImGui::Text("As float: %.6f", asFloat);
+			ImGui::Text("Radians to degrees: %.2f°", asFloat * 180.0f / std::numbers::pi);
+			ImGui::Text("As tan(angle): %.2f°", std::atan(asFloat) * 180.0f / std::numbers::pi);
+			ImGui::Text("As cos(angle): %.2f°", std::acos(asFloat) * 180.0f / std::numbers::pi);
+			ImGui::Text("As slope ratio (rise/run): %.2f%%", asFloat * 100.0f);
 		}
 
 		ImGui::PopFont();
@@ -165,10 +220,10 @@ namespace GTS {
 
 		if (a_open) {
 
-			SKSE::GetTaskInterface()->AddUITask([] {
+			GetTaskInterface()->AddUITask([] {
 				if (const auto msgQueue = UIMessageQueue::GetSingleton()) {
 					//The console draws above and since we disable input it becomes unclosable, we need to close it ourselves.
-					msgQueue->AddMessage(RE::Console::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
+					msgQueue->AddMessage(Console::MENU_NAME, UI_MESSAGE_TYPE::kHide, nullptr);
 				}
 			});
 

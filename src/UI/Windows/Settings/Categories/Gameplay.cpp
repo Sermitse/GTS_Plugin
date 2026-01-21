@@ -11,6 +11,7 @@
 
 #include "UI/GTSMenu.hpp"
 #include "UI/Controls/CollapsingTabHeader.hpp"
+#include "UI/Controls/Text.hpp"
 
 namespace GTS {
 
@@ -235,12 +236,7 @@ namespace GTS {
                 const char* Fmt1 = Config::Gameplay.GamemodePlayer.fRandomGrowthDelay != 0.0f ? FmtBalance : "Disabled";
                 const char* Fmt2 = Config::Gameplay.GamemodeFollower.fRandomGrowthDelay != 0.0f ? FmtBalance : "Disabled";
 
-                
-
-                ImGui::TextColored(ImUtil::Colors::Subscript,"About Random Growth (?)");
-                if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip(THelp);
-                }
+                ImGuiEx::HelpText("About random growth", THelp);
 
                 ImGuiEx::SliderF("Growth Delay Player", &Config::Gameplay.GamemodePlayer.fRandomGrowthDelay, 0.00f, 4.0f, T1, Fmt1);
                 ImGuiEx::SliderF("Growth Delay Followers", &Config::Gameplay.GamemodeFollower.fRandomGrowthDelay, 0.00f, 4.0f, T1, Fmt2);

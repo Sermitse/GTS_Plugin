@@ -738,6 +738,7 @@ namespace GTS {
 							glm::vec4 color = { 1.0f, 1.0f, 0.0f, 1.0f }; // Default yellow
 							if (bhkShape* Shape = Capsule->userData) {
 								if (Shape->materialID == MATERIAL_ID::kCharacterBumper) {
+									if (!Config::Collision.bDrawBumpers) return;
 									color = { 0.0f, 0.25f, 0.53f, 1.0f }; // Blue for bumper
 								}
 							}
