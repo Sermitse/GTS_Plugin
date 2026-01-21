@@ -69,6 +69,9 @@ namespace GTS {
 		return clone;
 	}
 
+	float GetControllerMaxSlope(bhkCharacterController* a_controller);
+	void SetControllerMaxSlope(bhkCharacterController* a_controller, float degrees);
+
 	__m128 ScaleRingWidth(__m128 vec, float scale, float zValue);
 	float GetVerticesWidthMult(Actor* actor, bool isBoneDriven);
 	bool MoveVertZ(RE::Actor* a_actor, std::vector<RE::hkVector4>& a_modVerts, const uint8_t a_vertIdx, const std::string_view& a_boneToFollow, absl::flat_hash_map<std::string, RE::NiAVObject*>& a_boneCache, const float a_refPos);
@@ -77,7 +80,7 @@ namespace GTS {
 	void ScaleCapsuleFromData(RE::hkpCapsuleShape& outCapsule, const GTS::DynamicController::CapsuleData& src, float scale);
 	bool UpdateCapsuleScale(RE::bhkShape* a_shape, const GTS::DynamicController::ShapeData& a_data, const float scale);
 	bool ScaleBumper(RE::bhkCharacterController* a_controller, const GTS::DynamicController::ShapeData& a_data, const float scale);
-	void UpdateControllerData(RE::bhkCharacterController* a_controller, const GTS::DynamicController::ShapeData& a_origData, const float& a_currentScale);
+	void UpdateControllerScaleAndSlope(RE::bhkCharacterController* a_controller, const GTS::DynamicController::ShapeData& a_origData, const float& a_currentScale);
 	void SetNewVerticesShape(RE::hkpConvexVerticesShape* a_convexShape, RE::hkpListShape* a_listShape, RE::hkpCharacterProxy* a_proxy, RE::hkpCharacterRigidBody* a_rigidBody, std::vector<RE::hkVector4>& a_modVerts);
 	void CheckAndCorrectCollapsedVertexShape(std::vector<RE::hkVector4>& a_modVerts);
 	bool ScaleorStateChange(const RE::ActorState::ActorState1& a_currentState, const RE::ActorState::ActorState1& a_Prevstate, const float& a_currentScale, const float& a_prevScale);

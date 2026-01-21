@@ -9,6 +9,26 @@ namespace {
 
 namespace GTS {
 
+
+	// Beth doesn't use the maxslopeCosine from havok,
+	// instead handled in the bhkController as an inverted radians value.
+	// maxSlope = (pi/2) - radians
+	// maxSlope is also wrong in clib, it has it stored as a uint32_t instead of a float
+	// The default "uint32" value is 1060018034
+	// Which as a radian float is 0.6819984 (~39 degrees) (0.6819984 (180/pi) = 39.07 degrees)
+	// The value is also inverted, so the actual max slope for the controller in the vanilla game is (pi/2) - 0.6819984 = 0.8887982 (~50.92 degrees)
+	float GetControllerMaxSlope(bhkCharacterController* a_controller) {
+		float radians = std::bit_cast<float>(a_controller->maxSlope);
+		float maxSlopeRadians = (std::numbers::pi / 2.0f) - radians;
+		return maxSlopeRadians * 180.0f / std::numbers::pi;
+	}
+
+	void SetControllerMaxSlope(bhkCharacterController* a_controller, float degrees) {
+		float maxSlopeRadians = degrees * std::numbers::pi / 180.0f;
+		float invertedRadians = (std::numbers::pi / 2.0f) - maxSlopeRadians;
+		a_controller->maxSlope = std::bit_cast<uint32_t>(invertedRadians);
+	}
+
 	__m128 ScaleRingWidth(__m128 vec, float scale, float zValue) {
 
 		vec = _mm_and_ps(vec, _mm_castsi128_ps(_mm_setr_epi32(-1, -1, 0, 0)));
@@ -236,28 +256,17 @@ namespace GTS {
 		return false;
 	}
 
-	void UpdateControllerData(bhkCharacterController* a_controller, const DynamicController::ShapeData& a_origData, const float& a_currentScale) {
+	void UpdateControllerScaleAndSlope(bhkCharacterController* a_controller, const DynamicController::ShapeData& a_origData, const float& a_currentScale) {
 
 		a_controller->actorHeight = a_origData.controllerActorHeight * a_currentScale;
-		a_controller->scale = a_origData.controllerActorScale * a_currentScale;
+		a_controller->scale = a_currentScale;
 
-		constexpr float maxSlopeAt = 10.0f;
-		float normalizedScale = std::clamp(a_currentScale / maxSlopeAt, 0.0f, 1.0f);
-		float value = std::lerp(Config::Collision.iMinSlopeAngle, Config::Collision.iMaxSlopeAngle, normalizedScale);
-		const float radians = value * std::numbers::pi / 180.0f;
+		constexpr float maxSlopeAtScale = 5.0f;
 
-		if (bhkCharProxyController* proxyController = skyrim_cast<bhkCharProxyController*>(a_controller)) {
-			if (hkpCharacterProxy* proxy = static_cast<hkpCharacterProxy*>(proxyController->proxy.referencedObject.get())) {
-				proxy->maxSlopeCosine = std::cos(radians);
-				a_controller->maxSlope = static_cast<uint32_t>(value);
-			}
-		}
-		else if (bhkCharRigidBodyController* rigidBodyController = skyrim_cast<bhkCharRigidBodyController*>(a_controller)) {
-			if (hkpCharacterRigidBody* rigidBody = static_cast<hkpCharacterRigidBody*>(rigidBodyController->characterRigidBody.referencedObject.get())) {
-				rigidBody->m_maxSlopeCosine = std::cos(radians);
-				a_controller->maxSlope = static_cast<uint32_t>(value);
-			}
-		}
+		float normalizedScale = std::clamp((a_currentScale - 1.0f) / maxSlopeAtScale, 0.0f, 1.0f);
+		float newSlope = std::lerp(a_origData.maxSlope, 89.0f, normalizedScale);
+
+		SetControllerMaxSlope(a_controller, newSlope);
 	}
 
 	void SetNewVerticesShape(hkpConvexVerticesShape* a_convexShape,

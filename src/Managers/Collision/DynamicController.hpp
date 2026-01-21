@@ -23,6 +23,7 @@ namespace GTS {
 			float controllerActorHeight = 0.0f;
 			float controllerActorScale = 0.0f;
 			bool hasVertecesShape = false;
+			float maxSlope = 0.0f;
 		};
 
 		private:

@@ -30,6 +30,8 @@ namespace GTS {
 								}
 							}
 
+							m_originalData.maxSlope = GetControllerMaxSlope(controller);
+
 							hkpConvexVerticesShape* convexShape = nullptr;
 							std::vector<hkpCapsuleShape*> capsuleShapes = {};
 
@@ -129,7 +131,7 @@ namespace GTS {
 
 			if (Target->IsPlayerRef() || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
 				AdjustBoneDriven();
-				UpdateControllerData(controller, m_originalData, m_currentVisualScale);
+				UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
 				
 				if (Config::Collision.bDrawDebugShapes) {
 					DrawCollisionShapes(Target, true);
@@ -141,7 +143,7 @@ namespace GTS {
 			if (ActorState* state = Target->AsActorState()) {
 				if (ScaleorStateChange(state->actorState1, m_lastActorState1, m_currentVisualScale, m_lastVisualScale)) {
 					AdjustScale();
-					UpdateControllerData(controller, m_originalData, m_currentVisualScale);
+					UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
 
 					if (Config::Collision.bDrawDebugShapes) {
 						DrawCollisionShapes(Target, false);

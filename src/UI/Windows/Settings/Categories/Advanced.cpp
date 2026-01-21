@@ -202,7 +202,7 @@ namespace GTS {
                         }
                     });
                 }
-                static uint32_t deletedcnt = -1;
+                static int32_t deletedcnt = -1;
                 if (ImGuiEx::Button("Delete Dead Dynamic NPC's", "", false, 1.0f)) {
                     deletedcnt = 0;
 
@@ -224,6 +224,16 @@ namespace GTS {
                 if (deletedcnt > 0) {
                     ImGui::Text("Deleted %d NPC's", deletedcnt);
                 }
+
+                auto& maxSlopeRaw = PlayerCharacter::GetSingleton()->GetCharController()->maxSlope;
+                float asFloat = std::bit_cast<float>(maxSlopeRaw);
+                ImGui::Text("Player bhkCharacterController maxSlope Test");
+                ImGui::Text("Raw uint32: %u", maxSlopeRaw);
+                ImGui::Text("As float: %.6f", asFloat);
+                ImGui::Text("Radians to degrees: %.2f°", asFloat * 180.0f / std::numbers::pi);
+                ImGui::Text("As tan(angle): %.2f°", std::atan(asFloat) * 180.0f / std::numbers::pi);
+                ImGui::Text("As cos(angle): %.2f°", std::acos(asFloat) * 180.0f / std::numbers::pi);
+                ImGui::Text("As slope ratio (rise/run): %.2f%%", asFloat * 100.0f);
 
             }
         }
