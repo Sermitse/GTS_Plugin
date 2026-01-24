@@ -189,11 +189,10 @@ namespace GTS {
 			}
 		}
 
-		if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
+		if (ImGui::CollapsingHeader("bhkCharacterController maxSlope", ImUtil::HeaderFlagsDefaultOpen)) {
 			//Value is mislabeled in clib, its a float storing the inverse cosine of the max slope angle in radians.
 			auto& maxSlopeRaw = PlayerCharacter::GetSingleton()->GetCharController()->maxSlope;
 			float asFloat = std::bit_cast<float>(maxSlopeRaw);
-			ImGui::Text("Player bhkCharacterController maxSlope Test");
 			ImGui::Text("Raw uint32: %u", maxSlopeRaw);
 			ImGui::Text("As float: %.6f", asFloat);
 			ImGui::Text("Radians to degrees: %.2f°", asFloat * 180.0f / std::numbers::pi);

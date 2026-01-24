@@ -1,5 +1,5 @@
 #pragma once 
-#include "Managers/Collision/DynamicController.hpp"
+#include "Managers/Collision/DynamicCollisionController.hpp"
 
 namespace GTS {
 
@@ -17,7 +17,7 @@ namespace GTS {
 		using WriteLock = std::unique_lock<Lock>;
 
 		static inline Lock MapLock;
-		static inline absl::flat_hash_map<bhkCharacterController*, std::shared_ptr<DynamicController>> ControllerMap = {};
+		static inline absl::flat_hash_map<bhkCharacterController*, std::shared_ptr<DynamicCollisionController>> ControllerMap = {};
 
 		// Inherited via EventListener
 		std::string DebugName() override;

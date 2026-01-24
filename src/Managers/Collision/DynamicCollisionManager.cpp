@@ -1,12 +1,10 @@
 #include "Managers/Collision/DynamicCollisionManager.hpp"
 
-#include "DynamicCollisionUtils.hpp"
-
 namespace GTS {
 
 	void DynamicCollisionManager::CreateInstance(RE::Actor* a_actor) {
 		WriteLock lock(MapLock);
-		ControllerMap.try_emplace(a_actor->GetCharController(), std::make_shared<DynamicController>(a_actor->GetHandle()));
+		ControllerMap.try_emplace(a_actor->GetCharController(), std::make_shared<DynamicCollisionController>(a_actor->GetHandle()));
 	}
 
 	void DynamicCollisionManager::DestroyInstance(RE::bhkCharacterController* a_controller) {
@@ -20,7 +18,7 @@ namespace GTS {
 
 		{
 			ReadLock lock(MapLock);
-			for (const shared_ptr<DynamicController>& DynController : ControllerMap | views::values) {
+			for (const shared_ptr<DynamicCollisionController>& DynController : ControllerMap | views::values) {
 				DynController->Update();
 			}
 		}

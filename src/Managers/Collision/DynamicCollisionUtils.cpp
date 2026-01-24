@@ -1,14 +1,174 @@
 #include "Managers/Collision/DynamicCollisionUtils.hpp"
-#include "DynamicController.hpp"
 #include "Config/Config.hpp"
 
-
 namespace {
-	const float* gWorldScaleInverse = reinterpret_cast<float*>(RE::Offset::Havok::WorldScaleInverse.address());
+
+	constexpr RE::hkpConvexVerticesShape::BuildConfig BuildConfig
+	{
+		.createConnectivity = false,
+		.shrinkByConvexRadius = false,
+		.useOptimizedShrinking = true,
+		.convexRadius = 0.05f,
+		.maxVertices = 0,
+		.maxRelativeShrink = 0.00f,
+		.maxShrinkingVerticesDisplacement = 0.00f,
+		.maxCosAngleForBevelPlanes = -0.1f,
+	};
+
+	void ReadShape(const RE::hkpShape* a_shape, std::vector<RE::hkpCapsuleShape*>& a_outCapsules) {
+		if (!a_shape) {
+			return;
+		}
+
+		switch (a_shape->type) {
+			case RE::hkpShapeType::kCapsule:
+			{
+				auto* capsule =
+					const_cast<RE::hkpCapsuleShape*>(
+						skyrim_cast<const RE::hkpCapsuleShape*>(a_shape)
+						);
+
+				if (capsule) {
+					a_outCapsules.emplace_back(capsule);
+				}
+			} break;
+
+			case RE::hkpShapeType::kList:
+			{
+				auto* listShape =
+					skyrim_cast<RE::hkpListShape*>(
+						const_cast<RE::hkpShape*>(a_shape)
+					);
+
+				if (!listShape) {
+					return;
+				}
+
+				for (RE::hkpListShape::ChildInfo& childInfo : listShape->childInfo) {
+					if (childInfo.shape) {
+						ReadShape(childInfo.shape, a_outCapsules);
+					}
+				}
+			} break;
+
+			case RE::hkpShapeType::kMOPP:
+			{
+				if (RE::hkpMoppBvTreeShape* moppShape = const_cast<RE::hkpMoppBvTreeShape*>(skyrim_cast<const RE::hkpMoppBvTreeShape*>(a_shape))) {
+
+					RE::hkpShapeBuffer shapeBuffer{};
+					RE::hkpShapeKey shapeKey = moppShape->child.GetFirstKey();
+
+					const int numChildren = moppShape->child.GetNumChildShapes();
+					for (int i = 0; i < numChildren; ++i) {
+						if (const RE::hkpShape* child =
+							moppShape->child.GetChildShape(shapeKey, shapeBuffer)) {
+							ReadShape(child, a_outCapsules);
+						}
+						shapeKey = moppShape->child.GetNextKey(shapeKey);
+					}
+				}
+			} break;
+
+			default:break;
+		}
+	}
+
+	RE::hkpMoppBvTreeShape* CloneMopp_SharedCode_DeepChild(const RE::hkpMoppBvTreeShape* src, RE::hkpShape* (*cloneFn)(RE::hkpShape*)) {
+		auto* dst = static_cast<RE::hkpMoppBvTreeShape*>(RE::hkMemoryRouter::hkHeapAlloc(sizeof(RE::hkpMoppBvTreeShape)));
+
+		// Copy scalars/pointers
+		std::memcpy(dst, src, sizeof(RE::hkpMoppBvTreeShape));
+		reinterpret_cast<std::uintptr_t*>(dst)[0] = RE::VTABLE_hkpMoppBvTreeShape[0].address();
+		dst->referenceCount = 1;
+
+		if (dst->code) {
+			dst->code->AddReference();
+		}
+
+		// Clone the child shape graph and repoint container
+		RE::hkpShapeBuffer buf{};
+		const RE::hkpShapeKey key = src->child.GetFirstKey();
+		const RE::hkpShape* child = src->child.GetChildShape(key, buf);
+
+		if (child) {
+			RE::hkpShape* childClone = cloneFn(const_cast<RE::hkpShape*>(child));
+			dst->child.childShape = childClone; // transfer ownership of that ref
+		}
+		else {
+			dst->child.childShape = nullptr;
+		}
+
+		return dst;
+	}
+
+	RE::hkpCapsuleShape* CloneCapsule(const RE::hkpCapsuleShape* src) {
+		auto* dst = static_cast<RE::hkpCapsuleShape*>(RE::hkMemoryRouter::hkHeapAlloc(sizeof(RE::hkpCapsuleShape)));
+
+		std::memcpy(dst, src, sizeof(RE::hkpCapsuleShape));
+		reinterpret_cast<std::uintptr_t*>(dst)[0] = RE::VTABLE_hkpCapsuleShape[0].address();
+		dst->referenceCount = 1;
+
+		return dst;
+	}
+
+	RE::hkpListShape* CloneListShapeDeep(const RE::hkpListShape* src, RE::hkpShape* (*cloneFn)(RE::hkpShape*)) {
+		RE::hkpListShape* dst = static_cast<RE::hkpListShape*>(RE::hkMemoryRouter::hkHeapAlloc(sizeof(RE::hkpListShape)));
+
+		// Shallow copy scalars first
+		std::memcpy(dst, src, sizeof(RE::hkpListShape));
+		reinterpret_cast<std::uintptr_t*>(dst)[0] = RE::VTABLE_hkpListShape[0].address();
+		dst->referenceCount = 1;
+
+		// Deep-copy childInfo backing storage so we don't share hkArray buffer
+		const int n = src->childInfo.size();
+		if (n > 0) {
+			using ChildInfoT = std::remove_reference_t<decltype(dst->childInfo[0])>;
+
+			auto* newBuf = static_cast<ChildInfoT*>(RE::hkMemoryRouter::hkHeapAlloc(sizeof(ChildInfoT) * n));
+
+			// Copy entries (including filter info etc.)
+			std::memcpy(newBuf, src->childInfo.data(), sizeof(ChildInfoT) * n);
+
+			// Rebind hkArray storage to the new buffer
+			dst->childInfo._data = newBuf;
+			dst->childInfo._size = n;
+
+			// Preserve the upper flag bits, replace capacity with n.
+			// (Havok stores flags in the high bits of capacityAndFlags.)
+			const int capFlags = src->childInfo._capacityAndFlags;
+			dst->childInfo._capacityAndFlags = (capFlags & 0xC0000000) | n;
+
+			// Now clone each child and patch pointer in the NEW buffer
+			for (int i = 0; i < n; ++i) {
+				if (newBuf[i].shape) {
+					RE::hkpShape* childClone = cloneFn(const_cast<RE::hkpShape*>(newBuf[i].shape));
+					newBuf[i].shape = childClone;
+				}
+			}
+		}
+		else {
+			// Ensure a consistent empty array state
+			dst->childInfo._data = nullptr;
+			dst->childInfo._size = 0;
+			dst->childInfo._capacityAndFlags = 0;
+		}
+		return dst;
+	}
 }
 
 namespace GTS {
 
+	NiPoint3 HkVectorToNiPoint(const hkVector4& a_vector) {
+		return { a_vector.quad.m128_f32[0], a_vector.quad.m128_f32[1], a_vector.quad.m128_f32[2] };
+	}
+
+	NiPoint3 hkVec4ToNiPoint(const hkVector4& a_vector) {
+		return { a_vector.quad.m128_f32[0], a_vector.quad.m128_f32[1], a_vector.quad.m128_f32[2] };
+	}
+
+	glm::vec3 NiPointToVec3(const NiPoint3& a_point) {
+		return { a_point.x, a_point.y, a_point.z };
+	}
 
 	// Beth doesn't use the maxslopeCosine from havok,
 	// It instead is handled by the bhkCharacterController as an inverted radian value.
@@ -23,255 +183,70 @@ namespace GTS {
 		return maxSlopeRadians * 180.0f / std::numbers::pi;
 	}
 
-	void SetControllerMaxSlope(bhkCharacterController* a_controller, float degrees) {
-		float maxSlopeRadians = degrees * std::numbers::pi / 180.0f;
+	void SetControllerMaxSlope(bhkCharacterController* a_controller, float a_degrees) {
+		float maxSlopeRadians = a_degrees * std::numbers::pi / 180.0f;
 		float invertedRadians = (std::numbers::pi / 2.0f) - maxSlopeRadians;
 		a_controller->maxSlope = std::bit_cast<uint32_t>(invertedRadians);
 	}
 
-	__m128 ScaleRingWidth(__m128 vec, float scale, float zValue) {
+	__m128 ScaleRingWidth(__m128 a_inHk4, float a_scale, float a_zHeight) {
 
-		vec = _mm_and_ps(vec, _mm_castsi128_ps(_mm_setr_epi32(-1, -1, 0, 0)));
+		a_inHk4 = _mm_and_ps(a_inHk4, _mm_castsi128_ps(_mm_setr_epi32(-1, -1, 0, 0)));
 
-		const __m128 squared = _mm_mul_ps(vec, vec);
+		const __m128 squared = _mm_mul_ps(a_inHk4, a_inHk4);
 		const float length = _mm_cvtss_f32(_mm_sqrt_ss(_mm_hadd_ps(squared, squared)));
 
 		// Normalize and scale
 		if (length > 0.0f) {
-			vec = _mm_mul_ps(vec, _mm_set1_ps(scale / length));
+			a_inHk4 = _mm_mul_ps(a_inHk4, _mm_set1_ps(a_scale / length));
 		}
-		vec.m128_f32[2] = zValue;
+		a_inHk4.m128_f32[2] = a_zHeight;
 
-		return vec;
+		return a_inHk4;
 	}
 
-	float GetVerticesWidthMult(Actor* actor, bool isBoneDriven) {
+	float GetVerticesWidthMult(Actor* a_actor, bool a_boneDriven) {
 
-		if (AnimationVars::Crawl::IsCrawling(actor)) {
-			return isBoneDriven ? Config::Collision.fBoneDrivenWidthMultCrawling : Config::Collision.fSimpleDrivenWidthMultCrawling;
+		if (AnimationVars::Crawl::IsCrawling(a_actor)) {
+			return a_boneDriven ? Config::Collision.fBoneDrivenWidthMultCrawling : Config::Collision.fSimpleDrivenWidthMultCrawling;
 		}
-		if (AnimationVars::Prone::IsProne(actor) && isBoneDriven) {
+
+		if (AnimationVars::Prone::IsProne(a_actor) && a_boneDriven) {
 			return Config::Collision.fBoneDrivenWidthMultProning;
 		}
-		if (actor->IsSneaking()) {
-			return isBoneDriven ? Config::Collision.fBoneDrivenWidthMultSneaking : Config::Collision.fSimpleDrivenWidthMultSneaking;
+
+		if (a_actor->IsSneaking()) {
+			return a_boneDriven ? Config::Collision.fBoneDrivenWidthMultSneaking : Config::Collision.fSimpleDrivenWidthMultSneaking;
 		}
-		if (actor->AsActorState()->IsSwimming()) {
-			return isBoneDriven ? Config::Collision.fBoneDrivenWidthMultSwimming : Config::Collision.fSimpleDrivenWidthMultSwimming;
+
+		if (a_actor->AsActorState()->IsSwimming()) {
+			return a_boneDriven ? Config::Collision.fBoneDrivenWidthMultSwimming : Config::Collision.fSimpleDrivenWidthMultSwimming;
 		}
-		return isBoneDriven ? Config::Collision.fBoneDrivenWidthMultBase : Config::Collision.fSimpleDrivenWidthMultBase;
+
+		return a_boneDriven ? Config::Collision.fBoneDrivenWidthMultBase : Config::Collision.fSimpleDrivenWidthMultBase;
 	}
 
-	bool MoveVertZ(Actor* a_actor, std::vector<hkVector4>& a_modVerts, const uint8_t a_vertIdx,
-		const std::string_view& a_boneToFollow,
-		absl::flat_hash_map<std::string, NiAVObject*>& a_boneCache, const float a_refPos) {
+	void SetNewVerticesShape(bhkCharacterController* a_controller, std::vector<hkVector4>& a_modVerts) {
 
-		NiAVObject* bone = nullptr;
+		hkpListShape* ListShape = nullptr;
+		hkpCharacterProxy* CharProxy = nullptr;
+		hkpConvexVerticesShape* ConvexShape = nullptr;
+		hkpCharacterRigidBody* CharRigidBody = nullptr;
 
-		// Try to get from cached bones first
-		auto it = a_boneCache.find(a_boneToFollow);
-		if (it != a_boneCache.end()) {
-			bone = it->second;
-		}
-		else {
-			// Find bone and cache it
-			bone = find_node(a_actor, a_boneToFollow.data(), false);
-			if (!bone) {
-				return false; // bone not found
-			}
-			a_boneCache[a_boneToFollow] = bone;
-		}
-
-		const NiPoint3 BonePos = (bone->world.translate - a_actor->GetPosition()) / *gWorldScaleInverse;
-		a_modVerts[a_vertIdx].quad.m128_f32[2] = BonePos.z + a_refPos; //Correct Height
-		return true;
-	}
-
-	float GetLargestBoneDistance(Actor* a_actor, absl::flat_hash_map<std::string, NiAVObject*>& a_boneCache) {
-		std::vector<std::pair<NiAVObject*, NiAVObject*>> BonePairObjectList = {};
-		float Longest = 0.05f;
-
-		for (const auto& stringPair : RingWidthBonePairList) {
-			std::pair<NiAVObject*, NiAVObject*> BonePairs = {};
-			//First Bone
-			{
-				// Try to get from cached bones first
-				auto it = a_boneCache.find(stringPair.first);
-				if (it != a_boneCache.end()) {
-					BonePairs.first = it->second;
-				}
-				else {
-					// Find bone and cache it
-					BonePairs.first = find_node(a_actor, stringPair.first.data(), false);
-					if (!BonePairs.first) {
-						return Longest; // bone not found
-					}
-					a_boneCache[stringPair.first] = BonePairs.first;
-				}
-			}
-
-			//Second Bone
-			{
-				auto it = a_boneCache.find(stringPair.second);
-				if (it != a_boneCache.end()) {
-					BonePairs.second = it->second;
-				}
-				else {
-					// Find bone and cache it
-					BonePairs.second = find_node(a_actor, stringPair.second.data(), false);
-					if (!BonePairs.second) {
-						return Longest; // bone not found
-					}
-					a_boneCache[stringPair.second] = BonePairs.second;
-				}
-			}
-			BonePairObjectList.push_back(std::move(BonePairs));
-		}
-
-		for (std::pair bonePair : BonePairObjectList) {
-			const float CurDist = abs(bonePair.first->world.translate.GetDistance(bonePair.second->world.translate)) * 0.5f;
-			if (CurDist > Longest) {
-				Longest = CurDist;
+		if (bhkCharProxyController* proxyController = skyrim_cast<bhkCharProxyController*>(a_controller)) {
+			CharProxy = static_cast<hkpCharacterProxy*>(proxyController->proxy.referencedObject.get());
+			if (CharProxy) {
+				ListShape = skyrim_cast<hkpListShape*>(const_cast<hkpShape*>(CharProxy->shapePhantom->collidable.shape));
+				ConvexShape = skyrim_cast<hkpConvexVerticesShape*>(const_cast<hkpShape*>(ListShape ? ListShape->childInfo[0].shape : CharProxy->shapePhantom->collidable.shape));
 			}
 		}
-
-		return Longest;
-	}
-
-	bool MoveRings(Actor* a_actor, std::vector<hkVector4>& a_modVerts,
-		const std::array<uint8_t, 8>& ringIdxs, const std::vector<std::string_view>& bonesToFollow,
-		absl::flat_hash_map<std::string, NiAVObject*>& a_boneCache, const float& a_botOfs,
-		const float& a_distance) {
-
-		std::vector<NiAVObject*> boneList = {};
-		boneList.reserve(2);
-
-		for (const std::string_view& boneName : bonesToFollow) {
-			const auto it = a_boneCache.find(boneName);
-			if (it != a_boneCache.end()) {
-				boneList.push_back(it->second);
-			}
-			else {
-				if (NiAVObject* const& bone = find_node(a_actor, boneName, false)) {
-					a_boneCache[boneName] = bone;
-					boneList.push_back(bone);
-				}
+		else if (bhkCharRigidBodyController* rigidBodyController = skyrim_cast<bhkCharRigidBodyController*>(a_controller)) {
+			CharRigidBody = static_cast<hkpCharacterRigidBody*>(rigidBodyController->characterRigidBody.referencedObject.get());
+			if (CharRigidBody) {
+				ListShape = skyrim_cast<hkpListShape*>(const_cast<hkpShape*>(CharRigidBody->m_character->collidable.shape));
+				ConvexShape = skyrim_cast<hkpConvexVerticesShape*>(const_cast<hkpShape*>(ListShape ? ListShape->childInfo[0].shape : CharRigidBody->m_character->collidable.shape));
 			}
 		}
-
-		float aggregateBoneZPos = 0.0f;
-		if (!boneList.empty()) {
-			for (NiAVObject* const& bone : boneList) {
-				if (bone) aggregateBoneZPos += bone->world.translate.z;
-			}
-			aggregateBoneZPos = ((aggregateBoneZPos / static_cast<float>(boneList.size())) - a_actor->GetPosition().z) / *gWorldScaleInverse;
-		}
-
-		if (aggregateBoneZPos <= 0.0f) {
-			return false;
-		}
-
-		// Adjust ring vertices
-		for (uint8_t idx : ringIdxs) {
-			a_modVerts[idx] = ScaleRingWidth(a_modVerts[idx].quad, (a_distance / *gWorldScaleInverse) * GetVerticesWidthMult(a_actor, true), aggregateBoneZPos + a_botOfs);
-		}
-		return true;
-	}
-
-	void ScaleCapsuleFromData(hkpCapsuleShape& outCapsule, const DynamicController::CapsuleData& src,float scale) {
-		const float& r0 = src.radius;
-
-		// Original endpoints (unscaled)
-		const float& a0x = src.vertexA.quad.m128_f32[0];
-		const float& a0y = src.vertexA.quad.m128_f32[1];
-		const float& a0z = src.vertexA.quad.m128_f32[2];
-
-		const float& b0x = src.vertexB.quad.m128_f32[0];
-		const float& b0y = src.vertexB.quad.m128_f32[1];
-		const float& b0z = src.vertexB.quad.m128_f32[2];
-
-		const float bottom0 = std::min(a0z, b0z) - r0;
-
-		// Scale radius + endpoints about origin (your current behavior)
-		const float r1 = r0 * scale;
-
-		float a1x = a0x * scale;
-		float a1y = a0y * scale;
-		float a1z = a0z * scale;
-
-		float b1x = b0x * scale;
-		float b1y = b0y * scale;
-		float b1z = b0z * scale;
-
-		if (src.isBumper) {
-			const float bottom1 = std::min(a1z, b1z) - r1;
-			const float dz = bottom0 - bottom1;
-
-			a1z += dz;
-			b1z += dz;
-		}
-
-		outCapsule.radius = r1;
-
-		outCapsule.vertexA.quad.m128_f32[0] = a1x;
-		outCapsule.vertexA.quad.m128_f32[1] = a1y;
-		outCapsule.vertexA.quad.m128_f32[2] = a1z;
-
-		outCapsule.vertexB.quad.m128_f32[0] = b1x;
-		outCapsule.vertexB.quad.m128_f32[1] = b1y;
-		outCapsule.vertexB.quad.m128_f32[2] = b1z;
-	}
-
-	bool UpdateCapsuleScale(bhkShape* a_shape, const DynamicController::ShapeData& a_data, const float scale) {
-		if (a_data.capsules.empty()) return true; // Actor has no capsules to update
-
-		std::vector<hkpCapsuleShape*> CurrentCapsules{};
-		CurrentCapsules.reserve(3);
-		if (GetNPCCapsules(a_shape, CurrentCapsules)) {
-			if (CurrentCapsules.empty() || CurrentCapsules.size() != a_data.capsules.size()) {
-				return false;
-			}
-			for (size_t i = 0; i < CurrentCapsules.size(); ++i) {
-				ScaleCapsuleFromData(*CurrentCapsules[i], a_data.capsules[i], scale);
-			}
-		}
-		return false;
-	}
-
-	bool ScaleBumper(bhkCharacterController* a_controller, const DynamicController::ShapeData& a_data, const float scale) {
-
-		if (a_data.capsules.empty()) return true; // Actor has no capsules to update
-
-		std::vector<hkpCapsuleShape*> CurrentCapsules{};
-		CurrentCapsules.reserve(3);
-		if (GetCapsules(a_controller, CurrentCapsules)) {
-			if (CurrentCapsules.empty() || CurrentCapsules.size() != a_data.capsules.size()) {
-				return false;
-			}
-			for (size_t i = 0; i < CurrentCapsules.size(); ++i) {
-				ScaleCapsuleFromData(*CurrentCapsules[i], a_data.capsules[i], scale);
-			}
-			return true;
-		}
-		return false;
-	}
-
-	void UpdateControllerScaleAndSlope(bhkCharacterController* a_controller, const DynamicController::ShapeData& a_origData, const float& a_currentScale) {
-
-		a_controller->actorHeight = a_origData.controllerActorHeight * a_currentScale;
-		a_controller->scale = a_currentScale;
-
-		constexpr float maxSlopeAtScale = 5.0f;
-
-		float normalizedScale = std::clamp((a_currentScale - 1.0f) / maxSlopeAtScale, 0.0f, 1.0f);
-		float newSlope = std::lerp(a_origData.maxSlope, 89.0f, normalizedScale);
-
-		SetControllerMaxSlope(a_controller, newSlope);
-	}
-
-	void SetNewVerticesShape(hkpConvexVerticesShape* a_convexShape,
-		hkpListShape* a_listShape, hkpCharacterProxy* a_proxy,
-		hkpCharacterRigidBody* a_rigidBody, std::vector<hkVector4>& a_modVerts) {
 
 		const hkStridedVertices StridedVerts(a_modVerts.data(), static_cast<int>(a_modVerts.size()));
 
@@ -281,116 +256,69 @@ namespace GTS {
 		// it's actually a hkCharControllerShape not just a hkpConvexVerticesShape
 		reinterpret_cast<std::uintptr_t*>(NewShape)[0] = VTABLE_hkCharControllerShape[0].address();
 
-		if (bhkShape* Wrapper = a_convexShape->userData) {
+		if (bhkShape* Wrapper = ConvexShape->userData) {
 			Wrapper->SetReferencedObject(NewShape);
 		}
 
 		// The listshape does not use a hkRefPtr but it's still setup to add a reference upon construction and remove one on destruction
-		if (a_listShape) {
-			a_listShape->childInfo[0].shape = NewShape;
-			a_convexShape->RemoveReference();  // this will usually call the dtor on the old shape
+		if (ListShape) {
+			ListShape->childInfo[0].shape = NewShape;
+			ConvexShape->RemoveReference();  // this will usually call the dtor on the old shape
 		}
 		else {
-			if (a_proxy) {
-				a_proxy->shapePhantom->SetShape(NewShape);
+			if (CharProxy) {
+				CharProxy->shapePhantom->SetShape(NewShape);
 			}
-			else if (a_rigidBody) {
-				a_rigidBody->m_character->SetShape(NewShape);
+			else if (CharRigidBody) {
+				CharRigidBody->m_character->SetShape(NewShape);
 			}
 			NewShape->RemoveReference();
 		}
 	}
-
-	void CheckAndCorrectCollapsedVertexShape(std::vector<hkVector4>& a_modVerts) {
-
-		constexpr float buffer = 0.05f;
-		const float& topPos = a_modVerts[Vertex_Top].quad.m128_f32[2];
-		const float& botPos = a_modVerts[Vertex_Bot].quad.m128_f32[2];
-		const float& topRing = a_modVerts[1].quad.m128_f32[2];
-		const float& botRing = a_modVerts[0].quad.m128_f32[2];
-
-		//Bottom Ring
-		if (botRing - botPos < buffer) {
-			for (uint8_t idx : Vertex_RingBot) {
-				a_modVerts[idx].quad.m128_f32[2] = botPos + buffer;
-			}
-		}
-
-		//Top Ring
-		if (topRing - botRing < buffer) {
-			for (uint8_t idx : Vertex_RingTop) {
-				a_modVerts[idx].quad.m128_f32[2] = botRing + buffer;
-			}
-		}
-
-		//Top Vertex
-		if (topPos - topRing < buffer) {
-			a_modVerts[Vertex_Top].quad.m128_f32[2] = topRing + buffer;
-		}
-	}
-
-	bool ScaleorStateChange(const ActorState::ActorState1& a_currentState,
-		const ActorState::ActorState1& a_Prevstate, const float& a_currentScale,
-		const float& a_prevScale) {
-
-		if (a_currentScale != a_prevScale) {
-			return true;
-		}
-		if (a_currentState.swimming != a_Prevstate.swimming || a_currentState.sneaking != a_Prevstate.sneaking) {
-			return true;
-		}
-		return false;
-	};
-
-
 
 	bool GetShapes(bhkCharacterController* a_charController, hkpConvexVerticesShape*& a_outConvexShape, std::vector<hkpCapsuleShape*>& a_OutCollisionShapes) {
 
 		const auto readShape = [&](const auto& a_self, const hkpShape* a_shape) -> bool {
 			if (a_shape) {
 				switch (a_shape->type) {
-
-				case hkpShapeType::kCapsule:
-				{
-					if (hkpCapsuleShape* capsuleShape = const_cast<hkpCapsuleShape*>(skyrim_cast<const hkpCapsuleShape*>(a_shape))) {
-						a_OutCollisionShapes.emplace_back(capsuleShape);
-					}
-				} break;
-
-				case hkpShapeType::kConvexVertices:
-				{
-					if (hkpConvexVerticesShape* convexVerticesShape = const_cast<hkpConvexVerticesShape*>(skyrim_cast<const hkpConvexVerticesShape*>(a_shape))) {
-						a_outConvexShape = convexVerticesShape;
-						return true;
-					}
-				} break;
-
-				case hkpShapeType::kList:
-				{
-					if (hkpListShape* listShape = skyrim_cast<hkpListShape*>(const_cast<hkpShape*>(a_shape))) {
-						for (hkpListShape::ChildInfo& childInfo : listShape->childInfo) {
-							if (const hkpShape* child = childInfo.shape) {
-								a_self(a_self, child);
+					case hkpShapeType::kCapsule:
+					{
+						if (hkpCapsuleShape* capsuleShape = const_cast<hkpCapsuleShape*>(skyrim_cast<const hkpCapsuleShape*>(a_shape))) {
+							a_OutCollisionShapes.emplace_back(capsuleShape);
+						}
+					} break;
+					case hkpShapeType::kConvexVertices:
+					{
+						if (hkpConvexVerticesShape* convexVerticesShape = const_cast<hkpConvexVerticesShape*>(skyrim_cast<const hkpConvexVerticesShape*>(a_shape))) {
+							a_outConvexShape = convexVerticesShape;
+							return true;
+						}
+					} break;
+					case hkpShapeType::kList:
+					{
+						if (hkpListShape* listShape = skyrim_cast<hkpListShape*>(const_cast<hkpShape*>(a_shape))) {
+							for (hkpListShape::ChildInfo& childInfo : listShape->childInfo) {
+								if (const hkpShape* child = childInfo.shape) {
+									a_self(a_self, child);
+								}
 							}
 						}
-					}
-				} break;
-
-				case hkpShapeType::kMOPP:
-				{
-					if (hkpMoppBvTreeShape* moppShape = const_cast<hkpMoppBvTreeShape*>(skyrim_cast<const hkpMoppBvTreeShape*>(a_shape))) {
-						hkpShapeBuffer buf{};
-						hkpShapeKey shapeKey = moppShape->child.GetFirstKey();
-						for (uint32_t i = 0; i < moppShape->child.GetNumChildShapes(); ++i) {
-							if (const hkpShape* child = moppShape->child.GetChildShape(shapeKey, buf)) {
-								a_self(a_self, child);
+					} break;
+					case hkpShapeType::kMOPP:
+					{
+						if (hkpMoppBvTreeShape* moppShape = const_cast<hkpMoppBvTreeShape*>(skyrim_cast<const hkpMoppBvTreeShape*>(a_shape))) {
+							hkpShapeBuffer buf{};
+							hkpShapeKey shapeKey = moppShape->child.GetFirstKey();
+							for (uint32_t i = 0; i < moppShape->child.GetNumChildShapes(); ++i) {
+								if (const hkpShape* child = moppShape->child.GetChildShape(shapeKey, buf)) {
+									a_self(a_self, child);
+								}
+								shapeKey = moppShape->child.GetNextKey(shapeKey);
 							}
-							shapeKey = moppShape->child.GetNextKey(shapeKey);
 						}
-					}
-				} break;
+					} break;
 
-				default: break;
+					default: break;
 				}
 			}
 			return false;
@@ -416,182 +344,43 @@ namespace GTS {
 		return false;
 	}
 
-	bool GetConvexShape(bhkCharacterController* a_charController, hkpCharacterProxy*& a_outProxy, hkpCharacterRigidBody*& a_outRigidBody, hkpListShape*& a_outListShape, hkpConvexVerticesShape*& a_outConvexShape) {
+	hkpShape* DeepCloneShape(hkpShape* a_shape) {
 
-		if (bhkCharProxyController* proxyController = skyrim_cast<bhkCharProxyController*>(a_charController)) {
-			a_outProxy = static_cast<hkpCharacterProxy*>(proxyController->proxy.referencedObject.get());
-			if (a_outProxy) {
-				a_outListShape = skyrim_cast<hkpListShape*>(const_cast<hkpShape*>(a_outProxy->shapePhantom->collidable.shape));
-				a_outConvexShape = skyrim_cast<hkpConvexVerticesShape*>(const_cast<hkpShape*>(a_outListShape ? a_outListShape->childInfo[0].shape : a_outProxy->shapePhantom->collidable.shape));
-				return a_outListShape && a_outConvexShape;
-			}
-		}
-		else if (bhkCharRigidBodyController* rigidBodyController = skyrim_cast<bhkCharRigidBodyController*>(a_charController)) {
-			a_outRigidBody = static_cast<hkpCharacterRigidBody*>(rigidBodyController->characterRigidBody.referencedObject.get());
-			if (a_outRigidBody) {
-				a_outListShape = skyrim_cast<hkpListShape*>(const_cast<hkpShape*>(a_outRigidBody->m_character->collidable.shape));
-				a_outConvexShape = skyrim_cast<hkpConvexVerticesShape*>(const_cast<hkpShape*>(a_outListShape ? a_outListShape->childInfo[0].shape : a_outRigidBody->m_character->collidable.shape));
-				//Some creatures have a vertex shape but don't have a list shape
-				return a_outConvexShape;
-			}
-		}
+		if (!a_shape) return nullptr;
 
-		return false;
-	}
+		switch (a_shape->type) {
 
-	static hkpMoppBvTreeShape* CloneMopp_SharedCode_DeepChild(const hkpMoppBvTreeShape* src, hkpShape* (*cloneFn)(hkpShape*)) {
-		auto* dst = static_cast<hkpMoppBvTreeShape*>(hkMemoryRouter::hkHeapAlloc(sizeof(hkpMoppBvTreeShape)));
-
-		// Copy scalars/pointers
-		std::memcpy(dst, src, sizeof(hkpMoppBvTreeShape));
-		reinterpret_cast<std::uintptr_t*>(dst)[0] = VTABLE_hkpMoppBvTreeShape[0].address();
-		dst->referenceCount = 1;
-
-		if (dst->code) {
-			dst->code->AddReference();
-		}
-
-		// Clone the child shape graph and repoint container
-		hkpShapeBuffer buf{};
-		const hkpShapeKey key = src->child.GetFirstKey();
-		const hkpShape* child = src->child.GetChildShape(key, buf);
-
-		if (child) {
-			hkpShape* childClone = cloneFn(const_cast<hkpShape*>(child));
-			dst->child.childShape = childClone; // transfer ownership of that ref
-		}
-		else {
-			dst->child.childShape = nullptr;
-		}
-
-		return dst;
-	}
-
-	hkpCapsuleShape* CloneCapsule(const hkpCapsuleShape* src) {
-		auto* dst = static_cast<hkpCapsuleShape*>(hkMemoryRouter::hkHeapAlloc(sizeof(hkpCapsuleShape)));
-
-		std::memcpy(dst, src, sizeof(hkpCapsuleShape));
-		reinterpret_cast<std::uintptr_t*>(dst)[0] = VTABLE_hkpCapsuleShape[0].address();
-		dst->referenceCount = 1;
-
-		return dst;
-	}
-
-	hkpListShape* CloneListShapeDeep(const hkpListShape* src, hkpShape* (*cloneFn)(hkpShape*)) {
-		auto* dst = static_cast<hkpListShape*>(hkMemoryRouter::hkHeapAlloc(sizeof(hkpListShape)));
-
-		// Shallow copy scalars first
-		std::memcpy(dst, src, sizeof(hkpListShape));
-		reinterpret_cast<std::uintptr_t*>(dst)[0] = VTABLE_hkpListShape[0].address();
-		dst->referenceCount = 1;
-
-		// Deep-copy childInfo backing storage so we don't share hkArray buffer
-		const int n = src->childInfo.size();
-		if (n > 0) {
-			using ChildInfoT = std::remove_reference_t<decltype(dst->childInfo[0])>;
-
-			auto* newBuf = static_cast<ChildInfoT*>(hkMemoryRouter::hkHeapAlloc(sizeof(ChildInfoT) * n));
-
-			// Copy entries (including filter info etc.)
-			std::memcpy(newBuf, src->childInfo.data(), sizeof(ChildInfoT) * n);
-
-			// Rebind hkArray storage to the new buffer
-			dst->childInfo._data = newBuf;
-			dst->childInfo._size = n;
-
-			// Preserve the upper flag bits, replace capacity with n.
-			// (Havok stores flags in the high bits of capacityAndFlags.)
-			const int capFlags = src->childInfo._capacityAndFlags;
-			dst->childInfo._capacityAndFlags = (capFlags & 0xC0000000) | n;
-
-			// Now clone each child and patch pointer in the NEW buffer
-			for (int i = 0; i < n; ++i) {
-				if (newBuf[i].shape) {
-					hkpShape* childClone = cloneFn(const_cast<hkpShape*>(newBuf[i].shape));
-					newBuf[i].shape = childClone;
-				}
-			}
-		}
-		else {
-			// Ensure a consistent empty array state
-			dst->childInfo._data = nullptr;
-			dst->childInfo._size = 0;
-			dst->childInfo._capacityAndFlags = 0;
-		}
-
-		return dst;
-	}
-
-
-	hkpShape* DeepCloneShape(hkpShape* s) {
-
-		if (!s) return nullptr;
-
-		switch (s->type) {
-			case hkpShapeType::kCapsule: return CloneCapsule(static_cast<hkpCapsuleShape*>(s));
-			case hkpShapeType::kList:    return CloneListShapeDeep(static_cast<hkpListShape*>(s), &DeepCloneShape);
-			case hkpShapeType::kMOPP:    return CloneMopp_SharedCode_DeepChild(static_cast<hkpMoppBvTreeShape*>(s), &DeepCloneShape);
+			case hkpShapeType::kCapsule: return CloneCapsule(static_cast<hkpCapsuleShape*>(a_shape));
+			case hkpShapeType::kList:    return CloneListShapeDeep(static_cast<hkpListShape*>(a_shape), &DeepCloneShape);
+			case hkpShapeType::kMOPP:    return CloneMopp_SharedCode_DeepChild(static_cast<hkpMoppBvTreeShape*>(a_shape), &DeepCloneShape);
 
 			default:
-				s->AddReference();
-				return s;
+			{
+				a_shape->AddReference();
+				return a_shape;
+			}
 		}
 	}
 
-	bool GetCapsules(bhkCharacterController* a_controller, std::vector<hkpCapsuleShape*>& a_outCapsules) {
+	bool GetCapsulesFromShape(bhkShape* a_bhkshape, std::vector<hkpCapsuleShape*>& a_outCapsules) {
+		if (!a_bhkshape) return false;
+		ReadShape(static_cast<hkpShape*>(a_bhkshape->referencedObject.get()), a_outCapsules);
+		return !a_outCapsules.empty();
+	}
 
-		const auto ReadShape = [&](const auto& a_self, const hkpShape* a_shape) {
+	bool GetCapsulesFromController(bhkCharacterController* a_controller, std::vector<hkpCapsuleShape*>& a_outCapsules) {
 
-			if (a_shape == nullptr) return;
-
-			switch (a_shape->type) {
-
-				case hkpShapeType::kCapsule: 
-				{
-					if (hkpCapsuleShape* CapsuleShape = const_cast<hkpCapsuleShape*>(skyrim_cast<const hkpCapsuleShape*>(a_shape))) {
-						a_outCapsules.emplace_back(CapsuleShape);
-					}
-					
-				} break;
-
-				case hkpShapeType::kList: 
-				{
-					if (hkpListShape* ListShape = skyrim_cast<hkpListShape*>(const_cast<hkpShape*>(a_shape))) {
-						for (hkpListShape::ChildInfo& ChildInfo : ListShape->childInfo) {
-							if (auto Child = ChildInfo.shape) {
-								a_self(a_self, Child);
-							}
-						}
-					}
-				} break;
-
-				case hkpShapeType::kMOPP: 
-				{
-					if (hkpMoppBvTreeShape* MOPPShape = const_cast<hkpMoppBvTreeShape*>(skyrim_cast<const hkpMoppBvTreeShape*>(a_shape))) {
-						hkpShapeBuffer ShapeBuffer{};
-						hkpShapeKey ShapeKey = MOPPShape->child.GetFirstKey();
-						for (int i = 0; i < MOPPShape->child.GetNumChildShapes(); ++i) {
-							if (auto ChildShape = MOPPShape->child.GetChildShape(ShapeKey, ShapeBuffer)) {
-								a_self(a_self, ChildShape);
-							}
-							ShapeKey = MOPPShape->child.GetNextKey(ShapeKey);
-						}
-					}
-				} break;
-
-				default: break;
-			}
-		};
+		if (!a_controller) return false;
 
 		if (bhkCharProxyController* ProxyController = skyrim_cast<bhkCharProxyController*>(a_controller)) {
 			if (hkpCharacterProxy* CharacterProxy = static_cast<hkpCharacterProxy*>(ProxyController->proxy.referencedObject.get())) {
-				ReadShape(ReadShape, CharacterProxy->shapePhantom->collidable.shape);
+				ReadShape(CharacterProxy->shapePhantom->collidable.shape, a_outCapsules);
 				return !a_outCapsules.empty();
 			}
 		}
 		else if (bhkCharRigidBodyController* RigidBodyController = skyrim_cast<bhkCharRigidBodyController*>(a_controller)) {
 			if (hkpCharacterRigidBody* RigidBody = static_cast<hkpCharacterRigidBody*>(RigidBodyController->characterRigidBody.referencedObject.get())) {
-				ReadShape(ReadShape, RigidBody->m_character->collidable.shape);
+				ReadShape(RigidBody->m_character->collidable.shape, a_outCapsules);
 				return !a_outCapsules.empty();
 			}
 		}
@@ -599,188 +388,110 @@ namespace GTS {
 		return false;
 	}
 
-	bool GetNPCCapsules(bhkShape* a_bhkshape, std::vector<hkpCapsuleShape*>& a_outCapsules) {
+	void DrawCollisionShapes(const Actor* a_actor, bool a_isBoneDriven) {
 
-		if (!a_bhkshape) return false;
-
-		const auto ReadShape = [&](const auto& a_self, const hkpShape* a_shape) {
-
-			if (a_shape == nullptr) return;
-
-			switch (a_shape->type) {
-
-				case hkpShapeType::kCapsule:
-				{
-					if (hkpCapsuleShape* CapsuleShape = const_cast<hkpCapsuleShape*>(skyrim_cast<const hkpCapsuleShape*>(a_shape))) {
-						a_outCapsules.emplace_back(CapsuleShape);
-					}
-
-				} break;
-
-				case hkpShapeType::kList:
-				{
-					if (hkpListShape* ListShape = skyrim_cast<hkpListShape*>(const_cast<hkpShape*>(a_shape))) {
-						for (hkpListShape::ChildInfo& ChildInfo : ListShape->childInfo) {
-							if (auto Child = ChildInfo.shape) {
-								a_self(a_self, Child);
-							}
-						}
-					}
-				} break;
-
-				case hkpShapeType::kMOPP:
-				{
-					if (hkpMoppBvTreeShape* MOPPShape = const_cast<hkpMoppBvTreeShape*>(skyrim_cast<const hkpMoppBvTreeShape*>(a_shape))) {
-						hkpShapeBuffer ShapeBuffer{};
-						hkpShapeKey ShapeKey = MOPPShape->child.GetFirstKey();
-						for (int i = 0; i < MOPPShape->child.GetNumChildShapes(); ++i) {
-							if (auto ChildShape = MOPPShape->child.GetChildShape(ShapeKey, ShapeBuffer)) {
-								a_self(a_self, ChildShape);
-							}
-							ShapeKey = MOPPShape->child.GetNextKey(ShapeKey);
-						}
-					}
-				} break;
-
-				default: break;
-			}
-		};
-
-		ReadShape(ReadShape, static_cast<hkpShape*>(a_bhkshape->referencedObject.get()));
-		return !a_outCapsules.empty();
-	}
-
-	void FillCloningProcess(NiCloningProcess& a_cloningProcess) {
-
-		static constexpr auto One = NiPoint3(1.0f, 1.0f, 1.0f);
-
-		uintptr_t cloneMap = reinterpret_cast<uintptr_t>(&a_cloningProcess.cloneMap);
-		void** value1 = reinterpret_cast<void**>(cloneMap + 0x18);
-		*value1 = reinterpret_cast<void*>(RELOCATION_ID(501133, 359452).address());;
-
-		uintptr_t processMap = reinterpret_cast<uintptr_t>(&a_cloningProcess.processMap);
-		void** value2 = reinterpret_cast<void**>(processMap + 0x18);
-		*value2 = reinterpret_cast<void*>(RELOCATION_ID(501132, 359451).address());
-
-		a_cloningProcess.copyType = 1;
-		a_cloningProcess.appendChar = '$';
-		a_cloningProcess.scale = One;
-	}
-
-	NiPoint3 HkVectorToNiPoint(const hkVector4& a_vector) {
-		NiPoint3 Out = { a_vector.quad.m128_f32[0], a_vector.quad.m128_f32[1], a_vector.quad.m128_f32[2] };
-		return Out;
-	}
-
-	NiPoint3 hkVec4ToNiPoint(const hkVector4& a) {
-		return NiPoint3(a.quad.m128_f32[0], a.quad.m128_f32[1], a.quad.m128_f32[2]);
-	}
-
-	glm::vec3 NiPointToVec3(const NiPoint3& a) {
-		return glm::vec3(a.x, a.y, a.z);
-	}
-
-	void DrawCollisionShapes(const Actor* a_actor, bool isBoneDriven) {
+		static const float* gWorldScaleInverse = reinterpret_cast<float*>(RE::Offset::Havok::WorldScaleInverse.address());
 
 		if (a_actor) {
-			if (bhkCharacterController* controller = a_actor->GetCharController())
 			if (!a_actor->IsDead()) {
-				if (TESObjectCELL* Cell = a_actor->GetParentCell()) {
-					if (NiPointer<bhkWorld> World = NiPointer(Cell->GetbhkWorld())) {
+				if (bhkCharacterController* controller = a_actor->GetCharController()) {
+					if (TESObjectCELL* Cell = a_actor->GetParentCell()) {
+						if (NiPointer<bhkWorld> World = NiPointer(Cell->GetbhkWorld())) {
 
-						hkpConvexVerticesShape* CollisionConvexVertexShape = nullptr;
-						std::vector<hkpCapsuleShape*> CollisionCapsules{};
-						CollisionCapsules.reserve(6);
+							hkpConvexVerticesShape* CollisionConvexVertexShape = nullptr;
+							std::vector<hkpCapsuleShape*> CollisionCapsules{};
+							CollisionCapsules.reserve(6);
 
-						{
-							BSReadLockGuard WorldLock(World->worldLock);
-							GetShapes(controller, CollisionConvexVertexShape, CollisionCapsules);
-						}
-
-						hkVector4 ControllerPosition;
-						controller->GetPosition(ControllerPosition, false);
-						NiPoint3 ContollerNiPosition = hkVec4ToNiPoint(ControllerPosition) * *reinterpret_cast<float*>(Offset::Havok::WorldScaleInverse.address());
-
-						if (CollisionConvexVertexShape) {
-							hkArray<hkVector4> Verts{};
-							CollisionConvexVertexShape->GetOriginalVertices(Verts);
-
-							// Scale vertices from Havok units to game world units and add controller position
-							for (int32_t i = 0; i < Verts.size(); ++i) {
-								Verts[i].quad.m128_f32[0] = Verts[i].quad.m128_f32[0] * *gWorldScaleInverse;
-								Verts[i].quad.m128_f32[1] = Verts[i].quad.m128_f32[1] * *gWorldScaleInverse;
-								Verts[i].quad.m128_f32[2] = Verts[i].quad.m128_f32[2] * *gWorldScaleInverse;
+							{
+								BSReadLockGuard WorldLock(World->worldLock);
+								GetShapes(controller, CollisionConvexVertexShape, CollisionCapsules);
 							}
 
-							glm::vec4 color = isBoneDriven ? glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f } : glm::vec4{ 1.0f, 0.0f, 1.0f, 1.0f };
-							DebugDraw::DrawConvexVertices(
-								Verts,
-								NiPointToVec3(ContollerNiPosition),
-								glm::mat4(1.0f),
-								10, color, 1.0f
-							);
-						}
+							hkVector4 ControllerPosition;
+							controller->GetPosition(ControllerPosition, false);
+							NiPoint3 ContollerNiPosition = hkVec4ToNiPoint(ControllerPosition) * *reinterpret_cast<float*>(Offset::Havok::WorldScaleInverse.address());
 
-						for (hkpCapsuleShape*& Capsule : CollisionCapsules) {
-							constexpr NiPoint3 UpVector{ 0.f, 0.f, 1.f };
+							if (CollisionConvexVertexShape) {
+								hkArray<hkVector4> Verts{};
+								CollisionConvexVertexShape->GetOriginalVertices(Verts);
 
-							const float ColCapsuleRadius = Capsule->radius * *gWorldScaleInverse;
-							NiPoint3 A = hkVec4ToNiPoint(Capsule->vertexA) * *gWorldScaleInverse;
-							NiPoint3 B = hkVec4ToNiPoint(Capsule->vertexB) * *gWorldScaleInverse;
-
-							A = RotateAngleAxis(A, -a_actor->data.angle.z, UpVector);
-							A += ContollerNiPosition;
-
-							B = RotateAngleAxis(B, -a_actor->data.angle.z, UpVector);
-							B += ContollerNiPosition;
-
-							// Determine color based on material
-							glm::vec4 color = { 1.0f, 1.0f, 0.0f, 1.0f }; // Default yellow
-							if (bhkShape* Shape = Capsule->userData) {
-								if (Shape->materialID == MATERIAL_ID::kCharacterBumper) {
-									if (!Config::Collision.bDrawBumpers) return;
-									color = { 0.0f, 0.25f, 0.53f, 1.0f }; // Blue for bumper
+								// Scale vertices from Havok units to game world units and add controller position
+								for (int32_t i = 0; i < Verts.size(); ++i) {
+									Verts[i].quad.m128_f32[0] = Verts[i].quad.m128_f32[0] * *gWorldScaleInverse;
+									Verts[i].quad.m128_f32[1] = Verts[i].quad.m128_f32[1] * *gWorldScaleInverse;
+									Verts[i].quad.m128_f32[2] = Verts[i].quad.m128_f32[2] * *gWorldScaleInverse;
 								}
+
+								const glm::vec4& color = a_isBoneDriven ? glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f } : glm::vec4{ 1.0f, 0.0f, 1.0f, 1.0f };
+								DebugDraw::DrawConvexVertices(
+									Verts,
+									NiPointToVec3(ContollerNiPosition),
+									glm::mat4(1.0f),
+									10, color, 1.0f
+								);
 							}
 
-							const float distance = PlayerCharacter::GetSingleton()->GetPosition().GetDistance(a_actor->GetPosition());
+							for (hkpCapsuleShape*& Capsule : CollisionCapsules) {
+								constexpr NiPoint3 UpVector{ 0.f, 0.f, 1.f };
 
-							// Configure LOD based on distance
-							int32_t longitudinal_steps, latitude_steps;
+								const float ColCapsuleRadius = Capsule->radius * *gWorldScaleInverse;
+								NiPoint3 A = hkVec4ToNiPoint(Capsule->vertexA) * *gWorldScaleInverse;
+								NiPoint3 B = hkVec4ToNiPoint(Capsule->vertexB) * *gWorldScaleInverse;
 
-							if (distance < 512.0f) {
-								//high detail
-								longitudinal_steps = 8;
-								latitude_steps = 4;
-							}
-							else if (distance < 1024.0f) {
-								//normal detail
-								longitudinal_steps = 6;
-								latitude_steps = 3;
-							}
-							else if (distance < 1536.0f) {
-								//low detail
-								longitudinal_steps = 4;
-								latitude_steps = 2;
-							}
-							else {
-								//minimal detail
-								longitudinal_steps = 1;
-								latitude_steps = 1;
-							}
+								A = RotateAngleAxis(A, -a_actor->data.angle.z, UpVector);
+								A += ContollerNiPosition;
 
-							DebugDraw::DrawCapsule(
-								NiPointToVec3(A),
-								NiPointToVec3(B),
-								ColCapsuleRadius,
-								glm::mat4(1.0f),
-								10, color, 1.0f,
-								longitudinal_steps,
-								latitude_steps
-							);
+								B = RotateAngleAxis(B, -a_actor->data.angle.z, UpVector);
+								B += ContollerNiPosition;
+
+								// Determine color based on material
+								glm::vec4 color = { 1.0f, 1.0f, 0.0f, 1.0f }; // Yellow for collision capsules
+								if (bhkShape* Shape = Capsule->userData) {
+									if (Shape->materialID == MATERIAL_ID::kCharacterBumper) {
+										if (!Config::Collision.bDrawBumpers) continue;
+										color = { 0.0f, 0.25f, 0.53f, 1.0f }; // Blue for bumper
+									}
+								}
+
+								const float distance = PlayerCharacter::GetSingleton()->GetPosition().GetDistance(a_actor->GetPosition());
+
+								// Configure LOD based on distance
+								int32_t longitudinal_steps, latitude_steps;
+
+								if (distance < 512.0f) {
+									//high detail
+									longitudinal_steps = 8;
+									latitude_steps = 4;
+								}
+								else if (distance < 1024.0f) {
+									//normal detail
+									longitudinal_steps = 6;
+									latitude_steps = 3;
+								}
+								else if (distance < 1536.0f) {
+									//low detail
+									longitudinal_steps = 4;
+									latitude_steps = 2;
+								}
+								else {
+									//minimal detail
+									longitudinal_steps = 1;
+									latitude_steps = 1;
+								}
+
+								DebugDraw::DrawCapsule(
+									NiPointToVec3(A),
+									NiPointToVec3(B),
+									ColCapsuleRadius,
+									glm::mat4(1.0f),
+									10, color, 1.0f,
+									longitudinal_steps,
+									latitude_steps
+								);
+							}
 						}
 					}
-				}
+				}	
 			}
 		}
 	}
