@@ -11,12 +11,12 @@ namespace GTS {
 
 
 	// Beth doesn't use the maxslopeCosine from havok,
-	// instead handled in the bhkController as an inverted radians value.
+	// It instead is handled by the bhkCharacterController as an inverted radian value.
 	// maxSlope = (pi/2) - radians
-	// maxSlope is also wrong in clib, it has it stored as a uint32_t instead of a float
-	// The default "uint32" value is 1060018034
-	// Which as a radian float is 0.6819984 (~39 degrees) (0.6819984 (180/pi) = 39.07 degrees)
-	// The value is also inverted, so the actual max slope for the controller in the vanilla game is (pi/2) - 0.6819984 = 0.8887982 (~50.92 degrees)
+	// maxSlope is also wrong in clib, it has it listed as a uint32_t instead of a float
+	// The default "uint32" value is 1060018034 which makes no sense for an int angle.
+	// When that int value is intepreted as a float it produces the value 0.6819984 which ends up being a radian of ~39 degrees (0.6819984 (180/pi) = 39.07 degrees)
+	// The value is also inverted in regards to the slope calc, so the actual formula for the max slope for the controller in the vanilla game is (pi/2) - 0.6819984 = 0.8887982 (~50.92 degrees)
 	float GetControllerMaxSlope(bhkCharacterController* a_controller) {
 		float radians = std::bit_cast<float>(a_controller->maxSlope);
 		float maxSlopeRadians = (std::numbers::pi / 2.0f) - radians;

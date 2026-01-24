@@ -2,7 +2,7 @@
 
 namespace GTS {
 
-    bool AllowDevourment();
+    bool IsDevourmentEnabled();
     bool IsBeingEaten(Actor* tiny);
 
 	float GetGrowthFormula(float a_giantScale, float a_tinyScale, bool a_devourment);

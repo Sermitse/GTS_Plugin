@@ -52,7 +52,7 @@ namespace {
 
         auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
 
-		if (!AllowDevourment()) {
+		if (!IsDevourmentEnabled()) {
 			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, giant, 1.0f, "NPC Head [Head]"); // Play sound
 		}
 
@@ -61,7 +61,7 @@ namespace {
 			if (tiny->IsPlayerRef()) {
 				PlayerCamera::GetSingleton()->cameraTarget = giant->CreateRefHandle();
 			}
-			if (AllowDevourment()) {
+			if (IsDevourmentEnabled()) {
 				CallDevourment(giant, tiny);
 				SetBeingHeld(tiny, false);
 				VoreData.AllowToBeVored(true);

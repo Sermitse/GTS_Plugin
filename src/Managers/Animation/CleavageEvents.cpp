@@ -308,11 +308,11 @@ namespace {
         auto tiny = Grab::GetHeldActor(&data.giant);
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		if (tiny) {
-            if (!AllowDevourment()) {
+            if (!IsDevourmentEnabled()) {
                 Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
             }
 			for (auto& tinyit: VoreData.GetVories()) {
-				if (!AllowDevourment()) {
+				if (!IsDevourmentEnabled()) {
 					VoreData.Swallow();
 					if (AnimationVars::Crawl::IsCrawling(&data.giant)) {
 						tinyit->SetAlpha(0.0f); // Hide Actor
