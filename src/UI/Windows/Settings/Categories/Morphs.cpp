@@ -7,6 +7,7 @@
 #include "UI/Controls/CheckBox.hpp"
 #include "UI/Controls/CollapsingTabHeader.hpp"
 #include "UI/Controls/Slider.hpp"
+#include "UI/Controls/Text.hpp"
 #include "UI/Controls/ToolTip.hpp"
 
 #include "UI/Core/ImUtil.hpp"
@@ -24,8 +25,7 @@ namespace {
         constexpr int32_t MAXIdx = 16;
 		constexpr int32_t LastIdx = MAXIdx - 1;
 
-        ImGui::TextColored(ImUtil::Colors::Subscript, "What is this (?)");
-        ImGuiEx::Tooltip(THelp, true);
+        ImGuiEx::HelpText("What is this", THelp);
 
         if (ImGuiEx::SliderF("Multiplier", &settings.fMultiplier, 0.1f, 5.0f,
             "Multiply the final combined morph shape by this value.", "%.2fx")) {

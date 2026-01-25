@@ -1,7 +1,7 @@
 #pragma once
 
 namespace ImGuiEx {
-    void HelpMarker(const char* a_desc);
+    void HelpText(const char* a_title, const char* a_tooltip);
     void TextShadow(const char* a_cfmt, ...);
     void TextColorShadow(ImVec4 a_col, const char* a_cfmt, ...);
 

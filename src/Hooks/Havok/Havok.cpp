@@ -1,12 +1,13 @@
 #include "Hooks/Havok/Havok.hpp"
 #include "Managers/OverkillManager.hpp"
 #include "Hooks/Util/HookUtil.hpp"
+#include "Managers/Collision/DynamicCollisionManager.hpp"
 
 using namespace GTS;
 
 namespace {
 
-	constexpr float tree_ignore_threshold = 16.0f;
+	constexpr float tree_ignore_threshold = 12.0f;
 	constexpr float actor_ignore_limit = 3.0f;
 
 	COL_LAYER GetCollisionLayer(const std::uint32_t& collisionFilterInfo) {
@@ -124,29 +125,31 @@ namespace {
 
 	bool IsTreeCollisionDisabled(const hkpCollidable* a_collidableA, const hkpCollidable* a_collidableB) {
 
-		auto colLayerA = GetCollisionLayer(a_collidableA);
-		auto colLayerB = GetCollisionLayer(a_collidableB);
+		TESObjectREFR* obj_A = GetTESObjectREFR(a_collidableA);
+		TESObjectREFR* obj_B = GetTESObjectREFR(a_collidableB);
 
-		bool Check_Tree = (colLayerA == COL_LAYER::kTrees || colLayerB == COL_LAYER::kTrees);
+		Actor* Target = nullptr;
+		TESObjectREFR* Tree = nullptr;
 
-		if (Check_Tree) {
-			auto obj_A = GetTESObjectREFR(a_collidableA);
-			auto obj_B = GetTESObjectREFR(a_collidableB);
-			
-			if (obj_A && obj_B) {
-				Actor* actor = skyrim_cast<Actor*>(obj_A);
-				if (actor) {
-					//log::info("A is actor");
-					float tree_scale = static_cast<float>(obj_A->GetReferenceRuntimeData().refScale) / 100.0F;
-					float actor_scale = get_visual_scale(actor);
-					if (actor_scale/tree_scale >= tree_ignore_threshold) {
-						//log::info("A: {}", obj_A->GetDisplayFullName());
-						//log::info("B: {}", obj_B->GetDisplayFullName());
-						//log::info("Ignoring collision");
-						return true;
-					}
+		if (obj_A && obj_B) {
+
+			if (obj_A->formType.get() == FormType::ActorCharacter && obj_B->GetBaseObject()->formType.get() == FormType::Tree) {
+				Target = skyrim_cast<Actor*>(obj_A);
+				Tree = obj_B;
+			}
+			else if (obj_B->formType.get() == FormType::ActorCharacter && obj_A->GetBaseObject()->formType.get() == FormType::Tree) {
+				Target = skyrim_cast<Actor*>(obj_B);
+				Tree = obj_A;
+			};
+
+			if (Target && Tree) {
+				float tree_scale = static_cast<float>(Tree->GetReferenceRuntimeData().refScale) / 100.0F;
+				float actor_scale = get_visual_scale(Target);
+				if (actor_scale/tree_scale >= tree_ignore_threshold) {
+					return true;
 				}
 			}
+			
 		}
 			
 		return false;
@@ -165,39 +168,6 @@ namespace {
 				log::info("{} Collision Layer: {}", ObjectA->GetDisplayFullName(), Layer_A);
 				log::info("{} Collision Layer: {}", ObjectB->GetDisplayFullName(), Layer_B);
 			}
-		}
-	}
-
-	void Throw_DoDamage(TESObjectREFR* victim_ref, TESObjectREFR* aggressor_ref, float speed) {
-		float damage = speed * Damage_Throw_Collision;
-
-		Actor* victim = skyrim_cast<Actor*>(victim_ref);
-		Actor* aggressor = skyrim_cast<Actor*>(aggressor_ref);
-
-		if (victim && aggressor) {
-			InflictSizeDamage(aggressor, victim, damage);
-
-			std::string task = std::format("ThrowTiny {}", victim->formID);
-			ActorHandle giantHandle = aggressor->CreateRefHandle();
-			ActorHandle tinyHandle = victim->CreateRefHandle();
-
-			log::info("Inflicting throw damage for {}: {}", victim->GetDisplayFullName(), damage);
-
-			TaskManager::RunOnce(task, [=](auto& update){
-				if (!giantHandle) {
-					return;
-				}
-				if (!tinyHandle) {
-					return;
-				}
-				
-				auto giant = giantHandle.get().get();
-				auto tiny = tinyHandle.get().get();
-				float health = GetAV(tiny, ActorValue::kHealth);
-				if (health <= 1.0f || tiny->IsDead()) {
-					OverkillManager::GetSingleton().Overkill(giant, tiny);
-				}
-			});
 		}
 	}
 }
@@ -234,8 +204,8 @@ namespace Hooks {
 				GTS_PROFILE_ENTRYPOINT("Havok::IsCollisionEnabled");
 
 				if (*a_result) {
-					auto colLayerA = GetCollisionLayer(a_collidableA);
-					auto colLayerB = GetCollisionLayer(a_collidableB);
+					COL_LAYER colLayerA = GetCollisionLayer(a_collidableA);
+					COL_LAYER colLayerB = GetCollisionLayer(a_collidableB);
 
 					//CollisionPrints(a_collidableA, a_collidableB);
 
@@ -267,12 +237,46 @@ namespace Hooks {
 
 	};
 
+	struct bhkCharacterControllerDtor {
+
+		static void thunk(RE::bhkCharProxyController* a_this) {
+			DynamicCollisionManager::DestroyInstance(a_this);
+			func(a_this);
+		}
+
+		FUNCTYPE_CALL func;
+	};
+
+	struct bhkCharacterControllerDtorRigidBody {
+
+		static void thunk(RE::bhkCharRigidBodyController* a_this) {
+			DynamicCollisionManager::DestroyInstance(a_this);
+			func(a_this);
+		}
+
+		FUNCTYPE_CALL func;
+	};
+
+	struct ActorInitHavok {
+
+		static void thunk(RE::bhkCharacterController* a_this, uint32_t a2, RE::Actor* a_actor) {
+			func(a_this, a2, a_actor);
+			DynamicCollisionManager::CreateInstance(a_actor);
+		}
+
+		FUNCTYPE_CALL func;
+	};
+
 	void Hook_Havok::Install() {
 
 		logger::info("Installing Havok Hooks...");
 
 		stl::write_call<ProcessHavokHitJobs>(REL::RelocationID(38112, 39068, NULL),REL::VariantOffset(0x104, 0xFC, NULL));
 		stl::write_vfunc<IsCollisionEnabled>(VTABLE_bhkCollisionFilter[1]);
+
+		stl::write_call<bhkCharacterControllerDtor>         (REL::RelocationID(77273, 79161, NULL), REL::VariantOffset(0x19, 0x19, NULL));
+		stl::write_call<bhkCharacterControllerDtorRigidBody>(REL::RelocationID(77331, 79212, NULL), REL::VariantOffset(0x19, 0x10E, NULL));
+		stl::write_call<ActorInitHavok>                     (REL::RelocationID(36192, 37171, NULL), REL::VariantOffset(0x34E, 0x3B7, NULL));
 
 	}
 }

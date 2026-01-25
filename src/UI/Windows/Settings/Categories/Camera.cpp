@@ -7,6 +7,7 @@
 
 #include "UI/Controls/CheckBox.hpp"
 #include "UI/Controls/ComboBox.hpp"
+#include "UI/Controls/Text.hpp"
 
 namespace GTS {
 
@@ -170,11 +171,8 @@ namespace GTS {
 							 " - Step: 0.075\n";
 
 	        if (ImGui::CollapsingHeader("Skyrim Camera Settings", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImGui::TextColored(ImUtil::Colors::Subscript, "What is this (?)");
 
-	            if (ImGui::IsItemHovered()) {
-	                ImGui::SetTooltip(THelp);
-	            }
+				ImGuiEx::HelpText("What is this", THelp);
 
 				ImGuiEx::CheckBox("Enable Adjustments", &Config::Camera.bEnableSkyrimCameraAdjustments, T4);
 
@@ -243,8 +241,5 @@ namespace GTS {
 				ImGuiEx::CheckBox("Dynamic Frustrum - Far", &Config::Camera.bEnableAutoFFarDist, T2);
 			}
 		}
-
-	    
-
 	}
 }

@@ -16,6 +16,7 @@ namespace RuntimeData {
 
 		Entry(DLC1ChaurusHunterRace,     DWNG, 0x0051FB);
 		Entry(DLC1_BF_ChaurusRace,       DWNG, 0x015136);
+		Entry(DLC1VampireBeastRace,      DWNG, 0x00283A);
 
 		Entry(DLC2ExpSpiderBaseRace,     DRAG, 0x014449);
 		Entry(DLC2ExpSpiderPackmuleRace, DRAG, 0x027483);

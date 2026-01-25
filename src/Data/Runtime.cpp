@@ -4,29 +4,43 @@
 
 namespace {
 
+	bool CheckModLoaded(const std::string_view& a_name) {
+		logger::info("Dependency Checker: Checking for {}", a_name);
+
+		if (const auto DataHandler = RE::TESDataHandler::GetSingleton()) {
+			const auto ModFile = DataHandler->LookupModByName(a_name);
+			if (ModFile && ModFile->compileIndex != 0xFF) {
+				logger::info("SoftDependency Checker: {} was Found.", a_name);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	void CheckModLoaded(bool* a_res, const std::string_view& a_name) {
 		logger::info("Dependency Checker: Checking for {}", a_name);
 		if (a_res) {
-			if (const auto DataHandler = RE::TESDataHandler::GetSingleton()) {
-				const auto ModFile = DataHandler->LookupModByName(a_name);
-				if (ModFile && ModFile->compileIndex != 0xFF) {
-					logger::info("SoftDependency Checker: {} was Found.", a_name);
-					*a_res = true;
-					return;
-				}
-			}
+			*a_res = CheckModLoaded(a_name);
+			return;
 		}
 		*a_res = false;
+	}
+
+	bool CheckDLLLoaded(const std::wstring_view& a_name) {
+		logger::info("Dependency DLL Checker: Checking for {}", GTS::Utf16ToUtf8(a_name));
+		return GetModuleHandleW(a_name.data()) != nullptr; // DLL name
 	}
 
 	void CheckDLLLoaded(bool* a_res, const std::wstring_view& a_name) {
 		logger::info("Dependency DLL Checker: Checking for {}", GTS::Utf16ToUtf8(a_name));
 		if (a_res) {
-			*a_res = (GetModuleHandleW(a_name.data()) != nullptr); // DLL name
+			*a_res = CheckDLLLoaded(a_name);
 			return;
 		}
 		*a_res = false;
 	}
+
+
 
 	template<typename ReturnType, typename ListableType>
 	ReturnType* GetFormByTagName(ListableType& a_listable, const std::string_view& a_tag) {
@@ -225,14 +239,21 @@ namespace GTS {
 
 	void Runtime::DataReady() {
 
-		if (auto File = TESDataHandler::GetSingleton()->LookupModByName("GTS.esp")) {
-			if (File->compileIndex == 0xFF) {
-				ReportAndExit(
-				  "GTS.esp was not found in the active load order.\n"
-				  "Make sure it exists and is activated."
-				);
-			}
+		if (!CheckModLoaded("GTS.esp")) {
+			ReportAndExit(
+			  "GTS.esp was not found in the active load order.\n"
+			  "Make sure it exists and is activated."
+			);
 		}
+
+		if (CheckDLLLoaded(L"DynamicCollisionAdjustment.dll")) {
+			ReportAndExit(
+				"Dynamic Collision Adjustment (DCA) has been detected.\n"
+				"As of version 3.5.0.0 DCA is no longer compatible with this mod.\n"
+				"You must disable or delete \"DynamicCollisionAdjustment.dll\" in order to be able use this mod."
+			);
+		}
+
 
 		CheckModLoaded(&SexlabInstalled,"SexLab.esm");
 		CheckModLoaded(&SurvivalModeInstalled, "ccQDRSSE001-SurvivalMode.esl");

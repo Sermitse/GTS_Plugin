@@ -1,4 +1,6 @@
 #include "UI/Controls/Text.hpp"
+#include "UI/Controls/ToolTip.hpp"
+#include "UI/Core/ImUtil.hpp"
 
 namespace ImGuiEx {
 
@@ -10,16 +12,9 @@ namespace ImGuiEx {
     }
 
     // Helper to display a little (?) mark which shows a tooltip when hovered.
-    void HelpMarker(const char* a_desc) {
-
-        ImGui::Text("[?]");
-        if (ImGui::BeginItemTooltip()) {
-
-            ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-            ImGui::TextUnformatted(a_desc);
-            ImGui::PopTextWrapPos();
-            ImGui::EndTooltip();
-        }
+    void HelpText(const char* a_title, const char* a_tooltip) {
+        ImGui::TextColored(ImUtil::Colors::Subscript,"%s (?)", a_title);
+        Tooltip(a_tooltip, true);
     }
 
     void TextShadow(const char* a_cfmt, ...) {

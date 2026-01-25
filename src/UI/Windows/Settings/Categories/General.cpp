@@ -16,6 +16,8 @@
 #include "Utils/QuestUtil.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 
+#include "UI/Controls/Text.hpp"
+
 namespace {
 
 	PSString T_Export = "Export the current mod configuration to a file.";
@@ -407,8 +409,7 @@ namespace GTS {
 				ImGuiEx::CheckBox("Alternative Movement Speed", &Config::General.bAlternativeSpeedFormula, T1);
 				ImGui::Text("NPC Movement Speed Clamping");
 				ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.x / 2.0f);
-				ImGui::TextColored(ImUtil::Colors::Subscript, "(?)");
-				ImGuiEx::Tooltip(T2Help, true);
+				ImGuiEx::HelpText("", T2Help);
 
 				ImGuiEx::SliderF("Start NPC Speed Clamp", &Config::General.fNPCMaxSpeedMultClampStartAt, 1.0f, 20.0f, T2_1, "When larger than %.1fx");
 				ImGuiEx::SliderF("NPC Max Clamp", &Config::General.fNPCMaxSpeedMultClampMaxAt, Config::General.fNPCMaxSpeedMultClampStartAt, Config::General.fNPCMaxSpeedMultClampStartAt + 20.f, T2_2, "At %.1fx");

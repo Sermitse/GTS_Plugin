@@ -37,8 +37,7 @@ namespace {
 		return func(a_world, a_worldListener);
 	}
 
-	void removeContactListener(hkpWorld* a_this, hkpContactListener* a_worldListener)
-	{
+	void removeContactListener(hkpWorld* a_this, hkpContactListener* a_worldListener) {
 		hkArray<hkpContactListener*>& listeners = a_this->contactListeners;
 
 		for (int i = 0; i < listeners.size(); i++) {
@@ -316,7 +315,7 @@ namespace GTS {
 				else
 					cameraBitfield |= mask;
 			}
-			};
+		};
 
 		// Actor collision: update bits for both Biped and CharController.
 		updateCollisionBits(CamSettings.bCamCollideActor, { COL_LAYER::kBiped, COL_LAYER::kCharController });

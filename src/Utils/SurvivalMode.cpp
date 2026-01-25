@@ -59,7 +59,7 @@ namespace GTS {
 
 			if (Runtime::IsSurvivalModeInstalled()) {
 
-				if (!AllowDevourment()) { // Seems like Devourment already manages Hunger system, no need to touch it in that case
+				if (!IsDevourmentEnabled()) { // Seems like Devourment already manages Hunger system, no need to touch it in that case
 					auto Survival = Runtime::GetBool(Runtime::GLOB.Survival_ModeEnabled);
 					if (!Survival) {
 						return; // Abort if it doesn't exist (Should fix issues if we don't have AE CC mods)

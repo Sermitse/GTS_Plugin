@@ -38,7 +38,7 @@ namespace {
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		if (otherActor) {
 			for (auto& tiny: VoreData.GetVories()) {
-				if (!AllowDevourment()) {
+				if (!IsDevourmentEnabled()) {
 					VoreData.Swallow();
 					if (AnimationVars::Crawl::IsCrawling(&data.giant)) {
 						otherActor->SetAlpha(0.0f); // Hide Actor

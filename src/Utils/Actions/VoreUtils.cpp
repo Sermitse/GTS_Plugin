@@ -60,7 +60,7 @@ namespace GTS {
 		return false;
 	}
 
-	bool AllowDevourment() {
+	bool IsDevourmentEnabled() {
 		return Config::General.bDevourmentCompat && Runtime::IsDevourmentInstalled();
 	}
 
@@ -173,7 +173,7 @@ namespace GTS {
             }
 
 			//Remove tiny from belly scale
-			if (!AllowDevourment()) {
+			if (!IsDevourmentEnabled()) {
 				MorphManager::AlterMorph(VoreInfo.giantess, MorphManager::Category::kBelly, MorphManager::Action::kModify, -Config::Gameplay.ActionSettings.fBellyAbsorbIncrementBy, MorphManager::UpdateKind::kGradual, 1.0f);
 				if (auto data = Transient::GetActorData(VoreInfo.giantess)) {
 					data->VoreCurrentlyAbsorbingCount -= 1;
@@ -187,7 +187,7 @@ namespace GTS {
 
 	void Task_Vore_StartVoreBuff(Actor* giant, Actor* tiny, int amount_of_tinies) {
 
-		if (!AllowDevourment()) { // ONLY when using default GTS vore logic, not Devourment one
+		if (!IsDevourmentEnabled()) { // ONLY when using default GTS vore logic, not Devourment one
 			std::string name = std::format("Vore_Buff_{}_{}", giant->formID, tiny->formID);
 			VoreInformation VoreInfo = GetVoreInfo(giant, tiny, 1.0f);
 			ActorHandle gianthandle = giant->CreateRefHandle();

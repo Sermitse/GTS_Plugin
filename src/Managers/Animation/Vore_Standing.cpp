@@ -218,7 +218,7 @@ namespace {
 		auto giant = &data.giant;
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		VoreData.EnableMouthShrinkZone(true);
-		if (AllowDevourment()) {
+		if (IsDevourmentEnabled()) {
 			for (auto& tiny: VoreData.GetVories()) {
 				CallDevourment(giant, tiny);
 			} 
@@ -254,7 +254,7 @@ namespace {
 	void GTSvore_handR_reposition_S(AnimationEventData& data) {
 		
 		auto giant = &data.giant;
-		/*if (!AllowDevourment()) {
+		/*if (!IsDevourmentEnabled()) {
 			
 		}*/
 		AdjustFacialExpression(giant, 0, 0.0f, CharEmotionType::Modifier); // blink L
