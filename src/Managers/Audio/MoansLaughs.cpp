@@ -38,12 +38,14 @@ namespace {
 }
 
 namespace GTS {
+
     void Sound_PlayMoansOrLaughs(Actor* actor, float volume, GTS_ResponseType Type, EmotionTriggerSource Source, float FallOff) {
         switch (Type) {
             case GTS_ResponseType::Laugh:  Sound_PlayLaughs(actor, volume, FallOff, Source);        break;
             case GTS_ResponseType::Moan:   Sound_PlayMoans(actor, volume, FallOff, Source);         break;
         }
     }
+
     void Sound_PlayLaughs(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source) {
 
         if (!Config::Audio.bLaughEnable){

@@ -23,10 +23,7 @@ namespace {
 		switch (a_shape->type) {
 			case RE::hkpShapeType::kCapsule:
 			{
-				auto* capsule =
-					const_cast<RE::hkpCapsuleShape*>(
-						skyrim_cast<const RE::hkpCapsuleShape*>(a_shape)
-						);
+				auto* capsule =const_cast<RE::hkpCapsuleShape*>(skyrim_cast<const RE::hkpCapsuleShape*>(a_shape));
 
 				if (capsule) {
 					a_outCapsules.emplace_back(capsule);
@@ -35,10 +32,7 @@ namespace {
 
 			case RE::hkpShapeType::kList:
 			{
-				auto* listShape =
-					skyrim_cast<RE::hkpListShape*>(
-						const_cast<RE::hkpShape*>(a_shape)
-					);
+				auto* listShape =skyrim_cast<RE::hkpListShape*>(const_cast<RE::hkpShape*>(a_shape));
 
 				if (!listShape) {
 					return;
@@ -178,14 +172,14 @@ namespace GTS {
 	// When that int value is intepreted as a float it produces the value 0.6819984 which ends up being a radian of ~39 degrees (0.6819984 (180/pi) = 39.07 degrees)
 	// The value is also inverted in regards to the slope calc, so the actual formula for the max slope for the controller in the vanilla game is (pi/2) - 0.6819984 = 0.8887982 (~50.92 degrees)
 	float GetControllerMaxSlope(bhkCharacterController* a_controller) {
-		float radians = std::bit_cast<float>(a_controller->maxSlope);
-		float maxSlopeRadians = (std::numbers::pi / 2.0f) - radians;
+		const float radians = std::bit_cast<float>(a_controller->maxSlope);
+		const float maxSlopeRadians = (std::numbers::pi / 2.0f) - radians;
 		return maxSlopeRadians * 180.0f / std::numbers::pi;
 	}
 
 	void SetControllerMaxSlope(bhkCharacterController* a_controller, float a_degrees) {
-		float maxSlopeRadians = a_degrees * std::numbers::pi / 180.0f;
-		float invertedRadians = (std::numbers::pi / 2.0f) - maxSlopeRadians;
+		const float maxSlopeRadians = a_degrees * std::numbers::pi / 180.0f;
+		const float invertedRadians = (std::numbers::pi / 2.0f) - maxSlopeRadians;
 		a_controller->maxSlope = std::bit_cast<uint32_t>(invertedRadians);
 	}
 

@@ -16,8 +16,6 @@ using namespace GTS;
 
 namespace AnimEvents {
 
-
-
 	//Used in the Intro to Butt State when the GTS sits back down softly on the Tiny
 	void GTS_TSB_SitDownSoft(AnimationEventData& data) {}
 
@@ -47,23 +45,43 @@ namespace AnimEvents {
 
 	//Used when the GTS lands on the Floor after cracking the butt rune
 	void GTS_TSB_LandFloor(AnimationEventData& data) {
-		/*auto caster = &data.giant;
-		bool HasEffect = Runtime::HasMagicEffect(caster, "GTSThighRuneMGEF");
-		auto Spell = Runtime::GetSpell("GTSStartRuneSpell"); // RE::SpellItem*
+		Actor* caster = &data.giant;
+		bool HasEffect = Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSEffectThighRune);
+		SpellItem* Spell = Runtime::GetSpell(Runtime::SPEL.GTSSpellThighRune);
 
 		if (HasEffect && Spell) {
-			auto handle = caster->CreateRefHandle();
+			ActorHandle handle = caster->CreateRefHandle();
 			caster->AsMagicTarget()->DispelEffect(Spell, handle);
-			Cprint("DISPELED SPELL");
-		} else {
-			Cprint("FAILED TO DISPEL RUNE SPELL");
-			Cprint("SPELL FOUND: {}", Spell != nullptr);
-			Cprint("HASEFFECT: {}", HasEffect);
-		}*/
+		}
 	}
 
 	//Used when the GTS dust off her butt after standing up from the Finisher mostly for SFX
 	void GTS_TSB_DustButt(AnimationEventData& data) {}
+
+	//Triggered when the Tiny is initially inserted
+	void GTS_TSB_TinyInserted(AnimationEventData& data) {}
+
+	//Triggered when the GTS Pushes the Tiny inside
+	void GTS_TSB_TinyPushStart(AnimationEventData& data) {}
+
+	//Triggered when the tiny is fully inside
+	void GTS_TSB_TinyFullyIn(AnimationEventData& data) {}
+
+	//Triggered at the end when the tiny is fully inside Kills the Tiny
+	void GTS_TSB_TinyKill(AnimationEventData& data) {}
+
+	//Triggered When the Tiny is being pushed in (a frame later than Pushstart) this was here for the devourment mod but I guess I just made the event an official one *shruging asci art*
+	void GTS_TSB_UBStart(AnimationEventData& data) {}
+
+	//riggered when the Tiny is fully in and the GTS's head is back and she's praising Diabella's blessings(O facing)
+	void GTS_TSB_UBEnjoy(AnimationEventData& data) {}
+
+	//Triggered when the ub is over nad the GTS has stopped enjoying her self and is returning to Idle
+	void GTS_TSB_UBEnd(AnimationEventData& data) {}
+
+	//Triggered after TinyKill, an event for the Devourment mod for when the tiny can be deleted
+	void GTS_TSB_UBAbsorb(AnimationEventData& data) {}
+
 
 }
 
@@ -142,20 +160,34 @@ namespace GTS
 		//Input Events
 		InputManager::RegisterInputEvent("SandwichButtStart", ButtStart, SecondThighSandwichBranch_Start);
 		InputManager::RegisterInputEvent("SandwichButtStop", ButtStop, SecondThighSandwichBranch);
-
 		InputManager::RegisterInputEvent("SandwichLightAttack", ButtLightAttack, SecondThighSandwichBranch);
 		InputManager::RegisterInputEvent("SandwichHeavyAttack", ButtHeavyAttack, SecondThighSandwichBranch);
-
 		InputManager::RegisterInputEvent("SandwichGrindStart", ButtGrindStart, ThighSandwichGrind_Start);
 		InputManager::RegisterInputEvent("SandwichGrindStop", ButtGrindStop, ThighSandwichGrind);
 		InputManager::RegisterInputEvent("SandwichGrindAbort", ButtGrindAbort, ThighSandwichGrind);
-
 		InputManager::RegisterInputEvent("SandwichUB", ButtUB, UBCondition);
 		InputManager::RegisterInputEvent("SandwichFinisher", ButtFinisher, SecondThighSandwichBranch);
 		InputManager::RegisterInputEvent("SandwichGrowth", ButtGrowth, SecondThighSandwichBranch);
 
 		//Animation Events
+		AnimationManager::RegisterEvent("GTS_TSB_SitDownSoft", "ThighSandwich", AnimEvents::GTS_TSB_SitDownSoft);
+		AnimationManager::RegisterEvent("GTS_TSB_SitDown", "ThighSandwich", AnimEvents::GTS_TSB_SitDown);
+		AnimationManager::RegisterEvent("GTS_TSB_TinyThigh", "ThighSandwich", AnimEvents::GTS_TSB_TinyThigh);
+		AnimationManager::RegisterEvent("GTS_TSB_Stand", "ThighSandwich", AnimEvents::GTS_TSB_Stand);
+		AnimationManager::RegisterEvent("GTS_TSB_Fall", "ThighSandwich", AnimEvents::GTS_TSB_Fall);
+		AnimationManager::RegisterEvent("GTS_TSB_LandSmall", "ThighSandwich", AnimEvents::GTS_TSB_LandSmall);
+		AnimationManager::RegisterEvent("GTS_TSB_LandHeavy", "ThighSandwich", AnimEvents::GTS_TSB_LandHeavy);
+		AnimationManager::RegisterEvent("GTS_TSB_LandFinisher", "ThighSandwich", AnimEvents::GTS_TSB_LandFinisher);
 		AnimationManager::RegisterEvent("GTS_TSB_LandFloor", "ThighSandwich", AnimEvents::GTS_TSB_LandFloor);
+		AnimationManager::RegisterEvent("GTS_TSB_DustButt", "ThighSandwich", AnimEvents::GTS_TSB_DustButt);
+		AnimationManager::RegisterEvent("GTS_TSB_TinyInserted", "ThighSandwich", AnimEvents::GTS_TSB_TinyInserted);
+		AnimationManager::RegisterEvent("GTS_TSB_TinyPushStart", "ThighSandwich", AnimEvents::GTS_TSB_TinyPushStart);
+		AnimationManager::RegisterEvent("GTS_TSB_TinyFullyIn", "ThighSandwich", AnimEvents::GTS_TSB_TinyFullyIn);
+		AnimationManager::RegisterEvent("GTS_TSB_TinyKill", "ThighSandwich", AnimEvents::GTS_TSB_TinyKill);
+		AnimationManager::RegisterEvent("GTS_TSB_UBStart", "ThighSandwich", AnimEvents::GTS_TSB_UBStart);
+		AnimationManager::RegisterEvent("GTS_TSB_UBEnjoy", "ThighSandwich", AnimEvents::GTS_TSB_UBEnjoy);
+		AnimationManager::RegisterEvent("GTS_TSB_UBEnd", "ThighSandwich", AnimEvents::GTS_TSB_UBEnd);
+		AnimationManager::RegisterEvent("GTS_TSB_UBAbsorb", "ThighSandwich", AnimEvents::GTS_TSB_UBAbsorb);
 	}
 
 	void AnimationThighSandwich_P2::RegisterTriggers() {
@@ -169,7 +201,6 @@ namespace GTS
 		AnimationManager::RegisterTrigger("Sandwich_GrindStop", "ThighSandwich", "GTSBEH_ButtState_GrindStop");
 		AnimationManager::RegisterTrigger("Sandwich_GrindAbort", "ThighSandwich", "GTSBEH_ButtState_Abort");
 		AnimationManager::RegisterTrigger("Sandwich_UB", "ThighSandwich", "GTSBEH_Sandwich_UB");
-
 		AnimationManager::RegisterTrigger("Sandwich_ButtStart_T", "ThighSandwich", "GTSBEH_T_ButtState_Start");
 		AnimationManager::RegisterTrigger("Sandwich_ButtStop_T", "ThighSandwich", "GTSBEH_T_ButtState_Stop");
 		AnimationManager::RegisterTrigger("Sandwich_LightAttack_T", "ThighSandwich", "GTSBEH_T_ButtState_LightAttack");

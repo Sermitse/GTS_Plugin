@@ -106,7 +106,7 @@ namespace GTS {
     	
         /* // ----- EXAMPLE
         {
-            .UICategory    = LInputCategory_t::kDefault,
+           .UICategory    = LInputCategory_t::kDefault,
 		   .AdvFeature    = false,
 		   .UIName        = nullptr,
 		   .UIDescription = nullptr,
@@ -404,14 +404,53 @@ namespace GTS {
 		        .BlockInput = "Never"
 		    }
         },
+
+
+		//========================================================
+		//============ T H I G H  S A N D W I C H - P A R T  2
+		//========================================================
+
 		{
 			.UICategory = LInputCategory_t::kThighs,
 			.AdvFeature = false,
 			.UIName = "Thigh-Sandwich Butt Start",
-			.UIDescription = "TODO",
+			.UIDescription = "Enter thigh-sandwich butt mode.",
 			.Event = {
 				.Event = "SandwichButtStart",
 				.Keys = {"LSHIFT", "H"},
+				.Exclusive = true,
+			}
+		},
+		{
+			.UICategory = LInputCategory_t::kThighs,
+			.AdvFeature = false,
+			.UIName = "Thigh-Sandwich Butt Stop",
+			.UIDescription = "Exit thigh-sandwich butt mode.",
+			.Event = {
+				.Event = "SandwichButtStop",
+				.Keys = {"S"},
+				.Exclusive = true,
+			}
+		},
+		{
+			.UICategory = LInputCategory_t::kThighs,
+			.AdvFeature = false,
+			.UIName = "Thigh-Sandwich Butt Attack H.",
+			.UIDescription = "Perform a heavy butt attack while in thigh-sandwich butt mode.",
+			.Event = {
+				.Event = "SandwichHeavyAttack",
+				.Keys = {"LMB"},
+				.Exclusive = true,
+			}
+		},
+		{
+			.UICategory = LInputCategory_t::kThighs,
+			.AdvFeature = false,
+			.UIName = "Thigh-Sandwich Butt Attack L.",
+			.UIDescription = "TODO",
+			.Event = {
+				.Event = "SandwichLightAttack",
+				.Keys = {"RMB"},
 				.Exclusive = true,
 			}
 		},
@@ -448,17 +487,7 @@ namespace GTS {
 				.Exclusive = true,
 			}
 		},
-		{
-			.UICategory = LInputCategory_t::kThighs,
-			.AdvFeature = false,
-			.UIName = "Thigh-Sandwich Butt Stop",
-			.UIDescription = "TODO",
-			.Event = {
-				.Event = "SandwichButtStop",
-				.Keys = {"S"},
-				.Exclusive = true,
-			}
-		},
+
 		{
 			.UICategory = LInputCategory_t::kThighs,
 			.AdvFeature = false,

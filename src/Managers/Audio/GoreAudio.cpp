@@ -1,7 +1,5 @@
 #include "Managers/Audio/GoreAudio.hpp"
 
-#include "Config/Config.hpp"
-
 using namespace GTS;
 
 namespace {
