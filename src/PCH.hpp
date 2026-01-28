@@ -121,7 +121,6 @@
 #include <glm/glm.hpp>
 #include <detours/detours.h>			  //https://github.com/microsoft/Detours
 #include <glaze/json/read.hpp>            //https://github.com/stephenberry/glaze
-#include <absl/container/flat_hash_map.h> //https://github.com/abseil/abseil-cpp
 #include <re2/re2.h>                      //https://github.com/google/re2
 
 //Imgui
@@ -138,6 +137,12 @@
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/parallel_for_each.h>
 #include <tbb/concurrent_queue.h>
+
+//Abseil - https://github.com/abseil/abseil-cpp
+#include <absl/container/flat_hash_map.h> 
+#include <absl/container/flat_hash_set.h> 
+#include <absl/container/btree_map.h> 
+#include <absl/container/btree_set.h> 
 
 #pragma hdrstop  // Everything after this is NOT precompiled
 

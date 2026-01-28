@@ -24,44 +24,44 @@ namespace GTS {
 	class SizeManager : public EventListener, public CInitSingleton<SizeManager> {
 		public:
 
-			virtual std::string DebugName() override;
-			virtual void Reset() override;
-			virtual void ResetActor(Actor* actor) override;
-			virtual void OnGameLoaded() override;
+		virtual std::string DebugName() override;
+		virtual void Reset() override;
+		virtual void ResetActor(Actor* actor) override;
+		virtual void OnGameLoaded() override;
 
-			SizeManagerData& GetData(Actor* actor);
+		SizeManagerData& GetData(Actor* actor);
 
-			void SetEnchantmentBonus(Actor* actor, float amt);
-			float GetEnchantmentBonus(Actor* actor);
-			void ModEnchantmentBonus(Actor* actor, float amt);
+		void SetEnchantmentBonus(Actor* actor, float amt);
+		float GetEnchantmentBonus(Actor* actor);
+		void ModEnchantmentBonus(Actor* actor, float amt);
 
-			void SetSizeHungerBonus(Actor* actor, float amt);
-			float GetSizeHungerBonus(Actor* actor);
-			void ModSizeHungerBonus(Actor* actor, float amt);
+		void SetSizeHungerBonus(Actor* actor, float amt);
+		float GetSizeHungerBonus(Actor* actor);
+		void ModSizeHungerBonus(Actor* actor, float amt);
 
-			void SetGrowthSpurt(Actor* actor, float amt);
-			float GetGrowthSpurt(Actor* actor);
-			void ModGrowthSpurt(Actor* actor, float amt);
+		void SetGrowthSpurt(Actor* actor, float amt);
+		float GetGrowthSpurt(Actor* actor);
+		void ModGrowthSpurt(Actor* actor, float amt);
 
-			static void SetSizeAttribute(Actor* actor, float amt, SizeAttribute attribute);
-			static float GetSizeAttribute(Actor* actor, SizeAttribute attribute);
+		static void SetSizeAttribute(Actor* actor, float amt, SizeAttribute attribute);
+		static float GetSizeAttribute(Actor* actor, SizeAttribute attribute);
 
-			void SetSizeVulnerability(Actor* actor, float amt);
-			float GetSizeVulnerability(Actor* actor);
-			void ModSizeVulnerability(Actor* actor, float amt);
+		void SetSizeVulnerability(Actor* actor, float amt);
+		float GetSizeVulnerability(Actor* actor);
+		void ModSizeVulnerability(Actor* actor, float amt);
 
-			CameraTracking GetPreviousBone(Actor* actor);
-			void SetPreviousBone(Actor* actor);
-		
-			void SetTrackedBone(Actor* actor, bool enable, CameraTracking Bone);
-			CameraTracking GetTrackedBone(Actor* actor);
+		CameraTracking GetPreviousBone(Actor* actor);
+		void SetPreviousBone(Actor* actor);
+	
+		void SetTrackedBone(Actor* actor, bool enable, CameraTracking Bone);
+		CameraTracking GetTrackedBone(Actor* actor);
 
-			void SetCameraHalflife(Actor* actor, CameraTracking Bone);
-			float GetCameraHalflife(Actor* actor);
+		void SetCameraHalflife(Actor* actor, CameraTracking Bone);
+		float GetCameraHalflife(Actor* actor);
 
-			static bool BalancedMode();
+		static bool BalancedMode();
 
 		private: 
-			std::map<Actor*, SizeManagerData> sizeData;
+		absl::flat_hash_map<Actor*, SizeManagerData> sizeData;
 	};
 }

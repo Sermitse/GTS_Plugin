@@ -125,6 +125,29 @@ namespace GTS {
         }
     }
 
+    void FurnitureManager::ActorLoaded(RE::Actor* actor) {
+
+		//Check if the actor is in furniture when loaded.
+		//else reset the tracked furn state.
+        //Its sometimes possible for the exit event to not fire.
+        //This corrects it on actor load.
+        if (IsHuman(actor)) {
+            if (AIProcess* aiProcess = actor->GetActorRuntimeData().currentProcess) {
+                if (ObjectRefHandle handle = aiProcess->GetOccupiedFurniture()) {
+                    if (NiPointer<TESObjectREFR> niRefr = handle.get()) {
+                        if (niRefr.get()) {
+                            RecordAndHandleFurnState(actor, niRefr.get(), true);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+		ResetTrackedFurniture(actor);
+        
+    }
+
     // If the scale keywords is removed from the default object, through an esp/patch, the game will calculate where
     // the actor should be placed however it does this before this event fires.
     // So if this system is used as is, the actor will be offset incorrectly.
@@ -174,4 +197,12 @@ namespace GTS {
             TaskManager::Cancel(taskname);
         }
     }
+
+    void FurnitureManager::ResetTrackedFurniture(RE::Actor* actor) {
+        auto data = Persistent::GetActorData(actor);
+        if (data) {
+            data->fRecordedFurnScale = 1.0f;
+            data->bIsUsingFurniture = false;
+        }
+	}
 }

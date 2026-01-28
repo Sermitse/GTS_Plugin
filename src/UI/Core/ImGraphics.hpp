@@ -158,7 +158,7 @@ namespace GTS {
             UINT pixelHeight = 0;
 
             Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> oldTextureToRelease;
-            std::map<ImageTransform, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> transformedTextureCache;
+            absl::btree_map<ImageTransform, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> transformedTextureCache;
             Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
 
             ~Texture() {}

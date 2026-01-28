@@ -73,7 +73,7 @@ namespace {
 	}
 
 	void print_collision_groups(std::uint64_t flags) {
-		std::map<std::string, COL_LAYER> named_layers{
+		absl::flat_hash_map<std::string, COL_LAYER> named_layers{
 			{ "kStatic", COL_LAYER::kStatic },
 			{ "kAnimStatic", COL_LAYER::kAnimStatic },
 			{ "kTransparent", COL_LAYER::kTransparent },

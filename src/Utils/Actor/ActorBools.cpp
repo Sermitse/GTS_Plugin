@@ -287,17 +287,21 @@ namespace GTS {
 
 	bool IsHuman(Actor* actor) { // Check if Actor is humanoid or not. Currently used for Hugs Animation and for playing moans
 
-		const bool humanoid = Runtime::HasKeyword(actor, Runtime::KYWD.ActorTypeNPC);
-		if (humanoid) {
-			return true;
+		const bool vampirelord = Runtime::IsRace(actor, Runtime::RACE.DLC1VampireBeastRace);
+		const bool werewolf = Runtime::IsRace(actor, Runtime::RACE.WerewolfBeastRace);
+
+		if (vampirelord || werewolf) {
+			return false;
 		}
 
-		const bool vampire = Runtime::HasKeyword(actor, Runtime::KYWD.VampireKeyword);
-		const bool dragon = Runtime::HasKeyword(actor, Runtime::KYWD.DragonKeyword);
+		const bool creature = Runtime::HasKeyword(actor, Runtime::KYWD.CreatureKeyword);
 		const bool animal = Runtime::HasKeyword(actor, Runtime::KYWD.AnimalKeyword);
-		const bool dwemer = Runtime::HasKeyword(actor, Runtime::KYWD.DwemerKeyword);
+		const bool dragon = Runtime::HasKeyword(actor, Runtime::KYWD.DragonKeyword);
+
+		const bool vampire = Runtime::HasKeyword(actor, Runtime::KYWD.VampireKeyword);
 		const bool undead = Runtime::HasKeyword(actor, Runtime::KYWD.UndeadKeyword);
-		const bool creature = Runtime::HasKeyword(actor, Runtime::KYWD.CreatureKeyword) || Runtime::IsRace(actor, Runtime::RACE.DLC1VampireBeastRace);
+
+		const bool dwemer = Runtime::HasKeyword(actor, Runtime::KYWD.DwemerKeyword);
 
 		if (!dragon && !animal && !dwemer && !undead && !creature) {
 			return true; // Detect non-vampire
@@ -305,6 +309,10 @@ namespace GTS {
 		if (!dragon && !animal && !dwemer && !creature && undead && vampire) {
 			return true; // Detect Vampire
 		}
+		if (IsHumanoid(actor)) {
+			return true;
+		}
+
 		return false;
 	}
 

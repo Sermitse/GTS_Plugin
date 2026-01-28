@@ -85,6 +85,6 @@ namespace GTS {
 		CooldownData& GetCooldownData(Actor* actor);
 
         private: 
-		std::map<Actor*, CooldownData> CooldownData;
+        absl::flat_hash_map<Actor*, CooldownData> CooldownData;
     };
 }
