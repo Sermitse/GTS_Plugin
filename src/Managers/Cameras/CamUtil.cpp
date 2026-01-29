@@ -529,7 +529,7 @@ namespace GTS {
 						bones.push_back(node);
 					}
 					else {
-						log::error("Bone not found for camera target: {}", bone_name);
+						logger::error("Bone not found for camera target: {}", bone_name);
 					}
 				}
 

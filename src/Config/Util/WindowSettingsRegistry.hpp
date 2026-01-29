@@ -110,7 +110,7 @@ namespace GTS {
             std::vector<std::string> instanceNames;
             std::type_index targetType(typeid(WindowType));
 
-            for (const auto& key : m_settingsHolders | views::keys) {
+            for (const auto& key : m_settingsHolders | std::views::keys) {
                 if (key.typeIndex == targetType && key.basePrefix == a_basePrefix) {
                     instanceNames.push_back(key.instanceName);
                 }
@@ -122,7 +122,7 @@ namespace GTS {
         // Get all base prefixes used
         std::vector<std::string> GetAllBasePrefixes() const {
             std::set<std::string> prefixes;
-            for (const auto& key : m_settingsHolders | views::keys) {
+            for (const auto& key : m_settingsHolders | std::views::keys) {
                 prefixes.insert(key.basePrefix);
             }
             return std::vector<std::string>(prefixes.begin(), prefixes.end());
@@ -132,7 +132,7 @@ namespace GTS {
         bool SerializeAllWindowSettings(toml::ordered_value& a_mainToml) {
             bool success = true;
 
-            for (const auto& holderPtr : m_settingsHolders | views::values) {
+            for (const auto& holderPtr : m_settingsHolders | std::views::values) {
                 try {
                     if (!holderPtr->UpdateTOMLFromStruct(a_mainToml)) {
                         logger::error("Failed to serialize settings for window: {}", holderPtr->GetWindowTypeName());
@@ -152,7 +152,7 @@ namespace GTS {
         bool DeserializeAllWindowSettings(const toml::ordered_value& a_mainToml) {
             bool success = true;
 
-            for (const auto& holderPtr : m_settingsHolders | views::values) {
+            for (const auto& holderPtr : m_settingsHolders | std::views::values) {
                 try {
                     if (!holderPtr->LoadStructFromTOML(a_mainToml)) {
                         logger::warn("Failed to deserialize settings for window: {}", holderPtr->GetWindowTypeName());
@@ -169,7 +169,7 @@ namespace GTS {
 
         // Reset all window settings
         void ResetAllWindowSettings() {
-            for (const auto& holderPtr : m_settingsHolders | views::values) {
+            for (const auto& holderPtr : m_settingsHolders | std::views::values) {
                 try {
                     holderPtr->ResetToDefaults();
                 }

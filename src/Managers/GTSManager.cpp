@@ -161,7 +161,7 @@ namespace {
 			if (room_scale > (currentOtherScale - 0.05f)) {
 				// Only apply room scale if room_scale > natural_scale
 				//   This stops it from working when room_scale < 1.0
-				target_scale = min(target_scale, room_scale);
+				target_scale = std::min(target_scale, room_scale);
 			}
 			else {
 				// Else we just scale to natural
@@ -276,11 +276,11 @@ namespace {
 			return;
 		}
 		if (!trans_actor_data) {
-			log::info("!Height: Trans Data not found for {}", actor->GetDisplayFullName());
+			logger::info("!Height: Trans Data not found for {}", actor->GetDisplayFullName());
 			return;
 		}
 		if (!persi_actor_data) {
-			log::info("!Height: Pers Data not found for {}", actor->GetDisplayFullName());
+			logger::info("!Height: Pers Data not found for {}", actor->GetDisplayFullName());
 			return;
 		}
 		float scale = get_scale(actor);

@@ -17,7 +17,7 @@ namespace GTS {
 
 		BSScaleformManager* Scaleform = RE::BSScaleformManager::GetSingleton();
 		if (!Scaleform) {
-			log::error("Failed to initialize GTSMenu - ScaleformManager not found");
+			logger::error("Failed to initialize GTSMenu - ScaleformManager not found");
 			ReportAndExit("Failed to initialize GTSMenu - ScaleformManager not found");
 			return;
 		}
@@ -48,7 +48,7 @@ namespace GTS {
 
 		const auto RenderManager = RE::BSRenderManager::GetSingleton();
 		if (!RenderManager) {
-			log::error("Failed to initialize GTSMenu - RenderManager not found");
+			logger::error("Failed to initialize GTSMenu - RenderManager not found");
 			ReportAndExit("Failed to initialize GTSMenu - RenderManager not found");
 			return;
 		}
@@ -119,7 +119,7 @@ namespace GTS {
 
 	void GTSMenu::Show(const std::string& source) {
 
-		auto sourceIdx = ranges::find(m_hideSources, source);
+		auto sourceIdx = std::ranges::find(m_hideSources, source);
 		if (sourceIdx != m_hideSources.end()) {
 			m_hideSources.erase(sourceIdx);
 		}
@@ -130,7 +130,7 @@ namespace GTS {
 	}
 
 	void GTSMenu::Hide(const std::string& source) {
-		auto sourceIdx = ranges::find(m_hideSources, source);
+		auto sourceIdx = std::ranges::find(m_hideSources, source);
 		if (sourceIdx == m_hideSources.end()) {
 			m_hideSources.push_back(source);
 		}
@@ -280,17 +280,17 @@ namespace GTS {
 
 	void GTSMenu::DataReady() {
 
-		log::info("Registering GTSMenu...");
+		logger::info("Registering GTSMenu...");
 
 		if (static UI* const ui = UI::GetSingleton()) {
 			ui->Register(MENU_NAME, Creator);
 			SetVisibility(true);
 
-			log::info("Successfully registered GTSMenu");
+			logger::info("Successfully registered GTSMenu");
 			return;
 		}
 
-		log::error("Failed to register GTSMenu");
+		logger::error("Failed to register GTSMenu");
 		ReportAndExit("GTSMenu: Scaleform registration failed.");
 
 	}

@@ -125,10 +125,10 @@ namespace GTS {
 		// Find existing entry in KillEntries or PendingKillEntries
 		std::unique_ptr<ImGuiEx::KillEntry>* targetEntry = nullptr;
 
-		if (auto it = ranges::find_if(KillEntries, Exists); it != KillEntries.end()) {
+		if (auto it = std::ranges::find_if(KillEntries, Exists); it != KillEntries.end()) {
 			targetEntry = &(*it);
 		}
-		else if (auto it2 = ranges::find_if(PendingKillEntries, Exists); it2 != PendingKillEntries.end()) {
+		else if (auto it2 = std::ranges::find_if(PendingKillEntries, Exists); it2 != PendingKillEntries.end()) {
 			targetEntry = &(*it2);
 		}
 

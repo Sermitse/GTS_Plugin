@@ -11,7 +11,7 @@ namespace GTS {
 		try {
 			DebugNotification(std::vformat(rt_fmt_str, std::make_format_args(args ...)).c_str());
 		} catch (const std::format_error &e) {
-			log::info("Could not format notification, check valid format string: {}", e.what());
+			logger::info("Could not format notification, check valid format string: {}", e.what());
 		}
 	}
 
@@ -22,7 +22,7 @@ namespace GTS {
 		try {
 			DebugMessageBox(std::vformat(rt_fmt_str, std::make_format_args(args ...)).c_str());
 		} catch (const std::format_error &e) {
-			log::info("Could not format notification, check valid format string: {}", e.what());
+			logger::info("Could not format notification, check valid format string: {}", e.what());
 		}
 	}
 
@@ -31,7 +31,7 @@ namespace GTS {
 		try {
 			ConsoleLog::GetSingleton()->Print("%s", std::vformat(rt_fmt_str, std::make_format_args(args ...)).c_str());
 		} catch (const std::format_error &e) {
-			log::info("Could not format console log, check valid format string: {}", e.what());
+			logger::info("Could not format console log, check valid format string: {}", e.what());
 		}
 	}
 

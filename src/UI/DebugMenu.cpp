@@ -12,7 +12,7 @@ namespace GTS {
 
 		auto Scaleform = RE::BSScaleformManager::GetSingleton();
 		if (!Scaleform) {
-			log::error("Failed to initialize DebugMenu - ScaleformManager not found");
+			logger::error("Failed to initialize DebugMenu - ScaleformManager not found");
 			return;
 		}
 
@@ -30,7 +30,7 @@ namespace GTS {
 
 		m_scaleformInitialized.store(true);
 
-		log::info("Init Scaleform");
+		logger::info("Init Scaleform");
 	}
 
 	std::string DebugMenu::DebugName() {
@@ -38,17 +38,17 @@ namespace GTS {
 	}
 
 	void DebugMenu::DataReady() {
-		log::info("Registering DebugMenu...");
+		logger::info("Registering DebugMenu...");
 
 		auto ui = RE::UI::GetSingleton();
 		if (ui) {
 			ui->Register(MENU_NAME, Creator);
 			DebugMenu::Start();
 
-			log::info("Successfully registered DebugMenu");
+			logger::info("Successfully registered DebugMenu");
 		}
 		else {
-			log::error("Failed to register DebugMenu");
+			logger::error("Failed to register DebugMenu");
 		}
 	}
 
@@ -59,7 +59,7 @@ namespace GTS {
 			msgQ->AddMessage(MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
 		}
 		else {
-			log::warn("Could not show DebugMenu");
+			logger::warn("Could not show DebugMenu");
 		}
 
 	}
@@ -69,7 +69,7 @@ namespace GTS {
 	}
 
 	void DebugMenu::Show(const std::string& source) {
-		auto sourceIdx = ranges::find(m_hideSources, source);
+		auto sourceIdx = std::ranges::find(m_hideSources, source);
 		if (sourceIdx != m_hideSources.end()) {
 			m_hideSources.erase(sourceIdx);
 		}
@@ -80,7 +80,7 @@ namespace GTS {
 	}
 
 	void DebugMenu::Hide(const std::string& source) {
-		auto sourceIdx = ranges::find(m_hideSources, source);
+		auto sourceIdx = std::ranges::find(m_hideSources, source);
 		if (sourceIdx == m_hideSources.end()) {
 			m_hideSources.push_back(source);
 		}

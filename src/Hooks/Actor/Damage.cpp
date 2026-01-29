@@ -317,8 +317,8 @@ namespace Hooks {
 					const bool ShouldBeKilled = DontAlterDamage(a_this, a_dmg, AddToDamage);
 					// ^ Attempt to fix being unkillable below 5% hp, the bug seems to be player exclusive
 					/*if (a_this->IsPlayerRef()) {
-						log::info("Damage Pre: {}", a_dmg);
-						log::info("Should be killed: {}", ShouldBeKilled);
+						logger::info("Damage Pre: {}", a_dmg);
+						logger::info("Should be killed: {}", ShouldBeKilled);
 					}*/
 					if (!ShouldBeKilled) {
 						a_dmg *= GetTotalDamageResistance(a_this, a_aggressor);
@@ -343,7 +343,7 @@ namespace Hooks {
 			//    - which in some cases may make player unkillable since health never reaches 0...
 
 			/*if (a_this->IsPlayerRef()) {
-				log::info("Damage Post: {}", a_dmg);
+				logger::info("Damage Post: {}", a_dmg);
 			}*/
 
 			func(a_this, a_dmg, a_aggressor, a_hitdata, a_damageSrc);

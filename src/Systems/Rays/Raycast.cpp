@@ -20,22 +20,22 @@ namespace {
 				// Only access userData if it exists
 				if (shape->userData && shape->userData != nullptr) {
 					auto materialID = shape->userData->materialID;
-					log::info("ShapeTypeID: {}, Material: {}",
+					logger::info("ShapeTypeID: {}, Material: {}",
 						static_cast<std::uint32_t>(shapeType),
 						static_cast<std::uint32_t>(materialID));
 				}
 				else {
-					log::info("ShapeTypeID: {}, No userData available",
+					logger::info("ShapeTypeID: {}, No userData available",
 						static_cast<std::uint32_t>(shapeType));
 				}
 			}
 			else {
-				log::info("No valid shape found");
+				logger::info("No valid shape found");
 			}
 
 		}
 		catch (...) {
-			log::info("Exception caught in FilterCollisionOut");
+			logger::info("Exception caught in FilterCollisionOut");
 		}
 		return filter;
 	}
@@ -219,7 +219,7 @@ namespace GTS {
 					// 8 = kBiped
 					// 56 = Supposedly weapon collisions
 					/*if (ref->IsPlayerRef()) {
-						log::info("------Hitting Layer: {}, as int: {}", collision_layer, layer_as_int); // Weapons hit "unknown" layer :/
+						logger::info("------Hitting Layer: {}, as int: {}", collision_layer, layer_as_int); // Weapons hit "unknown" layer :/
 					}*/
 					success = true;
 					return hit.position;

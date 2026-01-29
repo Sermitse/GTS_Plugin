@@ -34,7 +34,7 @@ namespace {
 
     InitialScales& GetActorInitialScales(Actor* actor) {
         if (!actor) {
-            log::info("GetActorInitialScales: Actor Doesn't Exist");
+            logger::info("GetActorInitialScales: Actor Doesn't Exist");
             throw std::exception("Actor must exist for GetInitialScale");
         }
 
@@ -51,8 +51,8 @@ namespace {
 
             return initScales.at(id);
         }
-        catch (const exception& e) {
-            log::error("GetActorInitialScales Failed {}", e.what());
+        catch (const std::exception& e) {
+            logger::error("GetActorInitialScales Failed {}", e.what());
 
             // Return a static default InitialScales
             static InitialScales fallbackScales {
@@ -67,8 +67,8 @@ namespace {
 	void UpdateInitScale(Actor* actor) {
 		try {
 			GetActorInitialScales(actor); // It's enough just to call this
-		} catch (const exception& e){
-			log::error("UpdateInitScale Failed {}",e.what());
+		} catch (const std::exception& e){
+			logger::error("UpdateInitScale Failed {}",e.what());
 		}
 		
 	}
@@ -90,7 +90,7 @@ namespace GTS {
 
 		// Work with world scale to grab accumuated scales rather
 		// than multiplying it ourselves
-		string node_name = "NPC Root [Root]";
+		std::string node_name = "NPC Root [Root]";
 		auto node = find_node(actor, node_name, false);
 		float allScale = 1.0f;
 		if (node) {
@@ -126,8 +126,8 @@ namespace GTS {
 				}
 			}
 		}
-		catch (const exception& e) {
-			log::error("ResetToInitScale Failed {}", e.what());
+		catch (const std::exception& e) {
+			logger::error("ResetToInitScale Failed {}", e.what());
 		}
 	}
 
@@ -138,8 +138,8 @@ namespace GTS {
 			auto& initScale = GetActorInitialScales(actor);
 			return initScale.model;
 		}
-		catch (const exception& e) {
-			log::error("GetInitialScale Failed {}", e.what());
+		catch (const std::exception& e) {
+			logger::error("GetInitialScale Failed {}", e.what());
 			return 1.0f;
 		}
 	}
@@ -200,7 +200,7 @@ namespace GTS {
 
 	bool set_npcnode_scale(Actor* actor, float target_scale) {
 		// This will set the scale of the root npc node
-		string node_name = "NPC Root [Root]";
+		std::string node_name = "NPC Root [Root]";
 		bool result = false;
 
     	UpdateInitScale(actor); // This will update the inital scales BEFORE we alter them
@@ -223,7 +223,7 @@ namespace GTS {
 
 	float get_npcnode_scale(Actor* actor) {
 		// This will get the scale of the root npc node
-		string node_name = "NPC Root [Root]";
+		std::string node_name = "NPC Root [Root]";
 		auto node = find_node(actor, node_name, false);
 		if (node) {
 			return node->local.scale;
@@ -243,7 +243,7 @@ namespace GTS {
 		//
 		// The name of it is variable. For actors it is NPC
 		// but for others it is the creature name
-		string node_name = "NPC Root [Root]";
+		std::string node_name = "NPC Root [Root]";
 		auto childNode = find_node(actor, node_name, false);
 		if (!childNode) {
 			childNode = find_node(actor, node_name, true);

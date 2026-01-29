@@ -160,7 +160,7 @@ namespace {
 
 namespace GTS {
 
-	std::vector<Actor*> StompKickSwipeAI_FilterList(Actor* a_Pred, const vector<Actor*>& a_PotentialPrey) {
+	std::vector<Actor*> StompKickSwipeAI_FilterList(Actor* a_Pred, const std::vector<Actor*>& a_PotentialPrey) {
 		if (!a_Pred) {
 			return {};
 		}
@@ -174,7 +174,7 @@ namespace GTS {
 		auto PreyList = a_PotentialPrey;
 
 		// Sort prey by distance
-		ranges::sort(PreyList,[PredPosition](const Actor* preyA, const Actor* preyB) -> bool {
+		std::ranges::sort(PreyList,[PredPosition](const Actor* preyA, const Actor* preyB) -> bool {
 			const float DistToA = (preyA->GetPosition() - PredPosition).Length();
 			const float DistToB = (preyB->GetPosition() - PredPosition).Length();
 			return DistToA < DistToB;
@@ -192,7 +192,7 @@ namespace GTS {
 
 		NiPoint3 PredDir = ActorFWD;
 		PredDir = PredDir / PredDir.Length();
-		PreyList.erase(ranges::remove_if(PreyList, [PredPosition, PredDir](auto prey) {
+		PreyList.erase(std::ranges::remove_if(PreyList, [PredPosition, PredDir](auto prey) {
 			NiPoint3 PreyDir = prey->GetPosition() - PredPosition;
 			if (PreyDir.Length() <= 1e-4) {
 				return false;
@@ -213,7 +213,7 @@ namespace GTS {
 		float ShiftAmmount = fabs((PredConeWidth / 2.0f) / tan(STOMP_ANGLE / 2.0f));
 		const NiPoint3 ConeStart = PredPosition - PredDir * ShiftAmmount;
 
-		PreyList.erase(ranges::remove_if(PreyList, [ConeStart, PredConeWidth, PredDir](auto prey) {
+		PreyList.erase(std::ranges::remove_if(PreyList, [ConeStart, PredConeWidth, PredDir](auto prey) {
 			NiPoint3 PreyDirection = prey->GetPosition() - ConeStart;
 			if (PreyDirection.Length() <= PredConeWidth * 0.4f) {
 				return false;

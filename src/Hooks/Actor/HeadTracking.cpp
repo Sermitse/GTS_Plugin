@@ -109,18 +109,18 @@ namespace {
 	void PrintDebugInformation(Actor* giant, float fix, float original) {
 		static Timer PrintTimer = Timer(2.0);
 		if (PrintTimer.ShouldRunFrame()) {
-			log::info("==============={}===================", giant->GetDisplayFullName());
-			log::info("Value is {}, original: {}", fix, original);
-			log::info("Visual Scale: {}, raw_scale: {}", get_visual_scale(giant), get_raw_scale(giant));
-			log::info("Natural + GameScale: {}, raw Natural Scale: {}", get_natural_scale(giant, true), get_natural_scale(giant, false));
-			log::info("Game Scale: {}, npc node scale: {}", game_getactorscale(giant), get_npcnode_scale(giant));
+			logger::info("==============={}===================", giant->GetDisplayFullName());
+			logger::info("Value is {}, original: {}", fix, original);
+			logger::info("Visual Scale: {}, raw_scale: {}", get_visual_scale(giant), get_raw_scale(giant));
+			logger::info("Natural + GameScale: {}, raw Natural Scale: {}", get_natural_scale(giant, true), get_natural_scale(giant, false));
+			logger::info("Game Scale: {}, npc node scale: {}", game_getactorscale(giant), get_npcnode_scale(giant));
 
 			auto actor_data = Transient::GetActorData(giant);
 			if (actor_data) {
-				log::info("Initial Scale: {}, Other Scale: {}", actor_data->OtherScales, GetInitialScale(giant));
-				log::info("Racemenu Scale: {}", GetRacemenuScale(giant));
+				logger::info("Initial Scale: {}, Other Scale: {}", actor_data->OtherScales, GetInitialScale(giant));
+				logger::info("Racemenu Scale: {}", GetRacemenuScale(giant));
 			}
-			log::info("====================================");
+			logger::info("====================================");
 		}
 	}
 }

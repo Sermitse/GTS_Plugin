@@ -282,7 +282,7 @@ namespace Hooks {
 						/*auto* EventName = a_this->GetFormEditorID();
 						Actor* performer = params->actionRef->As<RE::Actor>();
 						if (performer) {
-							log::info("Blocking anim: {} of {}", EventName, performer->GetDisplayFullName());
+							logger::info("Blocking anim: {} of {}", EventName, performer->GetDisplayFullName());
 						}*/
 						result = nullptr; // cancel anim
 					}

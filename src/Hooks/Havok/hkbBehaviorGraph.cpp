@@ -69,7 +69,7 @@ namespace Hooks {
 	};
 
 	void Hook_hkbBehaviorGraph::Install() {
-		log::info("Installing hkbBehaviorGraph VTABLE Hooks...");
+		logger::info("Installing hkbBehaviorGraph VTABLE Hooks...");
 		stl::write_vfunc<hkbBehaviorGraphUpdate>(VTABLE_hkbBehaviorGraph[0]);
 	}
 

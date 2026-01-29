@@ -14,7 +14,7 @@ namespace GTS {
 	constexpr float rip_randomOffsetMax = 0.10f;
 
 	// List of keywords (Editor ID's) we want to ignore when stripping
-	static const std::vector<string> KeywordBlackList = {
+	static const std::vector<std::string> KeywordBlackList = {
 		"SOS_Genitals", //Fix Slot 52 Genitals while still keeping the ability to unequip slot 52 underwear
 		"ArmorJewelry",
 		"VendorItemJewelry",
@@ -231,7 +231,7 @@ namespace GTS {
 		float CurrentScale = get_visual_scale(a_actor);
 
 		if (actordata->ClothRipLastScale < 0 || actordata->ClothRipOffset < 0) {
-			log::trace("CheckClothingRip: Values were invallid, Resetting...");
+			logger::trace("CheckClothingRip: Values were invallid, Resetting...");
 			actordata->ClothRipLastScale = CurrentScale;
 			actordata->ClothRipOffset = ReConstructOffset(a_actor, CurrentScale);
 			return;

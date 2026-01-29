@@ -144,27 +144,18 @@
 #include <absl/container/btree_map.h> 
 #include <absl/container/btree_set.h> 
 
-#pragma hdrstop  // Everything after this is NOT precompiled
-
 using namespace std::literals;
 using namespace REL::literals;
+namespace logger = SKSE::log;
 
 namespace GTS {
-	using namespace std;
-	using namespace SKSE;
 	using namespace RE;
 }
 
 namespace Hooks {
-	using namespace std;
-	using namespace SKSE;
 	using namespace RE;
-	using namespace RE::BSScript;
-	using namespace RE::BSScript::Internal;
 	using namespace GTS;
 }
-
-namespace logger = SKSE::log;
 
 //Project-Wide Defines
 //#define GTS_PROFILER_ENABLED //<---- Enable The Performance Profiller. Accessible by opening the debug menu.

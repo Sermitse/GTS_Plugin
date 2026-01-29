@@ -38,7 +38,7 @@ namespace GTS {
 	void Transient::Reset() {
 		std::unique_lock lock(_Lock);
 		TempActorDataMap.clear();
-		log::info("Transient was reset");
+		logger::info("Transient was reset");
 	}
 
 	void Transient::ResetActor(Actor* actor) {

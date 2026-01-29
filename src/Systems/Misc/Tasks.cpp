@@ -207,7 +207,7 @@ namespace GTS {
 
 	void TaskManager::CancelAllTasks() {
 		m_taskings.clear();
-		log::info("Canceled all task manager tasks");
+		logger::info("Canceled all task manager tasks");
 	}
 
 	void TaskManager::OnGameLoaded() {

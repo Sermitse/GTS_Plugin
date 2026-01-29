@@ -42,14 +42,14 @@ namespace GTS {
 	}
 
 	std::string str_tolower(std::string s) {
-		ranges::transform(s, s.begin(),[](unsigned char c){
+		std::ranges::transform(s, s.begin(),[](unsigned char c){
 			return std::tolower(c);
 		});
 		return s;
 	}
 
 	std::string str_toupper(std::string s) {
-		ranges::transform(s, s.begin(),[](unsigned char c){
+		std::ranges::transform(s, s.begin(),[](unsigned char c){
 			return std::toupper(c);
 		});
 		return s;
@@ -82,12 +82,12 @@ namespace GTS {
 		}
 		while (end != start && std::isspace(static_cast<unsigned char>(*end)));
 
-		return string(start, end + 1);
+		return std::string(start, end + 1);
 	}
 
 	// In-place trimming functions for a std::string
 	void ltrim(std::string& s) {
-		s.erase(s.begin(), ranges::find_if(s,[](unsigned char ch) {
+		s.erase(s.begin(), std::ranges::find_if(s,[](unsigned char ch) {
 			return !std::isspace(ch);
 		}));
 	}

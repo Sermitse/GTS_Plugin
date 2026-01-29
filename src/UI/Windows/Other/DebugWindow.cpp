@@ -219,7 +219,7 @@ namespace GTS {
 
 		if (a_open) {
 
-			GetTaskInterface()->AddUITask([] {
+			SKSE::GetTaskInterface()->AddUITask([] {
 				if (const auto msgQueue = UIMessageQueue::GetSingleton()) {
 					//The console draws above and since we disable input it becomes unclosable, we need to close it ourselves.
 					msgQueue->AddMessage(Console::MENU_NAME, UI_MESSAGE_TYPE::kHide, nullptr);

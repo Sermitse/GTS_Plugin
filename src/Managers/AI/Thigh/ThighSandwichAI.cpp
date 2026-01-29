@@ -68,7 +68,7 @@ namespace GTS {
 		auto PreyList = a_PotentialPrey;
 
 		// Sort prey by distance
-		ranges::sort(PreyList,[PredPosition](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
+		std::ranges::sort(PreyList,[PredPosition](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
 			const float DistToA = (a_PreyA->GetPosition() - PredPosition).Length();
 			const float DistToB = (a_PreyB->GetPosition() - PredPosition).Length();
 			return DistToA < DistToB;

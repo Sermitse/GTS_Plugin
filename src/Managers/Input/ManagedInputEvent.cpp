@@ -30,7 +30,7 @@ namespace GTS {
 				this->keys.emplace(key_code);
 			}
 			catch (const std::out_of_range&) {
-				log::warn("Key named {}=>{} in {} was unrecongized.", key, upper_key, this->name);
+				logger::warn("Key named {}=>{} in {} was unrecongized.", key, upper_key, this->name);
 				this->keys.clear();
 				return; // Remove all keys and return so that this becomes an INVALID key entry and won't fire
 			}
@@ -126,7 +126,7 @@ namespace GTS {
 							return false;
 						}
 						default:{
-							log::warn("Unexpected TriggerMode.");
+							logger::warn("Unexpected TriggerMode.");
 							return false; // Catch if something goes weird
 						}
 					}
@@ -146,13 +146,13 @@ namespace GTS {
 						}
 
 						default:{
-							log::error("Unexpected TriggerMode.");
+							logger::error("Unexpected TriggerMode.");
 							return false; // Catch if something goes weird
 						}
 					}
 				}
 				default:{
-					log::error("Unexpected InputEventState.");
+					logger::error("Unexpected InputEventState.");
 					return false; // Catch if something goes weird
 				}
 			}
@@ -181,7 +181,7 @@ namespace GTS {
 		return this->name;
 	}
 
-	unordered_set<std::uint32_t> ManagedInputEvent::GetKeys() {
+	std::unordered_set<std::uint32_t> ManagedInputEvent::GetKeys() {
 		return keys;
 	}
 

@@ -48,7 +48,7 @@ namespace GTS {
 		// of mutaally exclusive triggers
 		[[nodiscard]] bool SameGroup(const ManagedInputEvent& other) const;
 
-		[[nodiscard]] unordered_set<std::uint32_t> GetKeys();
+		[[nodiscard]] std::unordered_set<std::uint32_t> GetKeys();
 
 		[[nodiscard]] LBlockInputTypes_t ShouldBlock() const;
 
@@ -60,7 +60,7 @@ namespace GTS {
 		bool primed = false; // Used for release events. Once primed, when keys are not pressed we fire
 
 		std::string name;
-		unordered_set<std::uint32_t> keys = {};
+		std::unordered_set<std::uint32_t> keys = {};
 		float minDuration = 0.0f;
 
 		// If true this event won't fire unless ONLY the keys are pressed for the entire duration

@@ -9,7 +9,7 @@ namespace GTS {
 
 		std::string name(a_cmdName);
 		RegisteredCommands.try_emplace(name, a_callback, a_desc);
-		log::info("Registered Console Command \"{} {}\"", Default_Preffix, name);
+		logger::info("Registered Console Command \"{} {}\"", Default_Preffix, name);
 	}
 
 	bool ConsoleManager::Process(const std::string& a_msg) {

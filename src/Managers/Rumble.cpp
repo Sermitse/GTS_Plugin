@@ -54,7 +54,7 @@ namespace GTS {
 	}
 
 	void Rumbling::Stop(std::string_view tagsv, Actor* giant) {
-		string tag = std::string(tagsv);
+		std::string tag = std::string(tagsv);
 		auto& me = Rumbling::GetSingleton();
 		try {
 			if (!me.data.empty() || !me.data.contains(giant)) {

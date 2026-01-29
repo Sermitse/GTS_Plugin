@@ -37,9 +37,9 @@ namespace GTS {
         float result = std::min(power, limit);
 
         if (Type == LaunchType::Actor_Launch) {
-            log::info("Incoming Formula: {}", incoming_Formula);
-            log::info("Power: {}", power);
-            log::info("Result: {}", result);
+            logger::info("Incoming Formula: {}", incoming_Formula);
+            logger::info("Power: {}", power);
+            logger::info("Result: {}", result);
         }
 
         //log::info("Push Result: {}, {}", result, to_string(Type));

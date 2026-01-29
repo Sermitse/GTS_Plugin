@@ -21,7 +21,7 @@ namespace {
 	constexpr float SANDWICH_ANGLE = 60;
 	constexpr float PI = std::numbers::pi_v<float>;
 
-	const string rune_node = "GiantessRune";
+	const std::string rune_node = "GiantessRune";
 
 	void CantThighSandwichPlayerMessage(Actor* giant, Actor* tiny, float sizedifference) {
 		if (sizedifference < Action_Sandwich) {
@@ -89,7 +89,7 @@ namespace GTS {
 
 	std::vector<Actor*> SandwichingData::GetActors() {
 		std::vector<Actor*> result;
-		for (auto& actorref : this->tinies | views::values) {
+		for (auto& actorref : this->tinies | std::views::values) {
 			auto actor = actorref.get().get();
 			result.push_back(actor);
 		}
@@ -143,7 +143,7 @@ namespace GTS {
 				}
 			}
 
-			for (auto& tinyref : this->tinies | views::values) {
+			for (auto& tinyref : this->tinies | std::views::values) {
 
 				if (!MoveTinies) {
 					return;
@@ -194,7 +194,7 @@ namespace GTS {
 	}
 
 	void ThighSandwichController::Update() {
-		for (auto& SandwichData : this->data | views::values) {
+		for (auto& SandwichData : this->data | std::views::values) {
 			SandwichData.Update();
 		}
 	}
@@ -221,7 +221,7 @@ namespace GTS {
 		auto preys = find_actors();
 
 		// Sort prey by distance
-		ranges::sort(preys,[predPos](const Actor* preyA, const Actor* preyB) -> bool{
+		std::ranges::sort(preys,[predPos](const Actor* preyA, const Actor* preyB) -> bool{
 			float distanceToA = (preyA->GetPosition() - predPos).Length();
 			float distanceToB = (preyB->GetPosition() - predPos).Length();
 			return distanceToA < distanceToB;

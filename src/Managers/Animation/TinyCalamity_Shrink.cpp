@@ -24,7 +24,7 @@ namespace {
 	}
 
     void AttachRune(Actor* giant, bool ShrinkRune, float speed, float scale) { // A task that scales/shrinks the runes
-		string node_name = "ShrinkRune-Obj";
+		std::string node_name = "ShrinkRune-Obj";
 
 		double Start = Time::WorldTimeElapsed();
         std::string name = std::format("Calamity_{}_{}", giant->formID, ShrinkRune);

@@ -341,8 +341,8 @@ namespace GTS {
             
             float PowerBoost = 1.0f + ((0.15f + SkillLevel) * (Legendary + 1.0f));
 
-            log::info("Skill Level: {}, Legendary: {}", SkillLevel, Legendary);
-            log::info("Power Boost: {}", PowerBoost);
+            logger::info("Skill Level: {}, Legendary: {}", SkillLevel, Legendary);
+            logger::info("Power Boost: {}", PowerBoost);
 
             Effect_Increase *= PowerBoost;
 

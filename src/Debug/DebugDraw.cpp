@@ -52,7 +52,7 @@ namespace GTS {
 		}
 
 		// Remove expired lines efficiently
-		auto newEnd = ranges::remove_if(LinesToDraw,[currentTick](const auto& line) {
+		auto newEnd = std::ranges::remove_if(LinesToDraw,[currentTick](const auto& line) {
             return currentTick > line.DestroyTickCount;
         }).begin();
 
@@ -724,7 +724,7 @@ namespace GTS {
 		ScreenResY = abs(rect.top - rect.bottom);
 
 		CachedMenuData = true;
-		log::debug("DebugDraw::CacheMenuData");
+		logger::debug("DebugDraw::CacheMenuData");
 
 	}
 

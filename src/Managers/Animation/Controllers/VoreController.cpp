@@ -33,7 +33,7 @@ namespace GTS {
 
 	void VoreData::Swallow() {
 		std::unique_lock lock(_lock);
-		for (auto& tinyref : this->tinies | views::values) {
+		for (auto& tinyref : this->tinies | std::views::values) {
 			auto tiny = tinyref.get().get();
 			auto giant = this->giant.get().get();
 			
@@ -57,7 +57,7 @@ namespace GTS {
 		std::unique_lock lock(_lock);
 		if (!IsDevourmentEnabled()) {
 
-			for (auto& tinyref : this->tinies | views::values) {
+			for (auto& tinyref : this->tinies | std::views::values) {
 				auto tiny = tinyref.get().get();
 				auto giantref = this->giant;
 				SetBeingHeld(tiny, false);
@@ -98,7 +98,7 @@ namespace GTS {
 				});
 			}
 		} else {
-			for (auto& tinyref : this->tinies | views::values) { // just clear the data
+			for (auto& tinyref : this->tinies | std::views::values) { // just clear the data
 				auto tiny = tinyref.get().get();
 				SetBeingHeld(tiny, false);
 			}
@@ -108,7 +108,7 @@ namespace GTS {
 
 	void VoreData::AllowToBeVored(bool allow) {
 		std::unique_lock lock(_lock);
-		for (auto& tinyref : this->tinies | views::values) {
+		for (auto& tinyref : this->tinies | std::views::values) {
 			auto tiny = tinyref.get().get();
 			auto transient = Transient::GetActorData(tiny);
 			if (transient) {
@@ -132,7 +132,7 @@ namespace GTS {
 	std::vector<Actor*> VoreData::GetVories() {
 		std::unique_lock lock(_lock);
 		std::vector<Actor*> result;
-		for (auto& actorref : this->tinies | views::values) {
+		for (auto& actorref : this->tinies | std::views::values) {
 			auto actor = actorref.get().get();
 			result.push_back(actor);
 		}
@@ -145,7 +145,7 @@ namespace GTS {
 			auto giant = this->giant.get().get();
 			float giantScale = get_visual_scale(giant);
 			// Stick them to the AnimObjectA
-			for (auto& tinyref : this->tinies | views::values) {
+			for (auto& tinyref : this->tinies | std::views::values) {
 				auto tiny = tinyref.get().get();
 				if (!tiny) {
 					return;
@@ -167,7 +167,7 @@ namespace GTS {
 
 	void VoreController::Update() {
 		std::unique_lock lock(_lock);
-		for (auto& voreData : this->data | views::values) {
+		for (auto& voreData : this->data | std::views::values) {
 			voreData.Update();
 		}
 	}
@@ -197,7 +197,7 @@ namespace GTS {
 		auto preys = find_actors();
 
 		// Sort prey by distance
-		ranges::sort(preys,[predPos](const Actor* preyA, const Actor* preyB) -> bool{
+		std::ranges::sort(preys,[predPos](const Actor* preyA, const Actor* preyB) -> bool{
 			float distanceToA = (preyA->GetPosition() - predPos).Length();
 			float distanceToB = (preyB->GetPosition() - predPos).Length();
 			return distanceToA < distanceToB;
@@ -471,7 +471,7 @@ namespace GTS {
 			return false;
 		}
 
-		for (auto& val : data | views::values) {
+		for (auto& val : data | std::views::values) {
 			for (const auto& Tiny : val.GetVories()) {
 				if (Tiny) {
 					if (Tiny->formID == aTiny->formID) {

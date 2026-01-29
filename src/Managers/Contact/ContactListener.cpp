@@ -122,7 +122,7 @@ namespace {
 		for (const auto& [key, value] : named_layers) {
 			auto layer_flag = (static_cast<uint64_t>(1) << static_cast<uint64_t>(value));
 			if ((flags & layer_flag) != 0) {
-				log::info(" - Collides with {}", key);
+				logger::info(" - Collides with {}", key);
 			}
 		}
 

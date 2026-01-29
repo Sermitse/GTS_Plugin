@@ -4,7 +4,7 @@
 
 namespace GTS {
 
-	void VersionCheck(const LoadInterface* a_skse) {
+	void VersionCheck(const SKSE::LoadInterface* a_skse) {
 		if (a_skse->RuntimeVersion() < SKSE::RUNTIME_SSE_1_5_97 || REL::Module::IsVR()) {
 			ReportAndExit("This mod does not support Skyrim VR or versions of Skyrim older than 1.5.97.");
 		}

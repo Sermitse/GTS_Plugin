@@ -22,7 +22,7 @@ namespace {
                 || (!IsBetweenBreasts(tinyref) 
                 && GetAV(giantref, ActorValue::kStamina) < 2.0f)) {
 
-                log::info("grab task cancelled");
+                logger::info("grab task cancelled");
                 // For debugging
 
                 PushActorAway(giantref, tinyref, 1.0f);
@@ -97,7 +97,7 @@ namespace {
     void ReattachTinyTask(Actor* giant, Actor* tiny, bool Dead) {
         if (!Dead) {
             // Sometimes Tiny still exists and just unloaded, so we move Tiny to us in that case as well
-            log::info("Moving tiny to giant");
+            logger::info("Moving tiny to giant");
             SetReattachingState(giant, true);
             tiny->MoveTo(giant);
 
@@ -179,7 +179,7 @@ namespace GTS {
         if (IsBeingEaten(tinyref) && !IsBetweenBreasts(tinyref) && !AnimationVars::Action::IsInCleavageState(giantref)) {
             if (!AttachToObjectA(gianthandle, tinyhandle)) {
                 // Unable to attach
-                log::info("Can't attach to ObjectA");
+                logger::info("Can't attach to ObjectA");
                 Grab::CancelGrab(giantref, tinyref);
                 return false;
             }
@@ -237,7 +237,7 @@ namespace GTS {
             if (!AttachToCleavage(gianthandle, tinyhandle)) {
                 // Unable to attach
                 Grab::CancelGrab(giantref, tinyref);
-                log::info("Can't attach to Cleavage");
+                logger::info("Can't attach to Cleavage");
                 return false;
             }
         } else if (AttachToHand(gianthandle, tinyhandle)) {
@@ -247,7 +247,7 @@ namespace GTS {
             if (!AttachToHand(gianthandle, tinyhandle)) {
                 // Unable to attach
                 Grab::CancelGrab(giantref, tinyref);
-                log::info("Can't attach to hand");
+                logger::info("Can't attach to hand");
                 return false;
             }
         }

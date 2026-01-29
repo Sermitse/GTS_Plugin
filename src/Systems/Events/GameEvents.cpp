@@ -22,10 +22,10 @@ namespace GTS {
 		auto ui = UI::GetSingleton();
 		if (ui) {
 			ui->AddEventSink<MenuOpenCloseEvent>(this);
-			log::info("Successfully registered MenuOpenCloseEventHandler");
+			logger::info("Successfully registered MenuOpenCloseEventHandler");
 		}
 		else {
-			log::error("Failed to register MenuOpenCloseEventHandler");
+			logger::error("Failed to register MenuOpenCloseEventHandler");
 		}
 	}
 

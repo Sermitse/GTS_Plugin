@@ -15,7 +15,7 @@ namespace GTS {
 		void AddRayHit(const hkpCdBody& a_body, const hkpShapeRayCastCollectorOutput& a_hitInfo) override;
 
 		// Create the collector
-		static unique_ptr<AllRayCollector> Create();
+		static std::unique_ptr<AllRayCollector> Create();
 
 		// Reset, if you want to resuse the collector
 		void Reset() noexcept;

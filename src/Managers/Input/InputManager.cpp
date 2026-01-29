@@ -20,7 +20,7 @@ namespace GTS {
 		}
 
 		// Sort longest duration first
-		ranges::sort(results,[](ManagedInputEvent const& a, ManagedInputEvent const& b) {
+		std::ranges::sort(results,[](ManagedInputEvent const& a, ManagedInputEvent const& b) {
 			return a.MinDuration() > b.MinDuration();
 		});
 
@@ -30,7 +30,7 @@ namespace GTS {
 	void InputManager::RegisterInputEvent(std::string_view a_namesv, std::function<void(const ManagedInputEvent&)> a_funcCallback, std::function<bool(void)> a_condCallbakc) {
 		std::string name(a_namesv);
 		GetSingleton().m_inputEvents.try_emplace(name, a_funcCallback, a_condCallbakc);
-		log::debug("Registered input event: {}", a_namesv);
+		logger::debug("Registered input event: {}", a_namesv);
 	}
 
 	void InputManager::Init() {
@@ -40,12 +40,12 @@ namespace GTS {
 		try {
 			m_eventTriggers = LoadInputEvents();
 		} 
-		catch (exception e) {
-			log::error("Error Creating ManagedInputEvents: {}", e.what());
+		catch (std::exception e) {
+			logger::error("Error Creating ManagedInputEvents: {}", e.what());
 			return;
 		} 
 
-		log::info("Loaded {} key bindings", m_eventTriggers.size());
+		logger::info("Loaded {} key bindings", m_eventTriggers.size());
 		
 		m_ready.store(true);
 	}
@@ -147,7 +147,7 @@ namespace GTS {
 				}
 
 				catch (const std::out_of_range&) {
-					log::warn("Event {} was triggered but there is no event of that name", trigger.GetName());
+					logger::warn("Event {} was triggered but there is no event of that name", trigger.GetName());
 					continue;
 				}
 			}
@@ -166,14 +166,14 @@ namespace GTS {
 					trigger.Reset();
 				}
 				else {
-					log::debug("Running event {}", trigger.GetName());
+					logger::debug("Running event {}", trigger.GetName());
 					firedTriggers.push_back(&trigger);
 					try {
 						auto& eventData = this->m_inputEvents.at(trigger.GetName());
 						eventData.callback(trigger);
 					}
 					catch (const std::out_of_range&) {
-						log::warn("Event {} was triggered but there is no event of that name", trigger.GetName());
+						logger::warn("Event {} was triggered but there is no event of that name", trigger.GetName());
 					}
 				}
 			}

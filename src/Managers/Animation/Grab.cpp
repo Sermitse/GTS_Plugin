@@ -47,23 +47,23 @@ using namespace GTS;
 namespace {
 
 	void PrintCancelReason(Actor* giant, Actor* tiny, float sizedifference, float Action_Grab) {
-		log::info("Canceled Grab on {}. Reasons below", tiny->GetDisplayFullName());
+		logger::info("Canceled Grab on {}. Reasons below", tiny->GetDisplayFullName());
 		bool GiantDead = giant->IsDead();
 		bool TinyDead = tiny->IsDead();
 		if (GiantDead) {
-			log::info("---Giant Has Died");
+			logger::info("---Giant Has Died");
 		}
 		if (TinyDead) {
-			log::info("---Tiny Has Died");
+			logger::info("---Tiny Has Died");
 		}
 		if (GetAV(tiny, ActorValue::kHealth) <= 0.0f) {
-			log::info("---Tiny health is < 0: {}", GetAV(tiny, ActorValue::kHealth) <= 0.0f);
+			logger::info("---Tiny health is < 0: {}", GetAV(tiny, ActorValue::kHealth) <= 0.0f);
 		}
 		if (GetAV(giant, ActorValue::kStamina) < 2.0f) {
-			log::info("---Giant stamina is < 2: {}", GetAV(giant, ActorValue::kStamina) < 2.0f);
+			logger::info("---Giant stamina is < 2: {}", GetAV(giant, ActorValue::kStamina) < 2.0f);
 		}
 		if (sizedifference < Action_Grab) {
-			log::info("---SizeDifference < Threshold: {}, Difference: {}", sizedifference < Action_Grab, sizedifference);
+			logger::info("---SizeDifference < Threshold: {}, Difference: {}", sizedifference < Action_Grab, sizedifference);
 		}
 	}
 

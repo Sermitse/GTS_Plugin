@@ -27,7 +27,7 @@ namespace GTS {
 
 	    static void UpdateKeybindFromTable(
 			BaseEventData_t& a_keybind, 
-			const toml::ordered_map<string, 
+			const toml::ordered_map<std::string,
 			toml::basic_value<toml::ordered_type_config>>& a_tomlTable
 		);
     };

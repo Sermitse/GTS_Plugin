@@ -156,9 +156,9 @@ namespace GTS {
 				auto isInThirdPerson = playerCamera->currentState->id == RE::CameraState::kThirdPerson;
 
 				TaskManager::RunOnce([=](auto& update){
-					log::info("Running Camera Task Once");
+					logger::info("Running Camera Task Once");
 					if (thirdPersonState && isInThirdPerson) {
-						log::info("Applying zoom offset");
+						logger::info("Applying zoom offset");
 						thirdPersonState->currentZoomOffset = 0.50f;
 						thirdPersonState->targetZoomOffset = 0.50f;
 					}

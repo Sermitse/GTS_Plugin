@@ -867,12 +867,12 @@ namespace GTS {
 			float targetScale = predscale/(expected * Adjustment_Tiny);
 
 			/*log::info("Trying to Shrink {}", tiny->GetDisplayFullName());
-			log::info("----Adjustment: GTS: {}", Adjustment_Gts);
-			log::info("----Adjustment: Tiny: {}", Adjustment_Tiny);
-			log::info("----Pred scale: {}", predscale);
-			log::info("----Prey scale: {}", preyscale);
-			log::info("----Targeted Scale: {}", targetScale);
-			log::info("----Get Target Scale: {}", get_target_scale(tiny));
+			logger::info("----Adjustment: GTS: {}", Adjustment_Gts);
+			logger::info("----Adjustment: Tiny: {}", Adjustment_Tiny);
+			logger::info("----Pred scale: {}", predscale);
+			logger::info("----Prey scale: {}", preyscale);
+			logger::info("----Targeted Scale: {}", targetScale);
+			logger::info("----Get Target Scale: {}", get_target_scale(tiny));
 			*/
 
 			if (preyscale > targetScale) { // Apply ONLY if target is bigger than requirement
@@ -937,7 +937,7 @@ namespace GTS {
 			return;
 		}
 
-		shared_ptr<SpringShrinkData> growData = std::make_shared<SpringShrinkData>(a_actor, a_amt, a_halfLife);
+		std::shared_ptr<SpringShrinkData> growData = std::make_shared<SpringShrinkData>(a_actor, a_amt, a_halfLife);
 		std::string name = std::format("SpringShrink_{}_{}", a_taskName, a_actor->formID);
 		const float DURATION = a_halfLife * 3.2f;
 		TaskManager::RunFor(DURATION,[ growData ](const auto&) {

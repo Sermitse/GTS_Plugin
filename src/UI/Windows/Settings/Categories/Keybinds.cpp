@@ -283,7 +283,7 @@ namespace GTS {
             }
 
             // If nothing printed at all
-            bool any = ranges::any_of(groups, [](auto& kv) {
+            bool any = std::ranges::any_of(groups, [](auto& kv) {
                 return !kv.second.empty();
             });
 
@@ -427,10 +427,10 @@ namespace GTS {
                             if (ImGui::IsKeyPressed(static_cast<ImGuiKey>(key))) {
                                 auto keyName = ImInput::ImGuiKeyToDIKString(static_cast<ImGuiKey>(key));
                                 if (keyName == "INVALID") continue;
-                                if (ranges::find(TempKeys, keyName) == TempKeys.end()
+                                if (std::ranges::find(TempKeys, keyName) == TempKeys.end()
                                     && TempKeys.size() < 5) {
                                     TempKeys.push_back(keyName);
-                                    ranges::sort(TempKeys, [](auto& a, auto& b) {
+                                    std::ranges::sort(TempKeys, [](auto& a, auto& b) {
                                         return a.size() > b.size();
                                     });
                                 }

@@ -18,7 +18,7 @@ namespace GTS {
 
 		{
 			ReadLock lock(MapLock);
-			for (const shared_ptr<DynamicCollisionController>& DynController : ControllerMap | views::values) {
+			for (const std::shared_ptr<DynamicCollisionController>& DynController : ControllerMap | std::views::values) {
 				DynController->Update();
 			}
 		}

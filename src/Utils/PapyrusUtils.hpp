@@ -34,7 +34,7 @@ namespace GTS {
 			auto args = RE::MakeFunctionArguments(std::forward<Args>(a_args)...);
 			auto objectPtr = GetVMObjectPtr(a_form, std::string(formKind).c_str(), false);
 			if (!objectPtr) {
-				log::error("Could not bind form");
+				logger::error("Could not bind form");
 			}
 			vm->DispatchMethodCall(objectPtr, std::string(function).c_str(), args, callback);
 		}

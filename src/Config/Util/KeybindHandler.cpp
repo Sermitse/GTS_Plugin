@@ -64,7 +64,7 @@ namespace GTS {
 			return false;
 		}
 
-		auto bindIt = ranges::find_if(a_inputEvents, [&](const BaseEventData_t& a_ke) {
+		auto bindIt = std::ranges::find_if(a_inputEvents, [&](const BaseEventData_t& a_ke) {
 			return a_ke.Event == eventName;
 		});
 
@@ -78,7 +78,7 @@ namespace GTS {
 	}
 
 	void KeybindHandler::UpdateKeybindFromTable(BaseEventData_t& a_keybind,
-		const toml::ordered_map<string, toml::basic_value<toml::ordered_type_config>>& a_tomlTable) {
+		const toml::ordered_map<std::string, toml::basic_value<toml::ordered_type_config>>& a_tomlTable) {
 
 		// Update Keys
 		auto keysIt = a_tomlTable.find("Keys");

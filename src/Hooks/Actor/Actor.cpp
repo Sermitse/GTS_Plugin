@@ -125,7 +125,7 @@ namespace Hooks {
 				// Also fun fact for SE And probably AE too. If you subtract 0x1B8 ontop of this you can get the owning MovementControllerNPC Pointer.
 				// Fenix has RE'd a bunch of the AI/Movement Related classes in his SSE clib fork which is how i found this out.
 				// https://github.com/fenix31415/CommonLibSSE/blob/b4a2fc70d5709f8a6bb9023bb942ab65867ae8ab/include/RE/M/MovementControllerNPC.h#L17
-				const int offset = REL::Module::get().version() >= RUNTIME_SSE_1_6_629 ? 0xC0 : 0xB8;
+				const int offset = REL::Module::get().version() >= SKSE::RUNTIME_SSE_1_6_629 ? 0xC0 : 0xB8;
 				return reinterpret_cast<Actor*>(reinterpret_cast<uintptr_t>(actorState) - offset);
 			}
 			return nullptr;

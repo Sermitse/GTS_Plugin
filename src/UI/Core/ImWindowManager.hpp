@@ -12,7 +12,7 @@ namespace GTS {
         std::vector<std::unique_ptr<ImWindow>> Windows;
         ImContextManager* Context = nullptr;
         float m_lastFrameTime = 0.0f;
-        vector<Actor*> m_cachedTeamMateList;
+        std::vector<Actor*> m_cachedTeamMateList;
 
 		public:
 		// Accessors for common windows

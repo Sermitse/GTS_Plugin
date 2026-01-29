@@ -231,12 +231,12 @@ namespace GTS {
 		}
 		auto FingerA = find_node(giant, "NPC L Finger02 [LF02]");
 		if (!FingerA) {
-			log::info("FingerA not found");
+			logger::info("FingerA not found");
 			return false;
 		}
 		auto FingerB = find_node(giant, "NPC L Finger30 [LF30]");
 		if (!FingerB) {
-			log::info("FingerB not found");
+			logger::info("FingerB not found");
 			return false;
 		}
 		NiPoint3 coords = (FingerA->world.translate + FingerB->world.translate) / 2.0f;
@@ -339,7 +339,7 @@ namespace GTS {
 		}
 
 		// Center bone
-		for (const string_view& bone_name : center_bone_names) {
+		for (const std::string_view& bone_name : center_bone_names) {
 			auto bone = find_node(giant, bone_name);
 			if (!bone) {
 				Notify("ERROR: Breast 01 bones not found");
@@ -353,7 +353,7 @@ namespace GTS {
 		}
 
 		// Up bone
-		for (const string_view& bone_name: up_bone_names) {
+		for (const std::string_view& bone_name: up_bone_names) {
 			NiAVObject* bone = find_node(giant, bone_name);
 			if (!bone) {
 				Notify("ERROR: Clavicle bones not found");

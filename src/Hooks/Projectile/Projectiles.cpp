@@ -11,7 +11,7 @@ namespace {
 			auto cause = causer.get().get();
 			if (cause) {
 				if (IsDragon(cause) || IsGiant(cause)) {
-					log::info("Scaling Explosion");
+					logger::info("Scaling Explosion");
 					explosion->GetExplosionRuntimeData().radius *= get_visual_scale(cause);
 				}
 			}
@@ -37,7 +37,7 @@ namespace {
 
 					if (cell) {
 						// Crashes if called like that, too lazy to fix it
-						log::info("Spawning footstep.nif");
+						logger::info("Spawning footstep.nif");
 						BSTempEffectParticle::Spawn(cell, 6.0f, "GTS/Effects/Footstep.nif", node->world.rotate, node->world.translate, scaling, 7, nullptr);
 					}
 				}
@@ -55,7 +55,7 @@ namespace {
 		if (!node) {
 			node = projectile->Get3D1(false);
 			if (!node) {
-				log::info("3d1: fp");
+				logger::info("3d1: fp");
 				node = projectile->Get3D1(true);
 			}
 		}
@@ -85,7 +85,7 @@ namespace {
 					if (spell) {
 						auto effect = skyrim_cast<SpellItem*>(spell);
 						if (effect) {
-							log::info("Effect found!");
+							logger::info("Effect found!");
 							effect->data.range *= scaling;
 						}
 					}

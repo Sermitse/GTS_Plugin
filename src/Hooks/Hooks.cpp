@@ -88,8 +88,8 @@ namespace Hooks {
 		//Experiments
 		//Hook_Experiments::Install();
 
-		log::info("Finished applying hooks");
-		log::info("Default Trampoline Used: {}/{} Bytes", SKSETrampoline.allocated_size(), SKSETrampoline.capacity());
+		logger::info("Finished applying hooks");
+		logger::info("Default Trampoline Used: {}/{} Bytes", SKSETrampoline.allocated_size(), SKSETrampoline.capacity());
 
 	}
 }

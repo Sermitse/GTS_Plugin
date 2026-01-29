@@ -146,9 +146,9 @@ namespace GTS {
 
 		float Difference = GiantScale / TinyScale;
 		/*if (giant->IsPlayerRef() && !tiny->IsDead()) {
-			log::info("Size Difference between {} and {} is {}", giant->GetDisplayFullName(), tiny->GetDisplayFullName(), Difference);
-			log::info("Tiny Data: TS: {} ; HH: {} ; BB: {}, target: {}", TinyScale, hh_tiny, GetSizeFromBoundingBox(tiny), get_target_scale(tiny));
-			log::info("GTS Data: TS {} ; HH: {} BB :{}", GiantScale, hh_gts, GetSizeFromBoundingBox(giant));
+			logger::info("Size Difference between {} and {} is {}", giant->GetDisplayFullName(), tiny->GetDisplayFullName(), Difference);
+			logger::info("Tiny Data: TS: {} ; HH: {} ; BB: {}, target: {}", TinyScale, hh_tiny, GetSizeFromBoundingBox(tiny), get_target_scale(tiny));
+			logger::info("GTS Data: TS {} ; HH: {} BB :{}", GiantScale, hh_gts, GetSizeFromBoundingBox(giant));
 		}*/
 
 		return Difference;

@@ -27,7 +27,7 @@ namespace {
 			ActorHandle giantHandle = aggressor->CreateRefHandle();
 			ActorHandle tinyHandle = victim->CreateRefHandle();
 
-			log::info("Inflicting throw damage for {}: {}", victim->GetDisplayFullName(), damage);
+			logger::info("Inflicting throw damage for {}: {}", victim->GetDisplayFullName(), damage);
 
 			TaskManager::RunOnce(task, [=](auto& update){
 				if (!giantHandle) {

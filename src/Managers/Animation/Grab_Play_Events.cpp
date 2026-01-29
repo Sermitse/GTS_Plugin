@@ -127,10 +127,10 @@ namespace Grab_Fixes {
 	void GTSGrab_SpawnHeartsAtHead(Actor* giant, float Z_Offset, float Heart_Scale) {
 		auto tiny = Grab::GetHeldActor(giant);
 		if (tiny) {
-			log::info("Tiny True");
+			logger::info("Tiny True");
 			auto node = find_node(tiny, "NPC Head [Head]");
 			if (node) {
-				log::info("Trying to spawn hearts");
+				logger::info("Trying to spawn hearts");
 				SpawnHearts(giant, tiny, Z_Offset, Heart_Scale, false, node->world.translate);
 			}
 		}

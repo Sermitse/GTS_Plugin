@@ -693,7 +693,7 @@ namespace GTS {
 			return false;
 		}
 
-		for (auto& val : data | views::values) {
+		for (auto& val : data | std::views::values) {
 			if (val.tiny) {
 				if (val.tiny->formID == aTiny->formID) {
 					return true;

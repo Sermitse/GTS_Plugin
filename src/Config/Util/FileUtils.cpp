@@ -34,7 +34,7 @@ namespace GTS {
 		}
 
 		// Sort by modification time (newest first)
-		ranges::sort(exports, [](const auto& a, const auto& b) {
+		std::ranges::sort(exports, [](const auto& a, const auto& b) {
 			std::error_code err;
 			auto timeA = std::filesystem::last_write_time(a, err);
 			auto timeB = std::filesystem::last_write_time(b, err);

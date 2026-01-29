@@ -102,6 +102,6 @@ namespace GTS {
 		EventDispatcher::AddListener(&MorphManager::GetSingleton());
 		EventDispatcher::AddListener(&DynamicCollisionManager::GetSingleton());
 
-		log::info("Managers Registered");
+		logger::info("Managers Registered");
 	}
 }

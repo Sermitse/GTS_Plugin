@@ -143,7 +143,7 @@ namespace GTS {
 
     void CooldownManager::Reset() {
         this->CooldownData.clear();
-        log::info("Cooldowns cleared");
+        logger::info("Cooldowns cleared");
     }
 
     void ApplyActionCooldown(Actor* giant, CooldownSource source) {

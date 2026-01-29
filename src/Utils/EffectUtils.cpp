@@ -40,7 +40,7 @@ namespace GTS {
 
 			auto node = find_node(actor, spawn_at_node);
 			if (!node) {
-				log::info("!Node: {}", spawn_at_node);
+				logger::info("!Node: {}", spawn_at_node);
 				return;
 			}
 			const char* particle_path = "None";

@@ -47,7 +47,7 @@ namespace {
 		auto PreyList = a_ValidPreyList;
 
 		// Presort by distance
-		ranges::sort(PreyList, [PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
+		std::ranges::sort(PreyList, [PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
 			float DistToA = (a_PreyA->GetPosition() - PredPos).Length();
 			float DistToB = (a_PreyB->GetPosition() - PredPos).Length();
 			return DistToA < DistToB;
@@ -252,7 +252,7 @@ namespace {
 
 			return static_cast<ActionType>(RandomIntWeighted(ProbabiltyList));
 		}
-		catch (exception& e) {
+		catch (std::exception& e) {
 			logger::warn("CalculateProbability Exception: {}", e.what());
 			return ActionType::kNone;
 		}

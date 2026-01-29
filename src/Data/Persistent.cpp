@@ -44,7 +44,7 @@ namespace GTS {
 	// SKSE Callbacks
 	//----------------------
 
-	void Persistent::OnGameLoaded(SerializationInterface* serde) {
+	void Persistent::OnGameLoaded(SKSE::SerializationInterface* serde) {
 
 		logger::debug("Persistent OnGameLoaded Start");
 
@@ -59,7 +59,7 @@ namespace GTS {
 #endif
 	}
 
-	void Persistent::OnGameSaved(SerializationInterface* serde) {
+	void Persistent::OnGameSaved(SKSE::SerializationInterface* serde) {
 
 #ifndef GTS_DISABLE_PLUGIN
 		EventDispatcher::DoSerdePreSaveEvent();
@@ -74,7 +74,7 @@ namespace GTS {
 		logger::info("Persistent OnGameSaved OK");
 	}
 
-	void Persistent::OnRevert(SerializationInterface*) {
+	void Persistent::OnRevert(SKSE::SerializationInterface*) {
 #ifndef GTS_DISABLE_PLUGIN
 		{
 			std::unique_lock lock(_Lock);
@@ -89,7 +89,7 @@ namespace GTS {
 	// Save/Load Implementations
 	//---------------------------
 
-	void Persistent::LoadPersistent(SerializationInterface* serde) {
+	void Persistent::LoadPersistent(SKSE::SerializationInterface* serde) {
 		std::uint32_t RecordType;
 		std::uint32_t RecordSize;
 		std::uint32_t RecordVersion;
@@ -132,7 +132,7 @@ namespace GTS {
 		}
 	}
 
-	void Persistent::SavePersistent(SerializationInterface* serde) {
+	void Persistent::SavePersistent(SKSE::SerializationInterface* serde) {
 
 		logger::info("Serializing Persistent...");
 

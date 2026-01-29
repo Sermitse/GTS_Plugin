@@ -48,7 +48,7 @@ namespace {
 		float formula = 0.0f;
 		switch (anim) {
 			case GrowthAnimation::None:
-				log::info("Formula = 0");
+				logger::info("Formula = 0");
 				return 0.0f;
 			break;
 			case GrowthAnimation::Growth_1:

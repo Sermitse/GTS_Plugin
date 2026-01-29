@@ -151,26 +151,26 @@ namespace GTS {
 						}
 					}
 					// Do smth
-					log::trace("Node {}", currentnode->name);
+					logger::trace("Node {}", currentnode->name);
 				}
 				else if (counter > loop_threshold) {
 					queue.clear();
 				}
 			}
 			catch (const std::overflow_error& e) {
-				log::warn("Overflow: {}", e.what());
+				logger::warn("Overflow: {}", e.what());
 				return {};
 			} // this executes if f() throws std::overflow_error (same type rule)
 			catch (const std::runtime_error& e) {
-				log::warn("Underflow: {}", e.what());
+				logger::warn("Underflow: {}", e.what());
 				return {};
 			} // this executes if f() throws std::underflow_error (base class rule)
 			catch (const std::exception& e) {
-				log::warn("Exception: {}", e.what());
+				logger::warn("Exception: {}", e.what());
 				return {};
 			} // this executes if f() throws std::logic_error (base class rule)
 			catch (...) {
-				log::warn("Exception Other");
+				logger::warn("Exception Other");
 				return {};
 			}
 		}
@@ -206,25 +206,25 @@ namespace GTS {
 						}
 					}
 					// Do smth
-					log::trace("Node {}", currentnode->name);
+					logger::trace("Node {}", currentnode->name);
 				} else if (counter > loop_threshold) {
 					queue.clear();
 				}
 			}
 			catch (const std::overflow_error& e) {
-				log::warn("Overflow: {}", e.what());
+				logger::warn("Overflow: {}", e.what());
 				return;
 			} // this executes if f() throws std::overflow_error (same type rule)
 			catch (const std::runtime_error& e) {
-				log::warn("Underflow: {}", e.what());
+				logger::warn("Underflow: {}", e.what());
 				return;
 			} // this executes if f() throws std::underflow_error (base class rule)
 			catch (const std::exception& e) {
-				log::warn("Exception: {}", e.what());
+				logger::warn("Exception: {}", e.what());
 				return;
 			} // this executes if f() throws std::logic_error (base class rule)
 			catch (...) {
-				log::warn("Exception Other");
+				logger::warn("Exception Other");
 				return;
 			}
 		}
@@ -269,7 +269,7 @@ namespace GTS {
 					} 
 					// Do smth
 					if (currentnode->name == node_name) {
-						log::trace("Found bone: {}", node_name);
+						logger::trace("Found bone: {}", node_name);
 						return currentnode;
 					}
 
@@ -281,19 +281,19 @@ namespace GTS {
 				}
 			}
 			catch (const std::overflow_error& e) {
-				log::warn("Overflow: {}", e.what());
+				logger::warn("Overflow: {}", e.what());
 				return nullptr;
 			} // this executes if f() throws std::overflow_error (same type rule)
 			catch (const std::runtime_error& e) {
-				log::warn("Underflow: {}", e.what());
+				logger::warn("Underflow: {}", e.what());
 				return nullptr;
 			} // this executes if f() throws std::underflow_error (base class rule)
 			catch (const std::exception& e) {
-				log::warn("Exception: {}", e.what());
+				logger::warn("Exception: {}", e.what());
 				return nullptr;
 			} // this executes if f() throws std::logic_error (base class rule)
 			catch (...) {
-				log::warn("Exception Other");
+				logger::warn("Exception Other");
 				return nullptr;
 				}
 			}
@@ -347,19 +347,19 @@ namespace GTS {
 				}
 			}
 			catch (const std::overflow_error& e) {
-				log::warn("Overflow: {}", e.what());
+				logger::warn("Overflow: {}", e.what());
 				return nullptr;
 			} // this executes if f() throws std::overflow_error (same type rule)
 			catch (const std::runtime_error& e) {
-				log::warn("Underflow: {}", e.what());
+				logger::warn("Underflow: {}", e.what());
 				return nullptr;
 			} // this executes if f() throws std::underflow_error (base class rule)
 			catch (const std::exception& e) {
-				log::warn("Exception: {}", e.what());
+				logger::warn("Exception: {}", e.what());
 				return nullptr;
 			} // this executes if f() throws std::logic_error (base class rule)
 			catch (...) {
-				log::warn("Exception Other");
+				logger::warn("Exception Other");
 				return nullptr;
 			}
 		}
@@ -481,7 +481,7 @@ namespace GTS {
 								if (hkp_rigidbody) {
 									auto shape = hkp_rigidbody->GetShape();
 									if (shape) {
-										log::trace("Shape found: {} for {}", typeid(*shape).name(), currentnode->name.c_str());
+										logger::trace("Shape found: {} for {}", typeid(*shape).name(), currentnode->name.c_str());
 										if (shape->type == hkpShapeType::kCapsule) {
 											const hkpCapsuleShape* orig_capsule = skyrim_cast<const hkpCapsuleShape*>(shape);
 											hkTransform identity;
@@ -495,10 +495,10 @@ namespace GTS {
 											float max[4] = {0.0f};
 											_mm_store_ps(&min[0], out.min.quad);
 											_mm_store_ps(&max[0], out.max.quad);
-											log::trace(" - Current bounds: {},{},{}<{},{},{}", min[0], min[1],min[2], max[0],max[1],max[2]);
+											logger::trace(" - Current bounds: {},{},{}<{},{},{}", min[0], min[1],min[2], max[0],max[1],max[2]);
 											// Here be dragons
 											hkpCapsuleShape* capsule = const_cast<hkpCapsuleShape*>(orig_capsule);
-											log::trace("  - Capsule found: {}", typeid(*orig_capsule).name());
+											logger::trace("  - Capsule found: {}", typeid(*orig_capsule).name());
 											float scale_factor = new_scale / prev_scale;
 											hkVector4 vec_scale = hkVector4(scale_factor);
 											capsule->vertexA = capsule->vertexA * vec_scale;
@@ -509,11 +509,11 @@ namespace GTS {
 											_mm_store_ps(&min[0], out.min.quad);
 											_mm_store_ps(&max[0], out.max.quad);
 
-											log::trace(" - New bounds: {},{},{}<{},{},{}", min[0], min[1],min[2], max[0],max[1],max[2]);
-											log::trace(" - pad28: {}", orig_capsule->pad28);
-											log::trace(" - pad2C: {}", orig_capsule->pad2C);
-											log::trace(" - float(pad28): {}", static_cast<float>(orig_capsule->pad28));
-											log::trace(" - float(pad2C): {}", static_cast<float>(orig_capsule->pad2C));
+											logger::trace(" - New bounds: {},{},{}<{},{},{}", min[0], min[1],min[2], max[0],max[1],max[2]);
+											logger::trace(" - pad28: {}", orig_capsule->pad28);
+											logger::trace(" - pad2C: {}", orig_capsule->pad2C);
+											logger::trace(" - float(pad28): {}", static_cast<float>(orig_capsule->pad28));
+											logger::trace(" - float(pad2C): {}", static_cast<float>(orig_capsule->pad2C));
 
 											hkp_rigidbody->SetShape(capsule);
 										}
@@ -530,19 +530,19 @@ namespace GTS {
 				}
 			}
 			catch (const std::overflow_error& e) {
-				log::warn("Overflow: {}", e.what());
+				logger::warn("Overflow: {}", e.what());
 				return;
 			} // this executes if f() throws std::overflow_error (same type rule)
 			catch (const std::runtime_error& e) {
-				log::warn("Underflow: {}", e.what());
+				logger::warn("Underflow: {}", e.what());
 				return;
 			} // this executes if f() throws std::underflow_error (base class rule)
 			catch (const std::exception& e) {
-				log::warn("Exception: {}", e.what());
+				logger::warn("Exception: {}", e.what());
 				return;
 			} // this executes if f() throws std::logic_error (base class rule)
 			catch (...) {
-				log::warn("Exception Other");
+				logger::warn("Exception Other");
 				return;
 			}
 		}
@@ -605,7 +605,7 @@ namespace GTS {
 	}
 
 	NiAVObject* get_bumper(Actor* actor) {
-		string node_name = "CharacterBumper";
+		std::string node_name = "CharacterBumper";
 		return find_node(actor, node_name);
 	}
 

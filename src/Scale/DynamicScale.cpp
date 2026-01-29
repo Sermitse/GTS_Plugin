@@ -105,7 +105,7 @@ namespace GTS {
 		if (ceiling_heights.empty()) {
 			return std::numeric_limits<float>::infinity();
 		}
-		float ceiling = *ranges::min_element(ceiling_heights);
+		float ceiling = *std::ranges::min_element(ceiling_heights);
 
 		// Floor
 		std::vector<float>  floor_heights = {};
@@ -130,7 +130,7 @@ namespace GTS {
 		if (floor_heights.empty()) {
 			return std::numeric_limits<float>::infinity();
 		}
-		float floor = *ranges::max_element(floor_heights);
+		float floor = *std::ranges::max_element(floor_heights);
 
 		// Room height
 		float room_height = fabs(ceiling - floor);

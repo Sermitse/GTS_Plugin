@@ -478,10 +478,10 @@ namespace GTS {
 				dropPos.x += 25 * get_visual_scale(a_target);
 				dropPos.y += 25 * get_visual_scale(a_target);
 				if (object) {
-					log::debug("Object found");
+					logger::debug("Object found");
 
 					if (TESBoundObject* as_object = skyrim_cast<TESBoundObject*>(object)) {
-						log::debug("As object exists, {}", as_object->GetName());
+						logger::debug("As object exists, {}", as_object->GetName());
 						dropPos.z += 40 * get_visual_scale(a_target);
 						a_target->RemoveItem(as_object, 1, ITEM_REMOVE_REASON::kDropping, nullptr, nullptr, &dropPos, nullptr);
 					}

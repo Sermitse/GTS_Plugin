@@ -64,7 +64,7 @@ namespace GTS {
 
 		}
 		//Should not be needed but just in case...
-		catch (const exception& e) {
+		catch (const std::exception& e) {
 			logger::error("An exception occured in LoadImpl: {}", e.what());
 			return false;
 		}
@@ -95,7 +95,7 @@ namespace GTS {
 			InputManager::GetSingleton().Init();
 		}
 		//Should not be needed but just in case...
-		catch (const exception& e) {
+		catch (const std::exception& e) {
 			logger::error("An exception occured in SaveImpl: {}",e.what());
 			return false;
 		}

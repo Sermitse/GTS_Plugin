@@ -16,7 +16,7 @@ namespace GTS {
 		virtual std::string DebugName() override;
 
 		//SKSE Callbacks
-		static void OnRevert(SerializationInterface*);
+		static void OnRevert(SKSE::SerializationInterface*);
 		static void OnGameSaved(SKSE::SerializationInterface* serde);
 		static void OnGameLoaded(SKSE::SerializationInterface* serde);
 
@@ -64,8 +64,8 @@ namespace GTS {
 
 		static void ClearData();
 
-		static void LoadPersistent(SerializationInterface* serde);
-		static void SavePersistent(SerializationInterface* serde);
+		static void LoadPersistent(SKSE::SerializationInterface* serde);
+		static void SavePersistent(SKSE::SerializationInterface* serde);
 
 	};
 }

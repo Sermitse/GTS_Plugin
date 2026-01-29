@@ -38,8 +38,8 @@ namespace GTS {
 
 		void AdjustBoneDrivenHuman();
 		void AdjustScale() const;
-		NiAVObject* FindBone(const string_view& a_name);
-		std::vector<NiAVObject*> FindBones(const vector<string_view>& a_names);
+		NiAVObject* FindBone(const std::string_view& a_name);
+		std::vector<NiAVObject*> FindBones(const std::vector<std::string_view>& a_names);
 		float GetDistanceBetweenBones(const std::pair<std::string_view, std::string_view>& a_names);
 		static void ScaleCapsule(const CapsuleData& a_baseCapsule, hkpCapsuleShape* a_outCapsule, float a_scaleFactor);
 		static void UpdateControllerScaleAndSlope(bhkCharacterController* a_controller, const ShapeData& a_origData, float a_currentScale);

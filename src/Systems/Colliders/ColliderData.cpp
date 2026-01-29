@@ -4,9 +4,9 @@
 namespace GTS {
 
 	void ColliderData::Activate() {
-		log::info("Activate RBs");
+		logger::info("Activate RBs");
 		for (auto rb: GetRigidBodies()) {
-			log::info("  - Activating");
+			logger::info("  - Activating");
 			rb->SetMotionType(hkpMotion::MotionType::kCharacter, hkpEntityActivation::kDoActivate, hkpUpdateCollisionFilterOnEntityMode::kFullCheck);
 		}
 	}
@@ -48,7 +48,7 @@ namespace GTS {
 
 	std::vector<hkpRigidBody*> ColliderData::GetRigidBodies() {
 		std::vector<hkpRigidBody*> entities = {};
-		for (auto& rb : this->rbs | views::values) {
+		for (auto& rb : this->rbs | std::views::values) {
 			entities.push_back(rb.get());
 		}
 		for (auto& child: GetChildren()) {
@@ -61,7 +61,7 @@ namespace GTS {
 	
 	std::vector<hkpPhantom*> ColliderData::GetPhantoms() {
 		std::vector<hkpPhantom*> entities = {};
-		for (auto& ph : this->phantoms | views::values) {
+		for (auto& ph : this->phantoms | std::views::values) {
 			entities.push_back(ph.get());
 		}
 		for (auto& child: GetChildren()) {

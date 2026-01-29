@@ -51,7 +51,7 @@ namespace GTS {
 
 			for (const auto& entry : std::filesystem::directory_iterator(_path)) {
 				std::string ext = entry.path().extension().string();
-				ranges::transform(ext, ext.begin(), ::tolower);
+				std::ranges::transform(ext, ext.begin(), ::tolower);
 
 				const std::string path = entry.path().string();
 				std::string name = entry.path().filename().string();
@@ -348,7 +348,7 @@ namespace GTS {
 
 		ImGui::SameLine();
 
-		for (const auto& key : m_TextureMap | views::keys) {
+		for (const auto& key : m_TextureMap | std::views::keys) {
 			Render(key, { 32,32 });
 			ImGui::SameLine();
 			amtDrawn++;
@@ -446,7 +446,7 @@ namespace GTS {
 	//Clear all the cached transforms
 	void ImGraphics::ClearTransformedTextureCache() {
 		std::lock_guard lock(m_Lock);
-		for (auto& texture : m_TextureMap | views::values) {
+		for (auto& texture : m_TextureMap | std::views::values) {
 			texture->transformedTextureCache.clear();
 		}
 	}
@@ -463,7 +463,7 @@ namespace GTS {
 		std::vector<std::string> names;
 		names.reserve(m_TextureMap.size());
 
-		for (const auto& pair : m_TextureMap | views::keys) {
+		for (const auto& pair : m_TextureMap | std::views::keys) {
 			names.push_back(pair);
 		}
 

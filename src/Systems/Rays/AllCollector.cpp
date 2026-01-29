@@ -26,8 +26,8 @@ namespace GTS {
 		this->earlyOutHitFraction = 1.0f;
 	}
 
-	unique_ptr<AllRayCollector> AllRayCollector::Create() {
-		return make_unique<AllRayCollector>();
+	std::unique_ptr<AllRayCollector> AllRayCollector::Create() {
+		return std::make_unique<AllRayCollector>();
 	}
 
 	std::vector<AllRayCollectorOutput>& AllRayCollector::GetHits() {

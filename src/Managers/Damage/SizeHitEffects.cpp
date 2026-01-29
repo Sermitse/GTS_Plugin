@@ -196,7 +196,7 @@ namespace {
 
 		ShrinkValue *= modifier;
 
-		log::info("Shrink Value: {}", -ShrinkValue);
+		logger::info("Shrink Value: {}", -ShrinkValue);
 
 		if (scale - ShrinkValue < naturalscale) {
 			set_target_scale(receiver, naturalscale);

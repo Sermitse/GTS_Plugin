@@ -50,7 +50,7 @@ namespace Hooks {
     };
 
     void Hook_PushAway::Install() {
-        log::info("Installing Papyrus ObjectRefPushAway Detour Hook...");
+        logger::info("Installing Papyrus ObjectRefPushAway Detour Hook...");
         stl::write_detour<ObjectRefPushAway>(REL::RelocationID(55682, 56213, NULL));
     }
 

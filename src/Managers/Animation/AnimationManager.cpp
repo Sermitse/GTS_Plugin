@@ -200,7 +200,7 @@ namespace GTS {
 
 				if (AnimMgr.data.contains(actor)) {
 
-					for (auto& data : AnimMgr.data.at(actor) | views::values) {
+					for (auto& data : AnimMgr.data.at(actor) | std::views::values) {
 						Speed *= data.HHspeed;
 					}
 				}
@@ -222,7 +222,7 @@ namespace GTS {
 
 				if (AnimMgr.data.contains(actor)) {
 
-					for (auto& data : AnimMgr.data.at(actor) | views::values) {
+					for (auto& data : AnimMgr.data.at(actor) | std::views::values) {
 						totalSpeed *= data.animSpeed;
 					}
 				}
@@ -243,7 +243,7 @@ namespace GTS {
 
 				if (AnimMgr.data.contains(player)) {
 
-					for (auto& data : AnimMgr.data.at(player) | views::values) {
+					for (auto& data : AnimMgr.data.at(player) | std::views::values) {
 
 						if (data.canEditAnimSpeed) {
 							data.animSpeed += (bonus * GetAnimationSlowdown(player));
@@ -360,7 +360,7 @@ namespace GTS {
 			PerkHandler::UpdatePerkValues(&giant, PerkUpdate::Perk_Acceleration); // Currently used for Anim Speed buff only
 		}
 		catch (const std::out_of_range&) {
-			log::error("Requested play of unknown animation named: {}", trigger);
+			logger::error("Requested play of unknown animation named: {}", trigger);
 			return;
 		}
 	}
@@ -374,7 +374,7 @@ namespace GTS {
 
 				if (me.data.contains(actor)) {
 
-					for (auto& data : me.data.at(actor) | views::values) {
+					for (auto& data : me.data.at(actor) | std::views::values) {
 						data.animSpeed = 1.0f;
 						data.canEditAnimSpeed = false;
 						data.stage = 0;

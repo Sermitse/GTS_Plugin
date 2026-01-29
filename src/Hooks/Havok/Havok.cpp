@@ -164,9 +164,9 @@ namespace {
 			auto Layer_A = GetCollisionLayer(collidableA);
 			auto Layer_B = GetCollisionLayer(collidableB);
 			if (ObjectA->IsPlayerRef() || ObjectB->IsPlayerRef()) {
-				log::info("{} is colliding with {}", ObjectA->GetDisplayFullName(), ObjectB->GetDisplayFullName());
-				log::info("{} Collision Layer: {}", ObjectA->GetDisplayFullName(), Layer_A);
-				log::info("{} Collision Layer: {}", ObjectB->GetDisplayFullName(), Layer_B);
+				logger::info("{} is colliding with {}", ObjectA->GetDisplayFullName(), ObjectB->GetDisplayFullName());
+				logger::info("{} Collision Layer: {}", ObjectA->GetDisplayFullName(), Layer_A);
+				logger::info("{} Collision Layer: {}", ObjectB->GetDisplayFullName(), Layer_B);
 			}
 		}
 	}
