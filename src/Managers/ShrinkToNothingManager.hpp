@@ -34,6 +34,6 @@ namespace GTS {
 		static void TransferInventoryTask(Actor* giant, Actor* tiny);
 
 		private:
-		std::unordered_map<FormID, ShrinkData> data;
+		absl::node_hash_map<FormID, ShrinkData> data;
 	};
 }

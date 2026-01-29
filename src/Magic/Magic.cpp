@@ -188,17 +188,11 @@ namespace GTS {
 			ProcessActiveEffects(actor);
 		}
 
-		for (auto i = active_effects.begin(); i != this->active_effects.end();) {
+		absl::erase_if(active_effects, [&](auto& kv) {
 			numberOfOurEffects += 1;
-			auto& magic = (*i);
-			magic.second->Poll();
-			if (magic.second->IsFinished()) {
-				i = active_effects.erase(i);
-			} 
-			else {
-				++i;
-			}
-		}
+			kv.second->Poll();
+			return kv.second->IsFinished();
+		});
 	}
 
 	void MagicManager::Reset() {

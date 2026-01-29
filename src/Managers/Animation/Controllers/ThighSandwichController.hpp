@@ -31,7 +31,7 @@ namespace GTS {
 		ActorHandle giant;
 		// Vore is done is sets with multiple actors if the giant is big
 		// enough
-		std::unordered_map<FormID, ActorHandle> tinies = {};
+		absl::node_hash_map<FormID, ActorHandle> tinies = {};
 		bool MoveTinies = false;
 		bool Suffocate = false;
 
@@ -53,7 +53,7 @@ namespace GTS {
 		static void StartSandwiching(Actor* pred, Actor* prey, bool dochecks = true);
 		bool CanSandwich(Actor* pred, Actor* prey) const;
 		SandwichingData& GetSandwichingData(Actor* giant);
-		std::unordered_map<FormID, SandwichingData> data;
+		absl::node_hash_map<FormID, SandwichingData> data;
 		void AllowMessage(bool allow);
 
 		private:

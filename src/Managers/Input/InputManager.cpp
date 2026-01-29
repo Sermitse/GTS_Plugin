@@ -52,8 +52,8 @@ namespace GTS {
 
 	void InputManager::ProcessAndFilterEvents(InputEvent** a_event) {
 
-		std::unordered_set<uint32_t> KeysToBlock = {};
-		std::unordered_set<std::uint32_t> gameInputKeys = {};
+		absl::flat_hash_set<uint32_t> KeysToBlock = {};
+		absl::flat_hash_set<std::uint32_t> gameInputKeys = {};
 		RE::InputEvent* event = *a_event;
 		RE::InputEvent* prev = nullptr;
 
@@ -113,7 +113,7 @@ namespace GTS {
 
 					if (blockInput == LBlockInputTypes_t::Always) {
 						//If force blocking is set block game input regardless of conditions
-						std::unordered_set<uint32_t> KeysToAdd = std::unordered_set<uint32_t>(trigger.GetKeys());
+						absl::flat_hash_set<uint32_t> KeysToAdd = absl::flat_hash_set<uint32_t>(trigger.GetKeys());
 						KeysToBlock.insert(KeysToAdd.begin(), KeysToAdd.end());
 
 						if (eventData.condition != nullptr) {
@@ -133,7 +133,7 @@ namespace GTS {
 							//Need to make a copy here otherwise insert throws an assertion
 
 							if (blockInput != LBlockInputTypes_t::Never) {
-								std::unordered_set<uint32_t> KeysToAdd = std::unordered_set<uint32_t>(trigger.GetKeys());
+								absl::flat_hash_set<uint32_t> KeysToAdd = absl::flat_hash_set<uint32_t>(trigger.GetKeys());
 								//log::debug("ShouldBlock is true for {}", trigger.GetName());
 								KeysToBlock.insert(KeysToAdd.begin(), KeysToAdd.end());
 							}

@@ -66,7 +66,7 @@ namespace GTS {
 		return false;
 	}
 
-	bool ManagedInputEvent::AllKeysPressed(const std::unordered_set<std::uint32_t>& keys) const {
+	bool ManagedInputEvent::AllKeysPressed(const absl::flat_hash_set<std::uint32_t>& keys) const {
 
 		if (this->keys.empty()) {
 			return false;
@@ -81,15 +81,15 @@ namespace GTS {
 		return true;
 	}
 
-	bool ManagedInputEvent::OnlyKeysPressed(const std::unordered_set<std::uint32_t>& keys_in) const {
-		std::unordered_set<std::uint32_t> keys(keys_in); // Copy
+	bool ManagedInputEvent::OnlyKeysPressed(const absl::flat_hash_set<std::uint32_t>& keys_in) const {
+		absl::flat_hash_set<std::uint32_t> keys(keys_in); // Copy
 		for (const auto& key : this->keys) {
 			keys.erase(key);
 		}
 		return keys.empty();
 	}
 
-	bool ManagedInputEvent::ShouldFire(const std::unordered_set<std::uint32_t>& a_gameInputKeys) {
+	bool ManagedInputEvent::ShouldFire(const absl::flat_hash_set<std::uint32_t>& a_gameInputKeys) {
 		bool shouldFire = false;
 		// Check based on keys and duration
 		if (this->AllKeysPressed(a_gameInputKeys) && (!this->exclusive || this->OnlyKeysPressed(a_gameInputKeys))) {
@@ -181,7 +181,7 @@ namespace GTS {
 		return this->name;
 	}
 
-	std::unordered_set<std::uint32_t> ManagedInputEvent::GetKeys() {
+	absl::flat_hash_set<std::uint32_t> ManagedInputEvent::GetKeys() {
 		return keys;
 	}
 

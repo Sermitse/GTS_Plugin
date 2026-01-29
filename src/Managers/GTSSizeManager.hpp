@@ -62,6 +62,6 @@ namespace GTS {
 		static bool BalancedMode();
 
 		private: 
-		absl::flat_hash_map<Actor*, SizeManagerData> sizeData;
+		std::unordered_map<Actor*, SizeManagerData> sizeData;
 	};
 }

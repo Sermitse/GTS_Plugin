@@ -382,8 +382,8 @@ namespace GTS {
 							// ---- Bumper Capsule
 							{
 								// NPC's always have a verteces shape + unique capsule bumper. If the size somehow is not 1, then its not an npc.
-								if (m_originalData.capsules.size() != 1 || !m_uniqueShape.get()) return; // Actor has no capsules to update
-
+								if (m_originalData.capsules.size() != 1) return; // Actor has no capsules to update
+								if (!m_uniqueShape.get()) return;
 								std::vector<hkpCapsuleShape*> CurrentCapsules{};
 
 								{
@@ -469,8 +469,8 @@ namespace GTS {
 							// ---- Capsule Shapes
 							{
 
-								if (m_originalData.capsules.empty() || !m_uniqueShape.get()) return; // Actor has no capsules to update
-
+								if (m_originalData.capsules.empty()) return; // Actor has no capsules to update
+								if (!m_uniqueShape.get()) return;
 								std::vector<hkpCapsuleShape*> CurrentCapsules{};
 								CurrentCapsules.reserve(6); //Some actors have up to 6 capsules
 

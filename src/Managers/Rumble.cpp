@@ -89,7 +89,7 @@ namespace GTS {
 		for (auto& [actor, data]: this->data) {
 			// Update values based on time passed
 			std::vector<std::string> tagsToErase = {};
-			for (auto& [tag, rumbleData]: data.tags) {
+			for (auto& rumbleData : data.tags | std::views::values) {
 				switch (rumbleData.state) {
 					case RumbleState::RampingUp: {
 						// Increasing intensity just let the spring do its thing
@@ -132,7 +132,7 @@ namespace GTS {
 			bool ignore_scaling = false;
 
 			std::unordered_map<NiAVObject*, float> cummulativeIntensity;
-			for (const auto &[tag, rumbleData]: data.tags) {
+			for (const auto& rumbleData : data.tags | std::views::values) {
 				duration_override = rumbleData.shake_duration;
 				ignore_scaling = rumbleData.ignore_scaling;
 				auto node = find_node(actor, rumbleData.node);

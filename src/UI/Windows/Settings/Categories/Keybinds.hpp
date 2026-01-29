@@ -19,7 +19,7 @@ namespace GTS {
         bool DrawInputEvent(BaseEventData_t& Event, const std::string& a_name, const char* a_description, float columnNameWidth);
 
         std::string SearchRes;
-        std::unordered_map<std::string, bool> HeaderStateMap = {};
+        absl::flat_hash_map<std::string, bool> HeaderStateMap = {};
         std::vector<std::string> TempKeys = {};
 
         int Div = 2;
@@ -29,10 +29,10 @@ namespace GTS {
         float Width = 0.0f;
         bool singleColumn = true;
 
-        inline static std::unordered_map<std::string, size_t> categoryMap = {};
-        inline static std::unordered_map<std::string, bool> hiddenMap = {};
-        inline static std::unordered_map<std::string, const char*> uiNameMap = {};
-        inline static std::unordered_map<std::string, const char*> uiDescriptionMap = {};
+        inline static absl::flat_hash_map<std::string, size_t> categoryMap = {};
+        inline static absl::flat_hash_map<std::string, bool> hiddenMap = {};
+        inline static absl::flat_hash_map<std::string, const char*> uiNameMap = {};
+        inline static absl::flat_hash_map<std::string, const char*> uiDescriptionMap = {};
 
     };
 

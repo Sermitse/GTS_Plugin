@@ -97,6 +97,6 @@ namespace GTS {
 		static void RunOnce(std::string_view name, const std::function<void(const OneshotUpdate&)>& tasking);
 		static void CancelAllTasks();
 
-		static inline std::unordered_map<std::string, BaseTask*> m_taskings;
+		static inline absl::flat_hash_map<std::string, BaseTask*> m_taskings;
 	};
 }

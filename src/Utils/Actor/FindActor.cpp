@@ -41,7 +41,7 @@ namespace GTS {
 	// Until all actors have been returned after which you will get previous actors again
 	std::vector<Actor*> FindSomeActors(std::string_view tag, uint32_t howMany) {
 
-		static std::unordered_map<std::string, FindActorData> allData;
+		static absl::flat_hash_map<std::string, FindActorData> allData;
 		allData.try_emplace(std::string(tag));
 		auto& data = allData.at(std::string(tag));
 

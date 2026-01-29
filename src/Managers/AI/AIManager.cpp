@@ -229,7 +229,7 @@ namespace {
 	}
 
 	//Calculate which actions should be started based on which ones can currently be started
-	ActionType CalculateProbability(const std::map<ActionType, int>& a_ValidActionMap) {
+	ActionType CalculateProbability(const absl::flat_hash_map<ActionType, int>& a_ValidActionMap) {
 
 		constexpr int DesiredNonePercentage = 30; // Target probability for None
 		if (a_ValidActionMap.empty()) return ActionType::kNone;
@@ -320,7 +320,7 @@ namespace GTS {
 		std::vector<Actor*> CanGrab = {};
 
 		//a map containing which actions can be started based on if their probability will be > 0
-		std::map<ActionType, int> StartableActions = {};
+		absl::flat_hash_map<ActionType, int> StartableActions = {};
 
 		const auto& PreyList = FindValidPrey(a_Performer);
 		if (PreyList.empty()) {
@@ -410,7 +410,7 @@ namespace GTS {
 		}
 
 		//-------- Merge All Vectors Into one
-		std::unordered_set<Actor*> UniqueActors;
+		absl::flat_hash_set<Actor*> UniqueActors;
 		std::vector<Actor*> Temp;
 		
 		Temp.reserve(CanVore.size() + CanStompKickSwipe.size() +

@@ -30,6 +30,6 @@ namespace GTS {
 		static void Crush(Actor* giant, Actor* tiny);
 
 		private:
-		std::unordered_map<FormID, CrushData> data;
+		absl::node_hash_map<FormID, CrushData> data;
 	};
 }

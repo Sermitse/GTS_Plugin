@@ -25,8 +25,8 @@ namespace {
 
 
 	// Global actor inital scales singleton
-	std::unordered_map<RE::FormID, InitialScales>& GetInitialScales() {
-		static std::unordered_map<RE::FormID, InitialScales> initScales;
+	absl::node_hash_map<RE::FormID, InitialScales>& GetInitialScales() {
+		static absl::node_hash_map<RE::FormID, InitialScales> initScales;
 		return initScales;
 	}
 

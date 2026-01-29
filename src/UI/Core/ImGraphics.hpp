@@ -169,7 +169,7 @@ namespace GTS {
         static inline ID3D11DeviceContext* m_Context = nullptr;
         static inline ID3D11SamplerState* m_PointSampler = nullptr;
         static inline ID3D11SamplerState* m_LinearSampler = nullptr;
-        static inline std::unordered_map<std::string, std::shared_ptr<Texture>> m_TextureMap;
+        static inline absl::flat_hash_map<std::string, std::shared_ptr<Texture>> m_TextureMap;
         static inline std::mutex m_Lock;
         static inline Microsoft::WRL::ComPtr<IWICImagingFactory> m_wicFactory;
         static inline std::shared_ptr<Texture> m_defaultTexture;

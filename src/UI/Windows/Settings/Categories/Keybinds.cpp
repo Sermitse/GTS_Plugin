@@ -64,7 +64,7 @@ namespace GTS {
         // Build Maps
 
         categoryMap = [] {
-	        std::unordered_map<std::string, size_t> m;
+	        absl::flat_hash_map<std::string, size_t> m;
             m.reserve(128);
 	        for (auto const& ce : DefaultEvents) {
 		        size_t catIndex = magic_enum::enum_index(ce.UICategory).value_or(0);
@@ -74,7 +74,7 @@ namespace GTS {
         }();
 
         hiddenMap = [] {
-	        std::unordered_map<std::string, bool> m;
+	        absl::flat_hash_map<std::string, bool> m;
             m.reserve(128);
 	        for (auto const& ce : DefaultEvents) {
 		        m.emplace(ce.Event.Event, ce.AdvFeature);
@@ -83,7 +83,7 @@ namespace GTS {
         }();
 
         uiNameMap = [] {
-	        std::unordered_map<std::string, const char*> m;
+	        absl::flat_hash_map<std::string, const char*> m;
             m.reserve(128);
 	        for (auto const& ce : DefaultEvents) {
 		        m.emplace(ce.Event.Event, ce.UIName);
@@ -92,7 +92,7 @@ namespace GTS {
         }();
 
         uiDescriptionMap = [] {
-	        std::unordered_map<std::string, const char*> m;
+	        absl::flat_hash_map<std::string, const char*> m;
             m.reserve(128);
 	        for (auto const& ce : DefaultEvents) {
 		        m.emplace(ce.Event.Event, ce.UIDescription);
@@ -158,14 +158,14 @@ namespace GTS {
         {
 
             // Check if search matches any category name
-            std::unordered_set<size_t> matchedCategories;
+            absl::flat_hash_set<size_t> matchedCategories;
             for (size_t i = 0; i < std::size(Strings::Keybinds::CategoryNames); ++i) {
                 if (ContainsString(Strings::Keybinds::CategoryNames[i], SearchRes)) {
                     matchedCategories.insert(i);
                 }
             }
 
-            std::unordered_map<size_t, std::vector<BaseEventData_t*>> groups;
+            absl::flat_hash_map<size_t, std::vector<BaseEventData_t*>> groups;
             groups.reserve(128);
 
             for (auto& ev : Keybinds::InputEvents) {

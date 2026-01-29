@@ -272,24 +272,15 @@ namespace GTS {
 		}
 
 		// Iterate through ActorDataMap and remove entries whose key is not in allowedFormIDs.
-		for (auto it = ActorMap.value.begin(); it != ActorMap.value.end(); ) {
-			if (!allowedFormIDs.contains(it->first)) {
-				it = ActorMap.value.erase(it);  // erase returns the next iterator.
-			}
-			else {
-				++it;
-			}
-		}
+		std::erase_if(ActorMap.value,[&](const auto& entry) {
+			return !allowedFormIDs.contains(entry.first);
+		});
 
 		// Iterate through KillCountMap and remove entries whose key is not in allowedFormIDs.
-		for (auto it = KillCountMap.value.begin(); it != KillCountMap.value.end(); ) {
-			if (!allowedFormIDs.contains(it->first)) {
-				it = KillCountMap.value.erase(it);  // erase returns the next iterator.
-			}
-			else {
-				++it;
-			}
-		}
+		std::erase_if(KillCountMap.value,[&](const auto& entry) {
+			return !allowedFormIDs.contains(entry.first);
+		});
+
 		logger::critical("All Unloaded actors have beeen purged from persistent.");
 	}
 }

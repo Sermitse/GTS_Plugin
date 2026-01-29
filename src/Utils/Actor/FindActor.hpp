@@ -4,7 +4,7 @@ namespace GTS {
 
 	struct FindActorData final {
 		/// Actors that have been done recently;
-		std::unordered_set<FormID> previousActors;
+		absl::flat_hash_set<FormID> previousActors;
 	};
 
 	[[nodiscard]] std::vector<Actor*> __forceinline inline find_actors();

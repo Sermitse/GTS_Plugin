@@ -29,6 +29,6 @@ namespace GTS {
 		static bool AlreadyOverkilled(Actor* actor);
 		static void Overkill(Actor* giant, Actor* tiny);
 		private:
-			std::unordered_map<FormID, OverkillData> data;
+		absl::node_hash_map<FormID, OverkillData> data;
 	};
 }

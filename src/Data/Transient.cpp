@@ -91,7 +91,7 @@ namespace GTS {
 		std::unique_lock lock(_Lock);
 
 		// Create a set to hold the whitelisted FormIDs.
-		std::unordered_set<FormID> allowedFormIDs;
+		absl::flat_hash_set<FormID> allowedFormIDs;
 
 		// Always keep FormID 0x14 (Player).
 		allowedFormIDs.insert(0x14);
@@ -103,15 +103,10 @@ namespace GTS {
 			}
 		}
 
-		// Iterate through ActorDataMap and remove entries whose key is not in allowedFormIDs.
-		for (auto it = TempActorDataMap.begin(); it != TempActorDataMap.end(); ) {
-			if (!allowedFormIDs.contains(it->first)) {
-				it = TempActorDataMap.erase(it);  // erase returns the next iterator.
-			}
-			else {
-				++it;
-			}
-		}
+		absl::erase_if(TempActorDataMap, [&](const auto& entry) {
+			return !allowedFormIDs.contains(entry.first);
+		});
+
 		logger::critical("All Unloaded actors have beeen purged from transient.");
 	}
 }

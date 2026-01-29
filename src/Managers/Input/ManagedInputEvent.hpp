@@ -19,15 +19,15 @@ namespace GTS {
 
 		// Will take a key list and process if the event should fire.
 		// will return true if the events conditions are met
-		[[nodiscard]] bool ShouldFire(const std::unordered_set<std::uint32_t>& keys);
+		[[nodiscard]] bool ShouldFire(const absl::flat_hash_set<std::uint32_t>& keys);
 
 		// Returns true if all keys are pressed this frame
 		// Not taking into account things like duration
-		[[nodiscard]] bool AllKeysPressed(const std::unordered_set<std::uint32_t>& keys) const;
+		[[nodiscard]] bool AllKeysPressed(const absl::flat_hash_set<std::uint32_t>& keys) const;
 
 		// Returns true if ONLY the specicified keys are pressed this frame
 		// Not taking into account things like duration
-		[[nodiscard]] bool OnlyKeysPressed(const std::unordered_set<std::uint32_t>& keys) const;
+		[[nodiscard]] bool OnlyKeysPressed(const absl::flat_hash_set<std::uint32_t>& keys) const;
 
 		// Resets the timer and all appropiate state variables
 		void Reset();
@@ -48,7 +48,7 @@ namespace GTS {
 		// of mutaally exclusive triggers
 		[[nodiscard]] bool SameGroup(const ManagedInputEvent& other) const;
 
-		[[nodiscard]] std::unordered_set<std::uint32_t> GetKeys();
+		[[nodiscard]] absl::flat_hash_set<std::uint32_t> GetKeys();
 
 		[[nodiscard]] LBlockInputTypes_t ShouldBlock() const;
 
@@ -60,7 +60,7 @@ namespace GTS {
 		bool primed = false; // Used for release events. Once primed, when keys are not pressed we fire
 
 		std::string name;
-		std::unordered_set<std::uint32_t> keys = {};
+		absl::flat_hash_set<std::uint32_t> keys = {};
 		float minDuration = 0.0f;
 
 		// If true this event won't fire unless ONLY the keys are pressed for the entire duration

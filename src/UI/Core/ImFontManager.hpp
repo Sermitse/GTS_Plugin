@@ -91,7 +91,7 @@ namespace GTS {
         static void Pop(size_t a_amt);
 
     private:
-        static inline std::unordered_map<ActiveFontType, TextType> TextTypeMap {};
+        static inline absl::flat_hash_map<ActiveFontType, TextType> TextTypeMap {};
         static inline std::atomic_bool m_init = false;
     };
 }

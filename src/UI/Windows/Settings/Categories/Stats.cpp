@@ -12,7 +12,7 @@
 
 namespace GTS {
 
-    std::unordered_map<FormID, std::unique_ptr<ImGuiEx::ActorInfoCard>> Cards = {};
+    absl::flat_hash_map<FormID, std::unique_ptr<ImGuiEx::ActorInfoCard>> Cards = {};
 
 	CategoryStats::CategoryStats() {
 		m_name = "Stats";
@@ -99,7 +99,7 @@ namespace GTS {
         ImGui::PopStyleVar();
 
         //Cleanup removed entries, smart-pointer dtor should take care of cleanup
-        std::erase_if(Cards, [&](auto& pair) {
+        absl::erase_if(Cards, [&](auto& pair) {
             RE::FormID id = pair.first;
             if (id == Player->formID) return false;
 

@@ -126,10 +126,11 @@ namespace GTS {
 
 		static void UpdateGravity(Actor* actor);
 
-		protected:
-		std::unordered_map<Actor*, std::unordered_map<std::string, AnimationEventData> > data;
-		std::unordered_map<std::string, AnimationEvent> eventCallbacks;
-		std::unordered_map<std::string, TriggerData> triggers;
+		private:
+		std::unordered_map<Actor*, std::unordered_map<std::string, AnimationEventData>> data;
+		absl::node_hash_map<std::string, AnimationEvent> eventCallbacks;
+		absl::node_hash_map<std::string, TriggerData> triggers;
+
 	};
 
 	void ShakeAndSound(Actor* caster, float volume,  std::string_view& node);

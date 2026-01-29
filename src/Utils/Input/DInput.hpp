@@ -194,7 +194,7 @@
 
 #define MOUSE_OFFSET        0x100
 
-const std::unordered_map<std::string, std::uint32_t> NAMED_KEYS = {
+const absl::flat_hash_map<std::string, std::uint32_t> NAMED_KEYS = {
 	{ "DIK_ESCAPE", DIK_ESCAPE },
 	{ "ESCAPE", DIK_ESCAPE },
 	{ "DIK_1", DIK_1 },
