@@ -17,36 +17,53 @@ using namespace GTS;
 namespace AnimEvents {
 
 	//Used in the Intro to Butt State when the GTS sits back down softly on the Tiny
-	void GTS_TSB_SitDownSoft(AnimationEventData& data) {}
+	void GTS_TSB_SitDownSoft(AnimationEventData& data) {
+		
+	}
 
 	//Used in the exit of the butt state when the gts's sits down onto the rune with no tiny underneath
-	void GTS_TSB_SitDown(AnimationEventData& data) {}
+	void GTS_TSB_SitDown(AnimationEventData& data) {
+		
+	}
 
 	//Used in the exit when the Tiny falls back onto the GTS's thigh
-	void GTS_TSB_TinyThigh(AnimationEventData& data) {}
+	void GTS_TSB_TinyThigh(AnimationEventData& data) {
+		
+	}
 
 	//Used when the GTS starts to lift her self up from sitting down mostly for sfx
-	void GTS_TSB_Stand(AnimationEventData& data) {}
+	void GTS_TSB_Stand(AnimationEventData& data) {
+		
+	}
 
 	//Used when the GTS starts to fall down to butt crush
-	void GTS_TSB_Fall(AnimationEventData& data) {}
+	void GTS_TSB_Fall(AnimationEventData& data) {
+		
+	}
 
 	//Used when the GTS lands the first two hits during the Butt state finisher, doesn't do damage
-	void GTS_TSB_LandMid(AnimationEventData& data) {}
+	void GTS_TSB_LandMid(AnimationEventData& data) {
+		
+	}
 
 	//Used when the GTS lands the light butt attack
 	void GTS_TSB_LandSmall(AnimationEventData& data) {
+		logger::info("GTS_TSB_LandSmall triggered");
+
+
 		//Do light damage
 	}
 
 	//Used when the GTS lands the heavy butt attack
 	void GTS_TSB_LandHeavy(AnimationEventData& data) {
+		logger::info("GTS_TSB_LandHeavy triggered");
 		//Do heavy damage
 
 	}
 
 	//Used for the final hit when the GTS kills the tiny and cracks the butt rune
 	void GTS_TSB_LandFinisher(AnimationEventData& data) {
+		logger::info("GTS_TSB_LandFinisher triggered");
 		//Deal Lethal damage
 
 	}
@@ -88,7 +105,9 @@ namespace AnimEvents {
 	void GTS_TSB_UBEnd(AnimationEventData& data) {}
 
 	//Triggered after TinyKill, an event for the Devourment mod for when the tiny can be deleted
-	void GTS_TSB_UBAbsorb(AnimationEventData& data) {}
+	void GTS_TSB_UBAbsorb(AnimationEventData& data) {
+		logger::info("GTS_TSB_UBAbsorb triggered");
+	}
 
 
 }

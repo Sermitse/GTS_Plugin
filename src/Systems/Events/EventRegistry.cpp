@@ -3,7 +3,6 @@
 
 #include "API/Racemenu.hpp"
 #include "API/SmoothCam.hpp"
-#include "API/TrainWreck.hpp"
 
 #include "Config/ConfigModHandler.hpp"
 #include "Config/Keybinds.hpp"
@@ -55,7 +54,6 @@ namespace GTS {
 	void RegisterEventListeners() {
 
 		EventDispatcher::AddListener(&Racemenu::GetSingleton());
-		EventDispatcher::AddListener(&TrainWreck::GetSingleton());
 		EventDispatcher::AddListener(&Runtime::GetSingleton());                 // Stores spells, globals and other important data
 		EventDispatcher::AddListener(&Persistent::GetSingleton());
 		EventDispatcher::AddListener(&Transient::GetSingleton());
