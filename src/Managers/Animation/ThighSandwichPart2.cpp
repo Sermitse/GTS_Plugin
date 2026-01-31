@@ -35,13 +35,21 @@ namespace AnimEvents {
 	void GTS_TSB_LandMid(AnimationEventData& data) {}
 
 	//Used when the GTS lands the light butt attack
-	void GTS_TSB_LandSmall(AnimationEventData& data) {}
+	void GTS_TSB_LandSmall(AnimationEventData& data) {
+		//Do light damage
+	}
 
 	//Used when the GTS lands the heavy butt attack
-	void GTS_TSB_LandHeavy(AnimationEventData& data) {}
+	void GTS_TSB_LandHeavy(AnimationEventData& data) {
+		//Do heavy damage
+
+	}
 
 	//Used for the final hit when the GTS kills the tiny and cracks the butt rune
-	void GTS_TSB_LandFinisher(AnimationEventData& data) {}
+	void GTS_TSB_LandFinisher(AnimationEventData& data) {
+		//Deal Lethal damage
+
+	}
 
 	//Used when the GTS lands on the Floor after cracking the butt rune
 	void GTS_TSB_LandFloor(AnimationEventData& data) {

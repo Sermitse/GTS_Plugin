@@ -7,18 +7,6 @@
 using namespace GTS;
 
 namespace {
-	enum Formula {
-		Power,
-		Smooth,
-		SoftCore,
-		Linear,
-		Unknown,
-	};
-
-	float falloff_calc(float x, float half_power) {
-		float n_falloff = 2.0f;
-		return 1/(1+pow(pow(1/0.5f-1,n_falloff)*(x)/half_power,half_power));
-	}
 
 	void DoJumpingRumble(Actor* actor, float tremor, float halflife, std::string_view node_name, float duration) { 
 		// This function is needed since normally jumping doesn't stack with footsteps

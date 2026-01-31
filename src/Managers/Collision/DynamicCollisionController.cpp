@@ -7,6 +7,7 @@ namespace {
 	const float* gWorldScaleInverse = reinterpret_cast<float*>(RE::Offset::Havok::WorldScaleInverse.address());
 	constexpr float maxUpdateScale = 50.0f;
 
+	//TODO Some actors have less than 18 vertices, need to account for that
 	constexpr uint8_t Vertex_Top = 9;
 	constexpr uint8_t Vertex_Bot = 8;
 	constexpr std::array<uint8_t, 8> Vertex_RingTop = { 1, 3, 4,  5,  7, 11, 13, 16 };
@@ -23,31 +24,37 @@ namespace {
 	constexpr std::string_view CalfBoneRName = "NPC R RearCalf [RrClf]";
 	constexpr std::string_view CalfBoneLName = "NPC L RearCalf [LrClf]";
 
+	//TODO Needs fixing,
+	//Bottom Coords are negative Z Top ones are positive
 	void CheckAndCorrectCollapsedVertexShape(std::vector<RE::hkVector4>& a_modVerts) {
+		
+		if (a_modVerts.size() == 18) {
 
-		constexpr float buffer = 0.05f;
-		const float& topPos = a_modVerts[Vertex_Top].quad.m128_f32[2];
-		const float& botPos = a_modVerts[Vertex_Bot].quad.m128_f32[2];
-		const float& topRing = a_modVerts[1].quad.m128_f32[2];
-		const float& botRing = a_modVerts[0].quad.m128_f32[2];
+			constexpr float buffer = 0.05f;
 
-		//Bottom Ring
-		if (botRing - botPos < buffer) {
-			for (uint8_t idx : Vertex_RingBot) {
-				a_modVerts[idx].quad.m128_f32[2] = botPos + buffer;
+			const float topPos = a_modVerts[Vertex_Top].quad.m128_f32[2];
+			const float botPos = a_modVerts[Vertex_Bot].quad.m128_f32[2];
+			const float topRing = a_modVerts[1].quad.m128_f32[2];
+			const float botRing = a_modVerts[0].quad.m128_f32[2];
+
+			//Bottom Ring
+			if (botRing - botPos < buffer) {
+				for (uint8_t idx : Vertex_RingBot) {
+					a_modVerts[idx].quad.m128_f32[2] = botPos + buffer;
+				}
 			}
-		}
 
-		//Top Ring
-		if (topRing - botRing < buffer) {
-			for (uint8_t idx : Vertex_RingTop) {
-				a_modVerts[idx].quad.m128_f32[2] = botRing + buffer;
+			//Top Ring
+			if (topRing - botRing < buffer) {
+				for (uint8_t idx : Vertex_RingTop) {
+					a_modVerts[idx].quad.m128_f32[2] = botRing + buffer;
+				}
 			}
-		}
 
-		//Top Vertex
-		if (topPos - topRing < buffer) {
-			a_modVerts[Vertex_Top].quad.m128_f32[2] = topRing + buffer;
+			//Top Vertex
+			if (topPos - topRing < buffer) {
+				a_modVerts[Vertex_Top].quad.m128_f32[2] = topRing + buffer;
+			}
 		}
 	}
 
@@ -137,13 +144,20 @@ namespace GTS {
 
 								if (!capsuleShapes.empty()) {
 									for (hkpCapsuleShape* shape : capsuleShapes) {
-										bool isBumper = shape->userData->materialID == MATERIAL_ID::kCharacterBumper;
-										m_originalData.capsules.push_back({
-											shape->radius,
-											shape->vertexA,
-											shape->vertexB,
-											isBumper,
-										});
+										if (shape) {
+											bool isBumper = false;
+											if (bhkShape* userDat = shape->userData) {
+												if (userDat->materialID == MATERIAL_ID::kCharacterBumper) {
+													isBumper = true;
+												}
+											}
+											m_originalData.capsules.push_back({
+												shape->radius,
+												shape->vertexA,
+												shape->vertexB,
+												isBumper,
+											});
+										}
 									}
 								}
 
@@ -254,42 +268,46 @@ namespace GTS {
 
 	void DynamicCollisionController::Update() {
 		
-		if (Actor* Target = m_actor.get().get()) {
-			if (bhkCharacterController* controller = Target->GetCharController()) {
+		if (NiPointer<Actor> niTarget = m_actor.get()) {
+			if (Actor* Target = niTarget.get()) {
+				if (Target->Is3DLoaded()) {
+					if (bhkCharacterController* controller = Target->GetCharController()) {
 
-				m_currentVisualScale = get_visual_scale(Target);
+						m_currentVisualScale = get_visual_scale(Target);
 
-				if (IsHuman(Target)){
-					if (Target->IsPlayerRef() || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
-						AdjustBoneDrivenHuman();
-						UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
+						if (IsHuman(Target)) {
+							if (Target->IsPlayerRef() || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
+								AdjustBoneDrivenHuman();
+								UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
 
-						m_lastVisualScale = 0.0f; // Set it to 0 to force an update if followers are switched to simple scaling
+								m_lastVisualScale = 0.0f; // Set it to 0 to force an update if followers are switched to simple scaling
 
-						if (Config::Collision.bDrawDebugShapes) {
-							DrawCollisionShapes(Target, true);
+								if (Config::Collision.bDrawDebugShapes) {
+									DrawCollisionShapes(Target, true);
+								}
+
+								return;
+							}
 						}
 
-						return;
+						if (ActorState* state = Target->AsActorState()) {
+
+							const bool ShouldUpdate = abs(m_currentVisualScale - m_lastVisualScale) > 1e-4 ||
+								(state->actorState1.swimming != m_lastActorState1.swimming || state->actorState1.sneaking != m_lastActorState1.sneaking);
+
+							if (ShouldUpdate) {
+								AdjustScale();
+								UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
+							}
+							if (Config::Collision.bDrawDebugShapes) {
+								DrawCollisionShapes(Target, false);
+							}
+
+							m_lastActorState1 = state->actorState1;
+						}
+						m_lastVisualScale = m_currentVisualScale;
 					}
 				}
-
-				if (ActorState* state = Target->AsActorState()) {
-
-					const bool ShouldUpdate = abs(m_currentVisualScale - m_lastVisualScale) > 1e-4 || 
-						(state->actorState1.swimming != m_lastActorState1.swimming || state->actorState1.sneaking != m_lastActorState1.sneaking);
-
-					if (ShouldUpdate) {
-						AdjustScale();
-						UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
-					}
-					if (Config::Collision.bDrawDebugShapes) {
-						DrawCollisionShapes(Target, false);
-					}
-
-					m_lastActorState1 = state->actorState1;
-				}
-				m_lastVisualScale = m_currentVisualScale;
 			}
 		}
 	}
@@ -310,15 +328,21 @@ namespace GTS {
 							std::vector<hkVector4> modifiedVerts = m_originalData.convexVerteces;
 							const float& bottomZ = m_originalData.convexVerteces[Vertex_Bot].quad.m128_f32[2];
 							const float vertexRingWidthMult = GetVerticesWidthMult(actor, true);
-							const float vertexRingHBoneDst = GetDistanceBetweenBones({ UppderArmBoneRName, UpperArmBoneLName });
+							//const float vertexRingHBoneDst = GetDistanceBetweenBones({ UppderArmBoneRName, UpperArmBoneLName });
+
+							if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() != 18) {
+								logger::trace("Entity {} has unexpected vertex shape data size {}", actor->GetDisplayFullName(), m_originalData.convexVerteces.size());
+							}
+
+							if (m_originalData.convexVerteces.size() != 18) return;
 
 							if (m_currentVisualScale > maxUpdateScale) {
 								return; //Stop updating past this scale. While Havok can handle larger the larger shape causes massive lag due to all the collision checks.
 							}
 
-							if (vertexRingHBoneDst < 0.0f) {
+							/*if (vertexRingHBoneDst < 0.0f) {
 								return;
-							}
+							}*/
 
 							// ---- Top vertex
 							{
@@ -344,7 +368,8 @@ namespace GTS {
 								// Adjust ring vertices
 								if (aggregateBoneZPos >= 0.0f) {
 									for (uint8_t idx : Vertex_RingTop) {
-										modifiedVerts[idx] = ScaleRingWidth(modifiedVerts[idx].quad, (vertexRingHBoneDst / *gWorldScaleInverse) * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
+										modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
+										//modifiedVerts[idx] = ScaleRingWidth(modifiedVerts[idx].quad, (vertexRingHBoneDst / *gWorldScaleInverse) * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
 									}
 								}
 								
@@ -366,12 +391,13 @@ namespace GTS {
 								// Adjust ring vertices
 								if (aggregateBoneZPos >= 0.0f) {
 									for (uint8_t idx : Vertex_RingBot) {
-										modifiedVerts[idx] = ScaleRingWidth(modifiedVerts[idx].quad, (vertexRingHBoneDst / *gWorldScaleInverse) * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
+										modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
+										//modifiedVerts[idx] = ScaleRingWidth(modifiedVerts[idx].quad, (vertexRingHBoneDst / *gWorldScaleInverse) * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
 									}
 								}
 							}
 
-							CheckAndCorrectCollapsedVertexShape(modifiedVerts);
+							//CheckAndCorrectCollapsedVertexShape(modifiedVerts);
 
 							// Set new shape
 							{
@@ -423,8 +449,12 @@ namespace GTS {
 								return; //Stop updating past this scale. While Havok can handle larger the larger shape causes massive lag due to all the collision checks.
 							}
 
+							if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() != 18) {
+								logger::trace("Entity {} has unexpected vertex shape data size {}", actor->GetDisplayFullName(), m_originalData.convexVerteces.size());
+							}
+
 							// ---- Vertex Shape | Some Creatures also use vertex shapes
-							if (m_originalData.hasVertecesShape) {
+							if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() == 18) {
 								float widthMult = GetVerticesWidthMult(actor, false) * fClampedScale;
 
 								float heightMult = 1.0f;
@@ -457,7 +487,7 @@ namespace GTS {
 									modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * widthMult, z1);
 								}
 
-								CheckAndCorrectCollapsedVertexShape(modifiedVerts);
+								//CheckAndCorrectCollapsedVertexShape(modifiedVerts);
 
 								// Set new shape
 								{
@@ -496,21 +526,21 @@ namespace GTS {
 
 	NiAVObject* DynamicCollisionController::FindBone(const std::string_view& a_name) {
 
-		if (Actor* actor = m_actor.get().get()) {
+		if (NiPointer<Actor> niActor = m_actor.get()) {
+			if (Actor* actor = niActor.get()) {
+				//// Try to get from cached bones first
+				//auto it = m_cachedBones.find(a_name);
+				//if (it != m_cachedBones.end()) {
+				//	return it->second;
+				//}
 
-			// Try to get from cached bones first
-			auto it = m_cachedBones.find(a_name);
-			if (it != m_cachedBones.end()) {
-				return it->second;
-			}
-
-			// Find bone and cache it
-			if (NiAVObject* bone = find_node(actor, a_name, false)) {
-				m_cachedBones[a_name] = bone;
-				return bone;
+				// Find bone and cache it
+				if (NiAVObject* bone = find_node(actor, a_name, false)) {
+					//m_cachedBones[a_name] = bone;
+					return bone;
+				}
 			}
 		}
-		
 		return nullptr;
 	}
 

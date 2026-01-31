@@ -5,17 +5,7 @@
 using namespace GTS;
 using namespace REL;
 
-
 namespace {
-
-	constexpr float LAUNCH_COOLDOWN = 0.8f;
-	constexpr float DAMAGE_COOLDOWN = 2.0f;
-	constexpr float HANDDAMAGE_COOLDOWN = 0.6f;
-	constexpr float THIGHDAMAGE_COOLDOWN = 1.2f;
-	constexpr float HEALTHGATE_COOLDOWN = 60.0f;
-	constexpr float SCARE_COOLDOWN = 6.0f;
-	constexpr float BUTTCRUSH_COOLDOWN = 30.0f;
-	constexpr float HUGS_COOLDOWN = 8.0f;
 
 	float Calculate_Halflife(CameraTracking Bone) {
 		if (Bone == CameraTracking::Thigh_Crush) { // Thigh Crushing

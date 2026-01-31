@@ -23,22 +23,6 @@ namespace {
 	constexpr std::string_view RNode = "NPC R Foot [Rft ]";
 	constexpr std::string_view LNode = "NPC L Foot [Lft ]";
 
-	const std::vector<std::string_view> BODY_NODES = { // used for body rumble
-		"NPC COM [COM ]",
-		"NPC L Foot [Lft ]",
-		"NPC R Foot [Rft ]",
-		"NPC L Toe0 [LToe]",
-		"NPC R Toe0 [RToe]",
-		"NPC L Calf [LClf]",
-		"NPC R Calf [RClf]",
-		"NPC L PreRearCalf",
-		"NPC R PreRearCalf",
-		"NPC L FrontThigh",
-		"NPC R FrontThigh",
-		"NPC R RearCalf [RrClf]",
-		"NPC L RearCalf [RrClf]",
-	};
-
 	const std::vector<std::string_view> L_LEG_NODES = {
 		"NPC L Foot [Lft ]",
 		"NPC L Toe0 [LToe]",
@@ -235,7 +219,7 @@ namespace {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
 		ManageCamera(&data.giant, false, CameraTracking::Thigh_Sandwich);
 		sandwichdata.EnableSuffocate(false);
-		sandwichdata.StartRuneTask(&data.giant, RuneTask::kShrink); // Launch Rune Shrinking
+		//sandwichdata.StartRuneTask(&data.giant, RuneTask::kShrink); // Launch Rune Shrinking
 		for (auto tiny: sandwichdata.GetActors()) {
 			if (tiny) {
 				SetBeingHeld(tiny, false);
@@ -258,12 +242,6 @@ namespace {
 		if (HasEffect && Spell) {
 			auto handle = caster->CreateRefHandle();
 			caster->AsMagicTarget()->DispelEffect(Spell, handle);
-			//Cprint("DISPELED SPELL");
-		}
-		else {
-			//Cprint("FAILED TO DISPEL RUNE SPELL");
-			//Cprint("SPELL FOUND: {}", Spell != nullptr);
-			//Cprint("HASEFFECT: {}", HasEffect);
 		}
 	}
 

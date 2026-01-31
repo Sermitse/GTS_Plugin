@@ -256,8 +256,10 @@ namespace GTS {
 
 		// The listshape does not use a hkRefPtr but it's still setup to add a reference upon construction and remove one on destruction
 		if (ListShape) {
-			ListShape->childInfo[0].shape = NewShape;
-			ConvexShape->RemoveReference();  // this will usually call the dtor on the old shape
+			if (ListShape->childInfo[0].shape) {
+				ListShape->childInfo[0].shape = NewShape;
+				ConvexShape->RemoveReference();
+			}
 		}
 		else {
 			if (CharProxy) {
