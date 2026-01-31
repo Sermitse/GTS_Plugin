@@ -7,20 +7,13 @@ using namespace GTS;
 
 namespace {
 
-	bool IsGtsBusy_ForControls(Actor* actor) {
-		bool GTSBusy = false;
-		actor->GetGraphVariableBool("GTS_Busy", GTSBusy);
-		// Have to use this because Hand Swipes make original bool return false
-		return GTSBusy;
-	}
-
 	bool AllowToPerformSneak(RE::IDEvent* id) {
 		bool allow = true;
 		if (id) {
 			auto player = PlayerCharacter::GetSingleton();
 			if (player) {
 				auto as_str = id->userEvent;
-				if (as_str == "Sneak" && IsProning(player)) {
+				if (as_str == "Sneak" && AnimationVars::Prone::IsProne(player)) {
 					if (player->IsSneaking()) {
 						allow = false;
 						AnimationManager::StartAnim("SBO_ProneOff", player);
@@ -44,8 +37,8 @@ namespace {
 		}
 
 		Actor* Controlled = GetPlayerOrControlled();
-		if (Controlled->formID != 0x14) {
-			if (IsThighSandwiching(Controlled)) { // Disallow player movement if we have control over other actor and actor does thigh sandwich
+		if (!Controlled->IsPlayerRef()) {
+			if (AnimationVars::Action::IsThighSandwiching(Controlled)) { // Disallow player movement if we have control over other actor and actor does thigh sandwich
 				return false;
 			} if (IsBetweenBreasts(Controlled)) {
 				return false;
@@ -54,16 +47,16 @@ namespace {
 		if (IsFreeCameraEnabled()) {
 			return true;
 		}
-		if (!AnimationsInstalled(player)) { // Don't mess with movement if user didn't install anims correctly
+		if (!AnimationVars::Utility::BehaviorsInstalled(player)) { // Don't mess with movement if user didn't install anims correctly
 			return true;
 		}
-		if (IsTransitioning(player)) { // Disallow to move during transition
+		if (AnimationVars::General::IsTransitioning(player)) { // Disallow to move during transition
 			return false;
 		}
-		if (IsGrabAttacking(player)) { // Allow movement for Grab Attacking
+		if (AnimationVars::Grab::IsGrabAttacking(player)) { // Allow movement for Grab Attacking
 			return true;
 		}
-		return !IsGtsBusy_ForControls(player); // Else return GTS Busy
+		return !AnimationVars::General::IsBusy(player); // Else return GTS Busy
 	}
 }
 
@@ -77,17 +70,19 @@ namespace Hooks {
 		//void* is the class instance, can't use PlayerInputHandler as its abstract.
 		static bool thunk(void* a_this, RE::InputEvent* a_event) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorControls::CanProcess", ID);
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorControls::CanProcess", ID);
 
-			if (a_event->GetEventType() != INPUT_EVENT_TYPE::kMouseMove){
+				if (a_event->GetEventType() != INPUT_EVENT_TYPE::kMouseMove) {
 
-				if (!CanMove()) {
-					return false;
-				}
+					if (!CanMove()) {
+						return false;
+					}
 
-				auto EvtID = a_event->AsIDEvent();
-				if (!AllowToPerformSneak(EvtID)) {
-					return false;
+					auto EvtID = a_event->AsIDEvent();
+					if (!AllowToPerformSneak(EvtID)) {
+						return false;
+					}
 				}
 			}
 

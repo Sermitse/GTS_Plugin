@@ -22,7 +22,7 @@ namespace GTS {
 			return false;
 		}
 
-		const auto Transient = Transient::GetSingleton().GetData(a_Prey);
+		const auto Transient = Transient::GetActorData(a_Prey);
 		if (Transient) {
 			if (Transient->CanBeVored == false) {
 				return false;
@@ -40,7 +40,7 @@ namespace GTS {
 		return false;
 	}
 
-	vector<Actor*> DevourmentAI_FilterList(Actor* a_Pred, const vector<Actor*>& a_PotentialPrey) {
+	std::vector<Actor*> DevourmentAI_FilterList(Actor* a_Pred, const std::vector<Actor*>& a_PotentialPrey) {
 
 		// Get vore target for actor
 		if (!a_Pred) {
@@ -57,7 +57,7 @@ namespace GTS {
 		auto PreyList = a_PotentialPrey;
 
 		// Sort prey by distance
-		ranges::sort(PreyList, [PredatorPosition](const Actor* preyA, const Actor* preyB) -> bool {
+		std::ranges::sort(PreyList, [PredatorPosition](const Actor* preyA, const Actor* preyB) -> bool {
 			float distanceToA = (preyA->GetPosition() - PredatorPosition).Length();
 			float distanceToB = (preyB->GetPosition() - PredatorPosition).Length();
 			return distanceToA < distanceToB;
@@ -114,7 +114,7 @@ namespace GTS {
 		return PreyList;
 	}
 
-	void DevourmentAI_Start(Actor* a_Predator, const vector<Actor*>& a_PotentialPrey) {
+	void DevourmentAI_Start(Actor* a_Predator, const std::vector<Actor*>& a_PotentialPrey) {
 		DamageAV(a_Predator, ActorValue::kStamina, 30.0f);
 		CallDevourment(a_Predator, a_PotentialPrey.front());
 	}

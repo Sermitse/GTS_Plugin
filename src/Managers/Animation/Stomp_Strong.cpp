@@ -8,7 +8,7 @@
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Rumble.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 #include "Managers/Perks/PerkHandler.hpp"
 
@@ -41,7 +41,7 @@ namespace {
 
 		if (player->IsSneaking()) {
 			if (AnimationUnderStomp::ShouldStompUnder(player)) {
-				if (!IsCrawling(player)) {
+				if (!AnimationVars::Crawl::IsCrawling(player)) {
 					message = "You're too tired to perform sneak butt crush";
 					WasteStamina *= 1.8f;
 				} else {
@@ -132,7 +132,7 @@ namespace {
 					}
 				}
 
-				DrainStamina(giantref, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", false, 3.4f);
+				DrainStamina(giantref, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 3.4f);
 
 				StompManager::PlayNewOrOldStomps(giantref, SMT + (animSpeed/10), Event, Node, true);
 
@@ -163,11 +163,11 @@ namespace {
 		auto giant = &data.giant;
 		data.stage = 1;
 		data.canEditAnimSpeed = true;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed += GetRandomBoost()/3;
 		}
 		ManageCamera(giant, true, CameraTracking::R_Foot);
-		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", true, 3.4f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, true, 3.4f);
 
 		SetBusyFoot(&data.giant, BusyFoot::RightFoot);
 		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);
@@ -177,11 +177,11 @@ namespace {
 		auto giant = &data.giant;
 		data.stage = 1;
 		data.canEditAnimSpeed = true;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed += GetRandomBoost()/3;
 		}
 		ManageCamera(giant, true, CameraTracking::L_Foot);
-		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", true, 3.4f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, true, 3.4f);
 
 		SetBusyFoot(&data.giant, BusyFoot::LeftFoot);
 
@@ -190,14 +190,14 @@ namespace {
 
 	void GTS_StrongStomp_LR_Middle(AnimationEventData& data) {
 		data.animSpeed = 1.55f;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed = 1.55f + GetRandomBoost();
 		}
 		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);
 	}
 	void GTS_StrongStomp_LL_Middle(AnimationEventData& data) {
 		data.animSpeed = 1.55f;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed = 1.55f + GetRandomBoost();
 		}
 		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, false);

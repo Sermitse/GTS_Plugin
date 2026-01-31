@@ -24,7 +24,7 @@ namespace {
 		for (auto& tiny: VoreData.GetVories()) {
             if (tiny) {
                 tiny->NotifyAnimationGraph("JumpFall");
-                Attacked(tiny, &data.giant);
+				tiny->Attacked(&data.giant);
             }
 			VoreData.GrabAll(); // Switch to AnimObjectA attachment
 		}

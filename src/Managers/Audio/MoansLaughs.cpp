@@ -12,18 +12,18 @@ using namespace GTS;
 namespace {
 
     bool PlaySexLabMoans(Actor* actor, float volume, float FallOff) {
-        const auto ActorData = Persistent::GetSingleton().GetData(actor);
+        const auto ActorData = Persistent::GetActorData(actor);
         uint8_t CustomSoundIndex = 0;
 
         if (Runtime::IsSexlabInstalled() && ActorData) {
-            CustomSoundIndex = ActorData->MoanSoundDescriptorIndex;
+            CustomSoundIndex = ActorData->iVoiceBankIndex;
         }
 
         //0 Refer's to the built in one effectively disabling the feature
         if (CustomSoundIndex != 0) {
 
             float vfreq = 1.0f;
-            if (Config::GetAudio().bEnableVoicePitchOverrideG) {
+            if (Config::Audio.bEnableVoicePitchOverrideG) {
                 const auto [_, freq] = CalculateVoicePitch(actor);
                 vfreq = freq;
             }
@@ -38,23 +38,31 @@ namespace {
 }
 
 namespace GTS {
+
     void Sound_PlayMoansOrLaughs(Actor* actor, float volume, GTS_ResponseType Type, EmotionTriggerSource Source, float FallOff) {
         switch (Type) {
             case GTS_ResponseType::Laugh:  Sound_PlayLaughs(actor, volume, FallOff, Source);        break;
             case GTS_ResponseType::Moan:   Sound_PlayMoans(actor, volume, FallOff, Source);         break;
         }
     }
+
     void Sound_PlayLaughs(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source) {
-        if (actor->formID != 0x14 && Config::GetAudio().bMoanLaughPCExclusive) {
+
+        if (!Config::Audio.bLaughEnable){
             return;
         }
+
+        if (!actor->IsPlayerRef() && Config::Audio.bMoanLaughPCExclusive) {
+            return;
+        }
+
         if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CD_Source)) {
             ApplyActionCooldown(actor, CD_Source);
             float Scale = get_visual_scale(actor);
             std::string SoundToPlay;
             FallOff *= Scale;
-            FallOff *= Config::GetAudio().fFallOffMultiplier;
-            volume *= Config::GetAudio().fVoiceVolumeMult;
+            FallOff *= Config::Audio.fFallOffMultiplier;
+            volume *= Config::Audio.fVoiceVolumeMult;
 
             switch (Source) {
                 case EmotionTriggerSource::Crushing:
@@ -69,7 +77,7 @@ namespace GTS {
             if (!SoundToPlay.empty()) {
 
                 float vfreq = 1.0f;
-                if (Config::GetAudio().bEnableVoicePitchOverrideG) {
+                if (Config::Audio.bEnableVoicePitchOverrideG) {
                     const auto [_, freq] = CalculateVoicePitch(actor);
                     vfreq = freq;
                 }
@@ -81,7 +89,12 @@ namespace GTS {
     }
 
     void Sound_PlayMoans(Actor* actor, float volume, float FallOff, EmotionTriggerSource Source, CooldownSource CD_Source) {
-        if (actor->formID != 0x14 && Config::GetAudio().bMoanLaughPCExclusive) {
+
+        if (!Config::Audio.bMoanEnable) {
+            return;
+        }
+
+    	if (!actor->IsPlayerRef() && Config::Audio.bMoanLaughPCExclusive) {
             return;
         }
         if (IsHuman(actor) && IsFemale(actor) && !IsActionOnCooldown(actor, CD_Source)) {
@@ -89,8 +102,8 @@ namespace GTS {
             float Scale = get_visual_scale(actor);
             std::string SoundToPlay;
             FallOff *= Scale;
-            FallOff *= Config::GetAudio().fFallOffMultiplier;
-            volume *= Config::GetAudio().fVoiceVolumeMult;
+            FallOff *= Config::Audio.fFallOffMultiplier;
+            volume *= Config::Audio.fVoiceVolumeMult;
             
             switch (Source) {
                 case EmotionTriggerSource::Absorption:
@@ -110,7 +123,7 @@ namespace GTS {
                 if (!SoundToPlay.empty()) {
 
                     float vfreq = 1.0f;
-                    if (Config::GetAudio().bEnableVoicePitchOverrideG) {
+                    if (Config::Audio.bEnableVoicePitchOverrideG) {
                         const auto [_, freq] = CalculateVoicePitch(actor);
                         vfreq = freq;
                     }

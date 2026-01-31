@@ -3,8 +3,8 @@
 #include "Config/Config.hpp"
 
 #include "Managers/AI/AIFunctions.hpp"
-#include "Rays/Raycast.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Systems/Rays/Raycast.hpp"
+
 
 using namespace GTS;
 
@@ -12,17 +12,17 @@ namespace {
 
 	void RunScaleTask(const ObjectRefHandle& dropboxHandle, Actor* actor, const double Start, const float Scale, const bool soul, const NiPoint3 TotalPos) {
 
-		std::string taskname = std::format("Dropbox {}", actor->formID); // create task name for main task
-		TaskManager::RunFor(taskname, 16, [=](auto& progressData) { // Spawn loot piles
+		const std::string taskname = std::format("Dropbox {}", actor->formID); // create task name for main task
+		TaskManager::RunFor(taskname, 16, [=](auto&) { // Spawn loot piles
 			if (!dropboxHandle) {
 				return false;
 			}
-			double Finish = Time::WorldTimeElapsed();
-			auto dropboxPtr = dropboxHandle.get().get();
+			const double Finish = Time::WorldTimeElapsed();
+			const auto dropboxPtr = dropboxHandle.get().get();
 			if (!dropboxPtr->Is3DLoaded()) {
 				return true;
 			}
-			auto dropbox3D = dropboxPtr->GetCurrent3D();
+			const auto dropbox3D = dropboxPtr->GetCurrent3D();
 			if (!dropbox3D) {
 				return true; // Retry next frame
 			} else {
@@ -30,8 +30,8 @@ namespace {
 				if (soul) {
 					timepassed *= 1.33; // faster soul scale
 				}
-				auto node = find_object_node(dropboxPtr, "GorePile_Obj");
-				auto trigger = find_object_node(dropboxPtr, "Trigger_Obj");
+				const auto node = find_object_node(dropboxPtr, "GorePile_Obj");
+				const auto trigger = find_object_node(dropboxPtr, "Trigger_Obj");
 				if (node) {
 					node->local.scale = (Scale * 0.33f) + static_cast<float>(timepassed*0.18);
 					if (!soul) {
@@ -54,7 +54,7 @@ namespace {
 		});
 	}
 
-	void RunAudioTask(ObjectRefHandle dropboxHandle, Actor* actor) {
+	void RunAudioTask(const ObjectRefHandle& dropboxHandle, Actor* actor) {
 		std::string taskname_sound = std::format("DropboxAudio {}", actor->formID);
 		TaskManager::RunFor(taskname_sound, 6, [=](auto& progressData) {
 			if (!dropboxHandle) {
@@ -68,7 +68,7 @@ namespace {
 			if (!dropbox3D) {
 				return true; // Retry next frame
 			} else {
-				Runtime::PlaySound("GTSSoundCrushDefault", dropboxPtr, 1.0f, 1.0f);
+				Runtime::PlaySound(Runtime::SNDR.GTSSoundCrushDefault, dropboxPtr, 1.0f, 1.0f);
 				return false;
 			}
 		});
@@ -76,6 +76,7 @@ namespace {
 }
 
 namespace GTS {
+
 	NiPoint3 GetContainerSpawnLocation(Actor* giant, Actor* tiny) {
 		bool success_first = false;
 		bool success_second = false;
@@ -83,7 +84,7 @@ namespace GTS {
 		ray_start.z += 40.0f; // overrize .z with giant .z + 40, so ray starts from above
 		NiPoint3 ray_direction(0.0f, 0.0f, -1.0f);
 
-		float ray_length = 40000;
+		constexpr float ray_length = 40000.f;
 
 		NiPoint3 pos = NiPoint3(0, 0, 0); // default pos
 		NiPoint3 endpos = CastRayStatics(tiny, ray_start, ray_direction, ray_length, success_first);
@@ -95,7 +96,7 @@ namespace GTS {
 			pos = CastRayStatics(giant, ray_start_second, ray_direction, ray_length, success_second);
 			if (!success_second) {
 				pos = giant->GetPosition();
-				log::info("Ray cast failed");
+				logger::info("Ray cast failed");
 				return pos;
 			}
 			return pos;
@@ -110,7 +111,7 @@ namespace GTS {
 		if (Cause != DamageSource::Vored) {
 			reanimated = WasReanimated(from);
 		}
-		if (Runtime::IsRace(from, "IcewraithRace")) {
+		if (Runtime::IsRace(from, Runtime::RACE.IcewraithRace)) {
 			reanimated = true;
 		}
 		// ^ we generally do not want to transfer loot in that case: 2 loot piles will spawn if actor was resurrected
@@ -119,7 +120,7 @@ namespace GTS {
 		ActorHandle gianthandle = to->CreateRefHandle();
 		ActorHandle tinyhandle = from->CreateRefHandle();
 
-		const auto& Settings = Config::GetGeneral();
+		const auto& Settings = Config::General;
 		const bool PCLoot = Settings.bPlayerLootpiles;
 		const bool NPCLoot = Settings.bFollowerLootpiles;
 
@@ -129,10 +130,10 @@ namespace GTS {
 		}
 
 		if (reset) {
-			StartResetTask(from); // reset actor data.
+			StartActorResetTask(from); // reset actor data.
 		}
 
-		TaskManager::RunFor(name, 3.0f, [=](auto& progressData) {
+		TaskManager::RunFor(name, 3.0f, [=](auto&) {
 			if (!tinyhandle) {
 				return false;
 			}
@@ -155,11 +156,11 @@ namespace GTS {
 					return true; // retry, not enough time has passed yet
 				}
 
-				if (giant->formID == 0x14 && !PCLoot) {
+				if (giant->IsPlayerRef() && !PCLoot) {
 					TransferInventory_Normal(giant, tiny, removeQuestItems);
 					return false;
 				}
-				if (giant->formID != 0x14 && !NPCLoot) {
+				if (!giant->IsPlayerRef() && !NPCLoot) {
 					TransferInventory_Normal(giant, tiny, removeQuestItems);
 					return false;
 				}
@@ -181,18 +182,15 @@ namespace GTS {
 					if (ref) {
 						auto changes = ref->GetInventoryChanges();
 						if (changes) {
-							quantity = GetItemCount(changes, a_object); // obtain item count
+							quantity = changes->GetItemCount(a_object); // obtain item count
 						}
 					}
-
 
 					tiny->RemoveItem(a_object, quantity, ITEM_REMOVE_REASON::kRemove, nullptr, giant, nullptr, nullptr);
 				}
 			}
 		}
 	}
-
-
 
 	void TransferInventoryToDropbox(Actor* giant, Actor* actor, const float scale, bool removeQuestItems, DamageSource Cause, bool Resurrected) {
 		bool soul = false;
@@ -202,35 +200,38 @@ namespace GTS {
 			return;
 		}
 
-		std::string_view container;
+		RuntimeData::RuntimeEntry<TESObjectCONT>* container = nullptr;
 		std::string name = std::format("{} remains", actor->GetDisplayFullName());
 
 		if (IsMechanical(actor)) {
-			container = "GTSDropboxMechanical";
-		} else if (Cause == DamageSource::Vored) { // Always spawn soul on vore
-			container = "GTSDropboxSoul";
+			container = &Runtime::CONT.GTSDropboxMechanical;
+		} 
+		else if (Cause == DamageSource::Vored) { // Always spawn soul on vore
+			container = &Runtime::CONT.GTSDropboxSoul;
 			name = std::format("{} Soul Remains", actor->GetDisplayFullName());
 			soul = true;
-		} else if (LessGore()) { // Always Spawn soul if Less Gore is on
-			container = "GTSDropboxSoul";
+		} 
+		else if (Config::General.bLessGore) { // Always Spawn soul if Less Gore is on
+			container = &Runtime::CONT.GTSDropboxSoul;
 			name = std::format("Crushed Soul of {} ", actor->GetDisplayFullName());
 			soul = true;
-		} else if (IsInsect(actor, false)) {
-			container = "GTSDropboxInsect";
+		} 
+		else if (IsInsect(actor, false)) {
+			container = &Runtime::CONT.GTSDropboxInsect;
 			name = std::format("Remains of {}", actor->GetDisplayFullName());
-		} else if (IsLiving(actor)) {
-			container = "GTSDropboxGore"; // spawn normal dropbox
-		} else {
-			container = "GTSDropboxUndead";
+		} 
+		else if (IsLiving(actor)) {
+			container = &Runtime::CONT.GTSDropboxGore; // spawn normal dropbox
 		}
-
-
+		else {
+			container = &Runtime::CONT.GTSDropboxUndead;
+		}
 
 		NiPoint3 TotalPos = GetContainerSpawnLocation(giant, actor); // obtain goal of container position by doing ray-cast
-		if (IsDebugEnabled()) {
-			DebugAPI::DrawSphere(glm::vec3(TotalPos.x, TotalPos.y, TotalPos.z), 8.0f, 6000, {1.0f, 1.0f, 0.0f, 1.0f});
+		if (DebugDraw::CanDraw()) {
+			DebugDraw::DrawSphere(glm::vec3(TotalPos.x, TotalPos.y, TotalPos.z), 8.0f, 6000, {1.0f, 1.0f, 0.0f, 1.0f});
 		}
-		auto dropbox = Runtime::PlaceContainerAtPos(actor, TotalPos, container); // Place chosen container
+		auto dropbox = Runtime::PlaceContainerAtPos(actor, TotalPos, *container); // Place chosen container
 
 		if (!dropbox) {
 			return;
@@ -248,7 +249,7 @@ namespace GTS {
 			TotalPos.z += (200.0f - (200.0f * scale_up)); // move it a bit upwards
 			RunScaleTask(dropboxHandle, actor, Start, Scale, soul, TotalPos); // Scale our pile over time
 		}
-		MoveItemsTowardsDropbox(actor, dropbox, removeQuestItems); // Launch transfer items task with a bit of delay
+		MoveItemsTowardsDropbox(actor, dropboxHandle.get().get(), removeQuestItems); // Launch transfer items task with a bit of delay
 	}
 
 	void MoveItemsTowardsDropbox(Actor* actor, TESObjectREFR* dropbox, bool removeQuestItems) {
@@ -262,25 +263,23 @@ namespace GTS {
 						//log::info("Transfering item: {}, looking for quantity", a_object->GetName());
 						auto changes = ref->GetInventoryChanges();
 						if (changes) {
-							quantity = GetItemCount(changes, a_object); // obtain item count
+							quantity = changes->GetItemCount(a_object); // obtain item count
 						}
 					}
-
+					quantity = std::max(0, quantity);
 					//log::info("Transfering item: {}, quantity: {}", a_object->GetName(), quantity);
-
-					actor->RemoveItem(a_object, quantity, ITEM_REMOVE_REASON::kRemove, nullptr, dropbox, nullptr, nullptr);
+					if (dropbox) {
+						actor->RemoveItem(a_object, quantity, ITEM_REMOVE_REASON::kRemove, nullptr, dropbox, nullptr, nullptr);
+					}
 				}
 			}
 		}
 	}
 
-	void MoveItems(ActorHandle giantHandle, ActorHandle tinyHandle, FormID ID, DamageSource Cause) {
+	void MoveItems(const ActorHandle& giantHandle, const ActorHandle& tinyHandle, FormID ID, DamageSource Cause) {
 		std::string taskname = std::format("MoveItems_{}", ID);
-		TaskManager::RunOnce(taskname, [=](auto& update){
-			if (!tinyHandle) {
-				return;
-			}
-			if (!giantHandle) {
+		TaskManager::RunOnce(taskname, [=](auto&){
+			if (!tinyHandle || !giantHandle) {
 				return;
 			}
 			auto giant = giantHandle.get().get();

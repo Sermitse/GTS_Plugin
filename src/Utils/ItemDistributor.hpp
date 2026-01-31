@@ -2,20 +2,26 @@
 
 namespace GTS {
 
-    enum class ChestType {
-		BossChest,
-		NormalChest,
-		MiscChest,
-	};
+    class ItemDistributor final : public EventListener, public CInitSingleton<ItemDistributor> {
 
-    TESContainer* FilterChests(TESForm* form, ChestType type);
+        enum class ChestType {
+            BossChest,
+            NormalChest,
+            MiscChest,
+        };
 
-    void DistributeChestItems();
+        static TESContainer* FilterChests(TESForm* form, ChestType type);
 
-    void AddItemToChests(TESForm* Chest);
+        static void DistributeChestItems();
+        static void AddItemToChests(TESForm* Chest);
 
-    std::vector<TESForm*> FindAllChests();
-   
-	std::vector<TESLevItem*> CalculateItemProbability(ChestType type);
-    std::vector<TESLevItem*> SelectItemsFromPool(ChestType type); 
+        static std::vector<TESForm*> FindAllChests();
+        static std::vector<TESLevItem*> CalculateItemProbability(ChestType type);
+        static std::vector<TESLevItem*> SelectItemsFromPool(ChestType type);
+
+		public:
+        std::string DebugName() override;
+        virtual void OnGameLoaded() override;
+    };
+
 }

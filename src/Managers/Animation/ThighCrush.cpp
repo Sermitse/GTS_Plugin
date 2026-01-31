@@ -12,7 +12,7 @@
 
 #include "Magic/Effects/Common.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 using namespace GTS;
 
@@ -70,7 +70,7 @@ namespace {
 
 	void AdjustAnimationSpeed(Actor* giant, AnimationEventData& data, float force, int range, bool reset) {
 		// Works on non-player only
-		if (giant->formID != 0x14) {
+		if (!giant->IsPlayerRef()) {
 			if (reset) {
 				data.animSpeed = 1.0f;
 			} else {
@@ -85,7 +85,7 @@ namespace {
 		if (!tinies.empty()) {
 			for (auto tiny: tinies) {
 				if (tiny) {
-					if (tiny->formID != 0x14 && !IsTeammate(tiny)) {
+					if (!tiny->IsPlayerRef() && !IsTeammate(tiny)) {
 						ForceFlee(giant, tiny, duration, false);
 					}
 				}
@@ -130,7 +130,7 @@ namespace {
 			}
 			auto giantref = gianthandle.get().get();
 
-			if (!IsThighCrushing(giantref)) {
+			if (!AnimationVars::Action::IsThighCrushing(giantref)) {
 				return false; //Disable it once we leave Thigh Crush state
 			}
 			float animspeed = AnimationManager::GetBonusAnimationSpeed(giantref);
@@ -151,7 +151,7 @@ namespace {
 			auto ThighL = find_node(giantref, "NPC L Thigh [LThg]");
 			auto ThighR = find_node(giantref, "NPC R Thigh [RThg]");
 
-			if (!IsThighCrushing(giantref)) {
+			if (!AnimationVars::Action::IsThighCrushing(giantref)) {
 				return false; //Disable it once we leave Thigh Crush state
 			}
 			if (ThighL && ThighR) {
@@ -224,7 +224,7 @@ namespace {
 	void GTSsitcrushlight_start(AnimationEventData& data) {
 		auto giant = &data.giant;
 		StartLegRumbling("ThighCrush", data.giant, Rumble_ThighCrush_LegSpread_Light_Loop, 0.12f);
-		DrainStamina(&data.giant, "StaminaDrain_Thighs", "GTSPerkThighAbilities", true, 1.0f); // < Start Light Stamina Drain
+		DrainStamina(&data.giant, "StaminaDrain_Thighs", Runtime::PERK.GTSPerkThighAbilities, true, 1.0f); // < Start Light Stamina Drain
 
 		std::string name_l = std::format("ThighCrush_{}_ThighIdle_R", giant->formID);
 		std::string name_r = std::format("ThighCrush_{}_ThighIdle_L", giant->formID);
@@ -246,7 +246,7 @@ namespace {
 		StopLegRumbling("ThighCrush", data.giant);
 		LegRumblingOnce("ThighCrush_End", data.giant, Rumble_ThighCrush_LegSpread_Light_End, 0.10f);
 
-		DrainStamina(&data.giant, "StaminaDrain_Thighs", "GTSPerkThighAbilities", false, 1.0f); // < Stop Light Stamina Drain
+		DrainStamina(&data.giant, "StaminaDrain_Thighs", Runtime::PERK.GTSPerkThighAbilities, false, 1.0f); // < Stop Light Stamina Drain
 
 		std::string name_l = std::format("ThighCrush_{}_ThighLight_R", giant->formID);
 		std::string name_r = std::format("ThighCrush_{}_ThighLight_L", giant->formID);
@@ -260,7 +260,7 @@ namespace {
 
 	void GTSsitcrushheavy_start(AnimationEventData& data) {
 		auto giant = &data.giant;
-		DrainStamina(&data.giant, "StaminaDrain_Thighs", "GTSPerkThighAbilities", true, 2.5f); // < - Start HEAVY Stamina Drain
+		DrainStamina(&data.giant, "StaminaDrain_Thighs", Runtime::PERK.GTSPerkThighAbilities, true, 2.5f); // < - Start HEAVY Stamina Drain
 
 		std::string name_l = std::format("ThighCrush_{}_ThighIdle_R", giant->formID);
 		std::string name_r = std::format("ThighCrush_{}_ThighIdle_L", giant->formID);
@@ -280,7 +280,7 @@ namespace {
 	void GTSsitcrushheavy_end(AnimationEventData& data) {
 		auto giant = &data.giant;
 		data.currentTrigger = 2;
-		DrainStamina(&data.giant, "StaminaDrain_Thighs", "GTSPerkThighAbilities", false, 2.5f); // < Stop Heavy Stamina Drain
+		DrainStamina(&data.giant, "StaminaDrain_Thighs", Runtime::PERK.GTSPerkThighAbilities, false, 2.5f); // < Stop Heavy Stamina Drain
 
 		StopLegRumbling("ThighCrushHeavy", data.giant);
 		LegRumblingOnce("ThighCrushHeavy_End", data.giant, Rumble_ThighCrush_LegCross_Heavy_End, 0.10f);
@@ -354,15 +354,15 @@ namespace {
 
 	void ThighCrushKillEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		if (IsGtsBusy(player)) {
+		if (AnimationVars::General::IsGTSBusy(player)) {
 			float WasteStamina = 40.0f;
-			if (Runtime::HasPerk(player, "GTSPerkThighAbilities")) {
+			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkThighAbilities)) {
 				WasteStamina *= 0.65f;
 			}
 			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
 				AnimationManager::StartAnim("ThighLoopAttack", player);
 			} else {
-				if (IsThighCrushing(player)) {
+				if (AnimationVars::Action::IsThighCrushing(player)) {
 					NotifyWithSound(player, "You're too tired to perform thighs attack");
 				}
 			}
@@ -372,7 +372,7 @@ namespace {
 	void ThighCrushSpareEvent(const ManagedInputEvent& data) {
 		if (!IsFreeCameraEnabled()) {
 			auto player = PlayerCharacter::GetSingleton();
-			if (IsGtsBusy(player)) {
+			if (AnimationVars::General::IsGTSBusy(player)) {
 				AnimationManager::StartAnim("ThighLoopExit", player);
 			}
 		}

@@ -1,0 +1,39 @@
+#include "Magic/Effects/Spells/Shrink.hpp"
+#include "Magic/Effects/Common.hpp"
+
+namespace GTS {
+
+	std::string Shrink::GetName() {
+		return "Shrink";
+	}
+
+	void Shrink::OnUpdate() {
+		constexpr float BASE_POWER = 0.00360f;
+		constexpr float DUAL_CAST_BONUS = 2.0f;
+
+		auto caster = GetCaster();
+		if (!caster) {
+			return;
+		}
+
+		const float GtsSkillLevel = GetGtsSkillLevel(caster);
+		const float SkillMult = 1.0f + (GtsSkillLevel * 0.01f);
+		float power = BASE_POWER * SkillMult;
+
+		float bonus = 1.0f;
+		if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
+			bonus = get_visual_scale(caster) * 0.25f + 0.75f;
+		}
+
+		if (IsDualCasting()) {
+			power *= DUAL_CAST_BONUS;
+		}
+
+		if (get_target_scale(caster) > Minimum_Actor_Scale) {
+			ShrinkActor(caster, 0.0f, power * bonus);
+		} 
+		else {
+			set_target_scale(caster, Minimum_Actor_Scale);
+		}
+	}
+}

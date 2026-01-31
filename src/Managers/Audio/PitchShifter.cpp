@@ -5,13 +5,13 @@ using namespace GTS;
 
 namespace GTS {
 	 void ShiftAudioFrequency() {
-	 	auto enable = Config::GetAudio().bEnableVoicePitchOverrideN;
+	 	auto enable = Config::Audio.bEnableVoicePitchOverrideN;
 		if (!enable) {
 			return;
 		}
 		for (auto tiny: find_actors()) {
 			if (tiny) {
-				if (tiny->formID != 0x14) {
+				if (!tiny->IsPlayerRef()) {
 					auto ai = tiny->GetActorRuntimeData().currentProcess;
 					if (ai) {
 						auto high = ai->high;

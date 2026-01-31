@@ -1,10 +1,10 @@
 #include "Managers/Cameras/CamUtil.hpp"
 #include "TPState.hpp"
 #include "Config/Config.hpp"
-#include "Hooks/Engine/Settings.hpp"
-#include "Managers/Camera.hpp"
-#include "Rays/raycast.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Hooks/Other/Values.hpp"
+#include "Managers/CameraManager.hpp"
+#include "Systems/Rays/raycast.hpp"
+
 
 using namespace GTS;
 
@@ -17,7 +17,7 @@ namespace {
 
 	constexpr CameraDataMode currentMode = CameraDataMode::State;
 
-	const BoneTarget GetBoneTarget_Anim(CameraTracking Camera_Anim) {
+	BoneTarget GetBoneTarget_Anim(CameraTracking Camera_Anim) {
 
 		switch (Camera_Anim) {
 			case CameraTracking::None: {
@@ -129,87 +129,87 @@ namespace {
 		return BoneTarget();
 	}
 
-	const BoneTarget GetBoneTargetFromSettings(CameraTrackingSettings a_CamSetting) {
+	BoneTarget GetBoneTargetFromSettings(LCameraTrackBone_t a_CamSetting) {
 		if (HasFirstPersonBody()) {
 			return BoneTarget();
 		}
 		switch (a_CamSetting) {
 
-			case CameraTrackingSettings::kNone: {
+			case LCameraTrackBone_t::kNone: {
 				return BoneTarget();
 			}
 
-			case CameraTrackingSettings::kSpine: {
+			case LCameraTrackBone_t::kSpine: {
 				return BoneTarget {
 					.boneNames = {"NPC Spine2 [Spn2]","NPC Neck [Neck]"},
 					.zoomScale = ZoomIn_Cam_Spine,
 				};
 			}
-			case CameraTrackingSettings::kClavicle: {
+			case LCameraTrackBone_t::kClavicle: {
 				return BoneTarget {
 					.boneNames = {"NPC R Clavicle [RClv]","NPC L Clavicle [LClv]"},
 					.zoomScale = ZoomIn_Cam_Clavicle,
 				};
 			}
-			case CameraTrackingSettings::kBreasts:
+			case LCameraTrackBone_t::kBreasts:
 			{
 				return BoneTarget{
 					.boneNames = {"NPC L Breast01","NPC R Breast01"},
 					.zoomScale = ZoomIn_Cam_Breasts,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_00:
+			case LCameraTrackBone_t::kBreasts_00:
 			{
 				return BoneTarget{
 					.boneNames = {"L Breast00","R Breast00"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_00,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_01: {
+			case LCameraTrackBone_t::kBreasts_01: {
 				return BoneTarget {
 					.boneNames = {"L Breast01","R Breast01"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_01,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_02: {
+			case LCameraTrackBone_t::kBreasts_02: {
 				return BoneTarget {
 					.boneNames = {"L Breast02","R Breast02"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_02,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_03: {
+			case LCameraTrackBone_t::kBreasts_03: {
 				return BoneTarget {
 					.boneNames = {"L Breast03","R Breast03"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_03,
 				};
 			}
-			case CameraTrackingSettings::kBreasts_04:
+			case LCameraTrackBone_t::kBreasts_04:
 			{
 				return BoneTarget{
 					.boneNames = {"L Breast04","R Breast04"},
 					.zoomScale = ZoomIn_Cam_3BABreasts_04,
 				};
 			}
-			case CameraTrackingSettings::kNeck: {
+			case LCameraTrackBone_t::kNeck: {
 				return BoneTarget {
 					.boneNames = {"NPC Neck [Neck]"},
 					.zoomScale = ZoomIn_Cam_Neck,
 				};
 			}
-			case CameraTrackingSettings::kButt: {
+			case LCameraTrackBone_t::kButt: {
 				return BoneTarget {
 					.boneNames = {"NPC L Butt","NPC R Butt"},
 					.zoomScale = ZoomIn_Cam_Butt,
 				};
 			}
-			case CameraTrackingSettings::kGenitals:
+			case LCameraTrackBone_t::kGenitals:
 			{
 				return BoneTarget{
 					.boneNames = {"Genitals"},
 					.zoomScale = ZoomIn_Cam_Genitals,
 				};
 			}
-			case CameraTrackingSettings::kBelly:
+			case LCameraTrackBone_t::kBelly:
 			{
 				return BoneTarget{
 					.boneNames = {"NPC Belly"},
@@ -220,35 +220,21 @@ namespace {
 		return BoneTarget();
 	}
 
-	//https://www.desmos.com/calculator/5adrwyld6l
-	float CalcLOGFnear(float scale, const float a_ref = 15.0f) {
-		// Clamp scale between 0.05 and 1.0
-		scale = std::max(0.05f, std::min(scale, 1.0f));
-
-		// Normalize scale to [0, 1]
-		float t = (scale - 0.05f) / 0.95f;
-
-		// Exponential interpolation from 1.0 to 15.0
-		float result = std::pow(a_ref, t);
-		return result;
+	float EaseInOutSmoothstep(float t) {
+		return t * t * (3.0f - 2.0f * t);
 	}
 
-	void ComputeFrustrumNearDistance(const float a_ActorScale) {
-
-		if (!Config::GetCamera().bEnableAutoFNearDist || a_ActorScale > 1.0f) return;
-
-		if (auto niCamera = GetNiCamera()) {
-
-			auto fnear = CalcLOGFnear(a_ActorScale);
-
-			niCamera->GetRuntimeData2().viewFrustum.fNear = fnear;
-		}
+	float CalcNearFromScale(float scale, float ref = 15.0f) {
+		scale = std::clamp(scale, 0.05f, 1.0f);
+		const float t = (scale - 0.05f) / 0.95f;
+		return std::pow(ref, t);
 	}
+
 }
 
 namespace GTS {
 
-	BoneTarget GetBoneTargets(CameraTracking Camera_Anim, CameraTrackingSettings Camera_MCM) {
+	BoneTarget GetBoneTargets(CameraTracking Camera_Anim, LCameraTrackBone_t Camera_MCM) {
 		if (HasFirstPersonBody()) {
 			return {};
 		}
@@ -257,31 +243,6 @@ namespace GTS {
 		}
 		else {
 			return GetBoneTargetFromSettings(Camera_MCM);
-		}
-	}
-
-	void SetINIFloat(std::string_view name, float value) {
-		auto ini_conf = INISettingCollection::GetSingleton();
-		Setting* setting = ini_conf->GetSetting(name);
-		if (setting) {
-			setting->data.f=value; // If float
-			ini_conf->WriteSetting(setting);
-		}
-	}
-
-	float GetINIFloat(std::string_view name) {
-		auto ini_conf = INISettingCollection::GetSingleton();
-		Setting* setting = ini_conf->GetSetting(name);
-		if (setting) {
-			return setting->data.f;
-		}
-		return -1.0f;
-	}
-
-	void EnsureINIFloat(std::string_view name, float value) {
-		auto currentValue = GetINIFloat(name);
-		if (fabs(currentValue - value) > 1e-3) {
-			SetINIFloat(name, value);
 		}
 	}
 
@@ -359,7 +320,7 @@ namespace GTS {
 		}
 	}
 
-	static NiTransform GetCameraWorldTransform() {
+	NiTransform GetCameraWorldTransform() {
 		auto camera = PlayerCamera::GetSingleton();
 		if (camera) {
 			auto& cameraRoot = camera->cameraRoot;
@@ -541,7 +502,7 @@ namespace GTS {
 		return cameraRotMat * zoomOffsetVec + cameraTrans;
 	}
 
-	static NiPoint3 GetAggregateBoneTarget(RE::Actor* a_actor) {
+	NiPoint3 GetAggregateBoneTarget(RE::Actor* a_actor) {
 
 		if (CameraState* CurrentState = CameraManager::GetSingleton().GetCameraState()) {
 			if (auto TPState = dynamic_cast<ThirdPersonCameraState*>(CurrentState)){
@@ -568,7 +529,7 @@ namespace GTS {
 						bones.push_back(node);
 					}
 					else {
-						log::error("Bone not found for camera target: {}", bone_name);
+						logger::error("Bone not found for camera target: {}", bone_name);
 					}
 				}
 
@@ -581,8 +542,8 @@ namespace GTS {
 				}
 				NiPoint3 worldBonePos = ActorTranslation * bonePos;
 
-				if (IsDebugEnabled()) {
-					DebugAPI::DrawSphere(glm::vec3(worldBonePos.x, worldBonePos.y, worldBonePos.z), 1.0f, 33, { 0.1f, 0.9f, 0.2f, 1.0f }, 5.0f);
+				if (DebugDraw::CanDraw()) {
+					DebugDraw::DrawSphere(glm::vec3(worldBonePos.x, worldBonePos.y, worldBonePos.z), 1.0f, 33, { 0.1f, 0.9f, 0.2f, 1.0f }, 5.0f);
 				}
 
 				return worldBonePos;
@@ -600,60 +561,94 @@ namespace GTS {
 		return 15.0f;
 	}
 
-	void UpdateCamera(float a_ActorScale, NiPoint3 a_CameraLocalOffset, NiPoint3 a_ActorLocalOffset) {
-		PlayerCamera* PlayerCamera = PlayerCamera::GetSingleton();
-		NiPointer<NiNode>& CameraRoot = PlayerCamera->cameraRoot;
-		Actor* CameraTargetActor = GetCameraActor();
-		BSTSmartPointer<TESCameraState>& CurrentCameraState = PlayerCamera->currentState;
+	void EnforceCameraINISettings() {
 
-		if (CameraRoot && CurrentCameraState && CameraTargetActor) {
-			NiTransform CameraWorldTransform = GetCameraWorldTransform();
-			NiPoint3 CameraTranslation;
-			CurrentCameraState->GetTranslation(CameraTranslation);
+		if (!Config::Camera.bEnableSkyrimCameraAdjustments){
+			return;
+		}
 
-			if (a_ActorScale > 1e-4) {
-				NiAVObject* Actor3D = CameraTargetActor->Get3D(false);
-				if (Actor3D) {
-					NiTransform ActorTransform = Actor3D->world;
-					ActorTransform.scale = Actor3D->parent ? Actor3D->parent->world.scale : 1.0f;
-					NiTransform InverseTransform = ActorTransform.Invert();
+		*Hooks::Camera::fVanityModeMinDist       = Config::Camera.fCameraDistMin;
+		*Hooks::Camera::fVanityModeMaxDist       = Config::Camera.fCameraDistMax;
+		*Hooks::Camera::fMouseWheelZoomIncrement = Config::Camera.fCameraIncrement;
+		*Hooks::Camera::fMouseWheelZoomSpeed     = Config::Camera.fCameraZoomSpeed;
 
-					// Standard transform calculations
-					NiTransform ActorAdjustments = NiTransform();
-					ActorAdjustments.scale = a_ActorScale;
-					ActorAdjustments.translate = a_ActorLocalOffset;
-					NiPoint3 TargetLocationWorld = ActorTransform * (ActorAdjustments * (InverseTransform * CameraTranslation));
-					CameraWorldTransform.translate = TargetLocationWorld;
+	}
 
-					NiTransform CameraAdjustments = NiTransform();
-					CameraAdjustments.translate = a_CameraLocalOffset * a_ActorScale;
-					NiPoint3 WorldShifted = CameraWorldTransform * CameraAdjustments * NiPoint3();
-					NiNode* CameraRootParent = CameraRoot->parent;
-					NiTransform InvertedRootTransform = CameraRootParent->world.Invert();
+	void SetCameraNearFarPlanes(float a_ActorScale) {
 
-					const NiPoint3 LocalSpacePosition = InvertedRootTransform * WorldShifted;
-					NiPoint3 RayCastHitPosition = LocalSpacePosition;
+		if (!Config::Camera.bEnableAutoFNearDist && !Config::Camera.bEnableAutoFFarDist) {
+			return;
+		}
 
-					// Collision handling
-					NiPoint3 RayStart = GetAggregateBoneTarget(CameraTargetActor);
-					if (RayStart != NiPoint3()) {
-						RayCastHitPosition = ComputeRaycast(RayStart, LocalSpacePosition);
+		NiCamera* niCamera = GetNiCamera();
+		if (!niCamera) {
+			return;
+		}
 
-						//If less than frustrum it means the camera is stuck to the raycast origin bone.
-						//"Revert" the colision position if this happens. Effectively disabling camera colision in this case.
-						if (abs(RayCastHitPosition.GetDistance(RayStart)) <= GetFrustrumNearDistance() + std::numeric_limits<float>::epsilon()) {
-							RayCastHitPosition = LocalSpacePosition;
-						}
+		auto& rt = niCamera->GetRuntimeData2();
+		auto& fr = rt.viewFrustum;
 
-					}
+		if (fr.fNear <= 0.0f) {
+			fr.fNear = rt.minNearPlaneDist;
+		}
 
-					// Apply final transformations
-					ComputeFrustrumNearDistance(a_ActorScale);
-					UpdatePlayerCamera(RayCastHitPosition);
-					UpdateNiCamera(RayCastHitPosition);
+		// ---------------- Far plane ----------------
+		constexpr float BaseFar = 353840.0f;
+		constexpr float MinScale = 0.10f;
+		constexpr float MaxScale = 50000.0f;
+		constexpr float MinMul = 0.1f;
+		constexpr float MaxMul = 100.0f;
 
-				}
+		float farPlane = fr.fFar;
+
+		if (Config::Camera.bEnableAutoFFarDist) {
+			const float clampedScale = std::clamp(a_ActorScale, MinScale, MaxScale);
+
+			const float logMin = std::log(MinScale);
+			const float logMax = std::log(MaxScale);
+			const float t = (std::log(clampedScale) - logMin) / (logMax - logMin);
+
+			const float eased = EaseInOutSmoothstep(t);
+			const float farMul = std::lerp(MinMul, MaxMul, eased);
+
+			farPlane = BaseFar * farMul;
+			fr.fFar = farPlane;
+		}
+
+		// ---------------- Near plane ----------------
+		float nearPlane = fr.fNear;
+
+		if (Config::Camera.bEnableAutoFNearDist) {
+			if (a_ActorScale <= 1.0f) {
+				nearPlane = CalcNearFromScale(a_ActorScale);
 			}
+			else if (a_ActorScale >= 50.0f) {
+				// Counteract far-plane growth at large scales
+				constexpr float NearStartScale = 50.0f;
+				constexpr float NearMaxScale = 50000.0f;
+				constexpr float NearMulMin = 1.0f;
+				constexpr float NearMulMax = 200.0f;
+
+				const float clamped = std::clamp(a_ActorScale, NearStartScale, NearMaxScale);
+				const float logMin = std::log(NearStartScale);
+				const float logMax = std::log(NearMaxScale);
+				const float t = (std::log(clamped) - logMin) / (logMax - logMin);
+
+				const float eased = EaseInOutSmoothstep(t);
+				const float nearMul = std::lerp(NearMulMin, NearMulMax, eased);
+
+				nearPlane = rt.minNearPlaneDist * nearMul;
+			}
+
+			fr.fNear = nearPlane;
+		}
+
+		// ---------------- Ratio enforcement ----------------
+		const float requiredRatio = fr.fFar / fr.fNear;
+		if (rt.maxFarNearRatio < requiredRatio) {
+			rt.maxFarNearRatio = requiredRatio;
 		}
 	}
+
+	
 }

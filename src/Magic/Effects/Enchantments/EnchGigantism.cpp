@@ -1,5 +1,5 @@
 #include "Magic/Effects/Enchantments/EnchGigantism.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 namespace GTS {
 
@@ -8,18 +8,20 @@ namespace GTS {
 	}
 
 	void Gigantism::OnStart() {
+
 		auto caster = GetCaster();
 
 		if (!caster) {
 			return;
 		}
+
 		this->magnitude = GetActiveEffect()->magnitude;
 		float GigantismPower = this->magnitude;
 		SizeManager::GetSingleton().ModEnchantmentBonus(caster, GigantismPower);
 
-		if (!Persistent::GetSingleton().MSGSeenAspectOfGTS.value) {
+		if (!Persistent::MSGSeenAspectOfGTS.value) {
 			PrintMessageBox(AOGGuide);
-			Persistent::GetSingleton().MSGSeenAspectOfGTS.value = true;
+			Persistent::MSGSeenAspectOfGTS.value = true;
 		}
 
 	}

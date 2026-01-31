@@ -3,26 +3,21 @@
 namespace GTS {
 
 	struct BoobCrushData {
-		public:
-			BoobCrushData(Actor* tiny);
-			Actor* tiny;
+		BoobCrushData(Actor* tiny);
+		Actor* tiny;
 	};
-	class AnimationBoobCrush :  public EventListener {
+
+	class AnimationBoobCrush : public EventListener, public CInitSingleton <AnimationBoobCrush>{
 		public:
+		virtual std::string DebugName() override;
+		virtual void Reset() override;
+		virtual void ResetActor(Actor* actor) override;
 
-			[[nodiscard]] static AnimationBoobCrush& GetSingleton() noexcept;
+		static void RegisterEvents();
+		static void AttachActor(Actor* giant, Actor* tiny);
+		static Actor* GetBoobCrushVictim(Actor* giant);
+		static float GetBoobCrushDamage(Actor* actor);
 
-			virtual std::string DebugName() override;
-
-			virtual void Reset() override;
-			virtual void ResetActor(Actor* actor) override;
-			static void RegisterEvents();
-
-			static void AttachActor(Actor* giant, Actor* tiny);
-			static Actor* GetBoobCrushVictim(Actor* giant);
-
-			static float GetBoobCrushDamage(Actor* actor);
-
-			std::unordered_map<Actor*, BoobCrushData> data;
+		std::unordered_map<Actor*, BoobCrushData> data;
 	};
 }

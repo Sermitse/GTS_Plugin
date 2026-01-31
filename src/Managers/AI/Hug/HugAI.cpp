@@ -2,10 +2,8 @@
 
 #include "Config/Config.hpp"
 
-#include "Managers/AttackManager.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/HugShrink.hpp"
-#include "Managers/Animation/Controllers/HugController.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
 using namespace GTS;
@@ -17,17 +15,17 @@ namespace {
 	constexpr float PI = std::numbers::pi_v<float>;
 
 	void RecordSneakingState(Actor* a_Performer, Actor* a_Prey) {
-		bool Crawling = IsCrawling(a_Performer);
+		bool Crawling = AnimationVars::Crawl::IsCrawling(a_Performer);
 		bool Sneaking = a_Performer->IsSneaking();
 
-		a_Prey->SetGraphVariableBool("GTS_Hug_Sneak_Tny", Sneaking); // Is Sneaking?
-		a_Prey->SetGraphVariableBool("GTS_Hug_Crawl_Tny", Crawling); // Is Crawling?
+		AnimationVars::Tiny::SetIsBeingCrawlHugged(a_Prey, Crawling);
+		AnimationVars::Tiny::SetIsBeingSneakHugged(a_Prey, Sneaking);
 	}
 
 	bool ActorStateCheck(Actor* a_Actor) {
-		bool Jumping = IsJumping(a_Actor);
+		bool Jumping = AnimationVars::Other::IsJumping(a_Actor);
 		bool Ragdolled = IsRagdolled(a_Actor);
-		bool Busy = IsGtsBusy(a_Actor);
+		bool Busy = AnimationVars::General::IsGTSBusy(a_Actor);
 		return Jumping || Ragdolled || Busy;
 	}
 
@@ -41,7 +39,7 @@ namespace {
 			return false;
 		}
 
-		if (IsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
+		if (AnimationVars::General::IsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
 			return false;
 		}
 
@@ -52,14 +50,14 @@ namespace {
 		const float PredatorScale = get_visual_scale(a_Performer);
 		// No need to check for BB scale in this case
 
-		float SizeDifference = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, false, true);
+		float SizeDifference = get_scale_difference(a_Performer, a_Prey, SizeType::VisualScale, false, true);
 
 
 		float MinDist = MINIMUM_HUG_DISTANCE;
 		constexpr float MinScale = Action_Hug;
 
 		if (a_Performer->IsSneaking()) {
-			if (IsCrawling(a_Performer)) {
+			if (AnimationVars::Crawl::IsCrawling(a_Performer)) {
 				MinDist *= 2.35f;
 			}
 			else {
@@ -73,7 +71,7 @@ namespace {
 
 			if (SizeDifference > MinScale) {
 
-				if (a_Prey->formID != 0x14 && !CanPerformAnimationOn(a_Performer, a_Prey, true)) {
+				if (!a_Prey->IsPlayerRef() && !CanPerformActionOn(a_Performer, a_Prey, true)) {
 					return false;
 				}
 
@@ -97,11 +95,11 @@ namespace {
 		const float StaminaPercentage = GetStaminaPercentage(a_Performer);
 		const float HPCrushThreshold = GetHugCrushThreshold(a_Performer, a_Prey, true);
 		const bool HasLowHP = HealthPercentage <= HPCrushThreshold;
-		const bool StaminaCheck = Runtime::HasPerkTeam(a_Performer, "GTSPerkHugMightyCuddles") && StaminaPercentage >= 0.75f;
-		const auto& Settings = Config::GetAI().Hugs;
-		const bool Teammate = IsTeammate(a_Prey) || a_Prey->formID == 0x14;
+		const bool StaminaCheck = Runtime::HasPerkTeam(a_Performer, Runtime::PERK.GTSPerkHugMightyCuddles) && StaminaPercentage >= 0.75f;
+		const auto& Settings = Config::AI.Hugs;
+		const bool Teammate = IsTeammate(a_Prey) || a_Prey->IsPlayerRef();
 		const bool Hostile = IsHostile(a_Performer, a_Prey) || IsHostile(a_Prey, a_Performer);
-		const bool CanStartCrush = Config::GetAI().Hugs.fKillProb > 0.01f;
+		const bool CanStartCrush = Config::AI.Hugs.fKillProb > 0.01f;
 
 		const bool Killable =
 			(Settings.bKillFollowersOrPlayer && Teammate) || //Teammate/Player Check
@@ -112,27 +110,27 @@ namespace {
 
 
 	bool HugAI_CanShrink(Actor* a_Performer, Actor* a_Prey) {
-		const float SizeDiff = GetSizeDifference(a_Performer, a_Prey, SizeType::TargetScale, false, true);
+		const float SizeDiff = get_scale_difference(a_Performer, a_Prey, SizeType::TargetScale, false, true);
 		const bool TooSmall = SizeDiff >= GetHugShrinkThreshold(a_Performer);
-		const bool CanStartShrink = Config::GetAI().Hugs.fShrinkProb > 0.01f;
+		const bool CanStartShrink = Config::AI.Hugs.fShrinkProb > 0.01f;
 
 		return !TooSmall && CanStartShrink;
 	}
 
 	bool HugAI_CanHeal(Actor* a_Performer, Actor* a_Prey) {
-		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->formID == 0x14);
-		const bool HasPerk = Runtime::HasPerkTeam(a_Performer, "GTSPerkHugsLovingEmbrace");
+		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->IsPlayerRef());
+		const bool HasPerk = Runtime::HasPerkTeam(a_Performer, Runtime::PERK.GTSPerkHugsLovingEmbrace);
 		const bool Hostile = IsHostile(a_Performer, a_Prey) || IsHostile(a_Prey, a_Performer);
-		const bool CanStartHeal = Config::GetAI().Hugs.fHealProb > 0.01f;
+		const bool CanStartHeal = Config::AI.Hugs.fHealProb > 0.01f;
 		
 		return HasPerk && !Hostile && Teammate && CanStartHeal;
 	}
 
 	bool HugAI_ShouldStop(Actor* a_Performer, Actor* a_Prey) {
-		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->formID == 0x14);
+		const bool Teammate = IsTeammate(a_Performer) && (IsTeammate(a_Prey) || a_Prey->IsPlayerRef());
 		const bool CanCrush = HugAI_CanHugCrush(a_Performer, a_Prey);
 		const bool CanHeal = HugAI_CanHeal(a_Performer, a_Prey);
-		const bool CanShrink = HugAI_CanShrink(a_Performer, a_Prey) || (!Config::GetAI().Hugs.bStopIfCantShrink && Teammate);
+		const bool CanShrink = HugAI_CanShrink(a_Performer, a_Prey) || (!Config::AI.Hugs.bStopIfCantShrink && Teammate);
 
 		return !(CanCrush || CanHeal || CanShrink);
 	}
@@ -146,9 +144,9 @@ namespace {
 
 		TaskManager::Run(TaskName, [=](auto& progressData) {
 
-			if (!Plugin::Live()) return false;
+			if (!State::Live()) return false;
 
-			const auto& Settings = Config::GetAI().Hugs;
+			const auto& Settings = Config::AI.Hugs;
 
 			if (!PerformerHandle || !PreyHandle) {
 				return false;
@@ -161,15 +159,15 @@ namespace {
 				return false;
 			}
 
-			const auto& TransientData = Transient::GetSingleton().GetData(PerformerActor);
+			const auto& TransientData = Transient::GetActorData(PerformerActor);
 			if (!TransientData) {
 				return false;
 			}
-			TransientData->ActionTimer.UpdateDelta(Config::GetAI().Hugs.fInterval);
+			TransientData->ActionTimer.UpdateDelta(Config::AI.Hugs.fInterval);
 
 			const bool IsDead = PreyActor->IsDead() || PerformerActor->IsDead();
-			const bool IsBusy = IsHugCrushing(PerformerActor) || IsHugHealing(PerformerActor);
-			const bool GentleAnim = IsTeammate(PreyActor) || PreyActor->formID == 0x14;
+			const bool IsBusy = AnimationVars::Hug::IsHugCrushing(PerformerActor) || AnimationVars::Hug::IsHugHealing(PerformerActor);
+			const bool GentleAnim = IsTeammate(PreyActor) || PreyActor->IsPlayerRef();
 
 			if (!HugShrink::GetHuggiesActor(PerformerActor) || IsRagdolled(PerformerActor)) {
 				if (!GentleAnim) {
@@ -184,7 +182,7 @@ namespace {
 			if (TransientData->ActionTimer.ShouldRun() && !IsBusy && !IsDead && !ShouldStop) {
 
 				UpdateFriendlyHugs(PerformerActor, PreyActor, !GentleAnim);
-				const bool Teammate = (IsTeammate(PerformerActor) && (IsTeammate(PreyActor) || PreyActor->formID == 0x14));
+				const bool Teammate = (IsTeammate(PerformerActor) && (IsTeammate(PreyActor) || PreyActor->IsPlayerRef()));
 				//Reduce if folllower or player
 
 				const float ShrinkProbability = Teammate ? Settings.fFriendlyShrinkProb : Settings.fShrinkProb;
@@ -243,7 +241,7 @@ namespace GTS {
 			return {};
 		}
 
-		if (IsGtsBusy(a_Performer)) {
+		if (AnimationVars::General::IsGTSBusy(a_Performer)) {
 			return {};
 		}
 
@@ -251,7 +249,7 @@ namespace GTS {
 			return {};
 		}
 
-		if (!CanDoPaired(a_Performer) && !IsSynced(a_Performer) && !IsTransferingTiny(a_Performer)) {
+		if (!AnimationVars::General::CanDoPaired(a_Performer) && !AnimationVars::Other::IsSynched(a_Performer) && !AnimationVars::Grab::HasGrabbedTiny(a_Performer)) {
 			return {};
 		}
 
@@ -265,7 +263,7 @@ namespace GTS {
 		auto PreyList = a_PotentialPrey;
 
 		// Sort prey by distance
-		ranges::sort(PreyList,[PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
+		std::ranges::sort(PreyList,[PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
 			float DistToA = (a_PreyA->GetPosition() - PredPos).Length();
 			float DistToB = (a_PreyB->GetPosition() - PredPos).Length();
 			return DistToA < DistToB;

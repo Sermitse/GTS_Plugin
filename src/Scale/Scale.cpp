@@ -1,27 +1,27 @@
 #include "Scale/Scale.hpp"
 
 namespace {
-	constexpr float EPS = std::numeric_limits<float>::epsilon();
+	//constexpr float EPS = std::numeric_limits<float>::epsilon();
+	constexpr float EPS = 1e-5;
 }
 
 namespace GTS {
 
 	void set_target_scale(Actor& actor, float scale) {
-		auto actor_data = Persistent::GetSingleton().GetData(&actor);
+		auto actor_data = Persistent::GetActorData(&actor);
 		if (actor_data) {
 			float natural_scale = get_natural_scale(&actor, true);
-			float target_scale = actor_data->target_scale * natural_scale;
-			float max_scale = actor_data->max_scale;
+			float target_scale = actor_data->fTargetScale * natural_scale;
+			float max_scale = actor_data->fMaxScale;
 
 			scale /= natural_scale;
 
 			if (scale < (max_scale + EPS)) { // If new value is below max: allow it
-				actor_data->target_scale = scale;
-			} else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are below max currently and we are trying to scale over max: make it max
-				actor_data->target_scale = max_scale / natural_scale;
-			} else {
-				// If we are over max: forbid it
-			}
+				actor_data->fTargetScale = scale;
+			} 
+			else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are below max currently and we are trying to scale over max: make it max
+				actor_data->fTargetScale = max_scale / natural_scale;
+			} 
 		}
 	}
 
@@ -33,41 +33,40 @@ namespace GTS {
 	}
 
 	float get_target_scale(Actor& actor) {
-		auto actor_data = Persistent::GetSingleton().GetData(&actor);
+		auto actor_data = Persistent::GetActorData(&actor);
 		if (actor_data) {
-			return actor_data->target_scale * get_natural_scale(&actor, true);
-		} else {
-			return 1.0f;
-		}
+			return actor_data->fTargetScale * get_natural_scale(&actor, true);
+		} 
+		return 1.0f;
 	}
 
 	float get_target_scale(Actor* actor) {
 		if (actor) {
 			Actor& a = *actor;
 			return get_target_scale(a);
-		} else {
-			return 1.0f;
-		}
+		} 
+		return 1.0f;
 	}
 
 	void mod_target_scale(Actor& actor, float amt) {
        GTS_PROFILE_SCOPE("Scale: ModTargetScale");
-        auto actor_data = Persistent::GetSingleton().GetData(&actor);
+        auto actor_data = Persistent::GetActorData(&actor);
         if (actor_data) {
             float natural_scale = get_natural_scale(&actor, true);
-            float target_scale = actor_data->target_scale * natural_scale;
-			float max_scale = actor_data->max_scale;
+            float target_scale = actor_data->fTargetScale * natural_scale;
+			float max_scale = actor_data->fMaxScale;
 
             amt /= natural_scale;
 
             if (amt < -EPS) { // If negative change always: allow
-                actor_data->target_scale += amt;
-            } else if (target_scale + amt < (max_scale + EPS)) { // If change results is below max: allow it
-                actor_data->target_scale += amt;
-            } else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are currently below max and we are scaling above max: make it max
+                actor_data->fTargetScale += amt;
+            } 
+        	else if (target_scale + amt < (max_scale + EPS)) { // If change results is below max: allow it
+                actor_data->fTargetScale += amt;
+            } 
+        	else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are currently below max and we are scaling above max: make it max
                 set_target_scale(actor, max_scale);
-            } else { // if we are over max then forbid it
-            }
+            } 
         }
     }
 
@@ -78,9 +77,9 @@ namespace GTS {
 	}
 
 	void set_max_scale(Actor& actor, float scale) {
-		auto actor_data = Persistent::GetSingleton().GetData(&actor);
+		auto actor_data = Persistent::GetActorData(&actor);
 		if (actor_data) {
-			actor_data->max_scale = scale;
+			actor_data->fMaxScale = scale;
 		}
 	}
 
@@ -91,9 +90,9 @@ namespace GTS {
 	}
 
 	float get_max_scale(Actor& actor) {
-		auto actor_data = Persistent::GetSingleton().GetData(&actor);
+		auto actor_data = Persistent::GetActorData(&actor);
 		if (actor_data) {
-			return actor_data->max_scale;
+			return actor_data->fMaxScale;
 		}
 		return 1.0f;
 	}
@@ -106,9 +105,9 @@ namespace GTS {
 	}
 
 	void mod_max_scale(Actor& actor, float amt) {
-		auto actor_data = Persistent::GetSingleton().GetData(&actor);
+		auto actor_data = Persistent::GetActorData(&actor);
 		if (actor_data) {
-			actor_data->max_scale += amt;
+			actor_data->fMaxScale += amt;
 		}
 	}
 
@@ -119,9 +118,9 @@ namespace GTS {
 	}
 
 	float get_visual_scale(Actor& actor) {
-		auto actor_data = Persistent::GetSingleton().GetData(&actor);
+		auto actor_data = Persistent::GetActorData(&actor);
 		if (actor_data) {
-			return actor_data->visual_scale * get_natural_scale(&actor, true);
+			return actor_data->fVisualScale * get_natural_scale(&actor, true);
 		}
 		return 1.0f;
 	}
@@ -134,7 +133,7 @@ namespace GTS {
 	}
 
 	float get_natural_scale(Actor& actor, bool game_scale) {
-		auto actor_data = Transient::GetSingleton().GetData(&actor);
+		auto actor_data = Transient::GetActorData(&actor);
 		if (actor_data) {
 		    float initialScale = GetInitialScale(&actor);
 			float result = actor_data->OtherScales * initialScale;
@@ -166,9 +165,9 @@ namespace GTS {
 	}
 
 	float get_giantess_scale(Actor& actor) {
-		auto actor_data = Persistent::GetSingleton().GetData(&actor);
+		auto actor_data = Persistent::GetActorData(&actor);
 		if (actor_data) {
-			float result = actor_data->visual_scale * get_natural_scale(&actor, true);
+			float result = actor_data->fVisualScale * get_natural_scale(&actor, true);
 			// Sadly had to add natural scale to it so it will respect GetScale * RaceMenu alterations
 			return result;
 		}
@@ -183,10 +182,18 @@ namespace GTS {
 	}
 
 	float get_raw_scale(Actor* actor) {
-		auto actor_data = Persistent::GetSingleton().GetData(actor);
+		auto actor_data = Persistent::GetActorData(actor);
 		if (actor_data) {
-			return actor_data->visual_scale;
+			return actor_data->fVisualScale;
 		}
 		return 1.0f;
+	}
+
+	float get_corrected_scale(Actor* a_actor) { // Used to take children scale into account so they will return 1.0 scale instead of 0.7 when at 100% scale
+		if (!a_actor) return 1.0f;
+		const float natural_scale = std::max(get_natural_scale((a_actor), false), 1.0f);
+		const float scale = get_raw_scale(a_actor) * natural_scale * game_getactorscale(a_actor);
+
+		return scale;
 	}
 }

@@ -20,12 +20,12 @@ namespace {
 		if ((a_Prey->IsDead() || GetAV(a_Prey, ActorValue::kHealth) < 0.0f) && !ALLOW_DEAD) {
 			return false;
 		}
-		if (IsCrawling(a_Performer) || IsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
+		if (AnimationVars::Crawl::IsCrawling(a_Performer) || AnimationVars::General::IsTransitioning(a_Performer) || IsBeingHeld(a_Performer, a_Prey)) {
 			return false;
 		}
 
 		const float PredScale = get_visual_scale(a_Performer);
-		const float SizeDiff = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, false, true);
+		const float SizeDiff = get_scale_difference(a_Performer, a_Prey, SizeType::VisualScale, false, true);
 		const float MinimumDistance = MINIMUM_THIGH_DISTANCE + HighHeelManager::GetBaseHHOffset(a_Performer).Length();
 		constexpr float MinimumThighCrushScale = Action_AI_ThighCrush;
 		const float PreyDistance = (a_Performer->GetPosition() - a_Prey->GetPosition()).Length();
@@ -34,7 +34,7 @@ namespace {
 
 			if (SizeDiff > MinimumThighCrushScale) {
 
-				if (CanPerformAnimationOn(a_Performer, a_Prey, false)) {
+				if (CanPerformActionOn(a_Performer, a_Prey, false)) {
 					return true;
 				}
 			}
@@ -47,14 +47,14 @@ namespace {
 		const std::string TaskName = std::format("ThighCrush_{}", giant->formID);
 
 		const ActorHandle GiantHandle = giant->CreateRefHandle();
-		const auto& ActorTransient = Transient::GetSingleton().GetData(giant);
+		const auto& ActorTransient = Transient::GetActorData(giant);
 		const double StartTime = Time::WorldTimeElapsed();
 
 		TaskManager::Run(TaskName, [=](auto& progressData) {
 
-			if (!Plugin::Live()) return false;
+			if (!State::Live()) return false;
 
-			const auto& ThighSettings = Config::GetAI().ThighCrush;
+			const auto& ThighSettings = Config::AI.ThighCrush;
 
 			if (!GiantHandle || !ActorTransient || !ThighSettings.bEnableAction) {
 				return false;
@@ -72,7 +72,7 @@ namespace {
 			if (FinishTime - StartTime > 0.10) {
 
 				//Are we in a thigh crush anim (idle or acting)
-				if (!IsThighCrushing(ActorRef)) {
+				if (!AnimationVars::Action::IsThighCrushing(ActorRef)) {
 					return false;
 				}
 
@@ -124,7 +124,7 @@ namespace GTS {
 		auto PreyList = a_PreyList;
 
 		// Sort prey by distance
-		ranges::sort(PreyList,[PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
+		std::ranges::sort(PreyList,[PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
 			float DistToA = (a_PreyA->GetPosition() - PredPos).Length();
 			float DistToB = (a_PreyB->GetPosition() - PredPos).Length();
 			return DistToA < DistToB;
@@ -178,7 +178,7 @@ namespace GTS {
 
 	void ThighCrushAI_Start(Actor* a_Performer) {
 
-		if (IsThighCrushing(a_Performer)) {
+		if (AnimationVars::Action::IsThighCrushing(a_Performer)) {
 			return;
 		}
 

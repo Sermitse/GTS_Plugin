@@ -5,7 +5,7 @@
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 using namespace GTS;
 
@@ -39,7 +39,7 @@ namespace {
 
 			auto giant = giantHandle.get().get();
 			auto tiny = tinyHandle.get().get();
-			if (!IsGtsBusy(giant)) { // Means anim isn't applied so we cancel everything
+			if (!AnimationVars::General::IsGTSBusy(giant)) { // Means anim isn't applied so we cancel everything
 				Grab::CancelGrab(giant, tiny);
 			}
 		});
@@ -47,19 +47,11 @@ namespace {
 }
 
 namespace GTS {
-	GrabAnimationController& GrabAnimationController::GetSingleton() noexcept {
-		static GrabAnimationController instance;
-		return instance;
-	}
-
-	std::string GrabAnimationController::DebugName() {
-		return "::GrabAnimationController";
-	}
 
 	std::vector<Actor*> GrabAnimationController::GetGrabTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor
 		auto& sizemanager = SizeManager::GetSingleton();
-		if (IsGtsBusy(pred)) {
+		if (AnimationVars::General::IsGTSBusy(pred)) {
 			return {};
 		}
 		if (!pred) {
@@ -153,23 +145,23 @@ namespace GTS {
 	
 		float pred_scale = get_visual_scale(pred);
 
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, true, false);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, true, false);
 
 		float MINIMUM_GRAB_SCALE = Action_Grab;
 		float MINIMUM_DISTANCE = MINIMUM_GRAB_DISTANCE;
 
-		if (HasSMT(pred) || IsCrawling(pred)) {
+		if (HasSMT(pred) || AnimationVars::Crawl::IsCrawling(pred)) {
 			MINIMUM_DISTANCE *= 1.6f;
 		}
 
 
 		float prey_distance = (pred->GetPosition() - prey->GetPosition()).Length();
 		if (prey_distance <= MINIMUM_DISTANCE * pred_scale && sizedifference < MINIMUM_GRAB_SCALE) {
-			if (pred->formID == 0x14) {
+			if (pred->IsPlayerRef()) {
 				std::string_view message = std::format("{} is too big to be grabbed: x{:.2f}/{:.2f}.", prey->GetDisplayFullName(), sizedifference, MINIMUM_GRAB_SCALE);
 				shake_camera(pred, 0.45f, 0.30f);
 				NotifyWithSound(pred, message);
-			} else if (this->allow_message && prey->formID == 0x14 && IsTeammate(pred)) {
+			} else if (this->allow_message && prey->IsPlayerRef() && IsTeammate(pred)) {
 				CantGrabPlayerMessage(pred, prey, sizedifference);
 			}
 			return false;
@@ -178,7 +170,7 @@ namespace GTS {
 			if (IsFlying(prey)) {
 				return false; // Disallow to grab flying dragons
 			}
-			if ((prey->formID != 0x14 && !CanPerformAnimationOn(pred, prey, false))) {
+			if ((!prey->IsPlayerRef() && !CanPerformActionOn(pred, prey, false))) {
 				return false;
 			} else {
 				return true;
@@ -200,7 +192,7 @@ namespace GTS {
 			shrinkrate = 0.13f;
 		}
 
-		if (GetSizeDifference(pred, prey, SizeType::VisualScale, false, false) < Action_Grab) {
+		if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_Grab) {
 			ShrinkUntil(pred, prey, 10.2f, shrinkrate, true);
 			return;
 		}

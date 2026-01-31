@@ -39,7 +39,7 @@ namespace GTS {
 			// Vore is done is sets with multiple actors if the giant is big
 			// enough
 			mutable std::mutex _lock;
-			std::unordered_map<FormID, ActorHandle> tinies = {};
+			absl::flat_hash_map<FormID, ActorHandle> tinies = {};
 
 			// If true the mouth kill zone is on and we shrink nodes entering the mouth
 			bool killZoneEnabled = false;
@@ -50,65 +50,43 @@ namespace GTS {
 			bool allGrabbed = false;
 	};
 
-	class VoreController : public EventListener {
+	class VoreController : public EventListener, public CInitSingleton <VoreController> {
 		public:
-			[[nodiscard]] static VoreController& GetSingleton() noexcept;
+		virtual std::string DebugName() override;
+		virtual void Reset() override;
+		virtual void ResetActor(Actor* actor) override;
+		virtual void Update() override;
 
-			virtual std::string DebugName() override;
-			virtual void Reset() override;
-			virtual void ResetActor(Actor* actor) override;
-			virtual void Update() override;
+		// Get's vore target for any actor based on direction they are facing
+		// This will only return actors with appropiate distance/scale
+		// as based on `CanVore`
+		Actor* GetVoreTargetInFront(Actor* pred);
 
-			// Get's vore target for any actor based on direction they are facing
-			// This will only return actors with appropiate distance/scale
-			// as based on `CanVore`
-			Actor* GetVoreTargetInFront(Actor* pred);
+		// Get's vore target for any actor based on distance from pred
+		// This will only return actors with appropiate distance/scale
+		// as based on `CanVore`  and can return multiple targets
+		std::vector<Actor*> GetVoreTargetsInFront(Actor* pred, std::size_t numberOfPrey);
 
-			// Get's vore target for any actor based on distance from pred
-			// This will only return actors with appropiate distance/scale
-			// as based on `CanVore`  and can return multiple targets
-			std::vector<Actor*> GetVoreTargetsInFront(Actor* pred, std::size_t numberOfPrey);
+		// Check if they can vore based on size difference and reach distance
+		bool CanVore(Actor* pred, Actor* prey) const;
 
-			// Check if they can vore based on size difference and reach distance
-			bool CanVore(Actor* pred, Actor* prey);
+		// Do the vore
+		void StartVore(Actor* pred, Actor* prey);
 
-			// Do the vore
-			void StartVore(Actor* pred, Actor* prey);
+		static void RecordOriginalScale(Actor* tiny);
+		static float ReadOriginalScale(Actor* tiny);
+		static void ShrinkOverTime(Actor* giant, Actor* tiny, float time_mult = 1.0f, float targetscale_mult = 1.0f);
+		
+		// Gets the current vore data of a giant
+		VoreData& GetVoreData(Actor* giant);
 
+		void AllowMessage(bool allow);
 
-			static void RecordOriginalScale(Actor* tiny);
-			static float ReadOriginalScale(Actor* tiny);
-
-			static void ShrinkOverTime(Actor* giant, Actor* tiny, float time_mult = 1.0f, float targetscale_mult = 1.0f);
-			
-			// Gets the current vore data of a giant
-			VoreData& GetVoreData(Actor* giant);
-
-			void AllowMessage(bool allow);
-
-			[[nodiscard]] inline bool IsTinyInDataList(Actor* aTiny) {
-
-				std::unique_lock lock(_lock);
-
-				if (!aTiny) {
-					return false;
-				}
-
-				for (auto& val : data | views::values) {
-					for (const auto& Tiny : val.GetVories()) {
-						if (Tiny) {
-							if (Tiny->formID == aTiny->formID) {
-								return true;
-							}
-						}
-					}
-				}
-				return false;
-			}
+		[[nodiscard]] bool IsTinyInDataList(Actor* aTiny);
 
 		private:
-			std::unordered_map<FormID, VoreData> data;
-			mutable std::mutex _lock;
-			bool allow_message = false;
+		std::unordered_map<FormID, VoreData> data;
+		mutable std::mutex _lock;
+		bool allow_message = false;
 	};
 }

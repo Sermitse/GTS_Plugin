@@ -1,5 +1,7 @@
 #include "Managers/Input/InputManager.hpp"
+
 #include "Config/Keybinds.hpp"
+#include "Config/Settings/SettingsKeybinds.hpp"
 
 namespace GTS {
 
@@ -7,9 +9,9 @@ namespace GTS {
 
 		std::vector<ManagedInputEvent> results;
 
-		for (const auto& GTSInputEvent : Keybinds::GetSingleton().InputEvents) {
+		for (const auto& BaseEventData_t : Keybinds::InputEvents) {
 
-			ManagedInputEvent newData(GTSInputEvent);
+			ManagedInputEvent newData(BaseEventData_t);
 
 			if (newData.HasKeys()) {
 				results.push_back(newData);
@@ -18,48 +20,40 @@ namespace GTS {
 		}
 
 		// Sort longest duration first
-		ranges::sort(results,[](ManagedInputEvent const& a, ManagedInputEvent const& b) {
+		std::ranges::sort(results,[](ManagedInputEvent const& a, ManagedInputEvent const& b) {
 			return a.MinDuration() > b.MinDuration();
 		});
 
 		return results;
 	}
 
-	InputManager& InputManager::GetSingleton() noexcept {
-		static InputManager instance;
-		return instance;
-	}
-
-	void InputManager::RegisterInputEvent(std::string_view namesv, std::function<void(const ManagedInputEvent&)> callback, std::function<bool(void)> condition) {
-		auto& me = InputManager::GetSingleton();
-		std::string name(namesv);
-		me.registedInputEvents.try_emplace(name, callback, condition);
-		log::debug("Registered input event: {}", namesv);
+	void InputManager::RegisterInputEvent(std::string_view a_namesv, std::function<void(const ManagedInputEvent&)> a_funcCallback, std::function<bool(void)> a_condCallbakc) {
+		std::string name(a_namesv);
+		GetSingleton().m_inputEvents.try_emplace(name, a_funcCallback, a_condCallbakc);
+		logger::debug("Registered input event: {}", a_namesv);
 	}
 
 	void InputManager::Init() {
 
-		auto& m = GetSingleton();
-
-		m.Ready.store(false);
+		m_ready.store(false);
 
 		try {
-			m.ManagedTriggers = LoadInputEvents();
+			m_eventTriggers = LoadInputEvents();
 		} 
-		catch (exception e) {
-			log::error("Error Creating ManagedInputEvents: {}", e.what());
+		catch (std::exception e) {
+			logger::error("Error Creating ManagedInputEvents: {}", e.what());
 			return;
 		} 
 
-		log::info("Loaded {} key bindings", m.ManagedTriggers.size());
+		logger::info("Loaded {} key bindings", m_eventTriggers.size());
 		
-		m.Ready.store(true);
+		m_ready.store(true);
 	}
 
-	void InputManager::ProcessEvents(InputEvent** a_event) {
+	void InputManager::ProcessAndFilterEvents(InputEvent** a_event) {
 
-		std::unordered_set<uint32_t> KeysToBlock = {};
-		std::unordered_set<std::uint32_t> gameInputKeys = {};
+		absl::flat_hash_set<uint32_t> KeysToBlock = {};
+		absl::flat_hash_set<std::uint32_t> gameInputKeys = {};
 		RE::InputEvent* event = *a_event;
 		RE::InputEvent* prev = nullptr;
 
@@ -67,11 +61,11 @@ namespace GTS {
 			return;
 		}
 
-		if (Plugin::AnyMenuOpen() || !Plugin::Live() || !Plugin::Ready()) {
+		if (State::IsInBlockingMenu() || !State::Live()) {
 			return;
 		}
 
-		if (!Ready.load()) {
+		if (!m_ready.load()) {
 			return;
 		}
 
@@ -101,7 +95,7 @@ namespace GTS {
 			}
 		}
 
-		for (auto& trigger : this->ManagedTriggers) {
+		for (auto& trigger : this->m_eventTriggers) {
 
 			if (trigger.IsDisabled()) continue;
 
@@ -115,11 +109,11 @@ namespace GTS {
 				//log::debug("AllkeysPressed for trigger {}", trigger.GetName());
 				//Get the coresponding event data
 				try {
-					auto& eventData = this->registedInputEvents.at(trigger.GetName());
+					auto& eventData = this->m_inputEvents.at(trigger.GetName());
 
-					if (blockInput == BlockInputTypes::Always) {
+					if (blockInput == LBlockInputTypes_t::Always) {
 						//If force blocking is set block game input regardless of conditions
-						std::unordered_set<uint32_t> KeysToAdd = std::unordered_set<uint32_t>(trigger.GetKeys());
+						absl::flat_hash_set<uint32_t> KeysToAdd = absl::flat_hash_set<uint32_t>(trigger.GetKeys());
 						KeysToBlock.insert(KeysToAdd.begin(), KeysToAdd.end());
 
 						if (eventData.condition != nullptr) {
@@ -138,8 +132,8 @@ namespace GTS {
 							//log::debug("condition is true for {}", trigger.GetName());
 							//Need to make a copy here otherwise insert throws an assertion
 
-							if (blockInput != BlockInputTypes::Never) {
-								std::unordered_set<uint32_t> KeysToAdd = std::unordered_set<uint32_t>(trigger.GetKeys());
+							if (blockInput != LBlockInputTypes_t::Never) {
+								absl::flat_hash_set<uint32_t> KeysToAdd = absl::flat_hash_set<uint32_t>(trigger.GetKeys());
 								//log::debug("ShouldBlock is true for {}", trigger.GetName());
 								KeysToBlock.insert(KeysToAdd.begin(), KeysToAdd.end());
 							}
@@ -153,7 +147,7 @@ namespace GTS {
 				}
 
 				catch (const std::out_of_range&) {
-					log::warn("Event {} was triggered but there is no event of that name", trigger.GetName());
+					logger::warn("Event {} was triggered but there is no event of that name", trigger.GetName());
 					continue;
 				}
 			}
@@ -172,14 +166,14 @@ namespace GTS {
 					trigger.Reset();
 				}
 				else {
-					log::debug("Running event {}", trigger.GetName());
+					logger::debug("Running event {}", trigger.GetName());
 					firedTriggers.push_back(&trigger);
 					try {
-						auto& eventData = this->registedInputEvents.at(trigger.GetName());
+						auto& eventData = this->m_inputEvents.at(trigger.GetName());
 						eventData.callback(trigger);
 					}
 					catch (const std::out_of_range&) {
-						log::warn("Event {} was triggered but there is no event of that name", trigger.GetName());
+						logger::warn("Event {} was triggered but there is no event of that name", trigger.GetName());
 					}
 				}
 			}
@@ -216,5 +210,9 @@ namespace GTS {
 
 	std::string InputManager::DebugName() {
 		return "::InputManager";
+	}
+
+	void InputManager::DataReady() {
+		Init();
 	}
 }

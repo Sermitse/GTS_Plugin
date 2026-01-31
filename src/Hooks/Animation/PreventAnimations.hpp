@@ -5,6 +5,6 @@ namespace Hooks {
 
 	class Hook_PreventAnimations {
 		public:
-			static void Install();
+		static void Install();
 	};
 }

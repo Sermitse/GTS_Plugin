@@ -3,8 +3,8 @@
 #include "config/Config.hpp"
 
 #include "Managers/HighHeel.hpp"
-#include "Rays/Raycast.hpp"
-#include "UI/DebugAPI.hpp"
+#include "Systems/Rays/Raycast.hpp"
+
 
 namespace GTS {
 
@@ -59,6 +59,7 @@ namespace GTS {
 		tiny->SetPosition(point, true);
 		return true;
 	}
+
 	template<typename T, typename U>
 	bool AttachTo(T& anyGiant, U& anyTiny, NiPoint3 point) {
 		Actor* giant =  GetActorPtr(anyGiant);
@@ -80,12 +81,13 @@ namespace GTS {
 			charcont->SetLinearVelocityImpl((0.0f, 0.0f, 0.0f, 0.0f)); // Needed so Actors won't fall down.
 		}
 
-		if (IsDebugEnabled()) {
-			DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), 6.0f, 40, {1.0f, 0.0f, 0.0f, 1.0f});
+		if (DebugDraw::CanDraw()) {
+			DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), 6.0f, 40, {1.0f, 0.0f, 0.0f, 1.0f});
 		}
 
 		return true;
 	}
+
 	template<typename T, typename U>
 	bool AttachTo(T& anyGiant, U& anyTiny, std::string_view bone_name) {
 		Actor* giant = GetActorPtr(anyGiant);
@@ -139,12 +141,12 @@ namespace GTS {
 	template<typename T, typename U>
 	NiPoint3 AttachToUnderFoot(T& anyGiant, U& anyTiny, bool right_leg) {
 
-		constexpr std::string_view leftFootLookup = "NPC L Foot [Lft ]";
+		constexpr std::string_view leftFootLookup  = "NPC L Foot [Lft ]";
 		constexpr std::string_view rightFootLookup = "NPC R Foot [Rft ]";
-		constexpr std::string_view leftCalfLookup = "NPC L Calf [LClf]";
+		constexpr std::string_view leftCalfLookup  = "NPC L Calf [LClf]";
 		constexpr std::string_view rightCalfLookup = "NPC R Calf [RClf]";
-		constexpr std::string_view leftToeLookup = "AnimObjectB";
-		constexpr std::string_view rightToeLookup = "AnimObjectB";
+		constexpr std::string_view leftToeLookup   = "AnimObjectB";
+		constexpr std::string_view rightToeLookup  = "AnimObjectB";
 		//constexpr std::string_view bodyLookup = "NPC Spine1 [Spn1]";
 
 		Actor* giant = GetActorPtr(anyGiant);
@@ -172,16 +174,10 @@ namespace GTS {
 		auto Calf = find_node(giant, CalfLookup);
 		auto Toe = find_node(giant, ToeLookup);
 
-		if (!Foot) {
-			return NiPoint3(0,0,0);
+		if (!Foot || !Calf || !Toe) {
+			return {0,0,0};
 		}
-		if (!Calf) {
-			return NiPoint3(0,0,0);
-		}
-		if (!Toe) {
-			log::info("Toe not found!");
-			return NiPoint3(0,0,0);
-		}
+
 		NiMatrix3 footRotMat;
 		{
 			NiAVObject* foot = Foot;
@@ -235,12 +231,12 @@ namespace GTS {
 		}
 		auto FingerA = find_node(giant, "NPC L Finger02 [LF02]");
 		if (!FingerA) {
-			log::info("FingerA not found");
+			logger::info("FingerA not found");
 			return false;
 		}
 		auto FingerB = find_node(giant, "NPC L Finger30 [LF30]");
 		if (!FingerB) {
-			log::info("FingerB not found");
+			logger::info("FingerB not found");
 			return false;
 		}
 		NiPoint3 coords = (FingerA->world.translate + FingerB->world.translate) / 2.0f;
@@ -264,10 +260,10 @@ namespace GTS {
 		}
 		auto targetA = targetRootA->world.translate;
 
-		float scaleFactor = get_visual_scale(tiny) / get_visual_scale(giant);
+		const float scaleFactor = get_visual_scale(tiny) / get_visual_scale(giant);
 
 		NiPoint3 targetB = NiPoint3();
-		std::vector<std::string_view> bone_names = {
+		static const std::vector<std::string_view> bone_names = {
 			"NPC L Finger02 [LF02]",
 			"NPC R Finger02 [RF02]",
 			"L Breast02",
@@ -278,7 +274,7 @@ namespace GTS {
 			auto bone = find_node(giant, bone_name);
 			if (!bone) {
 				Notify("Error: Breast Nodes could not be found.");
-				Notify("Suggestion: install XP32 skeleton.");
+				Notify("Make sure the XP32 Skeleton is installed");
 				return false;
 			}
 			targetB += (bone->world * NiPoint3()) * (1.0f/bone_count);
@@ -286,10 +282,10 @@ namespace GTS {
 
 		// scaleFactor = std::clamp(scaleFactor, 0.0f, 1.0f);
 		auto targetPoint = targetA*(scaleFactor) + targetB*(1.0f - scaleFactor);
-		if (IsDebugEnabled()) {
-			DebugAPI::DrawSphere(glm::vec3(targetA.x, targetA.y, targetA.z), 2.0f, 40, {1.0f, 0.0f, 0.0f, 1.0f});
-			DebugAPI::DrawSphere(glm::vec3(targetB.x, targetB.y, targetB.z), 2.0f, 40, {0.0f, 1.0f, 0.0f, 1.0f});
-			DebugAPI::DrawSphere(glm::vec3(targetPoint.x, targetPoint.y, targetPoint.z), 2.0f, 40, {0.0f, 0.0f, 1.0f, 1.0f});
+		if (DebugDraw::CanDraw()) {
+			DebugDraw::DrawSphere(glm::vec3(targetA.x, targetA.y, targetA.z), 2.0f, 40, {1.0f, 0.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(targetB.x, targetB.y, targetB.z), 2.0f, 40, {0.0f, 1.0f, 0.0f, 1.0f});
+			DebugDraw::DrawSphere(glm::vec3(targetPoint.x, targetPoint.y, targetPoint.z), 2.0f, 40, {0.0f, 0.0f, 1.0f, 1.0f});
 		}
 
 		/*if (Attachment_GetTargetNode(giant) == AttachToNode::ObjectA) {
@@ -310,17 +306,17 @@ namespace GTS {
 			return false;
 		}
 
-		std::vector<std::string_view> bone_names = {
+		static const std::vector<std::string_view> bone_names = {
 			"L Breast02",
 			"R Breast02"
 		};
 
-		std::vector<std::string_view> center_bone_names = {
+		static const std::vector<std::string_view> center_bone_names = {
 			"L Breast01",
 			"R Breast01"
 		};
 
-		std::vector<std::string_view> up_bone_names = {
+		static const std::vector<std::string_view> up_bone_names = {
 			"NPC L Clavicle [LClv]",
 			"NPC R Clavicle [RClv]"
 		};
@@ -336,36 +332,36 @@ namespace GTS {
 				Notify("Install 3BB/XPMS32");
 				return false;
 			}
-			if (IsDebugEnabled()) {
-				DebugAPI::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
+			if (DebugDraw::CanDraw()) {
+				DebugDraw::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
 			}
 			clevagePos += (bone->world * NiPoint3()) * (1.0f / bone_names.size());
 		}
 
 		// Center bone
-		for (auto bone_name: center_bone_names) {
+		for (const std::string_view& bone_name : center_bone_names) {
 			auto bone = find_node(giant, bone_name);
 			if (!bone) {
 				Notify("ERROR: Breast 01 bones not found");
 				Notify("Install 3BB/XPMS32");
 				return false;
 			}
-			if (IsDebugEnabled()) {
-				DebugAPI::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
+			if (DebugDraw::CanDraw()) {
+				DebugDraw::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
 			}
 			centerBonePos += bone->world.translate  * (1.0f / center_bone_names.size());
 		}
 
 		// Up bone
-		for (auto bone_name: up_bone_names) {
-			auto bone = find_node(giant, bone_name);
+		for (const std::string_view& bone_name: up_bone_names) {
+			NiAVObject* bone = find_node(giant, bone_name);
 			if (!bone) {
 				Notify("ERROR: Clavicle bones not found");
 				Notify("Install 3BB/XPMS32");
 				return false;
 			}
-			if (IsDebugEnabled()) {
-				DebugAPI::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
+			if (DebugDraw::CanDraw()) {
+				DebugDraw::DrawSphere(glm::vec3(bone->world.translate.x, bone->world.translate.y, bone->world.translate.z), 2.0f, 10, {1.0f, 1.0f, 1.0f, 1.0f});
 			}
 			upBonePos += bone->world.translate  * (1.0f / up_bone_names.size());
 		}
@@ -387,9 +383,9 @@ namespace GTS {
 
 
 		// Manual offsets
-		float difference = GetSizeDifference(giant, tiny, SizeType::GiantessScale, false, false) * 0.15f;
+		float difference = get_scale_difference(giant, tiny, SizeType::GiantessScale, false, false) * 0.15f;
 
-		const auto Offsets = Config::GetGameplay().ActionSettings.f2CleavageOffset;
+		const auto Offsets = Config::Gameplay.ActionSettings.f2CleavageOffset;
 
 		float offset_Z = Offsets.at(0) * get_visual_scale(giant);
 		float offset_Y = Offsets.at(1) * get_visual_scale(giant);
@@ -408,7 +404,7 @@ namespace GTS {
 		NiPoint3 globalOffset = breastRotation * offset;
 
 		// rotate tiny to face the same direction as gts
-		if (tiny->formID == 0x14 && IsFirstPerson()) {
+		if (tiny->IsPlayerRef() && IsFirstPerson()) {
 			// do nothing
 		} else {
 			tiny->data.angle.z = giant->data.angle.z;
@@ -416,11 +412,11 @@ namespace GTS {
 
 		clevagePos += globalOffset;
 
-		if (IsDebugEnabled()) {
-			DebugAPI::DrawSphere(glm::vec3(clevagePos.x, clevagePos.y, clevagePos.z), 2.0f, 10, {1.0f, 0.0f, 0.0f, 1.0f});
+		if (DebugDraw::CanDraw()) {
+			DebugDraw::DrawSphere(glm::vec3(clevagePos.x, clevagePos.y, clevagePos.z), 2.0f, 10, {1.0f, 0.0f, 0.0f, 1.0f});
 		}
 
-		if (IsCleavageZIgnored(giant)) {
+		if (AnimationVars::Action::IsCleavageZOverrideEnabled(giant)) {
 			auto objectB = find_node(giant, "AnimObjectB");
 			if (objectB) {
 				clevagePos.z = objectB->world.translate.z;

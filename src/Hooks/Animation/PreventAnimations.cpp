@@ -1,4 +1,7 @@
 #include "Hooks/Animation/PreventAnimations.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Grab.hpp"
 #include "Hooks/Util/HookUtil.hpp"
 
@@ -104,30 +107,22 @@ namespace {
 
 		switch (idle) {
 			case KillMoveFrontSideRoot:
-				KillMove = true;
-				break;	
 			case KillMoveDragonToNPC:
-				KillMove = true;
-				break;
 			case KillMoveRootDragonFlight:
-				KillMove = true;
-				break;
 			case KillMoveBackSideRoot:
-				KillMove = true;
-				break;
 			case KillMoveFrontSideRoot00:
-				KillMove = true;
-				break;
 			case KillMoveBackSideRoot00:
+			{
 				KillMove = true;
-				break;
+			} break;
+			default: break;
 		}
 
 		if (KillMove) {
 			if (victim) {
 				Actor* victimref = skyrim_cast<Actor*>(victim);
 				if (victimref) {
-					float size_difference = GetSizeDifference(performer, victimref, SizeType::GiantessScale, true, false);
+					float size_difference = get_scale_difference(performer, victimref, SizeType::GiantessScale, true, false);
 					if (size_difference > KillMove_Threshold_High || size_difference < KillMove_Threshold_Low) {
 						Block = true;
 					}
@@ -151,23 +146,15 @@ namespace {
 	bool IsDisallowed(FormID idle) {
 		switch (idle) {
 			case DefaultSheathe:
-				//log::info("Block DefaultSheathe");
-				return true;
 			case JumpRoot:
-				//log::info("Block JumpRoot");
-				return true;
 			case NonMountedDraw:
-				//log::info("Block NonMountedDraw");
-				return true;
 			case NonMountedForceEquip:
-				//log::info("Block NonMountedForceEquip");
-				return true;
 			case JumpStandingStart:
-				//log::info("Block JumpStandingStart");
-				return true;	
-			case JumpDirectionalStart:
-				//log::info("Block JumpDirectionalStart");
-				return true;	
+			case JumpDirectionalStart: 
+			{
+				return true;
+			}
+			default: break;
 		}
 		return false;
 	}
@@ -177,7 +164,7 @@ namespace {
 			case NonMountedDraw:
 			case DrawMagic:
 			case DefaultDrawWeapon: {
-				if (performer->formID != 0x14 && Grab::GetHeldActor(performer) != nullptr) {
+				if (!performer->IsPlayerRef() && Grab::GetHeldActor(performer) != nullptr) {
 					return true;
 				}
 				break;
@@ -187,7 +174,26 @@ namespace {
 		return false;
 	}
 
-	
+	bool PreventNPCSprinint(FormID idle, Actor* performer) {
+
+		switch (idle) {
+			case SprintStart:
+			case SprintRootStart:
+			case SprintRootStop:
+			{
+				//Fully prevent sprinting for npcs at the animation level if they are over the clamp start threshold
+				if (!performer->IsPlayerRef()){
+					if (get_visual_scale(performer) >= Config::General.fNPCMaxSpeedMultClampStartAt) {
+						return true;
+					}
+				}
+
+			} break;
+
+			default: break;
+		}
+		return false;
+	}
 
 	bool BlockAnimation(TESIdleForm* idle, ConditionCheckParams* params) {
 		if (!idle) {
@@ -199,15 +205,19 @@ namespace {
 
 		if (performer) {
 
+			if (PreventNPCSprinint(Form, performer)) {
+				return true;
+			}
+
 			if (PreventKillMove(Form, params, performer, params->targetRef)) {
 				return true;
 			}
 
-			if (IsTransitioning(performer)) {
+			if (AnimationVars::General::IsTransitioning(performer)) {
 				return IsDisallowed(Form);
 			}
 
-			if (IsThighSandwiching(performer)) { // Disallow anims in these 2 cases 
+			if (AnimationVars::Action::IsThighSandwiching(performer)) { // Disallow anims in these 2 cases 
 				//log::info("Block IsThighSandwiching");
 				return IsDisallowed(Form);
 			}
@@ -226,17 +236,16 @@ namespace {
 				return true;
 			}
 
-			if (performer->formID != 0x14 && PreventSprinting(Form, performer)) {
+			if (!performer->IsPlayerRef() && PreventSprinting(Form, performer)) {
 				return true;
 			}
 
-			if (performer->formID == 0x14 && IsGtsBusy(performer) && IsFreeCameraEnabled()) {
-				//log::info("Block performer->formID == 0x14 && IsGtsBusy(performer) && IsFreeCameraEnabled()");
+			if (performer->IsPlayerRef() && AnimationVars::General::IsGTSBusy(performer) && IsFreeCameraEnabled()) {
 				return IsDisallowed(Form); 							// One of cases when we alter anims for Player. 
 				// Needed because it's problematic to disallow specific controls through controls.hpp
 			}
 
-			if (!IsGtsBusy(performer) && !IsProning(performer)) {
+			if (!AnimationVars::General::IsGTSBusy(performer) && !AnimationVars::Prone::IsProne(performer)) {
                 // Do not affect non-gts-busy actors!
 				return false;
 			}
@@ -248,6 +257,7 @@ namespace {
 		return false;
 
 	}
+
 }
 
 namespace Hooks {
@@ -262,18 +272,20 @@ namespace Hooks {
 
 		static TESIdleForm* thunk(TESIdleForm* a_this, ConditionCheckParams* a_params, void* a_unk03) {
 
-			GTS_PROFILE_ENTRYPOINT("AnimationPrevent::IdleForm");
-
 			TESIdleForm* result = func(a_this, a_params, a_unk03);
 
-			if (a_this) {
-				if (BlockAnimation(a_this, a_params)) {
-					/*auto* EventName = a_this->GetFormEditorID();
-					Actor* performer = params->actionRef->As<RE::Actor>();
-					if (performer) {
-						log::info("Blocking anim: {} of {}", EventName, performer->GetDisplayFullName());
-					}*/
-					result = nullptr; // cancel anim
+			{
+				GTS_PROFILE_ENTRYPOINT("AnimationPrevent::IdleForm");
+
+				if (a_this) {
+					if (BlockAnimation(a_this, a_params)) {
+						/*auto* EventName = a_this->GetFormEditorID();
+						Actor* performer = params->actionRef->As<RE::Actor>();
+						if (performer) {
+							logger::info("Blocking anim: {} of {}", EventName, performer->GetDisplayFullName());
+						}*/
+						result = nullptr; // cancel anim
+					}
 				}
 			}
 

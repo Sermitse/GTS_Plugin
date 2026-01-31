@@ -17,7 +17,7 @@ namespace GTS {
             ModSizeExperience(caster, 1.0f * (1.0f + (RNG * 0.01f)));
 			Potion_Penalty(caster);
 
-			if (caster->formID == 0x14) {
+			if (caster->IsPlayerRef()) {
 				shake_camera(caster, 0.50f, 0.50f);
 			}
 

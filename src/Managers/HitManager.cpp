@@ -1,4 +1,4 @@
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/HitManager.hpp"
 
 using namespace GTS;
@@ -20,11 +20,6 @@ namespace {
 
 namespace GTS {
 
-	HitManager& HitManager::GetSingleton() noexcept {
-		static HitManager instance;
-		return instance;
-	}
-
 	std::string HitManager::DebugName() {
 		return "::HitManager";
 	}
@@ -45,9 +40,6 @@ namespace GTS {
 		if (!receiver) {
 			return;
 		}
-
-		auto& sizemanager = SizeManager::GetSingleton();
-		auto& Persist = Persistent::GetSingleton();
 
 		auto HitIdForm = a_event->source;
 		auto HitId = TESForm::LookupByID(HitIdForm);
@@ -78,7 +70,7 @@ namespace GTS {
 
 		// Apply it
 		float pushpower = GetPushPower(size_difference);
-		if (attacker->formID == 0x14 && size_difference >= 4.0f) {
+		if (attacker->IsPlayerRef() && size_difference >= 4.0f) {
 			FormType formType = HitId->GetFormType();
 			if (formType != FormType::Weapon) {
 				return;

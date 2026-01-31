@@ -1,12 +1,7 @@
 #include "Managers/AI/AIFunctions.hpp"
-
 #include "config/Config.hpp"
-
 #include "Managers/Animation/Utils/CooldownManager.hpp"
-
 #include "Managers/Animation/AnimationManager.hpp"
-
-#include "Utils/ActorUtils.hpp"
 
 using namespace GTS;
 
@@ -34,7 +29,7 @@ namespace {
 			}
 			auto actor = tinyRef.get().get();
 
-			if (actor && actor->formID != 0x14) {
+			if (actor && !actor->IsPlayerRef()) {
 				auto process = actor->GetActorRuntimeData().currentProcess;
 				if (process) {
 					auto high = process->high;
@@ -54,7 +49,7 @@ namespace {
 	}
 
 	bool ShouldBeAltered(Actor* giant) {
-		bool Alter = giant && giant->formID != 0x14 && IsTeammate(giant) && 
+		bool Alter = giant && !giant->IsPlayerRef() && IsTeammate(giant) && 
 					IsHuman(giant) && IsFemale(giant, true) 
 					&& get_visual_scale(giant) > 1.25f;
 		return Alter;
@@ -80,7 +75,7 @@ namespace {
 	void AlterRotationSpeed(Actor* giant) {
 		auto AI = giant->GetActorRuntimeData().currentProcess;
 		if (AI) {
-			auto high = AI->high;
+			//auto high = AI->high;
 			auto mid = AI->middleHigh;
 
 			float speedMult = std::clamp(AnimationManager::GetAnimSpeed(giant), 0.02f, 1.0f);
@@ -111,11 +106,11 @@ namespace GTS {
 		float new_speed = incoming_speed;
 
 		if (ShouldBeAltered(giant)) {
-			if (Config::GetAI().bSlowMovementDown) {
+			if (Config::AI.bSlowMovementDown) {
 				AlterMovementSpeed(giant, new_speed);
 			}
 
-			if (Config::GetAI().bSlowRotationDown) {
+			if (Config::AI.bSlowRotationDown) {
 				AlterRotationSpeed(giant);
 			}
 		}
@@ -128,10 +123,10 @@ namespace GTS {
 		if (giant->IsSneaking()) { // If we sneak/prone/crawl = make threshold bigger so it's harder to scare actors
 			threshold += 0.8f;
 		}
-		if (IsCrawling(giant)) {
+		if (AnimationVars::Crawl::IsCrawling(giant)) {
 			threshold += 1.45f;
 		}
-		if (IsProning(giant)) {
+		if (AnimationVars::Prone::IsProne(giant)) {
 			threshold += 1.45f;
 		}
 		if (giant->AsActorState()->IsWalking()) { // harder to scare if we're approaching slowly
@@ -205,14 +200,14 @@ namespace GTS {
 		}
 
 		if (tiny && tiny->Is3DLoaded() && !tiny->IsDead()) {
-			StartCombat(tiny, giant);
+			tiny->StartCombat(giant);
 		}
 
 		float hp = GetMaxAV(tiny, ActorValue::kHealth) * 9.0f;	
 
 		InflictSizeDamage(giant, tiny, hp); // just to make sure
 
-		if (tiny->formID == 0x14) {
+		if (tiny->IsPlayerRef()) {
 			tiny->KillImpl(giant, 1, true, true);
 			tiny->SetAlpha(0.0f);
 		} 
@@ -230,7 +225,7 @@ namespace GTS {
 		ActorHandle tinyHandle = tiny->CreateRefHandle();
 		ActorHandle giantHandle = giant->CreateRefHandle();
 		if (apply_size_difference) {
-			duration *= GetSizeDifference(giant, tiny, SizeType::VisualScale, false, true);
+			duration *= get_scale_difference(giant, tiny, SizeType::VisualScale, false, true);
 		}
 
 		SetAV(tiny, ActorValue::kConfidence, 0.0f);
@@ -260,7 +255,7 @@ namespace GTS {
 			ApplyActionCooldown(tinyRef, CooldownSource::Action_ScareOther);
 
 			double timepassed = Finish - Start;
-			if (IsMoving(tinyRef)) {
+			if (tinyRef->IsMoving()) {
 				int FallChance = RandomInt(0, 6000);// Chance to Trip
 				if (FallChance <= 2 && !IsRagdolled(tinyRef)) {
 					PushActorAway(giantRef, tinyRef, 1.0f);
@@ -277,18 +272,18 @@ namespace GTS {
 
 	void ScareActors(Actor* giant) {
 		GTS_PROFILE_SCOPE("ActorUtils: ScareActors");
-		if (!Config::GetAI().bPanic) {
+		if (!Config::AI.bPanic) {
 			return; // Disallow Panic if bool is false.
 		}
 		for (auto tiny: FindSomeActors("AiActors", 2)) {
-			if (tiny != giant && tiny->formID != 0x14 && !IsTeammate(tiny)) {
+			if (tiny != giant && !tiny->IsPlayerRef() && !IsTeammate(tiny)) {
 				if (tiny->IsDead() || IsInSexlabAnim(tiny, giant)) {
 					return;
 				}
 				if (IsBeingHeld(giant, tiny)) {
 					return;
 				}
-				float get_difference = GetSizeDifference(giant, tiny, SizeType::VisualScale, false, true); // Apply HH difference as well
+				float get_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, true); // Apply HH difference as well
 				float sizedifference = std::clamp(get_difference, 0.10f, 12.0f);
 
 				float distancecheck = 128.0f * GetMovementModifier(giant);

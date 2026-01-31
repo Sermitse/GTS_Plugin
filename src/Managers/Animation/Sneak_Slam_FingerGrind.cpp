@@ -9,7 +9,7 @@
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Rumble.hpp"
 
-#include "Rays/Raycast.hpp"
+#include "Systems/Rays/Raycast.hpp"
 
 using namespace GTS;
 
@@ -38,20 +38,20 @@ namespace {
 			if (scale >= threshold && !giant->AsActorState()->IsSwimming()) {
 				NiPoint3 node_location = node->world.translate;
 
-				NiPoint3 ray_start = node_location + NiPoint3(0.0f, 0.0f, meter_to_unit(-0.05f*scale)); // Shift up a little
+				NiPoint3 ray_start = node_location + NiPoint3(0.0f, 0.0f, MeterToGameUnit(-0.05f*scale)); // Shift up a little
 				NiPoint3 ray_direction(0.0f, 0.0f, -1.0f);
 				bool success = false;
-				float ray_length = meter_to_unit(std::max(1.05f*scale, 1.05f));
+				float ray_length = MeterToGameUnit(std::max(1.05f*scale, 1.05f));
 				NiPoint3 explosion_pos = CastRay(giant, ray_start, ray_direction, ray_length, success);
 
 				if (!success) {
 					explosion_pos = node_location;
 					explosion_pos.z = giant->GetPosition().z;
 				}
-				if (giant->formID == 0x14 && Config::GetGameplay().bPlayerAnimEffects) {
+				if (giant->IsPlayerRef() && Config::Gameplay.bPlayerAnimEffects) {
 					SpawnParticle(giant, 4.60f, "GTS/Effects/Footstep.nif", NiMatrix3(), explosion_pos, (scale * multiplier) * 1.8f, 7, nullptr);
 				}
-				if (giant->formID != 0x14 && Config::GetGameplay().bNPCAnimEffects) {
+				if (!giant->IsPlayerRef() && Config::Gameplay.bNPCAnimEffects) {
 					SpawnParticle(giant, 4.60f, "GTS/Effects/Footstep.nif", NiMatrix3(), explosion_pos, (scale * multiplier) * 1.8f, 7, nullptr);
 				}
 			}
@@ -88,7 +88,7 @@ namespace {
 
 		Rumbling::Once("Finger", &data.giant, Rumble_FingerGrind_Impact, 0.025f, Rfinger, 0.0f);
 
-		DrainStamina(&data.giant, "StaminaDrain_FingerGrind", "GTSPerkDestructionBasics", true, 0.8f);
+		DrainStamina(&data.giant, "StaminaDrain_FingerGrind", Runtime::PERK.GTSPerkDestructionBasics, true, 0.8f);
 	};
     void GTS_Sneak_FingerGrind_Impact_L(AnimationEventData& data) {
 		Finger_DoDamage(&data.giant, DamageSource::LeftFinger_Impact, false, Radius_Sneak_FingerGrind_Impact, Damage_Sneak_FingerGrind_Impact, 2.8f, 1.2f);
@@ -97,7 +97,7 @@ namespace {
 
 		Rumbling::Once("Finger", &data.giant, Rumble_FingerGrind_Impact, 0.025f, Lfinger, 0.0f);
 
-		DrainStamina(&data.giant, "StaminaDrain_FingerGrind", "GTSPerkDestructionBasics", true, 0.8f);
+		DrainStamina(&data.giant, "StaminaDrain_FingerGrind", Runtime::PERK.GTSPerkDestructionBasics, true, 0.8f);
 	};
 
 	void GTS_Sneak_FingerGrind_Rotation_R(AnimationEventData& data) {
@@ -162,8 +162,8 @@ namespace GTS {
     }
 
     void StopStaminaDrain(Actor* giant) {
-		DrainStamina(giant, "StaminaDrain_StrongSneakSlam", "GTSPerkDestructionBasics", false, 2.2f);
-		DrainStamina(giant, "StaminaDrain_FingerGrind", "GTSPerkDestructionBasics", false, 0.8f);
-		DrainStamina(giant, "StaminaDrain_SneakSlam", "GTSPerkDestructionBasics", false, 1.4f);
+		DrainStamina(giant, "StaminaDrain_StrongSneakSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 2.2f);
+		DrainStamina(giant, "StaminaDrain_FingerGrind", Runtime::PERK.GTSPerkDestructionBasics, false, 0.8f);
+		DrainStamina(giant, "StaminaDrain_SneakSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 1.4f);
 	}
 }

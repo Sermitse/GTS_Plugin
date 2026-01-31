@@ -1,15 +1,18 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Damage/SizeHitEffects.hpp"
 #include "Managers/Damage/TinyCalamity.hpp"
 #include "Managers/Audio/GoreAudio.hpp"
 #include "Managers/CrushManager.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 #include "Magic/Effects/Common.hpp"
 
-#include "UI/DebugAPI.hpp"
+
 
 #include "Utils/DeathReport.hpp"
 #include "Utils/MovementForce.hpp"
@@ -106,10 +109,10 @@ namespace {
 	}
 
 	void ModVulnerability(Actor* giant, Actor* tiny, float damage) {
-		if (Runtime::HasPerkTeam(giant, "GTSPerkGrowingPressure")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
 			auto& sizemanager = SizeManager::GetSingleton();
 
-			if (Runtime::HasPerkTeam(giant, "GTSPerkRavagingInjuries") && giant->AsActorState()->IsSprinting() && !IsGtsBusy(giant)) {
+			if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRavagingInjuries) && giant->AsActorState()->IsSprinting() && !AnimationVars::General::IsGTSBusy(giant)) {
 				damage *= 3.0f; // x3 stronger during sprint
 			}
 
@@ -119,8 +122,8 @@ namespace {
 
 	float HighHeels_PerkDamage(Actor* giant, DamageSource Cause) {
 		float value = 1.0f;
-		bool perk = Runtime::HasPerkTeam(giant, "GTSPerkHighHeels");
-		bool rumbling_feet = Runtime::HasPerkTeam(giant, "GTSPerkRumblingFeet");
+		bool perk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHighHeels);
+		bool rumbling_feet = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRumblingFeet);
 		bool matches = false;
 
 		switch (Cause) {
@@ -152,15 +155,6 @@ namespace {
 
 namespace GTS {
 
-	CollisionDamage& CollisionDamage::GetSingleton() noexcept {
-		static CollisionDamage instance;
-		return instance;
-	}
-
-	std::string CollisionDamage::DebugName() {
-		return "::CollisionDamage";
-	}
-
 	// Safer optimization that preserves original behavior
 	void CollisionDamage::DoFootCollision(Actor* actor, float damage, float radius, int random, float bbmult, float crush_threshold, DamageSource Cause, bool Right, bool ApplyCooldown, bool ignore_rotation, bool SupportCalamity) {
 
@@ -188,11 +182,11 @@ namespace GTS {
 
 		if (CoordsToCheck.empty()) return;
 
-		if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor) || EffectsForEveryone(actor))) {
+		if (DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kAnyGTS)) {
 			constexpr int duration = 300;
 			if (Cause != DamageSource::FootIdleL && Cause != DamageSource::FootIdleR) {
 				for (auto footPoints : CoordsToCheck) {
-					DebugAPI::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, duration);
+					DebugDraw::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, duration);
 				}
 			}
 		}
@@ -247,18 +241,17 @@ namespace GTS {
 			}
 
 			if (nodeCollisions > 0) {
-				auto& CollisionDamage = CollisionDamage::GetSingleton();
 				if (ApplyCooldown) {
 					bool OnCooldown = IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh);
 					if (!OnCooldown) {
 						Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause));
-						CollisionDamage.DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
+						DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
 						ApplyActionCooldown(otherActor, CooldownSource::Damage_Thigh);
 					}
 				}
 				else {
 					Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause));
-					CollisionDamage.DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
+					DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
 				}
 			}
 		}
@@ -284,7 +277,7 @@ namespace GTS {
 		
 		bool SMT = HasSMT(giant);
 		auto& sizemanager = SizeManager::GetSingleton();
-		float size_difference = GetSizeDifference(giant, tiny, SizeType::VisualScale, false, true);
+		float size_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, true);
 
 		float size_threshold = 1.25f;
 
@@ -317,7 +310,7 @@ namespace GTS {
 
 				damage_result *= Might;
 
-				TinyCalamity_ShrinkActor(giant, tiny, damage_result * 0.35f * GetDamageSetting());
+				TinyCalamity_ShrinkActor(giant, tiny, damage_result * 0.35f * Config::Balance.fSizeDamageMult);
 
 				if (giant->IsSneaking()) {
 					damage_result *= 0.85f;
@@ -330,7 +323,7 @@ namespace GTS {
 					ModSizeExperience(giant, experience);
 				}
 
-				if (tiny->formID == 0x14 && GetAV(tiny, ActorValue::kStamina) > 2.0f) {
+				if (tiny->IsPlayerRef() && GetAV(tiny, ActorValue::kStamina) > 2.0f) {
 					DamageAV(tiny, ActorValue::kStamina, damage_result * 2.0f);
 					damage_result -= GetAV(tiny, ActorValue::kStamina); // Reduce damage by stamina amount
 
@@ -374,7 +367,7 @@ namespace GTS {
 
 				CrushBonuses(giant, tiny);
 				ReportDeath(giant, tiny, Cause);
-				if (!LessGore()) {
+				if (!Config::General.bLessGore) {
 					auto node = find_node(giant, GetDeathNodeName(Cause));
 					if (!IsMechanical(tiny)) {
 						PlayCrushSound(giant, node, StrongGore(Cause), get_corrected_scale(tiny)); // Run Crush Sound task that will determine which exact type of crushing audio to play

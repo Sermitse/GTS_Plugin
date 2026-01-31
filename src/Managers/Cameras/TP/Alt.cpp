@@ -1,13 +1,13 @@
 #include "Managers/Cameras/TP/Alt.hpp"
 #include "Managers/Cameras/Camutil.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Config/Config.hpp"
 
 #include "Managers/SpectatorManager.hpp"
 
 namespace GTS {
 
-	auto& CamSettings = Config::GetCamera().OffsetsAlt;
+	auto& CamSettings = Config::Camera.OffsetsAlt;
 
 	NiPoint3 Alt::GetOffset(const NiPoint3& cameraPos) {
 
@@ -54,6 +54,6 @@ namespace GTS {
 		auto& sizemanager = SizeManager::GetSingleton();
 
 		CameraTracking Camera_Anim = sizemanager.GetTrackedBone(player);
-		return GetBoneTargets(Camera_Anim, StringToEnum<CameraTrackingSettings>(CamSettings.sCenterOnBone));
+		return GetBoneTargets(Camera_Anim, StringToEnum<LCameraTrackBone_t>(CamSettings.sCenterOnBone));
 	}
 }

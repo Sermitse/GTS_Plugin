@@ -36,7 +36,7 @@ namespace {
 	//Set Reset attack blocking based on if we have a list of prey
 	void HandleAttackBlocking(Actor* a_Performer, const std::vector<Actor*>& a_ValidPreyList) {
 
-		if (a_ValidPreyList.empty() && !IsGtsBusy(a_Performer) && !IsTransitioning(a_Performer)) {
+		if (a_ValidPreyList.empty() && !AnimationVars::General::IsGTSBusy(a_Performer) && !AnimationVars::General::IsTransitioning(a_Performer)) {
 			AttackManager::PreventAttacks(a_Performer, nullptr);
 			return;
 		}
@@ -47,7 +47,7 @@ namespace {
 		auto PreyList = a_ValidPreyList;
 
 		// Presort by distance
-		ranges::sort(PreyList, [PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
+		std::ranges::sort(PreyList, [PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
 			float DistToA = (a_PreyA->GetPosition() - PredPos).Length();
 			float DistToB = (a_PreyB->GetPosition() - PredPos).Length();
 			return DistToA < DistToB;
@@ -77,7 +77,7 @@ namespace {
 			return false;
 		}
 
-		if (a_Actor->formID == 0x14 && !Config::GetAdvanced().bPlayerAI) {
+		if (a_Actor->IsPlayerRef() && !Config::Advanced.bPlayerAI) {
 			return false;
 		}
 
@@ -91,13 +91,13 @@ namespace {
 
 			const bool HasHP = GetAV(a_Actor, ActorValue::kHealth) > 0;
 			const bool IsInNormalState = a_Actor->AsActorState()->GetSitSleepState() == SIT_SLEEP_STATE::kNormal;
-			const bool IsHoldingSomeone = Grab::GetHeldActor(a_Actor) != nullptr || IsInCleavageState(a_Actor);
+			const bool IsHoldingSomeone = Grab::GetHeldActor(a_Actor) != nullptr || AnimationVars::Action::IsInCleavageState(a_Actor);
 			const bool IsInCombat = (a_Actor->IsInCombat()) || (a_Actor->GetActorRuntimeData().currentCombatTarget.get().get() != nullptr);
 
-			const bool IsPlayer = a_Actor->formID == 0x14 && Config::GetAdvanced().bPlayerAI;
+			const bool IsPlayer = a_Actor->IsPlayerRef() && Config::Advanced.bPlayerAI;
 
 			//Is In combat or do we allow ai outside of combat?
-			if ((IsInCombat || !a_CombatOnly) && !IsGtsBusy(a_Actor) && HasHP && IsVisible(a_Actor) && IsInNormalState && !IsHoldingSomeone) {
+			if ((IsInCombat || !a_CombatOnly) && !AnimationVars::General::IsGTSBusy(a_Actor) && HasHP && IsVisible(a_Actor) && IsInNormalState && !IsHoldingSomeone) {
 
 				//Follower Check
 				if (IsTeammate(a_Actor) || IsPlayer) {
@@ -116,7 +116,7 @@ namespace {
 	// Check if an actor is a valid action victim
 	inline bool ValidPrey(Actor* a_Performer, Actor* a_Prey, const bool a_AllowPlayer, const bool a_AllowTeamMates, const bool a_AllowEssential, const bool a_HostileOnly) {
 
-		if (!a_Prey) {
+		if (!a_Prey || !a_Performer) {
 			return false;
 		}
 
@@ -138,10 +138,10 @@ namespace {
 			return false;
 		}
 
-		if (!IsGtsBusy(a_Prey) && IsVisible(a_Prey)) {
+		if (!AnimationVars::General::IsGTSBusy(a_Prey) && IsVisible(a_Prey)) {
 
 			//If not a teammate and they are essential but we allow essentials
-			if (a_Prey->formID == 0x14) {
+			if (a_Prey->IsPlayerRef()) {
 				if (a_AllowPlayer) {
 					return true;
 				}
@@ -180,7 +180,7 @@ namespace {
 
 		std::vector<Actor*> ValidPerformers = {};
 
-		const bool CombatOnly = Config::GetAI().bCombatOnly;
+		const bool CombatOnly = Config::AI.bCombatOnly;
 
 		//Get a list of valid perfomer actors, aka actors that are elidgible to start an action.
 		for (auto Target : find_actors()) {
@@ -205,8 +205,8 @@ namespace {
 
 		std::vector<Actor*> ValidVictims = {};
 
-		const auto& AISettings = Config::GetAI();
-		const auto& GeneralSettings = Config::GetGeneral();
+		const auto& AISettings = Config::AI;
+		const auto& GeneralSettings = Config::General;
 
 		const bool AllowPlayer = AISettings.bAllowPlayer;
 		const bool AllowFollowers = AISettings.bAllowFollowers;
@@ -229,22 +229,30 @@ namespace {
 	}
 
 	//Calculate which actions should be started based on which ones can currently be started
-	ActionType CalculateProbability(const std::map<ActionType, int>& a_ValidActionMap) {
+	ActionType CalculateProbability(const absl::flat_hash_map<ActionType, int>& a_ValidActionMap) {
 
+		constexpr int DesiredNonePercentage = 30; // Target probability for None
 		if (a_ValidActionMap.empty()) return ActionType::kNone;
 
 		try {
 			std::array<int, static_cast<int>(ActionType::kTotal)> ProbabiltyList = { 0 };
+			int totalActionWeight = 0;
 
 			for (auto Action : a_ValidActionMap) {
 				ProbabiltyList[static_cast<int>(Action.first)] = Action.second;
+				totalActionWeight += Action.second;
 			}
 
-			ProbabiltyList[static_cast<int>(ActionType::kNone)] = 100;
+			// Scale None weight so it represents DesiredNonePercentage of total probability
+			// If None should be 30%, then actions should be 70% of total
+			// So: NoneWeight / (ActionWeight + NoneWeight) = 0.30
+			// Solving: NoneWeight = ActionWeight * (DesiredNonePercentage / (100 - DesiredNonePercentage))
+			const int noneWeight = (totalActionWeight * DesiredNonePercentage) / (100 - DesiredNonePercentage);
+			ProbabiltyList[static_cast<int>(ActionType::kNone)] = noneWeight;
 
 			return static_cast<ActionType>(RandomIntWeighted(ProbabiltyList));
 		}
-		catch (exception& e) {
+		catch (std::exception& e) {
 			logger::warn("CalculateProbability Exception: {}", e.what());
 			return ActionType::kNone;
 		}
@@ -254,9 +262,13 @@ namespace {
 
 namespace GTS {
 
+	std::string AIManager::DebugName() {
+		return "::AIManager";
+	}
+
 	void AIManager::Update() {
 
-		if (!Plugin::Live()) {
+		if (!State::Live()) {
 			return;
 		}
 
@@ -308,7 +320,7 @@ namespace GTS {
 		std::vector<Actor*> CanGrab = {};
 
 		//a map containing which actions can be started based on if their probability will be > 0
-		std::map<ActionType, int> StartableActions = {};
+		absl::flat_hash_map<ActionType, int> StartableActions = {};
 
 		const auto& PreyList = FindValidPrey(a_Performer);
 		if (PreyList.empty()) {
@@ -375,7 +387,7 @@ namespace GTS {
 		if (AISettings.ButtCrush.bEnableAction) {
 			CanButtCrush = ButtCrushAI_FilterList(a_Performer, PreyList);
 			if (!CanButtCrush.empty()) {
-				StartableActions.emplace(ActionType::kButt, static_cast<int>(AISettings.ThighCrush.fProbability));
+				StartableActions.emplace(ActionType::kButt, static_cast<int>(AISettings.ButtCrush.fProbability));
 			}
 		}
 
@@ -398,7 +410,7 @@ namespace GTS {
 		}
 
 		//-------- Merge All Vectors Into one
-		std::unordered_set<Actor*> UniqueActors;
+		absl::flat_hash_set<Actor*> UniqueActors;
 		std::vector<Actor*> Temp;
 		
 		Temp.reserve(CanVore.size() + CanStompKickSwipe.size() +

@@ -7,6 +7,8 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Rumble.hpp"
 
+#include "Utils/Actions/VoreUtils.hpp"
+
 using namespace GTS;
 
 
@@ -120,9 +122,9 @@ namespace {
 			DisableCollisions(tiny, giant);
 			SetBeingHeld(tiny, true);
 		}
-		const bool Freelook = Config::GetGameplay().ActionSettings.bVoreFreecam;
+		const bool Freelook = Config::Gameplay.ActionSettings.bVoreFreecam;
 
-		if (Freelook && giant->formID == 0x14) {
+		if (Freelook && giant->IsPlayerRef()) {
 			EnableFreeCamera();
 		} else {
 			ManageCamera(giant, true, CameraTracking::Hand_Right);
@@ -174,7 +176,7 @@ namespace {
 		VoreData.GrabAll();
 		for (auto& tiny: VoreData.GetVories()) {
 			tiny->NotifyAnimationGraph("JumpFall");
-			Attacked(tiny, giant);
+			tiny->Attacked(giant);
 		}
 
 		ManageCamera(giant, false, CameraTracking::Hand_Right);
@@ -216,12 +218,12 @@ namespace {
 		auto giant = &data.giant;
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		VoreData.EnableMouthShrinkZone(true);
-		if (AllowDevourment()) {
+		if (IsDevourmentEnabled()) {
 			for (auto& tiny: VoreData.GetVories()) {
 				CallDevourment(giant, tiny);
 			} 
 		} else {
-			Runtime::PlaySoundAtNode("GTSSoundSwallow", giant, 1.0f, "NPC Head [Head]"); // Play sound
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, giant, 1.0f, "NPC Head [Head]"); // Play sound
 			VoreData.Swallow();
 		}
 	}
@@ -243,7 +245,7 @@ namespace {
 		TaskManager::Cancel(name_2);
 
 		for (auto& tiny: VoreData.GetVories()) {
-			if (tiny->formID == 0x14) {
+			if (tiny->IsPlayerRef()) {
 				PlayerCamera::GetSingleton()->cameraTarget = giant->CreateRefHandle();
 			}
 		}
@@ -252,7 +254,7 @@ namespace {
 	void GTSvore_handR_reposition_S(AnimationEventData& data) {
 		
 		auto giant = &data.giant;
-		/*if (!AllowDevourment()) {
+		/*if (!IsDevourmentEnabled()) {
 			
 		}*/
 		AdjustFacialExpression(giant, 0, 0.0f, CharEmotionType::Modifier); // blink L
@@ -303,7 +305,7 @@ namespace {
 		auto giant = &data.giant;
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		VoreData.ReleaseAll();
-		if (Config::GetGameplay().ActionSettings.bVoreFreecam && giant->formID == 0x14) {
+		if (Config::Gameplay.ActionSettings.bVoreFreecam && giant->IsPlayerRef()) {
 			EnableFreeCamera();
 		}
 		Rumbling::Stop("BodyRumble", &data.giant);

@@ -1,7 +1,4 @@
 // Module that handles rumbling
-
-#include <algorithm>
-
 #include "Managers/Rumble.hpp"
 
 #include "Config/Config.hpp"
@@ -34,13 +31,7 @@ namespace GTS {
 		this->startTime = 0.0f;
 	}
 
-	ActorRumbleData::ActorRumbleData()  : delay(Timer(0.40)) {
-	}
-
-	Rumbling& Rumbling::GetSingleton() noexcept {
-		static Rumbling instance;
-		return instance;
-	}
+	ActorRumbleData::ActorRumbleData()  : delay(Timer(0.40)) {}
 
 	std::string Rumbling::DebugName() {
 		return "::Rumbling";
@@ -63,7 +54,7 @@ namespace GTS {
 	}
 
 	void Rumbling::Stop(std::string_view tagsv, Actor* giant) {
-		string tag = std::string(tagsv);
+		std::string tag = std::string(tagsv);
 		auto& me = Rumbling::GetSingleton();
 		try {
 			if (!me.data.empty() || !me.data.contains(giant)) {
@@ -98,7 +89,7 @@ namespace GTS {
 		for (auto& [actor, data]: this->data) {
 			// Update values based on time passed
 			std::vector<std::string> tagsToErase = {};
-			for (auto& [tag, rumbleData]: data.tags) {
+			for (auto& rumbleData : data.tags | std::views::values) {
 				switch (rumbleData.state) {
 					case RumbleState::RampingUp: {
 						// Increasing intensity just let the spring do its thing
@@ -141,7 +132,7 @@ namespace GTS {
 			bool ignore_scaling = false;
 
 			std::unordered_map<NiAVObject*, float> cummulativeIntensity;
-			for (const auto &[tag, rumbleData]: data.tags) {
+			for (const auto& rumbleData : data.tags | std::views::values) {
 				duration_override = rumbleData.shake_duration;
 				ignore_scaling = rumbleData.ignore_scaling;
 				auto node = find_node(actor, rumbleData.node);
@@ -169,7 +160,7 @@ namespace GTS {
 					// Lastly play the sound at each node
 					if (data.delay.ShouldRun()) {
 						//log::info("Playing sound at: {}, Intensity: {}", actor->GetDisplayFullName(), intensity);
-						Runtime::PlaySoundAtNode("GTSSoundWalkAirRumble", volume, node);
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundWalkAirRumble, volume, node);
 					}
 				}
 			}
@@ -202,14 +193,11 @@ namespace GTS {
 			// Reciever is always PC, if it is not PC - we do nothing anyways
 			Actor* receiver = PlayerCharacter::GetSingleton();
 			if (receiver) {
-				auto& persist = Persistent::GetSingleton();
-				
-				float tremor_scale = Config::GetCamera().fCameraShakeOther;
+
+				float tremor_scale = Config::Camera.fCameraShakeOther;
 				float might = 1.0f + Potion_GetMightBonus(caster); // Stronger, more impactful shake with Might potion
 				
 				float distance = (coords - receiver->GetPosition()).Length(); // In that case we apply shake based on actor distance
-
-				float AnimSpeed = AnimationManager::GetAnimSpeed(caster);
 
 				float sourcesize = get_visual_scale(caster);
 				float receiversize = get_visual_scale(receiver);
@@ -217,16 +205,16 @@ namespace GTS {
 				float sizedifference = sourcesize/receiversize;
 				float scale_bonus = 0.0f;
 
-				if (caster->formID == 0x14) {
+				if (caster->IsPlayerRef()) {
 					distance = get_distance_to_camera(coords); // use player camera distance (for player only)
-					tremor_scale = Config::GetCamera().fCameraShakePlayer;
+					tremor_scale = Config::Camera.fCameraShakePlayer;
 					sizedifference = sourcesize;
 
 					if (HasSMT(caster)) {
 						sourcesize += 0.2f; // Fix SMT having no shake at x1.0 scale
 					}
 					if (IsFirstPerson() || HasFirstPersonBody()) {
-						tremor_scale *= Config::GetCamera().fCameraShakePlayerFP; // Less annoying FP screen shake
+						tremor_scale *= Config::Camera.fCameraShakePlayerFP; // Less annoying FP screen shake
 					}
 
 					scale_bonus = 0.1f;

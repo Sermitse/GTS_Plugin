@@ -7,9 +7,10 @@ using namespace GTS;
 // Needs rework
 
 namespace {
+
 	bool IsAllowed(Actor* a_Giant) {
-		const bool IsPlayer = a_Giant->formID == 0x14; // Always allow Player
-		const bool ConfigLock = Config::GetAI().bRecordBoneSpeedData; // IF ON, also allow NPC's
+		const bool IsPlayer = a_Giant->IsPlayerRef(); // Always allow Player
+		const bool ConfigLock = Config::AI.bRecordBoneSpeedData; // IF ON, also allow NPC's
 		
 		if (IsPlayer || ConfigLock) {
 			return true;
@@ -19,41 +20,45 @@ namespace {
 
 	NodeMovementType Convert_To_MovementType(DamageSource Source) {
 
-		NodeMovementType Type = NodeMovementType::Movement_None;
+		NodeMovementType Type;
 
 		switch (Source) {
 
 			case DamageSource::HandDropRight:
 			case DamageSource::HandSwipeRight:
 			case DamageSource::HandSlamRight:
-			case DamageSource::HandCrawlRight:
+			case DamageSource::HandCrawlRight: {
 				Type = NodeMovementType::Movement_RightHand;
-			break;	
+				break;
+			}
 			case DamageSource::HandDropLeft:
 			case DamageSource::HandSwipeLeft:
 			case DamageSource::HandSlamLeft:
-			case DamageSource::HandCrawlLeft:
+			case DamageSource::HandCrawlLeft: {
 				Type = NodeMovementType::Movement_LeftHand;
-			break;
+				break;
+			}
 			case DamageSource::WalkRight:
 			case DamageSource::FootIdleR:
 			case DamageSource::CrushedRight:
 			case DamageSource::FootGrindedRight:
 			case DamageSource::KickedRight:
-			case DamageSource::KneeRight:
+			case DamageSource::KneeRight: {
 				Type = NodeMovementType::Movement_RightLeg;
-			break;	
+				break;
+			}
 			case DamageSource::WalkLeft:
 			case DamageSource::FootIdleL:
 			case DamageSource::CrushedLeft:
 			case DamageSource::FootGrindedLeft:
 			case DamageSource::KickedLeft:
-			case DamageSource::KneeLeft:
+			case DamageSource::KneeLeft: {
 				Type = NodeMovementType::Movement_LeftLeg;
-			break;	
+				break;
+			}
+
 			default: {
 				return NodeMovementType::Movement_None;
-			break;
 			}
 		}
 		return Type;
@@ -67,13 +72,12 @@ namespace GTS {
 			if (!IsAllowed(a_Giant)) {
 				return; // Do nothing in that case
 			}
-			auto Data = Transient::GetSingleton().GetData(a_Giant);
 
-			if (Data) {
+			if (auto Data = Transient::GetActorData(a_Giant)) {
 				NiAVObject* Node_LeftFoot = find_node(a_Giant, "NPC L Foot [Lft ]");
 				NiAVObject* Node_RightFoot = find_node(a_Giant, "NPC R Foot [Rft ]");
 				
-				if (a_Giant->IsSneaking() || IsCrawling(a_Giant)) {
+				if (a_Giant->IsSneaking() || AnimationVars::Crawl::IsCrawling(a_Giant)) {
 					NiAVObject* Node_LeftHand = find_node(a_Giant, "NPC L Hand [LHnd]");
 					NiAVObject* Node_RightHand = find_node(a_Giant, "NPC R Hand [RHnd]");
 					if (Node_LeftHand && Node_RightHand) {
@@ -107,7 +111,7 @@ namespace GTS {
 			return 1.0f;
 		}
 		GTS_PROFILE_SCOPE("MovementForce: GetBoneMovementSpeed");
-		auto Data = Transient::GetSingleton().GetData(actor);
+		auto Data = Transient::GetActorData(actor);
 		float NodeMovementForce = 0.0f;
 		
 		if (Data) {
@@ -120,15 +124,15 @@ namespace GTS {
 					NodeMovementForce = Data->FootVelocity_R;
 					break;
 				}
-				case NodeMovementType::Movement_LeftHand: 
+				case NodeMovementType::Movement_LeftHand: {
 					NodeMovementForce = Data->HandVelocity_L;
-				break;
-				case NodeMovementType::Movement_RightHand: 
+					break;
+				}
+				case NodeMovementType::Movement_RightHand: {
 					NodeMovementForce = Data->HandVelocity_R;
-				break;
-				case NodeMovementType::Movement_None:
-					return 1.0f; // Always allow for actions that are supposed to stagger always
-				break;
+					break;
+				}
+				case NodeMovementType::Movement_None: return 1.0f; // Always allow for actions that are supposed to stagger always
 			}
 		}
 		

@@ -3,7 +3,7 @@
 #include "Managers/AI/AIFunctions.hpp"
 #include "Magic/Effects/Common.hpp"
 
-#include "UI/DebugAPI.hpp"
+
 
 #include "Managers/Audio/MoansLaughs.hpp"
 
@@ -51,11 +51,11 @@ namespace {
 		}
 	}
 
-	void ShrinkTheTargetOr(Actor* giant, Actor* otherActor, float stare_threshold, float tiny_size, float difference, TempActorData* data) {
+	void ShrinkTheTargetOr(Actor* giant, Actor* otherActor, float stare_threshold, float tiny_size, float difference, TransientActorData* data) {
 		SpawnParticle(otherActor, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), otherActor->GetPosition(), tiny_size * 4.5f, 7, nullptr); 
 		SpawnCustomParticle(otherActor, ParticleType::Red, otherActor->GetPosition(), "NPC Root [Root]", tiny_size);
 
-		Runtime::PlaySoundAtNode("GTSSoundMagicProctectTinies", otherActor, 0.5f, "NPC Root [Root]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundMagicProctectTinies, otherActor, 0.5f, "NPC Root [Root]");
 
 		InflictSizeDamage(giant, otherActor, GetAV(otherActor, ActorValue::kHealth) * 0.015f);
 		AddSMTDuration(giant, stare_threshold * 0.75f, false);
@@ -63,8 +63,8 @@ namespace {
 		float shrink_bonus = std::clamp(tiny_size, 0.20f, 1.0f);
 		ShrinkByOverTime(otherActor, stare_threshold * 0.1f, tiny_size * (0.45f / shrink_bonus));
 
-		if (GetSizeDifference(giant, otherActor, SizeType::VisualScale, false, false) >= 0.92f) {
-			StaggerActor_Directional(giant, difference, otherActor);
+		if (get_scale_difference(giant, otherActor, SizeType::VisualScale, false, false) >= 0.92f) {
+			otherActor->StaggerDirectional(giant, difference);
 		}
 
 		if (tiny_size <= 0.50f) {
@@ -85,8 +85,8 @@ namespace {
 
 			if (NodePosition.Length() > 0.0f) {
 
-				if (IsDebugEnabled() && (giant->formID == 0x14)) {
-					DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance);
+				if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kPlayerOnly)) {
+					DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance);
 				}
 
 				if (NodePosition.Length() > 0) {
@@ -94,7 +94,7 @@ namespace {
 					for (auto otherActor: find_actors()) {
 						if (otherActor != giant && IsHostile(giant, otherActor) && !IsEssential(giant, otherActor)) {
 							if (!IsBetweenBreasts(otherActor) && !IsBeingHeld(giant, otherActor)) {
-								auto data = Transient::GetSingleton().GetActorData(otherActor);
+								auto data = Transient::GetActorData(otherActor);
 								if (data) {
 									NiPoint3 actorLocation = otherActor->GetPosition();
 									if ((actorLocation-giantLocation).Length() <= checkDistance) {
@@ -124,7 +124,7 @@ namespace {
 											});
 										}
 										if (nodeCollisions > 0) {
-											float difference = GetSizeDifference(giant, otherActor, SizeType::VisualScale, false, false);
+											float difference = get_scale_difference(giant, otherActor, SizeType::VisualScale, false, false);
 											float stare_threshold_s = std::clamp(3.25f * get_visual_scale(otherActor), 0.25f, 6.0f);
 											float tiny_size = get_visual_scale(otherActor);
 
@@ -136,7 +136,7 @@ namespace {
 												} else {
 													if (!IsActionOnCooldown(otherActor, CooldownSource::Misc_ShrinkParticle_Gaze)) {
 														SpawnParticle(otherActor, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), otherActor->GetPosition(), tiny_size * 4.5f, 7, nullptr); 
-														Runtime::PlaySoundAtNode("GTSSoundMagicProctectTinies", otherActor, 0.5f, "NPC Root [Root]");
+														Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundMagicProctectTinies, otherActor, 0.5f, "NPC Root [Root]");
 														ApplyActionCooldown(otherActor, CooldownSource::Misc_ShrinkParticle_Gaze);
 													}
 													data->MovementSlowdown = 1.0f;
@@ -168,7 +168,7 @@ namespace {
 				return false;
 			}
 
-			if (!IsGtsBusy(giantref)) {	
+			if (!AnimationVars::General::IsGTSBusy(giantref)) {	
 				PerformShrinkOnActor(giantref);
 			}
 
@@ -180,7 +180,7 @@ namespace {
 namespace GTS {
 
 	void StartShrinkingGaze(Actor* giant) {
-		if (Runtime::HasPerk(giant, "GTSPerkShrinkingGaze") && giant->formID == 0x14) {
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkShrinkingGaze) && giant->IsPlayerRef()) {
 			Task_ShrinkingGazeTask(giant);
 		}
 	}

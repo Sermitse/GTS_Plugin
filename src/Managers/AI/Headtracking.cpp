@@ -94,27 +94,28 @@ namespace {
 
 	// Rotate spine to look at an actor either leaning back or looking down
 	void RotateSpine(Actor* giant, Actor* tiny, HeadtrackingData& data) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			return;
 		}
 
 		float finalAngle = 0.0f;
 		if (tiny) { // giant is the actor that is looking, tiny is the one that is being looked at (Player for example)
 			//log::info("Tiny is: {}", tiny->GetDisplayFullName());
-			bool Collision_Installed = false; //Detects 'Precision' mod
+
+			/*
 			float Collision_PitchMult = 0.0f;
-			giant->GetGraphVariableBool("Collision_Installed", Collision_Installed);
-			if (Collision_Installed == true) {
-				giant->GetGraphVariableFloat("Collision_PitchMult", Collision_PitchMult); // If true, obtain value to apply it
+			if (AnimationVars::Other::IsCollisionInstalled(giant)) { //Detects 'Precision' mod
+				Collision_PitchMult = AnimationVars::Other::CollisionPitchMult(giant); // If true, obtain value to apply it
 				//log::info("Collision Pitch Mult: {}", Collision_PitchMult);
 			}
+			*/
 
 			auto dialoguetarget = giant->GetActorRuntimeData().dialogueItemTarget;
 			if (dialoguetarget) {
 				// In dialogue
 				if (giant != tiny) { // Just to make sure
 					// With valid look at target
-					giant->SetGraphVariableBool("GTSIsInDialogue", true); // Allow spine edits
+					AnimationVars::General::SetIsInDialogue(giant, true);
 					auto meHead = HeadLocation(giant);
 					//log::info("  - meHead: {}", Vector2Str(meHead));
 					auto targetHead = HeadLocation(tiny);
@@ -140,23 +141,18 @@ namespace {
 				// Not in dialog
 				if (fabs(data.spineSmooth.value) < 1e-3) {
 					// Finihed smoothing back to zero
-					giant->SetGraphVariableBool("GTSIsInDialogue", false); // Disallow
+					AnimationVars::General::SetIsInDialogue(giant, false); // Disallow
 					//log::info("Setting InDialogue to false");
 				}
 			}
 			//log::info("Pitch Override of {} is {}", giant->GetDisplayFullName(), data.spineSmooth.value);
 		}
 		data.spineSmooth.target = finalAngle;
-		giant->SetGraphVariableFloat("GTSPitchOverride", data.spineSmooth.value);
+		AnimationVars::General::SetPitchOverride(giant, data.spineSmooth.value);
 	}
 }
 
 namespace GTS {
-
-	Headtracking& Headtracking::GetSingleton() noexcept {
-		static Headtracking instance;
-		return instance;
-	}
 
 	std::string Headtracking::DebugName() {
 		return "::Headtracking";
@@ -165,7 +161,7 @@ namespace GTS {
 	void Headtracking::Update() {
 		for (auto actor: find_actors()) {
 			this->data.try_emplace(actor->formID);
-			if (actor->formID == 0x14 || IsTeammate(actor)) {
+			if (actor->IsPlayerRef() || IsTeammate(actor)) {
 				SpineUpdate(actor);
 			}
 		}
@@ -173,7 +169,7 @@ namespace GTS {
 
 	void Headtracking::SpineUpdate(Actor* me) {
 		GTS_PROFILE_SCOPE("Headtracking: SpineUpdate");
-		if (me->formID == 0x14) {
+		if (me->IsPlayerRef()) {
 			return;
 		}
 		auto ai = me->GetActorRuntimeData().currentProcess;

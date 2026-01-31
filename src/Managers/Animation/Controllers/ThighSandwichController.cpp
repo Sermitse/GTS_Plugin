@@ -5,7 +5,7 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/Utils/AttachPoint.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Magic/Effects/Common.hpp"
 
 #include "Managers/AI/Thigh/ThighSandwichAI.hpp"
@@ -21,7 +21,7 @@ namespace {
 	constexpr float SANDWICH_ANGLE = 60;
 	constexpr float PI = std::numbers::pi_v<float>;
 
-	constexpr string rune_node = "GiantessRune";
+	const std::string rune_node = "GiantessRune";
 
 	void CantThighSandwichPlayerMessage(Actor* giant, Actor* tiny, float sizedifference) {
 		if (sizedifference < Action_Sandwich) {
@@ -47,7 +47,7 @@ namespace {
 				node->local.scale = static_cast<float>(std::clamp(timepassed, 0.01, 1.0));
 				update_node(node);
 			}
-			if (timepassed >= 0.98 || !IsGtsBusy(giantref)) {
+			if (timepassed >= 0.98 || !AnimationVars::General::IsGTSBusy(giantref)) {
 				return false; // end it
 			}
 			return true;
@@ -71,7 +71,7 @@ namespace {
 				node->local.scale = static_cast<float>(std::clamp(1.0 - timepassed, 0.005, 1.0));
 				update_node(node);
 			}
-			if (!IsGtsBusy(giantref)) {
+			if (!AnimationVars::General::IsGTSBusy(giantref)) {
 				return false; // end it
 			}
 			return true;
@@ -89,16 +89,11 @@ namespace GTS {
 
 	std::vector<Actor*> SandwichingData::GetActors() {
 		std::vector<Actor*> result;
-		for (auto& actorref : this->tinies | views::values) {
+		for (auto& actorref : this->tinies | std::views::values) {
 			auto actor = actorref.get().get();
 			result.push_back(actor);
 		}
 		return result;
-	}
-
-	ThighSandwichController& ThighSandwichController::GetSingleton() noexcept {
-		static ThighSandwichController instance;
-		return instance;
 	}
 
 	std::string ThighSandwichController::DebugName() {
@@ -135,20 +130,20 @@ namespace GTS {
 			
 
 			//If AI
-			if ((GiantRef->formID != 0x14) || (GiantRef->formID == 0x14 && Config::GetAdvanced().bPlayerAI)) {
+			if ((!GiantRef->IsPlayerRef()) || (GiantRef->IsPlayerRef() && Config::Advanced.bPlayerAI)) {
 
-				if (auto AITransientData = Transient::GetSingleton().GetData(GiantRef)) {
-					AITransientData->ActionTimer.UpdateDelta(Config::GetAI().ThighSandwich.fInterval);
+				if (auto AITransientData = Transient::GetActorData(GiantRef)) {
+					AITransientData->ActionTimer.UpdateDelta(Config::AI.ThighSandwich.fInterval);
 
-					if (!Plugin::Live()) return;
+					if (!State::Live()) return;
 
-					if (GetPlayerOrControlled()->formID == 0x14 && AITransientData->ActionTimer.ShouldRunFrame()) {
+					if (GetPlayerOrControlled()->IsPlayerRef() && AITransientData->ActionTimer.ShouldRunFrame()) {
 						ThighSandwichAI_DecideAction(GiantRef, tinies.size() > 0);
 					}
 				}
 			}
 
-			for (auto& tinyref : this->tinies | views::values) {
+			for (auto& tinyref : this->tinies | std::views::values) {
 
 				if (!MoveTinies) {
 					return;
@@ -164,17 +159,14 @@ namespace GTS {
 					AttachToR ? AttachToObjectR(GiantRef, tiny_is_actor) : AttachToObjectA(GiantRef, tiny_is_actor);
 					//ForceRagdoll(tiny_is_actor, false);
 					ShutUp(tiny_is_actor);
-
-					if (FaceOpposite(GiantRef, tiny_is_actor)) {
-						// No need to do anything here
-					} 
+					FaceOpposite(GiantRef, tiny_is_actor);
 				}
 
 				float tinyScale = get_visual_scale(tiny);
-				float sizedifference = GetSizeDifference(GiantRef, tiny, SizeType::VisualScale, true, false);
+				float sizedifference = get_scale_difference(GiantRef, tiny, SizeType::VisualScale, true, false);
 				float threshold = Action_Sandwich;
 
-				if (GiantRef->IsDead() || sizedifference < threshold || !IsThighSandwiching(GiantRef)) {
+				if (GiantRef->IsDead() || sizedifference < threshold || !AnimationVars::Action::IsThighSandwiching(GiantRef)) {
 					Attachment_SetTargetNode(GiantRef, AttachToNode::None);
 
 					EnableCollisions(tiny);
@@ -202,7 +194,7 @@ namespace GTS {
 	}
 
 	void ThighSandwichController::Update() {
-		for (auto& SandwichData : this->data | views::values) {
+		for (auto& SandwichData : this->data | std::views::values) {
 			SandwichData.Update();
 		}
 	}
@@ -210,10 +202,10 @@ namespace GTS {
 	std::vector<Actor*> ThighSandwichController::GetSandwichTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor
 		auto& sizemanager = SizeManager::GetSingleton();
-		if (!CanPerformAnimation(pred, AnimationCondition::kGrabAndSandwich)) {
+		if (!CanDoActionBasedOnQuestProgress(pred, QuestAnimationType::kGrabAndSandwich)) {
 			return {};
 		}
-		if (IsGtsBusy(pred)) {
+		if (AnimationVars::General::IsGTSBusy(pred)) {
 			return {};
 		}
 		if (!pred) {
@@ -229,7 +221,7 @@ namespace GTS {
 		auto preys = find_actors();
 
 		// Sort prey by distance
-		ranges::sort(preys,[predPos](const Actor* preyA, const Actor* preyB) -> bool{
+		std::ranges::sort(preys,[predPos](const Actor* preyA, const Actor* preyB) -> bool{
 			float distanceToA = (preyA->GetPosition() - predPos).Length();
 			float distanceToB = (preyB->GetPosition() - predPos).Length();
 			return distanceToA < distanceToB;
@@ -304,7 +296,7 @@ namespace GTS {
 
 		float pred_scale = get_visual_scale(pred);
 
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, true, false);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, true, false);
 
 		float MINIMUM_SANDWICH_SCALE = Action_Sandwich;
 
@@ -316,17 +308,17 @@ namespace GTS {
 
 		float prey_distance = (pred->GetPosition() - prey->GetPosition()).Length();
 		if (prey_distance <= (MINIMUM_DISTANCE * pred_scale) && sizedifference < MINIMUM_SANDWICH_SCALE) {
-			if (pred->formID == 0x14) {
+			if (pred->IsPlayerRef()) {
 				std::string_view message = fmt::format("{} is too big to be smothered between thighs: x{:.2f}/{:.2f}", prey->GetDisplayFullName(), sizedifference, MINIMUM_SANDWICH_SCALE);
 				shake_camera(pred, 0.45f, 0.30f);
 				NotifyWithSound(pred, message);
-			} else if (this->allow_message && prey->formID == 0x14 && IsTeammate(pred)) {
+			} else if (this->allow_message && prey->IsPlayerRef() && IsTeammate(pred)) {
 				CantThighSandwichPlayerMessage(pred, prey, sizedifference);
 			}
 			return false;
 		}
 		if (prey_distance <= (MINIMUM_DISTANCE * pred_scale) && sizedifference > MINIMUM_SANDWICH_SCALE) {
-			if ((prey->formID != 0x14 && IsEssential(pred, prey))) {
+			if ((!prey->IsPlayerRef() && IsEssential(pred, prey))) {
 				return false;
 			} else {
 				return true;
@@ -349,7 +341,7 @@ namespace GTS {
 			return;
 		}
 		
-		if (GetSizeDifference(pred, prey, SizeType::VisualScale, false, false) < Action_Sandwich) {
+		if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_Sandwich) {
 			ShrinkUntil(pred, prey, 6.0f, 0.20f, true);
 			return;
 		}

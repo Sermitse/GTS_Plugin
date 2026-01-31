@@ -2,8 +2,6 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AttachPoint.hpp"
 
-#include "Managers/SpectatorManager.hpp"
-
 #include "Managers/Animation/Controllers/ThighSandwichController.hpp"
 #include "Managers/Animation/Controllers/GrabAnimationController.hpp"
 #include "Managers/Animation/Controllers/ButtCrushController.hpp"
@@ -24,7 +22,7 @@
 
 #include "Managers/Rumble.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/HighHeel.hpp"
 
 #include "Magic/Effects/Common.hpp"
@@ -86,7 +84,7 @@ namespace GTS {
 	void RestoreBreastAttachmentState(Actor* giant, Actor* tiny) { // Fixes tiny going under our foot if someone suddenly ragdolls us during breast anims such as Absorb
 		if (IsRagdolled(giant) && Attachment_GetTargetNode(giant) != AttachToNode::None) {
 			Attachment_SetTargetNode(giant, AttachToNode::None);
-			giant->SetGraphVariableBool("GTS_OverrideZ", false);
+			AnimationVars::Action::SetIsCleavageZOverrideEnabled(giant, false);
 
 			if (IsHostile(giant, tiny)) {
 				AnimationManager::StartAnim("Breasts_Idle_Unwilling", tiny);
@@ -107,7 +105,7 @@ namespace GTS {
 
             auto giant_get = giantHandle.get().get();
             if (giant_get) {
-                if (IsInCleavageState(giant_get) || IsHugCrushing(giant_get)) {
+                if (AnimationVars::Action::IsInCleavageState(giant_get) || AnimationVars::Hug::IsHugCrushing(giant_get)) {
                     ApplyActionCooldown(giant_get, CooldownSource::Action_AbsorbOther);
                     return true; // reapply
                 }
@@ -118,7 +116,7 @@ namespace GTS {
     }
 
 	void Anims_FixAnimationDesync(Actor* giant, Actor* tiny, bool reset) {
-		auto transient = Transient::GetSingleton().GetData(tiny);
+		auto transient = Transient::GetActorData(tiny);
 		if (transient) {
 			float& animspeed = transient->HugAnimationSpeed;
 			if (!reset) {
@@ -134,11 +132,11 @@ namespace GTS {
 	void ForceFollowerAnimation(Actor* giant, FollowerAnimType Type) {
 		std::size_t numberOfPrey = 1000;
 
-		auto& Vore =        VoreController::GetSingleton();
+		auto& Vore      =   VoreController::GetSingleton();
 		auto& ButtCrush = 	ButtCrushController::GetSingleton();
-		auto& Hugs = 		HugAnimationController::GetSingleton();
-		auto& Grabs = 		GrabAnimationController::GetSingleton();
-		auto& Sandwich =    ThighSandwichController::GetSingleton();
+		auto& Hugs      =	HugAnimationController::GetSingleton();
+		auto& Grabs     = 	GrabAnimationController::GetSingleton();
+		auto& Sandwich  =   ThighSandwichController::GetSingleton();
 
 		switch (Type) {
 			// xxx.AllowMessage(true/false) are used to allow info messages when Follower can't do something with player
@@ -148,7 +146,7 @@ namespace GTS {
 					if (IsTeammate(new_gts)) {
 						ButtCrush.AllowMessage(true);
 						for (auto new_tiny: ButtCrush.GetButtCrushTargets(new_gts, numberOfPrey)) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								ButtCrush.StartButtCrush(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -163,7 +161,7 @@ namespace GTS {
 					if (IsTeammate(new_gts)) {
 						Hugs.AllowMessage(true);
 						for (auto new_tiny: Hugs.GetHugTargetsInFront(new_gts, numberOfPrey)) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								Hugs.StartHug(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -179,7 +177,7 @@ namespace GTS {
 						Grabs.AllowMessage(true);
 						std::vector<Actor*> FindTiny = Grabs.GetGrabTargetsInFront(new_gts, numberOfPrey);
 						for (auto new_tiny: FindTiny) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								Grabs.StartGrab(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -194,7 +192,7 @@ namespace GTS {
 					if (IsTeammate(new_gts)) {
 						Vore.AllowMessage(true);
 						for (auto new_tiny: Vore.GetVoreTargetsInFront(new_gts, numberOfPrey)) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								Vore.StartVore(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -209,7 +207,7 @@ namespace GTS {
 					if (IsTeammate(new_gts)) {
 						Sandwich.AllowMessage(true);
 						for (auto new_tiny: Sandwich.GetSandwichTargetsInFront(new_gts, numberOfPrey)) { 
-							if (new_tiny->formID == 0x14) {
+							if (new_tiny->IsPlayerRef()) {
 								Sandwich.StartSandwiching(new_gts, new_tiny);
 								ControlAnother(new_gts, false);
 							}
@@ -259,7 +257,7 @@ namespace GTS {
 	}
 	
 	bool Vore_ShouldAttachToRHand(Actor* giant, Actor* tiny) {
-		if (IsTransferingTiny(giant)) {
+		if (AnimationVars::Grab::HasGrabbedTiny(giant)) {
 			Vore_AttachToRightHandTask(giant, tiny); // start "attach to hand" task outside of vore.cpp
 			return true;
 		} else {
@@ -269,15 +267,16 @@ namespace GTS {
 
 	void UpdateFriendlyHugs(Actor* giant, Actor* tiny, bool force) {
 		bool hostile = IsHostile(tiny, giant);
-		bool teammate = IsTeammate(tiny) || tiny->formID == 0x14;
-		bool perk = Runtime::HasPerkTeam(giant, "GTSPerkHugsLovingEmbrace");
+		bool teammate = IsTeammate(tiny) || tiny->IsPlayerRef();
+		bool perk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsLovingEmbrace);
 
 		if (perk && !hostile && teammate && !force) {
-			tiny->SetGraphVariableBool("GTS_IsFollower", true);
-			giant->SetGraphVariableBool("GTS_HuggingTeammate", true);
-		} else {
-			tiny->SetGraphVariableBool("GTS_IsFollower", false);
-			giant->SetGraphVariableBool("GTS_HuggingTeammate", false);
+			AnimationVars::General::SetIsFollower(tiny, true);
+			AnimationVars::Hug::SetIsHuggingTeammate(tiny, true);
+		} 
+		else {
+			AnimationVars::General::SetIsFollower(tiny, false);
+			AnimationVars::Hug::SetIsHuggingTeammate(tiny, false);
 		}
 		// This function determines the following:
 		// Should the Tiny play "willing" or "Unwilling" hug idle?
@@ -285,7 +284,7 @@ namespace GTS {
 
 	void HugCrushOther(Actor* giant, Actor* tiny) {
 		AdvanceQuestProgression(giant, tiny, QuestStage::Crushing, 1.0f, false);
-		Attacked(tiny, giant);
+		tiny->Attacked(giant);
 
 		ModSizeExperience(giant, 0.22f); // Adjust Size Matter skill
 
@@ -295,13 +294,12 @@ namespace GTS {
 			return;
 		}
 
-		std::string sound = "GTSSoundShrinkToNothing";
-		Runtime::PlaySoundAtNode(sound, giant, 1.0f, "NPC Spine2 [Spn2]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundShrinkToNothing, giant, 1.0f, "NPC Spine2 [Spn2]");
 
 		if (!IsLiving(tiny)) {
 			SpawnDustParticle(tiny, tiny, "NPC Root [Root]", 3.6f);
 		} else {
-			if (!LessGore()) {
+			if (!Config::General.bLessGore) {
 				auto root = find_node(tiny, "NPC Root [Root]");
 				if (root) {
 					SpawnParticle(tiny, 1.20f, "GTS/Damage/Explode.nif", NiMatrix3(), root->world.translate, 2.0f, 7, root);
@@ -309,8 +307,8 @@ namespace GTS {
 					SpawnParticle(tiny, 1.20f, "GTS/Damage/Explode.nif", NiMatrix3(), root->world.translate, 2.0f, 7, root);
 					SpawnParticle(tiny, 1.20f, "GTS/Damage/ShrinkOrCrush.nif", NiMatrix3(), root->world.translate, get_visual_scale(tiny) * 10, 7, root);
 				}
-				Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4, "GTSExplosionBlood");
-				Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSetVoreMedium", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
+				Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4, Runtime::EXPL.GTSExplosionBlood);
+				Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSetVoreMedium, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
 			} else {
 				Runtime::PlaySound("SKSoundBloodGush", tiny, 1.0f, 0.5f);
 			}
@@ -319,12 +317,12 @@ namespace GTS {
 		AddSMTDuration(giant, 5.0f);
 		ApplyShakeAtNode(tiny, 3, "NPC Root [Root]");
 
-		const auto& MuteHugCrush = Config::GetAudio().bMuteHugCrushDeathScreams;
+		const auto& MuteHugCrush = Config::Audio.bMuteHugCrushDeathScreams;
 
 		DecreaseShoutCooldown(giant);
 		KillActor(giant, tiny, MuteHugCrush);
 
-		if (tiny->formID != 0x14) {
+		if (!tiny->IsPlayerRef()) {
 			Disintegrate(tiny); // Set critical stage 4 on actor
             SendDeathEvent(giant, tiny);
 		} else {
@@ -354,9 +352,7 @@ namespace GTS {
 
 	// Cancels all hug-related things
 	void AbortHugAnimation(Actor* giant, Actor* tiny) {
-		
-		bool Friendly;
-		giant->GetGraphVariableBool("GTS_HuggingTeammate", Friendly);
+		bool Friendly = AnimationVars::Hug::IsHuggingTeammate(giant);
 
 		SetSneaking(giant, false, 0);
 
@@ -366,7 +362,7 @@ namespace GTS {
 
 		AnimationManager::StartAnim("Huggies_Spare", giant); // Start "Release" animation on Giant
 
-		if (Friendly && !IsCrawling(giant) && tiny) { // If friendly, we don't want to push/release actor
+		if (Friendly && !AnimationVars::Crawl::IsCrawling(giant) && tiny) { // If friendly, we don't want to push/release actor
 			EnableCollisions(tiny);
 			SetBeingHeld(tiny, false);
 			UpdateFriendlyHugs(giant, tiny, true); // set GTS_IsFollower (tiny) and GTS_HuggingTeammate (GTS) bools to false
@@ -399,19 +395,19 @@ namespace GTS {
 		float OldValue = size_difference;
 		float NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin;
 
-		tiny->SetGraphVariableFloat("GTS_SizeDifference", NewValue); // pass Tiny / Giant size diff POV to Tiny
-		giant->SetGraphVariableFloat("GTS_SizeDifference", NewValue); // pass Tiny / Giant size diff POV to GTS
+
+		AnimationVars::General::SetSizeDifference(tiny, NewValue); // pass Tiny / Giant size diff POV to Tiny
+		AnimationVars::General::SetSizeDifference(giant, NewValue); // pass Tiny / Giant size diff POV to GTS
     }
 
 	void Utils_UpdateHighHeelBlend(Actor* giant, bool reset) { // needed to blend between 2 animations so hand will go lower
 		if (!reset) {
-			float max_heel_height = 0.215f; // All animations are configured with this value in mind. Blending isn't configured for heels bigger than this value.
-			float hh_value = HighHeelManager::GetBaseHHOffset(giant)[2]/100;
-			float hh_offset = std::clamp(hh_value / max_heel_height, 0.0f, 1.0f); // reach max HH at 0.215 offset (highest i've seen and the max that we support)
-		
-			giant->SetGraphVariableFloat("GTS_HHoffset", hh_offset);
+			constexpr float max_heel_height = 0.215f; // All animations are configured with this value in mind. Blending isn't configured for heels bigger than this value.
+			const float hh_value = HighHeelManager::GetBaseHHOffset(giant)[2]/100;
+			const float hh_offset = std::clamp(hh_value / max_heel_height, 0.0f, 1.0f); // reach max HH at 0.215 offset (highest i've seen and the max that we support)
+			AnimationVars::General::SetHHOffset(giant, hh_offset);
 		} else {
-			giant->SetGraphVariableFloat("GTS_HHoffset", 0.0f); // reset it
+			AnimationVars::General::SetHHOffset(giant, 0.0f);
 		}
 	}
 
@@ -430,7 +426,7 @@ namespace GTS {
 			Utils_UpdateHighHeelBlend(giantref, false);
 			// make behaviors read the value to blend between anims
 
-			if (!IsVoring(giantref)) {
+			if (!AnimationVars::Action::IsVoring(giantref)) {
 				Utils_UpdateHighHeelBlend(giantref, true);
 				return false; // just a fail-safe to cancel the task if we're outside of Vore anim
 			}
@@ -452,21 +448,21 @@ namespace GTS {
 	}
 
 	void AllowToDoVore(Actor* actor, bool toggle) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			transient->CanDoVore = toggle;
 		}
 	}
 
 	void AllowToBeCrushed(Actor* actor, bool toggle) {
-		auto transient = Transient::GetSingleton().GetData(actor);
+		auto transient = Transient::GetActorData(actor);
 		if (transient) {
 			transient->CanBeCrushed = toggle;
 		}
 	}
 
 	void ManageCamera(Actor* giant, bool enable, CameraTracking type) {
-		if (AllowCameraTracking()) {
+		if (Config::General.bTrackBonesDuringAnim) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			sizemanager.SetTrackedBone(giant, enable, type);
 		}
@@ -483,7 +479,7 @@ namespace GTS {
 			auto giantref = gianthandle.get().get();
 
 			ApplyActionCooldown(giant, CooldownSource::Action_ButtCrush); // Set butt crush on the cooldown
-			if (!IsGtsBusy(giantref)) {
+			if (!AnimationVars::General::IsGTSBusy(giantref)) {
 				return false;
 			}
 			return true;
@@ -498,9 +494,6 @@ namespace GTS {
 				return;
 			}
 			auto giant = giantref.get().get();
-
-			//giant->SetGraphVariableBool("GTS_IsStomping", false);
-
 			DoLaunch(giant, radius, power, kind);
 		});
 	}
@@ -512,7 +505,7 @@ namespace GTS {
 			smt_power *= 2.0f;
 			smt_radius *= 1.25f;
 		}
-		LaunchActor::GetSingleton().ApplyLaunch_At(giant, radius * smt_radius, power * smt_power, kind);
+		LaunchActor::ApplyLaunch_At(giant, radius * smt_radius, power * smt_power, kind);
 	}
 
 	void DoLaunch(Actor* giant, float radius, float power, NiAVObject* node) {
@@ -522,17 +515,17 @@ namespace GTS {
 			smt_power *= 2.0f;
 			smt_radius *= 1.25f;
 		}
-		LaunchActor::GetSingleton().LaunchAtCustomNode(giant, radius * smt_radius, 0.0f, power * smt_power, node);
+		LaunchActor::LaunchAtCustomNode(giant, radius * smt_radius, 0.0f, power * smt_power, node);
 	}
 
 	void GrabStaminaDrain(Actor* giant, Actor* tiny, float sizedifference) {
 		float WasteMult = 1.0f;
-		if (Runtime::HasPerkTeam(giant, "GTSPerkDestructionBasics")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDestructionBasics)) {
 			WasteMult *= 0.65f;
 		}
 		WasteMult *= Perk_GetCostReduction(giant);
 
-		if (giant->formID != 0x14) {
+		if (!giant->IsPlayerRef()) {
 			WasteMult *= 0.33f; // less drain for non-player
 		}
 
@@ -540,7 +533,7 @@ namespace GTS {
 		DamageAV(giant, ActorValue::kStamina, WasteStamina);
 	}
 
-	void DrainStamina(Actor* giant, std::string_view TaskName, std::string_view perk, bool enable, float power) {
+	void DrainStamina(Actor* giant, std::string_view TaskName, const RuntimeData::RuntimeEntry<RE::BGSPerk>& perk, bool enable, float power) {
 		float WasteMult = 1.0f;
 		if (Runtime::HasPerkTeam(giant, perk)) {
 			WasteMult -= 0.35f;
@@ -573,10 +566,10 @@ namespace GTS {
 		auto hand = find_node(giant, "NPC L Hand [LHnd]");
 		if (hand) {
 			if (IsLiving(grabbedActor)) {
-				if (!LessGore()) {
+				if (!Config::General.bLessGore) {
 					SpawnParticle(giant, 25.0f, "GTS/Damage/Explode.nif", hand->world.rotate, hand->world.translate, get_visual_scale(grabbedActor) * 3* mult, 4, hand);
 					SpawnParticle(giant, 25.0f, "GTS/Damage/Crush.nif", hand->world.rotate, hand->world.translate, get_visual_scale(grabbedActor) * 3 *  mult, 4, hand);
-				} else if (LessGore()) {
+				} else if (Config::General.bLessGore) {
 					Runtime::PlaySound("SKSoundBloodGush", grabbedActor, 1.0f, 0.5f);
 				}
 			} else {
@@ -586,11 +579,10 @@ namespace GTS {
 	}
 
 	void AdjustFacialExpression(Actor* giant, int ph, float target, CharEmotionType Type, float phenome_halflife, float modifier_speed) {
-		auto& Emotions = EmotionManager::GetSingleton();
 		auto fgen = giant->GetFaceGenAnimationData();
 		switch (Type) {
 			case CharEmotionType::Phenome:
-				Emotions.OverridePhenome(giant, ph, phenome_halflife, target);
+				EmotionManager::OverridePhenome(giant, ph, phenome_halflife, target);
 			break;
 			case CharEmotionType::Expression:
 				if (fgen) {
@@ -606,14 +598,14 @@ namespace GTS {
 				}
 			break;
 			case CharEmotionType::Modifier:
-				Emotions.OverrideModifier(giant, ph, modifier_speed, target);
+				EmotionManager::OverrideModifier(giant, ph, modifier_speed, target);
 			break;
 		}
 	}
 
 	float GetWasteMult(Actor* giant) {
 		float WasteMult = 1.0f;
-		if (Runtime::HasPerk(giant, "GTSPerkDestructionBasics")) {
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDestructionBasics)) {
 			WasteMult *= 0.65f;
 		}
 		WasteMult *= Perk_GetCostReduction(giant);
@@ -621,7 +613,7 @@ namespace GTS {
 	}
 
 	float GetPerkBonus_Basics(Actor* Giant) {
-		if (Runtime::HasPerkTeam(Giant, "GTSPerkDestructionBasics")) {
+		if (Runtime::HasPerkTeam(Giant, Runtime::PERK.GTSPerkDestructionBasics)) {
 			return 1.25f;
 		} else {
 			return 1.0f;
@@ -629,7 +621,7 @@ namespace GTS {
 	}
 
 	float GetPerkBonus_Thighs(Actor* Giant) {
-		if (Runtime::HasPerkTeam(Giant, "GTSPerkThighAbilities")) {
+		if (Runtime::HasPerkTeam(Giant, Runtime::PERK.GTSPerkThighAbilities)) {
 			return 1.25f;
 		} else {
 			return 1.0f;
@@ -664,7 +656,7 @@ namespace GTS {
 				return true;
 			}
 
-			if (!IsTrampling(giantref) || coordinates.Length() <= 0.0f) {
+			if (!AnimationVars::Stomp::IsTrampling(giantref) || coordinates.Length() <= 0.0f) {
 				SetBeingGrinded(tinyref, false);
 				return false;
 			}
@@ -710,7 +702,7 @@ namespace GTS {
 			}
 
 			AttachTo(giantref, tinyref, coordinates);
-			if (!IsFootGrinding(giantref)) {
+			if (!AnimationVars::Action::IsFootGrinding(giantref)) {
 				SetBeingGrinded(tinyref, false);
 				return false;
 			}
@@ -754,7 +746,7 @@ namespace GTS {
 			}
 
 			AttachTo(giantref, tinyref, coordinates);
-			if (!IsFootGrinding(giantref)) {
+			if (!AnimationVars::Action::IsFootGrinding(giantref)) {
 				SetBeingGrinded(tinyref, false);
 				return false;
 			}
@@ -798,12 +790,12 @@ namespace GTS {
 		};
 		std::vector<NiPoint3> CrawlPoints = {};
 
-		for (NiPoint3 point: points) {
+		for ([[maybe_unused]] NiPoint3 point: points) {
 			CrawlPoints.push_back(NodePosition);
 		}
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
-			for (auto &point : CrawlPoints) {
-				DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance);
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
+			for (NiPoint3& point : CrawlPoints) {
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance);
 			}
 		}
 
@@ -859,9 +851,9 @@ namespace GTS {
 			}
 			std::vector<NiPoint3> CoordsToCheck = GetFootCoordinates(actor, Right, false);
 			if (!CoordsToCheck.empty()) {
-				if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor))) {
-					for (const auto& footPoints : CoordsToCheck) {
-						DebugAPI::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, 800, { 0.0f, 1.0f, 0.0f, 1.0f });
+				if (DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kPlayerAndFollowers)) {
+					for (const NiPoint3& footPoints : CoordsToCheck) {
+						DebugDraw::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, 800, { 0.0f, 1.0f, 0.0f, 1.0f });
 					}
 				}
 
@@ -972,8 +964,8 @@ namespace GTS {
 			float maxDistance = radius * giantScale;
 			float CheckDistance = 220 * giantScale;
 
-			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
-				DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance, 400);
+			if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kPlayerAndFollowers)) {
+				DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), maxDistance, 400);
 			}
 
 			NiPoint3 giantLocation = giant->GetPosition();
@@ -1024,7 +1016,7 @@ namespace GTS {
 								//log::info("Roll: {}, RandomChance {}, Threshold: {}", roll, RagdollChance, Random);
 								//eventually it reaches 100% chance to ragdoll an actor (at ~x3.0 size difference)
 
-								if (otherActor->formID == 0x14 && !Config::GetGameplay().ActionSettings.bEnablePlayerPushBack) {
+								if (otherActor->IsPlayerRef() && !Config::Gameplay.ActionSettings.bEnablePlayerPushBack) {
 									continue;
 								}
 
@@ -1040,7 +1032,7 @@ namespace GTS {
 
 								auto targetNode = find_node(giant, GetDeathNodeName(Cause));
 								if (targetNode) {
-									Runtime::PlaySoundAtNode("GTSSoundSwingImpact", Volume, targetNode); // play swing impact sound
+									Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwingImpact, Volume, targetNode); // play swing impact sound
 									ApplyShakeAtPoint(giant, 1.8f * pushpower * audio, targetNode->world.translate, 0.0f);
 								}
 
@@ -1056,102 +1048,152 @@ namespace GTS {
 
 	void ApplyThighDamage(Actor* actor, bool right, bool CooldownCheck, float radius, float damage, float bbmult, float crush_threshold, int random, DamageSource Cause) {
 		GTS_PROFILE_SCOPE("AnimUtils: ApplyThighDamage");
-		auto& CollisionDamage = CollisionDamage::GetSingleton();
-		
-		if (actor) {
-			auto& sizemanager = SizeManager::GetSingleton();
-			float giantScale = get_visual_scale(actor);
-			float perk = GetPerkBonus_Thighs(actor);
-			constexpr float BASE_CHECK_DISTANCE = 90.0f;
-			float SCALE_RATIO = 1.75f;
+		if (!actor) {
+			return;
+		}
 
-			if (HasSMT(actor)) {
-				giantScale += 0.20f;
-				SCALE_RATIO = 0.90f;
+		float giantScale = get_visual_scale(actor);
+		float perk = GetPerkBonus_Thighs(actor);
+		constexpr float BASE_CHECK_DISTANCE = 90.0f;
+		float SCALE_RATIO = 1.75f;
+
+		if (HasSMT(actor)) {
+			giantScale += 0.20f;
+			SCALE_RATIO = 0.90f;
+		}
+
+		// Use constexpr for bone names
+		constexpr std::string_view leg_right   = "NPC R Foot [Rft ]";
+		constexpr std::string_view knee_right  = "NPC R Calf [RClf]";
+		constexpr std::string_view thigh_right = "NPC R Thigh [RThg]";
+		constexpr std::string_view leg_left    = "NPC L Foot [Lft ]";
+		constexpr std::string_view knee_left   = "NPC L Calf [LClf]";
+		constexpr std::string_view thigh_left  = "NPC L Thigh [LThg]";
+
+		auto [leg, knee, thigh] = right ?
+			std::tuple{ leg_right, knee_right, thigh_right } :
+			std::tuple{ leg_left, knee_left, thigh_left };
+
+		// Reuse vector to avoid allocation - could be made static thread_local if thread-safe
+		thread_local std::vector<NiPoint3> ThighPoints;
+		GetThighCoordinates(actor, knee, leg, thigh, ThighPoints);
+
+		if (ThighPoints.empty()) {
+			return;
+		}
+
+		float speed = AnimationManager::GetBonusAnimationSpeed(actor);
+		crush_threshold *= (1.10f - speed * 0.10f);
+		float feet_damage = (Damage_ThighCrush_CrossLegs_FeetImpact * perk * speed);
+
+		if (CooldownCheck) {
+			CollisionDamage::DoFootCollision(actor, feet_damage, radius, random, bbmult, crush_threshold, DamageSource::ThighCrushed, true, true, false, false);
+			CollisionDamage::DoFootCollision(actor, feet_damage, radius, random, bbmult, crush_threshold, DamageSource::ThighCrushed, false, true, false, false);
+		}
+
+		float maxFootDistance = radius * giantScale;
+
+		// Debug visualization
+		if (DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kAnyGTS)) {
+			for (auto& point : ThighPoints) {
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance);
+			}
+		}
+
+		NiPoint3 giantLocation = actor->GetPosition();
+		float checkDistance = BASE_CHECK_DISTANCE * giantScale;
+
+		// Cache relevant nodes to avoid repeated allocation
+		std::vector<NiAVObject*> relevantNodes;
+		relevantNodes.reserve(64);
+
+		for (auto otherActor : find_actors()) {
+			if (otherActor == actor) {
+				continue;
 			}
 
-			std::string_view leg = "NPC R Foot [Rft ]";
-			std::string_view knee = "NPC R Calf [RClf]";
-			std::string_view thigh = "NPC R Thigh [RThg]";
+			float tinyScale = get_visual_scale(otherActor);
+			float scaleRatio = giantScale / tinyScale;
 
-			if (!right) {
-				leg = "NPC L Foot [Lft ]";
-				knee = "NPC L Calf [LClf]";
-				thigh = "NPC L Thigh [LThg]";
+			if (scaleRatio <= SCALE_RATIO) {
+				continue;
 			}
 
-
-			std::vector<NiPoint3> ThighPoints = GetThighCoordinates(actor, knee, leg, thigh);
-
-			float speed = AnimationManager::GetBonusAnimationSpeed(actor);
-			crush_threshold *= (1.10f - speed*0.10f);
-
-			float feet_damage = (Damage_ThighCrush_CrossLegs_FeetImpact * perk * speed);
-			
-			if (CooldownCheck) {
-				CollisionDamage::DoFootCollision(actor, feet_damage, radius, random, bbmult, crush_threshold, DamageSource::ThighCrushed, true, true, false, false);
-				CollisionDamage::DoFootCollision(actor, feet_damage, radius, random, bbmult, crush_threshold, DamageSource::ThighCrushed, false, true, false, false);
+			NiPoint3 actorLocation = otherActor->GetPosition();
+			if ((actorLocation - giantLocation).Length() >= checkDistance) {
+				continue;
 			}
 
-			float maxFootDistance = radius * giantScale;
+			// Early exit if on cooldown and we need to check
+			if (CooldownCheck && IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh)) {
+				continue;
+			}
 
-			if (!ThighPoints.empty()) {
-				if (IsDebugEnabled() && (actor->formID == 0x14 || IsTeammate(actor) || EffectsForEveryone(actor))) {
-					for (auto &point : ThighPoints) {
-						DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance);
+			auto model = otherActor->GetCurrent3D();
+			if (!model) {
+				continue;
+			}
+
+			// Collect relevant nodes in single pass
+			relevantNodes.clear();
+			VisitNodes(model, [&relevantNodes](NiAVObject& a_obj) {
+				relevantNodes.push_back(&a_obj);
+				return true;
+			});
+
+			// Check all points against all nodes
+			int nodeCollisions = 0;
+			float maxForce = 0.0f;
+
+			for (auto node : relevantNodes) {
+				for (auto& point : ThighPoints) {
+					float distance = (point - node->world.translate).Length() - Collision_Distance_Override;
+					if (distance <= maxFootDistance) {
+						nodeCollisions += 1;
+						float force = GetForceFromDistance(distance, maxFootDistance);
+						maxForce = std::max(maxForce, force);
 					}
 				}
-			
-				NiPoint3 giantLocation = actor->GetPosition();
-				for (auto otherActor: find_actors()) {
-					if (otherActor != actor) {
-						float tinyScale = get_visual_scale(otherActor);
-						if (giantScale / tinyScale > SCALE_RATIO) {
-							NiPoint3 actorLocation = otherActor->GetPosition();
+			}
 
-							if ((actorLocation-giantLocation).Length() < BASE_CHECK_DISTANCE*giantScale) {
-								int nodeCollisions = 0;
-								float force = 0.0f;
+			if (nodeCollisions > 0) {
+				if (CooldownCheck) {
+					float pushForce = std::clamp(maxForce, 0.04f, 0.10f);
+					float pushCalc = 0.06f * pushForce * speed;
 
-								auto model = otherActor->GetCurrent3D();
-								
-								if (model) {
-									for (auto &point : ThighPoints) {
-										VisitNodes(model, [&nodeCollisions, &force, point, maxFootDistance](NiAVObject& a_obj) {
-											float distance = (point - a_obj.world.translate).Length() - Collision_Distance_Override;
-											if (distance <= maxFootDistance) {
-												nodeCollisions += 1;
-												force = GetForceFromDistance(distance, maxFootDistance);
-												return false;
-											}
-											return true;
-										});
-									}
-								}
-								if (nodeCollisions > 0) {
-									//damage /= nodeCollisions;
-									if (CooldownCheck) {
-										float pushForce = std::clamp(force, 0.04f, 0.10f);
-										bool OnCooldown = IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh);
-										if (!OnCooldown) {
-											float pushCalc = 0.06f * pushForce * speed;
-											Laugh_Chance(actor, otherActor, 1.35f, "ThighCrush");
-											float difference = giantScale / (tinyScale * GetSizeFromBoundingBox(otherActor));
-											PushTowards(actor, otherActor, leg, pushCalc * difference, true);
-											CollisionDamage::DoSizeDamage(actor, otherActor, damage * speed * perk, bbmult, crush_threshold, random, Cause, true);
-											ApplyActionCooldown(otherActor, CooldownSource::Damage_Thigh);
-										}
-									} else {
-										Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause)); // pass original un-altered force
-										CollisionDamage::DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, true);
-									}
-								}
-							}
-						}
-					}
+					Laugh_Chance(actor, otherActor, 1.35f, "ThighCrush");
+
+					float sizeFromBB = GetSizeFromBoundingBox(otherActor);
+					float difference = scaleRatio / sizeFromBB; // Reuse scaleRatio
+
+					PushTowards(actor, otherActor, leg, pushCalc * difference, true);
+					CollisionDamage::DoSizeDamage(actor, otherActor, damage * speed * perk, bbmult, crush_threshold, random, Cause, true);
+					ApplyActionCooldown(otherActor, CooldownSource::Damage_Thigh);
+				}
+				else {
+					Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause));
+					CollisionDamage::DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, true);
 				}
 			}
 		}
+	}
+
+	[[nodiscard]] inline __forceinline std::pair<std::array<NiPoint3, 3>,size_t> GetFootPoints(float hh) {
+		// We're separating results so it checks slightly less points for normal footwear, saving a bit fps in towns with lots of npc's
+		std::array<NiPoint3, 3> result = {};
+		size_t count = 0;
+		// Base foot
+		result[count++] = { 0.0f, hh / 10.0f, -(1.0f + hh * 0.25f) }; // Point 1: ---()
+
+		// Toe
+		result[count++] = { 0.0f, 8.0f + hh / 10.0f, -(0.35f + hh )}; // Point 2: ()---
+
+		if (hh > 0.0f) { // Underheel (only for high heels)
+			result[count++] = { 0.0f, hh / 70.0f, -(1.25f + hh) }; // Point 3: ---()
+		}
+
+		//log::info("Foot Zones: {}", result.size());
+		return { result, count };
 	}
 
 	void ApplyFingerDamage(Actor* giant, float radius, float damage, NiAVObject* node, float random, float bbmult, float crushmult, float Shrink, DamageSource Cause) { // Apply crawl damage to each bone individually
@@ -1174,17 +1216,17 @@ namespace GTS {
 		float maxDistance = radius * giantScale;
 		float CheckDistance = 220 * giantScale;
 		// Make a list of points to check
-		std::vector<NiPoint3> points = {
+		std::vector points = {
 			NiPoint3(0.0f, 0.0f, 0.0f), // The standard position
 		};
 		std::vector<NiPoint3> FingerPoints = {};
 
-		for (NiPoint3 point: points) {
+		for (NiPoint3 _: points) {
 			FingerPoints.push_back(NodePosition);
 		}
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
 			for (auto &point : FingerPoints) {
-				DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 400);
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 400);
 			}
 		}
 
@@ -1200,7 +1242,6 @@ namespace GTS {
 						if ((actorLocation-giantLocation).Length() <= CheckDistance) {
 
 							int nodeCollisions = 0;
-
 							auto model = otherActor->GetCurrent3D();
 
 							if (model) {
@@ -1220,9 +1261,7 @@ namespace GTS {
 									set_target_scale(otherActor, 0.08f / GetSizeFromBoundingBox(otherActor));
 								}
 								Laugh_Chance(giant, otherActor, 1.0f, "FingerGrind"); 
-
 								Utils_PushCheck(giant, otherActor, 1.0f);
-
 								CollisionDamage::DoSizeDamage(giant, otherActor, damage, bbmult, crushmult, static_cast<int>(random), Cause, true);
 							}
 						}
@@ -1232,36 +1271,33 @@ namespace GTS {
 		}
 	}
 
-	std::vector<NiPoint3> GetThighCoordinates(Actor* giant, std::string_view calf, std::string_view feet, std::string_view thigh) {
+	void GetThighCoordinates(Actor* giant, std::string_view calf, std::string_view feet, std::string_view thigh, std::vector<NiPoint3>& outCoordinates) {
+		outCoordinates.clear();
+
 		NiAVObject* Knee = find_node(giant, calf);
 		NiAVObject* Foot = find_node(giant, feet);
 		NiAVObject* Thigh = find_node(giant, thigh);
 
-		if (!Knee) {
-			return std::vector<NiPoint3>{};
-		}
-		if (!Foot) {
-			return std::vector<NiPoint3>{};
-		}
-		if (!Thigh) {
-			return std::vector<NiPoint3>{};
+		if (!Knee || !Foot || !Thigh) {
+			return;
 		}
 
-		NiPoint3 Knee_Point = Knee->world.translate;
-		NiPoint3 Foot_Point = Foot->world.translate;
-		NiPoint3 Thigh_Point = Thigh->world.translate;
+		const NiPoint3& Knee_Point = Knee->world.translate;
+		const NiPoint3& Foot_Point = Foot->world.translate;
+		const NiPoint3& Thigh_Point = Thigh->world.translate;
 
-		NiPoint3 Knee_Pos_Middle = (Knee_Point + Foot_Point) / 2.0f; 				// middle  |-----|-----|
-		NiPoint3 Knee_Pos_Up = (Knee_Point + Knee_Pos_Middle) / 2.0f;				//         |--|--|-----|
-		NiPoint3 Knee_Pos_Down = (Knee_Pos_Middle + Foot_Point) / 2.0f; 				//         |-----|--|--|
+		NiPoint3 Knee_Pos_Middle = (Knee_Point + Foot_Point) * 0.5f;
+		NiPoint3 Knee_Pos_Up = (Knee_Point + Knee_Pos_Middle) * 0.5f;
+		NiPoint3 Knee_Pos_Down = (Knee_Pos_Middle + Foot_Point) * 0.5f;
 
-		NiPoint3 Thigh_Pos_Middle = (Thigh_Point + Knee_Point) / 2.0f;               // middle  |-----|-----|
-		NiPoint3 Thigh_Pos_Up = (Thigh_Pos_Middle + Thigh_Point) / 2.0f;            	//         |--|--|-----|
-		NiPoint3 Thigh_Pos_Down = (Thigh_Pos_Middle + Knee_Point) / 2.0f;        	//         |-----|--|--|
+		NiPoint3 Thigh_Pos_Middle = (Thigh_Point + Knee_Point) * 0.5f;
+		NiPoint3 Thigh_Pos_Up = (Thigh_Pos_Middle + Thigh_Point) * 0.5f;
+		NiPoint3 Thigh_Pos_Down = (Thigh_Pos_Middle + Knee_Point) * 0.5f;
 
-		NiPoint3 Knee_Thigh_Middle = (Thigh_Pos_Down + Knee_Pos_Up) / 2.0f;          // middle between two
+		NiPoint3 Knee_Thigh_Middle = (Thigh_Pos_Down + Knee_Pos_Up) * 0.5f;
 
-		std::vector<NiPoint3> coordinates = { 	
+		outCoordinates.reserve(7);
+		outCoordinates = {
 			Knee_Pos_Middle,
 			Knee_Pos_Up,
 			Knee_Pos_Down,
@@ -1270,33 +1306,17 @@ namespace GTS {
 			Thigh_Pos_Down,
 			Knee_Thigh_Middle,
 		};
-
-		return coordinates;
-	}
-
-	std::vector<NiPoint3> GetFootPoints(float hh) { 
-		// We're separating results so it checks slightly less points for normal footwear, saving a bit fps in towns with lots of npc's
-		std::vector<NiPoint3> result;
-		// Base foot
-		result.emplace_back(0.0f, hh / 10.0f, -(1.0f + hh * 0.25f)); // Point 1: ---()
-		// Toe
-		result.emplace_back(0.0f, 8.0f + hh / 10.0f, -(0.35f + hh)); // Point 2: ()---
-		
-		if (hh > 0.0f) { // Underheel (only for high heels)
-			result.emplace_back(0.0f, hh / 70.0f, -(1.25f + hh)); // Point 3: ---()
-		}
-		//log::info("Foot Zones: {}", result.size());
-		return result;
 	}
 
 	std::vector<NiPoint3> GetFootCoordinates(Actor* actor, bool Right, bool ignore_rotation) {
 		// Get world HH offset
 		NiPoint3 hhOffsetbase = HighHeelManager::GetBaseHHOffset(actor);
 		std::vector<NiPoint3> footPoints = {};
+		footPoints.reserve(32);
 		std::string_view FootLookup = leftFootLookup;
 		std::string_view CalfLookup = leftCalfLookup;
 		std::string_view ToeLookup = leftToeLookup;
-		
+
 		std::string_view ToeFailed = leftToeLookup_failed;
 		if (Right) {
 			FootLookup = rightFootLookup;
@@ -1336,8 +1356,8 @@ namespace GTS {
 			NiPoint3 up = inverseFoot*((up_1 + foot->world.translate) / 2);
 
 			if (!actor->IsSneaking()) { // So foot zones face straigth, a very rough fix
-				if (!IsCrawling(actor)) {
-					bool ignore = (IsStomping(actor) || IsVoring(actor) || IsTrampling(actor) || IsThighSandwiching(actor));
+				if (!AnimationVars::Crawl::IsCrawling(actor)) {
+					bool ignore = (AnimationVars::Action::IsStomping(actor) || AnimationVars::Action::IsVoring(actor) || AnimationVars::Stomp::IsTrampling(actor) || AnimationVars::Action::IsThighSandwiching(actor));
 					if (ignore_rotation || ignore) {
 						up = (toe->world.translate + foot->world.translate) / 2;
 						up.z += 35.0f * get_visual_scale(actor);
@@ -1355,18 +1375,19 @@ namespace GTS {
 		}
 
 		float hh = hhOffsetbase[2] / get_npcparentnode_scale(actor);
-		// Make a list of points to check
-		std::tuple<NiAVObject*, NiMatrix3> CoordResult(Foot, RotMat);
+
+		std::tuple CoordResult(Foot, RotMat);
 
 		for (const auto& [foot, rotMat]: {CoordResult}) {
 			if (!foot) {
 				return footPoints;
 			}
-			for (NiPoint3 point: GetFootPoints(hh)) {
-				footPoints.push_back(foot->world*(rotMat*point));
+			const auto [pts, count] = GetFootPoints(hh);
+			for (std::size_t i = 0; i < count; ++i) {
+				footPoints.push_back(foot->world * (rotMat * pts[i]));
 			}
+			
 		}
-		//log::info("Applying foot stuff to {}", actor->GetDisplayFullName());
 		return footPoints;
 	}
 
@@ -1396,7 +1417,7 @@ namespace GTS {
 		float adjustment = 45.0f * get_visual_scale(giant);
 
 		if (hugs) {
-			if (IsCrawling(giant)) { // if doing healing crawl hugs
+			if (AnimationVars::Crawl::IsCrawling(giant)) { // if doing healing crawl hugs
 				targetPoint = TargetA; // just target the breasts
 			} else {
 				adjustment = 85 * get_visual_scale(giant);
@@ -1418,7 +1439,7 @@ namespace GTS {
 
 				Grow(giantref, 0, 0.016f * (1 + random));
 
-				Runtime::CastSpell(giantref, giantref, "GTSSpellFear");
+				Runtime::CastSpell(giantref, giantref, Runtime::SPEL.GTSSpellFear);
 
 				SpawnCustomParticle(giantref, ParticleType::Blue, NiPoint3(), "NPC COM [COM ]", get_visual_scale(giantref));
 				Task_FacialEmotionTask_Moan(giantref, 2.0f, "Absorb");
@@ -1782,10 +1803,10 @@ namespace GTS {
 
 	float GetHugStealRate(Actor* actor) {
 		float steal = 0.18f;
-		if (Runtime::HasPerkTeam(actor, "GTSPerkHugsToughGrip")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHugsToughGrip)) {
 			steal += 0.072f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkHugs")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHugs)) {
 			steal *= 1.35f;
 		}
 		return steal;
@@ -1793,10 +1814,10 @@ namespace GTS {
 
 	float GetHugShrinkThreshold(Actor* actor) {
 		float threshold = 2.5f;
-		if (Runtime::HasPerkTeam(actor, "GTSPerkHugs")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHugs)) {
 			threshold *= 1.25f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkHugsGreed")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHugsGreed)) {
 			threshold *= 1.35f;
 		}
 		if (HasGrowthSpurt(actor)) {
@@ -1807,10 +1828,10 @@ namespace GTS {
 
 	float GetHugCrushThreshold(Actor* giant, Actor* tiny, bool check_size) {
 		float hp = 0.12f;
-		if (Runtime::HasPerkTeam(giant, "GTSPerkHugMightyCuddles")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugMightyCuddles)) {
 			hp += 0.08f;
 		}
-		if (Runtime::HasPerkTeam(giant, "GTSPerkHugsOfDeath")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsOfDeath)) {
 			hp += 0.10f;
 		}
 
@@ -1818,7 +1839,7 @@ namespace GTS {
 			return hp;
 		}
 
-		float difference = GetSizeDifference(giant, tiny, SizeType::GiantessScale, false, false);
+		float difference = get_scale_difference(giant, tiny, SizeType::GiantessScale, false, false);
 		float clamped_diff = std::clamp(difference, 1.0f, 100.0f);
 
 		return hp * clamped_diff;
@@ -1827,20 +1848,15 @@ namespace GTS {
 
 	void SetAltFootStompAnimation(RE::Actor* a_actor, const bool a_state) {
 
-
 		if (!a_actor) {
 			return;
 		}
 
-		bool PrevState = false;
-		if (a_actor->GetGraphVariableBool("GTS_EnableAlternativeStomp", PrevState)) {
-
-			if (PrevState == a_state) {
-				return;
-			}
-
-			a_actor->SetGraphVariableBool("GTS_EnableAlternativeStomp", a_state);
+		if (AnimationVars::Stomp::IsAlternativeStompEnabled(a_actor) == a_state) {
+			return;
 		}
+
+		AnimationVars::Stomp::SetAlternativeStompEnabled(a_actor, a_state);
 	}
 
 	void SetEnableSneakTransition(RE::Actor* a_actor, const bool a_state) {
@@ -1849,15 +1865,11 @@ namespace GTS {
 			return;
 		}
 
-		bool PrevState = false;
-		if (a_actor->GetGraphVariableBool("GTS_DisableSneakTrans", PrevState)) {
-
-			if (PrevState == a_state) {
-				return;
-			}
-
-			a_actor->SetGraphVariableBool("GTS_DisableSneakTrans", a_state);
+		if (AnimationVars::General::SneakTransitionsDisabled(a_actor) ==  a_state) {
+			return;
 		}
+		AnimationVars::General::SetSneakTransitionsDisabled(a_actor, a_state);
+		
 	}
 
 
@@ -1867,26 +1879,22 @@ namespace GTS {
 			return false;
 		}
 
-		bool PrevState = false;
-		if (auto transient = Transient::GetSingleton().GetData(a_actor)) {
+		if (auto transient = Transient::GetActorData(a_actor)) {
 			transient->FPCrawling = a_state;
 		}
 
-		if (a_actor->GetGraphVariableBool("GTS_CrawlEnabled", PrevState)) {
-
-			if (PrevState == a_state) {
-				return false;
-			}
-
-			a_actor->SetGraphVariableBool("GTS_CrawlEnabled", a_state);
-
-
-			if (a_actor->IsSneaking() && !IsProning(a_actor) && !IsGtsBusy(a_actor) && !IsTransitioning(a_actor)) {
-				return PrevState != a_state;
-			}
+		if (AnimationVars::Crawl::IsCrawlEnabled(a_actor) == a_state) {
 			return false;
 		}
+
+		AnimationVars::Crawl::SetIsCrawlEnabled(a_actor, a_state);
+
+		if (a_actor->IsSneaking() && !AnimationVars::Prone::IsProne(a_actor) && !AnimationVars::General::IsGTSBusy(a_actor) && !AnimationVars::General::IsTransitioning(a_actor)) {
+			return true;
+		}
+
 		return false;
+
 	}
 
 	void UpdateCrawlAnimations(Actor* a_actor, bool a_state) {

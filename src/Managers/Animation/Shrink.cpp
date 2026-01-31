@@ -9,10 +9,9 @@ using namespace GTS;
 namespace {
 
 	void SetHalfLife(Actor* actor, float value) {
-		auto& Persist = Persistent::GetSingleton();
-		auto actor_data = Persist.GetData(actor);
+		auto actor_data = Persistent::GetActorData(actor);
 		if (actor_data) {
-			actor_data->half_life = value;
+			actor_data->fHalfLife = value;
 		}
 	}
 
@@ -27,7 +26,7 @@ namespace {
 		float scale = get_visual_scale(actor);
 		float Volume = std::clamp(scale * 0.10f, 0.10f, 1.0f);
 			
-		Runtime::PlaySoundAtNode("GTSSoundShrink", actor, Volume, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundShrink, actor, Volume, "NPC Pelvis [Pelv]");
 
 		//SetHalfLife(actor, 0.0f);
 		TaskManager::Run(name, [=](auto& progressData) {

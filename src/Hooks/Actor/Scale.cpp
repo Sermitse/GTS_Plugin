@@ -1,4 +1,7 @@
 #include "Hooks/Actor/Scale.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Hooks/Util/HookUtil.hpp"
 
 using namespace GTS;
@@ -51,12 +54,37 @@ namespace Hooks {
         // FUN_140630510 :  37943
         // 0x140630561 - 0x140630510 = 0x51
 
+		//This function is used as a resulting multiplier to calculate what the final movement speed will be. (Seperate from the movement vector that is hooked in Actor.cpp)
+        //Its less elegant than the AI Procedure hook, but assuming 2.0 in the follow procedure while this value it at 1.0f results in jog/run speed then setting it to 0.5f here should mimick that.
+        //Should in theory apply the same "slowdown" across all movement.
+		//Finding a better hook site requires a smarter person than me.
         static float thunk([[maybe_unused]] TESObjectREFR* a_this) {
 
             GTS_PROFILE_ENTRYPOINT("ActorScale::AlterMovementSpeedScale");
 
-            // force it to 1.0. We DON'T want the SetScale() to affect it.
-            return 1.0f;
+            //Basically The slowdown is only applied to giant humanoids in combat
+            //When not in combat the bgsfollowprocedure hook handles slowdown.
+            if (Actor* const actor = skyrim_cast<Actor*>(a_this)) {
+                if (Runtime::HasKeyword(actor, Runtime::KYWD.ActorTypeNPC) && !a_this->IsPlayerRef() && actor->IsInCombat()) {
+                    const float scale = get_visual_scale(actor);
+                    constexpr float& START_CLAMP_SCALE = Config::General.fNPCMaxSpeedMultClampStartAt;  // Scale at which clamping begins
+                    constexpr float& FULL_CLAMP_SCALE = Config::General.fNPCMaxSpeedMultClampMaxAt;     // Scale at which speed is fully clamped to target
+
+                    if (scale >= START_CLAMP_SCALE) {
+                        // Calculate interpolation factor (0.0 to 1.0)
+                        float t = (scale - START_CLAMP_SCALE) / (FULL_CLAMP_SCALE - START_CLAMP_SCALE);
+                        t = std::clamp(t, 0.0f, 1.0f);
+
+                        // Lerp from original speed to fNPCMaxSpeedMultClampTarget
+                        const float clampedSpeed = std::lerp(1.0f, Config::General.fNPCMaxSpeedMultClampTargetCombat, t);
+
+                        //logger::trace("Scale: {}, Original: {}, Clamped: {}", scale, original, clampedSpeed);
+                        return clampedSpeed;
+                    }
+                }
+            }
+
+            return 1.f;
         }
 
         FUNCTYPE_CALL func;

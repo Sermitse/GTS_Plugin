@@ -1,5 +1,5 @@
 #include "Managers/Animation/Controllers/ThighCrushController.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/HighHeel.hpp"
 
 namespace {
@@ -11,15 +11,6 @@ namespace {
 }
 
 namespace GTS {
-
-	ThighCrushController& ThighCrushController::GetSingleton() noexcept {
-		static ThighCrushController instance;
-		return instance;
-	}
-
-	std::string ThighCrushController::DebugName() {
-		return "::ThighCrushController";
-	}
 
 	std::vector<Actor*> ThighCrushController::GetThighTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor
@@ -107,7 +98,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (IsCrawling(pred) || IsTransitioning(pred) || IsBeingHeld(pred, prey)) {
+		if (AnimationVars::Crawl::IsCrawling(pred) || AnimationVars::General::IsTransitioning(pred) || IsBeingHeld(pred, prey)) {
 			return false;
 		}
 
@@ -118,12 +109,12 @@ namespace GTS {
 		float pred_scale = get_visual_scale(pred);
 		// No need to check for BB scale in this case
 
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, false, true);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, false, true);
 		
 		float MINIMUM_DISTANCE = MINIMUM_THIGH_DISTANCE + HighHeelManager::GetBaseHHOffset(pred).Length();
 		float MINIMUM_THIGHCRUSH_SCALE = Action_AI_ThighCrush;
 
-		if (pred->formID == 0x14) {
+		if (pred->IsPlayerRef()) {
 			MINIMUM_THIGHCRUSH_SCALE = 1.5f; // Used to freeze tinies, Player Only
 		}
 
@@ -131,7 +122,7 @@ namespace GTS {
 		
 		if (prey_distance <= (MINIMUM_DISTANCE * pred_scale)) {
 			if (sizedifference > MINIMUM_THIGHCRUSH_SCALE) {
-				if ((prey->formID != 0x14 && !CanPerformAnimationOn(pred, prey, false))) {
+				if ((!prey->IsPlayerRef() && !CanPerformActionOn(pred, prey, false))) {
 					return false;
 				}
 				return true;

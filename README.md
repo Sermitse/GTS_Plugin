@@ -4,74 +4,56 @@
 
 This is the source for the [Gianttess Mod - Size matters NG](https://www.nexusmods.com/skyrimspecialedition/mods/37823?tab=description) SKSE plugin.
 
-Monke coding with new features/expansions by Sermit and Arial.
-Very complex parts (98% of DLL code) done by Andy.
+## Building requirements
 
-Still WIP
+Before building, ensure the following tools are installed and properly configured:
 
-## Building Requirements
-- [git](https://gitforwindows.org/) and add git to `PATH`
-- [cmake](https://cmake.org/download/) and add cmake to `PATH`
-- [vcpkg](https://github.com/microsoft/vcpkg) with the `VCPKG_ROOT` enviorment variable set to the vcpkg folder
-- [Visual studio 2022](https://visualstudio.microsoft.com/vs/) with Desktop development for C++
-- [Ninja](https://ninja-build.org/) which can be installed with `winget install --id=Ninja-build.Ninja -e`
-
-## Building
-Launch `x64 Native Tools Command Promt For VS 2022` from the start menu first
+- [**Git**](https://gitforwindows.org/) — add git to your system PATH.
+- [**CMake**](https://cmake.org/download/) — add cmake to your system PATH.
+- [**vcpkg**](https://github.com/microsoft/vcpkg) — set the VCPKG_ROOT environment variable to your vcpkg installation directory.
+- [**Visual Studio 2022 (MSVC 14.39) or newer**](https://visualstudio.microsoft.com/vs/) — install with the Desktop development with C++ workload.
+- [**Ninja**](https://ninja-build.org/) — should be bundled with the C++ workload for VS but can alternatively be installed through winget with:
 ```
-git clone https://github.com/sermitse/GTS_Plugin/
-cd GTS_Plugin
-cmake --preset build-release
-cmake --build --preset preset-release
+winget install --id=Ninja-build.Ninja -e
 ```
 
-## Feature Wish List
+## Building the project
 
-- [X] [1] Auto scale height to room
-- [X] [2] Correct bumper for height (Done through Side-Mod)
-- [X] [3] Talk to actor when crouching
-- [X] [4] Accurate Body Collision that inflicts size effects on contact instead of using cloak magiceffects
-- [X] [5] Fixed Player and NPC headtracking
-- [X] [6] Ability to edit HitBoxes so it'll be possible to have Giant Enemies/Have more accurate hitbox (Done through Side-Mod)
-  - AABB was shared between all actors of the same skeleton
-  - Found a way to clone the AABB and make them unique to each actor
-- [X] [7] Ability to spawn dust effect explosions literally under the feet, not under center of character. Ideally even scale them.
-- [X] [8] Maybe proper High-Heel module that dynamically adjusts high heel size based on Root scale?
-- [X] [9] In the perfect scenario, repair Animation Speed based on size
-- [X] [10] Transfer from SkyrimPlatform to Pure DLL, so SP won't be needed
-- [X] [11] Disable swimming when huge enough: make player sink instead of swimming when huge enough or based on size
-- [X] [12] Make DLL track Giantess PC/NPC footsteps to shake the screen/place dust without lags.
-- [X] [13] Vore on button press
-- [ ] [14] Blood on the feet/hand after crushing
-- [ ] [15] Quest progression ui/current size ui
-- [X] [16] Vore anim and other animations
-- [ ] [17] Vore belly
-- [X] [18] Integrate new Potions into the world
-- [X] [19] .dll optimization so it will eat less CPU and have better performance (Partially done)
-- [X] [20] Affect stealth by size (Partially done)
-- [X] [21] Make feet deal damage and effects based on it's speed instead of being able to kill everyone if standing still
-- [ ] [22] Improve dll coding/code readability in sections written by me (Sermit) so it doesn't look ugly in some files
-- [ ] [23] +-TF2 Style size-related kill feed 
-- [ ] [24] Buff Icons above/near GTS scale ui for following mechanics:
-- - - - - - Life Absorption Stacks (Perk);
-- - - - - - Damage Reduction (passive);
-- - - - - - Size Reserve Stacks (buff);
-- - - - - - Aspect Of Giantess (buff);
-- - - - - - Vore Stacks (passive);
-- - - - - - On The Edge (Perk);
+This is a standard ``CMake with vcpgkg``-based project. Once all requirements are met, you can build in one of two ways:
+
+### Option 1 — Visual Studio 
+1. Clone the repository using Git.
+2. Open the cloned folder in Visual Studio.
+3. Visual Studio if setup correctly should automatically detect the `CMakeLists.txt` file and configure the build environment.
+
+### Option 2 — Automated (Recommended)
+Simply run the provided batch file:
+```
+_CompileDLL.bat
+```
+If successfull a `Package-Release` folder should have been created within the `distribution` folder. Containing the built DLL along with other runtime requirements.
+> **Note:**  
+> You must clone the repository using Git.  
+> Direct downloads from GitHub (ZIP files) will **not** compile due to missing git data which the build process depends on.
 
 
+## Modder API
+The plugin exposes a few basic functions through both a papyrus and native interface.
 
-## Easier Things
-- [X] Scale
-  - [x] Change scale in papyrus
-  - [X] Get height in meters of any actor
-  - [X] Get volume of any actor
-- [x] Mechanics  
-  - [x] Apply size effects to nearby actor
-  - [x] Move away from favor active
-  - [x] Animation speed adjustment
-- [X] Walk/Jump events
-  - [x] Camera distance to event
-  - [X] Camera shake
-  - [X] Feet sounds
+### Papyrus
+As long as you have the source psc's you can simply call the exported functions in your script (eg. `float scale = GTSScale.GetVisualScale(akActor)`) .
+
+A full list of exported functions can be found in `distribution\PapyrusSource\`
+
+### Native API
+A native API for inter DLL communication also exists. To use it simply copy `GTSPluginAPI.hpp`
+located in `src/API/External/` file into your project and call the RequestPluginAPI function
+in either `kPostPostLoad` or `kDataLoaded` SKSE message events.
+
+
+## Current feature wishlist
+- [ ] [1] Automatic blood decal placement on the Player/NPC after doing certain actions.
+
+## Implemented features that need improving
+- [X] [1] Affect detection based on scale (Partially done)
+- [X] [2] NPC Movement state correction (Limit NPC Movement to just walk and jog states). Partially works and only on the AI Follow procedure.

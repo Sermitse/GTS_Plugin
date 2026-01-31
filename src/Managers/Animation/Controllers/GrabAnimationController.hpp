@@ -2,18 +2,14 @@
 
 namespace GTS {
 
-	class GrabAnimationController : public EventListener  {
+	class GrabAnimationController : public CInitSingleton <GrabAnimationController> {
 		public:
-			[[nodiscard]] static GrabAnimationController& GetSingleton() noexcept;
+		std::vector<Actor*> GetGrabTargetsInFront(Actor* pred, std::size_t numberOfPrey);
+		static void StartGrab(Actor* pred, Actor* prey);
+		bool CanGrab(Actor* pred, Actor* prey) const;
+		void AllowMessage(bool allow);
 
-			virtual std::string DebugName() override;
-
-			std::vector<Actor*> GetGrabTargetsInFront(Actor* pred, std::size_t numberOfPrey);
-			static void StartGrab(Actor* pred, Actor* prey);
-			bool CanGrab(Actor* pred, Actor* prey) const;
-
-			void AllowMessage(bool allow);
 		private:
-			bool allow_message = false;
+		bool allow_message = false;
 	};
 }

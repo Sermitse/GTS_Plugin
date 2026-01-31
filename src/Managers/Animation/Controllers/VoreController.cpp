@@ -5,7 +5,7 @@
 #include "Managers/AI/AIFunctions.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Utils/SurvivalMode.hpp"
-#include "Utils/VoreUtils.hpp"
+#include "Utils/Actions/VoreUtils.hpp"
 #include "Utils/Looting.hpp"
 
 #include "Utils/DeathReport.hpp"
@@ -33,11 +33,11 @@ namespace GTS {
 
 	void VoreData::Swallow() {
 		std::unique_lock lock(_lock);
-		for (auto& [key, tinyref]: this->tinies) {
+		for (auto& tinyref : this->tinies | std::views::values) {
 			auto tiny = tinyref.get().get();
 			auto giant = this->giant.get().get();
 			
-			if (giant->formID == 0x14) {
+			if (giant->IsPlayerRef()) {
 				if (IsLiving(tiny) && IsHuman(tiny)) {
 					CallVampire();
 				}
@@ -55,21 +55,21 @@ namespace GTS {
 	}
 	void VoreData::KillAll() {
 		std::unique_lock lock(_lock);
-		if (!AllowDevourment()) {
+		if (!IsDevourmentEnabled()) {
 
-			for (auto& tinyref : this->tinies | views::values) {
+			for (auto& tinyref : this->tinies | std::views::values) {
 				auto tiny = tinyref.get().get();
 				auto giantref = this->giant;
 				SetBeingHeld(tiny, false);
 				AddSMTDuration(giantref.get().get(), 6.0f);
 
-				const auto& MuteVore = Config::GetAudio().bMuteVoreDeathScreams;
+				const auto& MuteVore = Config::Audio.bMuteVoreDeathScreams;
 
-				if (tiny->formID != 0x14) {
+				if (!tiny->IsPlayerRef()) {
 					KillActor(giantref.get().get(), tiny, MuteVore);
 					PerkHandler::UpdatePerkValues(giantref.get().get(), PerkUpdate::Perk_LifeForceAbsorption);
 				}
-				else if (tiny->formID == 0x14) {
+				else if (tiny->IsPlayerRef()) {
 					InflictSizeDamage(giantref.get().get(), tiny, 900000);
 					KillActor(giantref.get().get(), tiny, MuteVore);
 					TriggerScreenBlood(50);
@@ -91,14 +91,14 @@ namespace GTS {
 					auto giant = giantref.get().get();
 					auto smoll = tinyref.get().get();
 
-					if (smoll->formID != 0x14) {
+					if (!smoll->IsPlayerRef()) {
 						Disintegrate(smoll);
 					}
 					TransferInventory(smoll, giant, 1.0f, false, true, DamageSource::Vored, true);
 				});
 			}
 		} else {
-			for (auto& [key, tinyref]: this->tinies) { // just clear the data
+			for (auto& tinyref : this->tinies | std::views::values) { // just clear the data
 				auto tiny = tinyref.get().get();
 				SetBeingHeld(tiny, false);
 			}
@@ -108,9 +108,9 @@ namespace GTS {
 
 	void VoreData::AllowToBeVored(bool allow) {
 		std::unique_lock lock(_lock);
-		for (auto& [key, tinyref]: this->tinies) {
+		for (auto& tinyref : this->tinies | std::views::values) {
 			auto tiny = tinyref.get().get();
-			auto transient = Transient::GetSingleton().GetData(tiny);
+			auto transient = Transient::GetActorData(tiny);
 			if (transient) {
 				transient->CanBeVored = allow;
 			}
@@ -132,7 +132,7 @@ namespace GTS {
 	std::vector<Actor*> VoreData::GetVories() {
 		std::unique_lock lock(_lock);
 		std::vector<Actor*> result;
-		for (auto& actorref : this->tinies | views::values) {
+		for (auto& actorref : this->tinies | std::views::values) {
 			auto actor = actorref.get().get();
 			result.push_back(actor);
 		}
@@ -145,7 +145,7 @@ namespace GTS {
 			auto giant = this->giant.get().get();
 			float giantScale = get_visual_scale(giant);
 			// Stick them to the AnimObjectA
-			for (auto& [key, tinyref]: this->tinies) {
+			for (auto& tinyref : this->tinies | std::views::values) {
 				auto tiny = tinyref.get().get();
 				if (!tiny) {
 					return;
@@ -161,18 +161,13 @@ namespace GTS {
 		}
 	}
 
-	VoreController& VoreController::GetSingleton() noexcept {
-		static VoreController instance;
-		return instance;
-	}
-
 	std::string VoreController::DebugName() {
 		return "::VoreController";
 	}
 
 	void VoreController::Update() {
 		std::unique_lock lock(_lock);
-		for (auto& voreData : this->data | views::values) {
+		for (auto& voreData : this->data | std::views::values) {
 			voreData.Update();
 		}
 	}
@@ -202,19 +197,17 @@ namespace GTS {
 		auto preys = find_actors();
 
 		// Sort prey by distance
-		sort(preys.begin(), preys.end(),
-		     [predPos](const Actor* preyA, const Actor* preyB) -> bool
-		{
+		std::ranges::sort(preys,[predPos](const Actor* preyA, const Actor* preyB) -> bool{
 			float distanceToA = (preyA->GetPosition() - predPos).Length();
 			float distanceToB = (preyB->GetPosition() - predPos).Length();
 			return distanceToA < distanceToB;
 		});
 
 		// Filter out invalid targets
-		preys.erase(std::remove_if(preys.begin(), preys.end(),[pred, this](auto prey)
+		std::erase_if(preys,[pred, this](auto prey)
 		{
 			return !this->CanVore(pred, prey);
-		}), preys.end());
+		});
 
 		// Filter out actors not in front
 		auto actorAngle = pred->data.angle.z;
@@ -223,7 +216,7 @@ namespace GTS {
 
 		NiPoint3 predDir = actorForward;
 		predDir = predDir / predDir.Length();
-		preys.erase(std::remove_if(preys.begin(), preys.end(),[predPos, predDir](auto prey)
+		std::erase_if(preys,[predPos, predDir](auto prey)
 		{
 			NiPoint3 preyDir = prey->GetPosition() - predPos;
 			if (preyDir.Length() <= 1e-4) {
@@ -232,7 +225,7 @@ namespace GTS {
 			preyDir = preyDir / preyDir.Length();
 			float cosTheta = predDir.Dot(preyDir);
 			return cosTheta <= 0; // 180 degress
-		}), preys.end());
+		});
 
 		// Filter out actors not in a truncated cone
 		// \      x   /
@@ -244,7 +237,7 @@ namespace GTS {
 		float shiftAmount = fabs((predWidth / 2.0f) / tan(VORE_ANGLE/2.0f));
 
 		NiPoint3 coneStart = predPos - predDir * shiftAmount;
-		preys.erase(std::remove_if(preys.begin(), preys.end(),[coneStart, predWidth, predDir](auto prey)
+		std::erase_if(preys,[coneStart, predWidth, predDir](auto prey)
 		{
 			NiPoint3 preyDir = prey->GetPosition() - coneStart;
 			if (preyDir.Length() <= predWidth*0.4f) {
@@ -253,7 +246,7 @@ namespace GTS {
 			preyDir = preyDir / preyDir.Length();
 			float cosTheta = predDir.Dot(preyDir);
 			return cosTheta <= cos(VORE_ANGLE*PI/180.0f);
-		}), preys.end());
+		});
 
 		if (numberOfPrey == 1) {
 			return GetMaxActionableTinyCount(pred, preys);
@@ -267,17 +260,17 @@ namespace GTS {
 		return preys;
 	}
 
-	bool VoreController::CanVore(Actor* pred, Actor* prey) {
+	bool VoreController::CanVore(Actor* pred, Actor* prey) const {
 
 		if (pred == prey) {
 			return false;
 		}
 
-		if (!CanPerformAnimation(pred, AnimationCondition::kVore)) {
+		if (!CanDoActionBasedOnQuestProgress(pred, QuestAnimationType::kVore)) {
 			return false;
 		}
 
-		auto transient = Transient::GetSingleton().GetData(prey);
+		auto transient = Transient::GetActorData(prey);
 		if (prey->IsDead()) {
 			return false;
 		}
@@ -302,7 +295,7 @@ namespace GTS {
 		}
 
 		float pred_scale = get_visual_scale(pred);
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, true, false);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, true, false);
 		float prey_distance = (pred->GetPosition() - prey->GetPosition()).Length();
 
 		
@@ -314,11 +307,11 @@ namespace GTS {
 				return false;
 			}
 			
-			if (pred->formID == 0x14) {
+			if (pred->IsPlayerRef()) {
 				std::string_view message = fmt::format("{} is too big to be eaten: x{:.2f}/{:.2f}", prey->GetDisplayFullName(), sizedifference, MINIMUM_VORE_SCALE);
 				shake_camera(pred, 0.45f, 0.30f);
 				NotifyWithSound(pred, message);
-			} else if (this->allow_message && prey->formID == 0x14 && IsTeammate(pred)) {
+			} else if (this->allow_message && prey->IsPlayerRef() && IsTeammate(pred)) {
 				CantVorePlayerMessage(pred, prey, sizedifference);
 			}
 			return false;
@@ -328,7 +321,7 @@ namespace GTS {
 			if (IsFlying(prey)) {
 				return false; // Disallow to vore flying dragons
 			}
-			if ((prey->formID != 0x14 && !CanPerformAnimationOn(pred, prey, false))) {
+			if ((!prey->IsPlayerRef() && !CanPerformActionOn(pred, prey, false))) {
 				Notify("{} is important and shouldn't be eaten.", prey->GetDisplayFullName());
 				return false;
 			}
@@ -365,16 +358,16 @@ namespace GTS {
 		float wastestamina = 45; // Drain stamina, should be 300 once tests are over
 		float staminacheck = pred->AsActorValueOwner()->GetActorValue(ActorValue::kStamina);
 
-		if (pred->formID != 0x14) {
+		if (!pred->IsPlayerRef()) {
 			wastestamina = 30; // Less tamina drain for non Player
 		}
 
-		if (!Runtime::HasPerkTeam(pred, "GTSPerkVoreAbility")) { // Damage stamina if we don't have perk
+		if (!Runtime::HasPerkTeam(pred, Runtime::PERK.GTSPerkVoreAbility)) { // Damage stamina if we don't have perk
 			if (staminacheck < wastestamina) {
 				Notify("{} is too tired for vore.", pred->GetDisplayFullName());
 				DamageAV(prey, ActorValue::kHealth, 3 * sizedifference);
-				if (pred->formID == 0x14) {
-					Runtime::PlaySound("GTSSoundFail", pred, 0.4f, 1.0f);
+				if (pred->IsPlayerRef()) {
+					Runtime::PlaySound(Runtime::SNDR.GTSSoundFail, pred, 0.4f, 1.0f);
 				}
 				StaggerActor(pred, prey, 0.25f);
 				return;
@@ -383,8 +376,8 @@ namespace GTS {
 		}
 
 		
-		if (GetSizeDifference(pred, prey, SizeType::VisualScale, false, false) < Action_Vore) {
-			if (pred->IsSneaking() && !IsCrawling(pred)) {
+		if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_Vore) {
+			if (pred->IsSneaking() && !AnimationVars::Crawl::IsCrawling(pred)) {
 				ShrinkUntil(pred, prey, 10.2f, 0.14f, true); // Shrink if we have SMT to allow 'same-size' vore
 			} else {
 				ShrinkUntil(pred, prey, 10.2f, 0.16f, true); // Shrink if we have SMT to allow 'same-size' vore
@@ -393,8 +386,8 @@ namespace GTS {
 			return;
 		}
 
-		if (pred->formID == 0x14) {
-			Runtime::PlaySound("GTSSoundFail", pred, 0.4f, 1.0f);
+		if (pred->IsPlayerRef()) {
+			Runtime::PlaySound(Runtime::SNDR.GTSSoundFail, pred, 0.4f, 1.0f);
 		}
 		auto& voreData = this->GetVoreData(pred);
 		voreData.AddTiny(prey);
@@ -403,14 +396,14 @@ namespace GTS {
 	}
 
 	void VoreController::RecordOriginalScale(Actor* tiny) {
-		auto Data = Transient::GetSingleton().GetData(tiny);
+		auto Data = Transient::GetActorData(tiny);
 		if (Data) {
 			Data->VoreRecordedScale = std::clamp(get_visual_scale(tiny), 0.02f, 1000000.0f);
 		}
 	}
 
 	float VoreController::ReadOriginalScale(Actor* tiny) {
-		auto Data = Transient::GetSingleton().GetData(tiny);
+		auto Data = Transient::GetActorData(tiny);
 		if (Data) {
 			return Data->VoreRecordedScale;
 		}
@@ -418,7 +411,7 @@ namespace GTS {
 	}
 
 	void VoreController::ShrinkOverTime(Actor* giant, Actor* tiny, float time_mult, float targetscale_mult) {
-		if (tiny) {
+		if (tiny && !IsDevourmentEnabled()) {
 			float Adjustment_Tiny = GetSizeFromBoundingBox(tiny);
 			float preyscale = get_visual_scale(tiny) * Adjustment_Tiny;
 			float targetScale = std::clamp(preyscale/12.0f * Adjustment_Tiny, 0.01f, 1000000.0f);
@@ -431,7 +424,7 @@ namespace GTS {
 			std::string name = std::format("ShrinkTo_{}", tiny->formID);
 
 			if (preyscale > targetScale) {
-				VoreController::GetSingleton().RecordOriginalScale(tiny); // We're shrinking the tiny which affects effectiveness of vore bonuses, this fixes it
+				GetSingleton().RecordOriginalScale(tiny); // We're shrinking the tiny which affects effectiveness of vore bonuses, this fixes it
 				TaskManager::Run(name, [=](auto& progressData) {
 					Actor* actor = tinyHandle.get().get();
 					if (!actor) {
@@ -468,5 +461,25 @@ namespace GTS {
 
 	void VoreController::AllowMessage(bool allow) {
 		this->allow_message = allow;
+	}
+
+	bool VoreController::IsTinyInDataList(Actor* aTiny) {
+
+		std::unique_lock lock(_lock);
+
+		if (!aTiny) {
+			return false;
+		}
+
+		for (auto& val : data | std::views::values) {
+			for (const auto& Tiny : val.GetVories()) {
+				if (Tiny) {
+					if (Tiny->formID == aTiny->formID) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }

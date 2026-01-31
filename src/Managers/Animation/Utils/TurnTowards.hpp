@@ -74,9 +74,9 @@ namespace GTS {
 			return false;
 		}
 		auto giantAngle = giant->data.angle.z;
-		float opposite = static_cast<float>(giantAngle - M_PI);
+		float opposite = static_cast<float>(giantAngle - std::numbers::pi);
 		if (opposite < 0.0f) {
-			opposite += static_cast<float>(2.0 * M_PI);
+			opposite += static_cast<float>(2.0 * std::numbers::pi);
 		}
 		tiny->data.angle.z = opposite;
 		return true;

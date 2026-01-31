@@ -26,12 +26,12 @@ namespace {
 			return false;
 		}
 
-		if (!CanPerformAnimationOn(a_Performer, a_Prey, false)) {
+		if (!CanPerformActionOn(a_Performer, a_Prey, false)) {
 			return false;
 		}
 
 		const float PredScale = get_visual_scale(a_Performer);
-		const float SizeDiff = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
+		const float SizeDiff = get_scale_difference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
 		constexpr float MinimumScale = Action_Sandwich;
 		constexpr float MinimumDistance = MINIMUM_SANDWICH_DISTANCE;
 
@@ -54,7 +54,7 @@ namespace GTS {
 			return {};
 		}
 
-		if (IsCrawling(a_Performer)) {
+		if (AnimationVars::Crawl::IsCrawling(a_Performer)) {
 			return {};
 		}
 
@@ -68,7 +68,7 @@ namespace GTS {
 		auto PreyList = a_PotentialPrey;
 
 		// Sort prey by distance
-		ranges::sort(PreyList,[PredPosition](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
+		std::ranges::sort(PreyList,[PredPosition](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
 			const float DistToA = (a_PreyA->GetPosition() - PredPosition).Length();
 			const float DistToB = (a_PreyB->GetPosition() - PredPosition).Length();
 			return DistToA < DistToB;
@@ -126,7 +126,7 @@ namespace GTS {
 
 		if (a_HavePrey && GetPercentageAV(a_Performer,ActorValue::kStamina) > 0.05f) {
 
-			const auto& Settings = Config::GetAI().ThighSandwich;
+			const auto& Settings = Config::AI.ThighSandwich;
 
 			switch (RandomIntWeighted({
 					static_cast<int>(Settings.fProbabilityLight),

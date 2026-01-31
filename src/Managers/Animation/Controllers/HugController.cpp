@@ -6,7 +6,7 @@
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/HugShrink.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 using namespace GTS;
 
@@ -17,9 +17,9 @@ namespace {
 	constexpr float PI = std::numbers::pi_v<float>;;
 
 	bool DisallowHugs(Actor* actor) {
-		bool jumping = IsJumping(actor);
+		bool jumping = AnimationVars::Other::IsJumping(actor);
 		bool ragdolled = IsRagdolled(actor);
-		bool busy = IsGtsBusy(actor);
+		bool busy = AnimationVars::General::IsGTSBusy(actor);
 		return jumping || ragdolled || busy;
 	}
 
@@ -36,9 +36,9 @@ namespace {
 	}
 
 	bool ShouldAllowWhenTooLarge(Actor* giant, Actor* tiny, float sizedifference, bool allow) {
-		if (giant->formID != 0x14 && IsTeammate(giant) && sizedifference > GetHugShrinkThreshold(giant)) {
+		if (!giant->IsPlayerRef() && IsTeammate(giant) && sizedifference > GetHugShrinkThreshold(giant)) {
 			// Disallow FOLLOWERS to hug someone when size difference is too massive
-			if (tiny->formID == 0x14) {
+			if (tiny->IsPlayerRef()) {
 				CantHugPlayerMessage(giant, tiny, sizedifference, allow);
 			}
 			return false;
@@ -47,11 +47,11 @@ namespace {
 	}
 
 	void RecordSneakState(Actor* giant, Actor* tiny) {
-		bool Crawling = IsCrawling(giant);
+		bool Crawling = AnimationVars::Crawl::IsCrawling(giant);
 		bool Sneaking = giant->IsSneaking();
 
-		tiny->SetGraphVariableBool("GTS_Hug_Sneak_Tny", Sneaking); // Is Sneaking?
-		tiny->SetGraphVariableBool("GTS_Hug_Crawl_Tny", Crawling); // Is Crawling?
+		AnimationVars::Tiny::SetIsBeingCrawlHugged(tiny, Crawling);
+		AnimationVars::Tiny::SetIsBeingSneakHugged(tiny, Sneaking);
 	}
 
 	void Task_PerformHugs(Actor* giant, Actor* tiny) {
@@ -73,7 +73,7 @@ namespace {
 			AnimationManager::StartAnim("Huggies_Try", pred);
 
 			if (pred->IsSneaking()) {
-				if (!IsCrawling(pred)) {
+				if (!AnimationVars::Crawl::IsCrawling(pred)) {
 					SetSneaking(pred, true, 0); // If just sneaking, disable sneaking so footstep sounds will work properly
 				}
 				AnimationManager::StartAnim("Huggies_Try_Victim_S", prey); // GTSBEH_HugAbsorbStart_Sneak_V
@@ -87,22 +87,14 @@ namespace {
 }
 
 namespace GTS {
-	HugAnimationController& HugAnimationController::GetSingleton() noexcept {
-		static HugAnimationController instance;
-		return instance;
-	}
-
-	std::string HugAnimationController::DebugName() {
-		return "::HugAnimationController";
-	}
 
 	void HugAnimationController::Hugs_OnCooldownMessage(Actor* giant) {
 		double cooldown = GetRemainingCooldown(giant, CooldownSource::Action_Hugs);
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			std::string message = std::format("Hugs are on a cooldown: {:.1f} sec", cooldown);
 			shake_camera(giant, 0.75f, 0.35f);
 			NotifyWithSound(giant, message);
-		} else if (IsTeammate(giant) && !IsGtsBusy(giant)) {
+		} else if (IsTeammate(giant) && !AnimationVars::General::IsGTSBusy(giant)) {
 			std::string message = std::format("Follower's Hugs are on a cooldown: {:.1f} sec", cooldown);
 			NotifyWithSound(giant, message);
 		}
@@ -113,7 +105,7 @@ namespace GTS {
 	std::vector<Actor*> HugAnimationController::GetHugTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
 		// Get vore target for actor
 		auto& sizemanager = SizeManager::GetSingleton();
-		if (IsGtsBusy(pred)) {
+		if (AnimationVars::General::IsGTSBusy(pred)) {
 			return {};
 		}
 		if (!pred) {
@@ -198,7 +190,7 @@ namespace GTS {
 		if (prey->IsDead()) {
 			return false;
 		}
-		if (IsTransitioning(pred) || IsBeingHeld(pred, prey)) {
+		if (AnimationVars::General::IsTransitioning(pred) || IsBeingHeld(pred, prey)) {
 			return false;
 		}
 		if (DisallowHugs(pred) || DisallowHugs(prey)) {
@@ -212,14 +204,14 @@ namespace GTS {
 		float pred_scale = get_visual_scale(pred);
 		// No need to check for BB scale in this case
 
-		float sizedifference = GetSizeDifference(pred, prey, SizeType::VisualScale, false, true);
+		float sizedifference = get_scale_difference(pred, prey, SizeType::VisualScale, false, true);
 		
 
 		float MINIMUM_DISTANCE = MINIMUM_HUG_DISTANCE;
 		float MINIMUM_HUG_SCALE = Action_Hug;
 
 		if (pred->IsSneaking()) {
-			if (IsCrawling(pred)) {
+			if (AnimationVars::Crawl::IsCrawling(pred)) {
 				MINIMUM_DISTANCE *= 2.35f;
 			} else {
 				MINIMUM_DISTANCE *= 1.6f;
@@ -234,11 +226,11 @@ namespace GTS {
 
 		if (prey_distance <= (MINIMUM_DISTANCE * pred_scale)) {
 			if (sizedifference > MINIMUM_HUG_SCALE) {
-				if ((prey->formID != 0x14 && !CanPerformAnimationOn(pred, prey, true))) {
+				if ((!prey->IsPlayerRef() && !CanPerformActionOn(pred, prey, true))) {
 					return false;
 				}
 				if (!IsHuman(prey)) { // Allow hugs with humanoids only
-					if (pred->formID == 0x14) {
+					if (pred->IsPlayerRef()) {
 						std::string_view message = std::format("You have no desire to hug {}", prey->GetDisplayFullName());
 						NotifyWithSound(pred, message); // Just no. We don't have Creature Anims.
 						shake_camera(pred, 0.45f, 0.30f);
@@ -247,11 +239,11 @@ namespace GTS {
 				}
 				return ShouldAllowWhenTooLarge(pred, prey, sizedifference, this->allow_message);
 			} else {
-				if (pred->formID == 0x14) {
+				if (pred->IsPlayerRef()) {
 					std::string_view message = std::format("{} is too big to be hugged: x{:.2f}/{:.2f}", prey->GetDisplayFullName(), sizedifference, MINIMUM_HUG_SCALE);
 					shake_camera(pred, 0.45f, 0.30f);
 					NotifyWithSound(pred, message);
-				} else if (prey->formID == 0x14 && IsTeammate(pred)) {
+				} else if (prey->IsPlayerRef() && IsTeammate(pred)) {
 					CantHugPlayerMessage(pred, prey, sizedifference, this->allow_message);
 				}
 				return false;
@@ -272,10 +264,10 @@ namespace GTS {
 			return;
 		}
 
-		if (IsCrawling(pred)) {
-			if (!CanPerformAnimation(PlayerCharacter::GetSingleton(), AnimationCondition::kOthers)) {
+		if (AnimationVars::Crawl::IsCrawling(pred)) {
+			if (!CanDoActionBasedOnQuestProgress(PlayerCharacter::GetSingleton(), QuestAnimationType::kOthers)) {
 				// Can Crawl Hug only after quest is done
-				if (pred->formID == 0x14) {
+				if (pred->IsPlayerRef()) {
 					NotifyWithSound(pred, "You're not experienced enough for Crawl Hugs");
 				}
 				return;

@@ -12,16 +12,21 @@
 #include "Managers/AI/AIFunctions.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"
 #include "Utils/Looting.hpp"
-#include "API/Racemenu.hpp"
+
+#include "Config/Config.hpp"
 
 #include "Utils/KillDataUtils.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
+#include "Managers/Morphs/MorphManager.hpp"
+
+#include "Utils/DeathReport.hpp"
+#include "Utils/Actions/VoreUtils.hpp"
 
 using namespace GTS;
 
@@ -39,7 +44,7 @@ namespace {
         const ActorHandle TinyHandle = Tiny->CreateRefHandle();
         const ActorHandle GiantHandle = aGiant->CreateRefHandle();
 
-		TaskManager::Run(TaskName, [=](auto& progressData) {
+		TaskManager::Run(TaskName, [=](auto&) {
 
 	        const auto TinyActor = TinyHandle.get().get();
 	        const auto GiantActor = GiantHandle.get().get();
@@ -48,7 +53,7 @@ namespace {
 	            return false;
 	        }
 
-	        const bool InCleavage = IsInCleavageState(GiantActor);
+	        const bool InCleavage = AnimationVars::Action::IsInCleavageState(GiantActor);
 	        if (InCleavage) {
 	            return true;
 	        }
@@ -66,7 +71,7 @@ namespace {
     }
 
     void Absorb_GrowInSize(Actor* giant, Actor* tiny, float multiplier) {
-        if (Runtime::HasPerkTeam(giant, "GTSPerkHugsGreed")) {
+        if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsGreed)) {
 			multiplier *= 1.15f;
 		}
         float grow_value = 0.08f * multiplier * 0.845f;
@@ -76,12 +81,12 @@ namespace {
 
     void CancelAnimation(Actor* giant) {
         auto tiny = Grab::GetHeldActor(giant);
-        giant->SetGraphVariableBool("GTS_OverrideZ", false);
+        AnimationVars::Action::SetIsCleavageZOverrideEnabled(giant, false);
+
         if (tiny) {
             KillActor(giant, tiny);
             PerkHandler::UpdatePerkValues(giant, PerkUpdate::Perk_LifeForceAbsorption);
-            DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
-            tiny->SetGraphVariableBool("GTSBEH_T_InStorage", false);
+            DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
             SetBetweenBreasts(tiny, false);
             SetBeingEaten(tiny, false);
             SetBeingHeld(tiny, false);
@@ -98,7 +103,7 @@ namespace {
         float Percent = GetMaxAV(giant, Attribute);
         float value = Percent * percentage;
 
-        if (Runtime::HasPerk(giant, "GTSPerkBreastsMastery2")) {
+        if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkBreastsMastery2)) {
             value *= 1.5f;
         }
 
@@ -148,8 +153,6 @@ namespace {
 		ActorHandle gianthandle = giant->CreateRefHandle();
 		ActorHandle tinyhandle = tiny->CreateRefHandle();
 
-        float starting_hppercentage = GetHealthPercentage(tiny);
-
 		TaskManager::Run(name, [=](auto& progressData) {
 			if (!gianthandle) {
 				return false;
@@ -179,7 +182,7 @@ namespace {
         Actor* tiny = Grab::GetHeldActor(giant);
         if (tiny) {
             if (!IsTeammate(tiny)) {
-                Attacked(tiny, giant); // force combat
+                tiny->Attacked(giant); // force combat
             }
 
             float bonus = 1.0f;
@@ -199,12 +202,12 @@ namespace {
 			}
 
             if (CanDoDamage(giant, tiny, false)) {
-                if (Runtime::HasPerkTeam(giant, "GTSPerkGrowingPressure")) {
-                    auto& sizemanager = SizeManager::GetSingleton();
-                    sizemanager.ModSizeVulnerability(tiny, damage * 0.0010f);
+                if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
+                    auto& mgr = SizeManager::GetSingleton();
+                    mgr.ModSizeVulnerability(tiny, damage * 0.0010f);
                 }
 
-                TinyCalamity_ShrinkActor(giant, tiny, damage * 0.20f * GetDamageSetting());
+                TinyCalamity_ShrinkActor(giant, tiny, damage * 0.20f * Config::Balance.fSizeDamageMult);
 
                 SizeHitEffects::PerformInjuryDebuff(giant, tiny, damage * 0.15f, 6);
                 if (!IsTeammate(tiny) || IsHostile(giant, tiny)) {
@@ -218,7 +221,7 @@ namespace {
             }
 			
 			Rumbling::Once("GrabAttack", tiny, Rumble_Grab_Hand_Attack * bonus * damage_mult, 0.05f, "NPC Root [Root]", 0.0f);
-            Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, 1.0f, "NPC Root [Root]");
+            Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundThighSandwichImpact, tiny, 1.0f, "NPC Root [Root]");
 
             Utils_CrushTask(giant, tiny, bonus, false, false, DamageSource::BreastImpact, QuestStage::Crushing);
             ModSizeExperience(giant, experience);
@@ -284,7 +287,6 @@ namespace {
     void GTS_BS_OpenMouth(const AnimationEventData& data) {
         auto giant = &data.giant;
 		auto tiny = Grab::GetHeldActor(giant);
-		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
 		if (tiny) {
 			SetBeingEaten(tiny, true);
 			VoreController::GetSingleton().ShrinkOverTime(giant, tiny);
@@ -306,17 +308,17 @@ namespace {
         auto tiny = Grab::GetHeldActor(&data.giant);
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		if (tiny) {
-            if (!AllowDevourment()) {
-                Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
+            if (!IsDevourmentEnabled()) {
+                Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
             }
-			for (auto& tiny: VoreData.GetVories()) {
-				if (!AllowDevourment()) {
+			for (auto& tinyit: VoreData.GetVories()) {
+				if (!IsDevourmentEnabled()) {
 					VoreData.Swallow();
-					if (IsCrawling(&data.giant)) {
-						tiny->SetAlpha(0.0f); // Hide Actor
+					if (AnimationVars::Crawl::IsCrawling(&data.giant)) {
+						tinyit->SetAlpha(0.0f); // Hide Actor
 					}
 				} else {
-					CallDevourment(&data.giant, tiny);
+					CallDevourment(&data.giant, tinyit);
 				}
 			}
 		}
@@ -331,11 +333,12 @@ namespace {
 		if (tiny) {
 			SetBeingEaten(tiny, false);
 			auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
-			for (auto& tiny: VoreData.GetVories()) {
+			for ([[maybe_unused]] auto& _: VoreData.GetVories()) {
 				VoreData.KillAll();
 			}
-			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-			giant->SetGraphVariableInt("GTS_Grab_State", 0);
+
+            AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+            AnimationVars::Grab::SetGrabState(giant, false);
 
 			SetBeingHeld(tiny, false);
 			Grab::DetachActorTask(giant);
@@ -371,7 +374,7 @@ namespace {
 
             float volume = std::clamp(0.12f * get_visual_scale(giant), 0.12f, 1.0f);
 
-            Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, volume, "NPC Root [Root]");
+            Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundThighSandwichImpact, tiny, volume, "NPC Root [Root]");
 
             bool Blocked = IsActionOnCooldown(giant, CooldownSource::Emotion_Laugh);
             if (!Blocked && data.stage < 5) { // We don't want Laugh to happen at the end of absorption
@@ -404,7 +407,7 @@ namespace {
         if (tiny) {
 
             SpawnHearts(giant, tiny, 35.0f, 1.15f, false);
-            Attacked(tiny, giant);
+            tiny->Attacked(giant);
 
             AdvanceQuestProgression(giant, tiny, QuestStage::HugSteal, 1.0f, false);
 
@@ -420,11 +423,11 @@ namespace {
             AdjustMassLimit(0.0095f, giant);
 
             DecreaseShoutCooldown(giant);
-		    const auto& MuteAbsorptionScreams = Config::GetAudio().bMuteBreastAbsorptionDeathScreams;
+		    const auto& MuteAbsorptionScreams = Config::Audio.bMuteBreastAbsorptionDeathScreams;
 
             KillActor(giant, tiny, MuteAbsorptionScreams);
 
-            if (tiny->formID != 0x14) {
+            if (!tiny->IsPlayerRef()) {
                 Disintegrate(tiny);
                 SendDeathEvent(giant, tiny);
             }
@@ -450,63 +453,23 @@ namespace {
                 PerkHandler::UpdatePerkValues(giantref, PerkUpdate::Perk_LifeForceAbsorption);
 
                 TransferInventory(tinyref, giantref, get_visual_scale(tinyref) * GetSizeFromBoundingBox(tinyref), false, true, DamageSource::Vored, true);
-                // Actor Reset is done inside TransferInventory:StartResetTask!
-                });
+                // Actor Reset is done inside TransferInventory:StartActorResetTask!
+            });
 
             RecoverAttributes(giant, ActorValue::kHealth, 0.05f);
             ModSizeExperience(giant, 0.235f);
         }
     }
 
-    static void GrowBreastsOverTime(Actor* giant) {
-    	// Should probably be capped at +50 or +100% of natural breast size
-        // As a fun thing can probably even try to calculate total player weight based on morph values if we will manage to use RaceMenu functions directly
-        // If RaceMenu API won't be found - it won't work. It doesn't on my end at least.
-        std::string taskname = std::format("GrowBreasts_{}", giant->formID);
-        ActorHandle giantHandle = giant->CreateRefHandle();
+    void GTS_BS_GrowBoobs(const AnimationEventData& data) {
 
-        bool AllowBreastGrow = Config::GetAdvanced().bEnlargeBreastsOnAbsorption;  // Should be tied to UI settings
-        if (!AllowBreastGrow) {
+        Animation_Cleavage::LaunchCooldownFor(&data.giant, CooldownSource::Action_Breasts_Absorb);
+
+        if (!Config::Gameplay.ActionSettings.bEnlargeBreastsOnAbsorption) {
             return;
         }
 
-        auto transient = Transient::GetSingleton().GetActorData(giant);
-        double startTime = Time::WorldTimeElapsed();
-
-        float duration = 3.0f;
-        float total_size_add = 1.0f;
-        float initial_size = 0.0f;
-        if (transient) {
-            initial_size = transient->BreastSizeBuff;
-        }
-
-        TaskManager::Run(taskname, [=](auto& progressData) {
-            if (!giantHandle) {
-                return false;
-            }
-
-            double endTime = Time::WorldTimeElapsed();
-
-            Actor* giant = giantHandle.get().get();
-            float timepassed = endTime - startTime;
-            float breast_buff = (initial_size)+(timepassed * 0.33f) * total_size_add;
-
-            GTS::Racemenu::SetMorph(giant, "Breasts", breast_buff, true);
-
-            if (timepassed >= static_cast<double>(duration)) {
-                if (transient) {
-                    transient->BreastSizeBuff = breast_buff;
-                }
-                return false;
-            }
-            return true;
-        });
-    }
-
-    void GTS_BS_GrowBoobs(const AnimationEventData& data) {
-        Animation_Cleavage::LaunchCooldownFor(&data.giant, CooldownSource::Action_Breasts_Absorb);
-        //TODO Implement Propper Racemenu Scaling
-        //GrowBreastsOverTime(&data.giant);
+        MorphManager::AlterMorph(&data.giant, MorphManager::kBreasts, MorphManager::Action::kModify, Config::Gameplay.ActionSettings.fBreastsAbsorbIncrementBy, MorphManager::UpdateKind::kGradual, 0.75f);
     }
 
     ///===================================================================
@@ -553,7 +516,7 @@ namespace {
             Rumbling::Once("PullOut_L", &data.giant, 0.75f, 0.0f, "R Breast02", 0.0f);
 
             Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectL);
-            IncrementKillCount(&data.giant, SizeKillType::kBreastSuffocated);
+            RecordKill(&data.giant, tiny, DeathType::kBreastSuffocated);
 
             ManageCamera(&data.giant, true, CameraTracking::ObjectB);
             SpawnHearts(&data.giant, tiny, 35, 0.50f, false);
@@ -572,15 +535,16 @@ namespace {
             Rumbling::Once("HandLand_L", &data.giant, 0.45f, 0.0f, "R Breast02", 0.0f);
 
             float volume = std::clamp(0.12f * get_visual_scale(&data.giant), 0.12f, 1.0f);
-            Runtime::PlaySoundAtNode("GTSSoundThighSandwichImpact", tiny, volume, "NPC Root [Root]");
+            Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundThighSandwichImpact, tiny, volume, "NPC Root [Root]");
         }
     }
 
-    void GTS_BS_OverrideZ_ON(const AnimationEventData& data) { 
-        data.giant.SetGraphVariableBool("GTS_OverrideZ", true);
+    void GTS_BS_OverrideZ_ON(const AnimationEventData& data) {
+        AnimationVars::Action::SetIsCleavageZOverrideEnabled(&data.giant, true);
     }
+
     void GTS_BS_OverrideZ_OFF(const AnimationEventData& data) { 
-        data.giant.SetGraphVariableBool("GTS_OverrideZ", false);
+        AnimationVars::Action::SetIsCleavageZOverrideEnabled(&data.giant, false);
     }
 
     ///===================================================================
@@ -614,16 +578,15 @@ namespace {
         Actor* giant = &data.giant;
         Actor* tiny = Grab::GetHeldActor(giant);
         if (tiny) {
-            tiny->SetGraphVariableBool("GTSBEH_T_InStorage", false);
             SetBetweenBreasts(tiny, false);
             SetBeingEaten(tiny, false);
             SetBeingHeld(tiny, false);
         }
 
-        DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
-        giant->SetGraphVariableInt("GTS_GrabbedTiny", 0); // Tell behaviors 'we have nothing in our hands'. A must.
-        giant->SetGraphVariableInt("GTS_Grab_State", 0);
-        giant->SetGraphVariableInt("GTS_Storing_Tiny", 0);
+        DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
+        AnimationVars::Grab::SetHasGrabbedTiny(giant, false); // Tell behaviors 'we have nothing in our hands'. A must.
+        AnimationVars::Grab::SetGrabState(giant, false);
+        AnimationVars::Action::SetIsStoringTiny(giant, false);
         Grab::DetachActorTask(giant);
         Grab::Release(giant);
     }

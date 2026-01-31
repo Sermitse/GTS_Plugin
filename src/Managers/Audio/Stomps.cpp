@@ -10,16 +10,9 @@
 using namespace GTS;
 
 namespace GTS {
-	StompManager& StompManager::GetSingleton() noexcept {
-		static StompManager instance;
-		return instance;
-	}
 
-	std::string StompManager::DebugName() {
-		return "::StompManager";
-	}
 	void StompManager::PlayNewOrOldStomps(Actor* giant, float modifier, FootEvent foot_kind, std::string_view find_foot, bool Strong) {
-		const bool UseOtherHeelSet = Config::GetAudio().bUseOtherHighHeelSet;
+		const bool UseOtherHeelSet = Config::Audio.bUseOtherHighHeelSet;
 
 		if (UseOtherHeelSet && HighHeelManager::IsWearingHH(giant)) {
 			PlayStompSounds(giant, modifier, find_foot, foot_kind, get_visual_scale(giant), Strong); // Play stomp sounds made by TimKroyer
@@ -33,7 +26,7 @@ namespace GTS {
 		GTS_PROFILE_SCOPE("StompManager: PlayHighHeelSounds");
 		if (giant) {
 			modifier *= Volume_Multiply_Function(giant, foot_kind);
-			if (giant->formID == 0x14 && HasSMT(giant)) {
+			if (giant->IsPlayerRef() && HasSMT(giant)) {
 				scale *= 2.5f;
 			}
 			FootStepManager::GetSingleton().DoStompSounds(giant, modifier, find_node(giant, find_foot), foot_kind, scale, Strong);

@@ -31,7 +31,7 @@ namespace GTS {
 			return false;
 		}
 
-		const auto Transient = Transient::GetSingleton().GetData(a_Prey);
+		const auto Transient = Transient::GetActorData(a_Prey);
 		if (Transient) {
 			if (Transient->CanBeVored == false) {
 				return false;
@@ -39,7 +39,7 @@ namespace GTS {
 		}
 
 		const float PredScale = get_visual_scale(a_Pred);
-		const float SizeDiff = GetSizeDifference(a_Pred, a_Prey, SizeType::VisualScale, true, false);
+		const float SizeDiff = get_scale_difference(a_Pred, a_Prey, SizeType::VisualScale, true, false);
 		const float PreyDistance = (a_Pred->GetPosition() - a_Prey->GetPosition()).Length();
 
 		if (IsInsect(a_Prey, true) || IsBlacklisted(a_Prey)) {
@@ -50,7 +50,7 @@ namespace GTS {
 			return false;
 		}
 
-		if (!CanPerformAnimationOn(a_Pred,a_Prey,false)) {
+		if (!CanPerformActionOn(a_Pred,a_Prey,false)) {
 			return false;
 		}
 
@@ -61,7 +61,7 @@ namespace GTS {
 		return false;
 	}
 
-	vector<Actor*> VoreAI_FilterList(Actor* a_Pred, const vector<Actor*>& a_PotentialPrey) {
+	std::vector<Actor*> VoreAI_FilterList(Actor* a_Pred, const std::vector<Actor*>& a_PotentialPrey) {
 
 		// Get vore target for actor
 		if (!a_Pred) {
@@ -78,7 +78,7 @@ namespace GTS {
 		auto PreyList = a_PotentialPrey;
 
 		// Sort prey by distance
-		ranges::sort(PreyList, [PredatorPosition](const Actor* preyA, const Actor* preyB) -> bool {
+		std::ranges::sort(PreyList, [PredatorPosition](const Actor* preyA, const Actor* preyB) -> bool {
 			float distanceToA = (preyA->GetPosition() - PredatorPosition).Length();
 			float distanceToB = (preyB->GetPosition() - PredatorPosition).Length();
 			return distanceToA < distanceToB;
@@ -135,7 +135,7 @@ namespace GTS {
 		return GetMaxActionableTinyCount(a_Pred, PreyList);
 	}
 
-	void VoreAI_StartVore(Actor* a_Predator, const vector<Actor*>& a_PotentialPrey) {
+	void VoreAI_StartVore(Actor* a_Predator, const std::vector<Actor*>& a_PotentialPrey) {
 
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(a_Predator);
 		for (auto Prey : a_PotentialPrey) {

@@ -5,7 +5,7 @@
 #include "Managers/Damage/LaunchObject.hpp"
 #include "Managers/Input/InputManager.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 using namespace GTS;
 
@@ -52,8 +52,8 @@ namespace {
 
 	void StopAllDamageAndStamina(Actor* actor) {
 		std::string name = std::format("LegKick_{}", actor->formID);
-		DrainStamina(actor, "StaminaDrain_StrongKick", "GTSPerkDestructionBasics", false, 8.0f);
-		DrainStamina(actor, "StaminaDrain_Kick", "GTSPerkDestructionBasics", false, 4.0f);
+		DrainStamina(actor, "StaminaDrain_StrongKick", Runtime::PERK.GTSPerkDestructionBasics, false, 8.0f);
+		DrainStamina(actor, "StaminaDrain_Kick", Runtime::PERK.GTSPerkDestructionBasics, false, 4.0f);
 		TaskManager::Cancel(name);
 	}
 
@@ -77,11 +77,11 @@ namespace {
 
 	void GTS_Kick_HitBox_On_R(AnimationEventData& data) {
 		StartDamageAt(&data.giant, Damage_Kick, 1.8f, Push_Kick_Normal, true, "NPC R Toe0 [RToe]", DamageSource::KickedRight);
-		DrainStamina(&data.giant, "StaminaDrain_StrongKick", "GTSPerkDestructionBasics", true, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongKick", Runtime::PERK.GTSPerkDestructionBasics, true, 4.0f);
 	}
 	void GTS_Kick_HitBox_On_L(AnimationEventData& data) {
 		StartDamageAt(&data.giant, Damage_Kick, 1.8f, Push_Kick_Normal, false, "NPC L Toe0 [LToe]", DamageSource::KickedLeft);
-		DrainStamina(&data.giant, "StaminaDrain_StrongKick", "GTSPerkDestructionBasics", true, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongKick", Runtime::PERK.GTSPerkDestructionBasics, true, 4.0f);
 	}
 	void GTS_Kick_HitBox_Off_R(AnimationEventData& data) {
 		StopAllDamageAndStamina(&data.giant);
@@ -92,11 +92,11 @@ namespace {
 
 	void GTS_Kick_HitBox_Power_On_R(AnimationEventData& data) {
 		StartDamageAt(&data.giant, Damage_Kick_Strong, 1.8f, Push_Kick_Strong, true, "NPC R Toe0 [RToe]", DamageSource::KickedRight);
-		DrainStamina(&data.giant, "StaminaDrain_StrongKick", "GTSPerkDestructionBasics", true, 8.0f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongKick", Runtime::PERK.GTSPerkDestructionBasics, true, 8.0f);
 	}
 	void GTS_Kick_HitBox_Power_On_L(AnimationEventData& data) {
 		StartDamageAt(&data.giant, Damage_Kick_Strong, 1.8f, Push_Kick_Strong, false, "NPC L Toe0 [LToe]", DamageSource::KickedLeft);
-		DrainStamina(&data.giant, "StaminaDrain_StrongKick", "GTSPerkDestructionBasics", true, 8.0f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongKick", Runtime::PERK.GTSPerkDestructionBasics, true, 8.0f);
 	}
 	void GTS_Kick_HitBox_Power_Off_R(AnimationEventData& data) {
 		StopAllDamageAndStamina(&data.giant);

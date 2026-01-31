@@ -58,7 +58,7 @@ namespace {
 					}
 				}
 
-				DrainStamina(giantref,"StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", false, 5.1f); // 13.5 * 5.1
+				DrainStamina(giantref,"StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 5.1f); // 13.5 * 5.1
 
 				StompManager::PlayNewOrOldStomps(giantref, SMT, Event, Node, true);
 
@@ -76,7 +76,7 @@ namespace {
 	}
 
     void GTS_UnderStomp_CamOn_StrongR(AnimationEventData& data) {
-        DrainStamina(&data.giant, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", true, 5.1f);
+        DrainStamina(&data.giant, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, true, 5.1f);
         ManageCamera(&data.giant, true, CameraTracking::R_Foot);
 		SetBusyFoot(&data.giant, BusyFoot::RightFoot);
 
@@ -84,7 +84,7 @@ namespace {
     }
 
     void GTS_UnderStomp_CamOn_StrongL(AnimationEventData& data) {
-        DrainStamina(&data.giant, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", true, 5.1f);
+        DrainStamina(&data.giant, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, true, 5.1f);
         ManageCamera(&data.giant, true, CameraTracking::L_Foot);
 		SetBusyFoot(&data.giant, BusyFoot::LeftFoot);
 

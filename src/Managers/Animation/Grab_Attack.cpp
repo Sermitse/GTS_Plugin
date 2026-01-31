@@ -1,5 +1,7 @@
 #include "Managers/Animation/Grab_Attack.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab.hpp"
@@ -7,7 +9,7 @@
 #include "Managers/Damage/SizeHitEffects.hpp"
 #include "Managers/Damage/TinyCalamity.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"
@@ -18,7 +20,7 @@ namespace {
 
     void GTSGrab_Attack_MoveStart(AnimationEventData& data) {
 		auto giant = &data.giant;
-		DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", true, 0.75f);
+		DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, true, 0.75f);
 		ManageCamera(giant, true, CameraTracking::Grab_Left);
 		StartLHandRumble("GrabMoveL", data.giant, 0.5f, 0.10f);
 	}
@@ -30,7 +32,8 @@ namespace {
 		auto grabbedActor = Grab::GetHeldActor(giant);
 
 		if (grabbedActor) {
-			Attacked(grabbedActor, giant); // force combat
+			
+			grabbedActor->Attacked(giant); // force combat
 
 			float tiny_scale = get_visual_scale(grabbedActor) * GetSizeFromBoundingBox(grabbedActor);
 			float gts_scale = get_visual_scale(giant) * GetSizeFromBoundingBox(giant);
@@ -45,14 +48,14 @@ namespace {
 			}
 
             if (CanDoDamage(giant, grabbedActor, false)) {
-                if (Runtime::HasPerkTeam(giant, "GTSPerkGrowingPressure")) {
-                    auto& sizemanager = SizeManager::GetSingleton();
-                    sizemanager.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
+                if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
+                    auto& mgr = SizeManager::GetSingleton();
+                    mgr.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
                 }
 
-                TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * GetDamageSetting());
+                TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * Config::Balance.fSizeDamageMult);
 
-                SizeHitEffects::GetSingleton().PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
+                SizeHitEffects::PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
                 InflictSizeDamage(giant, grabbedActor, damage);
             }
 			
@@ -70,11 +73,11 @@ namespace {
 		auto& sizemanager = SizeManager::GetSingleton();
 		auto grabbedActor = Grab::GetHeldActor(giant);
 		ManageCamera(giant, false, CameraTracking::Grab_Left);
-		DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
+		DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
 		StopLHandRumble("GrabMoveL", data.giant);
 		if (!grabbedActor) {
-			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-			giant->SetGraphVariableInt("GTS_Grab_State", 0);
+			AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+			AnimationVars::Grab::SetGrabState(giant, false);
 			Grab::ExitGrabState(giant);
 			Grab::DetachActorTask(giant);
 			Grab::Release(giant);

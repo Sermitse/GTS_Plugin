@@ -6,6 +6,7 @@
 using namespace GTS;
 
 namespace {
+
     void idleChairGetUp(AnimationEventData& data) { // When standing up, leaving chair
         if (IsFemale(&data.giant)) {
             FurnitureManager::GetSingleton().Furniture_EnableButtHitboxes(&data.giant, FurnitureDamageSwitch::DisableDamage);

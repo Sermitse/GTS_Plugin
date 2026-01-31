@@ -10,10 +10,13 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(TESCameraState* a_this, BSTSmartPointer<TESCameraState>& a_nextState) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Camera::TESCameraStateUpdate", ID);
-
 			func<ID>(a_this, a_nextState);
-			GTS::EventDispatcher::DoCameraUpdate();
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Camera::TESCameraStateUpdate", ID);
+				GTS::EventDispatcher::DoCameraUpdate();
+			}
+
 		}
 
 		template<int ID>
@@ -36,8 +39,6 @@ namespace Hooks {
 		stl::write_vfunc_unique<TESCameraStateUpdate, 8>(VTABLE_VATSCameraState[0]);
 		stl::write_vfunc_unique<TESCameraStateUpdate, 9>(VTABLE_FurnitureCameraState[0]);
 		stl::write_vfunc_unique<TESCameraStateUpdate, 10>(VTABLE_AutoVanityState[0]);
-
-		//IronSightsState has no RE'd Class member so just pass its vtable REL ID
 		stl::write_vfunc_unique<TESCameraStateUpdate, 11>(VTABLE_IronSightsState[0]);
 
 		//Disabled, Causes single frame camera missplacement when exiting the tween menu

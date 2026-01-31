@@ -1,10 +1,10 @@
 #pragma once
 
-#include "API/Impl/SmoothCamAPI.hpp"
+#include "API/External/SmoothCamAPI.hpp"
 
 namespace GTS {
 
-	class SmoothCam final {
+	class SmoothCam final : public EventListener, public CInitSingleton<SmoothCam> {
 
 		public:
 		static void Register();
@@ -17,7 +17,10 @@ namespace GTS {
 			return SmoothCamAPI != nullptr;
 		}
 
-	private:
+		std::string DebugName() override;
+		void DataReady() override;
+
+		private:
 
 		static inline SmoothCamAPI::IVSmoothCam3* SmoothCamAPI = nullptr;
 

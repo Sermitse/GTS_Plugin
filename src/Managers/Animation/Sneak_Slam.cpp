@@ -32,7 +32,7 @@ namespace {
 
 			auto giantref = gianthandle.get().get();
 
-			if (IsFootGrinding(giantref)) {
+			if (AnimationVars::Action::IsFootGrinding(giantref)) {
 				NiAVObject* node = find_node(giantref, NodeLookup);
 				ApplyFingerDamage(giantref, Radius, Damage, node, 200, 0.05f, CrushMult, -0.0004f, source);
 				return true;
@@ -64,12 +64,12 @@ namespace {
 	void GTS_Sneak_Slam_Raise_Arm_R(AnimationEventData& data) {
 		Utils_UpdateHighHeelBlend(&data.giant, false);
 		TrackMatchingHand(&data.giant, CrawlEvent::RightHand, true);
-		DrainStamina(&data.giant, "StaminaDrain_SneakSlam", "GTSPerkDestructionBasics", true, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_SneakSlam", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
 	}
 	void GTS_Sneak_Slam_Raise_Arm_L(AnimationEventData& data) {
 		Utils_UpdateHighHeelBlend(&data.giant, false);
 		TrackMatchingHand(&data.giant, CrawlEvent::LeftHand, true);
-		DrainStamina(&data.giant, "StaminaDrain_SneakSlam", "GTSPerkDestructionBasics", true, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_SneakSlam", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
 	}
 
 	void GTS_Sneak_Slam_Lower_Arm_R(AnimationEventData& data) {};

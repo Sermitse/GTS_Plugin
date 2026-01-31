@@ -11,7 +11,7 @@ namespace {
 			auto cause = causer.get().get();
 			if (cause) {
 				if (IsDragon(cause) || IsGiant(cause)) {
-					log::info("Scaling Explosion");
+					logger::info("Scaling Explosion");
 					explosion->GetExplosionRuntimeData().radius *= get_visual_scale(cause);
 				}
 			}
@@ -37,7 +37,7 @@ namespace {
 
 					if (cell) {
 						// Crashes if called like that, too lazy to fix it
-						log::info("Spawning footstep.nif");
+						logger::info("Spawning footstep.nif");
 						BSTempEffectParticle::Spawn(cell, 6.0f, "GTS/Effects/Footstep.nif", node->world.rotate, node->world.translate, scaling, 7, nullptr);
 					}
 				}
@@ -45,11 +45,17 @@ namespace {
 		}
 	}
 	void ScaleProjectile(Projectile* projectile, float speed_limit, bool apply_speed) {
+
+		//Probably impossible, but while testing the killfeed this ptr was 0xFFFFFFFFFFFFFFFF  according to the debugger
+		if (!projectile || reinterpret_cast<uintptr_t>(projectile) == 0xFFFFFFFFFFFFFFFF) {
+			return;
+		}
+
 		auto node = projectile->Get3D2();
 		if (!node) {
 			node = projectile->Get3D1(false);
 			if (!node) {
-				log::info("3d1: fp");
+				logger::info("3d1: fp");
 				node = projectile->Get3D1(true);
 			}
 		}
@@ -79,7 +85,7 @@ namespace {
 					if (spell) {
 						auto effect = skyrim_cast<SpellItem*>(spell);
 						if (effect) {
-							log::info("Effect found!");
+							logger::info("Effect found!");
 							effect->data.range *= scaling;
 						}
 					}
@@ -104,10 +110,13 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(RE::Explosion* a_this, TESObjectCELL& a_cell) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::InitializeExplosion", ID);
-
 			func<ID>(a_this, a_cell);
-			ScaleExplosion(a_this);
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::InitializeExplosion", ID);
+				ScaleExplosion(a_this);
+			}
+
 		}
 
 		template<int ID>
@@ -117,13 +126,15 @@ namespace Hooks {
 
 	struct GetLinearVelocity {
 
-		static constexpr size_t funcIndex = 0xC0;
+		static constexpr size_t funcIndex = 0x86;
 
 		// Unused
 		template<int ID>
 		static void thunk(RE::Projectile* a_this, RE::NiPoint3& a_outVelocity) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::GetLinearVelocity", ID);
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::GetLinearVelocity", ID);
+			}
 
 			func<ID>(a_this, a_outVelocity);
 		}
@@ -134,17 +145,20 @@ namespace Hooks {
 	};
 
 	struct Handle3DLoaded {
-		
-		static constexpr size_t funcIndex = 0x86;
+
+		static constexpr size_t funcIndex = 0xC0;
 
 		// Scales projectiles once (when it first spawns). Affects only visuals.
 		template<int ID>
 		static void thunk(RE::Projectile* a_this) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::Handle3DLoaded", ID);
-
 			func<ID>(a_this);
-			ScaleProjectile(a_this, 1.0f, false);
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::Handle3DLoaded", ID);
+				ScaleProjectile(a_this, 1.0f, false);
+			}
+
 		}
 
 		template<int ID>
@@ -159,10 +173,13 @@ namespace Hooks {
 		template<int ID>
 		static void thunk(RE::Projectile* a_this, TESObjectREFR* a_ref, const NiPoint3& a_targetLoc, const NiPoint3& a_velocity, hkpCollidable* a_collidable, std::int32_t a_arg6, std::uint32_t a_arg7) {
 
-			GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::AddImpact", ID);
-
 			func<ID>(a_this, a_ref, a_targetLoc, a_velocity, a_collidable, a_arg6, a_arg7);
-			//ArrowImpact(a_this);
+
+			{
+				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::AddImpact", ID);
+				//ArrowImpact(a_this);
+			}
+
 		}
 
 		template<int ID>

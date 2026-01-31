@@ -1,23 +1,16 @@
 
-#include "Managers/Animation/Utils/AnimationUtils.hpp"
+
 #include "Managers/Animation/AnimationManager.hpp"
-#include "Managers/Animation/Grab_Throw.hpp"
-#include "Managers/OverkillManager.hpp"
 #include "Managers/Animation/Grab.hpp"
-
 #include "Managers/Animation/Grab_Play.hpp"
-
-#include "Managers/Rumble.hpp"
-
 #include "Managers/Input/InputManager.hpp"
-#include "Utils/InputConditions.hpp"
-
+#include "Utils/Actions/InputConditions.hpp"
 
 using namespace GTS;
 
 namespace Triggers {
 
-	void PassAnimation(std::string anim_gts, std::string anim_tiny) {
+	void PassAnimation(const std::string& anim_gts, const std::string& anim_tiny) {
 		Actor* Player = GetPlayerOrControlled();
 		Actor* Tiny = Grab::GetHeldActor(Player);
 		if (Tiny) {
@@ -37,7 +30,7 @@ namespace Triggers {
 			NotifyWithSound(player, message);
 			return;
 		}
-		if (!IsGtsBusy(player) && !IsInCleavageState(player)) {
+		if (!AnimationVars::General::IsGTSBusy(player) && !AnimationVars::Action::IsInCleavageState(player)) {
 			PassAnimation("GrabPlay_Enter", "GrabPlay_Enter_T");
 		}
 	}

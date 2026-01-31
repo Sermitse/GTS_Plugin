@@ -8,16 +8,27 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 
 #include "Utils/DifficultyUtils.hpp"
-#include "Utils/ActorBools.hpp"
 #include "Hooks/Util/HookUtil.hpp"
+
+#include "Managers/AttributeManager.hpp"
 
 namespace {
 	constexpr float AddToDamage = 1.75f; // It's needed so there's more room for error when calculating damage that should kill
+
+	bool DontAlterDamage(RE::Actor* a_this, float dmg, float Damage_Add) { // Used inside Damage.cpp (hook), a way to fix almost unkillable player in some cases
+		if (a_this->IsPlayerRef()) {
+			float currentHP = GTS::GetAV(a_this, RE::ActorValue::kHealth);
+			bool ShouldBeKilled = GTS::GetHealthPercentage(a_this) <= 0.05f && dmg + Damage_Add >= currentHP;
+			return ShouldBeKilled;
+		}
+		return false;
+	}
+
 }
 
 namespace GTS {
 
-	void CameraFOVTask_TP(Actor* actor, PlayerCamera* camera, TempActorData* data, bool AllowEdits) {
+	void CameraFOVTask_TP(Actor* actor, PlayerCamera* camera, TransientActorData* data, bool AllowEdits) {
 		std::string name = std::format("CheatDeath_TP_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();
 
@@ -51,7 +62,7 @@ namespace GTS {
 		});
 	}
 
-	void CameraFOVTask_FP(Actor* actor, PlayerCamera* camera, TempActorData* data, bool AllowEdits) {
+	void CameraFOVTask_FP(Actor* actor, PlayerCamera* camera, TransientActorData* data, bool AllowEdits) {
 		std::string name = std::format("CheatDeath_FP_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();
 
@@ -84,7 +95,7 @@ namespace GTS {
 		});
 	}
 
-	void DamageImmunityTask(Actor* actor, TempActorData* data) {
+	void DamageImmunityTask(Actor* actor, TransientActorData* data) {
 		std::string name = std::format("CheatDeath_Task_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();
 
@@ -110,14 +121,14 @@ namespace GTS {
 	}
 
 	void StartTemporaryDamageImmunity(Actor* actor) {
-		if (actor->formID == 0x14) {
+		if (actor->IsPlayerRef()) {
 			auto camera = PlayerCamera::GetSingleton();
 			if (!camera) {
 				return;
 			}
-			auto AllowEdits = Config::GetGeneral().bEnableFOVEdits;
+			auto AllowEdits = Config::General.bEnableFOVEdits;
 
-			auto tranData = Transient::GetSingleton().GetData(actor);
+			auto tranData = Transient::GetActorData(actor);
 			bool TP = camera->IsInThirdPerson();
 			bool FP = camera->IsInFirstPerson();
 			if (tranData) {
@@ -136,7 +147,7 @@ namespace GTS {
 
 	void DoOverkill(Actor* attacker, Actor* receiver, float damage) {
 		if (damage > GetMaxAV(receiver, ActorValue::kHealth)) { // Overkill effect
-			float size_difference = GetSizeDifference(attacker, receiver, SizeType::VisualScale, true, false);
+			float size_difference = get_scale_difference(attacker, receiver, SizeType::VisualScale, true, false);
 			if (size_difference >= 12.0f) {
 				OverkillManager::GetSingleton().Overkill(attacker, receiver);
 			}
@@ -145,7 +156,7 @@ namespace GTS {
 
 	float TinyAsShield(Actor* receiver) {
 		float protection = 1.0f;
-		if (receiver->formID == 0x14) {
+		if (receiver->IsPlayerRef()) {
 			auto grabbedActor = Grab::GetHeldActor(receiver);
 			if (grabbedActor) {
 				protection = 0.75f; // 25% damage reduction
@@ -156,12 +167,12 @@ namespace GTS {
 
 	bool HealthGateProtection(Actor* receiver, Actor* attacker, float a_damage) {
 		bool NullifyDamage = false;
-		if (receiver->formID == 0x14) {
+		if (receiver->IsPlayerRef()) {
 
 			a_damage *= GetDifficultyMultiplier(attacker, receiver); // Take difficulty into account
 
 			if (a_damage > GetAV(receiver, ActorValue::kHealth)) {
-				if (Runtime::HasPerk(receiver, "GTSPerkHealthGate")) {
+				if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkHealthGate)) {
 					if (!IsActionOnCooldown(receiver, CooldownSource::Action_HealthGate)) {
 						ApplyActionCooldown(receiver, CooldownSource::Action_HealthGate);
 						float maxhp = GetMaxAV(receiver, ActorValue::kHealth);
@@ -174,7 +185,7 @@ namespace GTS {
 						if ((target <= natural) || (target - 0.35f * scale <= natural)) {
 							set_target_scale(receiver, natural); // to prevent becoming < natural scale
 						}
-						Runtime::PlaySound("GTSSoundTriggerHG", receiver, 2.0f, 0.5f);
+						Runtime::PlaySound(Runtime::SNDR.GTSSoundTriggerHG, receiver, 2.0f, 0.5f);
 						shake_camera(receiver, 1.7f, 1.5f);
 						
 						auto node = find_node(receiver, "NPC Root [Root]");
@@ -200,7 +211,7 @@ namespace GTS {
 				}
 			}
 		}
-		if (Runtime::HasPerk(receiver, "GTSPerkDarkArtsAug4") && GetHealthPercentage(receiver) <= 0.40f) {
+		if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkDarkArtsAug4) && GetHealthPercentage(receiver) <= 0.40f) {
 			bool OnCooldown = IsActionOnCooldown(receiver, CooldownSource::Misc_ShrinkOutburst_Forced);
 			if (!OnCooldown) {
 				ApplyActionCooldown(receiver, CooldownSource::Misc_ShrinkOutburst_Forced);
@@ -215,14 +226,13 @@ namespace GTS {
 		// Applies extra layer of damage reduction when Growth Animations are triggered
 		// Growth animations = the ones that trigger randomly through Random Growth
 		float reduction = 1.0f;
-		if (IsGrowing(receiver)) {
-			int growthtype = 0;
-			receiver->GetGraphVariableInt("GTS_Growth_Roll", growthtype);
-			if (growthtype > 0) {
-				if (Runtime::HasPerk(receiver, "GTSPerkRandomGrowthAug")) {
+		if (AnimationVars::Growth::IsGrowing(receiver)) {
+
+			if (AnimationVars::Growth::GrowthRoll(receiver) > 0) {
+				if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkRandomGrowthAug)) {
 					reduction -= 0.6f;
 				}
-				if (Runtime::HasPerk(receiver, "GTSPerkRandomGrowthTerror")) {
+				if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkRandomGrowthTerror)) {
 					reduction -= 0.25f;
 				}
 			}
@@ -234,10 +244,10 @@ namespace GTS {
 		float reduction = 1.0f;
 		// Applies extra layer of damage reduction when hugging someone
 		if (HugShrink::GetHuggiesActor(receiver)) {
-			if (Runtime::HasPerk(receiver, "GTSPerkHugsToughGrip")) {
+			if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkHugsToughGrip)) {
 				reduction -= 0.25f; // 25% resistance
 			}
-			if (Runtime::HasPerk(receiver, "GTSPerkHugsOfDeath")) {
+			if (Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkHugsOfDeath)) {
 				reduction -= 0.35f; // 35% additional resistance
 			}
 		}
@@ -245,16 +255,18 @@ namespace GTS {
 	}
 
 	float GetTotalDamageResistance(Actor* receiver, Actor* aggressor) {
-		float receiver_resistance = GetDamageResistance(receiver) * GetHugDamageResistance(receiver) * GetGrowthDamageResistance(receiver);
-		float attacker_multiplier = GetDamageMultiplier(aggressor) / game_getactorscale(aggressor); // take GetScale into account since it boosts damage as well
-		auto transient = Transient::GetSingleton().GetData(receiver);
+
+		float receiver_resistance = AttributeManager::GetAttributeBonus(receiver, ActorValue::kHealth) * GetHugDamageResistance(receiver) * GetGrowthDamageResistance(receiver);
+
+		// Take GetScale into account since it boosts damage as well
+		float attacker_multiplier = AttributeManager::GetAttributeBonus(aggressor, ActorValue::kAttackDamageMult) / game_getactorscale(aggressor); 
+
 		float tiny_resistance = 1.0f; // Tiny in hands takes portion of damage (25%) instead of GTS
 		bool DamageImmunity = false;
-		
 		float TakenDamageMult = 1.0f; // 1.0 = take 100% damage
 
-		if (transient) {
-			if (receiver->formID == 0x14) {
+		if (const auto& transient = Transient::GetActorData(receiver)) {
+			if (receiver->IsPlayerRef()) {
 				DamageImmunity = transient->TemporaryDamageImmunity;
 				tiny_resistance = TinyAsShield(receiver);
 			}
@@ -271,7 +283,7 @@ namespace GTS {
 
 	void RecordPushForce(Actor* giant, Actor* tiny) {
 		// Damage itself is called earlier than the push so we can just record that
-		auto tranData = Transient::GetSingleton().GetData(giant);
+		auto tranData = Transient::GetActorData(giant);
 
         if (tranData) {
 			float tiny_scale = get_visual_scale(tiny);
@@ -297,29 +309,31 @@ namespace Hooks {
 
 		static void thunk(Actor* a_this, float a_dmg, Actor* a_aggressor, uintptr_t a_hitdata, TESObjectREFR* a_damageSrc) {
 
-			GTS_PROFILE_ENTRYPOINT("ActorDamage::TakeDamage");
+			{
+				GTS_PROFILE_ENTRYPOINT("ActorDamage::TakeDamage");
 
-			if (a_aggressor && a_aggressor != a_this) { // apply to hits only, we don't want to decrease fall damage for example
+				if (a_aggressor && a_aggressor != a_this) { // apply to hits only, we don't want to decrease fall damage for example
 
-				const bool ShouldBeKilled = DontAlterDamage(a_this, a_dmg, AddToDamage);
-				// ^ Attempt to fix being unkillable below 5% hp, the bug seems to be player exclusive
-				/*if (a_this->formID == 0x14) {
-					log::info("Damage Pre: {}", a_dmg);
-					log::info("Should be killed: {}", ShouldBeKilled);
-				}*/
-				if (!ShouldBeKilled) {
-					a_dmg *= GetTotalDamageResistance(a_this, a_aggressor);
-					// ^ This function applies damage resistance from being large
-					// Also makes receiver immune to all (?) damage for ~2.5 sec if health gate was triggered
+					const bool ShouldBeKilled = DontAlterDamage(a_this, a_dmg, AddToDamage);
+					// ^ Attempt to fix being unkillable below 5% hp, the bug seems to be player exclusive
+					/*if (a_this->IsPlayerRef()) {
+						logger::info("Damage Pre: {}", a_dmg);
+						logger::info("Should be killed: {}", ShouldBeKilled);
+					}*/
+					if (!ShouldBeKilled) {
+						a_dmg *= GetTotalDamageResistance(a_this, a_aggressor);
+						// ^ This function applies damage resistance from being large
+						// Also makes receiver immune to all (?) damage for ~2.5 sec if health gate was triggered
+					}
+
+					if (HealthGateProtection(a_this, a_aggressor, a_dmg)) { // When Health Gate is true, initial hit full damage immunity is applied here 
+						a_dmg *= 0.0f;
+					}
+
+					DoOverkill(a_aggressor, a_this, a_dmg);
+					RecordPushForce(a_this, a_aggressor);
+
 				}
-
-				if (HealthGateProtection(a_this, a_aggressor, a_dmg)) { // When Health Gate is true, initial hit full damage immunity is applied here 
-					a_dmg *= 0.0f;
-				}
-
-				DoOverkill(a_aggressor, a_this, a_dmg);
-				RecordPushForce(a_this, a_aggressor);
-				
 			}
 
 			// This hook has a 'small' downside:
@@ -328,8 +342,8 @@ namespace Hooks {
 			//    - then we further affect said 5 damage by damage resistance
 			//    - which in some cases may make player unkillable since health never reaches 0...
 
-			/*if (a_this->formID == 0x14) {
-				log::info("Damage Post: {}", a_dmg);
+			/*if (a_this->IsPlayerRef()) {
+				logger::info("Damage Post: {}", a_dmg);
 			}*/
 
 			func(a_this, a_dmg, a_aggressor, a_hitdata, a_damageSrc);

@@ -1,9 +1,11 @@
 #include "Managers/RandomGrowth.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"
@@ -15,7 +17,7 @@ namespace {
 	float Get_Breach_Threshold(Actor* actor) {
 		float threshold = 1.65f;
 
-		if (Runtime::HasPerkTeam(actor, "GTSPerkRandomGrowthTerror")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowthTerror)) {
 			threshold = 1.60f;
 		}
 
@@ -38,16 +40,16 @@ namespace {
 		const bool BalancedMode = SizeManager::BalancedMode();
 		const int BalanceModeMult = BalancedMode ? 2 : 1;
 
-		float MultiplySlider = Config::GetGameplay().GamemodePlayer.fRandomGrowthDelay;
+		float MultiplySlider = Config::Gameplay.GamemodePlayer.fRandomGrowthDelay;
 		if (IsTeammate(actor) || CountAsGiantess(actor)) {
-			MultiplySlider = Config::GetGameplay().GamemodeFollower.fRandomGrowthDelay;
+			MultiplySlider = Config::Gameplay.GamemodeFollower.fRandomGrowthDelay;
 		}
 
 		if (BalancedMode && MultiplySlider > 0.0f) {
 			MultiplySlider = 1.0f;
 		}
 
-		if (!Runtime::HasPerkTeam(actor, "GTSPerkRandomGrowth")) {
+		if (!Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowth)) {
 			return false;
 		}
 
@@ -80,37 +82,32 @@ namespace {
 
 namespace GTS {
 
-	RandomGrowth& RandomGrowth::GetSingleton() noexcept {
-		static RandomGrowth instance;
-		return instance;
-	}
-
 	std::string RandomGrowth::DebugName() {
 		return "::RandomGrowth";
 	}
 
 	void RandomGrowth::Update() {
 		static Timer GrowthTimer = Timer(1.0);
-		if (!Plugin::Live()) {
+		if (!State::Live()) {
 			return;
 		}
 		if (GrowthTimer.ShouldRunFrame()) {
 			for (auto actor: find_actors()) {
 				if (actor && actor->Is3DLoaded() && IsVisible(actor)) {
-					if (actor->formID == 0x14 || IsTeammate(actor) || CountAsGiantess(actor)) {
+					if (actor->IsPlayerRef() || IsTeammate(actor) || CountAsGiantess(actor)) {
 						if (ShouldGrow(actor)) {
 							if (get_target_scale(actor) < get_max_scale(actor)) {
 								float scale = get_visual_scale(actor);
-								const float SpellEfficiency = Config::GetBalance().fSpellEfficiency;
+								const float SpellEfficiency = Config::Balance.fSpellEfficiency;
 								int random = RandomInt(0, 80);
 								float TotalPower = (100.0f + random)/100.0f;
 								float base_power = ((0.00750f * TotalPower * 25) * SpellEfficiency);  // The power of it
 								float Gigantism = 1.0f + Ench_Aspect_GetPower(actor);
 
-								if (Runtime::HasPerkTeam(actor, "GTSPerkRandomGrowthAug") && TotalPower >= Get_Breach_Threshold(actor) && !IsGtsBusy(actor)) {
+								if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowthAug) && TotalPower >= Get_Breach_Threshold(actor) && !AnimationVars::General::IsGTSBusy(actor)) {
 									AnimationManager::StartAnim("StartRandomGrowth", actor);
 								} else {
-									if (!IsGrowing(actor)) {
+									if (!AnimationVars::Growth::IsGrowing(actor)) {
 										ActorHandle gianthandle = actor->CreateRefHandle();
 										std::string name = std::format("RandomGrowth_{}", actor->formID);
 										// Sounds
@@ -120,15 +117,15 @@ namespace GTS {
 											Sound_PlayMoans(actor, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 											Task_FacialEmotionTask_Moan(actor, 0.8f, "RandomGrow");
 										}
-										Runtime::PlaySoundAtNode("GTSSoundRumble", actor, base_power, "NPC COM [COM ]");
-										Runtime::PlaySoundAtNode("GTSSoundGrowth", actor, Volume, "NPC Pelvis [Pelv]");
+										Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundRumble, actor, base_power, "NPC COM [COM ]");
+										Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, actor, Volume, "NPC Pelvis [Pelv]");
 
 										double Start = Time::WorldTimeElapsed();
 										TaskManager::Run(name, [=](auto& progressData) {
 											if (!gianthandle) {
 												return false;
 											}
-											if (!Plugin::Live()) {
+											if (!State::Live()) {
 												return true; // Pause task while game is paused
 											}
 

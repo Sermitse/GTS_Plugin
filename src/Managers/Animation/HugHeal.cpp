@@ -1,5 +1,7 @@
 #include "Managers/Animation/HugHeal.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/HugShrink.hpp"
@@ -51,10 +53,10 @@ namespace {
 		float hp = GetAV(tinyref, ActorValue::kHealth);
 		float maxhp = GetMaxAV(tinyref, ActorValue::kHealth);
 		
-		bool Healing = IsHugHealing(giantref);
+		bool Healing = AnimationVars::Hug::IsHugHealing(giantref);
 
 		const bool Teammate = IsTeammate(tinyref);
-		const bool Player = tinyref->formID == 0x14;
+		const bool Player = tinyref->IsPlayerRef();
 		const bool IsPlayerOrMate = (Player || Teammate);
 		const bool BothTeammates = IsTeammate(giantref) && Teammate;
 		
@@ -66,20 +68,20 @@ namespace {
 
 		if (!Healing && hp >= maxhp) {
 
-			if (ShouldContinue && !Config::GetGameplay().ActionSettings.bHugsStopAtFullHP) {
+			if (ShouldContinue && !Config::Gameplay.ActionSettings.bHugsStopAtFullHP) {
 				return true;
 			}
 
 			AbortHugAnimation(giantref, tinyref);
 
-			if (giantref->formID == 0x14) {
+			if (giantref->IsPlayerRef()) {
 				Notify("{} health is full", tinyref->GetDisplayFullName());
 			}
 			return false;
 
 		} 
 
-		if (giantref->formID == 0x14) {
+		if (giantref->IsPlayerRef()) {
 			float sizedifference = get_visual_scale(giantref)/get_visual_scale(tinyref);
 			shake_camera(giantref, 0.30f * sizedifference, 0.05f);
 		} else {
@@ -114,19 +116,19 @@ namespace {
 			auto giantref = gianthandle.get().get();
 			auto tinyref = tinyhandle.get().get();
 
-			float sizedifference = GetSizeDifference(giantref, tinyref, SizeType::VisualScale, false, true);
+			float sizedifference = get_scale_difference(giantref, tinyref, SizeType::VisualScale, false, true);
 			float threshold = 3.0f;
 			float stamina = 0.35f;
 
-			if (Runtime::HasPerkTeam(giantref, "GTSPerkHugsGreed")) {
+			if (Runtime::HasPerkTeam(giantref, Runtime::PERK.GTSPerkHugsGreed)) {
 				stamina *= 0.75f;
 			}
 			stamina *= Perk_GetCostReduction(giantref);
 
-			if (!IsHugHealing(giantref) && (sizedifference >= threshold || sizedifference < Action_Hug)) {
+			if (!AnimationVars::Hug::IsHugHealing(giantref) && (sizedifference >= threshold || sizedifference < Action_Hug)) {
 				SetBeingHeld(tinyref, false);
 				AbortHugAnimation(giantref, tinyref);
-				if (giantref->formID == 0x14) {
+				if (giantref->IsPlayerRef()) {
 					shake_camera(giantref, 0.50f, 0.15f);
 					Notify("It's difficult to gently hug {}", tinyref->GetDisplayFullName());
 				}

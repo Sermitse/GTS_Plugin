@@ -4,38 +4,30 @@
 
 namespace GTS {
 
+	using EventResult = RE::BSEventNotifyControl;
+
 	struct RegisteredInputEvent {
 		std::function<void(const ManagedInputEvent&)> callback = nullptr;
 		std::function<bool(void)> condition = nullptr;
 
-		RegisteredInputEvent(const std::function<void(const ManagedInputEvent&)>
-			& callback, const std::function<bool(void)>& condition) : 
-			callback(callback) , condition(condition){
+		RegisteredInputEvent(const std::function<void(const ManagedInputEvent&)>& a_funcCallback, const std::function<bool(void)>& a_condCallback) : 
+			callback(a_funcCallback) , condition(a_condCallback){
 		}
 	};
 
-	using EventResult = RE::BSEventNotifyControl;
-
-	class InputManager : EventListener {
+	class InputManager : public EventListener, public CInitSingleton<InputManager> {
 		public:
-			[[nodiscard]] static InputManager& GetSingleton() noexcept;
-
-			void ProcessEvents(InputEvent** a_event);
-
-			std::string DebugName() override;
-
-			static void Init();
-
-			static void RegisterInputEvent(std::string_view namesv, std::function<void(const ManagedInputEvent&)> 
-				callback, std::function<bool(void)> condition = nullptr);
+		void ProcessAndFilterEvents(InputEvent** a_event);
+		std::string DebugName() override;
+		void DataReady() override;
+		void Init();
+		static void RegisterInputEvent(std::string_view a_namesv, std::function<void(const ManagedInputEvent&)> a_funcCallback, std::function<bool(void)> a_condCallbakc = nullptr);
 
 		private:
-
 		static std::vector<ManagedInputEvent> LoadInputEvents();
-
-		std::atomic_bool Ready = false;
-		std::mutex LoadLock;
-		std::unordered_map<std::string, RegisteredInputEvent> registedInputEvents;
-		std::vector<ManagedInputEvent> ManagedTriggers;
+		std::atomic_bool m_ready = false;
+		std::mutex m_lock;
+		absl::node_hash_map<std::string, RegisteredInputEvent> m_inputEvents;
+		std::vector<ManagedInputEvent> m_eventTriggers;
 	};
 }

@@ -5,7 +5,7 @@
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/Controllers/ButtCrushController.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
-#include "Utils/ButtCrushUtils.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp"
 
 using namespace GTS;
 
@@ -26,17 +26,17 @@ namespace {
 			return false;
 		}
 
-		if (!CanPerformAnimationOn(a_Performer, a_Prey, false)) {
+		if (!CanPerformActionOn(a_Performer, a_Prey, false)) {
 			return false;
 		}
 
 		const float PredScale = get_visual_scale(a_Performer);
-		const float SizeDiff = GetSizeDifference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
+		const float SizeDiff = get_scale_difference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
 
 		float MINIMUM_BUTTCRUSH_SCALE = Action_ButtCrush;
 		constexpr float MINIMUM_DISTANCE = MINIMUM_BUTTCRUSH_DISTANCE;
 
-		if (IsCrawling(a_Performer)) {
+		if (AnimationVars::Crawl::IsCrawling(a_Performer)) {
 			MINIMUM_BUTTCRUSH_SCALE *= 1.5f;
 		}
 
@@ -58,7 +58,7 @@ namespace {
 
 		const auto PerformerHandle = a_Performer->CreateRefHandle();
 		const auto BeginTime = Time::WorldTimeElapsed();
-		const auto& ActorTransient = Transient::GetSingleton().GetData(a_Performer);
+		const auto& ActorTransient = Transient::GetActorData(a_Performer);
 
 		TaskManager::Run(TaskName, [=](auto& progressData) {
 
@@ -76,31 +76,31 @@ namespace {
 			const bool CanGrow = ButtCrush_IsAbleToGrow(ActorRef, GetGrowthLimit(ActorRef));
 			const bool BlockGrowth = IsActionOnCooldown(ActorRef, CooldownSource::Misc_AiGrowth);
 
-			if (IsChangingSize(ActorRef)) { // Growing/shrinking
+			if (AnimationVars::Growth::IsChangingSize(ActorRef)) { // Growing/shrinking
 				ApplyActionCooldown(ActorRef, CooldownSource::Misc_AiGrowth);
 			}
 
-			ActorTransient->ActionTimer.UpdateDelta(Config::GetAI().ButtCrush.fInterval);
+			ActorTransient->ActionTimer.UpdateDelta(Config::AI.ButtCrush.fInterval);
 			if (BlockGrowth && !ActorTransient->ActionTimer.ShouldRun()) {
 				return true;
 			}
 
-			if (!IsChangingSize(ActorRef)){
+			if (!AnimationVars::Growth::IsChangingSize(ActorRef)){
 				//If we dont have the perk or for some reason the action needs to be canceled just play the attack anim immediatly
-				if (!Runtime::HasPerkTeam(ActorRef, "GTSPerkButtCrushAug2") || !IsButtCrushing(ActorRef)) {
+				if (!Runtime::HasPerkTeam(ActorRef, Runtime::PERK.GTSPerkButtCrushAug2) || !AnimationVars::ButtCrush::IsButtCrushing(ActorRef)) {
 					AnimationManager::StartAnim("ButtCrush_Attack", ActorRef);
 				}
-				else if (CanGrow && RandomBool(Config::GetAI().ButtCrush.fGrowProb)) {
+				else if (CanGrow && RandomBool(Config::AI.ButtCrush.fGrowProb)) {
 					ApplyActionCooldown(ActorRef, CooldownSource::Misc_AiGrowth);
 					AnimationManager::StartAnim("ButtCrush_Growth", ActorRef);
 				}
 				// Can't grow any further or random bool tells us to stop
-				else if (!CanGrow || RandomBool(Config::GetAI().ButtCrush.fCrushProb)) {
+				else if (!CanGrow || RandomBool(Config::AI.ButtCrush.fCrushProb)) {
 					AnimationManager::StartAnim("ButtCrush_Attack", ActorRef);
 				}
 			}
 
-			if (!IsButtCrushing(ActorRef)) {
+			if (!AnimationVars::ButtCrush::IsButtCrushing(ActorRef)) {
 				return false; // End the task
 			}
 
@@ -117,7 +117,7 @@ namespace GTS {
 			return {};
 		}
 
-		if (IsGtsBusy(a_Performer) || IsChangingSize(a_Performer)) {
+		if (AnimationVars::General::IsGTSBusy(a_Performer) || AnimationVars::Growth::IsChangingSize(a_Performer)) {
 			return {};
 		}
 
@@ -136,7 +136,7 @@ namespace GTS {
 		auto PreyList = a_ViablePreyList;
 
 		// Sort prey by distance
-		ranges::sort(PreyList,[PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
+		std::ranges::sort(PreyList,[PredPos](const Actor* a_PreyA, const Actor* a_PreyB) -> bool {
 			const float DistToA = (a_PreyA->GetPosition() - PredPos).Length();
 			const float DistToB = (a_PreyB->GetPosition() - PredPos).Length();
 			return DistToA < DistToB;
@@ -191,7 +191,7 @@ namespace GTS {
 
     void ButtCrushAI_Start(Actor* A_Performer, Actor* a_Prey) {
 
-		if (RandomBool(Config::GetAI().ButtCrush.fButtCrushTypeProb) && Runtime::HasPerkTeam(A_Performer, "GTSPerkButtCrushAug1")) {
+		if (RandomBool(Config::AI.ButtCrush.fButtCrushTypeProb) && Runtime::HasPerkTeam(A_Performer, Runtime::PERK.GTSPerkButtCrushAug1)) {
 			ButtCrushController::StartButtCrush(A_Performer, a_Prey, false);
 			ButtCrushAI_StartLogicTask(A_Performer);
 		}

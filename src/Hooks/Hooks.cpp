@@ -11,18 +11,16 @@
 #include "Hooks/Actor/Detection.hpp"
 #include "Hooks/Actor/HeadTracking.hpp"
 #include "Hooks/Actor/Jump.hpp"
-#include "Hooks/Actor/MagicTarget.hpp"
 #include "Hooks/Actor/Perk.hpp"
 #include "Hooks/Actor/Race.hpp"
 #include "Hooks/Actor/Scale.hpp"
 #include "Hooks/Actor/Sink.hpp"
 #include "Hooks/Animation/HeadtrackingGraph.hpp"
 #include "Hooks/Animation/PreventAnimations.hpp"
-#include "Hooks/Camera/PlayerCamera.hpp"
-#include "Hooks/Camera/TESCamera.hpp"
 #include "Hooks/Camera/TESCameraState.hpp"
 #include "Hooks/Engine/Input.hpp"
 #include "Hooks/Engine/Main.hpp"
+#include "Hooks/Engine/Window.hpp"
 #include "Hooks/Engine/Present.hpp"
 #include "Hooks/Havok/Havok.hpp"
 #include "Hooks/Havok/hkbBehaviorGraph.hpp"
@@ -39,7 +37,7 @@ namespace Hooks {
 
 		logger::info("Installing Hooks...");
 		auto& SKSETrampoline = SKSE::GetTrampoline();
-		SKSETrampoline.create(256); //Don't forget to increase when you add new callhooks.
+		SKSETrampoline.create(512); //Don't forget to increase when you add new callhooks.
 
 		//Actor
 		Hook_Actor::Install();
@@ -50,6 +48,7 @@ namespace Hooks {
 		Hook_Damage::Install();
 		Hook_Detection::Install();
 		Hook_HeadTracking::Install();
+		Hook_HeadTrackingGraph::Install(); //Why was this not hooked?
 		Hook_Jump::Install();
 		Hook_Perk::Install();
 		Hook_Race::Install();
@@ -65,6 +64,7 @@ namespace Hooks {
 		//Engine
 		Hook_Input::Install();
 		Hook_MainUpdate::Install();
+		Hook_Window::Install();
 		Hook_Present::Install();
 
 		//Havok
@@ -88,13 +88,8 @@ namespace Hooks {
 		//Experiments
 		//Hook_Experiments::Install();
 
-		//Unused
-		//Hook_PlayerCamera::Install();
-		//Hook_TESCamera::Install();
-		//Hook_MagicTarget::Install();
-
-		log::info("Finished applying hooks");
-		log::info("Default Trampoline Used: {}/{} Bytes", SKSETrampoline.allocated_size(), SKSETrampoline.capacity());
+		logger::info("Finished applying hooks");
+		logger::info("Default Trampoline Used: {}/{} Bytes", SKSETrampoline.allocated_size(), SKSETrampoline.capacity());
 
 	}
 }

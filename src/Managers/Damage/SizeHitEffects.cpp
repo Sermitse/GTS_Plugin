@@ -1,5 +1,7 @@
 #include "Managers/Damage/SizeHitEffects.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/HugShrink.hpp"
@@ -7,29 +9,26 @@
 
 #include "Managers/Rumble.hpp"
 #include "Managers/CrushManager.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 #include "Magic/Effects/Common.hpp"
 
 #include "Utils/DeathReport.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
 
-#include "Config/Config.hpp"
-
 using namespace GTS;
 
 namespace {
 
 	void Prevent_Stagger(Actor* attacker, Actor* receiver) {
-		float sizedifference = GetSizeDifference(receiver, attacker, SizeType::GiantessScale, true, false);
-		receiver->SetGraphVariableFloat("GiantessScale", sizedifference); // Manages Stagger Resistance inside Behaviors.
+		float sizedifference = get_scale_difference(receiver, attacker, SizeType::GiantessScale, true, false);
+		AnimationVars::General::SetGiantessScale(receiver, sizedifference); // Manages Stagger Resistance inside Behaviors.
 		// Prevent stagger anims from playing on GTS, Behaviors read GiantessScale value and disallow stagger if value is > 1.5
 	}
 
 	float Hit_CalculateGrowth(float damage, float SizeHunger, float Gigantism) {
-		float Growth = std::clamp((-damage/2000) * SizeHunger * Gigantism, 0.0f, 0.25f * Gigantism);
-		Growth *= Config::GetGameplay().fHitGrowthPower;
-		
+		float Growth = std::clamp((-damage / 2000) * SizeHunger * Gigantism, 0.0f, 0.25f * Gigantism);
+		Growth *= Config::Gameplay.fHitGrowthPower;
 		return Growth;
 	}
 
@@ -41,10 +40,10 @@ namespace {
 	}
 
 	bool Hit_ShouldGrow(Actor* receiver) {
-		bool GrowthEnabled = Config::GetGameplay().bEnableGrowthOnHit;
-		bool HasPerk = Runtime::HasPerkTeam(receiver, "GTSPerkHitGrowth");
+		bool GrowthEnabled = Config::Gameplay.bEnableGrowthOnHit;
+		bool HasPerk = Runtime::HasPerkTeam(receiver, Runtime::PERK.GTSPerkHitGrowth);
 		bool Teammate = (IsTeammate(receiver) || CountAsGiantess(receiver)) && IsFemale(receiver, true);
-		bool IsPlayer = receiver->formID == 0x14;
+		bool IsPlayer = receiver->IsPlayerRef();
 		
 		if (IsPlayer || Teammate) {
 			if (IsHuman(receiver) && GrowthEnabled && HasPerk){
@@ -56,10 +55,10 @@ namespace {
 
 	bool Hit_ShouldShrink(Actor* receiver) {
 		
-		const bool HasPerk = Runtime::HasPerk(receiver, "GTSPerkHitGrowth");
+		const bool HasPerk = Runtime::HasPerk(receiver, Runtime::PERK.GTSPerkHitGrowth);
 		const bool BalanceMode = SizeManager::BalancedMode();
 
-		if (BalanceMode && receiver->formID == 0x14 && !HasPerk) {
+		if (BalanceMode && receiver->IsPlayerRef() && !HasPerk) {
 			if (get_target_scale(receiver) > get_natural_scale(receiver, true)) {
 				return true;
 			}
@@ -102,12 +101,12 @@ namespace {
 					Task_FacialEmotionTask_Smile(receiver, 1.25f, "CrushSmile", RandomFloat(0.0f, 0.7f), 0.4f);
 				}
 
-				if (!LessGore()) {
-					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, "NPC L Hand [LHnd]");
-					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, "NPC L Hand [LHnd]");
-					Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", receiver, 1.0f, "NPC L Hand [LHnd]");
+				if (!Config::General.bLessGore) {
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
 				} else {
-					Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", receiver, 1.0f, "NPC L Hand [LHnd]");
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSoftHandAttack, receiver, 1.0f, "NPC L Hand [LHnd]");
 				}
 				Rumbling::Once("GrabAttackKill", receiver, 8.0f, 0.15f, "NPC L Hand [LHnd]", 0.0f);
 				AnimationManager::StartAnim("GrabAbort", receiver); // Abort Grab animation
@@ -120,13 +119,13 @@ namespace {
 	void DropTinyChance(Actor* receiver, float damage, float scale) {
 		static Timer DropTimer = Timer(0.33); // Check once per .33 sec
 		float bonus = 1.0f;
-		if (Runtime::HasPerkTeam(receiver, "GTSPerkHugsOfDeath")) {
+		if (Runtime::HasPerkTeam(receiver, Runtime::PERK.GTSPerkHugsOfDeath)) {
 			return; // Full immunity
 		}
-		if (Runtime::HasPerkTeam(receiver, "GTSPerkHugsGreed")) {
+		if (Runtime::HasPerkTeam(receiver, Runtime::PERK.GTSPerkHugsGreed)) {
 			bonus = 4.0f; // 4 times bigger damage threshold to cancel hugs
 		}
-		if (Runtime::HasPerkTeam(receiver, "GTSPerkHugsToughGrip")) {
+		if (Runtime::HasPerkTeam(receiver, Runtime::PERK.GTSPerkHugsToughGrip)) {
 			float GetHP = GetHealthPercentage(receiver);
 			if (GetHP >= 0.85f) {
 				return; // Drop only if hp is < 85%
@@ -165,7 +164,7 @@ namespace {
 		update_target_scale(receiver, GrowthValue, SizeEffectType::kNeutral);
 		
 		if (soundtimer.ShouldRunFrame()) {
-			Runtime::PlaySoundAtNode("GTSSoundGrowth", receiver, GrowthValue * 2, "NPC Pelvis [Pelv]");
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, receiver, GrowthValue * 2, "NPC Pelvis [Pelv]");
 		}
 		if (ShrinkChance >= 2) {
 			if (get_target_scale(attacker) >= 0.06f/Adjustment) {
@@ -192,12 +191,12 @@ namespace {
 		float scale = get_target_scale(receiver);
 		float naturalscale = get_natural_scale(receiver, true);
 
-		const float lossmod = Config::GetBalance().fBMShrinkOnHitMult;
+		const float lossmod = Config::Balance.fBMShrinkOnHitMult;
 		float modifier = std::clamp(lossmod, 0.10f, 25.0f); // * size loss value
 
 		ShrinkValue *= modifier;
 
-		log::info("Shrink Value: {}", -ShrinkValue);
+		logger::info("Shrink Value: {}", -ShrinkValue);
 
 		if (scale - ShrinkValue < naturalscale) {
 			set_target_scale(receiver, naturalscale);
@@ -216,7 +215,7 @@ namespace {
 		const float SizeHunger = 1.0f + Ench_Hunger_GetPower(receiver);
 		const float Gigantism = 1.0f + Ench_Aspect_GetPower(receiver);
 		
-		const float SizeDifference = GetSizeDifference(receiver, attacker, SizeType::VisualScale, true, true);
+		const float SizeDifference = get_scale_difference(receiver, attacker, SizeType::VisualScale, true, true);
 		const float resistance = Potion_GetShrinkResistance(receiver);
 	
 		if (Hit_ShouldGrow(receiver)) { // if has perk. Wins over balance mode if true
@@ -228,7 +227,7 @@ namespace {
 	}
 
 	void ApplyToTinies(Actor* attacker, Actor* receiver, float damage) {
-		float sizedifference = GetSizeDifference(receiver, attacker, SizeType::VisualScale, true, true);
+		float sizedifference = get_scale_difference(receiver, attacker, SizeType::VisualScale, true, true);
 		DropTinyChance(receiver, -damage, sizedifference);
 		TinyAsShield(receiver, -damage);
 	}
@@ -237,15 +236,6 @@ namespace {
 
 namespace GTS {
 
-	SizeHitEffects& SizeHitEffects::GetSingleton() noexcept {
-		static SizeHitEffects instance;
-		return instance;
-	}
-
-	std::string SizeHitEffects::DebugName() {
-		return "::SizeHitEffects";
-	}
-
 	void SizeHitEffects::ApplyEverything(Actor* attacker, Actor* receiver, float damage) {
 		ApplyHitGrowth(attacker, receiver, damage);
 		ApplyToTinies(attacker, receiver, damage);
@@ -253,17 +243,17 @@ namespace GTS {
 	}
 
 	void SizeHitEffects::PerformInjuryDebuff(Actor* giant, Actor* tiny, float damage, int random) { // Used as a debuff
-		if (!tiny->IsDead() && Runtime::HasPerkTeam(giant, "GTSPerkRavagingInjuries")) {
+		if (!tiny->IsDead() && Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRavagingInjuries)) {
 			if (random > 0) {
 
-				if (Runtime::HasPerkTeam(giant, "GTSPerkSprintDamageMult2") && giant->AsActorState()->IsSprinting() && !IsGtsBusy(giant)) {
+				if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkSprintDamageMult2) && giant->AsActorState()->IsSprinting() && !AnimationVars::General::IsGTSBusy(giant)) {
 					damage *= 3.0f;
 					random = 1; // always apply
 				}
 
 				int rng = (RandomInt(0, random));
 				if (rng <= 2) {
-					float sizediff = GetSizeDifference(giant, tiny, SizeType::VisualScale, true, true);
+					float sizediff = get_scale_difference(giant, tiny, SizeType::VisualScale, true, true);
 					if (sizediff < 3.0f) {
 						return;
 					}

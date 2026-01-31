@@ -1,10 +1,11 @@
 #include "Papyrus/Plugin.hpp"
-#include "Data/Transient.hpp"
-#include "Magic/Effects/Common.hpp"
-#include "Managers/Gamemode/GameModeManager.hpp"
-#include "Utils/VoreUtils.hpp"
 
-using namespace GTS;
+#include "Config/Config.hpp"
+
+#include "Magic/Effects/Common.hpp"
+#include "Utils/Actions/VoreUtils.hpp"
+
+using namespace RE;
 using namespace RE::BSScript;
 
 namespace {
@@ -12,16 +13,16 @@ namespace {
 	constexpr std::string_view PapyrusClass = "GTSPlugin";
 
 	void ResetQuestProgression(StaticFunctionTag*) {
-		ResetQuest();
+		GTS::ResetQuest();
 	}
 
 	float Quest_GetProgression(StaticFunctionTag*, int stage) {
-		return GetQuestProgression(stage);
+		return GTS::GetQuestProgression(stage);
 	}
 
 	bool WasDragonEaten(StaticFunctionTag*) {
 		auto pc = PlayerCharacter::GetSingleton();
-		auto transient = Transient::GetSingleton().GetData(pc);
+		auto transient = GTS::Transient::GetActorData(pc);
 		if (transient) {
 			return transient->DragonWasEaten;
 		}
@@ -29,8 +30,8 @@ namespace {
 	}
 
 	void CallDevourmentCompatibility(StaticFunctionTag*, Actor* Pred, Actor* Prey, bool Digested) {
-		if (Config::GetGeneral().bDevourmentCompat) {
-			Devourment_Compatibility(Pred, Prey, Digested);
+		if (GTS::Config::General.bDevourmentCompat) {
+			GTS::Devourment_Compatibility(Pred, Prey, Digested);
 		}
 	}
 }

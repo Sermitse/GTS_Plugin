@@ -39,7 +39,7 @@ namespace GTS {
 	void DoLaunch(Actor* giant, float radius, float power, NiAVObject* node);
 
 	void GrabStaminaDrain(Actor* giant, Actor* tiny, float sizedifference);
-	void DrainStamina(Actor* giant, std::string_view TaskName, std::string_view perk, bool enable, float power);
+	void DrainStamina(Actor* giant, std::string_view TaskName, const RuntimeData::RuntimeEntry<RE::BGSPerk>& perk, bool enable, float power);
 
 	void SpawnHurtParticles(Actor* giant, Actor* grabbedActor, float mult, float dustmult);
 
@@ -58,8 +58,7 @@ namespace GTS {
 	void ApplyThighDamage(Actor* actor, bool right, bool CooldownCheck, float radius, float damage, float bbmult, float crush_threshold, int random, DamageSource Cause);
 	void ApplyFingerDamage(Actor* giant, float radius, float damage, NiAVObject* node, float random, float bbmult, float crushmult, float Shrink, DamageSource Cause);
 
-	std::vector<NiPoint3> GetThighCoordinates(Actor* giant, std::string_view calf, std::string_view feet, std::string_view thigh);
-	std::vector<NiPoint3> GetFootPoints(float hh);
+	void GetThighCoordinates(Actor* giant, std::string_view calf, std::string_view feet, std::string_view thigh, std::vector<NiPoint3>& outCoordinates);
 	std::vector<NiPoint3> GetFootCoordinates(Actor* actor, bool Right, bool ignore_rotation);
 	NiPoint3 GetHeartPosition(Actor* giant, Actor* tiny, bool hugs);
 

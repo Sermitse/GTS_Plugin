@@ -9,7 +9,7 @@ using namespace GTS;
 
 namespace {
 	void slow_down(Actor* tiny, float value) {
-		auto tranData = Transient::GetSingleton().GetData(tiny);
+		auto tranData = Transient::GetActorData(tiny);
 		if (tranData) {
 			tranData->MovementSlowdown -= value;
 			//log::info("Slowdown of {} is {}", tiny->GetDisplayFullName(), tranData->MovementSlowdown);
@@ -24,7 +24,7 @@ namespace {
 	}
 
     void AttachRune(Actor* giant, bool ShrinkRune, float speed, float scale) { // A task that scales/shrinks the runes
-		string node_name = "ShrinkRune-Obj";
+		std::string node_name = "ShrinkRune-Obj";
 
 		double Start = Time::WorldTimeElapsed();
         std::string name = std::format("Calamity_{}_{}", giant->formID, ShrinkRune);
@@ -84,14 +84,14 @@ namespace {
 		std::string name = std::format("Calamity_{}_{}", giant->formID, false);
 		TaskManager::Cancel(name);
 
-		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_RuneReady", giant, 1.0f, "NPC R Hand [RHnd]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_RuneReady, giant, 1.0f, "NPC R Hand [RHnd]");
 
 		auto node = find_node(&data.giant, "ShrinkRune-Obj", false);
         if (node) {
             node->local.scale = 0.60f;
             update_node(node);
         }
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			shake_camera(giant, 0.80f, 0.35f);
 		} else {
 			Rumbling::Once("Calamity_R", giant, 4.25f, 0.15f, "NPC R Hand [RHnd]", 0.0f);
@@ -105,14 +105,14 @@ namespace {
 				SpawnRuneOnTiny(victim);
 				float until = Animation_TinyCalamity::GetShrinkUntil(victim);
 				ShrinkUntil(&data.giant, victim, until, 0.26f, false);
-				StartCombat(victim, &data.giant);
+				victim->StartCombat(&data.giant);
 
 				ChanceToScare(&data.giant, victim, 6.0f, 6, false); // chance to force actor to flee 
 
 				slow_down(victim, 0.60f); // decrease MS by 60%
 
-				Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_SpawnRune", victim, 1.0f, "NPC Root [Root]");
-				Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Absorb", victim, 1.0f, "NPC Root [Root]");
+				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_SpawnRune, victim, 1.0f, "NPC Root [Root]");
+				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Absorb, victim, 1.0f, "NPC Root [Root]");
 			}
 		}
 	}
@@ -128,20 +128,12 @@ namespace {
     }
 
 	void GTS_TC_ShrinkStop(AnimationEventData& data) {
-		Animation_TinyCalamity::GetSingleton().ResetActors(&data.giant);
+		Animation_TinyCalamity::ResetActors(&data.giant);
     }
 }
 
-namespace GTS
-{
-    Animation_TinyCalamity& Animation_TinyCalamity::GetSingleton() noexcept {
-		static Animation_TinyCalamity instance;
-		return instance;
-	}
+namespace GTS {
 
-	std::string Animation_TinyCalamity::DebugName() {
-		return "::Animation_TinyCalamity";
-	}
 
 	void Animation_TinyCalamity::RegisterEvents() {
 		AnimationManager::RegisterEvent("GTS_TC_RuneStart", "Calamity", GTS_TC_RuneStart); 
@@ -157,15 +149,15 @@ namespace GTS
 
 
 	void Animation_TinyCalamity::ResetActors(Actor* actor) {
-		auto tranData = Transient::GetSingleton().GetData(actor);
+		auto tranData = Transient::GetActorData(actor);
 		if (tranData) {
 			tranData->shrinkies = {}; // Reset array of actors to shrink
 		}
 	}
 
     void Animation_TinyCalamity::AddToData(Actor* giant, Actor* tiny, float until) {
-        auto tranData_gts = Transient::GetSingleton().GetData(giant);
-		auto tranData_tiny = Transient::GetSingleton().GetData(tiny);
+        auto tranData_gts = Transient::GetActorData(giant);
+		auto tranData_tiny = Transient::GetActorData(tiny);
 
 		if (tranData_gts) {
 			tranData_gts->shrinkies.push_back(tiny);
@@ -177,7 +169,7 @@ namespace GTS
 
 
     std::vector<Actor*> Animation_TinyCalamity::GetShrinkActors(Actor* giant) {
-		 auto tranData_gts = Transient::GetSingleton().GetData(giant);
+		 auto tranData_gts = Transient::GetActorData(giant);
 		 if (tranData_gts) {
 			return tranData_gts->shrinkies;
 		 }
@@ -185,7 +177,7 @@ namespace GTS
 	}
 
     float Animation_TinyCalamity::GetShrinkUntil(Actor* tiny) {
-        auto tranData_tiny = Transient::GetSingleton().GetData(tiny);
+        auto tranData_tiny = Transient::GetActorData(tiny);
 		if (tranData_tiny) {
 			return tranData_tiny->ShrinkUntil;
 		}

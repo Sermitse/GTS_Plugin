@@ -9,16 +9,16 @@
 #include "Managers/Damage/TinyCalamity.hpp"
 #include "Managers/Input/InputManager.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/CrushManager.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"
 
 #include "Utils/AttachPoint.hpp"
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
-#include "Utils/ActorBools.hpp"
+#include "Utils/DeathReport.hpp"
 
 using namespace GTS;
 
@@ -47,23 +47,23 @@ using namespace GTS;
 namespace {
 
 	void PrintCancelReason(Actor* giant, Actor* tiny, float sizedifference, float Action_Grab) {
-		log::info("Canceled Grab on {}. Reasons below", tiny->GetDisplayFullName());
+		logger::info("Canceled Grab on {}. Reasons below", tiny->GetDisplayFullName());
 		bool GiantDead = giant->IsDead();
 		bool TinyDead = tiny->IsDead();
 		if (GiantDead) {
-			log::info("---Giant Has Died");
+			logger::info("---Giant Has Died");
 		}
 		if (TinyDead) {
-			log::info("---Tiny Has Died");
+			logger::info("---Tiny Has Died");
 		}
 		if (GetAV(tiny, ActorValue::kHealth) <= 0.0f) {
-			log::info("---Tiny health is < 0: {}", GetAV(tiny, ActorValue::kHealth) <= 0.0f);
+			logger::info("---Tiny health is < 0: {}", GetAV(tiny, ActorValue::kHealth) <= 0.0f);
 		}
 		if (GetAV(giant, ActorValue::kStamina) < 2.0f) {
-			log::info("---Giant stamina is < 2: {}", GetAV(giant, ActorValue::kStamina) < 2.0f);
+			logger::info("---Giant stamina is < 2: {}", GetAV(giant, ActorValue::kStamina) < 2.0f);
 		}
 		if (sizedifference < Action_Grab) {
-			log::info("---SizeDifference < Threshold: {}, Difference: {}", sizedifference < Action_Grab, sizedifference);
+			logger::info("---SizeDifference < Threshold: {}, Difference: {}", sizedifference < Action_Grab, sizedifference);
 		}
 	}
 
@@ -185,11 +185,11 @@ namespace {
 	}
 
 	void GTSGrab_Catch_Actor(AnimationEventData& data) {
-		data.giant.SetGraphVariableInt("GTS_GrabbedTiny", 1);
+		AnimationVars::Grab::SetHasGrabbedTiny(&data.giant, true);
 
 		if (auto grabbed = Grab::GetHeldActor(&data.giant)) {
-			if (Config::GetGameplay().ActionSettings.bGrabStartIsHostile && !IsTeammate(grabbed)) {
-				Attacked(grabbed, &data.giant);
+			if (Config::Gameplay.ActionSettings.bGrabStartIsHostile && !IsTeammate(grabbed)) {
+				grabbed->Attacked(&data.giant);
 			}
 			Grab::AttachActorTask(&data.giant, grabbed);
 			DisableCollisions(grabbed, &data.giant); // Do it once more just in case
@@ -210,9 +210,9 @@ namespace {
 	void GTSGrab_Release_FreeActor(AnimationEventData& data) {
 		auto giant = &data.giant;
 		
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-		giant->SetGraphVariableInt("GTS_Storing_Tiny", 0);
-		giant->SetGraphVariableInt("GTS_Grab_State", 0);
+		AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+		AnimationVars::Action::SetIsStoringTiny(giant, false);
+		AnimationVars::Grab::SetGrabState(giant, false);
 		auto grabbedActor = Grab::GetHeldActor(giant);
 		ManageCamera(&data.giant, false, CameraTracking::Grab_Left);
 		AnimationManager::StartAnim("TinyDied", giant);
@@ -236,12 +236,12 @@ namespace {
 			Anims_FixAnimationDesync(giant, grabbedActor, true);
 		}
 		
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-		giant->SetGraphVariableInt("GTS_Storing_Tiny", 0);
-		giant->SetGraphVariableInt("GTS_Grab_State", 0);
+		AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+		AnimationVars::Action::SetIsStoringTiny(giant, false);
+		AnimationVars::Grab::SetGrabState(giant, false);
 		AnimationManager::StartAnim("TinyDied", giant);
-		DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
-		DrainStamina(giant, "GrabThrow", "GTSPerkDestructionBasics", false, 1.25f);
+		DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
+		DrainStamina(giant, "GrabThrow", Runtime::PERK.GTSPerkDestructionBasics, false, 1.25f);
 		ManageCamera(&data.giant, false, CameraTracking::Grab_Left);
 		Grab::DetachActorTask(giant);
 		Grab::Release(giant);
@@ -257,13 +257,13 @@ namespace {
 			Anims_FixAnimationDesync(giant, grabbedActor, true);
 		}
 		
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-		giant->SetGraphVariableInt("GTS_Storing_Tiny", 0);
-		giant->SetGraphVariableInt("GTS_Grab_State", 0);
+		AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+		AnimationVars::Action::SetIsStoringTiny(giant, false);
+		AnimationVars::Grab::SetGrabState(giant, false);
 
 		AnimationManager::StartAnim("TinyDied", giant);
-		DrainStamina(giant, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
-		DrainStamina(giant, "GrabThrow", "GTSPerkDestructionBasics", false, 1.25f);
+		DrainStamina(giant, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
+		DrainStamina(giant, "GrabThrow", Runtime::PERK.GTSPerkDestructionBasics, false, 1.25f);
 		ManageCamera(&data.giant, false, CameraTracking::Grab_Left);
 		Grab::DetachActorTask(giant);
 		Grab::Release(giant);
@@ -280,14 +280,13 @@ namespace {
 	void GTSGrab_Breast_PutActor(AnimationEventData& data) { // Places actor between breasts
 		auto giant = &data.giant;
 		
-		Runtime::PlaySoundAtNode("GTSSoundBreastImpact", giant, 1.0f, "NPC L Hand [LHnd]");
-		giant->SetGraphVariableInt("GTS_Storing_Tiny", 1);
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundBreastImpact, giant, 1.0f, "NPC L Hand [LHnd]");
+		AnimationVars::Action::SetIsStoringTiny(giant, true);
+		AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
 		auto otherActor = Grab::GetHeldActor(giant);
 		if (otherActor) {
 			SetBetweenBreasts(otherActor, true);
 			Task_RotateActorToBreastX(giant, otherActor);
-			otherActor->SetGraphVariableBool("GTSBEH_T_InStorage", true);
 			if (IsHostile(giant, otherActor)) {
 				AnimationManager::StartAnim("Breasts_Idle_Unwilling", otherActor);
 			} else {
@@ -298,12 +297,11 @@ namespace {
 
 	void GTSGrab_Breast_TakeActor(AnimationEventData& data) { // Removes Actor
 		auto giant = &data.giant;
-		giant->SetGraphVariableInt("GTS_Storing_Tiny", 0);
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 1);
+		AnimationVars::Action::SetIsStoringTiny(giant, false);
+		AnimationVars::Grab::SetHasGrabbedTiny(giant, true);
 		auto otherActor = Grab::GetHeldActor(giant);
 		if (otherActor) {
 			SetBetweenBreasts(otherActor, false);
-			otherActor->SetGraphVariableBool("GTSBEH_T_InStorage", false);
 			AnimationManager::StartAnim("Breasts_FreeOther", otherActor);
 			Anims_FixAnimationDesync(giant, otherActor, true);
 		}
@@ -335,7 +333,7 @@ namespace {
 	void GrabAttackEvent(const ManagedInputEvent& data) { // Attack everyone in your hand
 		Actor* player = GetPlayerOrControlled();
 			float WasteStamina = 20.0f;
-			if (Runtime::HasPerk(player, "GTSPerkDestructionBasics")) {
+			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkDestructionBasics)) {
 				WasteStamina *= 0.65f;
 			}
 			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
@@ -358,7 +356,7 @@ namespace {
 	void GrabThrowEvent(const ManagedInputEvent& data) { // Throw everyone away
 		Actor* player = GetPlayerOrControlled();
 			float WasteStamina = 40.0f;
-			if (Runtime::HasPerk(player, "GTSPerkDestructionBasics")) {
+			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkDestructionBasics)) {
 				WasteStamina *= 0.65f;
 			}
 			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
@@ -375,7 +373,7 @@ namespace {
 		if (!grabbedActor) {
 			return;
 		}
-		if (IsGtsBusy(player) && !IsUsingThighAnimations(player) || IsTransitioning(player)) {
+		if (AnimationVars::General::IsGTSBusy(player) && !AnimationVars::Action::IsSitting(player) || AnimationVars::General::IsTransitioning(player)) {
 			return;
 		}
 		if (!player->AsActorState()->IsWeaponDrawn()) {
@@ -417,10 +415,6 @@ namespace {
 	}
 }
 
-
-
-
-
 namespace GTS {
 
 	void Utils_CrushTask(Actor* giant, Actor* grabbedActor, float bonus, bool do_sound, bool stagger, DamageSource source, QuestStage stage) {
@@ -447,33 +441,32 @@ namespace GTS {
 				DelayedBreastDeattach(tiny);
                 SetBeingHeld(tiny, false);
 
-                Runtime::PlaySoundAtNode("GTSSoundCrushDefault", giantess, 1.0f, "NPC L Hand [LHnd]");
+                Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrushDefault, giantess, 1.0f, "NPC L Hand [LHnd]");
 
 				if (do_sound) {
-					if (!LessGore()) {
-						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, "NPC L Hand [LHnd]");
-						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, "NPC L Hand [LHnd]");
+					if (!Config::General.bLessGore) {
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, giantess, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, giantess, 1.0f, "NPC L Hand [LHnd]");
 					} else {
-						Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", giantess, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSoftHandAttack, giantess, 1.0f, "NPC L Hand [LHnd]");
 					}
 				}
 
                 AdjustSizeReserve(giantess, get_visual_scale(tiny)/10);
                 SpawnHurtParticles(giantess, tiny, 3.0f, 1.6f);
                 SpawnHurtParticles(giantess, tiny, 3.0f, 1.6f);
-            
-                StartCombat(tiny, giantess);
+				tiny->StartCombat(giantess);
                 
                 AdvanceQuestProgression(giantess, tiny, stage, 1.0f, false);
                 
                 ReportDeath(giantess, tiny, source);
             } else {
 				if (do_sound) {
-					if (!LessGore()) {
-						Runtime::PlaySoundAtNode("GTSSoundCrunchImpact", giantess, 1.0f, "NPC L Hand [LHnd]");
+					if (!Config::General.bLessGore) {
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, giantess, 1.0f, "NPC L Hand [LHnd]");
 						SpawnHurtParticles(giantess, tiny, 1.0f, 1.0f);
 					} else {
-						Runtime::PlaySoundAtNode("GTSSoundSoftHandAttack", giantess, 1.0f, "NPC L Hand [LHnd]");
+						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSoftHandAttack, giantess, 1.0f, "NPC L Hand [LHnd]");
 					}
 				}
 				if (stagger) {
@@ -482,12 +475,6 @@ namespace GTS {
             }
         });
     }
-    
-
-	Grab& Grab::GetSingleton() noexcept {
-		static Grab instance;
-		return instance;
-	}
 
 	std::string Grab::DebugName() {
 		return "::Grab";
@@ -498,7 +485,7 @@ namespace GTS {
 		auto& sizemanager = SizeManager::GetSingleton();
 
         if (grabbed) {
-            Attacked(grabbed, giant); // force combat
+			grabbed->Attacked(giant); // force combat
 
             float bonus = 1.0f;
 
@@ -515,12 +502,12 @@ namespace GTS {
 			}
 
             if (CanDoDamage(giant, grabbed, false)) {
-                if (Runtime::HasPerkTeam(giant, "GTSPerkGrowingPressure")) {
-                    auto& sizemanager = SizeManager::GetSingleton();
-                    sizemanager.ModSizeVulnerability(grabbed, damage * 0.0010f);
+                if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
+                    auto& mgr = SizeManager::GetSingleton();
+                    mgr.ModSizeVulnerability(grabbed, damage * 0.0010f);
                 }
 
-                TinyCalamity_ShrinkActor(giant, grabbed, damage * 0.10f * GetDamageSetting());
+                TinyCalamity_ShrinkActor(giant, grabbed, damage * 0.10f * Config::Balance.fSizeDamageMult);
 
                 SizeHitEffects::PerformInjuryDebuff(giant, grabbed, damage*0.15f, 6);
                 InflictSizeDamage(giant, grabbed, damage);
@@ -537,10 +524,10 @@ namespace GTS {
 
 	void Grab::DetachActorTask(Actor* giant) {
 		std::string name = std::format("GrabAttach_{}", giant->formID);
-		giant->SetGraphVariableBool("GTS_OverrideZ", false);
-		giant->SetGraphVariableInt("GTS_GrabbedTiny", 0); // Tell behaviors 'we have nothing in our hands'. A must.
-		giant->SetGraphVariableInt("GTS_Grab_State", 0);
-		giant->SetGraphVariableInt("GTS_Storing_Tiny", 0);
+		AnimationVars::Action::SetIsCleavageZOverrideEnabled(giant, false);
+		AnimationVars::Grab::SetHasGrabbedTiny(giant, false); // Tell behaviors 'we have nothing in our hands'. A must.
+		AnimationVars::Grab::SetGrabState(giant, false);
+		AnimationVars::Action::SetIsStoringTiny(giant, false);
 		Attachment_SetTargetNode(giant, AttachToNode::None);
 
 		TaskManager::Cancel(name);
@@ -634,10 +621,10 @@ namespace GTS {
 
 	void Grab::FailSafeReset(Actor* giantref) {
 		if (giantref) {
-			giantref->SetGraphVariableInt("GTS_GrabbedTiny", 0); // Tell behaviors 'we have nothing in our hands'. A must.
-			giantref->SetGraphVariableInt("GTS_Grab_State", 0);
-			giantref->SetGraphVariableInt("GTS_Storing_Tiny", 0);
-			DrainStamina(giantref, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
+			AnimationVars::Grab::SetHasGrabbedTiny(giantref, false); // Tell behaviors 'we have nothing in our hands'. A must.
+			AnimationVars::Grab::SetGrabState(giantref, false);
+			AnimationVars::Action::SetIsStoringTiny(giantref, false);
+			DrainStamina(giantref, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
 			ManageCamera(giantref, false, CameraTracking::Grab_Left); // Disable any camera edits
 			Grab::ExitGrabState(giantref);
 			Grab::DetachActorTask(giantref);
@@ -646,15 +633,14 @@ namespace GTS {
 
 	void Grab::CancelGrab(Actor* giantref, Actor* tinyref) {
 		if (giantref && tinyref) {
-			tinyref->SetGraphVariableBool("GTSBEH_T_InStorage", false);
 			Anims_FixAnimationDesync(giantref, tinyref, true); // Reset anim speed override
 			SetBetweenBreasts(tinyref, false);
 			SetBeingEaten(tinyref, false);
 			SetBeingHeld(tinyref, false);
-			giantref->SetGraphVariableInt("GTS_GrabbedTiny", 0); // Tell behaviors 'we have nothing in our hands'. A must.
-			giantref->SetGraphVariableInt("GTS_Grab_State", 0);
-			giantref->SetGraphVariableInt("GTS_Storing_Tiny", 0);
-			DrainStamina(giantref, "GrabAttack", "GTSPerkDestructionBasics", false, 0.75f);
+			AnimationVars::Grab::SetHasGrabbedTiny(giantref, false); // Tell behaviors 'we have nothing in our hands'. A must.
+			AnimationVars::Grab::SetGrabState(giantref, false);
+			AnimationVars::Action::SetIsStoringTiny(giantref, false);
+			DrainStamina(giantref, "GrabAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 0.75f);
 			Grab::ExitGrabState(giantref);
 			ManageCamera(giantref, false, CameraTracking::Grab_Left); // Disable any camera edits
 			Grab::DetachActorTask(giantref);

@@ -12,12 +12,12 @@ namespace {
 	void GrowTeammate(StaticFunctionTag*, float power) {
 		auto casterRef = PlayerCharacter::GetSingleton();
 		if (casterRef) {
-			if (Runtime::HasPerkTeam(casterRef, "GTSPerkGrowthDesireAug")) {
+			if (Runtime::HasPerkTeam(casterRef, Runtime::PERK.GTSPerkGrowthDesireAug)) {
 				for (auto targetRef: FindTeammates()) {
 					if (targetRef) {
 						float falloff = 0.11f * get_visual_scale(targetRef);
 						float Volume = std::clamp(get_visual_scale(targetRef)/8.0f, 0.20f, 1.0f);
-						Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
+						Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundGrowth, targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
 
 						// Thread safe handles
 						ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -42,7 +42,7 @@ namespace {
 							float magicka = std::clamp(GetMagikaPercentage(caster), 0.05f, 1.0f);
 
 							float bonus = 1.0f;
-							if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+							if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 								bonus = target_scale * 0.25f + 0.75f;
 							}
 
@@ -62,14 +62,14 @@ namespace {
 	void ShrinkTeammate(StaticFunctionTag*, float power) {
 		auto casterRef = PlayerCharacter::GetSingleton();
 		if (casterRef) {
-			if (Runtime::HasPerkTeam(casterRef, "GTSPerkGrowthDesireAug")) {
+			if (Runtime::HasPerkTeam(casterRef, Runtime::PERK.GTSPerkGrowthDesireAug)) {
 				for (auto targetRef: FindTeammates()) {
 					if (targetRef) {
 						float scale = get_visual_scale(targetRef);
 						float Volume = std::clamp(scale * 0.10f, 0.10f, 1.0f);
 						
 						float falloff = 0.11f * scale;
-						Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
+						Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundShrink, targetRef, Volume, "NPC Pelvis [Pelv]", falloff);
 						
 						// Thread safe handles
 						ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -93,7 +93,7 @@ namespace {
 							float magicka = std::clamp(GetMagikaPercentage(caster), 0.05f, 1.0f);
 
 							float bonus = 1.0f;
-							if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+							if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 								bonus = target_scale * 0.25f + 0.75f;
 							}
 
@@ -111,15 +111,16 @@ namespace {
 	}
 
 	void GrowPlayer(StaticFunctionTag*, float power) {
+
 		auto casterRef = PlayerCharacter::GetSingleton();
 		if (casterRef) {
-			if (Runtime::HasPerkTeam(casterRef, "GTSPerkGrowthDesireAug")) {
+			if (Runtime::HasPerkTeam(casterRef, Runtime::PERK.GTSPerkGrowthDesireAug)) {
 				float scale = get_visual_scale(casterRef);
 				float Volume = std::clamp(scale * 0.20f, 0.20f, 1.0f);
 
 				float falloff = 0.11f * scale;
 
-				Runtime::PlaySoundAtNode_FallOff("GTSSoundGrowth", casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
+				Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundGrowth, casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
 			
 				// Thread safe handles
 				ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -138,7 +139,7 @@ namespace {
 					float target_scale = get_target_scale(caster);
 
 					float bonus = 1.0f;
-					if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+					if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 						bonus = target_scale * 0.25f + 0.75f;
 					}
 
@@ -157,14 +158,15 @@ namespace {
 	
 
 	void ShrinkPlayer(StaticFunctionTag*, float power) {
+
 		auto casterRef = PlayerCharacter::GetSingleton();
 		if (casterRef) {
-			if (Runtime::HasPerkTeam(casterRef, "GTSPerkGrowthDesireAug")) {
+			if (Runtime::HasPerkTeam(casterRef, Runtime::PERK.GTSPerkGrowthDesireAug)) {
 				float scale = get_visual_scale(casterRef);
 				float Volume = std::clamp(scale * 0.10f, 0.10f, 1.0f);
 				float falloff = 0.11f * scale;
 
-				Runtime::PlaySoundAtNode_FallOff("GTSSoundShrink", casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
+				Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundShrink, casterRef, Volume, "NPC Pelvis [Pelv]", falloff);
 			
 				// Thread safe handles
 				ActorHandle casterHandle = casterRef->CreateRefHandle();
@@ -185,7 +187,7 @@ namespace {
 					float stamina = std::clamp(GetStaminaPercentage(caster), 0.05f, 1.0f);
 
 					float bonus = 1.0f;
-					if (Runtime::HasMagicEffect(caster, "GTSPotionEffectSizeAmplify")) {
+					if (Runtime::HasMagicEffect(caster, Runtime::MGEF.GTSPotionEffectSizeAmplify)) {
 						bonus = target_scale * 0.25f + 0.75f;
 					}
 
@@ -206,7 +208,7 @@ namespace {
 	void CallRapidGrowth(StaticFunctionTag*, float amt, float halflife) {
 		auto player = PlayerCharacter::GetSingleton();
 		if (player) {
-			if (Runtime::HasPerkTeam(player, "GTSPerkGrowthDesireAug")) {
+			if (Runtime::HasPerkTeam(player, Runtime::PERK.GTSPerkGrowthDesireAug)) {
 				float target = get_target_scale(player);
 				float max_scale = get_max_scale(player);// * get_natural_scale(player);
 				if (target >= max_scale) {
@@ -222,7 +224,7 @@ namespace {
 	void CallRapidShrink(StaticFunctionTag*, float amt, float halflife) {
 		auto player = PlayerCharacter::GetSingleton();
 		if (player) {
-			if (Runtime::HasPerkTeam(player, "GTSPerkGrowthDesireAug")) {
+			if (Runtime::HasPerkTeam(player, Runtime::PERK.GTSPerkGrowthDesireAug)) {
 				float target = get_target_scale(player);
 				if (target <= Minimum_Actor_Scale) {
 					NotifyWithSound(player, "You can't shrink any further");

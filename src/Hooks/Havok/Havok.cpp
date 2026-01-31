@@ -1,12 +1,13 @@
 #include "Hooks/Havok/Havok.hpp"
 #include "Managers/OverkillManager.hpp"
 #include "Hooks/Util/HookUtil.hpp"
+#include "Managers/Collision/DynamicCollisionManager.hpp"
 
 using namespace GTS;
 
 namespace {
 
-	constexpr float tree_ignore_threshold = 16.0f;
+	constexpr float tree_ignore_threshold = 12.0f;
 	constexpr float actor_ignore_limit = 3.0f;
 
 	COL_LAYER GetCollisionLayer(const std::uint32_t& collisionFilterInfo) {
@@ -74,24 +75,26 @@ namespace {
 		if (!otherActor) {
 			return false;
 		}
-		auto tranDataA = Transient::GetSingleton().GetData(actor);
-		if (tranDataA) {
-			if (tranDataA->DisableColissionWith == otherActor) {
-				return true;
-			}
-		}
 
-		auto tranDataB = Transient::GetSingleton().GetData(otherActor);
-		if (tranDataB) {
-			if (tranDataB->DisableColissionWith == actor) {
-				return true;
-			}
-		}
 
 		Actor* actor_a = skyrim_cast<Actor*>(actor);
 		Actor* actor_b = skyrim_cast<Actor*>(otherActor);
 
 		if (actor_a && actor_b) {
+
+			auto tranDataA = Transient::GetActorData(actor_a);
+			if (tranDataA) {
+				if (tranDataA->DisableColissionWith == otherActor) {
+					return true;
+				}
+			}
+
+			auto tranDataB = Transient::GetActorData(actor_b);
+			if (tranDataB) {
+				if (tranDataB->DisableColissionWith == actor) {
+					return true;
+				}
+			}
 
 			float gts_scale = get_visual_scale(actor_a);
 			float tiny_scale = get_visual_scale(actor_b);
@@ -107,7 +110,7 @@ namespace {
 			}
 
 			bool ignore = (sizedifference_gts >= actor_ignore_limit);
-			bool busy = IsGtsBusy(actor_a) && IsGtsBusy(actor_b);
+			bool busy = AnimationVars::General::IsGTSBusy(actor_a) && AnimationVars::General::IsGTSBusy(actor_b);
 			bool grabbed = IsBeingHeld(actor_a, actor_b) || IsBeingHeld(actor_b, actor_a);
 			if (ignore) {
 				return true;
@@ -122,29 +125,31 @@ namespace {
 
 	bool IsTreeCollisionDisabled(const hkpCollidable* a_collidableA, const hkpCollidable* a_collidableB) {
 
-		auto colLayerA = GetCollisionLayer(a_collidableA);
-		auto colLayerB = GetCollisionLayer(a_collidableB);
+		TESObjectREFR* obj_A = GetTESObjectREFR(a_collidableA);
+		TESObjectREFR* obj_B = GetTESObjectREFR(a_collidableB);
 
-		bool Check_Tree = (colLayerA == COL_LAYER::kTrees || colLayerB == COL_LAYER::kTrees);
+		Actor* Target = nullptr;
+		TESObjectREFR* Tree = nullptr;
 
-		if (Check_Tree) {
-			auto obj_A = GetTESObjectREFR(a_collidableA);
-			auto obj_B = GetTESObjectREFR(a_collidableB);
-			
-			if (obj_A && obj_B) {
-				Actor* actor = skyrim_cast<Actor*>(obj_A);
-				if (actor) {
-					//log::info("A is actor");
-					float tree_scale = static_cast<float>(obj_A->GetReferenceRuntimeData().refScale) / 100.0F;
-					float actor_scale = get_visual_scale(actor);
-					if (actor_scale/tree_scale >= tree_ignore_threshold) {
-						//log::info("A: {}", obj_A->GetDisplayFullName());
-						//log::info("B: {}", obj_B->GetDisplayFullName());
-						//log::info("Ignoring collision");
-						return true;
-					}
+		if (obj_A && obj_B) {
+
+			if (obj_A->formType.get() == FormType::ActorCharacter && obj_B->GetBaseObject()->formType.get() == FormType::Tree) {
+				Target = skyrim_cast<Actor*>(obj_A);
+				Tree = obj_B;
+			}
+			else if (obj_B->formType.get() == FormType::ActorCharacter && obj_A->GetBaseObject()->formType.get() == FormType::Tree) {
+				Target = skyrim_cast<Actor*>(obj_B);
+				Tree = obj_A;
+			};
+
+			if (Target && Tree) {
+				float tree_scale = static_cast<float>(Tree->GetReferenceRuntimeData().refScale) / 100.0F;
+				float actor_scale = get_visual_scale(Target);
+				if (actor_scale/tree_scale >= tree_ignore_threshold) {
+					return true;
 				}
 			}
+			
 		}
 			
 		return false;
@@ -158,82 +163,10 @@ namespace {
 		if (ObjectA && ObjectB) {
 			auto Layer_A = GetCollisionLayer(collidableA);
 			auto Layer_B = GetCollisionLayer(collidableB);
-			if (ObjectA->formID == 0x14 || ObjectB->formID == 0x14) {
-				log::info("{} is colliding with {}", ObjectA->GetDisplayFullName(), ObjectB->GetDisplayFullName());
-				log::info("{} Collision Layer: {}", ObjectA->GetDisplayFullName(), Layer_A);
-				log::info("{} Collision Layer: {}", ObjectB->GetDisplayFullName(), Layer_B);
-			}
-		}
-	}
-
-	void Throw_DoDamage(TESObjectREFR* victim_ref, TESObjectREFR* aggressor_ref, float speed) {
-		float damage = speed * Damage_Throw_Collision;
-
-		Actor* victim = skyrim_cast<Actor*>(victim_ref);
-		Actor* aggressor = skyrim_cast<Actor*>(aggressor_ref);
-
-		if (victim && aggressor) {
-			InflictSizeDamage(aggressor, victim, damage);
-
-			std::string task = std::format("ThrowTiny {}", victim->formID);
-			ActorHandle giantHandle = aggressor->CreateRefHandle();
-			ActorHandle tinyHandle = victim->CreateRefHandle();
-
-			log::info("Inflicting throw damage for {}: {}", victim->GetDisplayFullName(), damage);
-
-			TaskManager::RunOnce(task, [=](auto& update){
-				if (!giantHandle) {
-					return;
-				}
-				if (!tinyHandle) {
-					return;
-				}
-				
-				auto giant = giantHandle.get().get();
-				auto tiny = tinyHandle.get().get();
-				float health = GetAV(tiny, ActorValue::kHealth);
-				if (health <= 1.0f || tiny->IsDead()) {
-					OverkillManager::GetSingleton().Overkill(giant, tiny);
-				}
-			});
-		}
-	}
-
-	void Throw_ThrowCheck(TESObjectREFR* objA, TESObjectREFR* objB, COL_LAYER Layer_A, COL_LAYER Layer_B) {
-		if (!objA) {
-			return;
-		}
-		if (!objB) {
-			return;
-		}
-
-		log::info("Throw check running");
-
-		if (Layer_A == COL_LAYER::kStatic || Layer_B == COL_LAYER::kStatic) {
-			
-			log::info("Throw check passed");
-			log::info("{} collides with {}", objA->GetDisplayFullName(), objB->GetDisplayFullName());
-
-			auto tranDataA = Transient::GetSingleton().GetData(objA);
-			if (tranDataA) {
-				if (tranDataA->ThrowOffender) {
-					Throw_DoDamage(objA, tranDataA->ThrowOffender, tranDataA->ThrowSpeed);
-					tranDataA->ThrowWasThrown = false;
-					tranDataA->ThrowOffender = nullptr;
-					tranDataA->ThrowSpeed = 0.0f;
-					return;
-				}
-			}
-
-			auto tranDataB = Transient::GetSingleton().GetData(objB);
-			if (tranDataB) {
-				if (tranDataB->ThrowOffender) {
-					Throw_DoDamage(objB, tranDataB->ThrowOffender, tranDataB->ThrowSpeed);
-					tranDataB->ThrowWasThrown = false;
-					tranDataB->ThrowOffender = nullptr;
-					tranDataB->ThrowSpeed = 0.0f;
-					return;
-				}
+			if (ObjectA->IsPlayerRef() || ObjectB->IsPlayerRef()) {
+				logger::info("{} is colliding with {}", ObjectA->GetDisplayFullName(), ObjectB->GetDisplayFullName());
+				logger::info("{} Collision Layer: {}", ObjectA->GetDisplayFullName(), Layer_A);
+				logger::info("{} Collision Layer: {}", ObjectB->GetDisplayFullName(), Layer_B);
 			}
 		}
 	}
@@ -245,10 +178,13 @@ namespace Hooks {
 
 		static void thunk(void* a_unk01) {
 
-			GTS_PROFILE_ENTRYPOINT("Havok::ProcessHavokHitJobs");
-
 			func(a_unk01);
-			EventDispatcher::DoHavokUpdate();
+
+			{
+				GTS_PROFILE_ENTRYPOINT("Havok::ProcessHavokHitJobs");
+				EventDispatcher::DoHavokUpdate();
+			}
+
 		}
 		FUNCTYPE_CALL func;
 	};
@@ -261,39 +197,74 @@ namespace Hooks {
 		// maxsu. for IsCollisionEnabled idea
 		static bool* thunk(hkpCollidableCollidableFilter* a_this, bool* a_result, const hkpCollidable* a_collidableA, const hkpCollidable* a_collidableB) {
 
-			GTS_PROFILE_ENTRYPOINT("Havok::IsCollisionEnabled");
 
 			a_result = func(a_this, a_result, a_collidableA, a_collidableB);
 
-			if (*a_result) {
-				auto colLayerA = GetCollisionLayer(a_collidableA);
-				auto colLayerB = GetCollisionLayer(a_collidableB);
+			{
+				GTS_PROFILE_ENTRYPOINT("Havok::IsCollisionEnabled");
 
-				//CollisionPrints(a_collidableA, a_collidableB);
+				if (*a_result) {
+					COL_LAYER colLayerA = GetCollisionLayer(a_collidableA);
+					COL_LAYER colLayerB = GetCollisionLayer(a_collidableB);
 
-				if (IsTreeCollisionDisabled(a_collidableA, a_collidableB)) {
-					*a_result = false;
-				}
+					//CollisionPrints(a_collidableA, a_collidableB);
 
-				bool Check_A = (colLayerA == COL_LAYER::kBiped || colLayerA == COL_LAYER::kCharController || colLayerA == COL_LAYER::kDeadBip || colLayerA == COL_LAYER::kBipedNoCC);
-				bool Check_B = (colLayerB == COL_LAYER::kBiped || colLayerB == COL_LAYER::kCharController || colLayerB == COL_LAYER::kDeadBip || colLayerB == COL_LAYER::kBipedNoCC);
+					if (IsTreeCollisionDisabled(a_collidableA, a_collidableB)) {
+						*a_result = false;
+					}
 
-				if (Check_A || Check_B) {
-					auto objA = GetTESObjectREFR(a_collidableA);
-					auto objB = GetTESObjectREFR(a_collidableB);
+					bool Check_A = (colLayerA == COL_LAYER::kBiped || colLayerA == COL_LAYER::kCharController || colLayerA == COL_LAYER::kDeadBip || colLayerA == COL_LAYER::kBipedNoCC);
+					bool Check_B = (colLayerB == COL_LAYER::kBiped || colLayerB == COL_LAYER::kCharController || colLayerB == COL_LAYER::kDeadBip || colLayerB == COL_LAYER::kBipedNoCC);
 
-					if (objA && objB && objA != objB) {
-						if (IsCollisionDisabledBetween(objA, objB)) {
-							*a_result = false;
+					if (Check_A || Check_B) {
+						auto objA = GetTESObjectREFR(a_collidableA);
+						auto objB = GetTESObjectREFR(a_collidableB);
+
+						if (objA && objB && objA != objB) {
+							if (IsCollisionDisabledBetween(objA, objB)) {
+								*a_result = false;
+							}
 						}
 					}
 				}
 			}
+
 			return a_result;
+
 		}
 
 		FUNCTYPE_VFUNC func;
 
+	};
+
+	struct bhkCharacterControllerDtor {
+
+		static void thunk(RE::bhkCharProxyController* a_this) {
+			DynamicCollisionManager::DestroyInstance(a_this);
+			func(a_this);
+		}
+
+		FUNCTYPE_CALL func;
+	};
+
+	struct bhkCharacterControllerDtorRigidBody {
+
+		static void thunk(RE::bhkCharRigidBodyController* a_this) {
+			DynamicCollisionManager::DestroyInstance(a_this);
+			func(a_this);
+		}
+
+		FUNCTYPE_CALL func;
+	};
+
+	struct ActorInitHavok {
+
+		static void thunk(RE::bhkCharacterController* a_this, uint32_t a2, RE::Actor* a_actor) {
+			func(a_this, a2, a_actor);
+			DynamicCollisionManager::CreateInstance(a_actor);
+		}
+
+		FUNCTYPE_CALL func;
 	};
 
 	void Hook_Havok::Install() {
@@ -302,6 +273,10 @@ namespace Hooks {
 
 		stl::write_call<ProcessHavokHitJobs>(REL::RelocationID(38112, 39068, NULL),REL::VariantOffset(0x104, 0xFC, NULL));
 		stl::write_vfunc<IsCollisionEnabled>(VTABLE_bhkCollisionFilter[1]);
+
+		stl::write_call<bhkCharacterControllerDtor>         (REL::RelocationID(77273, 79161, NULL), REL::VariantOffset(0x19, 0x19, NULL));
+		stl::write_call<bhkCharacterControllerDtorRigidBody>(REL::RelocationID(77331, 79212, NULL), REL::VariantOffset(0x19, 0x10E, NULL));
+		stl::write_call<ActorInitHavok>                     (REL::RelocationID(36192, 37171, NULL), REL::VariantOffset(0x34E, 0x3B7, NULL));
 
 	}
 }

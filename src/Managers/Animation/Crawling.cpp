@@ -1,4 +1,7 @@
 #include "Managers/Animation/Crawling.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab.hpp"
 
@@ -7,16 +10,16 @@
 
 #include "Managers/Damage/LaunchObject.hpp"
 #include "Managers/Input/InputManager.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 using namespace GTS;
 
 namespace {
 
 	void EnableHandTracking(Actor* giant, CrawlEvent kind, bool enable) {
-		if (AllowCameraTracking()) {
+		if (Config::General.bTrackBonesDuringAnim) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			if (kind == CrawlEvent::RightHand) {
 				sizemanager.SetTrackedBone(giant, enable, CameraTracking::Hand_Right);
@@ -58,7 +61,7 @@ namespace {
 	void GTSCrawl_HandImpact_L(AnimationEventData& data) {
 		auto giant = &data.giant;
 		float scale = get_visual_scale(giant);
-		if (IsTransferingTiny(giant)) {
+		if (AnimationVars::Grab::HasGrabbedTiny(giant)) {
 			return; // Prevent effects from left hand
 		}
 		DoCrawlingFunctions(giant, scale, 1.70f, Damage_Crawl_HandImpact, CrawlEvent::LeftHand, "LeftHand", 1.0f, Radius_Crawl_HandImpact, 1.25f, DamageSource::HandCrawlLeft);
@@ -73,21 +76,21 @@ namespace {
 	}
 
 	void GTSCrawl_Slam_Raise_Arm_R(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", "GTSPerkDestructionBasics", true, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
 		EnableHandTracking(&data.giant, CrawlEvent::RightHand, true);
 	}
 
 	void GTSCrawl_Slam_Raise_Arm_L(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", "GTSPerkDestructionBasics", true, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
 		EnableHandTracking(&data.giant, CrawlEvent::LeftHand, true);
 	}
 	void GTSCrawl_SlamStrong_Raise_Arm_R(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", "GTSPerkDestructionBasics", true, 2.3f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", Runtime::PERK.GTSPerkDestructionBasics, true, 2.3f);
 		EnableHandTracking(&data.giant, CrawlEvent::RightHand, true);
 	}
 
 	void GTSCrawl_SlamStrong_Raise_Arm_L(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", "GTSPerkDestructionBasics", true, 2.3f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", Runtime::PERK.GTSPerkDestructionBasics, true, 2.3f);
 		EnableHandTracking(&data.giant, CrawlEvent::LeftHand, true);
 	}
 
@@ -104,15 +107,15 @@ namespace {
 		auto giant = &data.giant;
 		float scale = get_visual_scale(giant);
 		DoCrawlingFunctions(giant, scale, 1.4f, Damage_Crawl_HandSlam, CrawlEvent::RightHand, "RightHandRumble", 0.9f, Radius_Crawl_Slam, 1.15f, DamageSource::HandSlamRight);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", "GTSPerkDestructionBasics", false, 1.4f);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", "GTSPerkDestructionBasics", false, 2.3f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 2.3f);
 	}
 	void GTSCrawl_Slam_Impact_L(AnimationEventData& data) {
 		auto giant = &data.giant;
 		float scale = get_visual_scale(giant);
 		DoCrawlingFunctions(giant, scale, 1.4f, Damage_Crawl_HandSlam, CrawlEvent::LeftHand, "LeftHandRumble", 0.9f, Radius_Crawl_Slam, 1.15f, DamageSource::HandSlamLeft);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", "GTSPerkDestructionBasics", false, 1.4f);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", "GTSPerkDestructionBasics", false, 2.3f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 2.3f);
 		Grab::DamageActorInHand(giant, Damage_Crawl_HandSlam * 0.6f);
 	}
 
@@ -120,15 +123,15 @@ namespace {
 		auto giant = &data.giant;
 		float scale = get_visual_scale(giant);
 		DoCrawlingFunctions(giant, scale, 2.1f, Damage_Crawl_HandSlam_Strong, CrawlEvent::RightHand, "RightHandRumble", 1.2f, Radius_Crawl_Slam_Strong, 1.0f, DamageSource::HandSlamRight);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", "GTSPerkDestructionBasics", false, 1.4f);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", "GTSPerkDestructionBasics", false, 2.3f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 2.3f);
 	}
 	void GTSCrawl_SlamStrong_Impact_L(AnimationEventData& data) {
 		auto giant = &data.giant;
 		float scale = get_visual_scale(giant);
 		DoCrawlingFunctions(giant, scale, 2.1f, Damage_Crawl_HandSlam_Strong, CrawlEvent::LeftHand, "RightHandRumble", 1.2f, Radius_Crawl_Slam_Strong, 1.0f, DamageSource::HandSlamLeft);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", "GTSPerkDestructionBasics", false, 1.4f);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", "GTSPerkDestructionBasics", false, 2.3f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.4f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 2.3f);
 		Grab::DamageActorInHand(giant, Damage_Crawl_HandSlam_Strong * 0.6f);
 	}
 
@@ -228,36 +231,36 @@ namespace {
 
 	void GTS_Crawl_Swipe_On_R(AnimationEventData& data) {
 		TriggerHandCollision_Right(&data.giant, 1.0f, 1.6f, Push_Crawl_HandSwipe);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", "GTSPerkDestructionBasics", true, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, true, 4.0f);
 	}
 	void GTS_Crawl_Swipe_On_L(AnimationEventData& data) {
 		TriggerHandCollision_Left(&data.giant, 1.0f, 1.6f, Push_Crawl_HandSwipe);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", "GTSPerkDestructionBasics", true, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, true, 4.0f);
 	}
 	void GTS_Crawl_Swipe_Off_R(AnimationEventData& data) {
 		DisableHandCollisions(&data.giant);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", "GTSPerkDestructionBasics", false, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, false, 4.0f);
 	}
 	void GTS_Crawl_Swipe_Off_L(AnimationEventData& data) {
 		DisableHandCollisions(&data.giant);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", "GTSPerkDestructionBasics", false, 4.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, false, 4.0f);
 	}
 
 	void GTS_Crawl_Swipe_Power_On_R(AnimationEventData& data) {
 		TriggerHandCollision_Right(&data.giant, 2.0f, 1.3f, Push_Crawl_HandSwipe_Strong);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", "GTSPerkDestructionBasics", true, 10.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, true, 10.0f);
 	}
 	void GTS_Crawl_Swipe_Power_On_L(AnimationEventData& data) {
 		TriggerHandCollision_Left(&data.giant, 2.0f, 1.3f, Push_Crawl_HandSwipe_Strong);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", "GTSPerkDestructionBasics", true, 10.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, true, 10.0f);
 	}
 	void GTS_Crawl_Swipe_Power_Off_R(AnimationEventData& data) {
 		DisableHandCollisions(&data.giant);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", "GTSPerkDestructionBasics", false, 10.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 10.0f);
 	}
 	void GTS_Crawl_Swipe_Power_Off_L(AnimationEventData& data) {
 		DisableHandCollisions(&data.giant);
-		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", "GTSPerkDestructionBasics", false, 10.0f);
+		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 10.0f);
 	}
 
 	void LightSwipeLeftEvent(const ManagedInputEvent& data) {

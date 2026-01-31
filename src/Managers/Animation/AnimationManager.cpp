@@ -9,12 +9,10 @@
 #include "Managers/Animation/Stomp_Under_Slam.hpp"
 #include "Managers/Animation/Stomp_Under_Butt.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
-
 #include "Managers/Animation/FurnitureAnimations.hpp"
 
 #include "Config/Config.hpp"
 
-#include "Managers/Animation/ThighSandwich_Part2.hpp"
 #include "Managers/Animation/CleavageStrangle.hpp"
 #include "Managers/Animation/Grab_Sneak_Vore.hpp"
 #include "Managers/Animation/Sneak_KneeCrush.hpp"
@@ -22,6 +20,7 @@
 #include "Managers/Animation/CleavageState.hpp"
 #include "Managers/Animation/Vore_Standing.hpp"
 #include "Managers/Animation/ThighSandwich.hpp"
+#include "Managers/Animation/ThighSandwichPart2.hpp"
 #include "Managers/Animation/Sneak_Swipes.hpp"
 #include "Managers/Animation/RandomGrowth.hpp"
 #include "Managers/Animation/Stomp_Normal.hpp"
@@ -50,13 +49,8 @@
 #include "Managers/Animation/Kicks.hpp"
 #include "Managers/Animation/Grab.hpp"
 
-
 #include "Managers/Perks/PerkHandler.hpp"
-
-#include "Utils/InputFunctions.hpp"
-
-
-using namespace GTS;
+#include "Utils/Actions/InputFunctions.hpp"
 
 namespace GTS {
 
@@ -68,11 +62,6 @@ namespace GTS {
 		for (auto& sv: behavors) {
 			this->behavors.emplace_back(sv);
 		}
-	}
-
-	AnimationManager& AnimationManager::GetSingleton() noexcept {
-		static AnimationManager instance;
-		return instance;
 	}
 
 	std::string AnimationManager::DebugName() {
@@ -95,12 +84,12 @@ namespace GTS {
 		AnimationUnderStompFullBody::RegisterEvents();
 		AnimationUnderStompSlam::RegisterEvents();
 		AnimationUnderStompButt::RegisterEvents();
-		
-		AnimationThighSandwich_P2::RegisterEvents();
-		AnimationThighSandwich_P2::RegisterTriggers();
 
 		AnimationThighSandwich::RegisterEvents();
 		AnimationThighSandwich::RegisterTriggers();
+
+		AnimationThighSandwich_P2::RegisterEvents();
+		AnimationThighSandwich_P2::RegisterTriggers();
 
 		AnimationThighCrush::RegisterEvents();
 		AnimationThighCrush::RegisterTriggers();
@@ -189,14 +178,7 @@ namespace GTS {
 	void AnimationManager::Update() {
 		auto player = PlayerCharacter::GetSingleton();
 		if (player) {
-			// Updates fall Gravity of Player
-			auto charCont = player->GetCharController();
 			UpdateGravity(player);
-			/*if (charCont) {
-				float Velocity = (charCont->outVelocity.quad.m128_f32[2] * 100.0f) / get_giantess_scale(player);
-
-				player->SetGraphVariableFloat("GiantessVelocity", Velocity);
-			}*/
 		}
 	}
 
@@ -218,7 +200,7 @@ namespace GTS {
 
 				if (AnimMgr.data.contains(actor)) {
 
-					for (auto& data : AnimMgr.data.at(actor) | views::values) {
+					for (auto& data : AnimMgr.data.at(actor) | std::views::values) {
 						Speed *= data.HHspeed;
 					}
 				}
@@ -240,7 +222,7 @@ namespace GTS {
 
 				if (AnimMgr.data.contains(actor)) {
 
-					for (auto& data : AnimMgr.data.at(actor) | views::values) {
+					for (auto& data : AnimMgr.data.at(actor) | std::views::values) {
 						totalSpeed *= data.animSpeed;
 					}
 				}
@@ -261,14 +243,14 @@ namespace GTS {
 
 				if (AnimMgr.data.contains(player)) {
 
-					for (auto& data : AnimMgr.data.at(player) | views::values) {
+					for (auto& data : AnimMgr.data.at(player) | std::views::values) {
 
 						if (data.canEditAnimSpeed) {
 							data.animSpeed += (bonus * GetAnimationSlowdown(player));
 						}
-
-						float min = IsStrangling(player) ? 0.50f : 0.33f;
-						float max = IsStrangling(player) ? 1.75f : 3.0f;
+						const bool isBreastStrangling = AnimationVars::Cleavage::IsBoobsDoting(player);
+						float min = isBreastStrangling ? 0.50f : 0.33f;
+						float max = isBreastStrangling ? 1.75f : 3.0f;
 						data.animSpeed = std::clamp(data.animSpeed, min, max);
 					}
 				}
@@ -282,16 +264,16 @@ namespace GTS {
 
 		float speed = 1.0f;
 
-		if (!Config::GetGeneral().bDynamicAnimspeed) {
+		if (!Config::General.bDynamicAnimspeed) {
 			return 1.0f;
 		}
 
 		if (actor) {
 
-			auto saved_data = GTS::Persistent::GetSingleton().GetData(actor);
+			auto saved_data = GTS::Persistent::GetActorData(actor);
 			if (saved_data) {
-				if (saved_data->anim_speed > 0.0f) {
-					speed *= saved_data->anim_speed;
+				if (saved_data->fAnimSpeed > 0.0f) {
+					speed *= saved_data->fAnimSpeed;
 				}
 			}
 
@@ -345,12 +327,12 @@ namespace GTS {
 
 	void AnimationManager::StartAnim(std::string_view trigger, Actor& giant, TESObjectREFR* tiny) {
 
-		if (IsTransitioning(&giant)) {
+		if (AnimationVars::General::IsTransitioning(&giant)) {
 			return;
 		}
 
-		if (giant.formID == 0x14) {
-			if (IsFirstPerson() || Plugin::IsInRaceMenu()) { 
+		if (giant.IsPlayerRef()) {
+			if (IsFirstPerson() || State::IsInRaceMenu()) { 
 				//Time::WorldTimeElapsed() > 1.0
 				//ForceThirdPerson(&giant);
 				// It kinda works in fp that way, but it introduces some issues with animations such as Hugs and Butt Crush.
@@ -378,7 +360,7 @@ namespace GTS {
 			PerkHandler::UpdatePerkValues(&giant, PerkUpdate::Perk_Acceleration); // Currently used for Anim Speed buff only
 		}
 		catch (const std::out_of_range&) {
-			log::error("Requested play of unknown animation named: {}", trigger);
+			logger::error("Requested play of unknown animation named: {}", trigger);
 			return;
 		}
 	}
@@ -392,7 +374,7 @@ namespace GTS {
 
 				if (me.data.contains(actor)) {
 
-					for (auto& data : me.data.at(actor) | views::values) {
+					for (auto& data : me.data.at(actor) | std::views::values) {
 						data.animSpeed = 1.0f;
 						data.canEditAnimSpeed = false;
 						data.stage = 0;
@@ -527,7 +509,7 @@ namespace GTS {
 		if (GravityTimer.ShouldRunFrame()) {
 			auto Controller = actor->GetCharController();
 			if (Controller) {
-				bool Enabled = Config::GetGeneral().bAlterPlayerGravity;
+				bool Enabled = Config::General.bAlterPlayerGravity;
 				float size = get_visual_scale(actor);
 
 				float new_gravity = Enabled ? 1.0f * std::sqrt(size) : 1.0f; 

@@ -5,6 +5,8 @@
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab.hpp"
 
+#include "Utils/Actions/VoreUtils.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -36,9 +38,9 @@ namespace {
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		if (otherActor) {
 			for (auto& tiny: VoreData.GetVories()) {
-				if (!AllowDevourment()) {
+				if (!IsDevourmentEnabled()) {
 					VoreData.Swallow();
-					if (IsCrawling(&data.giant)) {
+					if (AnimationVars::Crawl::IsCrawling(&data.giant)) {
 						otherActor->SetAlpha(0.0f); // Hide Actor
 					}
 				} else {
@@ -60,9 +62,9 @@ namespace {
 			for (auto& tiny: VoreData.GetVories()) {
 				VoreData.KillAll();
 			}
-			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-			giant->SetGraphVariableInt("GTS_Grab_State", 0);
-			Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
+			AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+			AnimationVars::Grab::SetGrabState(giant, false);
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
 			AnimationManager::StartAnim("TinyDied", giant);
 			//BlockFirstPerson(giant, false);
 			ManageCamera(&data.giant, false, CameraTracking::Grab_Left);

@@ -1,21 +1,22 @@
+#include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/TinyCalamity_Instakill.hpp"
 #include "Managers/Animation/TinyCalamity_Shrink.hpp"
-#include "Managers/Animation/AnimationManager.hpp"
 
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/Utils/TurnTowards.hpp"
 
-#include "Managers/Perks/PerkHandler.hpp"
 #include "Managers/AI/aifunctions.hpp"
 #include "Managers/Audio/Footstep.hpp"
+#include "Managers/Perks/PerkHandler.hpp"
 #include "Managers/Rumble.hpp"
 
 #include "Magic/Effects/Common.hpp"
 
-#include "Utils/AttachPoint.hpp"
-#include "Utils/KillDataUtils.hpp"
-
 #include "Managers/Audio/MoansLaughs.hpp"
+#include "Managers/ShrinkToNothingManager.hpp"
+
+#include "Utils/AttachPoint.hpp"
+#include "Utils/DeathReport.hpp"
 
 using namespace GTS;
 
@@ -26,9 +27,9 @@ namespace {
 		AdvanceQuestProgression(giant, tiny, QuestStage::ShrinkToNothing, 0.25f, false);
 		ModSizeExperience(giant, 0.24f * 0.25f); // Adjust Size Matter skill
 		ShrinkToNothingManager::SpawnDeathEffects(tiny);
-		Attacked(tiny, giant);
+		tiny->Attacked(giant);
 
-		const auto& MuteSnapDeath = Config::GetAudio().bMuteFingerSnapDeathScreams;
+		const auto& MuteSnapDeath = Config::Audio.bMuteFingerSnapDeathScreams;
 		
 		KillActor(giant, tiny, MuteSnapDeath);
 		AddSMTDuration(giant, 5.0f);
@@ -57,7 +58,7 @@ namespace {
 
 			bool IsDead = tinyref->IsDead();
 			bool OnCooldown = IsActionOnCooldown(tinyref, CooldownSource::Misc_ShrinkParticle);
-			if (IsDead || !IsBeingKilledWithMagic(tinyref)) {
+			if (IsDead || !AnimationVars::Tiny::IsBeingShrunk(tinyref)) {
 				return false;
 			}
 			if (!OnCooldown) {
@@ -93,7 +94,7 @@ namespace {
 					Anims_FixAnimationDesync(giantref, tinyref, false); // Share GTS Animation Speed with hugged actor to avoid de-sync
 
 					bool IsDead = (giantref->IsDead() || tinyref->IsDead());
-					if (IsDead || !IsGtsBusy(giantref)) {
+					if (IsDead || !AnimationVars::General::IsGTSBusy(giantref)) {
 						return false;
 					}
 					// Ensure they are NOT in ragdoll
@@ -190,7 +191,7 @@ namespace {
 		DoDustExplosion(giant, dust + (animSpeed * 0.05f), Event, Node);
 		DoFootstepSound(giant, 1.0f, Event, Node);
 		
-		DrainStamina(giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", false, 1.8f); // cancel stamina drain
+		DrainStamina(giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.8f); // cancel stamina drain
 
 		DelayedLaunch(giant, 0.90f * perk, 2.2f, Event);
 
@@ -201,7 +202,7 @@ namespace {
 		auto tinies = Animation_TinyCalamity::GetShrinkActors(&data.giant);
 		for (auto tiny: tinies) {
 			if (tiny) {
-				Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_SpawnRune", tiny, 1.0f, "NPC Root [Root]");
+				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_SpawnRune, tiny, 1.0f, "NPC Root [Root]");
 				SpawnCustomParticle(tiny, ParticleType::Red, NiPoint3(), "NPC Root [Root]", 0.75f);
 				SpawnRuneOnTiny(&data.giant, 1.0f);
 			}
@@ -220,13 +221,13 @@ namespace {
 			if (tiny) {
 				ChanceToScare(&data.giant, tiny, 6.0f, 1, false); // force actor to flee 
 				AttachToObjectBTask(&data.giant);
-				StartCombat(tiny, &data.giant);
+				tiny->StartCombat(&data.giant);
 			}
 		}
     }
 
 	void GTS_LC_Liftup(AnimationEventData& data) {
-		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_RuneReady", &data.giant, 1.0f, "NPC R Hand [RHnd]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_RuneReady, &data.giant, 1.0f, "NPC R Hand [RHnd]");
 		Task_FacialEmotionTask_Anger(&data.giant, 1.25f + RandomFloat(0.01f, 0.25f), "LiftUpSmile", 0.125f);
 		auto tinies = Animation_TinyCalamity::GetShrinkActors(&data.giant);
 		for (auto tiny: tinies) { 
@@ -269,12 +270,12 @@ namespace {
 			Sound_PlayLaughs(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
 		}
 		
-		Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_FingerSnap", &data.giant, 1.0f, "NPC R Hand [RHnd]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_FingerSnap, &data.giant, 1.0f, "NPC R Hand [RHnd]");
 		auto tinies = Animation_TinyCalamity::GetShrinkActors(&data.giant);
 		Rumbling::Once("FingerSnap", &data.giant, 7.25f, 0.025f, true);
 		for (auto tiny: tinies) {
 			if (tiny) {
-				Animation_TinyCalamity::GetSingleton().ResetActors(&data.giant);
+				Animation_TinyCalamity::ResetActors(&data.giant);
 				FingerSnap_Execute(&data.giant, tiny);
 			}
 		}

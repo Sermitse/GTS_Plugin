@@ -64,7 +64,7 @@ namespace {
             break;   
         }
 
-        if (Runtime::HasPerk(giant, "GTSPerkBreastsMastery1")) {
+        if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkBreastsMastery1)) {
             float level = GetGtsSkillLevel(giant) - 40.0f; // Start past level 40
             mastery = std::clamp(level * 0.01f, 0.0f, 0.6f);
         }
@@ -81,8 +81,8 @@ namespace {
     }
 
     float Calculate_ButtCrushTimer(Actor* actor) {
-		bool lvl70 = Runtime::HasPerk(actor, "GTSPerkButtCrushAug3");
-		bool lvl100 = Runtime::HasPerk(actor, "GTSPerkButtCrushAug4");
+		bool lvl70 = Runtime::HasPerk(actor, Runtime::PERK.GTSPerkButtCrushAug3);
+		bool lvl100 = Runtime::HasPerk(actor, Runtime::PERK.GTSPerkButtCrushAug4);
 		float reduction = 1.0f;
 		if (lvl100) { // 15% reduction
 			reduction -= 0.15f;
@@ -100,9 +100,9 @@ namespace {
     }
 
     float Calculate_ShrinkOutburstTimer(Actor* actor) {
-        bool DarkArts3 = Runtime::HasPerk(actor, "GTSPerkDarkArtsAug3");
-        bool HealthRegen = Runtime::HasPerk(actor, "GTSPerkGrowthAug2");
-        bool DarkArts_Legendary = Runtime::HasPerk(actor, "GTSPerkDarkArtsLegendary");
+        bool DarkArts3 = Runtime::HasPerk(actor, Runtime::PERK.GTSPerkDarkArtsAug3);
+        bool HealthRegen = Runtime::HasPerk(actor, Runtime::PERK.GTSPerkGrowthAug2);
+        bool DarkArts_Legendary = Runtime::HasPerk(actor, Runtime::PERK.GTSPerkDarkArtsLegendary);
         float reduction = 1.0f;
         if (DarkArts3) {
             reduction = 0.7f;
@@ -132,11 +132,6 @@ namespace {
 
 namespace GTS {
 
-    CooldownManager& CooldownManager::GetSingleton() noexcept {
-		static CooldownManager instance;
-		return instance;
-	}
-
 	std::string CooldownManager::DebugName() {
 		return "::CooldownManager";
 	}
@@ -148,12 +143,11 @@ namespace GTS {
 
     void CooldownManager::Reset() {
         this->CooldownData.clear();
-        log::info("Cooldowns cleared");
+        logger::info("Cooldowns cleared");
     }
 
     void ApplyActionCooldown(Actor* giant, CooldownSource source) {
-        double time = Time::WorldTimeElapsed();
-        auto& data = CooldownManager::GetSingleton().GetCooldownData(giant);
+	    auto& data = CooldownManager::GetSingleton().GetCooldownData(giant);
 
         switch (source) {
             case CooldownSource::Damage_Launch: 
@@ -321,7 +315,7 @@ namespace GTS {
     bool IsActionOnCooldown(Actor* giant, CooldownSource source) {
 
         //Check the cleat flag to disable only action cooldowns and not others
-        if (!Config::GetAdvanced().bCooldowns && Enum_Contains<CooldownSource>(source,"Action")) {
+        if (!Config::Advanced.bCooldowns && Enum_Contains<CooldownSource>(source,"Action")) {
             return false;
         }
 

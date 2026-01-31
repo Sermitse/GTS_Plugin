@@ -9,7 +9,7 @@
 #include "Managers/Audio/Footstep.hpp"
 #include "Managers/Rumble.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
 
 using namespace GTS;
@@ -71,7 +71,7 @@ namespace {
 
 			if (Finish - Start > 0.06) { 
 				DoDamageEffect(GiantRef, Damage_Trample * perk, Radius_Trample, 100, 0.10f, Event, 1.10f, Source);
-				DrainStamina(GiantRef, "StaminaDrain_Trample", "GTSPerkDestructionBasics", true, 0.6f); // start stamina drain
+				DrainStamina(GiantRef, "StaminaDrain_Trample", Runtime::PERK.GTSPerkDestructionBasics, true, 0.6f); // start stamina drain
 
 				float shake_power = Rumble_Trample_Stage1 * smt * GetHighHeelsBonusDamage(GiantRef, true);
 				
@@ -176,7 +176,7 @@ namespace {
 
 	void GTS_Trample_Cam_End_L(AnimationEventData& data) {
 		ManageCamera(&data.giant, false, CameraTracking::L_Foot);
-		DrainStamina(&data.giant, "StaminaDrain_Trample", "GTSPerkDestructionBasics", false, 0.6f);
+		DrainStamina(&data.giant, "StaminaDrain_Trample", Runtime::PERK.GTSPerkDestructionBasics, false, 0.6f);
 
 		data.animSpeed = 1.0f;
 		data.canEditAnimSpeed = false;
@@ -184,7 +184,7 @@ namespace {
 	}
 	void GTS_Trample_Cam_End_R(AnimationEventData& data) {
 		ManageCamera(&data.giant, false, CameraTracking::R_Foot);
-		DrainStamina(&data.giant, "StaminaDrain_Trample", "GTSPerkDestructionBasics", false, 0.6f);
+		DrainStamina(&data.giant, "StaminaDrain_Trample", Runtime::PERK.GTSPerkDestructionBasics, false, 0.6f);
 
 		data.animSpeed = 1.0f;
 		data.canEditAnimSpeed = false;

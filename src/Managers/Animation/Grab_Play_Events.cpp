@@ -1,37 +1,35 @@
-#include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
-#include "Managers/Animation/Grab_Throw.hpp"
-#include "Managers/OverkillManager.hpp"
+#include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Managers/Animation/Grab.hpp"
-
 #include "Managers/Animation/Grab_Play_Events.hpp"
 
-#include "Managers/Rumble.hpp"
-
-#include "Managers/Input/InputManager.hpp"
-#include "Utils/InputConditions.hpp"
-
-#include "Managers/Damage/TinyCalamity.hpp"
-#include "Managers/GtsSizeManager.hpp"
-#include "Magic/Effects/Common.hpp"
-
-#include "Managers/Damage/SizeHitEffects.hpp"
-
-#include "Managers/Animation/Controllers/VoreController.hpp"
+#include "Config/Config.hpp"
 
 #include "Managers/Animation/Grab_Throw.hpp"
-#include "Managers/Animation/GrabUtils.hpp"
+#include "Managers/Animation/Utils/AnimationUtils.hpp"
+
+#include "Managers/Damage/SizeHitEffects.hpp"
+#include "Managers/Damage/TinyCalamity.hpp"
+
+#include "Managers/GTSSizeManager.hpp"
+#include "Managers/Rumble.hpp"
+
+#include "Magic/Effects/Common.hpp"
+
+#include "Utils/Actions/VoreUtils.hpp"
 
 using namespace GTS;
 using namespace std;
 
 namespace Grab_Fixes {
+
 	void FixKissVoreTinyOffset(Actor* giant, bool Fix) {
-		auto Transient = Transient::GetSingleton().GetActorData(giant);
+		auto Transient = Transient::GetActorData(giant);
 		if (Transient) {
 			Transient->KissVoring = Fix; // Fix slight .Z offset when kiss voring, else Tiny will be below mouth
 		}
 	}
+
 	void ResetTinyAnimSpeed(Actor* giant) {
 		auto Tiny = Grab::GetHeldActor(giant);
 		if (Tiny) {
@@ -39,6 +37,7 @@ namespace Grab_Fixes {
 			Anims_FixAnimationDesync(giant, Tiny, true);
 		}
 	}
+
 	void Task_CopyAnimationSpeed(Actor* giant, Actor* tiny) {
 		auto gianthandle = giant->CreateRefHandle();
 		auto tinyhandle = tiny->CreateRefHandle();
@@ -51,7 +50,7 @@ namespace Grab_Fixes {
 				}
 				Actor* giantref = gianthandle.get().get();
 				Actor* tinyref = tinyhandle.get().get();
-				if (!IsInGrabPlayState(giantref)) { // Exit Grab Play state as soon as attack bool is false
+				if (!AnimationVars::Action::IsInGrabPlayState(giantref)) { // Exit Grab Play state as soon as attack bool is false
 					Anims_FixAnimationDesync(giantref, tinyref, true);
 					return false;
 				} else {
@@ -69,8 +68,8 @@ namespace Grab_Fixes {
 		Grab::DetachActorTask(a_giant);
 		Grab::Release(a_giant);
 
-		a_giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-		a_giant->SetGraphVariableInt("GTS_Grab_State", 0);
+		AnimationVars::Grab::SetHasGrabbedTiny(a_giant, false);
+		AnimationVars::Grab::SetGrabState(a_giant, false);
 
 		if (otherActor) {
 
@@ -128,10 +127,10 @@ namespace Grab_Fixes {
 	void GTSGrab_SpawnHeartsAtHead(Actor* giant, float Z_Offset, float Heart_Scale) {
 		auto tiny = Grab::GetHeldActor(giant);
 		if (tiny) {
-			log::info("Tiny True");
+			logger::info("Tiny True");
 			auto node = find_node(tiny, "NPC Head [Head]");
 			if (node) {
-				log::info("Trying to spawn hearts");
+				logger::info("Trying to spawn hearts");
 				SpawnHearts(giant, tiny, Z_Offset, Heart_Scale, false, node->world.translate);
 			}
 		}
@@ -146,7 +145,6 @@ namespace Grab_Fixes {
 	}
 
 	void GTSGrab_SetBeingEaten(Actor* giant) {
-		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
 		auto otherActor = Grab::GetHeldActor(giant);
 		if (otherActor) {
 			SetBeingEaten(otherActor, true);
@@ -158,9 +156,9 @@ namespace Grab_Fixes {
 		auto otherActor = Grab::GetHeldActor(giant);
 		if (otherActor) {
 			for (auto& tiny: VoreData.GetVories()) {
-				if (!AllowDevourment()) {
+				if (!IsDevourmentEnabled()) {
 					VoreData.Swallow();
-					if (IsCrawling(giant)) {
+					if (AnimationVars::Crawl::IsCrawling(giant)) {
 						otherActor->SetAlpha(0.0f); // Hide Actor
 					}
 				} else {
@@ -178,8 +176,8 @@ namespace Grab_Fixes {
 			for (auto& tiny: VoreData.GetVories()) {
 				VoreData.KillAll();
 			}
-			giant->SetGraphVariableInt("GTS_GrabbedTiny", 0);
-			giant->SetGraphVariableInt("GTS_Grab_State", 0);
+			AnimationVars::Grab::SetHasGrabbedTiny(giant, false);
+			AnimationVars::Grab::SetGrabState(giant, false);
 			
 			AnimationManager::StartAnim("TinyDied", giant);
 			ManageCamera(giant, false, CameraTracking::Grab_Left);
@@ -196,7 +194,7 @@ namespace Grab_Fixes {
 		auto grabbedActor = Grab::GetHeldActor(giant);
 
 		if (grabbedActor) {
-			Attacked(grabbedActor, giant); // force combat
+			grabbedActor->Attacked(giant); // force combat
 
 			float tiny_scale = get_visual_scale(grabbedActor) * GetSizeFromBoundingBox(grabbedActor);
 			float gts_scale = get_visual_scale(giant) * GetSizeFromBoundingBox(giant);
@@ -208,14 +206,14 @@ namespace Grab_Fixes {
 			float experience = std::clamp(damage/1600, 0.0f, 0.06f);
 
             if (CanDoDamage(giant, grabbedActor, false)) {
-                if (Runtime::HasPerkTeam(giant, "GTSPerkGrowingPressure")) {
-                    auto& sizemanager = SizeManager::GetSingleton();
-                    sizemanager.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
+                if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkGrowingPressure)) {
+                    auto& mgr = SizeManager::GetSingleton();
+                    mgr.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
                 }
 
-                TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * GetDamageSetting());
+                TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * Config::Balance.fSizeDamageMult);
 
-                SizeHitEffects::GetSingleton().PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
+                SizeHitEffects::PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
                 InflictSizeDamage(giant, grabbedActor, damage);
             }
 			
@@ -288,6 +286,7 @@ namespace Grab_Fixes {
 }
 
 namespace {
+
 	// [ S M I L E ]
 	void GTS_HS_SmileOn(AnimationEventData& data) {
 		Task_FacialEmotionTask_SlightSmile(&data.giant, RandomFloat(0.6f, 0.8f), "Grab_Smile", 0.125f);
@@ -320,7 +319,6 @@ namespace {
 	}
 
 	// [ P O K E ]
-
 	void GTS_HS_Poke_WindUp(AnimationEventData& data) {
 		Rumbling::Once("PokeTiny", &data.giant, 1.0f, 0.05f, "NPC L Hand [LHnd]", true);
 	}
@@ -335,7 +333,6 @@ namespace {
 	}
 
 	// [ F L I C K ]
-
 	void GTS_HS_Flick_Launch(AnimationEventData& data) {
 		Rumbling::Once("FlichTiny_Launch", &data.giant, 0.75f, 0.05f, "NPC L Hand [LHnd]", true);
 		Grab_Fixes::GTSGrab_SpawnHeartsAtHead(&data.giant, 0.0f, 0.45f);
@@ -345,21 +342,20 @@ namespace {
 
 	void GTS_HS_Flick_Ragdoll(AnimationEventData& data) {
 		Rumbling::Once("FlichTiny_Land", &data.giant, 2.1f, 0.05f, "NPC L Hand [LHnd]", true);
-		Runtime::PlaySoundAtNode("GTSSoundSwingImpact", &data.giant, 0.75f, "NPC L Hand [LHnd]"); // play swing impact sound
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwingImpact, &data.giant, 0.75f, "NPC L Hand [LHnd]"); // play swing impact sound
 	}
 
 	// [ L I G H T  C R U S H ]
-
 	void GTS_HS_Sand_WindUp(AnimationEventData& data) {}
 	void GTS_HS_Sand_Lower(AnimationEventData& data) {}
 	void GTS_HS_Sand_Hit(AnimationEventData& data) {
 		Grab_Fixes::GTSGrab_Do_Damage(&data.giant, Damage_Grab_Play_Light);
 		Rumbling::Once("SmashTiny_L", &data.giant, 1.65f, 0.05f, "NPC L Hand [LHnd]", true);
 	}
+
 	void GTS_HS_Sand_Release(AnimationEventData& data) {}
 
 	// [ H E A V Y  C R U S H ]
-
 	void GTS_HS_Fist_WindUp(AnimationEventData& data) {}
 	void GTS_HS_Fist_Lower(AnimationEventData& data) {}
 
@@ -370,7 +366,8 @@ namespace {
 
 	void GTS_HS_Fist_Release(AnimationEventData& data) {}
 
-	void GTS_HS_Exit_NoTiny(AnimationEventData& data) { // If tiny has died at the end - cancel grab state
+	void GTS_HS_Exit_NoTiny(AnimationEventData& data) { 
+		// If tiny has died at the end - cancel grab state
 	}
 
 	// [ K I S S + K I S S V O R E ]
@@ -385,7 +382,7 @@ namespace {
 
 	void GTS_HS_Kiss_Stop(AnimationEventData& data) {}
 	void GTS_HS_KissSound_Play(AnimationEventData& data) {
-		Runtime::PlaySoundAtNode_FallOff("GTSSoundKissing", &data.giant, 1.0f, "NPC Head [Head]", 0.11f * get_visual_scale(&data.giant));
+		Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundKissing, &data.giant, 1.0f, "NPC Head [Head]", 0.11f * get_visual_scale(&data.giant));
 		auto tiny = Grab::GetHeldActor(&data.giant);
 		if (tiny) {
 			tiny->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, ActorValue::kHealth, GetMaxAV(tiny, ActorValue::kHealth) * 0.1f);
@@ -415,17 +412,16 @@ namespace {
 
 	void GTS_HS_K_Vore_TinyYell(AnimationEventData& data) {}
 	void GTS_HS_K_Vore_TinyMuffle(AnimationEventData& data) {}
-
-	void GTS_HS_K_Vore_SlurpTiny(AnimationEventData& data) {
-	}
+	void GTS_HS_K_Vore_SlurpTiny(AnimationEventData& data) {}
 
 	void GTS_HS_K_Vore_SlurpTiny_End(AnimationEventData& data) {
-		Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
 	}
 
 	void GTS_HS_K_Vore_TinyInMouth(AnimationEventData& data) {
 		Grab_Fixes::GTSGrab_SwallowTiny(&data.giant);
 	}
+
 	void GTS_HS_K_Vore_SwallowTiny(AnimationEventData& data) {
 		Grab_Fixes::FixKissVoreTinyOffset(&data.giant, false);
 		Grab_Fixes::GTSGrab_DelayedSmile(&data.giant, 1.2f);
@@ -444,7 +440,7 @@ namespace {
 	}
 
 	void GTS_HS_Vore_SwallowTiny(AnimationEventData& data) {
-		Runtime::PlaySoundAtNode("GTSSoundSwallow", &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, &data.giant, 1.0f, "NPC Head [Head]"); // Play sound
 		Grab_Fixes::GTSGrab_FullyEatTiny(&data.giant);
 		//Grab::FailSafeReset(&data.giant);
 	}

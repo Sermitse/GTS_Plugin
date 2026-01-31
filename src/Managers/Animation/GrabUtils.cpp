@@ -8,6 +8,7 @@
 #include "Magic/Effects/Common.hpp"
 
 #include "Utils/AttachPoint.hpp"
+#include "Utils/Actions/VoreUtils.hpp"
 
 using namespace GTS;
 using namespace std;
@@ -21,7 +22,7 @@ namespace {
                 || (!IsBetweenBreasts(tinyref) 
                 && GetAV(giantref, ActorValue::kStamina) < 2.0f)) {
 
-                log::info("grab task cancelled");
+                logger::info("grab task cancelled");
                 // For debugging
 
                 PushActorAway(giantref, tinyref, 1.0f);
@@ -35,26 +36,27 @@ namespace {
 
     bool ManageGrabPlayAttachment(Actor* giantref, Actor* tinyref) {
         auto TargetBone = Attachment_GetTargetNode(giantref);
-        std::string_view node_lookup = "none";
+        std::string_view node_lookup;
 
-        auto Transient = Transient::GetSingleton().GetActorData(giantref);
+        
 
         switch (TargetBone) {
             case AttachToNode::ObjectL: {
-                node_lookup = "AnimObjectL";            break;
+                node_lookup = "AnimObjectL"; break;
             }
             case AttachToNode::ObjectR: {
-                node_lookup = "AnimObjectR";            break;
+                node_lookup = "AnimObjectR"; break;
             }
             case AttachToNode::ObjectA: {
-                node_lookup = "AnimObjectA";            break;
+                node_lookup = "AnimObjectA"; break;
             }
             case AttachToNode::ObjectB: {
-                node_lookup = "AnimObjectB";            break;
+                node_lookup = "AnimObjectB"; break;
             }
             case AttachToNode::None: {
-                node_lookup = "AnimObjectL";
+                node_lookup = "AnimObjectL"; break;
             }
+            default: return false;
         }
 
         NiAVObject* Object = find_node(giantref, node_lookup);
@@ -62,13 +64,13 @@ namespace {
         if (Object) {
             NiPoint3 coords = Object->world.translate;
             
-            if (tinyref->formID != 0x14) {
+            if (!tinyref->IsPlayerRef()) {
                 FaceSame(giantref, tinyref);
             }
 
-            if (Transient) {
+            if (TransientActorData* Transient = Transient::GetActorData(giantref)) {
                 if (Transient->KissVoring) {
-                    const auto Offset = Config::GetGameplay().ActionSettings.fGrabPlayVoreOffset_Z;
+                    const auto Offset = Config::Gameplay.ActionSettings.fGrabPlayVoreOffset_Z;
                     float offset = (0.6f + Offset) * get_visual_scale(giantref);
                     coords.z += offset;
                 }
@@ -86,7 +88,7 @@ namespace {
     }
 
     void SetReattachingState(Actor* giant, bool Reattach) {
-        auto data = Transient::GetSingleton().GetActorData(giant);
+        auto data = Transient::GetActorData(giant);
         if (data) {
             data->ReattachingTiny = Reattach;
         }
@@ -95,7 +97,7 @@ namespace {
     void ReattachTinyTask(Actor* giant, Actor* tiny, bool Dead) {
         if (!Dead) {
             // Sometimes Tiny still exists and just unloaded, so we move Tiny to us in that case as well
-            log::info("Moving tiny to giant");
+            logger::info("Moving tiny to giant");
             SetReattachingState(giant, true);
             tiny->MoveTo(giant);
 
@@ -119,7 +121,7 @@ namespace {
                 if (timepassed > 0.25) {
                     tinyref->MoveTo(giantref);
                     DisableCollisions(tinyref, giantref);
-                    if (IsBetweenBreasts(tinyref) && !IsGtsBusy(tinyref)) {
+                    if (IsBetweenBreasts(tinyref) && !AnimationVars::General::IsGTSBusy(tinyref)) {
                         if (IsHostile(giantref, tinyref)) {
                             AnimationManager::StartAnim("Breasts_Idle_Unwilling", tinyref);
                         } else {
@@ -144,7 +146,7 @@ namespace GTS {
     bool IsCurrentlyReattaching(Actor* giant) { // Sometimes Tiny is still grabbed and we need to update Tiny pos so Tiny becomes visible
         // Works in such cases like Changing locations/going between loading screens with Tiny grabbed
         bool Attaching = false;
-        auto data = Transient::GetSingleton().GetActorData(giant);
+        auto data = Transient::GetActorData(giant);
         if (data) {
             Attaching = data->ReattachingTiny;
         }
@@ -152,7 +154,7 @@ namespace GTS {
     }
 
     bool HandleGrabLogic(Actor* giantref, Actor* tinyref, ActorHandle gianthandle, ActorHandle tinyhandle) {
-        float sizedifference = GetSizeDifference(giantref, tinyref, SizeType::VisualScale, true, false);
+        float sizedifference = get_scale_difference(giantref, tinyref, SizeType::VisualScale, true, false);
 
         ForceRagdoll(tinyref, false); 
 
@@ -160,24 +162,24 @@ namespace GTS {
             ShutUp(muted);
         }
 
-        bool Attacking = IsGrabAttacking(giantref);
+        bool Attacking = AnimationVars::Grab::IsGrabAttacking(giantref);
 
         bool Dead = (giantref->IsDead() || tinyref->IsDead() || GetAV(tinyref, ActorValue::kHealth) <= 0.0f);
-        bool CanCancel = (Dead || !IsVoring(giantref)) && (!Attacking || IsBeingEaten(tinyref));
+        bool CanCancel = (Dead || !AnimationVars::Action::IsVoring(giantref)) && (!Attacking || IsBeingEaten(tinyref));
         bool small_size = sizedifference < Action_Grab;
 
         if (ShouldAbortGrab(giantref, tinyref, CanCancel, Dead, small_size)) {
             return false;
         }
         // Switch to always using Grab Play logic in that case, we need it since it doesn't cancel properly without it
-        if (IsInGrabPlayState(giantref)) {
+        if (AnimationVars::Action::IsInGrabPlayState(giantref)) {
             return ManageGrabPlayAttachment(giantref, tinyref);
         }
 
-        if (IsBeingEaten(tinyref) && !IsBetweenBreasts(tinyref) && !IsInCleavageState(giantref)) {
+        if (IsBeingEaten(tinyref) && !IsBetweenBreasts(tinyref) && !AnimationVars::Action::IsInCleavageState(giantref)) {
             if (!AttachToObjectA(gianthandle, tinyhandle)) {
                 // Unable to attach
-                log::info("Can't attach to ObjectA");
+                logger::info("Can't attach to ObjectA");
                 Grab::CancelGrab(giantref, tinyref);
                 return false;
             }
@@ -207,16 +209,18 @@ namespace GTS {
                 }
                 return true;
             } else if (Attachment_GetTargetNode(giantref) == AttachToNode::ObjectB) { // Used in Cleavage state
-                if (IsDebugEnabled()) {
+                if (DebugDraw::CanDraw()) {
                     auto node = find_node(tinyref, "NPC Root [Root]");
                     if (node) {
                         NiPoint3 point = node->world.translate;
                         
-                        DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), 6.0f, 40, {0.0f, 1.0f, 0.0f, 1.0f});
+                        DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), 6.0f, 40, {0.0f, 1.0f, 0.0f, 1.0f});
                     }
                 }
 
-                if (IsStrangling(giantref) && (small_size || Dead) && !IsExitingStrangle(giantref)) {// If size is too small 
+                if (AnimationVars::Cleavage::IsBoobsDoting(giantref) && 
+                    (small_size || Dead) && 
+                    !AnimationVars::Cleavage::IsExitingStrangle(giantref)) {// If size is too small 
                     AnimationManager::StartAnim("Cleavage_DOT_Stop", giantref);
                 }
 
@@ -233,7 +237,7 @@ namespace GTS {
             if (!AttachToCleavage(gianthandle, tinyhandle)) {
                 // Unable to attach
                 Grab::CancelGrab(giantref, tinyref);
-                log::info("Can't attach to Cleavage");
+                logger::info("Can't attach to Cleavage");
                 return false;
             }
         } else if (AttachToHand(gianthandle, tinyhandle)) {
@@ -243,7 +247,7 @@ namespace GTS {
             if (!AttachToHand(gianthandle, tinyhandle)) {
                 // Unable to attach
                 Grab::CancelGrab(giantref, tinyref);
-                log::info("Can't attach to hand");
+                logger::info("Can't attach to hand");
                 return false;
             }
         }
@@ -275,8 +279,9 @@ namespace GTS {
     }
 
     bool FailSafeAbort(Actor* giantref, Actor* tinyref) {
-        if (IsGrabAttacking(giantref)) { // Breast state also counts as attacking, so we reset only when NOT grab attacking/in breast state
-            if (IsStrangling(giantref) && !IsExitingStrangle(giantref)) { // These checks are important so we don't spam StartAnim
+        if (AnimationVars::Grab::IsGrabAttacking(giantref)) { // Breast state also counts as attacking, so we reset only when NOT grab attacking/in breast state
+            if (AnimationVars::Cleavage::IsBoobsDoting(giantref) && 
+				!AnimationVars::Cleavage::IsExitingStrangle(giantref)) { // These checks are important so we don't spam StartAnim
                 AnimationManager::StartAnim("Cleavage_DOT_Stop", giantref);
                 return true; // True = try again, do not abort
             }

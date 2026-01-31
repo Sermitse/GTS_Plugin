@@ -39,8 +39,13 @@ namespace GTS {
 		}
 	}
 
+	std::string SpectatorManager::DebugName() {
+		return "::SpectatorManager";
+	}
+
 	void SpectatorManager::Update() {
-		if (Plugin::Live()) {
+
+		if (State::Live()) {
 
 			auto currentCameraTarget = GetCameraActor();
 
@@ -56,9 +61,6 @@ namespace GTS {
 			// This soely exists because if a tracked npc leaves the currect cell there's a chance the game will just die.
 			// This pressumably happens because after fininshing loading post cell transition the tracked actor's 3d is not yet loaded causing a nullptr dereference
 			// meanwhile the player's 3d data appears to always be valid from testing.
-
-			// TODO This could potentialy be improved by running the check earlier. Event listener update callbacks are updated
-			// TODO at the end of the main game update through a hook and thus will always be applied at the end of whatever happend before the frame is presented (i think).
 
 			if (!currentCameraTarget->Is3DLoaded() || !currentCameraTarget->Get3D() || !currentCameraTarget->Get3D1(false)) {
 
@@ -76,7 +78,7 @@ namespace GTS {
 				// If the current target is the player, we need to check if it's because our tracked actor was lost
 				// or if an external source changed to the player deliberately
 
-				if (currentCameraTarget->formID == 0x14) {
+				if (currentCameraTarget->IsPlayerRef()) {
 
 					if (TrackedActorLost) {
 
@@ -138,7 +140,7 @@ namespace GTS {
 
 	bool SpectatorManager::IsCameraTargetPlayer() {
 		if (const auto CamTarget = GetCameraActor()) {
-			return CamTarget->formID == 0x14;
+			return CamTarget->IsPlayerRef();
 		}
 		return false;
 	}

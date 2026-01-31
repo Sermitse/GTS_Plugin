@@ -11,8 +11,10 @@ namespace GTS {
 
     #define RANDOM_OFFSET RandomFloat(0.01f, rip_randomOffsetMax - 0.01f)
 
+	constexpr float rip_randomOffsetMax = 0.10f;
+
 	// List of keywords (Editor ID's) we want to ignore when stripping
-	static const std::vector<string> KeywordBlackList = {
+	static const std::vector<std::string> KeywordBlackList = {
 		"SOS_Genitals", //Fix Slot 52 Genitals while still keeping the ability to unequip slot 52 underwear
 		"ArmorJewelry",
 		"VendorItemJewelry",
@@ -58,22 +60,13 @@ namespace GTS {
 		// BGSBipedObjectForm::BipedObjectSlot::kFX01,					// 61
 	};
 
-	ClothManager& ClothManager::GetSingleton() noexcept {
-		static ClothManager instance;
-		return instance;
-	}
-
-	std::string ClothManager::DebugName() {
-		return "::ClothManager";
-	}
-
-	//Add A check bool to transient to decect npc_reequips
 
 	//I don't like this. Ideally we should call the same update func that the game does when the npc changes cells for example.
 	//But alas i have no idea how to do that :(
 	//This will equip all armor in the inventory
 	static void ReEquipClothing(Actor* a_actor) {
 		//log::info("ReEquip: {}", a_actor->GetName());
+		static const auto equipmgr = RE::ActorEquipManager::GetSingleton();
 		const auto inv = a_actor->GetInventory();
 		for (const auto& [item, invData] : inv) {
 			const auto& [count, entry] = invData;
@@ -83,14 +76,14 @@ namespace GTS {
 						return;
 					}
 					for (const auto& xList : *entry->extraLists) {
-						RE::ActorEquipManager::GetSingleton()->EquipObject(a_actor, item, xList, 1, nullptr, false, false, false);
+						equipmgr->EquipObject(a_actor, item, xList, 1, nullptr, false, false, false);
 					}
 				}
 			}
 		}
 	}
 
-	float ClothManager::ReConstructOffset(Actor* a_actor, float scale) const {
+	float ClothManager::ReConstructOffset(Actor* a_actor, float scale) {
 
 		if (!a_actor) {
 			return 0.0f;
@@ -99,8 +92,8 @@ namespace GTS {
 
 		if (scale < 0.0f) return -1.0f;
 
-		const float rip_threshold = Config::GetGameplay().fClothRipStart;
-		const float rip_tooBig = Config::GetGameplay().fClothRipThreshold;
+		const float rip_threshold = Config::Gameplay.fClothRipStart;
+		const float rip_tooBig = Config::Gameplay.fClothRipThreshold;
 
 		if (scale >= rip_tooBig) {
 			offset = rip_tooBig - rip_threshold + rip_randomOffsetMax;
@@ -121,7 +114,7 @@ namespace GTS {
 
 		if (!a_actor) return false;
 
-		auto transient = Transient::GetSingleton().GetActorData(a_actor);
+		auto transient = Transient::GetActorData(a_actor);
 		if (!transient) return false;
 		// If Current Scale is Equal or Larger, we either growed or stayed the same so no shriking happened
 		bool Shrinking = !(Scale >= transient->ClothRipLastScale);
@@ -177,7 +170,7 @@ namespace GTS {
 
 		Rumbling::Once("ClothManager", a_actor, Rumble_Misc_TearClothes, 0.075f);
 		Sound_PlayMoans(a_actor, 0.7f, 0.14f, EmotionTriggerSource::RipCloth);
-		Runtime::PlaySound("GTSSoundRipClothes", a_actor, 0.7f, 1.0f);
+		Runtime::PlaySound(Runtime::SNDR.GTSSoundRipClothes, a_actor, 0.7f, 1.0f);
 		Task_FacialEmotionTask_Moan(a_actor, 1.0f, "RipCloth");
 		
 		
@@ -218,36 +211,34 @@ namespace GTS {
 		if (Ripped) {
 			Rumbling::Once("ClothManager", a_actor, Rumble_Misc_TearAllClothes, 0.095f);
 			Sound_PlayMoans(a_actor, 1.0f, 0.14f, EmotionTriggerSource::RipCloth);
-			Runtime::PlaySound("GTSSoundRipClothes", a_actor, 1.0f, 1.0f);
+			Runtime::PlaySound(Runtime::SNDR.GTSSoundRipClothes, a_actor, 1.0f, 1.0f);
 			Task_FacialEmotionTask_Moan(a_actor, 1.0f, "RipCloth");
 		}
 	}
 
-	void ClothManager::CheckClothingRip(Actor* a_actor) const {
+	void ClothManager::CheckClothingRip(Actor* a_actor) {
 
 		if (!a_actor) return;
 
-		auto& Settings = Config::GetGameplay();
-
-		if (!Settings.bClothTearing || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return;
+		if (!Config::Gameplay.bClothTearing || (!IsTeammate(a_actor) && !a_actor->IsPlayerRef())) return;
 
 		static Timer timer = Timer(1.2);
 		if (!timer.ShouldRunFrame()) return;
 
-		auto actordata = Transient::GetSingleton().GetActorData(a_actor);
+		auto actordata = Transient::GetActorData(a_actor);
 		if (!actordata) return;
 
 		float CurrentScale = get_visual_scale(a_actor);
 
 		if (actordata->ClothRipLastScale < 0 || actordata->ClothRipOffset < 0) {
-			log::trace("CheckClothingRip: Values were invallid, Resetting...");
+			logger::trace("CheckClothingRip: Values were invallid, Resetting...");
 			actordata->ClothRipLastScale = CurrentScale;
 			actordata->ClothRipOffset = ReConstructOffset(a_actor, CurrentScale);
 			return;
 		}
 
-		const float rip_threshold = Settings.fClothRipStart;
-		const float rip_tooBig = Settings.fClothRipThreshold;
+		const float rip_threshold = Config::Gameplay.fClothRipStart;
+		const float rip_tooBig = Config::Gameplay.fClothRipThreshold;
 
 		if (CurrentScale < rip_threshold) {
 			//If Smaller than rip_Threshold but offset was > 0 means we shrunk back down, so reset the offset
@@ -255,7 +246,7 @@ namespace GTS {
 				actordata->ClothRipOffset = 0.0f;
 
 				//ReEquip Ripped Clothing On Follower NPC's
-				if (a_actor->formID != 0x14 && IsTeammate(a_actor)) {
+				if (!a_actor->IsPlayerRef() && IsTeammate(a_actor)) {
 					ReEquipClothing(a_actor);
 				}
 			}
@@ -292,17 +283,15 @@ namespace GTS {
 		//If anthing is invallid let the native code handle it.
 		if (!a_actor || !a_object) return false;
 
-		auto& Settings = Config::GetGameplay();
-
 		//Cached offset instead of getting the variable directly. 
 		//The Check can get spammed by the Equip hook when a lot of actors are around.
 		//If clothing rip is disabled or is not a follower, allow re-equip
-		if (!Settings.bClothTearing || (!IsTeammate(a_actor) && a_actor->formID != 0x14)) return false;
+		if (!Config::Gameplay.bClothTearing || (!IsTeammate(a_actor) && !a_actor->IsPlayerRef())) return false;
 
-		const float rip_threshold = Settings.fClothRipStart;
+		const float rip_threshold = Config::Gameplay.fClothRipStart;
 
 		//if smaller than rip_threhsold or target actor is the player allow re-equip
-		if (get_visual_scale(a_actor) < rip_threshold || a_actor->formID == 0x14) {
+		if (get_visual_scale(a_actor) < rip_threshold || a_actor->IsPlayerRef()) {
 			return false;
 		}
 

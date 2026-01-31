@@ -1,7 +1,8 @@
 #include "Hooks/Engine/Input.hpp"
 #include "Managers/Input/InputManager.hpp"
-#include "UI/UIManager.hpp"
 #include "Hooks/Util/HookUtil.hpp"
+
+#include "UI/GTSMenu.hpp"
 
 using namespace GTS;
 
@@ -11,20 +12,16 @@ namespace Hooks {
 
 		static void thunk(RE::BSTEventSource<RE::InputEvent*>* a_dispatcher, RE::InputEvent** a_events) {
 
-			GTS_PROFILE_ENTRYPOINT("EngineInput::InputDispatchEvent");
-
 			if (!a_events) {
 				func(a_dispatcher, a_events);
 				return;
 			}
 
-			if (UIManager::GetSingleton().InputUpdate(a_events)) {
-				constexpr RE::InputEvent* const dummy[] = { nullptr };
-				func(a_dispatcher, const_cast<RE::InputEvent**>(dummy));
-				return;
+			{
+				GTS_PROFILE_ENTRYPOINT("EngineInput::InputDispatchEvent");
+				GTSMenu::GetSingleton().ProcessAndFilterEvents(a_events);      //UI, If an input consumer is visible, all input events except for mouse move are erased
+				InputManager::GetSingleton().ProcessAndFilterEvents(a_events);   //GTS Inputs, Keys matching a triggered GTS action are removed.
 			}
-
-			InputManager::GetSingleton().ProcessEvents(a_events);
 
 			func(a_dispatcher, a_events);
 		}

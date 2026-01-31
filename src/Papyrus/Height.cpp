@@ -4,6 +4,7 @@ using namespace GTS;
 using namespace RE::BSScript;
 
 namespace {
+
 	constexpr std::string_view PapyrusClass = "GTSHeight";
 
 	// Target Scales
@@ -38,6 +39,7 @@ namespace {
 }
 
 namespace GTS {
+
 	bool register_papyrus_height(IVirtualMachine* vm) {
 
 		//Target Height

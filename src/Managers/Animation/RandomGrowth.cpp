@@ -13,14 +13,9 @@ using namespace GTS;
 
 namespace {
 
-	constexpr float anim_fps_speed = 30.0f;
-
 	GrowthAnimation GetGrowthType(Actor* giant) { // Used as a way to read which exact Growth was triggered (it is full RNG on Behavior side)
-		int growthtype = 0;
-		giant->GetGraphVariableInt("GTS_Growth_Roll", growthtype);
-
+		int growthtype = AnimationVars::Growth::GrowthRoll(giant);
 		GrowthAnimation Anim = static_cast<GrowthAnimation>(growthtype);
-
 		return Anim;
 	}
 
@@ -28,7 +23,7 @@ namespace {
 		int growth_roll = static_cast<int>(GetGrowthType(giant));
 		float multiplier = 1.0f;
 
-		if (Runtime::HasPerkTeam(giant, "GTSPerkRandomGrowthTerror")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRandomGrowthTerror)) {
 			multiplier = 1.3f;
 		}
 
@@ -43,7 +38,7 @@ namespace {
 				return 0.28f * multiplier * 1.35f; // ~42% without * 1.25
 			case 4:
 				return 0.34f * multiplier * 1.25f; // ~62% without * 1.25
-			break;
+			default: {} ;
 		}
 
 		return 0.9f * multiplier;
@@ -53,7 +48,7 @@ namespace {
 		float formula = 0.0f;
 		switch (anim) {
 			case GrowthAnimation::None:
-				log::info("Formula = 0");
+				logger::info("Formula = 0");
 				return 0.0f;
 			break;
 			case GrowthAnimation::Growth_1:
@@ -115,10 +110,10 @@ namespace {
 				ApplyActionCooldown(giant, CooldownSource::Misc_GrowthSound);
 
 				float Volume = std::clamp(get_visual_scale(actor)/8.0f, 0.20f, 1.0f);
-				Runtime::PlaySoundAtNode("GTSSoundGrowth", actor, Volume * gain, "NPC Pelvis [Pelv]");
+				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, actor, Volume * gain, "NPC Pelvis [Pelv]");
 			}
 			
-			if (!IsGrowing(giant) || elapsed > 1.8f && gain < 0.0f) {
+			if (!AnimationVars::Growth::IsGrowing(giant) || elapsed > 1.8f && gain < 0.0f) {
 				return false;
 			}
 			return true;
@@ -134,7 +129,7 @@ namespace {
 		Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth);
 		Task_FacialEmotionTask_Moan(giant, 1.75f, "RandomGrow");
 
-		if (Runtime::HasPerkTeam(giant, "GTSPerkRandomGrowthTerror")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRandomGrowthTerror)) {
 			for (auto tiny: find_actors()) {
 				if (tiny && tiny != giant) {
 					if (IsHostile(giant, tiny) || IsHostile(tiny, giant)) {
@@ -167,8 +162,8 @@ namespace {
 				return false; // end task in that case
 			}
 
-            if (!IsGrowing(giantref)) {
-                giantref->SetGraphVariableInt("GTS_Growth_Roll", 0);
+            if (!AnimationVars::Growth::IsGrowing(giantref)) {
+				AnimationVars::Growth::SetGrowthRoll(giantref, 0);
                 return false;
             }
 			// All good try another frame

@@ -1,13 +1,15 @@
 #include "Managers/Animation/Sneak_KneeCrush.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/Utils/CrawlUtils.hpp"
 #include "Managers/Damage/LaunchActor.hpp"
 #include "Managers/Audio/Footstep.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/Rumble.hpp"
-#include "Utils/ButtCrushUtils.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp"
 
 
 using namespace GTS;
@@ -21,14 +23,14 @@ namespace {
 	constexpr std::string_view LNode = "NPC L Foot [Lft ]";
 
     void TrackKnee(Actor* giant, bool enable) {
-		if (AllowCameraTracking()) {
+		if (Config::General.bTrackBonesDuringAnim) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			sizemanager.SetTrackedBone(giant, enable, CameraTracking::ObjectB);
 		}
 	}
 
     void TrackBooty(Actor* giant, bool enable) {
-		if (AllowCameraTracking()) {
+		if (Config::General.bTrackBonesDuringAnim) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			sizemanager.SetTrackedBone(giant, enable, CameraTracking::Mid_Butt_Legs);
 		}
@@ -130,8 +132,8 @@ namespace {
             DoFootstepSound(giant, 1.25f, FootEvent::Left, "NPC L Calf [LClf]");
             DoFootstepSound(giant, 1.25f, FootEvent::Right, "NPC R Calf [RClf]");
 
-            LaunchActor::GetSingleton().LaunchAtNode(giant, 1.30f * perk, 4.20f, "NPC L Calf [LClf]");
-            LaunchActor::GetSingleton().LaunchAtNode(giant, 1.30f * perk, 4.20f, "NPC R Calf [RClf]");
+            LaunchActor::LaunchAtNode(giant, 1.30f * perk, 4.20f, "NPC L Calf [LClf]");
+            LaunchActor::LaunchAtNode(giant, 1.30f * perk, 4.20f, "NPC R Calf [RClf]");
 
             Rumbling::Once("Knee_L", giant, 3.60f * damage, 0.05f, "NPC L Calf [LClf]", 0.0f);
             Rumbling::Once("Knee_R", giant, 3.60f * damage, 0.05f, "NPC R Calf [RClf]", 0.0f);

@@ -105,7 +105,7 @@ namespace {
 
 
     void GTS_UnderStomp_Crawl_BodyCamOn(AnimationEventData& data) {
-		DrainStamina(&data.giant,"StaminaDrain_BreastAttack", "GTSPerkDestructionBasics", true, 20.0f);
+		DrainStamina(&data.giant,"StaminaDrain_BreastAttack", Runtime::PERK.GTSPerkDestructionBasics, true, 20.0f);
 		ManageCamera(&data.giant, true, CameraTracking::Breasts_02);
 	}
     void GTS_UnderStomp_Crawl_BodyCamOff(AnimationEventData& data) {
@@ -113,7 +113,7 @@ namespace {
 	}
 
     void GTS_UnderStomp_Crawl_BodyImpact(AnimationEventData& data) {
-		DrainStamina(&data.giant,"StaminaDrain_BreastAttack", "GTSPerkDestructionBasics", false, 20.0f);
+		DrainStamina(&data.giant,"StaminaDrain_BreastAttack", Runtime::PERK.GTSPerkDestructionBasics, false, 20.0f);
         ChooseBreastNodes(&data.giant);
         InflictBodyDamage(&data.giant);
     }

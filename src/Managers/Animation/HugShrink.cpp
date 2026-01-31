@@ -13,9 +13,11 @@
 #include "Magic/Effects/Common.hpp"
 
 #include "Utils/AttachPoint.hpp"
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
+
+#include "Utils/DeathReport.hpp"
 
 using namespace GTS;
 
@@ -28,7 +30,7 @@ namespace PreventMoans {
 namespace {
 
 	bool CanHugCrush(Actor* giant, Actor* huggedActor) {
-		bool ForceCrush = Runtime::HasPerkTeam(giant, "GTSPerkHugMightyCuddles");
+		bool ForceCrush = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugMightyCuddles);
 		float staminapercent = GetStaminaPercentage(giant);
 		float stamina = GetAV(giant, ActorValue::kStamina);
 		if (ForceCrush && staminapercent >= 0.75f) {
@@ -52,13 +54,13 @@ namespace {
 
 	void ShrinkPulse_GainSize(Actor* giant, Actor* tiny, bool task) {
 		float increase = 1.0f;
-		if (Runtime::HasPerkTeam(giant, "GTSPerkHugsGreed")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugsGreed)) {
 			increase = 1.15f;
 		}
 
 		if (!task) {
 			float steal = get_visual_scale(tiny) * 0.035f * increase * 0.6f;
-			if (IsCrawling(giant)) {
+			if (AnimationVars::Crawl::IsCrawling(giant)) {
 				steal *= 0.8f; // Crawl has one more shrink event so we compensate
 			}
 			update_target_scale(giant, steal, SizeEffectType::kGrow);
@@ -94,7 +96,7 @@ namespace {
 	}
 
 	void Hugs_ShakeCamera(Actor* giant) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			shake_camera(giant, 0.75f, 0.35f);
 		} else {
 			Rumbling::Once("HugGrab_L", giant, Rumble_Hugs_Catch, 0.15f, "NPC L Hand [LHnd]", 0.0f);
@@ -151,8 +153,8 @@ namespace {
 		if (huggedActor) {
 			if (!IsTeammate(huggedActor)) {
 
-				if (!IsTeammate(huggedActor) && Config::GetGameplay().ActionSettings.bNonLethalHugsHostile) {
-					Attacked(huggedActor, giant);
+				if (!IsTeammate(huggedActor) && Config::Gameplay.ActionSettings.bNonLethalHugsHostile) {
+					huggedActor->Attacked(giant);
 				}
 			}
 
@@ -197,8 +199,8 @@ namespace {
 		if (huggedActor) {
 			auto scale = get_visual_scale(huggedActor);
 
-			if (!IsTeammate(huggedActor) && Config::GetGameplay().ActionSettings.bNonLethalHugsHostile) {
-				Attacked(huggedActor, giant);
+			if (!IsTeammate(huggedActor) && Config::Gameplay.ActionSettings.bNonLethalHugsHostile) {
+				huggedActor->Attacked(giant);
 			}
 
 			ShrinkPulse_DecreaseSize(huggedActor, scale);
@@ -235,7 +237,7 @@ namespace {
 			Task_FacialEmotionTask_Moan(giant, 1.85f, "HugMoan", RandomFloat(0.0f, 0.45f));
 			Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Absorption, CooldownSource::Emotion_Voice_Long);
 
-			if (giant->formID == 0x14) {
+			if (giant->IsPlayerRef()) {
 				float target_scale = get_visual_scale(huggedActor);
 				AdjustSizeReserve(giant, 0.0225f);
 				AdjustMassLimit(0.0075f, giant);
@@ -256,7 +258,7 @@ namespace {
 		/*Actor* giant = &data.giant;
 		Actor* tiny = HugShrink::GetHuggiesActor(giant);
 
-		if (IsHugCrushing(giant)) {
+		if (AnimationVars::Hug::IsHugCrushing(giant)) {
 			Attachment_SetTargetNode(giant, AttachToNode::None);
 		} else {
 			if (tiny) {
@@ -300,7 +302,7 @@ namespace {
 
 	void GTS_CH_BoobCameraOn(AnimationEventData& data) {
 		ManageCamera(&data.giant, true, CameraTracking::Breasts_02);
-		if (data.giant.formID == 0x14) {
+		if (data.giant.IsPlayerRef()) {
 			std::string name = std::format("ChangeCamera_{}", data.giant.formID);
 			ActorHandle gianthandle = data.giant.CreateRefHandle();
 			TaskManager::Run(name, [=](auto& progressData) {
@@ -308,7 +310,7 @@ namespace {
 					return false;
 				}
 				Actor* giantref = gianthandle.get().get();
-				if (!IsHugging(giantref) && !IsHugCrushing(giantref) && !IsGtsBusy(giantref)) {
+				if (!AnimationVars::Hug::IsHugging(giantref) && !AnimationVars::Hug::IsHugCrushing(giantref) && !AnimationVars::General::IsGTSBusy(giantref)) {
 					ManageCamera(giantref, false, CameraTracking::None);
 					return false;
 				}
@@ -382,8 +384,8 @@ namespace {
 		Actor* player = GetPlayerOrControlled();
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 		if (huggedActor) {
-			if (GetSizeDifference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
-				if (!IsHugCrushing(player) && !IsHugHealing(player)) {
+			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
+				if (!AnimationVars::Hug::IsHugCrushing(player) && !AnimationVars::Hug::IsHugHealing(player)) {
 					NotifyWithSound(player, "All available size was drained");
 					shake_camera(player, 0.45f, 0.30f);
 				}
@@ -400,16 +402,16 @@ namespace {
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 
 		if (huggedActor) {
-			if (GetSizeDifference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
-				if (!IsHugCrushing(player) && !IsHugHealing(player)) {
+			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
+				if (!AnimationVars::Hug::IsHugCrushing(player) && !AnimationVars::Hug::IsHugHealing(player)) {
 					NotifyWithSound(player, "All available size was drained");
 					shake_camera(player, 0.45f, 0.30f);
 				}
 				return;
 			}
 
-			if (Runtime::HasPerkTeam(player, "GTSPerkHugsLovingEmbrace")) {
-				if (!IsHostile(huggedActor, player) && (IsTeammate(huggedActor) || huggedActor->formID == 0x14)) {
+			if (Runtime::HasPerkTeam(player, Runtime::PERK.GTSPerkHugsLovingEmbrace)) {
+				if (!IsHostile(huggedActor, player) && (IsTeammate(huggedActor) || huggedActor->IsPlayerRef())) {
 					StartHealingAnimation(player, huggedActor);
 					return;
 				} else {
@@ -427,13 +429,11 @@ namespace {
 		Actor* player = GetPlayerOrControlled();
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 		if (huggedActor) {
-			if (IsHugCrushing(player) || IsHugHealing(player)) {
+			if (AnimationVars::Hug::IsHugCrushing(player) || AnimationVars::Hug::IsHugHealing(player)) {
 				return; // disallow manual release when it's true
 			}
 
-			bool Hugging;
-			player->GetGraphVariableBool("GTS_HuggingTeammate", Hugging);
-
+			bool Hugging = AnimationVars::Hug::IsHuggingTeammate(player);
 			AbortHugAnimation(player, huggedActor);
 
 			if (!Hugging) { // we don't want to stop task if it returns true
@@ -444,10 +444,6 @@ namespace {
 }
 
 namespace GTS {
-	HugShrink& HugShrink::GetSingleton() noexcept {
-		static HugShrink instance;
-		return instance;
-	}
 
 	std::string HugShrink::DebugName() {
 		return "::HugShrink";
@@ -484,12 +480,12 @@ namespace GTS {
 			auto giantref = gianthandle.get().get();
 			auto tinyref = tinyhandle.get().get();
 
-			float sizedifference = GetSizeDifference(giantref, tinyref, SizeType::VisualScale, false, true);
+			float sizedifference = get_scale_difference(giantref, tinyref, SizeType::VisualScale, false, true);
 			float steal = GetHugStealRate(giantref) * 0.85f;
 			
 			float stamina = 0.35f;
 			float shrink = 14.0f;
-			if (Runtime::HasPerkTeam(giantref, "GTSPerkHugsGreed")) {
+			if (Runtime::HasPerkTeam(giantref, Runtime::PERK.GTSPerkHugsGreed)) {
 				shrink *= 1.25f;
 				stamina *= 0.75f;
 			}
@@ -506,8 +502,8 @@ namespace GTS {
 			TransferSize(giantref, tinyref, false, shrink, steal, false, ShrinkSource::Hugs); // Shrink foe, enlarge gts
 			ModSizeExperience(giantref, 0.00020f);
 
-			if (!IsTeammate(tinyref) && Config::GetGameplay().ActionSettings.bNonLethalHugsHostile) {
-				Attacked(tinyref, giantref); // make it look like we attack the tiny
+			if (!IsTeammate(tinyref) && Config::Gameplay.ActionSettings.bNonLethalHugsHostile) {
+				tinyref->Attacked(giantref); // make it look like we attack the tiny
 			}
 
 			Rumbling::Once("HugSteal", giantref, Rumble_Hugs_Shrink, 0.12f, "NPC COM [COM ]", 0.0f, true);
@@ -536,12 +532,11 @@ namespace GTS {
 			}
 			auto tinyref = tinyhandle.get().get();
 			auto giantref = gianthandle.get().get();
-			
-			bool GTS_HuggingAlly = false;
-			bool Tiny_HuggedAsAlly = false;
+
 			float DrainReduction = 3.4f;
-			tinyref->GetGraphVariableBool("GTS_IsFollower", Tiny_HuggedAsAlly);
-			giantref->GetGraphVariableBool("GTS_HuggingTeammate", GTS_HuggingAlly);
+
+			bool Tiny_HuggedAsAlly = AnimationVars::General::IsFollower(tinyref);
+			bool GTS_HuggingAlly = AnimationVars::Hug::IsHuggingTeammate(giantref);
 
 			ApplyActionCooldown(giantref, CooldownSource::Action_Hugs); // Send Hugs on cooldown non-stop
 
@@ -551,7 +546,7 @@ namespace GTS {
 				DrainReduction *= 1.5f; // less stamina drain for friendlies
 			}
 
-			float sizedifference = GetSizeDifference(giantref, tinyref, SizeType::VisualScale, false, true);
+			float sizedifference = get_scale_difference(giantref, tinyref, SizeType::VisualScale, false, true);
 
 			ShutUp(tinyref);
 			ShutUp(giantref);
@@ -562,7 +557,7 @@ namespace GTS {
 				return false;
 			}
 
-			if (!IsHugging(giantref)) { // If for some reason we're not in the hug anim and actor is still attached to us: cancel it
+			if (!AnimationVars::Hug::IsHugging(giantref)) { // If for some reason we're not in the hug anim and actor is still attached to us: cancel it
 				AbortHugAnimation(giantref, tinyref);
 				return false;
 			}
@@ -570,16 +565,14 @@ namespace GTS {
 			GrabStaminaDrain(giantref, tinyref, sizedifference * 2 * DrainReduction);
 			DamageAV(tinyref, ActorValue::kStamina, 0.125f * TimeScale()); // Drain Tiny Stamina
 			ModSizeExperience(giantref, 0.00005f);
-			
-			bool TinyAbsorbed;
-			giantref->GetGraphVariableBool("GTS_TinyAbsorbed", TinyAbsorbed);
 
+			bool TinyAbsorbed = AnimationVars::Hug::IsHasAbsorbedTiny(giantref);
 			float stamina = GetAV(giantref, ActorValue::kStamina);
 
 			Utils_UpdateHugBehaviors(giantref, tinyref); // Record GTS/Tiny Size-Difference value for animation blending
 			Anims_FixAnimationDesync(giantref, tinyref, false); // Share GTS Animation Speed with hugged actor to avoid de-sync
 
-			if (IsHugHealing(giantref)) {
+			if (AnimationVars::Hug::IsHugHealing(giantref)) {
 				ForceRagdoll(tinyref, false);
 				if (!HugAttach(gianthandle, tinyhandle)) {
 					AbortHugAnimation(giantref, tinyref);
@@ -591,7 +584,7 @@ namespace GTS {
 			bool GotTiny = HugShrink::GetHuggiesActor(giantref);
 			bool IsDead = (giantref->IsDead() || tinyref->IsDead());
 			
-			if (!IsHugCrushing(giantref)) {
+			if (!AnimationVars::Hug::IsHugCrushing(giantref)) {
 				if (sizedifference < Action_Hug || IsDead || stamina <= 2.0f || !GotTiny) {
 					if (HuggingAlly) { 
 						// this is needed to still attach the actor while we have ally hugged (with Loving Embrace Perk)
@@ -603,7 +596,7 @@ namespace GTS {
 					AbortHugAnimation(giantref, tinyref);
 					return false;
 				}
-			} else if (IsHugCrushing(giantref) && !TinyAbsorbed) {
+			} else if (AnimationVars::Hug::IsHugCrushing(giantref) && !TinyAbsorbed) {
 				if (IsDead || !GotTiny) {
 					AbortHugAnimation(giantref, tinyref);
 					return false;
@@ -611,7 +604,7 @@ namespace GTS {
 			}
 			// Ensure they are NOT in ragdoll
 			ForceRagdoll(tinyref, false);
-			if (IsCrawling(giantref)) { // Always attach to ObjectA during Crawling (Crawl anims are configured for ObjectA)
+			if (AnimationVars::Crawl::IsCrawling(giantref)) { // Always attach to ObjectA during Crawling (Crawl anims are configured for ObjectA)
 				if (!AttachToObjectA(giantref, tinyref)) {
 					return false;
 				}
@@ -658,7 +651,7 @@ namespace GTS {
 		if (huggedActor) {
 			std::string_view message = fmt::format("{} was saved from hugs of {}", huggedActor->GetDisplayFullName(), giant->GetDisplayFullName());
 			float sizedifference = get_visual_scale(giant)/get_visual_scale(huggedActor);
-			if (giant->formID == 0x14) {
+			if (giant->IsPlayerRef()) {
 				shake_camera(giant, 0.25f * sizedifference, 0.35f);
 			} else {
 				Rumbling::Once("HugRelease", giant, Rumble_Hugs_Release, 0.10f, true);
@@ -692,6 +685,22 @@ namespace GTS {
 		} else {
 			return nullptr;
 		}
+	}
+
+	bool HugShrink::IsTinyInDataList(Actor* aTiny) {
+		std::unique_lock lock(_lock);
+		if (!aTiny) {
+			return false;
+		}
+
+		for (auto& val : data | std::views::values) {
+			if (val.tiny) {
+				if (val.tiny->formID == aTiny->formID) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	void HugShrink::RegisterEvents() {

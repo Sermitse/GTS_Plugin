@@ -4,7 +4,7 @@
 #include "Managers/Animation/Utils/CrawlUtils.hpp"
 #include "Managers/Rumble.hpp"
 #include "Magic/Effects/Common.hpp"
-#include "Utils/ButtCrushUtils.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
 
@@ -84,7 +84,7 @@ namespace {
 	}
 
 	void ModGrowthCount(Actor* giant, float value, bool reset) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			transient->ButtCrushGrowthAmount += value;
 			if (reset) {
@@ -94,7 +94,7 @@ namespace {
 	}
 
 	float GetGrowthCount(Actor* giant) {
-		auto transient = Transient::GetSingleton().GetData(giant);
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
 			return transient->ButtCrushGrowthAmount;
 		}
@@ -117,7 +117,7 @@ namespace {
 			auto BreastL02 = find_node(giantref, "L Breast02");
 			auto BreastR02 = find_node(giantref, "R Breast02");
 
-			if (!IsButtCrushing(giantref)) {
+			if (!AnimationVars::ButtCrush::IsButtCrushing(giantref)) {
 				return false;
 			}
 
@@ -168,7 +168,7 @@ namespace {
 			float stamina = GetAV(giantref, ActorValue::kStamina);
 			DamageAV(giantref, ActorValue::kStamina, 0.12f * GetButtCrushCost(giant, false));
 
-			if (!IsButtCrushing(giantref)) {
+			if (!AnimationVars::ButtCrush::IsButtCrushing(giantref)) {
 				return false;
 			}
 			return true;
@@ -309,7 +309,7 @@ namespace {
 		float WasteStamina = 100.0f * GetButtCrushCost(giant, false);
 		DamageAV(giant, ActorValue::kStamina, WasteStamina);
 		
-		Runtime::PlaySoundAtNode("GTSSoundGrowth", giant, 1.0f, "NPC Pelvis [Pelv]");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, giant, 1.0f, "NPC Pelvis [Pelv]");
 		Task_FacialEmotionTask_Moan(giant, 0.675f, "BoobCrush_Growth", 0.20f);
 		
 		StartRumble("CleavageRumble", data.giant, 0.06f, 0.60f);
@@ -323,13 +323,7 @@ namespace {
 	}
 }
 
-namespace GTS
-{	
-
-	AnimationBoobCrush& AnimationBoobCrush::GetSingleton() noexcept {
-		static AnimationBoobCrush instance;
-		return instance;
-	}
+namespace GTS {	
 
 	std::string AnimationBoobCrush::DebugName() {
 		return "::AnimationBoobCrush";
@@ -364,10 +358,10 @@ namespace GTS
 
 	float AnimationBoobCrush::GetBoobCrushDamage(Actor* actor) {
 		float damage = 1.0f;
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrush")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrush)) {
 			damage += 0.30f;
 		}
-		if (Runtime::HasPerkTeam(actor, "GTSPerkButtCrushAug3")) {
+		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkButtCrushAug3)) {
 			damage += 0.70f;
 		}
 		return damage;

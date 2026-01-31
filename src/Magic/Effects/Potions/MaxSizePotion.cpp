@@ -4,11 +4,10 @@
 using namespace GTS;
 
 // A potion that TEMPORARILY increases max possible size
-
 namespace {
 
 	void TempBonusMaxSize_Modify(Actor* giant, float value) {
-		auto saved_data = Transient::GetSingleton().GetData(giant);
+		auto saved_data = Transient::GetActorData(giant);
 		if (saved_data) {
 			saved_data->PotionMaxSize += value;
 		}
@@ -22,20 +21,23 @@ namespace GTS {
 		return "MaxSizePotion";
 	}
 
-
 	MaxSizePotion::MaxSizePotion(ActiveEffect* effect) : Magic(effect) {
 
 		auto base_spell = GetBaseEffect();
 
-		if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectSizeLimitExtreme")) {
+		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectSizeLimitExtreme)) {
 			this->Power = 0.35f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectSizeLimitStrong")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectSizeLimitStrong)) {
 			this->Power = 0.20f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectSizeLimitNormal")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectSizeLimitNormal)) {
 			this->Power = 0.15f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSPotionEffectSizeLimitWeak")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSPotionEffectSizeLimitWeak)) {
 			this->Power = 0.10f;
-		} else if (base_spell == Runtime::GetMagicEffect("GTSAlchEffectSizeLimit")) {
+		} 
+		else if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSAlchEffectSizeLimit)) {
 			RecordPotionMagnitude(GetActiveEffect(), this->Power, 0.35f);
 		}
 	}

@@ -8,7 +8,7 @@
 
 #include "Magic/Effects/Common.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 
 using namespace GTS;
 
@@ -39,7 +39,7 @@ namespace {
 			auto BreastL03 = find_node(giantref, "L Breast03");
 			auto BreastR03 = find_node(giantref, "R Breast03");
 
-			if (!IsProning(giantref)) {
+			if (!AnimationVars::Prone::IsProne(giantref)) {
 				return false;
 			}
 
@@ -105,7 +105,7 @@ namespace {
 			auto BreastL03 = find_node(giantref, "L Breast03");
 			auto BreastR03 = find_node(giantref, "R Breast03");
 
-			if (!IsProning(giantref)) {
+			if (!AnimationVars::Prone::IsProne(giantref)) {
 				return false;
 			}
 
@@ -162,7 +162,7 @@ namespace {
 	void GTS_Prone_EnterSneak(AnimationEventData& data) {
 		Actor* giant = &data.giant;
 		SetSneaking(giant, true, 1);
-		giant->SetGraphVariableInt("iIsInSneak", 1);
+		AnimationVars::Other::SetVanillaSneaking(giant, true);
 	}
 
 	void SBOProneOnEvent(const ManagedInputEvent& data) {
@@ -172,11 +172,7 @@ namespace {
 
 	void SBOProneOffEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-
-		bool prone = false;
-		player->GetGraphVariableBool("GTS_IsProne", prone);
-		
-		if (prone) {
+		if (AnimationVars::Prone::IsProne(player)) {
 			AnimationManager::StartAnim("SBO_ProneOff", player);
 		}
 	}
@@ -198,8 +194,8 @@ namespace {
 
 }
 
-namespace GTS
-{
+namespace GTS {
+
 	void AnimationProning::RegisterEvents() {
 		InputManager::RegisterInputEvent("SBO_ToggleProne", SBOProneOnEvent, AlwaysBlock);
 		InputManager::RegisterInputEvent("SBO_DisableProne", SBOProneOffEvent, AlwaysBlock);

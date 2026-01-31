@@ -1,13 +1,14 @@
 #include "Utils/Camera.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 namespace GTS {
 
 	void shake_camera_script(TESObjectREFR* actor, float intensity, float duration) { // TESObjectREFR*
-		CallFunction("Game", "ShakeCamera", actor, intensity, duration);
+		CallVMFunction("Game", "ShakeCamera", actor, intensity, duration);
 	}
 
 	void shake_camera(Actor* actor, float intensity, float duration) { // TESObjectREFR*
-		//CallFunction("Game", "ShakeCamera", actor, intensity, duration);
+		//CallVMFunction("Game", "ShakeCamera", actor, intensity, duration);
 		auto node = find_node(actor, "NPC COM [COM ]");
 		if (node) {
 			NiPoint3 position = node->world.translate;
@@ -28,11 +29,11 @@ namespace GTS {
 	}
 
 	void TriggerScreenBlood(int aiValue) {
-		CallFunction("Game", "TriggerScreenBlood", aiValue);
+		CallVMFunction("Game", "TriggerScreenBlood", aiValue);
 	}
 
 	void shake_controller(float left_intensity, float right_intensity, float duration) {
-		CallFunction("Game", "ShakeController", left_intensity, right_intensity, duration);
+		CallVMFunction("Game", "ShakeController", left_intensity, right_intensity, duration);
 	}
 
 	float get_distance_to_camera(const NiPoint3& point) {
@@ -126,8 +127,27 @@ namespace GTS {
 		return false;
 	}
 
+	void SetCameraOverride(Actor* actor, bool enable) {
+		if (actor->IsPlayerRef()) {
+			auto transient = Transient::GetActorData(actor);
+			if (transient) {
+				transient->OverrideCamera = enable;
+			}
+		}
+	}
+
+	void EnableFreeCamera() {
+		auto playerCamera = PlayerCamera::GetSingleton();
+		playerCamera->ToggleFreeCameraMode(false);
+	}
+
+	bool IsPlayerFirstPerson(Actor* a_actor) {
+		if (!a_actor) return false;
+		return a_actor->IsPlayerRef() && IsFirstPerson();
+	}
+
 	void ForceThirdPerson(Actor* giant) {
-		if (giant->formID == 0x14) {
+		if (giant->IsPlayerRef()) {
 			auto camera = RE::PlayerCamera::GetSingleton();
 			if (camera) {
 				camera->ForceThirdPerson();
@@ -136,9 +156,9 @@ namespace GTS {
 				auto isInThirdPerson = playerCamera->currentState->id == RE::CameraState::kThirdPerson;
 
 				TaskManager::RunOnce([=](auto& update){
-					log::info("Running Camera Task Once");
+					logger::info("Running Camera Task Once");
 					if (thirdPersonState && isInThirdPerson) {
-						log::info("Applying zoom offset");
+						logger::info("Applying zoom offset");
 						thirdPersonState->currentZoomOffset = 0.50f;
 						thirdPersonState->targetZoomOffset = 0.50f;
 					}
@@ -153,7 +173,7 @@ namespace GTS {
 						return false;
 					}
 					Actor* giantref = giantHandle.get().get();
-					bool Busy = IsGtsBusy(giantref);
+					bool Busy = AnimationVars::General::IsGTSBusy(giantref);
 					if (!Busy) {
 						if (Time::WorldTimeElapsed() - start < 0.15) {
 							return true;
@@ -173,4 +193,34 @@ namespace GTS {
 			}
 		}
 	}
+
+	bool GetCameraOverride(Actor* actor) {
+		if (actor->IsPlayerRef()) {
+			auto transient = Transient::GetActorData(actor);
+			if (transient) {
+				return transient->OverrideCamera;
+			}
+			return false;
+		}
+		return false;
+	}
+
+	void ResetCameraTracking(Actor* actor) {
+		auto& sizemanager = SizeManager::GetSingleton();
+		if (actor->Is3DLoaded()) {
+			sizemanager.SetTrackedBone(actor, false, CameraTracking::None);
+		}
+	}
+
+	bool IsFreeCameraEnabled() {
+		bool tfc = false;
+		auto camera = PlayerCamera::GetSingleton();
+		if (camera) {
+			if (camera->IsInFreeCameraMode()) {
+				tfc = true;
+			}
+		}
+		return tfc;
+	}
+
 }

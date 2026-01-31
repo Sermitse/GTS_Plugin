@@ -1,8 +1,13 @@
 find_package(CommonLibSSE CONFIG REQUIRED)
 
-add_commonlibsse_plugin(${PROJECT_NAME} DECLARATIVE SOURCES ${headers} ${sources})
+
+#mimicks add_commonlibsse_plugin but without the PluginInfo Insertion
+add_library("${PROJECT_NAME}" SHARED ${headers} ${sources})
+target_compile_definitions("${PROJECT_NAME}"PRIVATE __CMAKE_COMMONLIBSSE_PLUGIN=1)
+target_link_libraries("${PROJECT_NAME}" PUBLIC CommonLibSSE::CommonLibSSE)
+target_include_directories("${PROJECT_NAME}" PUBLIC ${CommonLibSSE_INCLUDE_DIRS})
+
 add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
 
 target_compile_features(
 	"${PROJECT_NAME}"
@@ -37,9 +42,6 @@ configure_file(
 )
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/src")
 
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
-
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 
@@ -54,6 +56,7 @@ target_compile_options(
     $<$<BOOL:${GTS_STRICT_COMPILE}>:/W4;/WX>
     $<$<NOT:$<BOOL:${GTS_STRICT_COMPILE}>>:/W1>
     /permissive-
+    /utf-8
     /Zc:alignedNew
     /Zc:auto
     /Zc:__cplusplus
@@ -73,6 +76,7 @@ target_compile_options(
     /Zc:threadSafeInit
     /Zc:trigraphs
     /Zc:wchar_t
+    #/Zc:char8_t- JSONCpp needs it
     /wd4200 # nonstandard extension used : zero-sized array in struct/union
     /wd4100 # 'identifier' : unreferenced formal parameter
     /wd4101 # 'identifier': unreferenced local variable

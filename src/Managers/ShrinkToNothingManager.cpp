@@ -1,4 +1,7 @@
 #include "Managers/ShrinkToNothingManager.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/AI/AIFunctions.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
 #include "Magic/Effects/Common.hpp"
@@ -18,10 +21,6 @@ namespace {
 }
 
 namespace GTS {
-	ShrinkToNothingManager& ShrinkToNothingManager::GetSingleton() noexcept {
-		static ShrinkToNothingManager instance;
-		return instance;
-	}
 
 	std::string ShrinkToNothingManager::DebugName() {
 		return "::ShrinkToNothingManager";
@@ -48,14 +47,14 @@ namespace GTS {
 				data.state = ShrinkState::Shrinking;
 			} else if (data.state == ShrinkState::Shrinking) {
 				ModSizeExperience(giant, 0.24f * GetXPModifier(tiny)); // Adjust Size Matter skill
-				Attacked(tiny, giant);
-				if (giant->formID == 0x14 && IsDragon(tiny)) {
-					CompleteDragonQuest(tiny, ParticleType::Red, tiny->IsDead());
+				tiny->Attacked(giant);
+				if (giant->IsPlayerRef() && IsDragon(tiny)) {
+					CompleteDragonQuest(tiny, ParticleType::Red);
 				}
 
-				const bool silent = Config::GetAudio().bMuteShrinkToNothingDeathScreams;
+				const bool silent = Config::Audio.bMuteShrinkToNothingDeathScreams;
 
-				ShrinkToNothingManager::SpawnDeathEffects(tiny);
+				SpawnDeathEffects(tiny);
 				DecreaseShoutCooldown(giant);
 				KillActor(giant, tiny, silent);
 
@@ -63,7 +62,7 @@ namespace GTS {
 
 				AddSMTDuration(giant, 5.0f);
 
-				ShrinkToNothingManager::TransferInventoryTask(giant, tiny); // Also plays STN sound
+				TransferInventoryTask(giant, tiny); // Also plays STN sound
 
 				data.state = ShrinkState::Shrinked;
 			}
@@ -89,8 +88,8 @@ namespace GTS {
 		if (!giant) {
 			return;
 		}
-		if (ShrinkToNothingManager::CanShrink(giant, tiny)) {
-			ShrinkToNothingManager::GetSingleton().data.try_emplace(tiny->formID, giant);
+		if (CanShrink(giant, tiny)) {
+			GetSingleton().data.try_emplace(tiny->formID, giant);
 		}
 	}
 
@@ -98,12 +97,12 @@ namespace GTS {
 		if (!actor) {
 			return false;
 		}
-		auto& m = ShrinkToNothingManager::GetSingleton().data;
-		return !(m.find(actor->formID) == m.end());
+		auto& m = GetSingleton().data;
+		return !(!m.contains(actor->formID));
 	}
 
 	bool ShrinkToNothingManager::CanShrink(Actor* giant, Actor* tiny) {
-		if (ShrinkToNothingManager::AlreadyShrinked(tiny)) {
+		if (AlreadyShrinked(tiny)) {
 			return false;
 		}
 		if (IsEssential(giant, tiny)) {
@@ -123,7 +122,7 @@ namespace GTS {
 		if (!IsLiving(tiny)) {
 			SpawnDustParticle(tiny, tiny, "NPC Root [Root]", 3.6f);
 		} else {
-			if (!LessGore()) {
+			if (!Config::General.bLessGore) {
 				std::random_device rd;
 				std::mt19937 gen(rd());
 				std::uniform_real_distribution<float> dis(-0.2f, 0.2f);
@@ -134,9 +133,10 @@ namespace GTS {
 					SpawnParticle(tiny, 0.20f, "GTS/Damage/Explode.nif", NiMatrix3(), root->world.translate, 2.0f, 7, root);
 					SpawnParticle(tiny, 1.20f, "GTS/Damage/ShrinkOrCrush.nif", NiMatrix3(), root->world.translate, get_visual_scale(tiny) * 10, 7, root);
 				}
-				Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4, "GTSExplosionBlood");
-				Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, false);
-			} else {
+				Runtime::CreateExplosion(tiny, get_visual_scale(tiny)/4, Runtime::EXPL.GTSExplosionBlood);
+				Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, false);
+			} 
+			else {
 				Runtime::PlaySound("SKSoundBloodGush", tiny, 1.0f, 1.0f);
 			}
 		}
@@ -149,7 +149,7 @@ namespace GTS {
 
 		float currentSize = get_visual_scale(tiny);
 
-		Runtime::PlaySound("GTSSoundShrinkToNothing", giant, 1.0f, 1.0f);
+		Runtime::PlaySound(Runtime::SNDR.GTSSoundShrinkToNothing, giant, 1.0f, 1.0f);
 
 		TaskManager::RunOnce(taskname, [=](auto& update){
 			if (!tinyHandle) {
@@ -163,7 +163,7 @@ namespace GTS {
 			TransferInventory(tiny, giant, currentSize * GetSizeFromBoundingBox(tiny), false, true, DamageSource::Crushed, true);
 			// Actor reset is done within TransferInventory
 		});
-		if (tiny->formID != 0x14) {
+		if (!tiny->IsPlayerRef()) {
 			Disintegrate(tiny); // Set critical stage 4 on actors
 		} else {
 			TriggerScreenBlood(50);
@@ -172,8 +172,8 @@ namespace GTS {
 	}
 
 	ShrinkData::ShrinkData(Actor* giant) :
-		delay(Timer(0.01)),
 		state(ShrinkState::Healthy),
+		delay(Timer(0.01)),
 		giant(giant ? giant->CreateRefHandle() : ActorHandle()) {
 	}
 }

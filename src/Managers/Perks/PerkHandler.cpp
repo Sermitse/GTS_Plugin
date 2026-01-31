@@ -4,7 +4,7 @@
 #include "Managers/Perks/PerkHandler.hpp"
 
 #include "Managers/Animation/AnimationManager.hpp"
-#include "UI/DebugAPI.hpp"
+
 
 
 using namespace GTS;
@@ -51,11 +51,9 @@ namespace {
 		NiAVObject* node = find_node(giant, "NPC Root [Root]");
         if (node) {
             NiPoint3 point = node->world.translate;
-			if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
-				DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
+			if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance, 600, {0.0f, 0.0f, 1.0f, 1.0f});
 			}
-
-			NiPoint3 giantLocation = giant->GetPosition();
 
 			for (auto otherActor: find_actors()) {
 				if (otherActor != giant && !otherActor->IsDead()) {
@@ -73,20 +71,17 @@ namespace {
     }
 
     void ManageSpellPerks(const AddPerkEvent& evt) {
-        if (evt.actor->formID == 0x14) {
-            /*if (evt.perk == Runtime::GetPerk("GTSPerkColossalGrowth")) {
-                PrintMessageBox("You've learned to rapidly change the size of yourself and your followers, as well as unlocked an ability to set size limit to any value. To change it, Open the settings and go to the balance page.");
-            }*/
-            if (evt.perk == Runtime::GetPerk("GTSPerkGrowthDesireAug")) {
+        if (evt.actor->IsPlayerRef()) {
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkGrowthDesireAug)) {
                 PrintMessageBox("You're now able to grow and shrink yourself manually at will. By default, press L.Shift + 1 or 2. You can affect followers by pressing L.Shift + Left Arrow + Arrow Up, and can also affect self by pressing Left Arrow + Arrow Up");
             }
-            if (evt.perk == Runtime::GetPerk("GTSPerkShrinkAdept") && !Runtime::HasSpell(evt.actor, "GTSSpellShrinkBolt")) {
-                Runtime::AddSpell(evt.actor, "GTSSpellShrinkBolt");
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkShrinkAdept) && !Runtime::HasSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkBolt)) {
+                Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkBolt);
             }
-            if (evt.perk == Runtime::GetPerk("GTSPerkShrinkExpert") && !Runtime::HasSpell(evt.actor, "GTSSpellShrinkStorm")) {
-                Runtime::AddSpell(evt.actor, "GTSSpellShrinkStorm");
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkShrinkExpert) && !Runtime::HasSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkStorm)) {
+                Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkStorm);
             }
-            if (evt.perk == Runtime::GetPerk("GTSPerkTinyCalamity")) {
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkTinyCalamity)) {
                 AddCalamityPerk();
             }
         }
@@ -95,10 +90,10 @@ namespace {
     void ManageOtherPerks(const AddPerkEvent& evt) {
         Actor* actor = evt.actor;
         if (actor) {
-            if (actor->formID == 0x14 || IsTeammate(actor)) {
-                auto data = Transient::GetSingleton().GetActorData(actor);
+            if (actor->IsPlayerRef() || IsTeammate(actor)) {
+                auto data = Transient::GetActorData(actor);
                 if (data) {
-                    if (evt.perk == Runtime::GetPerk("GTSPerkAcceleration")) {
+                    if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkAcceleration)) {
                         data->PerkBonusSpeed = Perk_Acceleration_GetBonus(actor);
                     }
                 }
@@ -106,13 +101,13 @@ namespace {
         }
     }
 
-    void Perks_UpdateAccelerationPerk(TempActorData* data, Actor* giant) {
-        if (data && Runtime::HasPerkTeam(giant, "GTSPerkAcceleration")) {
+    void Perks_UpdateAccelerationPerk(TransientActorData* data, Actor* giant) {
+        if (data && Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkAcceleration)) {
             data->PerkBonusSpeed = Perk_Acceleration_GetBonus(giant);
         }
     }
 
-    void StartStackDecayTask(Actor* giant, float stack_power, TempActorData* data) {
+    void StartStackDecayTask(Actor* giant, float stack_power, TransientActorData* data) {
         std::string name = std::format("StackDecay_{}_{}", giant->formID, Time::WorldTimeElapsed());
         ActorHandle gianthandle = giant->CreateRefHandle();
         double Start = Time::WorldTimeElapsed();
@@ -135,7 +130,6 @@ namespace {
                 if (!gianthandle) {
                     return false;
                 }
-                Actor* giantref = gianthandle.get().get();
                 double Finish = Time::WorldTimeElapsed();
 
                 if (Finish - Start >= stack_duration) {
@@ -155,9 +149,9 @@ namespace {
     }
 
 
-    void Perks_UpdateLifeForceAbsorptionPerk(TempActorData* data, Actor* giant) {
+    void Perks_UpdateLifeForceAbsorptionPerk(TransientActorData* data, Actor* giant) {
         if (giant) {
-            if (Runtime::HasPerkTeam(giant, "GTSPerkLifeAbsorption")) {
+            if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkLifeAbsorption)) {
                 int stack_limit = 25;
                 if (data) {
                     if (data->Stacks_Perk_LifeForce < stack_limit) {
@@ -175,18 +169,6 @@ namespace {
 }
 
 namespace GTS {
-    PerkHandler& PerkHandler::GetSingleton() noexcept {
-        static PerkHandler instance;
-
-        static std::atomic_bool initialized;
-        static std::latch latch(1);
-        if (!initialized.exchange(true)) {
-            latch.count_down();
-        }
-        latch.wait();
-
-        return instance;
-    }
 
     std::string PerkHandler::DebugName() {
         return "::PerkHandler";
@@ -200,13 +182,13 @@ namespace GTS {
     void PerkHandler::OnRemovePerk(const RemovePerkEvent& evt) {
         Actor* actor = evt.actor;
         if (actor) {
-            if (actor->formID == 0x14 || IsTeammate(actor)) {
-                auto data = Transient::GetSingleton().GetActorData(actor);
+            if (actor->IsPlayerRef() || IsTeammate(actor)) {
+                auto data = Transient::GetActorData(actor);
                 if (data) {
-                    if (evt.perk == Runtime::GetPerk("GTSPerkAcceleration")) {
+                    if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkAcceleration)) {
                         data->PerkBonusSpeed = 1.0f;
                     }
-                    if (evt.perk == Runtime::GetPerk("GTSPerkLifeAbsorption")) {
+                    if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkLifeAbsorption)) {
                         data->PerkLifeForceStolen = 0.0f;
                         data->Stacks_Perk_LifeForce = 0;
                     }
@@ -214,29 +196,138 @@ namespace GTS {
             }
         }
     }
+
+    void PerkHandler::OnGTSLevelUp(Actor* a_actor) {
+        if (a_actor) {
+            if (const auto& data = Persistent::GetActorData(a_actor)) {
+                if (!a_actor->IsPlayerRef()) { //Only NPC's
+                    RuntimeGivePerksToNPC(a_actor, data->fGTSSkillLevel);
+                }
+            }
+        }
+    }
+
+    void PerkHandler::ActorLoaded(RE::Actor* actor) {
+        if (IsHuman(actor)) {
+            SetNPCSkillLevelByPerk(actor);
+            OnGTSLevelUp(actor);
+        }
+    }
+
+    //GTS Skill Boosts For NPCs
+    void PerkHandler::SetNPCSkillLevelByPerk(Actor* a_actor) {
+        if (!a_actor) return;
+
+        auto apply = [&](bool hasPerk, int minVal, int maxVal) {
+            if (!hasPerk) return false;
+
+            if (auto data = Persistent::GetActorData(a_actor); data) {
+                if (static_cast<int>(data->fGTSSkillLevel) < minVal) {
+                    data->fGTSSkillLevel = static_cast<float>(RandomInt(minVal, maxVal));
+                    logger::trace("Setting skill level of: {} to: {}", a_actor->GetName(), data->fGTSSkillLevel);
+                }
+            }
+            return true;
+        };
+
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled100), 100, 100)) return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled90), 90, 95))    return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled70), 70, 75))    return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled50), 50, 55))    return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled30), 30, 35))    return;
+        if (apply(Runtime::HasPerk(a_actor, Runtime::PERK.GTSNPCPerkSkilled10), 10, 15))    return;
+    }
+
+    void PerkHandler::RuntimeGivePerksToNPC(Actor* a_actor, float a_currentSkillLevel) {
+
+        if (a_actor->GetActorBase()->UsesTemplate()) {
+            logger::trace("Can't give perks to Templated NPC's");
+            return;
+        }
+
+
+        static const re2::RE2 intRegex(R"((\d+))");
+
+        for (const auto& perk : Runtime::PERK.List) {
+            const auto& nam = str_tolower(perk.first);
+            BGSPerk* perkptr = perk.second->Value;
+            if (!perkptr) continue;
+            if (perkptr->data.hidden || !perkptr->data.playable) continue;
+            if (a_actor->HasPerk(perkptr)) continue;
+            if (!nam.contains("gtsperk")) continue;
+            
+            TESConditionItem* cond = perkptr->perkConditions.head;
+
+            //If null head: perk has no conditions
+
+            //So there's a case (me <- (dumbass)) where if you use a synthesis patcher to remove all perk reqs the skilltree 
+            //will obvs. not lock you out of later perks, BUT it will also mess up this condition checker.
+            //So in the case that this happens we'll fall back to parsing the perk name itself as litterally all of them contain the req level.
+            // eg. perkname (40).
+            if (!cond) {
+                std::string pname = perkptr->GetName();
+                int reqLevel = -1;
+
+                if (RE2::PartialMatch(pname, intRegex, &reqLevel)) {
+                    if (reqLevel > 0 && a_currentSkillLevel >= reqLevel) {
+                        a_actor->GetActorBase()->AddPerk(perkptr, 0);
+                        logger::trace("Gave Conditionless Perk: {} to {}", perkptr->GetName(), a_actor->GetName());
+                    }
+                }
+
+                continue;
+            }
+
+            //Traverse Condition Linked List and find the level req for the perk.
+            while (cond) {
+	            const FUNCTION_DATA& fd = cond->data.functionData;
+                if (fd.function.get() == FUNCTION_DATA::FunctionID::kGetGlobalValue) {
+                    if (TESGlobal* glob = static_cast<TESGlobal*>(cond->data.functionData.params[0])) {
+                        if (glob->formID == Runtime::GLOB.GTSSkillLevel.Value->formID) {
+                            float req = cond->data.comparisonValue.f;
+                            
+                            if (req <= a_currentSkillLevel) {
+                                //If level req. met give the perk.
+                                logger::trace("Gave Perk: {} to {}", perkptr->GetName(), a_actor->GetName());
+                                a_actor->GetActorBase()->AddPerk(perkptr, 1);
+                                a_actor->ApplyTemporaryPerk(perkptr);
+                                break;
+                            }
+                        }
+                    }
+                }
+                cond = cond->next;
+            }
+        }
+        
+        a_actor->ApplyPerksFromBase();
+    }
+
     bool PerkHandler::Perks_Cataclysmic_HasStacks(Actor* giant) {
-        auto transient = Transient::GetSingleton().GetActorData(giant);
+        auto transient = Transient::GetActorData(giant);
 		if (transient) {
-            bool HasPerk = Runtime::HasPerkTeam(giant, "GTSPerkCataclysmicStomp");
+            bool HasPerk = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkCataclysmicStomp);
             return HasPerk && transient->Stacks_Perk_CataclysmicStomp > 0;
         }
         return false;
     }
 
-    void PerkHandler::Perks_Cataclysmic_ManageStacks(Actor* giant, int add_stacks = 0) {
-		auto transient = Transient::GetSingleton().GetActorData(giant);
+    void PerkHandler::Perks_Cataclysmic_ManageStacks(Actor* giant, int add_stacks) {
+		auto transient = Transient::GetActorData(giant);
 		if (transient) {
-            if (Runtime::HasPerkTeam(giant, "GTSPerkCataclysmicStomp")) {
+            if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkCataclysmicStomp)) {
                 constexpr int stack_limit = 3;
+
                 if (add_stacks > 0) {
                     transient->Stacks_Perk_CataclysmicStomp = std::min(transient->Stacks_Perk_CataclysmicStomp + add_stacks, stack_limit);
-                } else {
+                }
+                else {
                     if (transient->Stacks_Perk_CataclysmicStomp > 0) {
                         transient->Stacks_Perk_CataclysmicStomp -= 1;
                     }
                 }
             }
-        }
+		}
     }
 
     float PerkHandler::Perks_Cataclysmic_EmpowerStomp(Actor* giant) {
@@ -250,12 +341,12 @@ namespace GTS {
             
             float PowerBoost = 1.0f + ((0.15f + SkillLevel) * (Legendary + 1.0f));
 
-            log::info("Skill Level: {}, Legendary: {}", SkillLevel, Legendary);
-            log::info("Power Boost: {}", PowerBoost);
+            logger::info("Skill Level: {}, Legendary: {}", SkillLevel, Legendary);
+            logger::info("Power Boost: {}", PowerBoost);
 
             Effect_Increase *= PowerBoost;
 
-            PerkHandler::Perks_Cataclysmic_ManageStacks(giant); // Decrease by 1
+            PerkHandler::Perks_Cataclysmic_ManageStacks(giant);
             Perk_Catalysmic_CheckForLaugh(giant);
         }
         return Effect_Increase;
@@ -276,7 +367,7 @@ namespace GTS {
 
     void PerkHandler::UpdatePerkValues(Actor* giant, PerkUpdate Type) {
         if (giant) {
-            auto data = Transient::GetSingleton().GetActorData(giant);
+            auto data = Transient::GetActorData(giant);
             switch (Type) {
                 case PerkUpdate::Perk_Acceleration: 
                     Perks_UpdateAccelerationPerk(data, giant);

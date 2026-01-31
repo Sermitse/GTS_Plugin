@@ -1,38 +1,5 @@
 #pragma once
 
-//stdlib Defines
-#define _USE_MATH_DEFINES
-
-//Project-Wide Defines
-//#define GTS_PROFILER_ENABLED
-//#define GTS_DISABLE_PLUGIN
-
-
-//Imgui Defines
-#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-#define IMGUI_DEFINE_MATH_OPERATORS
-
-#include <cassert>
-#include <cctype>
-#include <cerrno>
-#include <cfenv>
-#include <cfloat>
-#include <cinttypes>
-#include <climits>
-#include <clocale>
-#include <cmath>
-#include <csetjmp>
-#include <csignal>
-#include <cstdarg>
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <cuchar>
-#include <cwchar>
-#include <cwctype>
 #include <algorithm>
 #include <any>
 #include <array>
@@ -40,13 +7,36 @@
 #include <barrier>
 #include <bit>
 #include <bitset>
+#include <cassert>
+#include <cctype>
+#include <cerrno>
+#include <cfenv>
+#include <cfloat>
 #include <charconv>
 #include <chrono>
+#include <cinttypes>
+#include <climits>
+#include <clocale>
+#include <cmath>
 #include <compare>
 #include <complex>
 #include <concepts>
 #include <condition_variable>
+#include <csetjmp>
+#include <csignal>
+#include <cstdarg>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <cuchar>
+#include <cwchar>
+#include <cwctype>
+#include <d3d11.h>
 #include <deque>
+#include <ehdata.h>
 #include <exception>
 #include <execution>
 #include <filesystem>
@@ -57,8 +47,8 @@
 #include <future>
 #include <initializer_list>
 #include <iomanip>
-#include <iosfwd>
 #include <ios>
+#include <iosfwd>
 #include <iostream>
 #include <istream>
 #include <iterator>
@@ -77,8 +67,8 @@
 #include <queue>
 #include <random>
 #include <ranges>
-#include <regex>
 #include <ratio>
+#include <rttidata.h>
 #include <scoped_allocator>
 #include <semaphore>
 #include <set>
@@ -95,9 +85,9 @@
 #include <system_error>
 #include <thread>
 #include <tuple>
+#include <type_traits>
 #include <typeindex>
 #include <typeinfo>
-#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -105,82 +95,136 @@
 #include <variant>
 #include <vector>
 #include <version>
-#include <d3d11.h>
-#include <ehdata.h>
-#include <rttidata.h>
+#include <wincodec.h>
+#include <wrl/client.h>
 
 #include <RE/Skyrim.h>
-#include <SKSE/SKSE.h>
 #include <REL/Relocation.h>
+#include <SKSE/SKSE.h>
 
-#include <ShlObj_core.h>
-#include <Windows.h>
 #include <Psapi.h>
+#include <ShlObj_core.h>
 #include <tchar.h>
+#include <Windows.h>
+
+// For console sink
+#include <spdlog/sinks/msvc_sink.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+
+#include <lunasvg.h>					  //https://github.com/sammycage/lunasvg
+#include <reflect>                        //https://github.com/qlibs/reflect
+#include <toml.hpp>                       //https://github.com/ToruNiina/toml11
+#include <magic_enum/magic_enum.hpp>      //https://github.com/Neargye/magic_enum
+#include <lz4.h>						  //https://github.com/lz4/lz4
+#include <glm/ext.hpp>					  //https://github.com/g-truc/glm
+#include <glm/glm.hpp>
+#include <detours/detours.h>			  //https://github.com/microsoft/Detours
+#include <glaze/json/read.hpp>            //https://github.com/stephenberry/glaze
+#include <re2/re2.h>                      //https://github.com/google/re2
+
+//Imgui
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "UI/Lib/imgui.h"
+#include "UI/Lib/imgui_internal.h"
+#include "UI/Lib/imgui_stdlib.h"
+#include "UI/Lib/imgui_impl_dx11.h"
+
+//Tbb - https://github.com/uxlfoundation/oneTBB
+#include <tbb/concurrent_vector.h>
+#include <tbb/concurrent_map.h>
+#include <tbb/concurrent_unordered_map.h>
+#include <tbb/parallel_for_each.h>
+#include <tbb/concurrent_queue.h>
+
+//Abseil - https://github.com/abseil/abseil-cpp
+#include <absl/container/flat_hash_map.h> 
+#include <absl/container/flat_hash_set.h> 
+#include <absl/container/inlined_vector.h>
+#include <absl/container/node_hash_map.h>
+#include <absl/container/node_hash_set.h>
+#include <absl/container/btree_map.h> 
+#include <absl/container/btree_set.h> 
+
+using namespace std::literals;
+using namespace REL::literals;
+namespace logger = SKSE::log;
+
+namespace GTS {
+	using namespace RE;
+}
+
+namespace Hooks {
+	using namespace RE;
+	using namespace GTS;
+}
+
+//Project-Wide Defines
+//#define GTS_PROFILER_ENABLED //<---- Enable The Performance Profiller. Accessible by opening the debug menu.
+//#define GTS_DISABLE_PLUGIN   //<---- If defined, Disables the entire plugin but keeps serialization active to preserve cosave data.
 
 //WinAPI Fix
 #undef PlaySound 
 #undef DeleteFile
 #undef LoadImage
 
-// For console sink
-
-#include <spdlog/sinks/msvc_sink.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-
-#include <reflect>                      //https://github.com/qlibs/reflect
-#include <toml.hpp>                     //https://github.com/ToruNiina/toml11
-#include <magic_enum/magic_enum.hpp>    //https://github.com/Neargye/magic_enum
-#include <lz4.h>
-
-using namespace std::literals;
-using namespace REL::literals;
-
-namespace reflect {
-	//Fix ambiguity in reflects' usage of the detail namespace
-	using namespace reflect::v1_2_5::detail;
-}
-
-namespace GTS {
-	using namespace std;
-	using namespace SKSE;
-	using namespace RE;
-}
-
-namespace DebugUtil {
-	using namespace GTS;
-	using namespace RE;
-}
-
-namespace Hooks {
-	using namespace std;
-	using namespace SKSE;
-	using namespace RE;
-	using namespace RE::BSScript;
-	using namespace RE::BSScript::Internal;
-	using namespace GTS;
-}
-
-//Add Missing Game versions to our old version of clib-ng
-namespace RE {
-	constexpr REL::Version RUNTIME_SSE_1_6_659(1, 6, 659, 0);
-	constexpr REL::Version RUNTIME_SSE_1_6_678(1, 6, 678, 0);
-	constexpr REL::Version RUNTIME_SSE_1_6_1130(1, 6, 1130, 0);
-	constexpr REL::Version RUNTIME_SSE_1_6_1170(1, 6, 1170, 0);
-}
-
-namespace logger = SKSE::log;
-
-//Own Includes
-#include "Config/ConfigUtil.hpp"
+// ---- Own Includes ----
 #include "Constants.hpp"
-#include "Profiler/Profiler.hpp"
-#include "Events/Events.hpp"
-#include "Utils/Utils.hpp"
+
+//Debugging
+#include "Debug/Profilers.hpp"
+#include "Debug/DebugDraw.hpp"
+
+//Base Utils
+#include "Utils/Misc/Singleton.hpp"
+#include "Utils/Misc/Enum.hpp"
+#include "Utils/Misc/Random.hpp"
+#include "Utils/Misc/TryLockMutex.hpp"
+#include "Utils/Text/Text.hpp"
+#include "Utils/Text/Format.hpp"
+#include "Utils/Input/DInput.hpp"
+#include "Utils/Win32/Messagebox.hpp"
+
+//Systems
+#include "Systems/Events/EventListener.hpp"
+#include "Systems/Events/EventDispatcher.hpp"
+#include "Systems/Misc/State.hpp"
+#include "Systems/Misc/Tasks.hpp"
+#include "Systems/Misc/Time.hpp"
+#include "Systems/Misc/Timer.hpp"
+#include "Systems/Motion/Spring.hpp"
+#include "Systems/Motion/Smooth.hpp"
+
+//GTS Utils
+#include "Utils/PapyrusUtils.hpp"
+#include "Utils/Units.hpp"
+#include "Utils/Camera.hpp"
+#include "Utils/Node.hpp"
+#include "Utils/EffectUtils.hpp"
+#include "Utils/QuestUtil.hpp"
+#include "Utils/SoundUtils.hpp"
+
+//Scale
 #include "Scale/Scale.hpp"
 #include "Scale/ModScale.hpp"
 #include "Scale/Height.hpp"
-#include "Data/Data.hpp"
-#include "Hooks/Hooks.hpp"
-#include "RE/RE.hpp"
+#include "Scale/ScaleUtils.hpp"
+
+//Other
+#include "Papyrus/ProxyFunctions.hpp"
+
+//Actor
+#include "Utils/Actions/ActionUtils.hpp"
+#include "Utils/Actor/ActorUtils.hpp"
+#include "Utils/Actor/ActorBools.hpp"
+#include "Utils/Actor/GTSUtils.hpp"
+#include "Utils/Actor/SkillUtils.hpp"
+#include "Utils/Actor/FindActor.hpp"
+#include "Utils/Actor/AV.hpp"
+#include "Utils/Animation/AnimationVars.hpp"
+
+//Data
+#include "Data/Runtime.hpp"
+#include "Data/Persistent.hpp"
+#include "Data/Transient.hpp"

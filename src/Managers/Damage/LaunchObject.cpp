@@ -5,9 +5,6 @@
 
 #include "Managers/HighHeel.hpp"
 
-#include "RE/T/TES.hpp"
-
-#include "UI/DebugAPI.hpp"
 
 using namespace GTS;
 
@@ -24,11 +21,11 @@ namespace {
 
 	float Multiply_By_Perk(Actor* giant) {
 		float multiply = 1.0f;
-		if (Runtime::HasPerkTeam(giant, "GTSPerkRumblingFeet")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRumblingFeet)) {
 			multiply *= 1.25f;
 		}
 
-		if (Runtime::HasPerkTeam(giant, "GTSPerkDisastrousTremmor")) {
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDisastrousTremmor)) {
 			multiply *= 1.5f;
 		}
 		return multiply;
@@ -65,7 +62,7 @@ namespace {
 				if (body) {
 					push *= Multiply_By_Mass(body);
 					//log::info("Applying force to object, Push: {}, Force: {}, Result: {}", Vector2Str(push), force, Vector2Str(push * force));
-					SetLinearImpulse(body, hkVector4(push.x * force, push.y * force, push.z * force, 1.0f));
+					body->SetLinearImpulse(hkVector4(push.x * force, push.y * force, push.z * force, 1.0f));
 				}
 			}
 		}
@@ -78,7 +75,7 @@ namespace GTS {
     void PushObjectsUpwards(Actor* giant, const std::vector<NiPoint3>& footPoints, float maxFootDistance, float power, bool IsFoot) {
 		GTS_PROFILE_SCOPE("LaunchObject: PushObjectsUpwards");
 
-		const bool AllowLaunch = Config::GetGameplay().bLaunchObjects;
+		const bool AllowLaunch = Config::Gameplay.bLaunchObjects;
 
     	if (!AllowLaunch) {
 			return;
@@ -111,12 +108,12 @@ namespace GTS {
 
 		std::vector<ObjectRefHandle> Refs = GetNearbyObjects(giant);
 
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
 			for (auto point: footPoints) {
 				if (IsFoot) {
 					point.z -= HH;
 				}
-				DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
+				DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxFootDistance, 600, {0.0f, 1.0f, 0.0f, 1.0f});
 			}
 		}
 
@@ -147,7 +144,7 @@ namespace GTS {
 										auto body = collision->GetRigidBody();
 										if (body) {
 											push *= Multiply_By_Mass(body);
-											SetLinearImpulse(body, hkVector4(0, 0, push, push));
+											body->SetLinearImpulse(hkVector4(0, 0, push, push));
 										}
 									}
 								}
@@ -163,7 +160,7 @@ namespace GTS {
     void PushObjectsTowards(Actor* giant, TESObjectREFR* object, NiAVObject* Bone, float power, float radius, bool Kick) {
 
     	GTS_PROFILE_SCOPE("LaunchObject: PushObjectsTowards");
-		const bool AllowLaunch = Config::GetGameplay().bLaunchObjects;
+		const bool AllowLaunch = Config::Gameplay.bLaunchObjects;
 
     	if (!AllowLaunch) {
 			return;
@@ -194,8 +191,8 @@ namespace GTS {
 			point.z -= HH * 0.75f;
 		}
 
-		if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant) || EffectsForEveryone(giant))) {
-			DebugAPI::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 20, {0.5f, 0.0f, 0.5f, 1.0f});
+		if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
+			DebugDraw::DrawSphere(glm::vec3(point.x, point.y, point.z), maxDistance, 20, {0.5f, 0.0f, 0.5f, 1.0f});
 		}
 
 		int nodeCollisions = 0;
@@ -263,7 +260,7 @@ namespace GTS {
 	}
 
 	std::vector<ObjectRefHandle> GetNearbyObjects(Actor* giant) {
-		bool AllowLaunch = Config::GetGameplay().bLaunchObjects;
+		bool AllowLaunch = Config::Gameplay.bLaunchObjects;
 		if (!AllowLaunch) {
 			return {};
 		}
@@ -274,7 +271,7 @@ namespace GTS {
 		std::vector<ObjectRefHandle> Objects = {};
 		NiPoint3 point = giant->GetPosition();
 
-		const bool PreciseScan = Config::GetGameplay().bLaunchAllCells;
+		const bool PreciseScan = Config::Gameplay.bLaunchAllCells;
 
 		if (!PreciseScan) { // Scan single cell only
 			TESObjectCELL* cell = giant->GetParentCell();
@@ -301,7 +298,7 @@ namespace GTS {
     	else { // Else scan Entire world
 			TESObjectREFR* GiantRef = skyrim_cast<TESObjectREFR*>(giant);
 			if (GiantRef) {
-				TESEx::ForEachReferenceInRangeEx(GiantRef, maxDistance, [&](RE::TESObjectREFR* a_ref){
+				TES::GetSingleton()->ForEachReferenceInRange(GiantRef, maxDistance, [&](RE::TESObjectREFR* a_ref){
 					const bool IsActor = a_ref->Is(FormType::ActorCharacter);
 					if (!IsActor) { // we don't want to apply it to actors
 						const NiPoint3 objectlocation = a_ref->GetPosition();

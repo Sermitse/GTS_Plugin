@@ -3,7 +3,7 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Managers/ModEvent.hpp"
 
 #include "Config/Config.hpp"
@@ -13,7 +13,7 @@ using namespace GTS;
 namespace {
 
 	bool CanDoImpact(Actor* actor, FootEvent kind) { // This function is needed to prevent sound spam from followers at large sizes
-		if (IsTeammate(actor) && actor->formID != 0x14) {
+		if (IsTeammate(actor) && !actor->IsPlayerRef()) {
 			if (get_visual_scale(actor) < 6.0f) {
 				return true;
 			}
@@ -36,10 +36,9 @@ namespace {
 
 	FootEvent get_foot_kind(Actor* actor, std::string_view tag) {
 		GTS_PROFILE_SCOPE("Impact: GetFootKind");
-		
 
-		bool hugging = actor ? IsHuggingFriendly(actor) : false; 
-		bool is_jumping = actor ? IsJumping(actor) : false;
+		bool hugging = actor ? AnimationVars::General::IsFollower(actor) : false; 
+		bool is_jumping = actor ? AnimationVars::Other::IsJumping(actor) : false;
 		bool in_air = actor ? actor->IsInMidair() : false;
 		FootEvent foot_kind = FootEvent::Unknown;
 	
@@ -157,7 +156,7 @@ namespace {
 		if (actor->AsActorState()->IsSprinting()) {
 			launch *= 1.150f;
 			radius *= 1.175f;
-			if (Runtime::HasPerkTeam(actor, "GTSPerkSprintDamageMult2")) {
+			if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkSprintDamageMult2)) {
 				launch *= 1.250f;
 				radius *= 1.275f;
 			}
@@ -178,15 +177,15 @@ namespace {
 		float fallmod = GetFallModifier(actor);
 		
 		float damage = sizemanager.GetSizeAttribute(actor, SizeAttribute::JumpFall) * fallmod; // get jump damage boost
-		bool EffectDelay = Config::GetGeneral().bAlterPlayerGravity;
+		bool EffectDelay = Config::General.bAlterPlayerGravity;
 		double gravity = 1.0;
 		
 		if (EffectDelay && actor->GetCharController()) {
 			gravity = std::clamp(actor->GetCharController()->gravity, 1.0f, 999999.0f);
 		}
 
-		const double EffectDelay_Gravity= static_cast<double>(EffectDelay ? Config::GetGeneral().fAdditionalJumpEffectDelay_Gravity : 0.0f);
-		const double EffectDelay_Normal = static_cast<double>(Config::GetGeneral().fAdditionalJumpEffectDelay);
+		const double EffectDelay_Gravity= static_cast<double>(EffectDelay ? Config::General.fAdditionalJumpEffectDelay_Gravity : 0.0f);
+		const double EffectDelay_Normal = static_cast<double>(Config::General.fAdditionalJumpEffectDelay);
 		
 		std::string name = std::format("JumpLandT_{}", actor->formID);
 		ActorHandle gianthandle = actor->CreateRefHandle();
@@ -224,11 +223,8 @@ namespace {
 		}
 	}
 }
+
 namespace GTS {
-	ImpactManager& ImpactManager::GetSingleton() noexcept {
-		static ImpactManager instance;
-		return instance;
-	}
 
 	void ImpactManager::HookProcessEvent(BGSImpactManager* impact, const BGSFootstepEvent* a_event, BSTEventSource<BGSFootstepEvent>* a_eventSource) {
 		// Applied when Foot Events such as FootScuffLeft/FootScuffRight and FootLeft/FootRight are seen on Actors
@@ -240,8 +236,7 @@ namespace GTS {
 			if (id != 10000001) { // .dll sends fake footstep events to fix missing foot sounds during some animations
 			    // If it matches that number = we don't want to do anything. Done inside FootStepManager::PlayVanillaFootstepSounds function
 				std::string tag = a_event->tag.c_str();
-				auto event_manager = ModEventManager::GetSingleton();
-				event_manager.m_onfootstep.SendEvent(actor,tag);
+				ModEventManager::GetSingleton().m_onfootstep.SendEvent(actor, tag);
 
 				auto kind = get_foot_kind(actor, tag);
 

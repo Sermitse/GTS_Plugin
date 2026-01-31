@@ -3,6 +3,8 @@
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 
+#include "Utils/Actions/VoreUtils.hpp"
+
 using namespace GTS;
 
 namespace {
@@ -26,9 +28,9 @@ namespace {
 				VoreData.GrabAll();
 			}
 			tiny->NotifyAnimationGraph("JumpFall");
-			Attacked(tiny, &data.giant);
+			tiny->Attacked(&data.giant);
 		}
-		if (IsTransferingTiny(&data.giant)) {
+		if (AnimationVars::Grab::HasGrabbedTiny(&data.giant)) {
 			ManageCamera(&data.giant, true, CameraTracking::ObjectA);
 		} else {
 			ManageCamera(&data.giant, true, CameraTracking::Hand_Right);
@@ -50,16 +52,16 @@ namespace {
 
         auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
 
-		if (!AllowDevourment()) {
-			Runtime::PlaySoundAtNode("GTSSoundSwallow", giant, 1.0f, "NPC Head [Head]"); // Play sound
+		if (!IsDevourmentEnabled()) {
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, giant, 1.0f, "NPC Head [Head]"); // Play sound
 		}
 
 		for (auto& tiny: VoreData.GetVories()) {
 			AllowToBeCrushed(tiny, true);
-			if (tiny->formID == 0x14) {
+			if (tiny->IsPlayerRef()) {
 				PlayerCamera::GetSingleton()->cameraTarget = giant->CreateRefHandle();
 			}
-			if (AllowDevourment()) {
+			if (IsDevourmentEnabled()) {
 				CallDevourment(giant, tiny);
 				SetBeingHeld(tiny, false);
 				VoreData.AllowToBeVored(true);

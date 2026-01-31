@@ -1,4 +1,7 @@
 #include "Managers/Damage/TinyCalamity.hpp"
+
+#include "Config/Config.hpp"
+
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Managers/Animation/Utils/TurnTowards.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
@@ -6,14 +9,14 @@
 #include "Managers/Animation/TinyCalamity_Shrink.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
-#include "Managers/Attributes.hpp"
+#include "Managers/AttributeManager.hpp"
 #include "Utils/MovementForce.hpp"
 #include "Utils/Looting.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
 #include "Managers/AI/AIFunctions.hpp"
-#include "Managers/GtsSizeManager.hpp"
+#include "Managers/GTSSizeManager.hpp"
 #include "Magic/Effects/Common.hpp"
-#include "UI/DebugAPI.hpp"
+
 
 #include "Utils/DeathReport.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
@@ -25,7 +28,7 @@ namespace {
     void ScareEnemies(Actor* giant)  {
 		int FearChance = RandomInt(0, 2);
 		if (FearChance <= 0) {
-			Runtime::CastSpell(giant, giant, "GTSSpellFear");
+			Runtime::CastSpell(giant, giant, Runtime::SPEL.GTSSpellFear);
 		}
 	}
 
@@ -33,7 +36,7 @@ namespace {
         if (!IsLiving(tiny)) {
             SpawnDustParticle(tiny, giant, "NPC Root [Root]", 3.0f);
         } else {
-            if (!LessGore()) {
+            if (!Config::General.bLessGore) {
                 auto root = find_node(tiny, "NPC Root [Root]");
                 if (root) {
                     float currentSize = get_visual_scale(tiny);
@@ -44,15 +47,15 @@ namespace {
                     SpawnParticle(tiny, 1.20f, "GTS/Damage/ShrinkOrCrush.nif", NiMatrix3(), root->world.translate, currentSize * 12.5f, 7, root);
                 }
             }
-            Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
-            Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
-            Runtime::PlayImpactEffect(tiny, "GTSBloodSprayImpactSet", "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
-            Runtime::CreateExplosion(tiny, get_visual_scale(tiny) * 0.5f, "GTSExplosionBlood");
+            Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
+            Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
+            Runtime::PlayImpactEffect(tiny, Runtime::IDTS.GTSBloodSprayImpactSet, "NPC Root [Root]", NiPoint3{0, 0, -1}, 512, false, true);
+            Runtime::CreateExplosion(tiny, get_visual_scale(tiny) * 0.5f, Runtime::EXPL.GTSExplosionBlood);
         }
     }
 
     void RefreshDuration(Actor* giant) {
-        if (Runtime::HasPerk(giant, "GTSPerkTinyCalamityAug")) {
+        if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkTinyCalamityAug)) {
             AttributeManager::OverrideSMTBonus(0.75f); // Reduce speed after crush
         } else {
             AttributeManager::OverrideSMTBonus(0.35f); // Reduce more speed after crush
@@ -77,14 +80,14 @@ namespace {
     }
 
     void FullSpeed_ApplyEffect(Actor* giant, float speed) {
-        auto transient = Transient::GetSingleton().GetData(giant);
+        auto transient = Transient::GetActorData(giant);
 		if (transient) {
             bool& CanApplyEffect = transient->SMTReachedMaxSpeed;
             if (speed < 1.0f) {
                 CanApplyEffect = true;
             } else if (speed >= 1.0f && CanApplyEffect) {
                 CanApplyEffect = false;
-                //Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_ReachedSpeed", giant, 1.0f, 1.0f, "NPC COM [COM ]");
+                Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_ReachedSpeed, giant, 1.0f, "NPC COM [COM ]");
             } 
         }
     }
@@ -93,7 +96,7 @@ namespace {
 namespace GTS {
     bool TinyCalamity_WrathfulCalamity(Actor* giant) {
         bool perform = false;
-        if (Runtime::HasPerkTeam(giant, "GTSPerkTinyCalamityRage") && HasSMT(giant) && !giant->IsSneaking()) {
+        if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkTinyCalamityRage) && HasSMT(giant) && !giant->IsSneaking()) {
 
             float threshold = 0.25f;
             float level_bonus = std::clamp(GetGtsSkillLevel(giant) - 70.0f, 0.0f, 0.30f);
@@ -133,7 +136,7 @@ namespace GTS {
                             
                             perform = true;
                         } else {
-                            if (giant->formID == 0x14) {
+                            if (giant->IsPlayerRef()) {
                                 if (!OnCooldown) {
                                     std::string message = std::format("{} is too healthy for Wrathful Calamity", tiny->GetDisplayFullName());
                                     Notify("Health: {:.0f}%; Requirement: {:.0f}%", health * 100.0f, threshold * 100.0f);
@@ -156,7 +159,7 @@ namespace GTS {
     void TinyCalamity_ShrinkActor(Actor* giant, Actor* tiny, float shrink) {
        GTS_PROFILE_SCOPE("TinyCalamity: ShrinkActor");
         if (HasSMT(giant)) {
-            bool HasPerk = Runtime::HasPerk(giant, "GTSPerkTinyCalamitySizeSteal");
+            bool HasPerk = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkTinyCalamitySizeSteal);
             float limit = Minimum_Actor_Scale;
             if (HasPerk) {
 				DamageAV(giant, ActorValue::kHealth, -shrink * 1.25f);
@@ -182,33 +185,31 @@ namespace GTS {
         int nodeCollisions = 0;
         auto model = tiny->GetCurrent3D();
         if (model) {
-            for (auto &point : CoordsToCheck) {
-                bool StopDamageLookup = false;
-                if (!StopDamageLookup) {
-                    VisitNodes(model, [&nodeCollisions, point, maxFootDistance, &StopDamageLookup](NiAVObject& a_obj) {
+            bool StopDamageLookup = false;
+            if (!StopDamageLookup) {
+                VisitNodes(model, [&nodeCollisions, CoordsToCheck, maxFootDistance, &StopDamageLookup](NiAVObject& a_obj) {
+                    for (auto point : CoordsToCheck) {
                         float distance = (point - a_obj.world.translate).Length() - Collision_Distance_Override;
                         if (distance <= maxFootDistance) {
                             StopDamageLookup = true;
                             nodeCollisions += 1;
                             return false;
                         }
-                        return true;
-                    });
-                }
+                    }
+                    return true;
+                });
             }
             if (nodeCollisions > 0) {
-                auto& CollisionDamage = CollisionDamage::GetSingleton();
                 if (ApplyCooldown) { // Needed to fix Thigh Crush stuff
-                    auto& sizemanager = SizeManager::GetSingleton();
                     bool OnCooldown = IsActionOnCooldown(tiny, CooldownSource::Damage_Thigh);
                     if (!OnCooldown) {
                         Utils_PushCheck(giant, tiny, Get_Bone_Movement_Speed(giant, Cause)); // pass original un-altered force
-                        CollisionDamage.DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
+                        CollisionDamage::DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
                         ApplyActionCooldown(giant, CooldownSource::Damage_Thigh);
                     }
                 } else {
                     Utils_PushCheck(giant, tiny, Get_Bone_Movement_Speed(giant, Cause)); // pass original un-altered force
-                    CollisionDamage.DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
+                    CollisionDamage::DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
                 }
             }
         }
@@ -230,16 +231,15 @@ namespace GTS {
         PlayGoreEffects(tiny, giant);    
         MoveItems(giantHandle, tinyHandle, tiny->formID, DamageSource::Collision);
 
-        Attacked(tiny, giant);
+        tiny->Attacked(giant);
         
         ReportDeath(giant, tiny, DamageSource::Collision);
 
-        float OldScale;
-        giant->GetGraphVariableFloat("GiantessScale", OldScale); // save old scale
-        giant->SetGraphVariableFloat("GiantessScale", 1.0f); // Needed to allow Stagger to play, else it won't work
+        float OldScale = AnimationVars::General::GiantessScale(giant);
+        AnimationVars::General::SetGiantessScale(giant, 1.0f);
 
         int Random = RandomInt(1, 4);
-		if (Random >= 4 && !IsActionOnCooldown(giant, CooldownSource::Emotion_Moan_Crush) && Runtime::HasPerk(giant, "GTSPerkGrowthDesire")) {
+		if (Random >= 4 && !IsActionOnCooldown(giant, CooldownSource::Emotion_Moan_Crush) && Runtime::HasPerk(giant, Runtime::PERK.GTSPerkGrowthDesire)) {
             Task_FacialEmotionTask_Smile(giant, 1.25f, "CollideSmile", RandomFloat(0.0f, 0.7f), 0.5f);
 			Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Overkill);
 		}
@@ -248,32 +248,31 @@ namespace GTS {
         StaggerActor(giant, 0.5f);
         RefreshDuration(giant);
 
-        Runtime::PlaySound("GTSSoundCrushDefault", giant, 1.0f, 1.0f);
+        Runtime::PlaySound(Runtime::SNDR.GTSSoundCrushDefault, giant, 1.0f, 1.0f);
 
-        if (tiny->formID != 0x14) {
+        if (!tiny->IsPlayerRef()) {
             Disintegrate(tiny); // Set critical stage 4 on actors
-        } else if (tiny->formID == 0x14) {
+        } else if (tiny->IsPlayerRef()) {
             TriggerScreenBlood(50);
             tiny->SetAlpha(0.0f); // Player can't be disintegrated, so we make player Invisible
         }
         
-        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Crush", giant, 1.0f, "NPC COM [COM ]");
-        giant->SetGraphVariableFloat("GiantessScale", OldScale);
+        Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Crush, giant, 1.0f, "NPC COM [COM ]");
+        AnimationVars::General::SetGiantessScale(giant, OldScale);
         DecreaseShoutCooldown(giant);
 
         ScareEnemies(giant);
     }
 
     void TinyCalamity_StaggerActor(Actor* giant, Actor* tiny, float giantHp) { // when we can't crush the target
-        float OldScale; 
-        giant->GetGraphVariableFloat("GiantessScale", OldScale); // record old slace
-        giant->SetGraphVariableFloat("GiantessScale", 1.0f); // Needed to allow Stagger to play, else it won't work
+        float OldScale = AnimationVars::General::GiantessScale(giant);
+        AnimationVars::General::SetGiantessScale(giant, 1.0f);
 
         PushForward(giant, tiny, 800);
         AddSMTDuration(giant, 2.5f);
         StaggerActor(giant, 0.5f); // play stagger on the player
 
-        Attacked(tiny, giant);
+        tiny->Attacked(giant);
 
         DamageAV(tiny, ActorValue::kHealth, giantHp * 0.75f);
         DamageAV(giant, ActorValue::kHealth, giantHp * 0.25f);
@@ -283,7 +282,7 @@ namespace GTS {
         update_target_scale(tiny, -0.06f, SizeEffectType::kShrink);
         ModSizeExperience(giant, xp);
 
-        Runtime::PlaySoundAtNode("GTSSoundTinyCalamity_Impact", giant, 1.0f, "NPC COM [COM ]");
+        Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Impact, giant, 1.0f, "NPC COM [COM ]");
         shake_camera_at_node(giant, "NPC COM [COM ]", 16.0f, 1.0f);
         
         if (IsEssential(giant, tiny)) {
@@ -292,13 +291,13 @@ namespace GTS {
             Notify("{} is too tough to be crushed", tiny->GetDisplayFullName());
         }
 
-        giant->SetGraphVariableFloat("GiantessScale", OldScale);
+        AnimationVars::General::SetGiantessScale(giant, OldScale);
         RefreshDuration(giant);
     }
 
     void TinyCalamity_SeekActors(Actor* giant) {
        GTS_PROFILE_SCOPE("TinyCalamity: SeekActors");
-        if (giant->formID == 0x14) {
+        if (giant->IsPlayerRef()) {
             if (giant->AsActorState()->IsSprinting() && HasSMT(giant)) {
                 auto node = find_node(giant, "NPC Pelvis [Pelv]");
                 if (!node) {
@@ -311,8 +310,8 @@ namespace GTS {
                 constexpr float BASE_DISTANCE = 48.0f;
                 float CheckDistance = BASE_DISTANCE*giantScale;
 
-                if (IsDebugEnabled() && (giant->formID == 0x14 || IsTeammate(giant))) {
-                    DebugAPI::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 100, {0.0f, 1.0f, 1.0f, 1.0f});
+                if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kPlayerAndFollowers)) {
+                    DebugDraw::DrawSphere(glm::vec3(NodePosition.x, NodePosition.y, NodePosition.z), CheckDistance, 100, {0.0f, 1.0f, 1.0f, 1.0f});
                 }
 
                 NiPoint3 giantLocation = giant->GetPosition();
@@ -352,9 +351,9 @@ namespace GTS {
         if (IsBeingHeld(giant, tiny)) { // Don't explode the ones in our hand
             return;
         }
-		auto& persistent = Persistent::GetSingleton();
-		if (persistent.GetData(giant)) {
-			if (persistent.GetData(giant)->smt_run_speed >= 1.0f) {
+
+		if (const auto& Data = Persistent::GetActorData(giant)) {
+			if (Data->fSMTRunSpeed >= 1.0f) {
                 float giantHp = GetAV(giant, ActorValue::kHealth);
 
 				if (giantHp <= 0) {
@@ -362,10 +361,10 @@ namespace GTS {
 				}
 
 				if (Collision_AllowTinyCalamityCrush(giant, tiny)) {
-                    StartCombat(tiny, giant);
+                    tiny->StartCombat(giant);
                     TinyCalamity_ExplodeActor(giant, tiny);
 				} else {
-                    StartCombat(tiny, giant);
+                    tiny->StartCombat(giant);
                     TinyCalamity_StaggerActor(giant, tiny, giantHp);
 				}
 			}
@@ -374,18 +373,18 @@ namespace GTS {
 
     // Manages SMT bonus speed
     void TinyCalamity_BonusSpeed(Actor* giant) {
-		auto Attributes = Persistent::GetSingleton().GetData(giant);
+		auto Attributes = Persistent::GetActorData(giant);
 		float Gigantism = 1.0f + (Ench_Aspect_GetPower(giant) * 0.25f);
 
         float speed = 1.0f; 
         float decay = 1.0f;
         float cap = 1.0f;
 
-		float& currentspeed = Attributes->smt_run_speed;
+		float& currentspeed = Attributes->fSMTRunSpeed;
         // SMT Active and sprinting
 		if (giant->AsActorState()->IsSprinting() && HasSMT(giant)) {
 
-			if (Runtime::HasPerk(giant, "GTSPerkTinyCalamityAug")) {
+			if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkTinyCalamityAug)) {
 				speed = 1.25f;
                 decay = 1.5f;
 				cap = 1.10f;

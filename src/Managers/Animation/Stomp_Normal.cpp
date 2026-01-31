@@ -8,7 +8,7 @@
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Rumble.hpp"
 
-#include "Utils/InputConditions.hpp"
+#include "Utils/Actions/InputConditions.hpp"
 #include "Utils/AttachPoint.hpp"
 
 using namespace GTS;
@@ -22,7 +22,7 @@ namespace {
 
 	void DoStompOrUnderStomp(Actor* giant, const std::string_view name) {
 		float WasteStamina = 25.0f;
-		if (Runtime::HasPerk(giant, "GTSPerkDestructionBasics")) {
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkDestructionBasics)) {
 			WasteStamina *= 0.65f;
 		}
 		if (GetAV(giant, ActorValue::kStamina) > WasteStamina) {
@@ -83,7 +83,7 @@ namespace {
 		data.stage = 1;
 		data.canEditAnimSpeed = true;
 		data.animSpeed = 1.35f;
-		if (data.giant.formID != 0x14) {
+		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed = 1.35f + GetRandomBoost()/2;
 		}
 	}
@@ -185,7 +185,7 @@ namespace {
 				DoDustExplosion(giantref, dust + (animSpeed * 0.05f), Event, Node);
 				StompManager::PlayNewOrOldStomps(giantref, 1.0f, Event, Node, false);
 				
-				DrainStamina(giantref, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", false, 1.8f); // cancel stamina drain
+				DrainStamina(giantref, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.8f); // cancel stamina drain
 
 				FootGrindCheck(giantref, Radius_Stomp, right, FootActionType::Grind_Normal);
 
@@ -248,7 +248,7 @@ namespace {
 ///////////////////////////////////////////////////////////////////////////////////////////////////// Events
 
 	void GTSstompstartR(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", true, 1.8f);
+		DrainStamina(&data.giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.8f);
 		Rumbling::Start("StompR_Loop", &data.giant, 0.25f, 0.15f, RNode);
 		ManageCamera(&data.giant, true, CameraTracking::R_Foot);
 		Stomp_IncreaseAnimSpeed(data);
@@ -258,7 +258,7 @@ namespace {
 
 	void GTSstompstartL(AnimationEventData& data) {
 		
-		DrainStamina(&data.giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", true, 1.8f);
+		DrainStamina(&data.giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.8f);
 		Rumbling::Start("StompL_Loop", &data.giant, 0.25f, 0.15f, LNode);
 		ManageCamera(&data.giant, true, CameraTracking::L_Foot);
 		Stomp_IncreaseAnimSpeed(data);
@@ -301,8 +301,8 @@ namespace {
 	}
 
 	void GTSBEH_Exit(AnimationEventData& data) {
-		DrainStamina(&data.giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", false, 1.8f);
-		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", "GTSPerkDestructionBasics", false, 2.8f);
+		DrainStamina(&data.giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.8f);
+		DrainStamina(&data.giant, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 2.8f);
 		ManageCamera(&data.giant, false, CameraTracking::L_Foot);
 		ManageCamera(&data.giant, false, CameraTracking::R_Foot);
 		StopLoopRumble(&data.giant);

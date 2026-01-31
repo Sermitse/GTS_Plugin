@@ -24,10 +24,10 @@ namespace {
 	}
 
     void UnderStomp_CheckForFootGrind(Actor* giant, bool right, FootActionType Type) {
-        if (!IsCrawling(giant)) { // There's no anim for Crawling state
-            const float PerformChancePlayer = Config::GetGameplay().ActionSettings.fPlayerUnderstompGrindChance;
-            const float PerformChanceNPC = Config::GetAI().Stomp.fUnderstompGrindProbability;
-        	bool IsPlayer = giant->formID == 0x14;
+        if (!AnimationVars::Crawl::IsCrawling(giant)) { // There's no anim for Crawling state
+            const float PerformChancePlayer = Config::Gameplay.ActionSettings.fPlayerUnderstompGrindChance;
+            const float PerformChanceNPC = Config::AI.Stomp.fUnderstompGrindProbability;
+        	bool IsPlayer = giant->IsPlayerRef();
 
             if (RandomBool(IsPlayer ? PerformChancePlayer : PerformChanceNPC)) {
                 FootGrindCheck(giant, Radius_Trample, right, Type);
@@ -57,7 +57,7 @@ namespace {
         DoImpactRumble(giant, Node, rumble);
         DoDustExplosion(giant, 1.0f * (SMT), Event, Node);
 
-        DrainStamina(giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", false, 1.4f);
+        DrainStamina(giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.4f);
 
         StompManager::PlayNewOrOldStomps(giant, SMT, Event, Node, false);
 
@@ -69,13 +69,13 @@ namespace {
 	}
 
     void GTS_UnderStomp_CamOnR(AnimationEventData& data) {
-        DrainStamina(&data.giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", true, 1.4f);
+        DrainStamina(&data.giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
         ManageCamera(&data.giant, true, CameraTracking::R_Foot);
         SetBusyFoot(&data.giant, BusyFoot::RightFoot);
     }
 
     void GTS_UnderStomp_CamOnL(AnimationEventData& data) {
-        DrainStamina(&data.giant, "StaminaDrain_Stomp", "GTSPerkDestructionBasics", true, 1.4f);
+        DrainStamina(&data.giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
         ManageCamera(&data.giant, true, CameraTracking::L_Foot);
         SetBusyFoot(&data.giant, BusyFoot::LeftFoot);
     }
@@ -104,7 +104,7 @@ namespace GTS {
         bool blend = false;
 
         if (distance <= min_distance) {
-            giant->SetGraphVariableFloat("GTS_StompBlend", blending);
+            AnimationVars::Stomp::SetUnderStompBlend(giant, blending);
             blend = true;
         }
 
@@ -114,7 +114,7 @@ namespace GTS {
     }
 
     bool AnimationUnderStomp::ShouldStompUnder(Actor* giant) {
-        if (giant->formID == 0x14 && IsFreeCameraEnabled()) {
+        if (giant->IsPlayerRef() && IsFreeCameraEnabled()) {
             return false;
         }
         //Range is between -1 (looking down) and 1 (looking up)
@@ -128,7 +128,7 @@ namespace GTS {
         // Allow to stomp when looking from above or below
         if (allow) {
             float blend = std::clamp(InvLookdownIntensity * 1.3f, 0.0f, 1.0f);
-            giant->SetGraphVariableFloat("GTS_StompBlend", blend);
+            AnimationVars::Stomp::SetUnderStompBlend(giant, blend);
             // Blend between "close" and "far" under-stomps
         }
         return allow;
