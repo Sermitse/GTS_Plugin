@@ -4,6 +4,7 @@
 
 #include "Hooks/Util/HookUtil.hpp"
 #include "Managers/AttributeManager.hpp"
+#include "Managers/FurnitureManager.hpp"
 #include "Managers/Damage/SizeHitEffects.hpp"
 
 namespace Hooks {
@@ -135,29 +136,64 @@ namespace Hooks {
 
 			float original = func(a_this, a1);
 
-			if (Actor* const owner = GetOwningActor(a_this)) {
-				const float scale = get_visual_scale(owner);
-				constexpr float& START_CLAMP_SCALE = Config::General.fNPCMaxSpeedMultClampStartAt;  // Scale at which clamping begins
-				constexpr float& FULL_CLAMP_SCALE = Config::General.fNPCMaxSpeedMultClampMaxAt;    // Scale at which speed is fully clamped to target
+			{
 
-				if (scale >= START_CLAMP_SCALE) {
-					// Calculate interpolation factor (0.0 to 1.0)
-					float t = (scale - START_CLAMP_SCALE) / (FULL_CLAMP_SCALE - START_CLAMP_SCALE);
-					t = std::clamp(t, 0.0f, 1.0f);
+				GTS_PROFILE_ENTRYPOINT("Actor::ActorStateGetMaxSpeedMult");
 
-					// Lerp from original speed to fNPCMaxSpeedMultClampTarget
-					const float clampedSpeed = std::lerp(original, Config::General.fNPCMaxSpeedMultClampTarget, t);
+				if (Actor* const owner = GetOwningActor(a_this)) {
+					const float scale = get_visual_scale(owner);
+					constexpr float& START_CLAMP_SCALE = Config::General.fNPCMaxSpeedMultClampStartAt;  // Scale at which clamping begins
+					constexpr float& FULL_CLAMP_SCALE = Config::General.fNPCMaxSpeedMultClampMaxAt;    // Scale at which speed is fully clamped to target
 
-					//logger::trace("Scale: {}, Original: {}, Clamped: {}", scale, original, clampedSpeed);
-					return clampedSpeed;
+					if (scale >= START_CLAMP_SCALE) {
+						// Calculate interpolation factor (0.0 to 1.0)
+						float t = (scale - START_CLAMP_SCALE) / (FULL_CLAMP_SCALE - START_CLAMP_SCALE);
+						t = std::clamp(t, 0.0f, 1.0f);
+
+						// Lerp from original speed to fNPCMaxSpeedMultClampTarget
+						const float clampedSpeed = std::lerp(original, Config::General.fNPCMaxSpeedMultClampTarget, t);
+
+						//logger::trace("Scale: {}, Original: {}, Clamped: {}", scale, original, clampedSpeed);
+						return clampedSpeed;
+					}
 				}
-			}
 
-			return original;
+				return original;
+			}
 		}
 	
 		FUNCTYPE_DETOUR func;
 	};
+
+
+
+
+	struct ApplyMovementDelta {
+
+		static void thunk(RE::Actor* a_actor, float a_delta) {
+
+			{
+				GTS_PROFILE_ENTRYPOINT("Actor::ApplyMovementDelta");
+
+				if (!a_actor) return;
+
+				if (FurnitureManager::ValidActor(a_actor)) {
+					if (TransientActorData* data = Transient::GetActorData(a_actor)) {
+						if (data->BlockMovementTimer.Gate()) {
+							return;
+						}
+					}
+				}
+			}
+
+			func(a_actor, a_delta);
+		}
+
+		FUNCTYPE_CALL func;
+	};
+
+
+
 
 	void Hook_Actor::Install() {
 
@@ -176,6 +212,9 @@ namespace Hooks {
 		stl::write_vfunc_unique<Load3D, 2>(VTABLE_PlayerCharacter[0]);
 
 		PatchFollowMoveSpeed();
+
+		stl::write_call<ApplyMovementDelta>(REL::RelocationID(36359, 37350, NULL), REL::VariantOffset(0xF0, 0xFB, NULL));
+
 	}
 
 	void Hook_Actor::PatchFollowMoveSpeed() {

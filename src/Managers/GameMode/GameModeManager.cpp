@@ -135,7 +135,7 @@ namespace {
 		auto ActorData = Transient::GetActorData(a_Actor);
 		if (!ActorData) return;
 
-		Timer* IntervalTimer = &ActorData->ActionTimer;
+		Timer* IntervalTimer = &ActorData->GameModeIntervalTimer;
 		if (!IntervalTimer) return;
 
 		//Set Values based on Settings and actor type.
@@ -145,7 +145,7 @@ namespace {
 			//SkillLevel = GetGtsSkillLevel(a_Actor);
 			CurseOfGrowthMaxSize = Settings.fCurseGrowthSizeLimit;
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
-			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay/10, RandomDelay / 10));
+			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay/10, RandomDelay / 10));
 		}
 		else if (IsTeammate(a_Actor)) {
 			const auto& Settings = Config::Gameplay.GamemodeFollower;
@@ -154,7 +154,7 @@ namespace {
 			//SkillLevel = GetAV(a_Actor, ActorValue::kAlteration);
 			CurseOfGrowthMaxSize = Settings.fCurseGrowthSizeLimit;
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
-			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else {
 			return;
@@ -213,22 +213,20 @@ namespace {
 		auto ActorData = Transient::GetActorData(a_Actor);
 		if (!ActorData) return;
 
-		Timer* IntervalTimer = &ActorData->ActionTimer;
-
 		//Set Values based on Settings and actor type.
 		if (a_Actor->IsPlayerRef()) {
 			const auto& Settings = Config::Gameplay.GamemodePlayer;
 			CurseTargetScale = Settings.fCurseTargetScale;
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
 			PowerMult = Settings.fGrowthRate + 0.030f;
-			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else if (IsTeammate(a_Actor)) {
 			const auto& Settings = Config::Gameplay.GamemodeFollower;
 			CurseTargetScale = Settings.fCurseTargetScale;
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
 			PowerMult = Settings.fGrowthRate + 0.030f;
-			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else {
 			return;
@@ -241,7 +239,7 @@ namespace {
 			return;
 		}
 
-		if (IntervalTimer->ShouldRun()) {
+		if (ActorData->GameModeIntervalTimer.ShouldRun()) {
 			const float ScaleMult = std::max(ScaleDiff, PowerMult);
 			constexpr float MinStep = 0.05f; // Minimum guaranteed growth per tick
 			float ModAmmount = std::max(PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult),
@@ -274,7 +272,7 @@ namespace {
 		auto ActorData = Transient::GetActorData(a_Actor);
 		if (!ActorData) return;
 
-		Timer* IntervalTimer = &ActorData->ActionTimer;
+		Timer* IntervalTimer = &ActorData->GameModeIntervalTimer;
 
 		//Set Values based on Settings and actor type.
 		if (a_Actor->IsPlayerRef()) {
@@ -333,21 +331,19 @@ namespace {
 		auto ActorData = Transient::GetActorData(a_Actor);
 		if (!ActorData) return;
 
-		Timer* IntervalTimer = &ActorData->ActionTimer;
-
 		//Set Values based on Settings and actor type.
 		if (a_Actor->IsPlayerRef()) {
 			const auto& Settings = Config::Gameplay.GamemodePlayer;
 			CurseTargetScale = (Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel;
 
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
-			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else if (IsTeammate(a_Actor)) {
 			const auto& Settings = Config::Gameplay.GamemodeFollower;
 			CurseTargetScale = (Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel;
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
-			ActorData->ActionTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else {
 			return;
@@ -360,7 +356,7 @@ namespace {
 			return;
 		}
 
-		if (IntervalTimer->ShouldRun()) {
+		if (ActorData->GameModeIntervalTimer.ShouldRun()) {
 			const float ScaleMult = std::max(ScaleDiff, PowerMult);
 			constexpr float MinStep = 0.05f; // Minimum guaranteed growth per tick
 			float ModAmmount = std::max(PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult),
