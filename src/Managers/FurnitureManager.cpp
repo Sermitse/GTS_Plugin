@@ -3,6 +3,8 @@
 #include "Managers/Damage/LaunchActor.hpp"
 #include "Managers/FurnitureManager.hpp"
 
+#include "Config/Config.hpp"
+
 #include "Utils/Actions/ButtCrushUtils.hpp"
 #include "Managers/Rumble.hpp"
 
@@ -11,44 +13,63 @@ using namespace GTS;
 
 namespace GTS_Markers {
 
-    std::tuple<NiPoint3, float> GetClosestMarkerOffset(RE::TESObjectREFR* a_user, RE::TESObjectREFR* a_furn) {
-        if (!a_furn) return { {}, 0.0f};
-        auto root = a_furn->Get3D();
-        if (!root) return { {}, 0.0f };
-
-        static constexpr std::array<const char* const, 3> names = {
-            "FURN", "FRN", "FurnitureMarker"
+    static NiPoint3 Mul(const RE::NiMatrix3& R, const NiPoint3& v) {
+        return 
+    	{
+            R.entry[0][0] * v.x + R.entry[0][1] * v.y + R.entry[0][2] * v.z,
+            R.entry[1][0] * v.x + R.entry[1][1] * v.y + R.entry[1][2] * v.z,
+            R.entry[2][0] * v.x + R.entry[2][1] * v.y + R.entry[2][2] * v.z
         };
+    }
 
-        float bestDist = std::numeric_limits<float>::max();
-        NiPoint3 bestOffset{};
-        float bestHeading = 0.f;
+    static float YawRad_FromMatrix_FwdY_ZUp(const RE::NiMatrix3& R){
+        // forward = R * (0,1,0) => (R01, R11, R21)
+        return std::atan2(R.entry[0][1], R.entry[1][1]);
+    }
+
+
+    std::tuple<NiPoint3, float> GetClosestMarkerWorld(RE::TESObjectREFR* a_user, RE::TESObjectREFR* a_furn) {
+
+        if (!a_user || !a_furn) {
+            return { {}, 0.0f };
+        }
+
+        auto root = a_furn->Get3D();
+        if (!root) {
+            return { {}, 0.0f };
+        }
+
+        static constexpr std::array<const char* const, 3> names = { "FURN", "FRN", "FurnitureMarker" };
 
         const NiPoint3 userPos = a_user->GetPosition();
-        const NiPoint3 furnPos = a_furn->GetPosition();
+
+        float bestDist = std::numeric_limits<float>::max();
+        NiPoint3 bestWorldPos{};
+        float bestWorldYaw = 0.0f;
 
         for (auto name : names) {
-            VisitExtraData<RE::BSFurnitureMarkerNode>(root, name, [&](NiAVObject&, RE::BSFurnitureMarkerNode& data) {
+            VisitExtraData<RE::BSFurnitureMarkerNode>(root, name, [&](NiAVObject& ownerNode, RE::BSFurnitureMarkerNode& data) {
+                for (auto& marker : data.markers) {
 
-	            for (auto& marker : data.markers) {
-	                NiPoint3 worldPos = marker.offset + furnPos;
+                    const NiPoint3 worldPos = ownerNode.world.translate + Mul(ownerNode.world.rotate, (marker.offset * a_furn->GetScale())); // start with no scale
 
-	                float d = userPos.GetDistance(worldPos);
-	                if (d < bestDist) {
-	                    bestDist = d;
-	                    bestOffset = marker.offset;
-	                    bestHeading = marker.heading; // BipedMarker heading is already float degrees
-	                }
-	            }
-	            return true;
+                    const float d = userPos.GetDistance(worldPos);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        bestWorldPos = worldPos;
+                        const float nodeYaw = YawRad_FromMatrix_FwdY_ZUp(ownerNode.world.rotate);
+                        bestWorldYaw = nodeYaw + marker.heading; // radians
+                    }
+                }
+                return true;
             });
         }
 
-        if (bestDist >= std::numeric_limits<float>::max()) {
-            return {{}, 0.0f};
+        if (bestDist == std::numeric_limits<float>::max()) {
+            return { {}, 0.0f };
         }
 
-        return { bestOffset, bestHeading };
+        return { bestWorldPos, bestWorldYaw };
     }
 }
 
@@ -116,14 +137,19 @@ namespace GTS {
 		return "::FurnitureManager";
 	}
 
+
+
     void FurnitureManager::FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, bool enter) {
         if (activator && object) {
-            //GTS_Markers::GetFurnitureMarkerAnimations(object);
-            if (IsHuman(activator)) {
+            if (ValidActor(activator)) {
                 RecordAndHandleFurnState(activator, object, enter);
+            }
+            else if (!enter) {
+                ResetTrackedFurniture(activator);
             }
         }
     }
+
 
     void FurnitureManager::ActorLoaded(RE::Actor* actor) {
 
@@ -131,21 +157,24 @@ namespace GTS {
 		//else reset the tracked furn state.
         //Its sometimes possible for the exit event to not fire.
         //This corrects it on actor load.
-        if (IsHuman(actor)) {
+
+        if (actor) {
             if (AIProcess* aiProcess = actor->GetActorRuntimeData().currentProcess) {
                 if (ObjectRefHandle handle = aiProcess->GetOccupiedFurniture()) {
                     if (NiPointer<TESObjectREFR> niRefr = handle.get()) {
-                        if (niRefr.get()) {
-                            RecordAndHandleFurnState(actor, niRefr.get(), true);
-                            return;
+	                    TESObjectREFR* furn = niRefr.get();
+                        if (ValidActor(actor)) {
+	                        if (furn && ValidFurn(furn)) {
+	                        	FurnitureEvent(actor, furn, true);
+	                        }
+                            else {
+                                ResetTrackedFurniture(actor);
+                            }
                         }
                     }
                 }
             }
         }
-
-		ResetTrackedFurniture(actor);
-        
     }
 
     // If the scale keywords is removed from the default object, through an esp/patch, the game will calculate where
@@ -156,34 +185,53 @@ namespace GTS {
     void FurnitureManager::RecordAndHandleFurnState(RE::Actor* activator, TESObjectREFR* object, bool enter) {
 
         if (object) {
-
 			//Almost all "invisible" furns have "Marker" in their name, skip these.
 			//easiest way to avoid scaling invisible furnitures.
 			//it would be better if the actual model was checked to see if it contains visible geometry.
 			//but i don't know how to do that.
-            std::string name = object->GetName();
-			if (name.empty()) return;
 
-			name = str_tolower(name);
-            if (name.contains("marker")) return;
+            if (!ValidFurn(object)) return;
 
 			//Swiched to persistent, so on load we can restore the scale if an npc was saved when in furniture.
-            auto data = Persistent::GetActorData(activator);
-            if (data) {
-                data->fRecordedFurnScale = object->GetScale() / get_natural_scale(activator, true);
-                data->bIsUsingFurniture = enter;
-            }
+
 
             if (enter) {
 
-                //Furnitures can have multiple markers. We need to target the closest one as i currently only know how to querry the list of markers per object.
-                //Hopefully this is good enough.
+                auto data = Transient::GetActorData(activator);
 
-				auto [offset, heading] = GTS_Markers::GetClosestMarkerOffset(activator, object);
-                offset.z = 0.0f; //We dont need a height ofs the game handles that for us.
+                auto [markerWorldPos, headingDeg] = GTS_Markers::GetClosestMarkerWorld(activator, object);
+				//if not (0,0,0)
+                if (markerWorldPos.x || markerWorldPos.y || markerWorldPos.z) {
 
-                activator->SetRotationX(object->GetAngleX() + heading);
-                activator->SetPosition(object->GetPosition() + offset, true);
+                    if (!activator->Is3DLoaded() || activator->IsDead()) {
+                        return;
+                    }
+
+                    //Works but appears to not be the cause.
+                    //if (auto x = skyrim_cast<hkpRigidBody*>(object->Get3D()->GetCollisionObject()->GetRigidBody()->referencedObject.get())) {
+                    //    x->collidable.broadPhaseHandle.collisionFilterInfo |= 1 << 14;
+                    //    x->world->UpdateCollisionFilterOnEntity(x, hkpUpdateCollisionFilterOnEntityMode::kFullCheck, hkpUpdateCollectionFilterMode::kIncludeCollections);
+                    //}
+
+                    activator->SetRotationZ(headingDeg);
+                    NiPoint3 pos = markerWorldPos;
+
+                    if (DebugDraw::CanDraw()) {
+                        DebugDraw::DrawSphere({ pos.x, pos.y, pos.z }, 5.0f, 10000);
+                    }
+
+                	pos.z = activator->GetPosition().z;
+                    activator->SetPosition(pos, true);
+
+                    if (data) {
+                        data->fRecordedFurnScale = object->GetScale() / get_natural_scale(activator, true);
+                        data->bIsUsingFurniture = true;
+                        //Bad fix. We rely on a timer + the movement delta hook to outright prevent the actor from moving.
+                        //The move is probably animation related.
+                        data->BlockMovementTimer.UpdateDelta(0.5f);
+                        data->BlockMovementTimer.ResetGate();
+                    }
+                }
             }
         }
     }
@@ -199,10 +247,40 @@ namespace GTS {
     }
 
     void FurnitureManager::ResetTrackedFurniture(RE::Actor* actor) {
-        auto data = Persistent::GetActorData(actor);
+        auto data = Transient::GetActorData(actor);
         if (data) {
             data->fRecordedFurnScale = 1.0f;
             data->bIsUsingFurniture = false;
+            data->BlockMovementTimer.StopGate();
         }
+
+	}
+
+    bool FurnitureManager::ValidActor(Actor* a_actor) {
+
+        if (a_actor) {
+            if ((a_actor->IsPlayerRef() && Config::General.bDynamicFurnSizePlayer) || (IsTeammate(a_actor) && Config::General.bDynamicFurnSizeFollowers)) {
+                if (IsHuman(a_actor)) {
+                    if (abs((get_visual_scale(a_actor) / std::max(0.01f, get_natural_scale(a_actor, true))) - 1.0f) > 1e-2f) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+	}
+
+    bool FurnitureManager::ValidFurn(TESObjectREFR* a_obj) {
+
+        if (a_obj){            
+        	std::string name = a_obj->GetName();
+			if (!name.empty()) {
+                name = str_tolower(name);
+                if (!name.contains("marker")) {
+                    return true;
+                }
+			}
+		}
+        return false;
 	}
 }

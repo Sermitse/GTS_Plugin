@@ -6,6 +6,13 @@ namespace GTS {
 
 	void DebugMenu::InitScaleform() {
 
+
+		std::filesystem::path hud = ScaleformLogger::_baseSwfPath / (std::string(MENU_PATH) + std::string(".swf"));
+		if (!std::filesystem::exists(hud)) {
+			ReportAndExit(fmt::format("Failed to initialize DebugMenu - Missing HUD file\n {}", hud.string()));
+			return;
+		}
+
 		if (m_scaleformInitialized.load()) {
 			return;
 		}
@@ -103,18 +110,17 @@ namespace GTS {
 			mName == RE::MagicMenu::MENU_NAME ||
 			mName == RE::RaceSexMenu::MENU_NAME ||
 			mName == RE::CraftingMenu::MENU_NAME ||
-			mName == RE::SleepWaitMenu::MENU_NAME ||
-			mName == RE::TrainingMenu::MENU_NAME ||
+			//mName == RE::SleepWaitMenu::MENU_NAME ||
+			//mName == RE::TrainingMenu::MENU_NAME ||
 			mName == RE::BarterMenu::MENU_NAME ||
-			mName == RE::FavoritesMenu::MENU_NAME ||
+			//mName == RE::FavoritesMenu::MENU_NAME ||
 			mName == RE::GiftMenu::MENU_NAME ||
 			mName == RE::StatsMenu::MENU_NAME ||
 			mName == RE::ContainerMenu::MENU_NAME ||
-			mName == RE::DialogueMenu::MENU_NAME ||
-			mName == RE::MessageBoxMenu::MENU_NAME ||
+			//mName == RE::DialogueMenu::MENU_NAME ||
+			//mName == RE::MessageBoxMenu::MENU_NAME ||
 			mName == RE::TweenMenu::MENU_NAME || // tab menu
-			mName == RE::MainMenu::MENU_NAME ||
-			mName == "CustomMenu") {
+			mName == RE::MainMenu::MENU_NAME) {
 
 			if (a_event->opening) {
 				Hide(mName.c_str());

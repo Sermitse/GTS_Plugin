@@ -20,6 +20,35 @@ namespace GTS {
 		return false;
 	}
 
+
+	// Returns true while inside the gate window
+	bool Timer::Gate(){
+		if (delta == 0.0 || expired) {
+			return false;
+		}
+
+		const double currentTime = Time::WorldTimeElapsed();
+		const double elapsed = currentTime - last_time;
+
+		if (elapsed <= delta) {
+			elaped_time = elapsed;
+			elaped_frame = Time::FramesElapsed() - last_frame;
+			return true;
+		}
+
+		expired = true;
+		return false;
+	}
+
+	void Timer::ResetGate() {
+		last_time = Time::WorldTimeElapsed();
+		last_frame = Time::FramesElapsed();
+		elaped_time = 0.0;
+		elaped_frame = 0;
+		expired = false;
+	}
+
+
 	void Timer::UpdateDelta(const float a_delta) {
 		this->delta = a_delta;
 	}
@@ -46,6 +75,10 @@ namespace GTS {
 	void Timer::Reset() {
 		this->last_time = Time::WorldTimeElapsed();
 		this->last_frame = Time::FramesElapsed();
+	}
+
+	void Timer::StopGate() {
+		expired = true;
 	}
 
 	std::uint64_t Timer::FrameDelta() const {
