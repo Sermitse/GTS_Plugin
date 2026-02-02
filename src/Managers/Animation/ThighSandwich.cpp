@@ -15,6 +15,7 @@
 
 #include "Utils/DeathReport.hpp"
 #include "Utils/Actions/InputConditions.hpp"
+#include "Utils/Actions/ButtCrushUtils.hpp" 
 
 using namespace GTS;
 
@@ -257,6 +258,11 @@ namespace {
 
 		DrainStamina(&data.giant, "StaminaDrain_Sandwich", Runtime::PERK.GTSPerkThighAbilities, false, 2.5f);
 		DrainStamina(&data.giant, "StaminaDrain_Sandwich_Idle", Runtime::PERK.GTSPerkThighAbilities, false, 0.25f);
+
+		if (GetGrowthCount(&data.giant) > 0) {
+			ModGrowthCount(&data.giant, 0, true); // Reset growth count
+			SetButtCrushSize(&data.giant, 0, true);
+		}
 	}
 
 	void GTSSandwich_ExitAnim(AnimationEventData& data) {

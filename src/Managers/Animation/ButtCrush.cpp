@@ -134,6 +134,12 @@ namespace {
 		SetButtCrushSize(giant, bonus, false);
 		SpringGrow(giant, bonus, 0.3f / GetAnimationSlowdown(giant), "ButtCrushGrowth", false);
 
+		if (AnimationVars::Action::IsInSecondSandwichBranch(&data.giant)) {
+			// Second Sandwich Branch uses incorrect events so we do Growth Count incrementing here
+			Task_FacialEmotionTask_Moan(giant, 1.25f, "GrowthMoan", 0.15f);
+			Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth, CooldownSource::Emotion_Voice_Long);
+		} 
+
 		float WasteStamina = 100.0f * GetButtCrushCost(giant, false);
 
 		if (!giant->IsPlayerRef()) {

@@ -428,7 +428,7 @@ namespace GTS {
 			.UIDescription = "Exit thigh-sandwich butt mode.",
 			.Event = {
 				.Event = "SandwichButtStop",
-				.Keys = {"S"},
+				.Keys = {"LSHIFT", "H"},
 				.Exclusive = true,
 			}
 		},
@@ -439,26 +439,30 @@ namespace GTS {
 			.UIDescription = "Perform a heavy butt attack while in thigh-sandwich butt mode.",
 			.Event = {
 				.Event = "SandwichHeavyAttack",
-				.Keys = {"LMB"},
-				.Exclusive = true,
+				.Keys       = {"LMB"},
+		        .Exclusive  = true,
+		        .Trigger    = "Continuous",
+		        .Duration   = 0.33f,
+		        .BlockInput = "Never"
 			}
 		},
 		{
 			.UICategory = LInputCategory_t::kThighs,
 			.AdvFeature = false,
 			.UIName = "Thigh-Sandwich Butt Attack L.",
-			.UIDescription = "TODO",
+			.UIDescription = "Perform a light butt attack while in thigh-sandwich butt mode.",
 			.Event = {
 				.Event = "SandwichLightAttack",
-				.Keys = {"RMB"},
+				.Keys = {"LMB"},
 				.Exclusive = true,
+				.Trigger = "Release"
 			}
 		},
 		{
 			.UICategory = LInputCategory_t::kThighs,
 			.AdvFeature = false,
 			.UIName = "Thigh-Sandwich Grow",
-			.UIDescription = "TODO",
+			.UIDescription = "Grow in size while in thigh-sandwich butt mode. Requires perk.",
 			.Event = {
 				.Event = "SandwichGrowth",
 				.Keys = {"W"},
@@ -469,10 +473,10 @@ namespace GTS {
 			.UICategory = LInputCategory_t::kThighs,
 			.AdvFeature = false,
 			.UIName = "Thigh-Sandwich Grind Start",
-			.UIDescription = "TODO",
+			.UIDescription = "Grind the one under your butt over time",
 			.Event = {
 				.Event = "SandwichGrindStart",
-				.Keys = {"LSHIFT", "S"},
+				.Keys = {"S"},
 				.Exclusive = true,
 			}
 		},
@@ -480,10 +484,10 @@ namespace GTS {
 			.UICategory = LInputCategory_t::kThighs,
 			.AdvFeature = false,
 			.UIName = "Thigh-Sandwich Grind Stop",
-			.UIDescription = "TODO",
+			.UIDescription = "Stop Grindind the one under your butt",
 			.Event = {
 				.Event = "SandwichGrindStop",
-				.Keys = {"LSHIFT", "S"},
+				.Keys = {"S"},
 				.Exclusive = true,
 			}
 		},
