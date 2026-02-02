@@ -11,6 +11,12 @@ namespace GTS {
 
 	void GTSMenu::InitScaleform() {
 
+		std::filesystem::path hud = ScaleformLogger::_baseSwfPath / (std::string(MENU_PATH) + std::string(".swf"));
+		if (!std::filesystem::exists(hud)) {
+			ReportAndExit(fmt::format("Failed to initialize GTSMenu - Missing HUD file\n {}", hud.string()));
+			return;
+		}
+
 		if (m_scaleformInitialized.load()) {
 			return;
 		}
@@ -215,15 +221,36 @@ namespace GTS {
 	}
 
 	void GTSMenu::BlurBackground(bool a_enable) {
-		if (static UIBlurManager* const blur = RE::UIBlurManager::GetSingleton()) {
-			if (a_enable && Config::UI.bDoBGBlur) {
+		auto* const blur = RE::UIBlurManager::GetSingleton();
+		if (!blur) {
+			return;
+		}
+
+		if (a_enable) {
+			if (!Config::UI.bDoBGBlur) {
+				return;
+			}
+
+			// Only 0->1 actually increments engine blur counter
+			if (m_localBlurCount.fetch_add(1, std::memory_order_acq_rel) == 0) {
 				blur->IncrementBlurCount();
 			}
-			else if (blur->blurCount > 0) {
-				blur->DecrementBlurCount();
+		}
+		else {
+			// Release a local blur reference if any are held
+			uint32_t prev = m_localBlurCount.load(std::memory_order_acquire);
+			while (prev > 0) {
+				if (m_localBlurCount.compare_exchange_weak(prev, prev - 1, std::memory_order_acq_rel, std::memory_order_acquire)){
+					// Only 1->0 decrements engine blur counter
+					if (prev == 1 && blur->blurCount > 0) {
+						blur->DecrementBlurCount();
+					}
+					break;
+				}
 			}
 		}
 	}
+
 
 	void GTSMenu::PauseGame(bool a_enable) {
 
@@ -238,7 +265,7 @@ namespace GTS {
 				}
 
 				// Increment local pause reference count; only the 0 to 1 transition
-				// actually increments the engine pause counter
+				// actually increments the ui pause counter
 				if (m_localPauseCount.fetch_add(1, std::memory_order_acq_rel) == 0) {
 					++(*ipauses);
 				}
@@ -249,7 +276,7 @@ namespace GTS {
 				while (prev > 0) {
 					// Attempt to decrement the local pause count
 					if (m_localPauseCount.compare_exchange_weak(prev, prev - 1, std::memory_order_acq_rel)) {
-						// Only the 1 to 0 transition decrements the engine pause counter
+						// Only the 1 to 0 transition decrements the ui pause counter
 						if (prev == 1 && *ipauses > 0) {
 							--(*ipauses);
 						}
@@ -261,12 +288,31 @@ namespace GTS {
 	}
 
 	void GTSMenu::AlterTimeScale(bool a_enable) {
-		if (a_enable && Config::UI.bDoSlowdown) {
-			m_originalGameTime = Time::GGTM();
-			Time::SGTM(Config::UI.fSGTMMult);
+
+		if (a_enable) {
+			if (!Config::UI.bDoSlowdown) {
+				return;
+			}
+
+			// Only 0->1 captures original + applies slowdown
+			if (m_localSlowMoCount.fetch_add(1, std::memory_order_acq_rel) == 0) {
+				m_originalGameTime.store(Time::GGTM(), std::memory_order_release);
+				Time::SGTM(Config::UI.fSGTMMult);
+			}
 		}
 		else {
-			Time::SGTM(m_originalGameTime);
+			// Release a local slowdown reference if any are held
+			uint32_t prev = m_localSlowMoCount.load(std::memory_order_acquire);
+			while (prev > 0) {
+				if (m_localSlowMoCount.compare_exchange_weak(prev, prev - 1, std::memory_order_acq_rel, std::memory_order_acquire)){
+					// Only 1->0 restores original
+					if (prev == 1) {
+						const float original = m_originalGameTime.load(std::memory_order_acquire);
+						Time::SGTM(original);
+					}
+					break;
+				}
+			}
 		}
 	}
 
@@ -315,8 +361,8 @@ namespace GTS {
 			mName == RE::GiftMenu::MENU_NAME         ||
 			mName == RE::StatsMenu::MENU_NAME        ||
 			mName == RE::ContainerMenu::MENU_NAME    ||
-			mName == RE::DialogueMenu::MENU_NAME     ||
-			mName == RE::MessageBoxMenu::MENU_NAME   ||
+			//mName == RE::DialogueMenu::MENU_NAME     ||
+			//mName == RE::MessageBoxMenu::MENU_NAME   ||
 			mName == RE::TweenMenu::MENU_NAME) {
 
 			//If the game switches to any of these menus hide ours.

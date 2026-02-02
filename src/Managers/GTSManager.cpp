@@ -176,7 +176,7 @@ namespace {
 			(Config::General.bDynamicFurnSizePlayer && actor->IsPlayerRef()) ||
 			(Config::General.bDynamicFurnSizeFollowers && IsTeammate(actor));
 
-		auto data = Persistent::GetActorData(actor);
+		auto data = Transient::GetActorData(actor);
 		if (ShouldHandleFurnUpdate && 
 			data->bIsUsingFurniture && 
 			target_scale > data->fRecordedFurnScale) {

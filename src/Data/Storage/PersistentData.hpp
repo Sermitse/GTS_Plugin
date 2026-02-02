@@ -35,10 +35,6 @@ namespace GTS {
 		//Voice
 		uint8_t iVoiceBankIndex = 0;
 
-		//Furniture
-		bool bIsUsingFurniture = false;
-		float fRecordedFurnScale = 1.0f;
-
 		//Morphs
 		float fBreastsScale = 0.0f;
 		float fBellyScale = 0.0f;

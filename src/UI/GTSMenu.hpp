@@ -16,6 +16,9 @@ namespace GTS {
 		static inline ImGuiIO* ImIO = nullptr;
 		static inline std::atomic_bool m_DrawOnPresent = false;
 		static inline std::atomic_uint32_t m_localPauseCount{ 0 };
+		static inline std::atomic_uint32_t m_localBlurCount{ 0 };
+		static inline std::atomic_uint32_t m_localSlowMoCount{ 0 };
+		static inline std::atomic<float>   m_originalGameTime{ 1.0f };
 
 		private:
 		static inline std::vector<std::string> m_hideSources = {};
@@ -27,8 +30,6 @@ namespace GTS {
 		std::atomic_bool m_isScaleformVisible = false;
 		std::atomic_bool m_cursorEnabled = false;
 
-
-		static inline float m_originalGameTime = 1.0f;
 		inline static std::atomic_flag g_alreadyPresenting = ATOMIC_FLAG_INIT;
 
 		public:

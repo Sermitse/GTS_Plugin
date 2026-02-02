@@ -100,8 +100,11 @@ namespace GTS {
 
 		Timer GameModeIntervalTimer = Timer(0);
 		Timer ActionTimer = Timer(0);
+		Timer BlockMovementTimer = Timer(0);
 
 		std::vector<Actor*> shrinkies;
+		float fRecordedFurnScale = 1.0f;
+		bool bIsUsingFurniture = false;
 
 		explicit TransientActorData(Actor* a_Actor) {
 			const auto _BoundValues = get_bound_values(a_Actor);

@@ -27,5 +27,8 @@ namespace GTS {
 		static void RecordAndHandleFurnState(RE::Actor* activator, TESObjectREFR* object, bool enter);
 		static void Furniture_EnableButtHitboxes(RE::Actor* activator, FurnitureDamageSwitch type);
 		static void ResetTrackedFurniture(RE::Actor* actor);
+
+		static bool ValidActor(Actor* a_actor);
+		static bool ValidFurn(TESObjectREFR* a_obj);
 	};
 }
