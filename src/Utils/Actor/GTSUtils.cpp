@@ -649,6 +649,15 @@ namespace GTS {
 				return;
 			}
 		}
+		//@Sermit, This prevents npc death from size damage but still causes the tiny
+		//to be shrunk down if jumping
+		//idk if this is intended. if it is remove the code block here.
+		/*auto transient = Transient::GetActorData(attacker);
+		if (transient) {
+			if (transient->Protection) {
+				return;
+			}
+		}*/
 
 		if (!receiver->IsDead()) {
 			float HpPercentage = GetHealthPercentage(receiver);
@@ -667,7 +676,9 @@ namespace GTS {
 				}
 			}
 
-			receiver->ApplyDamage(attacker, value * difficulty * Config::Balance.fSizeDamageMult);
+			//@Sermit using nullptr instead of attacker fixes the overkill bug but breaks
+			//Size related damage kills in the Killfeed.
+			receiver->TakeDamage(nullptr, value * difficulty * Config::Balance.fSizeDamageMult, false);
 		}
 		else if (receiver->IsDead()) {
 			Task_InitHavokTask(receiver);
@@ -780,6 +791,7 @@ namespace GTS {
 	void LaunchImmunityTask(Actor* giant, bool Balance) {
 		auto transient = Transient::GetActorData(giant);
 		if (transient) {
+			if (!transient->Protection) Notify("Protection Started");
 			transient->Protection = true;
 		}
 
@@ -802,11 +814,12 @@ namespace GTS {
 			double timepassed = Finish - Start;
 			if (timepassed < 180.0f) {
 				auto giantref = gianthandle.get().get();
-				if (Utils_ManageTinyProtection(giant, false, Balance)) {
+				if (Utils_ManageTinyProtection(giantref, false, Balance)) {
 					return true; // Disallow to check further
 				}
 			}
 			if (transient) {
+				if (transient->Protection) Notify("Protection Ended");
 				transient->Protection = false; // reset protection to default value
 			}
 			return Utils_ManageTinyProtection(giant, true, Balance); // stop task, immunity has ended

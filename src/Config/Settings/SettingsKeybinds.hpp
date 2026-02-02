@@ -473,7 +473,7 @@ namespace GTS {
 			.UICategory = LInputCategory_t::kThighs,
 			.AdvFeature = false,
 			.UIName = "Thigh-Sandwich Grind Start",
-			.UIDescription = "Grind the one under your butt over time",
+			.UIDescription = "Perform a continious grinding action on the NPC being butt-sandwiched.",
 			.Event = {
 				.Event = "SandwichGrindStart",
 				.Keys = {"S"},
@@ -484,7 +484,7 @@ namespace GTS {
 			.UICategory = LInputCategory_t::kThighs,
 			.AdvFeature = false,
 			.UIName = "Thigh-Sandwich Grind Stop",
-			.UIDescription = "Stop Grindind the one under your butt",
+			.UIDescription = "Stop grinding the butt-sandwichiched NPC.",
 			.Event = {
 				.Event = "SandwichGrindStop",
 				.Keys = {"S"},
@@ -495,8 +495,8 @@ namespace GTS {
 		{
 			.UICategory = LInputCategory_t::kThighs,
 			.AdvFeature = false,
-			.UIName = "Thigh-Sandwich Unbirth",
-			.UIDescription = "TODO",
+			.UIName = "Thigh-Sandwich Unbirth/Vore",
+			.UIDescription = "Vore the butt-sandwiched NPC.",
 			.Event = {
 				.Event = "SandwichUB",
 				.Keys = {"V"},
