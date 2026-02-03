@@ -25,9 +25,12 @@ namespace {
 		"- Shrink resistance towards all hostile shrink sources\n\n"
 		"The enchantment can be obtained from the 'Amulet of Giants', which will randomly in end of dungeon hests.";
 
-	PSString TLifeAbsorb = "TODO Tooltip";
+	PSString TLifeAbsorb = "Current amount of Life Absorption stacks.\n"
+				           "Gained by having the relevant perk and performing Size-Related Overkills.";
 
-	PSString TCataclismicStompStacks = "TODO Tooltip";
+
+	PSString TCataclismicStompStacks = "Currrent amount of Cataclismic Stomp stacks.\n"
+		                               "Gained by having the relevant perk and after Vore fully consumes someone.";
 
 	PSString TVoreBeingAbsorbed = "Current count of tinies being digested/absorbed";
 
