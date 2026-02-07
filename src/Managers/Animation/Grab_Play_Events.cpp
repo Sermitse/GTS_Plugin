@@ -393,7 +393,7 @@ namespace {
 	
 	// [ K I S S  V O R E]
 	void GTS_HS_K_Vore_OpenMouth(AnimationEventData& data) {
-		Task_FacialEmotionTask_OpenMouth(&data.giant, 1.8f, "GrabVoreOpenMouth", 0.65f);
+		Task_FacialEmotionTask_OpenMouth(&data.giant, 2.2f, "GrabVoreOpenMouth", 0.65f);
 		
 		Grab_Fixes::GTSGrab_AddToVoreData(&data.giant);
 

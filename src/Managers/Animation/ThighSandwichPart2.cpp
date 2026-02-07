@@ -38,15 +38,17 @@ namespace AnimLogic {
 		}
 	}
 
-	void KillTinies(Actor* giant) {
+	void AbsorbTinies(Actor* giant) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(giant);
 		const auto& MuteVore = Config::Audio.bMuteVoreDeathScreams;
 
 		for (auto tiny: sandwichdata.GetActors()) {
 			ModSizeExperience(giant, 0.08f + (get_natural_scale(tiny)*0.025f));
 			Vore_AdvanceQuest(giant, tiny, IsDragon(tiny), IsGiant(tiny)); // Progress quest
-			ReportDeath(giant, tiny, DamageSource::Vored, false);
+			ReportDeath(giant, tiny, DamageSource::Vored, true);
 			SetBeingHeld(tiny, false);
+
+			sandwichdata.Remove(tiny);
 
 			if (!tiny->IsPlayerRef()) {
 				KillActor(giant, tiny, MuteVore);
@@ -128,7 +130,7 @@ namespace DamageLogic {
 					
 					ReportDeath(giant, tiny, DamageSource::Crushed);
 					AdvanceQuestProgression(giant, tiny, QuestStage::Crushing, 1.0f, false);
-					auto node = find_node(giant, "NPC R Butt");
+					auto node = find_node(giant, "AnimObjectA");
 
 					PlayCrushSound(giant, node, false, get_corrected_scale(tiny));
 					sandwichdata.Remove(tiny);
@@ -138,6 +140,9 @@ namespace DamageLogic {
 
 		if (!DealDamage) {
 			AnimationManager::StartAnim("Sandwich_Finisher", giant);
+			auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(giant);
+			sandwichdata.EnableSuffocate(false);
+			sandwichdata.SetSuffocateMult(1.0f);
 			for (auto tiny: sandwichdata.GetActors()) {
 				if (tiny && tiny->Is3DLoaded()) {
 					AnimationManager::StartAnim("Sandwich_Finisher_T", tiny);
@@ -160,7 +165,7 @@ namespace DamageLogic {
 			}
 			double Finish = Time::WorldTimeElapsed();
 			double timepassed = Finish - Start;
-			if (timepassed < 0.5) { // Give it some time so it passes check below when they're true
+			if (timepassed < 0.1) { // Give it some time so it passes check below when they're true
 				return true;
 			}
 			auto giantref = gianthandle.get().get();
@@ -183,6 +188,8 @@ namespace AnimEvents {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
 		sandwichdata.EnableSuffocate(true);
 		sandwichdata.SetSuffocateMult(1.5f);
+
+		ManageCamera(&data.giant, true, CameraTracking::Butt);
 	}
 
 	//Used in the exit of the butt state when the gts's sits down onto the rune with no tiny underneath
@@ -214,25 +221,32 @@ namespace AnimEvents {
 
 	//Used when the GTS lands the first two hits during the Butt state finisher, doesn't do damage
 	void GTS_TSB_LandMid(AnimationEventData& data) {
-		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundFootstepNormal_2x, &data.giant, 1.0f, "NPC R Butt"); 
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundFootstepHighHeels_2x, &data.giant, 1.0f, "AnimObjectA"); 
+		Rumbling::Once("ButtImpact", &data.giant, Rumble_ThighSandwich_ButtImpact, 0.15f, "AnimObjectA", 0.0f);
 	}
 
 	//Used when the GTS lands the heavy butt attack
 	void GTS_TSB_LandHeavy(AnimationEventData& data) {
 		logger::info("GTS_TSB_LandHeavy triggered");
 		DamageLogic::DoButtDamage(&data.giant, Damage_ThighSandwich_Butt_Heavy, false);
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundFootstepHighHeels_2x, &data.giant, 1.0f, "AnimObjectA"); 
+		Rumbling::Once("ButtImpact", &data.giant, Rumble_ThighSandwich_ButtImpact_Heavy, 0.15f, "AnimObjectA", 0.0f);
 		//Do heavy damage
 	}
 
-	//Used for the final hit when the GTS kills the tiny and cracks the butt rune
+	//Used for the final hit when the GTS deals most damage and cracks the butt rune
 	void GTS_TSB_LandFinisher(AnimationEventData& data) {
 		logger::info("GTS_TSB_LandFinisher triggered");
-		DamageLogic::DoButtDamage(&data.giant, Damage_ThighSandwich_Butt_Heavy, false, 3.0f);
-		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Impact, &data.giant, 1.0f, "NPC R Butt");
-		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_ReachedSpeed, &data.giant, 1.0f, "NPC COM [COM ]");
-		//Deal Lethal damage
-		ModGrowthCount(&data.giant, 0, true); // Reset growth count
-		SetButtCrushSize(&data.giant, 0, true);
+		DamageLogic::DoButtDamage(&data.giant, Damage_ThighSandwich_Butt_Heavy, false, 4.0f); //Deal Extra damage
+		//Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Impact, &data.giant, 1.0f, "AnimObjectA");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundFootstepHighHeels_2x, &data.giant, 1.0f, "AnimObjectA"); 
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_ReachedSpeed, &data.giant, 1.0f, "AnimObjectA");
+		Rumbling::Once("ButtImpactFinisher", &data.giant, Rumble_ThighSandwich_ButtImpact_Finisher, 0.15f, "AnimObjectA", 0.0f);
+		
+		if (GetGrowthCount(&data.giant) > 0) {
+			ModGrowthCount(&data.giant, 0, true); // Reset growth count
+			SetButtCrushSize(&data.giant, 0, true);
+		}
 	}
 
 	//Used when the GTS lands on the Floor after cracking the butt rune
@@ -279,8 +293,8 @@ namespace AnimEvents {
 	void GTS_TSB_TinyKill(AnimationEventData& data) {
 		Sound_PlayMoans(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Absorption, CooldownSource::Emotion_Voice_Long);
 		Task_FacialEmotionTask_Moan(&data.giant, 1.75f, "UB_Moan", 0.15f);
-	
-		AnimLogic::KillTinies(&data.giant);
+		
+		AnimLogic::AbsorbTinies(&data.giant);
 	}
 
 	//Triggered When the Tiny is being pushed in (a frame later than Pushstart) this was here for the devourment mod but I guess I just made the event an official one *shruging asci art*
@@ -335,7 +349,6 @@ namespace {
 				NotifyWithSound(player, "Your body can't grow any further");
 			}
 		}
-
 	}
 
 	void ButtGrindStart(const ManagedInputEvent& data) {
@@ -379,6 +392,7 @@ namespace GTS
 		AnimationManager::RegisterEvent("GTS_TSB_Stand", "ThighSandwich", AnimEvents::GTS_TSB_Stand);
 		AnimationManager::RegisterEvent("GTS_TSB_Fall", "ThighSandwich", AnimEvents::GTS_TSB_Fall);
 		AnimationManager::RegisterEvent("GTS_TSB_LandSmall", "ThighSandwich", AnimEvents::GTS_TSB_LandSmall);
+		AnimationManager::RegisterEvent("GTS_TSB_LandMid", "ThighSandwich", AnimEvents::GTS_TSB_LandMid);
 		AnimationManager::RegisterEvent("GTS_TSB_LandHeavy", "ThighSandwich", AnimEvents::GTS_TSB_LandHeavy);
 		AnimationManager::RegisterEvent("GTS_TSB_LandFinisher", "ThighSandwich", AnimEvents::GTS_TSB_LandFinisher);
 		AnimationManager::RegisterEvent("GTS_TSB_LandFloor", "ThighSandwich", AnimEvents::GTS_TSB_LandFloor);

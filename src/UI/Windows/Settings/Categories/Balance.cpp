@@ -299,8 +299,8 @@ namespace GTS {
 
             if (ImGuiEx::ConditionalHeader("Multipiers", "Balance Mode Active", !Config::Balance.bBalanceMode)) {
 
-                ImGuiEx::SliderF("Size Damage Multiplier", &Config::Balance.fSizeDamageMult, 0.02f, 2.0f, T0, "%.2fx");
-                ImGuiEx::SliderF("Damage Multiplier", &Config::Balance.fStatBonusDamageMult, 0.02f, 2.0f, T1, "%.2fx");
+                ImGuiEx::SliderF("Size-Related Damage Multiplier", &Config::Balance.fSizeDamageMult, 0.02f, 2.0f, T0, "%.2fx");
+                ImGuiEx::SliderF("Weapon/Magic Damage Multiplier", &Config::Balance.fStatBonusDamageMult, 0.02f, 2.0f, T1, "%.2fx");
                 ImGuiEx::SliderF("Carry Weight Multiplier", &Config::Balance.fStatBonusCarryWeightMult, 0.02f, 2.0f, T3, "%.2fx");
                 ImGuiEx::SliderF("Experience Multiplier", &Config::Balance.fExpMult, 0.02f, 5.0f, T2, "%.2fx");
             }

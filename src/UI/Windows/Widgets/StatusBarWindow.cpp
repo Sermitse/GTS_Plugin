@@ -49,10 +49,10 @@ namespace GTS {
 		//Construct Base defaults for this Window
 		m_settingsHolder->SetBaseDefaults({
 			.bLock = true, //Always True
-			.f2Position = { 122.0f, 90.0f },
-			.sAnchor = "kBottomLeft",
+			.f2Position = { 122.0f, 120.0f },
+			.sAnchor = "kCenter",
 			.fAlpha = 0.90f,
-			.fBGAlphaMult = 0.3f,
+			.fBGAlphaMult = 0.0f,
 			.fWindowSizePercent = 0.0f, //Unused
 			.bVisible = true,
 			.bEnableFade = true,

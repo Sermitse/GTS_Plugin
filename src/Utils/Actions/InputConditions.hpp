@@ -77,6 +77,15 @@ namespace GTS {
 				if (tiny && IsBetweenBreasts(tiny)) {
 					return true;
 				}
+			} else {
+				if (target->IsPlayerRef()) {
+					Actor* tiny = Grab::GetHeldActor(target);
+					if (tiny && IsBetweenBreasts(tiny)) {
+						std::string message = std::format("Missing 'Personal Approach' perk");
+						shake_camera(target, 0.45f, 0.30f);
+						NotifyWithSound(target, message);
+					}
+				}
 			}
 		}
 		return false;

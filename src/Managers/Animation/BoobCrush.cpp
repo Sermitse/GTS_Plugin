@@ -297,9 +297,7 @@ namespace {
 	}
 	void GTS_BoobCrush_Grow_Start(AnimationEventData& data) {
 		auto giant = &data.giant;
-
-		float gigantism = 1.0f + (Ench_Aspect_GetPower(giant) / 5);
-		float bonus = 0.24f * gigantism * (GetGrowthCount(giant) + 1.0f);
+		float bonus = GetButtCrushGrowthAmount(giant, 0.24f);
 
 		Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Growth, CooldownSource::Emotion_Voice_Long);
 		ModGrowthCount(giant, 1.0f, false);

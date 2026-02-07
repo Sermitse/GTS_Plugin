@@ -99,6 +99,7 @@ namespace RuntimeData {
 		Entry(GTSPerkCataclysmicStomp,      GTSP, 0x610774); //Cataclysmic Stomp (60);
 		Entry(GTSPerkFullAssimilation,      GTSP, 0x33C765); //Full Assimilation (60);
 		Entry(GTSPerkExperiencedGiantess,   GTSP, 0x61A996); //Experienced Giantess (60);
+		Entry(GTSPerkOvergrowth, 			GTSP, 0x90CFC7); //Overgrowth (100), Legendary Rank 1)
 
 		Entry(GTSUtilTalkToActor,           GTSP, 0x5F7265); //TalkToActorWhenSneaking (Internal);
 

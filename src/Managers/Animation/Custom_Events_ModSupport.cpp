@@ -182,15 +182,13 @@ namespace {
 
 	void GTS_ToLeft(AnimationEventData& data) {Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectL);}
 	void GTS_ToRight(AnimationEventData& data) {
-		if (AnimationVars::Action::IsThighGrinding(&data.giant)) {
+		if (AnimationVars::Action::IsThighGrinding(&data.giant) || AnimationVars::Action::IsThighSandwiching(&data.giant)) {
 			auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
 			sandwichdata.EnableSuffocate(false);
 			sandwichdata.SetSuffocateMult(1.0f);
 		} 
 		// Yay more hacks
 		Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectR);
-		
-		
 	}
 
 	void GTS_ToAnimB(AnimationEventData& data) {Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectB);}

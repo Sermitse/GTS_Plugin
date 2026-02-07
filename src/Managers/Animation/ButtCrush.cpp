@@ -125,15 +125,12 @@ namespace {
 
 	void GTSButtCrush_GrowthStart(AnimationEventData& data) {
 		auto giant = &data.giant;
-
-		float scale = get_visual_scale(giant);
-		float gigantism = 1.0f + (Ench_Aspect_GetPower(giant) / 5);
-		float bonus = 0.24f * gigantism * (GetGrowthCount(giant) + 1.0f);
+		float bonus = GetButtCrushGrowthAmount(giant, 0.24f);
 
 		ModGrowthCount(giant, 1.0f, false);
 		SetButtCrushSize(giant, bonus, false);
 		SpringGrow(giant, bonus, 0.3f / GetAnimationSlowdown(giant), "ButtCrushGrowth", false);
-
+		
 		if (AnimationVars::Action::IsInSecondSandwichBranch(&data.giant)) {
 			// Second Sandwich Branch uses incorrect events so we do Growth Count incrementing here
 			Task_FacialEmotionTask_Moan(giant, 1.25f, "GrowthMoan", 0.15f);

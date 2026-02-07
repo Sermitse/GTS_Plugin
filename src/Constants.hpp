@@ -82,7 +82,7 @@ namespace GTS {
     constexpr float Damage_ThighSandwich_Impact = 0.5f;
     constexpr float Damage_ThighSandwich_Butt_Light = 6.75f;
     constexpr float Damage_ThighSandwich_Butt_Heavy = 9.25f;
-    constexpr float Damage_ThighSandwich_Butt_Grind = 0.006f;
+    constexpr float Damage_ThighSandwich_Butt_Grind = 0.009f;
     constexpr float Damage_ThighSandwich_FallDownImpact = 12.6f;
     constexpr float Damage_ThighSandwich_DOT = 0.004f;
 
@@ -304,6 +304,10 @@ namespace GTS {
     constexpr float Rumble_ThighSandwich_ThighImpact_Heavy = 2.8f;
     constexpr float Rumble_ThighSandwich_ThighImpact = 2.0f;
     constexpr float Rumble_ThighSandwich_DropDown = 3.2f;
+
+    constexpr float Rumble_ThighSandwich_ButtImpact = 2.2f;
+    constexpr float Rumble_ThighSandwich_ButtImpact_Heavy = 3.0f;
+    constexpr float Rumble_ThighSandwich_ButtImpact_Finisher = 3.8f;
 
     /// Thigh Crush
     constexpr float Rumble_ThighCrush_StandUp = 2.0f;

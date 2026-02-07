@@ -8,8 +8,10 @@ namespace GTS {
 	float GetGrowthCount(Actor* giant);
 	float GetGrowthLimit(Actor* actor);
 	float GetButtCrushDamage(Actor* actor);
+	float GetButtCrushGrowthAmount(Actor* giant, float value);
 	void ModGrowthCount(Actor* giant, float value, bool reset);
 	void RecordStartButtCrushSize(Actor* giant);
 	void SetButtCrushSize(Actor* giant, float value, bool reset);
+	
 
 }

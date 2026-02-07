@@ -185,7 +185,7 @@ namespace GTS {
 					
 					float hp = GetAV(tiny, ActorValue::kHealth);
 					InflictSizeDamage(GiantRef, tiny, damage);
-					if (damage > hp && !tiny->IsDead()) {
+					if (hp <= 0.0f || tiny->IsDead()) {
 						ReportDeath(GiantRef, tiny, DamageSource::ThighSuffocated);
 						Attachment_SetTargetNode(GiantRef, AttachToNode::None);
 						this->Remove(tiny);

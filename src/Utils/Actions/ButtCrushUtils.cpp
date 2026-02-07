@@ -69,6 +69,18 @@ namespace GTS {
 		return damage;
 	}
 
+	float GetButtCrushGrowthAmount(Actor* giant, float value) {
+		float gigantism = 1.0f + (Ench_Aspect_GetPower(giant) / 5);
+		value *= gigantism * (GetGrowthCount(giant) + 1.0f);
+
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkOvergrowth)) {
+			if (auto data = Persistent::GetKillCountData(giant)) {
+				value *= 1.0f + std::min(data->iTotalKills * 0.002f, 4.0f);
+			}
+		}
+		return value;
+	}
+
 	void ModGrowthCount(Actor* giant, float value, bool reset) {
 		auto transient = Transient::GetActorData(giant);
 		if (transient) {
