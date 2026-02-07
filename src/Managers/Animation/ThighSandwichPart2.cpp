@@ -126,7 +126,7 @@ namespace DamageLogic {
 					ModSizeExperience_Crush(giant, tiny, true);
 					CrushManager::Crush(giant, tiny);
 					
-					ReportDeath(giant, tiny, DamageSource::ThighSandwiched);
+					ReportDeath(giant, tiny, DamageSource::Crushed);
 					AdvanceQuestProgression(giant, tiny, QuestStage::Crushing, 1.0f, false);
 					auto node = find_node(giant, "NPC R Butt");
 
@@ -180,7 +180,9 @@ namespace AnimEvents {
 
 	//Used in the Intro to Butt State when the GTS sits back down softly on the Tiny
 	void GTS_TSB_SitDownSoft(AnimationEventData& data) {
-		
+		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
+		sandwichdata.EnableSuffocate(true);
+		sandwichdata.SetSuffocateMult(1.5f);
 	}
 
 	//Used in the exit of the butt state when the gts's sits down onto the rune with no tiny underneath
@@ -212,7 +214,7 @@ namespace AnimEvents {
 
 	//Used when the GTS lands the first two hits during the Butt state finisher, doesn't do damage
 	void GTS_TSB_LandMid(AnimationEventData& data) {
-		
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundFootstepNormal_2x, &data.giant, 1.0f, "NPC R Butt"); 
 	}
 
 	//Used when the GTS lands the heavy butt attack
@@ -226,6 +228,8 @@ namespace AnimEvents {
 	void GTS_TSB_LandFinisher(AnimationEventData& data) {
 		logger::info("GTS_TSB_LandFinisher triggered");
 		DamageLogic::DoButtDamage(&data.giant, Damage_ThighSandwich_Butt_Heavy, false, 3.0f);
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Impact, &data.giant, 1.0f, "NPC R Butt");
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_ReachedSpeed, &data.giant, 1.0f, "NPC COM [COM ]");
 		//Deal Lethal damage
 		ModGrowthCount(&data.giant, 0, true); // Reset growth count
 		SetButtCrushSize(&data.giant, 0, true);
@@ -235,6 +239,13 @@ namespace AnimEvents {
 	void GTS_TSB_LandFloor(AnimationEventData& data) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
 		sandwichdata.ReleaseAll();
+	}
+
+	void GTS_TSB_DOT_Start(AnimationEventData& data) {
+		DamageLogic::DoButtDamage_DOT(&data.giant);
+	}
+	void GTS_TSB_DOT_Stop(AnimationEventData& data) {
+		// The check inside DoButtDamage_DOT should stop it automacially
 	}
 
 	void GTSSandwich_DisableRune(AnimationEventData& data) {
@@ -371,6 +382,8 @@ namespace GTS
 		AnimationManager::RegisterEvent("GTS_TSB_LandHeavy", "ThighSandwich", AnimEvents::GTS_TSB_LandHeavy);
 		AnimationManager::RegisterEvent("GTS_TSB_LandFinisher", "ThighSandwich", AnimEvents::GTS_TSB_LandFinisher);
 		AnimationManager::RegisterEvent("GTS_TSB_LandFloor", "ThighSandwich", AnimEvents::GTS_TSB_LandFloor);
+		AnimationManager::RegisterEvent("GTS_TSB_DOT_Start", "ThighSandwich", AnimEvents::GTS_TSB_DOT_Start);
+		AnimationManager::RegisterEvent("GTS_TSB_DOT_Stop", "ThighSandwich", AnimEvents::GTS_TSB_DOT_Stop);
 		AnimationManager::RegisterEvent("GTSSandwich_DisableRune", "ThighSandwich", AnimEvents::GTSSandwich_DisableRune);
 		AnimationManager::RegisterEvent("GTS_TSB_DustButt", "ThighSandwich", AnimEvents::GTS_TSB_DustButt);
 		AnimationManager::RegisterEvent("GTS_TSB_TinyInserted", "ThighSandwich", AnimEvents::GTS_TSB_TinyInserted);

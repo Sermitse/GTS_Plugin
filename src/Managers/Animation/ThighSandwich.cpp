@@ -186,6 +186,7 @@ namespace {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
 		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundThighSandwichImpact, &data.giant, 1.2f, "AnimObjectA");
 		sandwichdata.EnableSuffocate(true);
+		sandwichdata.SetSuffocateMult(1.0f);
 		
 		for (auto tiny: sandwichdata.GetActors()) {
 			if (tiny) {

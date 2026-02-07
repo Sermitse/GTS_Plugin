@@ -15,6 +15,7 @@ namespace GTS {
 		void AddTiny(Actor* tiny);
 		void Remove(Actor* tiny);
 		void EnableSuffocate(bool enable);
+		void SetSuffocateMult(float mult);
 		// Release all vories (shall fall into mouth with animation)
 		void ReleaseAll();
 
@@ -34,6 +35,7 @@ namespace GTS {
 		absl::node_hash_map<FormID, ActorHandle> tinies = {};
 		bool MoveTinies = false;
 		bool Suffocate = false;
+		float SuffocateMult = 1.0f;
 
 		Spring ScaleRune = Spring(0.0f, 1.5f);
 		Spring ShrinkRune = Spring(0.0f, 1.5f);

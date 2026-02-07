@@ -181,6 +181,8 @@ namespace GTS {
 				if (this->Suffocate && CanDoDamage(GiantRef, tiny, false) && !AnimationVars::Action::IsThighGrinding(GiantRef)) {
 					sizedifference = giantScale/tinyScale;
 					float damage = Damage_ThighSandwich_DOT * sizedifference * TimeScale();
+					damage *= this->SuffocateMult;
+					
 					float hp = GetAV(tiny, ActorValue::kHealth);
 					InflictSizeDamage(GiantRef, tiny, damage);
 					if (damage > hp && !tiny->IsDead()) {
@@ -371,6 +373,9 @@ namespace GTS {
 
 	void SandwichingData::EnableSuffocate(bool enable) {
 		this->Suffocate = enable;
+	}
+	void SandwichingData::SetSuffocateMult(float mult) {
+		this->SuffocateMult = mult;
 	}
 
 	SandwichingData& ThighSandwichController::GetSandwichingData(Actor* giant) {

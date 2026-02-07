@@ -1,3 +1,4 @@
+#include "Managers/Animation/Controllers/ThighSandwichController.hpp"
 #include "Managers/Animation/Custom_Events_ModSupport.hpp"
 
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
@@ -180,7 +181,17 @@ namespace {
 	}
 
 	void GTS_ToLeft(AnimationEventData& data) {Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectL);}
-	void GTS_ToRight(AnimationEventData& data) {Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectR);}
+	void GTS_ToRight(AnimationEventData& data) {
+		if (AnimationVars::Action::IsThighGrinding(&data.giant)) {
+			auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
+			sandwichdata.EnableSuffocate(false);
+			sandwichdata.SetSuffocateMult(1.0f);
+		} 
+		// Yay more hacks
+		Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectR);
+		
+		
+	}
 
 	void GTS_ToAnimB(AnimationEventData& data) {Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectB);}
 	void GTS_ToAnimA(AnimationEventData& data) {Attachment_SetTargetNode(&data.giant, AttachToNode::ObjectA);}
