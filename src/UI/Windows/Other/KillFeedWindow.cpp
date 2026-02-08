@@ -204,7 +204,7 @@ namespace GTS {
 				}
 
 				case DeathType::kEaten: {
-					DeathTypeStr = "Ate";
+					DeathTypeStr = "Vored";
 					break;
 				}
 

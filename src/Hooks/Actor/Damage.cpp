@@ -330,9 +330,11 @@ namespace Hooks {
 						a_dmg *= 0.0f;
 					}
 
+					TransientActorData* data = Transient::GetActorData(a_this);
+					if (data && data->IsBeingSizeDamaged) goto skipOverKill;
+
 					DoOverkill(a_source, a_this, a_dmg);
 					RecordPushForce(a_this, a_source);
-
 				}
 			}
 
@@ -345,7 +347,7 @@ namespace Hooks {
 			/*if (a_this->IsPlayerRef()) {
 				logger::info("Damage Post: {}", a_dmg);
 			}*/
-
+			skipOverKill:
 			func(a_this, a_dmg, a_source, a_dontAdjustDifficulty);
 
 		}

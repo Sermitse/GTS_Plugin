@@ -649,15 +649,6 @@ namespace GTS {
 				return;
 			}
 		}
-		//@Sermit, This prevents npc death from size damage but still causes the tiny
-		//to be shrunk down if jumping
-		//idk if this is intended. if it is remove the code block here.
-		/*auto transient = Transient::GetActorData(attacker);
-		if (transient) {
-			if (transient->Protection) {
-				return;
-			}
-		}*/
 
 		if (!receiver->IsDead()) {
 			float HpPercentage = GetHealthPercentage(receiver);
@@ -676,9 +667,20 @@ namespace GTS {
 				}
 			}
 
-			//@Sermit using nullptr instead of attacker fixes the overkill bug but breaks
-			//Size related damage kills in the Killfeed.
-			receiver->TakeDamage(nullptr, value * difficulty * Config::Balance.fSizeDamageMult, false);
+			//The correct thing to do here is to pass the attacker.
+			//This however results in size damage causing overkills due to how the hook for TakeDamage is setup.
+			float damageDealt = value * difficulty * Config::Balance.fSizeDamageMult;
+			
+			if (TransientActorData* data = Transient::GetActorData(receiver))
+			{
+				data->IsBeingSizeDamaged = true;
+				receiver->TakeDamage(attacker, damageDealt, false);
+				data->IsBeingSizeDamaged = false;
+			}
+			else {
+				receiver->TakeDamage(nullptr, damageDealt, false);
+			}
+
 		}
 		else if (receiver->IsDead()) {
 			Task_InitHavokTask(receiver);
