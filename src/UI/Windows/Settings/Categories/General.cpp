@@ -395,26 +395,25 @@ namespace GTS {
 						  "As a result, movement speed will be faster (which isn't always good)\n"
 						  "But it should drastically reduce or even fix ice-skating effect";
 
-			PSString T2Help = "Gradually reduces NPC movement speed as they exceed certain size thresholds.\n"
+			PSString T2Help = "Movement speed clamping gradually reduces NPC movement speed as they exceed certain size thresholds.\n"
 							  "This prevents large NPCs from moving unrealistically fast.\n"
 							  "The speed reduction scales smoothly between the start and maximum thresholds.";
 
 			PSString T2_1 = "The scale at which sprinting is disabled and the speed reduction begins.";
 			PSString T2_2 = "The scale at which the NPC speed multiplier is fully clamped to the value set below.";
-			PSString T2_3 = "The target speed multiplier, the game's default is 2.0. (Applies only to followers when not in combat)";
-			PSString T2_4 = "Modifies the target speed multiplier through a different method that works during combat, the game's default is 1.0";
+			PSString T2_3 =
+				"Controls how slow NPCs are allowed to become when size-based speed clamping is applied.\n"
+				"For example, 80%% means NPCs will still move at least at 80%% of their normal run/jog speed,\n"
+				"even when past the max clamping threshold scale. 0%% effectively disables this feature.";
 
 
 			if (ImGui::CollapsingHeader("Movement", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImGuiEx::CheckBox("Alternative Movement Speed", &Config::General.bAlternativeSpeedFormula, T1);
-				ImGui::Text("NPC Movement Speed Clamping");
-				ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.x / 2.0f);
-				ImGuiEx::HelpText("", T2Help);
 
+				ImGuiEx::HelpText("What is this", T2Help);
 				ImGuiEx::SliderF("Start NPC Speed Clamp", &Config::General.fNPCMaxSpeedMultClampStartAt, 1.0f, 20.0f, T2_1, "When larger than %.1fx");
 				ImGuiEx::SliderF("NPC Max Clamp", &Config::General.fNPCMaxSpeedMultClampMaxAt, Config::General.fNPCMaxSpeedMultClampStartAt, Config::General.fNPCMaxSpeedMultClampStartAt + 20.f, T2_2, "At %.1fx");
-				ImGuiEx::SliderF("Target Clamp Multiplier", &Config::General.fNPCMaxSpeedMultClampTarget, 0.1f, 2.0f, T2_3, "%.1fx");
-				ImGuiEx::SliderF("Target Clamp Multiplier (In Combat)", &Config::General.fNPCMaxSpeedMultClampTargetCombat, 0.5f, 1.0f, T2_4, "%.1fx");
+				ImGuiEx::SliderF("Lowest Speed Offset %", &Config::General.fNPCMaxSpeedMultLerpTargetPercent, 0.0f, 100.f, T2_3, "%.0f%% Of Walk Speed");
 				ImGui::Spacing();
 			}
 		}

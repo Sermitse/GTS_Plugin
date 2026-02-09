@@ -13,7 +13,7 @@
 #include "Config/Settings/SettingsHidden.hpp"
 #include "Config/Settings/SettingsPersistent.hpp"
 #include "Config/Settings/SettingsUI.hpp"
-
+#include "Config/Settings/SettingsExperimental.hpp"
 
 namespace GTS {
 
@@ -40,6 +40,9 @@ namespace GTS {
         static inline SettingsUI_t UI                 = {};
         static inline SettingsPersistent_t Persistent = {};
 		static inline SettingsCollision_t Collision   = {};
+
+        //Not Serialized
+        static inline SettingsExperimental_t Experiments = {};
 
         void DataReady() override;
         std::string DebugName() override;

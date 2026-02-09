@@ -37,7 +37,7 @@ namespace Hooks {
 
 		logger::info("Installing Hooks...");
 		auto& SKSETrampoline = SKSE::GetTrampoline();
-		SKSETrampoline.create(512); //Don't forget to increase when you add new callhooks.
+		SKSETrampoline.create(384); //Don't forget to increase when you add new callhooks.
 
 		//Actor
 		Hook_Actor::Install();

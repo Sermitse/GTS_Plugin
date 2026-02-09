@@ -105,6 +105,7 @@ namespace GTS {
 		std::vector<Actor*> shrinkies;
 		float fRecordedFurnScale = 1.0f;
 		bool bIsUsingFurniture = false;
+		bool IsBeingSizeDamaged = false;
 
 		explicit TransientActorData(Actor* a_Actor) {
 			const auto _BoundValues = get_bound_values(a_Actor);

@@ -68,10 +68,9 @@ struct SettingsGeneral_t {
     float fAdditionalJumpEffectDelay = 0.15f;
     float fAdditionalJumpEffectDelay_Gravity = 0.0f;
 
-	float fNPCMaxSpeedMultClampTarget = 1.0f;  //Max speed multiplier target at max clamp for the follow procedure
-    float fNPCMaxSpeedMultClampTargetCombat = 0.5f;  //Max speed multiplier target at max clamp for the follow procedure
 	float fNPCMaxSpeedMultClampStartAt = 2.5f; //Scale at which clamping begins
 	float fNPCMaxSpeedMultClampMaxAt = 3.5f;   //Scale at which speed is fully clamped to target
+    float fNPCMaxSpeedMultLerpTargetPercent = 80.0f;
 };
 TOML_SERIALIZABLE(SettingsGeneral_t);
 TOML_REGISTER_NAME(SettingsGeneral_t, "General");

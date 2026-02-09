@@ -15,7 +15,7 @@ namespace GTS {
 
 	void DebugWindow::Draw() {
 
-		ImGui::PushFont(nullptr, 18);
+		ImGui::PushFont(nullptr, 16);
 
 		if (ImGuiEx::Button("Close")) {
 			HandleOpenClose(false);
@@ -163,7 +163,7 @@ namespace GTS {
 							}
 						}
 					}
-					});
+				});
 			}
 			static int32_t deletedcnt = -1;
 			if (ImGuiEx::Button("Delete Dead Dynamic NPC's", "Disables and deletes dynamic form NPC's (Refid starting with FF) in a 4x4 cell radius.", false, 1.0f)) {
@@ -189,7 +189,7 @@ namespace GTS {
 			}
 		}
 
-		if (ImGui::CollapsingHeader("bhkCharacterController maxSlope", ImUtil::HeaderFlagsDefaultOpen)) {
+		if (ImGui::CollapsingHeader("bhkCharacterController maxSlope")) {
 			//Value is mislabeled in clib, its a float storing the inverse cosine of the max slope angle in radians.
 			auto& maxSlopeRaw = PlayerCharacter::GetSingleton()->GetCharController()->maxSlope;
 			float asFloat = std::bit_cast<float>(maxSlopeRaw);
@@ -201,9 +201,30 @@ namespace GTS {
 			ImGui::Text("As slope ratio (rise/run): %.2f%%", asFloat * 100.0f);
 		}
 
+		if (ImGui::CollapsingHeader("Test Values", ImUtil::HeaderFlagsDefaultOpen)) {
+
+			ImGui::InputFloat("fTest1", &Config::Experiments.fTest1);
+			ImGui::InputFloat("fTest2", &Config::Experiments.fTest2);
+			ImGui::InputFloat("fTest3", &Config::Experiments.fTest3);
+			ImGui::InputFloat("fTest4", &Config::Experiments.fTest4);
+			ImGui::InputFloat("fTest5", &Config::Experiments.fTest5);
+			ImGui::InputFloat("fTest6", &Config::Experiments.fTest6);
+			ImGui::InputFloat("fTest7", &Config::Experiments.fTest7);
+			ImGui::InputFloat("fTest8", &Config::Experiments.fTest8);
+
+			ImGui::InputInt("iTest1", &Config::Experiments.iTest1);
+			ImGui::InputInt("iTest2", &Config::Experiments.iTest1);
+			ImGui::InputInt("iTest3", &Config::Experiments.iTest1);
+			ImGui::InputInt("iTest4", &Config::Experiments.iTest1);
+			ImGui::InputInt("iTest5", &Config::Experiments.iTest1);
+			ImGui::InputInt("iTest6", &Config::Experiments.iTest1);
+			ImGui::InputInt("iTest7", &Config::Experiments.iTest1);
+			ImGui::InputInt("iTest8", &Config::Experiments.iTest1);
+
+		}
+
 		ImGui::PopFont();
 		ImGui::Spacing();
-
 	}
 
 	bool DebugWindow::WantsToDraw() {

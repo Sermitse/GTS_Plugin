@@ -4,12 +4,15 @@ using namespace GTS;
 
 namespace {
 
+	std::mutex scalesMutex;
+
 	struct InitialScales {
         float model = 1.0f;
         float npc = 1.0f;
 
         InitialScales() {
-            throw std::exception("Cannot init a InitialScales without an actor");
+			model = 1.0f;
+			npc = 1.0f;
         }
 
         InitialScales(Actor* actor) {
@@ -30,47 +33,67 @@ namespace {
 		return initScales;
 	}
 
-	static std::mutex scalesMutex; // Define a mutex for protecting initScales
 
-    InitialScales& GetActorInitialScales(Actor* actor) {
-        if (!actor) {
-            logger::info("GetActorInitialScales: Actor Doesn't Exist");
-            throw std::exception("Actor must exist for GetInitialScale");
-        }
 
-        try {
-            auto& initScales = GetInitialScales(); // Get reference to your map
-            auto id = actor->formID;
-            {
-                // Lock the mutex before accessing the map
-                std::lock_guard<std::mutex> lock(scalesMutex);
+	bool GetActorInitialScales(Actor* actor, InitialScales& out) {
+		if (!actor) {
+			logger::info("GetActorInitialScales: Actor Doesn't Exist");
+			return false;
+		}
 
-                // Ensure the actor's scale data exists in the map
-                initScales.try_emplace(id, actor);
-            }
+		auto& initScales = GetInitialScales();
+		const FormID id = actor->formID;
 
-            return initScales.at(id);
-        }
-        catch (const std::exception& e) {
-            logger::error("GetActorInitialScales Failed {}", e.what());
+		std::lock_guard lock(scalesMutex);
 
-            // Return a static default InitialScales
-            static InitialScales fallbackScales {
-                 1.0f,
-                 1.0f
-            };
+		auto it = initScales.find(id);
+		if (it != initScales.end()) {
+			out = it->second;
+			return true;
+		}
 
-            return fallbackScales;
-        }
-    }
+		auto data = InitialScales(actor);
+
+		auto [insertedIt, inserted] = initScales.emplace(id, std::move(data));
+		out = insertedIt->second;
+		return true;
+	}
+
+	void UpdateActorInitialScales(Actor* actor) {
+		if (!actor) {
+			logger::info("GetActorInitialScales: Actor Doesn't Exist");
+			return;
+		}
+
+		auto& initScales = GetInitialScales();
+		const FormID id = actor->formID;
+
+		std::lock_guard lock(scalesMutex);
+
+		auto it = initScales.find(id);
+		if (it != initScales.end()) {
+			return;
+		}
+
+		auto data = InitialScales(actor);
+		initScales.emplace(id, std::move(data));
+
+	}
+
+	bool SetActorInitialScales(Actor* actor, const InitialScales& in){
+		if (!actor) return false;
+
+		auto& initScales = GetInitialScales();
+		const auto id = actor->formID;
+
+		std::lock_guard lock(scalesMutex);
+		initScales[id] = in;
+		return true;
+	}
 
 	void UpdateInitScale(Actor* actor) {
-		try {
-			GetActorInitialScales(actor); // It's enough just to call this
-		} catch (const std::exception& e){
-			logger::error("UpdateInitScale Failed {}",e.what());
-		}
-		
+		UpdateActorInitialScales(actor);
+
 	}
 }
 
@@ -116,32 +139,27 @@ namespace GTS {
 	}
 
 	void ResetToInitScale(Actor* actor) {
-		try {
-			if (actor) {
-				if (actor->Is3DLoaded()) {
-					auto& initScale = GetActorInitialScales(actor);
-					set_model_scale(actor, initScale.model);
-					set_npcnode_scale(actor, initScale.npc);
+		if (actor) {
+			if (actor->Is3DLoaded()) {
+				InitialScales data;
+				if (GetActorInitialScales(actor, data)) {
+					set_model_scale(actor, data.model);
+					set_npcnode_scale(actor, data.npc);
 					logger::trace("Actor: {:08} ResetToInitScale", actor->formID);
 				}
 			}
-		}
-		catch (const std::exception& e) {
-			logger::error("ResetToInitScale Failed {}", e.what());
 		}
 	}
 
 	float GetInitialScale(Actor* actor) {
 
-
-		try {
-			auto& initScale = GetActorInitialScales(actor);
-			return initScale.model;
+		if (actor) {
+			InitialScales data;
+			if (GetActorInitialScales(actor, data)) {
+				return data.model;
+			}
 		}
-		catch (const std::exception& e) {
-			logger::error("GetInitialScale Failed {}", e.what());
-			return 1.0f;
-		}
+		return 1.0f;
 	}
 
 	void RefreshInitialScales(Actor* actor) {
@@ -150,10 +168,14 @@ namespace GTS {
 			ActorHandle gianthandle = actor->CreateRefHandle();
 			TaskManager::RunOnce(name, [=](auto& progressData) { // Reset it one frame later, called by SwitchRaceHook only, inside Hooks/RaceMenu.cpp 
 				if (gianthandle) {
-					auto giantref = gianthandle.get().get();
-
-					auto& initScale = GetActorInitialScales(giantref);
-					initScale.model = 1.0f * giantref->GetScale();
+					Actor* giantref = gianthandle.get().get();
+					if (giantref) {
+						InitialScales data;
+						if (GetActorInitialScales(giantref, data)) {
+							data.model = giantref->GetScale();
+							SetActorInitialScales(giantref, data);
+						}
+					}
 				}
 			});
 		}

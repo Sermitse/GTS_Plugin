@@ -1,5 +1,7 @@
 #include "Hooks/Experiments/Experiments.hpp"
 #include "Hooks/Util/HookUtil.hpp"
+#include "Config/Config.hpp"
+
 
 // --------------------------------------------------------------------------------
 //							E X A M P L E S
@@ -82,7 +84,7 @@ NOTES:
 */
 
 
-//True MainLoop of the game
+/*//True MainLoop of the game
 //AE has 2 of them...
 //AE ID: 36544 AE Offset: 0xd6 Location of the GetActiveWindow() Call Right before other checks.
 //AE ID: 36550 AE Offset: 0x95 Location of the GetActiveWindow() Call Right before other checks.
@@ -96,9 +98,9 @@ struct MainLoop {
 	}
 
 	FUNCTYPE_CALL func;
-};
+};*/
 
-//A Very early call at near the start of Main::Update
+/*//A Very early call at near the start of Main::Update
 //Call order Crt startup->MainLoop(true int main(), has while(true))->Main::Update, which is the hook below
 struct MainUpdatePre {
 
@@ -108,9 +110,9 @@ struct MainUpdatePre {
 	}
 
 	FUNCTYPE_CALL func;
-};
+};*/
 
-//Detour of the SetMoveFlags Function,
+/*//Detour of the SetMoveFlags Function,
 //Intention was to force AI movement to not run.
 //Result is that the player can no longer jog only walk or sprint.
 struct SetMoveFlags {
@@ -137,36 +139,133 @@ struct SetMoveFlags {
 
 
 	FUNCTYPE_DETOUR func;
-};
+};*/
 
-//A Random Character member func. The follow procedure uses it to calculate the distance between Character and the person being followed (i think)
-//Or actually i think its the move function??? maybe? forcing 0 causes a follower to slide in place sometimes?
-struct Sub {
+/*struct ActorStateGetMaxSpeedMult {
 
-	static float thunk(RE::Character* a_this) {
-		return 0.0f;
+	static inline Actor* GetOwningActor(const ActorState* actorState) noexcept {
+
+		if (actorState) {
+			// 0xB8 for versions up to 1.6.629 (SSE/older AE)
+			// 0xC0 for versions 1.6.640+ (newer AE)
+			// It's so funny that this just works.
+			// This basically hinges on the fact that the actor state only actually exists as a member of Actor in the game.
+			// So to be able to pass an actor state pointer you need to have an actor as well.
+			// Also fun fact for SE And probably AE too. If you subtract 0x1B8 ontop of this you can get the owning MovementControllerNPC Pointer.
+			// Fenix has RE'd a bunch of the AI/Movement Related classes in his SSE clib fork which is how i found this out.
+			// https://github.com/fenix31415/CommonLibSSE/blob/b4a2fc70d5709f8a6bb9023bb942ab65867ae8ab/include/RE/M/MovementControllerNPC.h#L17
+			const int offset = REL::Module::get().version() >= SKSE::RUNTIME_SSE_1_6_629 ? 0xC0 : 0xB8;
+			return reinterpret_cast<Actor*>(reinterpret_cast<uintptr_t>(actorState) - offset);
+		}
+		return nullptr;
+	}
+
+	static float thunk(ActorState* a_this, float a1) {
+
+		float original = func(a_this, a1);
+
+		{
+
+			GTS_PROFILE_ENTRYPOINT("Actor::ActorStateGetMaxSpeedMult");
+
+			if (Actor* const owner = GetOwningActor(a_this)) {
+				const float scale = get_visual_scale(owner);
+				constexpr float& START_CLAMP_SCALE = Config::General.fNPCMaxSpeedMultClampStartAt;  // Scale at which clamping begins
+				constexpr float& FULL_CLAMP_SCALE = Config::General.fNPCMaxSpeedMultClampMaxAt;    // Scale at which speed is fully clamped to target
+
+				if (scale >= START_CLAMP_SCALE) {
+					// Calculate interpolation factor (0.0 to 1.0)
+					float t = (scale - START_CLAMP_SCALE) / (FULL_CLAMP_SCALE - START_CLAMP_SCALE);
+					t = std::clamp(t, 0.0f, 1.0f);
+
+					// Lerp from original speed to fNPCMaxSpeedMultClampTarget
+					const float clampedSpeed = std::lerp(original, Config::General.fNPCMaxSpeedMultClampTarget, t);
+
+					//logger::trace("Scale: {}, Original: {}, Clamped: {}", scale, original, clampedSpeed);
+					return clampedSpeed;
+				}
+			}
+
+			return original;
+		}
 	}
 
 	FUNCTYPE_DETOUR func;
-};
-
+};*/
 
 namespace Hooks {
 
 	void Hook_Experiments::Install() {
 		//stl::write_call<MainLoop, 6>(REL::VariantID(NULL, 36544, NULL), REL::VariantOffset(NULL, 0xd6, NULL));
 		//stl::write_call<MainUpdatePre>(REL::VariantID(35565, 36564, NULL), REL::VariantOffset(0x1E, 0x3E, NULL));
-
-
-
-		//SE: 38026
-		//AE: 38982
-		//stl::write_detour<SetMoveFlags>(REL::RelocationID(38026, 38982));
-
-		//SE: 36460
-		//AE : 37458
-		//stl::write_detour<Sub>(REL::RelocationID(36460, 37458));
-
 	}
 
 }
+
+/*
+	The speed clamp fix is made out of 2 parts.
+	one is detouring what appears to be an actorstate member subroutine that is only used by The BGSProcedure* system.
+	I think its just the GetMaxspeed Function.
+	The second is NOPing out the assembly that forces the speed clamp in the BGSProcedureFollowExecState function.
+	The follow procedure forcibly sets the speed to 2.0 and sets the movement state to sprint if the distance between the player and follower is too large.
+	This distance check use a gamesetting value and by default is at around 500.
+	This distance check is only relevant when the vanilla ai follow package runs.
+	NFF has a custom follow package that is actually made out of 3 state where each state has its own distance check and prefferered movement speed set as an oveeride.
+	The too far check happens right after the call to the GetMaxSpeed function. Its easier to just nop out this check than to inject an xbyak block with extra logic.
+
+	//1.6.1170
+
+	14046a1a2 c6 85 78        MOV        byte ptr [RBP + TooFar],0x1
+			  02 00 00 01
+
+	14046a1a9 f3 44 0f        MAXSS      Speedmultiplier,dword ptr [DAT_141ad288c]  = 40000000h
+			  5f 05 da
+			  86 66 01
+
+	//1.5.97
+
+	14040f892 c6 85 58        MOV        byte ptr [RBP + TooFar],0x1
+			  02 00 00 01
+	14040f899 f3 0f 10        MOVSS      XMM0,dword ptr [DAT_141525c5c]             = 40000000h
+			  05 bb 63
+			  11 01
+	14040f8a1 44 0f 2f c0     COMISS     XMM8,XMM0
+	14040f8a5 73 0d           JNC        LAB_14040f8b4
+	14040f8a7 44 0f 28 c0     MOVAPS     XMM8,XMM0
+
+*/
+
+/*
+void PatchFollowMoveSpeed() {
+
+	logger::info("Installing AI Procedure SpeedClamp Hooks");
+	
+
+	//auto pattern_AE = REL::make_pattern<"C6 85 ?? ?? ?? ?? 01 F3 44 0F 5F 05 ?? ?? ?? ??">();
+	//auto pattern_SE = REL::make_pattern<"C6 85 ?? ?? ?? ?? 01 F3 0F 10 05 ?? ?? ?? ?? 44 0F 2F C0 73 ?? 44 0F 28 C0">();
+
+
+	//if (REL::Module::IsAE()) {
+	//	uintptr_t address = REL::Relocation<std::uintptr_t>(REL::ID(28644), REL::Offset(0x1292)).address();
+	//	pattern_AE.match_or_fail(address);
+	//	REL::safe_fill(address, 0x90, 16);
+
+	//}
+	//else if (REL::Module::IsSE()) {
+	//	uintptr_t address = REL::Relocation<std::uintptr_t>(REL::ID(27911), REL::Offset(0x1522)).address();
+	//	pattern_SE.match_or_fail(address);
+	//	REL::safe_fill(address, 0x90, 25);
+	//}
+	//else {
+	//	logger::error("Unsuported Runtime");
+	//	return;
+	//}
+
+	//14040e370 1.5.97
+	//char BGSProcedureFollowExecState::sub(RE::BGSProcedureFollowExecState* this, RE::Character*** a_runningActor, char unk1) Is the caller
+	//undefined8 ActorState::sub(longlong *param_1,undefined4 param_2) is the target.
+	//A detour is used instead of a call hook because i saw that other follow related functions (and combat flee apparently) are the only places where this function is called.
+	//Judging by their function/naming it usefull to enforce the clamping there as well.
+	//stl::write_detour<ActorStateGetMaxSpeedMult>(REL::RelocationID(88499, 90925, NULL));
+}
+*/
