@@ -91,7 +91,7 @@ namespace GTS {
 		std::unique_lock lock(_Lock);
 
 		// Create a set to hold the whitelisted FormIDs.
-		absl::flat_hash_set<FormID> allowedFormIDs;
+		std::unordered_set<FormID> allowedFormIDs;
 
 		// Always keep FormID 0x14 (Player).
 		allowedFormIDs.insert(0x14);
@@ -103,7 +103,7 @@ namespace GTS {
 			}
 		}
 
-		absl::erase_if(TempActorDataMap, [&](const auto& entry) {
+		std::erase_if(TempActorDataMap, [&](const auto& entry) {
 			return !allowedFormIDs.contains(entry.first);
 		});
 

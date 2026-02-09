@@ -14,6 +14,6 @@ namespace GTS {
 		void SpineUpdate(Actor* me);
 
 		protected:
-		absl::node_hash_map<FormID, HeadtrackingData> data;
+		std::unordered_map<FormID, HeadtrackingData> data;
 	};
 }

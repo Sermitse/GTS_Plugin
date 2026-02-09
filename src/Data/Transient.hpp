@@ -17,6 +17,6 @@ namespace GTS {
 		virtual void OnGameRevert() override;
 
 		static inline std::mutex _Lock;
-		static inline absl::node_hash_map<FormID, TransientActorData> TempActorDataMap {};
+		static inline std::unordered_map<FormID, TransientActorData> TempActorDataMap {};
 	};
 }

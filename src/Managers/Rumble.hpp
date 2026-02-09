@@ -34,7 +34,7 @@ namespace GTS {
 		ActorRumbleData();
 		Timer delay;
 		// Tagged rumble data
-		absl::node_hash_map<std::string, RumbleData> tags;
+		std::unordered_map<std::string, RumbleData> tags;
 	};
 
 	// Rumble for all actors
@@ -63,7 +63,7 @@ namespace GTS {
 		static void Once(std::string_view tag, Actor* giant, float intensity, float halflife, const bool ignore_scaling = false);
 
 		private:
-		absl::node_hash_map<Actor*, ActorRumbleData> data;
+		std::unordered_map<Actor*, ActorRumbleData> data;
 	};
 
 	void ApplyShake(Actor* caster, float modifier, float radius);
