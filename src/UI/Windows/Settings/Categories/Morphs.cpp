@@ -15,10 +15,12 @@
 
 namespace {
 
-    PSString THelp = "Here you can configure morph targets that will be applied to actors when certain actions are performed.\n\n"
+    PSString THelp = "- !Altering Morphs can be very FPS expensive!\n"
+                     "Here you can configure morph targets that will be applied to actors when certain actions are performed.\n\n"
                      "Morphs are split up in to morph categories (like breasts, belly, etc).\n"
                      "Each category can have multiple racemenu/bodyslide morphs defined (Up to 16) that are combined together.\n"
                      "You can find the list of morph names by loading the body mod you use in Outfit Studio.";
+                     
 
     void DrawMorphList(GameplayMorphSettings_t& settings) {
 
@@ -129,7 +131,7 @@ namespace GTS {
 
             if (!Racemenu::Loaded()) {
                 MorphSettings.SetDisabledState(true);
-                MorphSettings.SetExtraInfo("Racemenu API Error");
+                MorphSettings.SetExtraInfo("Couldn't get Racemenu API");
             }
 
             if (ImGuiEx::BeginCollapsingTabHeader(MorphSettings)) {
@@ -164,8 +166,10 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Breast Morph Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                PSString T0 = "Enable breast growth after completing certain actions (like cleavage absorbtion).";
-                PSString T1 = "Toggle whether the morph should decrease over time.";
+                PSString T0 = "Enable breast growth after completing certain actions (like cleavage absorbtion).\n"
+                                "- !Altering Morphs can be very FPS expensive!";
+                PSString T1 = "Toggle whether the morph should decrease over time.\n"
+                                "- !Altering Morphs can be very FPS expensive!";
 				PSString T2 = "Set the rate at which breasts should shrink over time.";
 				PSString T3 = "Set the amount breasts should increase by after each absorbtion.";
 
@@ -188,7 +192,8 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Belly Morph Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                PSString T0 = "Enable belly growth with vore actions.";
+                PSString T0 = "Enable belly growth with vore actions.\n"
+                            "- !Altering Morphs can be very FPS expensive!";
                 PSString T1 = "Set the amount of growth per eaten tiny.";
                 ImGuiEx::CheckBox("Grow Belly On Vore", &Config::Gameplay.ActionSettings.bEnableBellyMorph, T0);
                 ImGuiEx::SliderF("Increase Per Vore", &Config::Gameplay.ActionSettings.fBellyAbsorbIncrementBy, 0.1f, 1.0f, T1, "%.2fx");

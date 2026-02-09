@@ -68,7 +68,7 @@ struct GameplayActionSettings_t {
     bool bAllowInsects = false;
     bool bAllowUndead = false;
     bool bDVDoEndoOnTeam = false;
-    bool bEnableBellyMorph = true;
+    bool bEnableBellyMorph = false;
     float fBellyAbsorbIncrementBy = 0.55f;
 
     //Stomp Settings
@@ -89,10 +89,10 @@ struct GameplayActionSettings_t {
     
     //Cleavage Settings
     float fGrabPlayVoreOffset_Z = 0.0f;
-    bool bShrinkBreastsOverTime = true;
+    bool bShrinkBreastsOverTime = false;
     float fBreastShrinkRate = 0.15f;
     float fBreastsAbsorbIncrementBy = 1.85;
-    bool bEnlargeBreastsOnAbsorption = true;
+    bool bEnlargeBreastsOnAbsorption = false;
 
 
 

@@ -135,7 +135,7 @@ namespace DamageLogic {
 					PlayCrushSound(giant, node, false, get_corrected_scale(tiny));
 					sandwichdata.Remove(tiny);
 
-					if (sandwichdata.GetActors().size() <= 0) {
+					if (sandwichdata.GetActors().empty()) {
 						AnimationManager::StartAnim("TinyDied", giant);
 					}
 				}
@@ -207,8 +207,15 @@ namespace AnimEvents {
 	}
 
 	//Used when the GTS starts to lift her self up from sitting down mostly for sfx
+	//Also fired when we initially grab the tiny for some reason...
 	void GTS_TSB_Stand(AnimationEventData& data) {
-		
+		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
+		sandwichdata.ReleaseAll();
+
+		if (GetGrowthCount(&data.giant) > 0) {
+			ModGrowthCount(&data.giant, 0, true); // Reset growth count
+			SetButtCrushSize(&data.giant, 0, true);
+		}
 	}
 
 	//Used when the GTS starts to fall down to butt crush
@@ -246,6 +253,9 @@ namespace AnimEvents {
 		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundFootstepHighHeels_2x, &data.giant, 1.0f, "AnimObjectA"); 
 		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_ReachedSpeed, &data.giant, 1.0f, "AnimObjectA");
 		Rumbling::Once("ButtImpactFinisher", &data.giant, Rumble_ThighSandwich_ButtImpact_Finisher, 0.15f, "AnimObjectA", 0.0f);
+
+		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
+		sandwichdata.ReleaseAll();
 		
 		if (GetGrowthCount(&data.giant) > 0) {
 			ModGrowthCount(&data.giant, 0, true); // Reset growth count

@@ -38,7 +38,7 @@ namespace {
 		AllowToBeCrushed(tiny, true);
 		PushActorAway(giant, tiny, 1.0f);
 		ForceRagdoll(tiny, true);
-		tiny->InitHavok();
+		tiny->InitHavok(); 
 	}
 
 	void EnlargeRuneTask(Actor* a_Giant) {
@@ -168,7 +168,6 @@ namespace GTS {
 				Actor* tiny_is_actor = skyrim_cast<Actor*>(tiny);
 				if (tiny_is_actor) {
 					AttachToR ? AttachToObjectR(GiantRef, tiny_is_actor) : AttachToObjectA(GiantRef, tiny_is_actor);
-					//ForceRagdoll(tiny_is_actor, false);
 					ShutUp(tiny_is_actor);
 					FaceOpposite(GiantRef, tiny_is_actor);
 				}
@@ -194,10 +193,10 @@ namespace GTS {
 					if (hp <= 0.0f || tiny->IsDead()) {
 						ReportDeath(GiantRef, tiny, DamageSource::ThighSuffocated);
 						Attachment_SetTargetNode(GiantRef, AttachToNode::None);
-						RestartTinyPhysics(GiantRef, tiny);
+						//RestartTinyPhysics(GiantRef, tiny);
 						this->Remove(tiny);
 
-						if (AnimationVars::Action::IsInSecondSandwichBranch(GiantRef) && this->tinies.size() <= 0) {
+						if (AnimationVars::Action::IsInSecondSandwichBranch(GiantRef) && this->tinies.empty()) {
 							AnimationManager::StartAnim("TinyDied", GiantRef);
 						}
 					}
