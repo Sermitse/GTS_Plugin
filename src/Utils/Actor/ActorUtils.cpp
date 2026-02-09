@@ -528,6 +528,12 @@ namespace GTS {
 		if (a_tiny->IsPlayerRef() || IsTeammate(a_tiny)) {
 			return;
 		}
+
+		if (a_tiny->HasKeywordString("GTSKeyword_PlayerBFF") && a_giant->IsPlayerRef() || 
+			a_tiny->HasKeywordString("GTSKeyword_FollowerBFF") && IsTeammate(a_giant)) {
+			return;
+		}
+
 		float sizedifference = get_scale_difference(a_giant, a_tiny, SizeType::VisualScale, true, true);
 		if (sizedifference > 1.15f && !a_tiny->IsDead()) {
 			int rng = RandomInt(1, a_random);
