@@ -207,7 +207,7 @@ namespace {
 
 		InflictBodyDamage(giant);
 
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			dust = 1.25f;
 			smt = 1.5f;
 		}

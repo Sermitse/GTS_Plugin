@@ -135,12 +135,12 @@ namespace GTS {
 		}
 
 		if (Check_SMT) {
-			if (HasSMT(giant)) {
+			if (TinyCalamityActive(giant)) {
 				GiantScale += 10.2f;
 			}
 		}
 
-		if (tiny->IsPlayerRef() && HasSMT(tiny)) {
+		if (tiny->IsPlayerRef() && TinyCalamityActive(tiny)) {
 			TinyScale += 1.50f;
 		}
 

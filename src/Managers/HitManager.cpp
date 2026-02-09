@@ -64,7 +64,7 @@ namespace GTS {
 
 		float size_difference = attackerscale/receiverscale;
 
-		if (HasSMT(player)) {
+		if (TinyCalamityActive(player)) {
 			size_difference += 3.0f;
 		}
 

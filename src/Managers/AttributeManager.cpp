@@ -166,7 +166,7 @@ namespace GTS {
 				float might = 1.0f + Potion_GetMightBonus(actor);
 
 				if (actor->IsPlayerRef()) {
-					if (HasSMT(actor)) {
+					if (TinyCalamityActive(actor)) {
 						scale += 1.0f;
 					}
 					if (actor->AsActorState()->IsSprinting() && Runtime::HasPerk(actor, Runtime::PERK.GTSPerkSprintDamageMult1)) {
@@ -186,7 +186,7 @@ namespace GTS {
 
 				float might = 1.0f + Potion_GetMightBonus(actor);
 
-				if (actor->IsPlayerRef() && HasSMT(actor)) {
+				if (actor->IsPlayerRef() && TinyCalamityActive(actor)) {
 					scale += 3.0f;
 				}
 				if (scale > 1.0f) {
@@ -214,7 +214,7 @@ namespace GTS {
 			}
 
 			case ActorValue::kAttackDamageMult: {
-				if (actor->IsPlayerRef() && HasSMT(actor)) {
+				if (actor->IsPlayerRef() && TinyCalamityActive(actor)) {
 					scale += 1.0f;
 				}
 				const float BonusDamageMult = Config::Balance.fStatBonusDamageMult;

@@ -147,7 +147,7 @@ namespace GTS {
 			float scale = impact.scale;
 			auto actor = impact.actor;
 			
-			if (actor->IsPlayerRef() && HasSMT(actor)) {
+			if (actor->IsPlayerRef() && TinyCalamityActive(actor)) {
 				scale *= 2.5f; // Affect Sound threshold itself
 			}
 
@@ -268,7 +268,7 @@ namespace GTS {
 			float scale = get_visual_scale(giant);
 			float bonus = 1.0f;
 			
-			if (HasSMT(giant)) {
+			if (TinyCalamityActive(giant)) {
 				bonus = 8.0f;
 				scale += 0.6f;
 			}

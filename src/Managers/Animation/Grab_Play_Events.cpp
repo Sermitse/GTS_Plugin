@@ -114,7 +114,7 @@ namespace Grab_Fixes {
 
 					PushActorAway(giant, tiny, 1.0f);
 
-					const float Flick_Power = HasSMT(giant) ? 9.0f : 4.0f;
+					const float Flick_Power = TinyCalamityActive(giant) ? 9.0f : 4.0f;
 
 					Animation_GrabThrow::Throw_Actor(gianthandle, tinyhandle, startCoords, endCoords, pass_name, Flick_Power, 20.0f);
 					
@@ -190,7 +190,7 @@ namespace Grab_Fixes {
 
 	void GTSGrab_Do_Damage(Actor* giant, float base_damage) {
 		auto& sizemanager = SizeManager::GetSingleton();
-		float bonus = HasSMT(giant) ? 1.65f : 1.0f;
+		float bonus = TinyCalamityActive(giant) ? 1.65f : 1.0f;
 		auto grabbedActor = Grab::GetHeldActor(giant);
 
 		if (grabbedActor) {

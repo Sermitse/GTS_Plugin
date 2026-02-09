@@ -210,7 +210,7 @@ namespace GTS {
 					tremor_scale = Config::Camera.fCameraShakePlayer;
 					sizedifference = sourcesize;
 
-					if (HasSMT(caster)) {
+					if (TinyCalamityActive(caster)) {
 						sourcesize += 0.2f; // Fix SMT having no shake at x1.0 scale
 					}
 					if (IsFirstPerson() || HasFirstPersonBody()) {

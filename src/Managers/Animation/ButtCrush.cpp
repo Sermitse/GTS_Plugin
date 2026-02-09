@@ -87,7 +87,7 @@ namespace {
 		float perk = GetPerkBonus_Basics(giant);
 		float smt = 1.0f;
 		float dust = 1.0f;
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			dust = 1.25f;
 			smt = 1.5f;
 		}
@@ -208,7 +208,7 @@ namespace {
 		float dust = 1.0f;
 		float smt = 1.0f;
 
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			dust = 1.25f;
 			smt = 1.5f;
 		}

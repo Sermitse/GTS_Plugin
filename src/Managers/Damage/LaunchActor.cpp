@@ -124,7 +124,7 @@ namespace GTS {
 
 		bool OwnsPerk = false;
 
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			threshold = 0.92f;
 			force += 0.02f;
 		}
@@ -236,7 +236,7 @@ namespace GTS {
 			float giantScale = get_visual_scale(giant);
 
 			float SCALE_RATIO = GetLaunchThreshold(giant)/GetMovementModifier(giant);
-			if (HasSMT(giant)) {
+			if (TinyCalamityActive(giant)) {
 				SCALE_RATIO = 1.0f/GetMovementModifier(giant);
 				giantScale *= 1.5f;
 			}
@@ -279,7 +279,7 @@ namespace GTS {
 		}
 		float giantScale = get_visual_scale(giant);
 		float SCALE_RATIO = GetLaunchThreshold(giant)/GetMovementModifier(giant);
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			SCALE_RATIO = 1.0f / GetMovementModifier(giant);
 			giantScale *= 1.5f;
 		}

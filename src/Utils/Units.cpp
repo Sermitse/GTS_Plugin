@@ -142,7 +142,7 @@ namespace GTS {
 
         float HHOffset = HighHeelManager::GetBaseHHOffset(a_actor)[2] / 100;
         float Scale = get_visual_scale(a_actor);
-        const uint8_t SMT = HasSMT(a_actor) ? 6 : 1;
+        const uint8_t SMT = TinyCalamityActive(a_actor) ? 6 : 1;
         float TotalScale = Scale + (HHOffset * 0.10f * Scale);
         const float ActorWeight = a_actor->GetWeight();
         constexpr float BaseWeight = 60.0f; //KG at 0 weight

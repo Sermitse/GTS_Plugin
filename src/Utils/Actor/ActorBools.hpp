@@ -32,6 +32,6 @@ namespace GTS {
 	bool IsHuman(Actor* actor);
 	bool IsBlacklisted(Actor* actor);
 	bool IsGTSTeammate(Actor* actor);
-	bool HasSMT(Actor* giant);
+	bool TinyCalamityActive(Actor* giant);
 
 }

@@ -42,7 +42,7 @@ namespace GTS {
 		if (actor) {
 			GTS_PROFILE_SCOPE("CrawlUtils: DoCrawlingSounds");
 			auto player = PlayerCharacter::GetSingleton();
-			if (actor->IsPlayerRef() && HasSMT(actor)) {
+			if (actor->IsPlayerRef() && TinyCalamityActive(actor)) {
 				scale *= 1.85f;
 			}
 			const bool LegacySounds = Config::Audio.bUseOldSounds; // Determine if we should play old pre 2.00 update sounds
@@ -71,7 +71,7 @@ namespace GTS {
 		// Order matters here since we don't want to make it even stronger during SMT, so that's why SMT check is after this function
 		
 		if (actor->IsPlayerRef()) {
-			if (HasSMT(actor)) {
+			if (TinyCalamityActive(actor)) {
 				smt = 2.0f; // Stronger Camera Shake
 				multiplier *= 1.8f;
 				minimal_scale = 1.0f;
@@ -120,7 +120,7 @@ namespace GTS {
 		float giantScale = get_visual_scale(giant);
 
 		float SCALE_RATIO = 1.25f;
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			SCALE_RATIO = 0.9f;
 			giantScale *= 1.3f;
 		}

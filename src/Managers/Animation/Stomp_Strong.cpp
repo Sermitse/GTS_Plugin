@@ -89,7 +89,7 @@ namespace {
 
 	void DoImpactRumble(Actor* giant, std::string_view node, std::string_view name, float mult = 1.0f) {
 		float shake_power = Rumble_Stomp_Strong;
-		float smt = HasSMT(giant) ? 1.5f : 1.0f;
+		float smt = TinyCalamityActive(giant) ? 1.5f : 1.0f;
 		
 		smt *= GetHighHeelsBonusDamage(giant, true);
 		Rumbling::Once(name, giant, shake_power * smt * mult, 0.0f, node, 1.25f);
@@ -99,7 +99,7 @@ namespace {
 		float perk = GetPerkBonus_Basics(giant);
 		float SMT = 1.0f;
 		float damage = 1.0f;
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			SMT = 1.85f; // Larger Dust
 			damage = 1.25f;
 		}

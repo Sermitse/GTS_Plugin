@@ -13,7 +13,7 @@ namespace {
 				result = tranData->PushForce;
 			} else {
 				float size = get_giantess_scale(giant);
-				if (HasSMT(giant)) {
+				if (TinyCalamityActive(giant)) {
 					size *= 2.5f;
 				}
 				result = std::clamp(1.0f / (size*size*size*size), 0.01f, 1.0f);

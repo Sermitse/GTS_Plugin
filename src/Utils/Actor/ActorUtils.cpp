@@ -225,7 +225,7 @@ namespace GTS {
 				float& rec_time = high->voiceRecoveryTime;
 				//log::info("Recovery Time: {}", rec_time);
 				if (rec_time > 0.0f) {
-					HasSMT(a_target) ? by = 0.85f : by = 0.90f;
+					TinyCalamityActive(a_target) ? by = 0.85f : by = 0.90f;
 
 					rec_time < 0.0f ? rec_time == 0.0f : rec_time *= by;
 
@@ -607,7 +607,7 @@ namespace GTS {
 							}
 							else {
 								float launch_power = 0.33f;
-								if (HasSMT(a_source)) {
+								if (TinyCalamityActive(a_source)) {
 									launch_power *= 6.0f;
 								}
 								LaunchActor::ApplyLaunchTo(a_source, otherActor, 1.0f, launch_power);
@@ -701,7 +701,7 @@ namespace GTS {
 						tinyscale *= 0.4f;
 					}
 
-					if (HasSMT(giant)) {
+					if (TinyCalamityActive(giant)) {
 						giantscale *= 6.0f;
 					}
 					float sizedifference = giantscale / tinyscale;
@@ -786,9 +786,9 @@ namespace GTS {
 		float giantSize = get_visual_scale(a_source);
 		float tinySize = get_visual_scale(a_target);
 
-		if (HasSMT(a_source)) {
+		if (TinyCalamityActive(a_source)) {
 			giantSize += 1.0f;
-		} if (a_target->IsPlayerRef() && HasSMT(a_target)) {
+		} if (a_target->IsPlayerRef() && TinyCalamityActive(a_target)) {
 			tinySize += 1.25f;
 		}
 

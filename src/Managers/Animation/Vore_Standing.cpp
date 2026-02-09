@@ -145,7 +145,7 @@ namespace {
 
 		
 		float shake_power = Rumble_Vore_Stomp_Light * GetHighHeelsBonusDamage(&data.giant, true);
-		if (HasSMT(&data.giant)) {
+		if (TinyCalamityActive(&data.giant)) {
 			shake_power *= 2.0f;
 		}
 		Rumbling::Once("StompLS", &data.giant, shake_power, 0.05f, LNode,  0.0f);

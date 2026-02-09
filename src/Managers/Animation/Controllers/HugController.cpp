@@ -218,7 +218,7 @@ namespace GTS {
 			}
 		}
 	
-		if (HasSMT(pred)) {
+		if (TinyCalamityActive(pred)) {
 			MINIMUM_HUG_SCALE *= 0.80f;
 		}
 

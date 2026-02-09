@@ -73,7 +73,7 @@ namespace GTS {
 		float minimal_size = 2.0f;
 		
 		if (actor->IsPlayerRef()) {
-			if (HasSMT(actor)) {
+			if (TinyCalamityActive(actor)) {
 				minimal_size = 1.0f;
 				scale += 0.33f;
 			}

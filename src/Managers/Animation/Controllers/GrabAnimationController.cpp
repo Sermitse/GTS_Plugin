@@ -150,7 +150,7 @@ namespace GTS {
 		float MINIMUM_GRAB_SCALE = Action_Grab;
 		float MINIMUM_DISTANCE = MINIMUM_GRAB_DISTANCE;
 
-		if (HasSMT(pred) || AnimationVars::Crawl::IsCrawling(pred)) {
+		if (TinyCalamityActive(pred) || AnimationVars::Crawl::IsCrawling(pred)) {
 			MINIMUM_DISTANCE *= 1.6f;
 		}
 

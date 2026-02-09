@@ -120,7 +120,7 @@ namespace {
 
 		float shake_power = Rumble_FootGrind_Impact * GetHighHeelsBonusDamage(giant, true);
 
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			shake_power *= 1.5f;
 		}
 		

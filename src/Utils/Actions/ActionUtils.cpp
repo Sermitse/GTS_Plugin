@@ -81,7 +81,7 @@ namespace GTS {
 		std::vector<Actor*> vories = {};
 		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkMassActions)) {
 			capacity = 3.0f * get_visual_scale(giant);
-			if (HasSMT(giant)) {
+			if (TinyCalamityActive(giant)) {
 				capacity *= 3.0f;
 			}
 		}
@@ -205,7 +205,7 @@ namespace GTS {
 											bool LowHealth = (GetHealthPercentage(huggedActor) < GetHugCrushThreshold(giant, otherActor, true));
 											bool ForceCrush = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugMightyCuddles);
 											float Stamina = GetStaminaPercentage(giant);
-											if (HasSMT(giant) || LowHealth || (ForceCrush && Stamina > 0.75f)) {
+											if (TinyCalamityActive(giant) || LowHealth || (ForceCrush && Stamina > 0.75f)) {
 												SpawnParticle(otherActor, 3.00f, "GTS/UI/Icon_Hug_Crush.nif", NiMatrix3(), Position, iconScale, 7, node); // Spawn 'can be hug crushed'
 											}
 										}

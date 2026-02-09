@@ -289,7 +289,7 @@ namespace GTS {
 			float tiny_scale = get_visual_scale(tiny);
 			float giant_scale = get_visual_scale(giant);
 			
-			if (HasSMT(giant)) {
+			if (TinyCalamityActive(giant)) {
 			    giant_scale *= 2.5f;
 		    }
 

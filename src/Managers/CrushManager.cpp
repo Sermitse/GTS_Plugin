@@ -28,7 +28,7 @@ namespace {
 
 	void ScareChance(Actor* actor) {
 		int voreFearRoll = RandomInt(0, 5);
-		if (HasSMT(actor)) {
+		if (TinyCalamityActive(actor)) {
 			voreFearRoll = RandomInt(0, 2);
 			shake_camera(actor, 0.4f, 0.25f);
 		}
@@ -42,7 +42,7 @@ namespace {
 		float size = get_visual_scale(giant);
 		int MaxValue = (20 - static_cast<int>(1.6f * size));
 
-		if (MaxValue <= 3 || HasSMT(giant)) {
+		if (MaxValue <= 3 || TinyCalamityActive(giant)) {
 			MaxValue = 3;
 		}
 		int FearChance = RandomInt(0, MaxValue);
@@ -67,7 +67,7 @@ namespace {
 
 		bool EnableCrushGrowth = Config::Gameplay.bEnableCrushGrowth;
 
-		if (EnableCrushGrowth && !HasSMT(caster)) {
+		if (EnableCrushGrowth && !TinyCalamityActive(caster)) {
 
 			if (Runtime::HasPerkTeam(caster, Runtime::PERK.GTSPerkGrowthDesire)) {
 				float Rate = (0.00016f * get_visual_scale(target)) * 120.0f * power;

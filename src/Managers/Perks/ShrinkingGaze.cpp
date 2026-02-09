@@ -164,7 +164,7 @@ namespace {
 				return false;
 			}
 			auto giantref = gianthandle.get().get();
-			if (!HasSMT(giantref)) {
+			if (!TinyCalamityActive(giantref)) {
 				return false;
 			}
 

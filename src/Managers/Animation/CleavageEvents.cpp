@@ -197,7 +197,7 @@ namespace {
 			float damage = (Damage_Breast_Squish * damage_mult) * power * additionaldamage * additionaldamage * sizeDiff;
 			float experience = std::clamp(damage/1600, 0.0f, 0.06f);
 
-			if (HasSMT(giant)) {
+			if (TinyCalamityActive(giant)) {
 				bonus = 1.65f;
 			}
 

@@ -741,7 +741,7 @@ namespace GTS {
 	}
 
 	void AddSMTDuration(Actor* actor, float duration, bool perk_check) {
-		if (HasSMT(actor)) {
+		if (TinyCalamityActive(actor)) {
 			if (!perk_check || Runtime::HasPerk(actor, Runtime::PERK.GTSPerkTinyCalamityRefresh)) {
 				auto transient = Transient::GetActorData(actor);
 				if (transient) {
@@ -846,7 +846,7 @@ namespace GTS {
 		if (DarkArts1) {
 			giant->AsActorValueOwner()->RestoreActorValue(ACTOR_VALUE_MODIFIER::kDamage, ActorValue::kHealth, 8.0f);
 		}
-		if (DarkArts2 && (IsGrowthSpurtActive(giant) || HasSMT(giant))) {
+		if (DarkArts2 && (IsGrowthSpurtActive(giant) || TinyCalamityActive(giant))) {
 			shrinkpower *= 1.40f;
 		}
 
@@ -872,7 +872,7 @@ namespace GTS {
 	}
 
 	void ShrinkUntil(Actor* giant, Actor* tiny, float expected, float halflife, bool animation) {
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			float Adjustment_Gts = GetSizeFromBoundingBox(giant);
 			float Adjustment_Tiny = GetSizeFromBoundingBox(tiny);
 			float predscale = get_visual_scale(giant) * Adjustment_Gts;

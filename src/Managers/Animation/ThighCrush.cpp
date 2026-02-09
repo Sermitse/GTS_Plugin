@@ -172,7 +172,7 @@ namespace {
 
 		float shake_power = Rumble_ThighCrush_StandUp * mult * GetHighHeelsBonusDamage(giant, true);
 
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			shake_power = 2.0f;
 		}
 		

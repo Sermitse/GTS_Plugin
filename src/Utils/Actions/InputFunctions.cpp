@@ -398,7 +398,7 @@ namespace {
 					float duration = data.Duration();
 					
 					if (duration >= 1.2f && Runtime::HasPerk(player, Runtime::PERK.GTSPerkSizeReserve)) {
-						bool ShouldPrevent = get_target_scale(player) >= 1.49f && HasSMT(player); // So we don't waste it on Calamity that shrinks player back
+						bool ShouldPrevent = get_target_scale(player) >= 1.49f && TinyCalamityActive(player); // So we don't waste it on Calamity that shrinks player back
 						if (!ShouldPrevent) {
 							bool HandsBusy = Grab::GetHeldActor(player);
 							if (!HandsBusy) {

@@ -85,7 +85,7 @@ namespace {
                         if (health <= HpThreshold) {
                             AnimationManager::StartAnim(pass_anim, player);
                             return true;
-                        } else if (HasSMT(player)) {
+                        } else if (TinyCalamityActive(player)) {
                             DamageAV(player, ActorValue::kStamina, 60);
                             AnimationManager::StartAnim(pass_anim, player);
                             AddSMTPenalty(player, 10.0f);

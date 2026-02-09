@@ -31,7 +31,7 @@ namespace {
 		if (node) {
 			float min_scale = 3.5f * threshold;
 			float scale = get_visual_scale(giant);
-			if (HasSMT(giant)) {
+			if (TinyCalamityActive(giant)) {
 				scale += 2.6f;
 				multiplier *= 0.33f;
 			}

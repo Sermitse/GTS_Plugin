@@ -501,7 +501,7 @@ namespace GTS {
 	void DoLaunch(Actor* giant, float radius, float power, FootEvent kind) {
 		float smt_power = 1.0f;
 		float smt_radius = 1.0f;
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			smt_power *= 2.0f;
 			smt_radius *= 1.25f;
 		}
@@ -511,7 +511,7 @@ namespace GTS {
 	void DoLaunch(Actor* giant, float radius, float power, NiAVObject* node) {
 		float smt_power = 1.0f;
 		float smt_radius = 1.0f;
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			smt_power *= 2.0f;
 			smt_radius *= 1.25f;
 		}
@@ -775,7 +775,7 @@ namespace GTS {
 		float giantScale = get_visual_scale(giant);
 
 		float SCALE_RATIO = Action_FingerGrind;
-		bool SMT = HasSMT(giant);
+		bool SMT = TinyCalamityActive(giant);
 		if (SMT) {
 			SCALE_RATIO = 0.9f;
 		}
@@ -846,7 +846,7 @@ namespace GTS {
 
 			float maxFootDistance = radius * giantScale;
 
-			if (HasSMT(actor)) {
+			if (TinyCalamityActive(actor)) {
 				SCALE_RATIO = 0.8f;
 			}
 			std::vector<NiPoint3> CoordsToCheck = GetFootCoordinates(actor, Right, false);
@@ -956,7 +956,7 @@ namespace GTS {
 				NodePosition = node->world.translate;
 			}
 
-			if (HasSMT(giant)) {
+			if (TinyCalamityActive(giant)) {
 				giantScale += 2.40f; // enough to push giants around, but not mammoths/dragons
 				SMT = true; // set SMT to true
 			}
@@ -1057,7 +1057,7 @@ namespace GTS {
 		constexpr float BASE_CHECK_DISTANCE = 90.0f;
 		float SCALE_RATIO = 1.75f;
 
-		if (HasSMT(actor)) {
+		if (TinyCalamityActive(actor)) {
 			giantScale += 0.20f;
 			SCALE_RATIO = 0.90f;
 		}
@@ -1207,7 +1207,7 @@ namespace GTS {
 		float giantScale = get_visual_scale(giant);
 
 		float SCALE_RATIO = 1.25f;
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			SCALE_RATIO = 0.8f;
 			giantScale *= 1.3f;
 		}

@@ -356,7 +356,7 @@ namespace {
 					AnimationManager::StartAnim("Huggies_HugCrush", player);
 					AnimationManager::StartAnim("Huggies_HugCrush_Victim", huggedActor);
 					return;
-				} else if (HasSMT(player)) {
+				} else if (TinyCalamityActive(player)) {
 					AnimationManager::StartAnim("Huggies_HugCrush", player);
 					AnimationManager::StartAnim("Huggies_HugCrush_Victim", huggedActor);
 					AddSMTPenalty(player, 10.0f); // Mostly called inside ShrinkUntil

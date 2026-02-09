@@ -83,7 +83,7 @@ namespace {
 		float launch = 1.0f;
 		float dust = 0.9f;
 		float perk = GetPerkBonus_Basics(&data.giant);
-		if (HasSMT(&data.giant)) {
+		if (TinyCalamityActive(&data.giant)) {
 			smt = 1.5f;
 			launch = 1.5f;
 			dust = 1.25f;
@@ -106,7 +106,7 @@ namespace {
 		float launch = 1.0f;
 		float dust = 0.9f;
 		float perk = GetPerkBonus_Basics(&data.giant);
-		if (HasSMT(&data.giant)) {
+		if (TinyCalamityActive(&data.giant)) {
 			smt = 1.5f;
 			launch = 1.5f;
 			dust = 1.25f;
@@ -185,7 +185,7 @@ namespace {
 				if (charcont) {
 					charcont->SetLinearVelocityImpl((0.0f, 0.0f, 0.0f, 0.0f)); // Stop actor moving in space, just in case
 				}
-				float throw_mult = HasSMT(giant) ? 5.0f : 2.0f;
+				float throw_mult = TinyCalamityActive(giant) ? 5.0f : 2.0f;
 				float Z = 35.0f;
 				if (giant->IsSneaking()) {
 					throw_mult *= 0.2f; // Else it is too strong, literally throws 70+ meters at normal size

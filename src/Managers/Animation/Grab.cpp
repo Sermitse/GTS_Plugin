@@ -497,7 +497,7 @@ namespace GTS {
 			float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(grabbed);
 			float damage = (Damage * sizeDiff) * power * additionaldamage * additionaldamage;
 			float experience = std::clamp(damage/1600, 0.0f, 0.06f);
-			if (HasSMT(giant)) {
+			if (TinyCalamityActive(giant)) {
 				bonus = 1.65f;
 			}
 

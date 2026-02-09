@@ -46,7 +46,7 @@ namespace GTS {
 
 		float size_difference = std::clamp(get_scale_difference(caster, target, SizeType::VisualScale, true, false), 1.0f, 3.0f);
 
-		if (HasSMT(caster)) {
+		if (TinyCalamityActive(caster)) {
 			size_difference += SMT_BONUS;
 		} // More shrink with SMT
 

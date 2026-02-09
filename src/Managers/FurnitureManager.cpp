@@ -88,7 +88,7 @@ namespace GTS_Hitboxes {
     void ApplySitDamage_Once(Actor* giant) {
         float damage = GetButtCrushDamage(giant);
         float perk = GetPerkBonus_Basics(giant);
-        bool SMT = HasSMT(giant);
+        bool SMT = TinyCalamityActive(giant);
 
 		float dust = SMT ? 1.25f : 1.0f;
 		float smt = SMT ? 1.5f : 1.0f;

@@ -39,7 +39,7 @@ namespace GTS {
 		if (IsDualCasting()) {
 			power *= DUAL_CAST_BONUS;
 		}
-		if (HasSMT(caster)) {
+		if (TinyCalamityActive(caster)) {
 			power *= SMT_BONUS;
 		}
 		float Gain = power * ((caster_scale * 0.50f + 0.50f) * target_scale);

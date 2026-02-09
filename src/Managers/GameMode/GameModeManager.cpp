@@ -563,7 +563,7 @@ namespace GTS {
 			return;
 		}
 
-		if (!HasSMT(actor) && Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth)) {
+		if (!TinyCalamityActive(actor) && Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth)) {
             ApplyGameMode(actor, GameMode, BaseGrowhtRate / 2, BaseShrinkRate);
         }
 	}

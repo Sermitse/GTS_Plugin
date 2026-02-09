@@ -21,7 +21,7 @@ namespace {
 			NiPoint3 pos = actor->GetPosition(); 
 			pos.z += 4.0f; //shift it up a little
 
-			if (HasSMT(actor)) {
+			if (TinyCalamityActive(actor)) {
 				size += 2.8f;
 			}
 

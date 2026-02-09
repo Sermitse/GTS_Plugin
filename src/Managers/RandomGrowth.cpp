@@ -61,7 +61,7 @@ namespace {
 			return false;
 		}
 
-		if (HasSMT(actor)) {
+		if (TinyCalamityActive(actor)) {
 			return false; // Disallow random groth during Tiny Calamity
 		}
 

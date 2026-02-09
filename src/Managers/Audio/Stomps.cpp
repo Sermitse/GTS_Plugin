@@ -26,7 +26,7 @@ namespace GTS {
 		GTS_PROFILE_SCOPE("StompManager: PlayHighHeelSounds");
 		if (giant) {
 			modifier *= Volume_Multiply_Function(giant, foot_kind);
-			if (giant->IsPlayerRef() && HasSMT(giant)) {
+			if (giant->IsPlayerRef() && TinyCalamityActive(giant)) {
 				scale *= 2.5f;
 			}
 			FootStepManager::GetSingleton().DoStompSounds(giant, modifier, find_node(giant, find_foot), foot_kind, scale, Strong);

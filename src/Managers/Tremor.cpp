@@ -59,7 +59,7 @@ namespace GTS {
 
 				if (actor->IsPlayerRef()) {
 					tremor *= 1.20f; // slightly stronger footstep tremor for player
-					if (HasSMT(actor)) {
+					if (TinyCalamityActive(actor)) {
 						threshold = 0.55f;
 						calamity = 1.8f;
 					}

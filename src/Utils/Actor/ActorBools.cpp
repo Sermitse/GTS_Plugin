@@ -325,7 +325,7 @@ namespace GTS {
 		return Runtime::HasKeyword(actor, Runtime::KYWD.GTSKeywordCountAsFollower);
 	}
 
-	bool HasSMT(Actor* giant) {
+	bool TinyCalamityActive(Actor* giant) {
 		if (Runtime::HasMagicEffect(giant, Runtime::MGEF.GTSEffectTinyCalamity)) {
 			return true;
 		}

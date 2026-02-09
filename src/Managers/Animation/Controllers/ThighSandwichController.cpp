@@ -2,8 +2,10 @@
 
 #include "Managers/Animation/AnimationManager.hpp"
 
+
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/Utils/AttachPoint.hpp"
+#include "Managers/Animation/AnimationManager.hpp"
 
 #include "Managers/GTSSizeManager.hpp"
 #include "Magic/Effects/Common.hpp"
@@ -28,6 +30,15 @@ namespace {
 			std::string message = std::format("Player is too big to be sandwiched: x{:.2f}/{:.2f}", sizedifference, Action_Sandwich);
 			NotifyWithSound(tiny, message);
 		}
+	}
+
+	void RestartTinyPhysics(Actor* giant, Actor* tiny) {
+		EnableCollisions(tiny);
+		SetBeingHeld(tiny, false);
+		AllowToBeCrushed(tiny, true);
+		PushActorAway(giant, tiny, 1.0f);
+		ForceRagdoll(tiny, true);
+		tiny->InitHavok();
 	}
 
 	void EnlargeRuneTask(Actor* a_Giant) {
@@ -168,12 +179,7 @@ namespace GTS {
 
 				if (GiantRef->IsDead() || sizedifference < threshold || !AnimationVars::Action::IsThighSandwiching(GiantRef)) {
 					Attachment_SetTargetNode(GiantRef, AttachToNode::None);
-
-					EnableCollisions(tiny);
-					SetBeingHeld(tiny, false);
-					AllowToBeCrushed(tiny, true);
-					PushActorAway(GiantRef, tiny, 1.0f);
-					ForceRagdoll(tiny_is_actor, true);
+					RestartTinyPhysics(GiantRef, tiny);
 					Cprint("{} slipped out of {} thighs", tiny->GetDisplayFullName(), GiantRef->GetDisplayFullName());
 					this->tinies.erase(tiny->formID); // Disallow button abuses to keep tiny when on low scale
 				}
@@ -188,7 +194,12 @@ namespace GTS {
 					if (hp <= 0.0f || tiny->IsDead()) {
 						ReportDeath(GiantRef, tiny, DamageSource::ThighSuffocated);
 						Attachment_SetTargetNode(GiantRef, AttachToNode::None);
+						RestartTinyPhysics(GiantRef, tiny);
 						this->Remove(tiny);
+
+						if (AnimationVars::Action::IsInSecondSandwichBranch(GiantRef) && this->tinies.size() <= 0) {
+							AnimationManager::StartAnim("TinyDied", GiantRef);
+						}
 					}
 				}
 			}
@@ -304,7 +315,7 @@ namespace GTS {
 
 		float MINIMUM_DISTANCE = MINIMUM_SANDWICH_DISTANCE;
 
-		if (HasSMT(pred)) {
+		if (TinyCalamityActive(pred)) {
 			MINIMUM_DISTANCE *= 1.75f;
 		}
 

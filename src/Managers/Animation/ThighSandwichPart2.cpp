@@ -92,13 +92,13 @@ namespace DamageLogic {
 		bool DealDamage = true;
 		float threshold = 0.15f;
 
-		if (HasSMT(giant)) {
+		if (TinyCalamityActive(giant)) {
 			mult *= 1.5f;
 		}
 
 		for (auto tiny: sandwichdata.GetActors()) {
 			if (tiny && tiny->Is3DLoaded()) {
-				float sizedifference = get_visual_scale(giant)/ (get_visual_scale(tiny) * GetSizeFromBoundingBox(tiny));
+				float sizedifference = get_visual_scale(giant)/(get_visual_scale(tiny) * GetSizeFromBoundingBox(tiny));
 				float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(tiny); // Get size damage debuff from enemy
 				float normaldamage = std::clamp(SizeManager::GetSizeAttribute(giant, SizeAttribute::Normal), 1.0f, 999.0f);
 				damage *= mult * sizedifference * normaldamage * GetPerkBonus_Thighs(giant);
@@ -131,9 +131,13 @@ namespace DamageLogic {
 					ReportDeath(giant, tiny, DamageSource::Crushed);
 					AdvanceQuestProgression(giant, tiny, QuestStage::Crushing, 1.0f, false);
 					auto node = find_node(giant, "AnimObjectA");
-
+					
 					PlayCrushSound(giant, node, false, get_corrected_scale(tiny));
 					sandwichdata.Remove(tiny);
+
+					if (sandwichdata.GetActors().size() <= 0) {
+						AnimationManager::StartAnim("TinyDied", giant);
+					}
 				}
 			}
 		}
