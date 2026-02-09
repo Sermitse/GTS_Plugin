@@ -89,7 +89,7 @@ struct GameplayActionSettings_t {
     
     //Cleavage Settings
     float fGrabPlayVoreOffset_Z = 0.0f;
-    bool bShrinkBreastsOverTime = false;
+    bool bShrinkBreastsOverTime = true;
     float fBreastShrinkRate = 0.15f;
     float fBreastsAbsorbIncrementBy = 1.85;
     bool bEnlargeBreastsOnAbsorption = false;
@@ -122,6 +122,7 @@ struct GameplayActionSettings_t {
             0.20f,
         }
     };
+    float fMorphEPS = 0.08;
 };
 TOML_SERIALIZABLE(GameplayActionSettings_t);
 

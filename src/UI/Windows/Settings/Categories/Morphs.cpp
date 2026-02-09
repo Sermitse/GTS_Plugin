@@ -163,6 +163,19 @@ namespace GTS {
 
         ImUtil_Unique
         {
+            if (ImGui::CollapsingHeader("Performance", ImUtil::HeaderFlagsDefaultOpen)) {
+
+                PSString T0 = "Minimum morph change threshold before applying updates.\n"
+							  "Higher values reduce performance cost by skipping small changes, but may make transitions less smooth.\n"
+							  "Set to 0 for maximum smoothness at higher performance cost.";
+
+                ImGuiEx::SliderF("Update Delta", &Config::Gameplay.ActionSettings.fMorphEPS, 0.0f, 0.3f, T0, "%.3fx");
+                ImGui::Spacing();
+            }
+        }
+
+        ImUtil_Unique
+        {
 
             if (ImGui::CollapsingHeader("Breast Morph Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
