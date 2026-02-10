@@ -29,6 +29,7 @@
 	- On The Edge (Perk);
 - [X] [21] Quest progression UI.
 - [X] [22] Improved code structure.
+- [X] [22] NPC Movement state correction (Limit NPC Movement to just walk and jog states when big).
 
 ## Easier Things
 - [X] Scale
