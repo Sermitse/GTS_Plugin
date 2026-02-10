@@ -128,8 +128,8 @@ namespace GTS {
 
 		private:
 		std::unordered_map<Actor*, std::unordered_map<std::string, AnimationEventData>> data;
-		absl::node_hash_map<std::string, AnimationEvent> eventCallbacks;
-		absl::node_hash_map<std::string, TriggerData> triggers;
+		std::unordered_map<std::string, AnimationEvent> eventCallbacks;
+		std::unordered_map<std::string, TriggerData> triggers;
 
 	};
 

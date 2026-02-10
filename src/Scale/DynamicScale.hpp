@@ -14,6 +14,6 @@ namespace GTS {
 		public:
 		virtual std::string DebugName() override;
 		static DynamicScaleData& GetData(Actor* actor);
-		absl::node_hash_map<FormID, DynamicScaleData> data;
+		std::unordered_map<FormID, DynamicScaleData> data;
 	};
 }

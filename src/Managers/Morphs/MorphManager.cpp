@@ -54,6 +54,7 @@ namespace GTS {
 		if (!persistentData || !transientData) return;
 
 		const float deltaTime = Time::WorldTimeDelta();
+		constexpr float& EPS = Config::Gameplay.ActionSettings.fMorphEPS;
 		bool needsUpdate = false;
 
 		// Apply breast shrinking over time if enabled
@@ -61,25 +62,32 @@ namespace GTS {
 			const float shrinkAmount = Config::Gameplay.ActionSettings.fBreastShrinkRate * deltaTime;
 			persistentData->fBreastsScale = std::max(0.0f, persistentData->fBreastsScale - shrinkAmount);
 			transientData->CurrentBreastsScale = std::max(0.0f, transientData->CurrentBreastsScale - shrinkAmount);
-			needsUpdate = true;
-			SetMorph(a_actor, kBreasts, transientData->CurrentBreastsScale);
+			if (std::abs(transientData->CurrentBreastsScale - transientData->LastAppliedBreastsScale) > EPS ||
+				(transientData->CurrentBreastsScale == 0.0f && transientData->LastAppliedBreastsScale != 0.0f)) {
+				SetMorph(a_actor, kBreasts, transientData->CurrentBreastsScale);
+				transientData->LastAppliedBreastsScale = transientData->CurrentBreastsScale;
+				needsUpdate = true;
+			}
 		}
 
 		// Update breasts morph
-		const float breastsDiff = persistentData->fBreastsScale - transientData->CurrentBreastsScale;
-		if (std::abs(breastsDiff) > EPS) {
+		const float breastsDiff = std::abs(persistentData->fBreastsScale - transientData->CurrentBreastsScale);
+		if (breastsDiff > EPS) {
 			const float increment = (transientData->BreastsTransitionTime > 0.0f)
 				? (breastsDiff / transientData->BreastsTransitionTime) * deltaTime
 				: breastsDiff; // Instant if time is 0
-
-			if (std::abs(breastsDiff) <= std::abs(increment)) {
+			if (breastsDiff <= std::abs(increment)) {
 				transientData->CurrentBreastsScale = persistentData->fBreastsScale;
 			}
 			else {
 				transientData->CurrentBreastsScale += increment;
 			}
-			needsUpdate = true;
-			SetMorph(a_actor, kBreasts, transientData->CurrentBreastsScale);
+			if (std::abs(transientData->CurrentBreastsScale - transientData->LastAppliedBreastsScale) > EPS ||
+				(transientData->CurrentBreastsScale == 0.0f && transientData->LastAppliedBreastsScale != 0.0f)) {
+				SetMorph(a_actor, kBreasts, transientData->CurrentBreastsScale);
+				transientData->LastAppliedBreastsScale = transientData->CurrentBreastsScale;
+				needsUpdate = true;
+			}
 		}
 
 		// Apply belly shrinking used as a fallback incase 
@@ -87,29 +95,33 @@ namespace GTS {
 			const float shrinkAmount = 0.05 * deltaTime;
 			persistentData->fBellyScale = std::max(0.0f, persistentData->fBellyScale - shrinkAmount);
 			transientData->CurrentBellyScale = std::max(0.0f, transientData->CurrentBellyScale - shrinkAmount);
-			needsUpdate = true;
-			SetMorph(a_actor, kBelly, transientData->CurrentBellyScale);
+			if (std::abs(transientData->CurrentBellyScale - transientData->LastAppliedBellyScale) > EPS ||
+				(transientData->CurrentBellyScale == 0.0f && transientData->LastAppliedBellyScale != 0.0f)) {
+				SetMorph(a_actor, kBelly, transientData->CurrentBellyScale);
+				transientData->LastAppliedBellyScale = transientData->CurrentBellyScale;
+				needsUpdate = true;
+			}
 		}
 
 		// Update belly morph
 		const float bellyDiff = persistentData->fBellyScale - transientData->CurrentBellyScale;
-		
-		if (std::abs(bellyDiff) > EPS) {
 
+		if (std::abs(bellyDiff) > EPS) {
 			const float increment = (transientData->BellyTransitionTime > 0.0f)
 				? (bellyDiff / transientData->BellyTransitionTime) * deltaTime
 				: bellyDiff; // Instant if time is 0
-
 			if (std::abs(bellyDiff) <= std::abs(increment)) {
 				transientData->CurrentBellyScale = persistentData->fBellyScale;
 			}
 			else {
 				transientData->CurrentBellyScale += increment;
 			}
-
-			needsUpdate = true;
-			SetMorph(a_actor, kBelly, transientData->CurrentBellyScale);
-
+			if (std::abs(transientData->CurrentBellyScale - transientData->LastAppliedBellyScale) > EPS ||
+				(transientData->CurrentBellyScale == 0.0f && transientData->LastAppliedBellyScale != 0.0f)) {
+				SetMorph(a_actor, kBelly, transientData->CurrentBellyScale);
+				transientData->LastAppliedBellyScale = transientData->CurrentBellyScale;
+				needsUpdate = true;
+			}
 		}
 
 		// Apply all morphs once if any changed

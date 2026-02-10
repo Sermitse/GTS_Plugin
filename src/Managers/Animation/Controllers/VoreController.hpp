@@ -39,7 +39,7 @@ namespace GTS {
 			// Vore is done is sets with multiple actors if the giant is big
 			// enough
 			mutable std::mutex _lock;
-			absl::flat_hash_map<FormID, ActorHandle> tinies = {};
+			std::unordered_map<FormID, ActorHandle> tinies = {};
 
 			// If true the mouth kill zone is on and we shrink nodes entering the mouth
 			bool killZoneEnabled = false;

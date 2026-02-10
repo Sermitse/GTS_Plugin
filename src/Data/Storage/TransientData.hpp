@@ -106,6 +106,8 @@ namespace GTS {
 		float fRecordedFurnScale = 1.0f;
 		bool bIsUsingFurniture = false;
 		bool IsBeingSizeDamaged = false;
+		float LastAppliedBreastsScale = 0.0f;
+		float LastAppliedBellyScale = 0.0f;
 
 		explicit TransientActorData(Actor* a_Actor) {
 			const auto _BoundValues = get_bound_values(a_Actor);

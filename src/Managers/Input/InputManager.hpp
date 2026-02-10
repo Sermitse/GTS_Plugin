@@ -27,7 +27,7 @@ namespace GTS {
 		static std::vector<ManagedInputEvent> LoadInputEvents();
 		std::atomic_bool m_ready = false;
 		std::mutex m_lock;
-		absl::node_hash_map<std::string, RegisteredInputEvent> m_inputEvents;
+		absl::flat_hash_map<std::string, RegisteredInputEvent> m_inputEvents;
 		std::vector<ManagedInputEvent> m_eventTriggers;
 	};
 }

@@ -27,7 +27,6 @@ namespace GTS {
 		static void HandleCategoryDataChange(Category a_type);
 
 		private:
-		static constexpr float EPS = 0.05f;
 		static void UpdateMorphsImediate(Actor* a_actor, Category a_type);
 		static void SetMorph(Actor* a_actor, Category a_type, float a_scale);
 		static const char* GetMorphKey(Category a_type);

@@ -13,7 +13,7 @@ namespace GTS {
 
         //default base command preffix
         inline static const std::string Default_Preffix = "gts";
-        static inline absl::flat_hash_map<std::string, Command> RegisteredCommands = {};
+        static inline std::unordered_map<std::string, Command> RegisteredCommands = {};
 
         static void CMD_Help();
         static void CMD_Version();
