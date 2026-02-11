@@ -136,12 +136,12 @@ namespace DamageLogic {
 					sandwichdata.Remove(tiny);
 
 					if (sandwichdata.GetActors().empty()) {
-						AnimationManager::StartAnim("TinyDied", giant);
+						AnimationManager::StartAnim("TinyDied", giant); // Fully exit Sandwich branch
 					}
 				}
 			}
 		}
-
+		
 		if (!DealDamage) {
 			AnimationManager::StartAnim("Sandwich_Finisher", giant);
 			auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(giant);
@@ -207,10 +207,10 @@ namespace AnimEvents {
 	}
 
 	//Used when the GTS starts to lift her self up from sitting down mostly for sfx
-	//Also fired when we initially grab the tiny for some reason...
 	void GTS_TSB_Stand(AnimationEventData& data) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
 		sandwichdata.ReleaseAll();
+		sandwichdata.EnableSuffocate(false);
 
 		if (GetGrowthCount(&data.giant) > 0) {
 			ModGrowthCount(&data.giant, 0, true); // Reset growth count

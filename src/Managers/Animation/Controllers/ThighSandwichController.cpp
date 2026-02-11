@@ -193,7 +193,7 @@ namespace GTS {
 					if (hp <= 0.0f || tiny->IsDead()) {
 						ReportDeath(GiantRef, tiny, DamageSource::ThighSuffocated);
 						Attachment_SetTargetNode(GiantRef, AttachToNode::None);
-						//RestartTinyPhysics(GiantRef, tiny);
+						RestartTinyPhysics(GiantRef, tiny);
 						this->Remove(tiny);
 
 						if (AnimationVars::Action::IsInSecondSandwichBranch(GiantRef) && this->tinies.empty()) {
