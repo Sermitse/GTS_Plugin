@@ -80,9 +80,11 @@ namespace GTS {
 
     ////////////////Thigh Sandwich
     constexpr float Damage_ThighSandwich_Impact = 0.5f;
-    constexpr float Damage_ThighSandwich_Butt_Light = 6.75f;
-    constexpr float Damage_ThighSandwich_Butt_Heavy = 9.25f;
+
+    constexpr float Damage_ThighSandwich_Butt_Light = 1.25f;
+    constexpr float Damage_ThighSandwich_Butt_Heavy = 1.75f;
     constexpr float Damage_ThighSandwich_Butt_Grind = 0.009f;
+
     constexpr float Damage_ThighSandwich_FallDownImpact = 12.6f;
     constexpr float Damage_ThighSandwich_DOT = 0.004f;
 

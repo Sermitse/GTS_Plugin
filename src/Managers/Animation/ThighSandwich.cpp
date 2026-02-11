@@ -61,7 +61,7 @@ namespace {
 			ModSizeExperience(giant, experience);
 
 			float hp = GetAV(tiny, ActorValue::kHealth);
-			if (damage > hp || hp <= 0 || tiny->IsDead()) {
+			if (damage > hp || hp <= 0.0f || tiny->IsDead()) {
 				ModSizeExperience_Crush(giant, tiny, true);
 				
 				CrushManager::Crush(giant, tiny);

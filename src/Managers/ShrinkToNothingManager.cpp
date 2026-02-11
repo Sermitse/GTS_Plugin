@@ -160,7 +160,7 @@ namespace GTS {
 			}
 			auto giant = giantHandle.get().get();
 			auto tiny = tinyHandle.get().get();
-			TransferInventory(tiny, giant, currentSize * GetSizeFromBoundingBox(tiny), false, true, DamageSource::Crushed, true);
+			TransferInventory(tiny, giant, currentSize * GetSizeFromBoundingBox(tiny), false, true, DamageSource::ShrinkToNothing, true);
 			// Actor reset is done within TransferInventory
 		});
 		if (!tiny->IsPlayerRef()) {

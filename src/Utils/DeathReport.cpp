@@ -663,7 +663,12 @@ namespace GTS {
 				ButtCrushMessage(GiantName, TinyName, random);
 				break;
 			}
-
+			case DamageSource::Crushed:
+			{
+				RecordKill(giant, tiny, DeathType::kCrushed);
+				CrushedMessage(GiantName, TinyName, random, HighHeelManager::IsWearingHH(giant));
+				break;
+			}
 			case DamageSource::Hugs:
 			{
 				RecordKill(giant, tiny, DeathType::kHugCrushed);
