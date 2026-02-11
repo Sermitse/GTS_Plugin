@@ -27,6 +27,18 @@
 using namespace GTS;
 
 namespace AnimLogic {
+	void ResetSandwichData(Actor* giant) {
+		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(giant);
+		sandwichdata.EnableSuffocate(false);
+		sandwichdata.SetSuffocateMult(1.0f);
+		sandwichdata.ReleaseAll();
+		
+		if (GetGrowthCount(giant) > 0) {
+			ModGrowthCount(giant, 0, true); // Reset growth count
+			SetButtCrushSize(giant, 0, true);
+		}
+	}
+
 	void PerformAnimations(std::string_view owner_anim, std::string_view receiver_anim = "") {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(PlayerCharacter::GetSingleton());
 		AnimationManager::StartAnim(owner_anim, PlayerCharacter::GetSingleton());
@@ -98,10 +110,10 @@ namespace DamageLogic {
 
 		for (auto tiny: sandwichdata.GetActors()) {
 			if (tiny && tiny->Is3DLoaded()) {
-				float sizedifference = get_visual_scale(giant)/(get_visual_scale(tiny) * GetSizeFromBoundingBox(tiny));
+				float sizedifference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
 				float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(tiny); // Get size damage debuff from enemy
 				float normaldamage = std::clamp(SizeManager::GetSizeAttribute(giant, SizeAttribute::Normal), 1.0f, 999.0f);
-				damage *= mult * sizedifference * normaldamage * GetPerkBonus_Thighs(giant);
+				damage *= mult * sizedifference * normaldamage * additionaldamage * GetPerkBonus_Thighs(giant);
 
 				float max_tiny_hp = GetMaxAV(tiny, ActorValue::kHealth) * threshold;
 				float damage_Setting = GetDifficultyMultiplier(giant, tiny);
@@ -124,11 +136,11 @@ namespace DamageLogic {
 
 				float hp = GetAV(tiny, ActorValue::kHealth);
 
-				if (damage > hp || hp <= 0 || tiny->IsDead()) {
+				if (damage > hp || hp <= 0.0f || tiny->IsDead()) {
 					ModSizeExperience_Crush(giant, tiny, true);
 					CrushManager::Crush(giant, tiny);
 					
-					ReportDeath(giant, tiny, DamageSource::Crushed);
+					ReportDeath(giant, tiny, DamageSource::Booty);
 					AdvanceQuestProgression(giant, tiny, QuestStage::Crushing, 1.0f, false);
 					auto node = find_node(giant, "AnimObjectA");
 					
@@ -136,6 +148,8 @@ namespace DamageLogic {
 					sandwichdata.Remove(tiny);
 
 					if (sandwichdata.GetActors().empty()) {
+						Sound_PlayLaughs(giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority, CooldownSource::Emotion_Voice_Long);
+						Task_FacialEmotionTask_Smile(giant, 1.15f, "Kill_Smile", 0.15f);
 						AnimationManager::StartAnim("TinyDied", giant); // Fully exit Sandwich branch
 					}
 				}
@@ -177,6 +191,8 @@ namespace DamageLogic {
 				return false;
 			}
 			if (!DoButtDamage(giantref, Damage_ThighSandwich_Butt_Grind, true)) {
+				Sound_PlayLaughs(giantref, 1.0f, 0.14f, EmotionTriggerSource::Superiority, CooldownSource::Emotion_Voice_Long);
+				Task_FacialEmotionTask_Smile(giantref, 1.15f, "Kill_Smile", 0.15f);
 				return false;
 			}
 			return true;
@@ -208,14 +224,6 @@ namespace AnimEvents {
 
 	//Used when the GTS starts to lift her self up from sitting down mostly for sfx
 	void GTS_TSB_Stand(AnimationEventData& data) {
-		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
-		sandwichdata.ReleaseAll();
-		sandwichdata.EnableSuffocate(false);
-
-		if (GetGrowthCount(&data.giant) > 0) {
-			ModGrowthCount(&data.giant, 0, true); // Reset growth count
-			SetButtCrushSize(&data.giant, 0, true);
-		}
 	}
 
 	//Used when the GTS starts to fall down to butt crush
@@ -254,19 +262,12 @@ namespace AnimEvents {
 		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_ReachedSpeed, &data.giant, 1.0f, "AnimObjectA");
 		Rumbling::Once("ButtImpactFinisher", &data.giant, Rumble_ThighSandwich_ButtImpact_Finisher, 0.15f, "AnimObjectA", 0.0f);
 
-		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
-		sandwichdata.ReleaseAll();
-		
-		if (GetGrowthCount(&data.giant) > 0) {
-			ModGrowthCount(&data.giant, 0, true); // Reset growth count
-			SetButtCrushSize(&data.giant, 0, true);
-		}
+		AnimLogic::ResetSandwichData(&data.giant);
 	}
 
 	//Used when the GTS lands on the Floor after cracking the butt rune
 	void GTS_TSB_LandFloor(AnimationEventData& data) {
-		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
-		sandwichdata.ReleaseAll();
+		AnimLogic::ResetSandwichData(&data.giant);
 	}
 
 	void GTS_TSB_DOT_Start(AnimationEventData& data) {
@@ -325,7 +326,10 @@ namespace AnimEvents {
 		logger::info("GTS_TSB_UBAbsorb triggered");
 	}
 
-
+	//Triggered when sitting idle (doing nothing) in second sandwich branch and killing all tinies and then standing up, as well as standing up after UB
+	void GTS_TSB_ResetData(AnimationEventData& data) {
+		AnimLogic::ResetSandwichData(&data.giant);
+	}
 }
 
 namespace {
@@ -422,6 +426,8 @@ namespace GTS
 		AnimationManager::RegisterEvent("GTS_TSB_UBEnjoy", "ThighSandwich", AnimEvents::GTS_TSB_UBEnjoy);
 		AnimationManager::RegisterEvent("GTS_TSB_UBEnd", "ThighSandwich", AnimEvents::GTS_TSB_UBEnd);
 		AnimationManager::RegisterEvent("GTS_TSB_UBAbsorb", "ThighSandwich", AnimEvents::GTS_TSB_UBAbsorb);
+		AnimationManager::RegisterEvent("GTS_TSB_ResetData", "ThighSandwich", AnimEvents::GTS_TSB_ResetData);
+		
 	}
 
 	void AnimationThighSandwich_P2::RegisterTriggers() {

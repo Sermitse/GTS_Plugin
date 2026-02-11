@@ -346,7 +346,7 @@ namespace GTS {
 
 			float scale = get_visual_scale(tinyref) * GetSizeFromBoundingBox(tinyref);
 			PerkHandler::UpdatePerkValues(giantref, PerkUpdate::Perk_LifeForceAbsorption);
-			TransferInventory(tinyref, giantref, scale, false, true, DamageSource::Crushed, true);
+			TransferInventory(tinyref, giantref, scale, false, true, DamageSource::Hugs, true);
 		});
 	}
 
