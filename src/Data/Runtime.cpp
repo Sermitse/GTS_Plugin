@@ -254,6 +254,20 @@ namespace GTS {
 			);
 		}
 
+		if (CheckDLLLoaded(L"SkyrimCrashGuard.dll")) {
+			ReportAndExit(
+				"Skyrim Crash Guard detected.\n\n"
+				"This plugin cannot run while Crash Guard is installed.\n\n"
+				"Crash Guard prevents certain crashes by forcing the game to keep "
+				"running after serious errors. While this can stop a CTD, it may leave "
+				"the game in a broken or inconsistent state.\n\n"
+				"Catching and preventing all game crashes is impossible. Any crash "
+				"that occurs while Crash Guard is active may be nonsensical and "
+				"impossible to diagnose correctly.\n\n"
+				"In order to use this mod, remove SkyrimCrashGuard.dll and restart the game."
+			);
+		}
+
 
 		CheckModLoaded(&SexlabInstalled,"SexLab.esm");
 		CheckModLoaded(&SurvivalModeInstalled, "ccQDRSSE001-SurvivalMode.esl");
