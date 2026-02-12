@@ -110,7 +110,7 @@ namespace GTS {
 						const auto& spec = specs->Specs[0];
 						const bool asc = spec.SortDirection == ImGuiSortDirection_Ascending;
 
-						ranges::sort(entries, [&](auto* a, auto* b) {
+						std::ranges::sort(entries, [&](auto* a, auto* b) {
 
 							switch (spec.ColumnIndex) {
 
@@ -203,7 +203,7 @@ namespace GTS {
 					}
 
 					if (auto specs = ImGui::TableGetSortSpecs(); specs && specs->SpecsCount > 0) {
-						ranges::sort(entries, [&](auto* a, auto* b) {
+						std::ranges::sort(entries, [&](auto* a, auto* b) {
 							for (int si = 0; si < specs->SpecsCount; ++si) {
 								const auto& spec = specs->Specs[si];
 								const bool asc = spec.SortDirection == ImGuiSortDirection_Ascending;
@@ -277,7 +277,7 @@ namespace GTS {
 	void Profilers::DisplayThreadTableFromSnapshot(const std::string& thread_name, std::thread::id tid, const DisplaySnapshot::ThreadSnapshot& data, double total_time) {
 
 		double thread_total = 0.0;
-		for (const auto& t : data.entrypoint_profilers | views::values) thread_total += t;
+		for (const auto& t : data.entrypoint_profilers | std::views::values) thread_total += t;
 
 		const char* worstEPName = "(none)";
 		double worstEPTime = 0.0;
@@ -325,7 +325,7 @@ namespace GTS {
 					if (auto specs = ImGui::TableGetSortSpecs(); specs && specs->SpecsCount > 0) {
 						auto& spec = specs->Specs[0];
 						bool asc = spec.SortDirection == ImGuiSortDirection_Ascending;
-						ranges::sort(entries, [&](auto& a, auto& b) {
+						std::ranges::sort(entries, [&](auto& a, auto& b) {
 							switch (spec.ColumnIndex) {
 								case 0: return asc ? (a.first < b.first) : (a.first > b.first);
 								case 1: return asc ? (a.second < b.second) : (a.second > b.second);
@@ -383,7 +383,7 @@ namespace GTS {
 					if (auto specs = ImGui::TableGetSortSpecs(); specs && specs->SpecsCount > 0) {
 						auto& spec = specs->Specs[0];
 						bool asc = spec.SortDirection == ImGuiSortDirection_Ascending;
-						ranges::sort(entries, [&](auto& a, auto& b) {
+						std::ranges::sort(entries, [&](auto& a, auto& b) {
 							switch (spec.ColumnIndex) {
 								case 0: return asc ? (a.first < b.first) : (a.first > b.first);
 								case 1: return asc ? (a.second < b.second) : (a.second > b.second);
@@ -471,9 +471,9 @@ namespace GTS {
 		}
 
 		// Always reset every frame
-		for (auto& data : thread_data | views::values) {
-			for (auto& kv : data.profilers | views::values) kv.Reset();
-			for (auto& kv : data.entrypoint_profilers | views::values) kv.Reset();
+		for (auto& data : thread_data | std::views::values) {
+			for (auto& kv : data.profilers | std::views::values) kv.Reset();
+			for (auto& kv : data.entrypoint_profilers | std::views::values) kv.Reset();
 		}
 		TotalTime.Reset();
 
@@ -540,7 +540,7 @@ namespace GTS {
 				sorted_threads.emplace_back(tid, &data);
 			}
 
-			ranges::sort(sorted_threads, [&](auto const& a, auto const& b) {
+			std::ranges::sort(sorted_threads, [&](auto const& a, auto const& b) {
 				return GetThreadName(a.first) < GetThreadName(b.first);
 			});
 
@@ -572,7 +572,7 @@ namespace GTS {
 	//-----------
 
 	bool Profilers::AnyRunning() {
-		for (const auto& data : thread_data | views::values) {
+		for (const auto& data : thread_data | std::views::values) {
 			for (auto& profiler : data.profilers | std::views::values) {
 				if (profiler.IsRunning()) {
 					return true;
@@ -583,7 +583,7 @@ namespace GTS {
 	}
 
 	bool Profilers::AnyEntrypointRunning() {
-		for (const auto& data : thread_data | views::values) {
+		for (const auto& data : thread_data | std::views::values) {
 			for (auto& profiler : data.entrypoint_profilers | std::views::values) {
 				if (profiler.IsRunning()) {
 					return true;
