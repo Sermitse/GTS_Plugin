@@ -40,15 +40,15 @@ namespace {
 		}
 	}
 
-	void DoThighDamage(Actor* giant, Actor* tiny, float animSpeed, float mult, float sizemult) {
+	void DoThighDamage(Actor* giant, Actor* tiny, float damage) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(giant);
 		auto& sizemanager = SizeManager::GetSingleton();
 
 		if (tiny && tiny->Is3DLoaded()) {
-			float sizedifference = get_visual_scale(giant)/ (get_visual_scale(tiny) * GetSizeFromBoundingBox(tiny));
+			float sizedifference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
 			float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(tiny); // Get size damage debuff from enemy
 			float normaldamage = std::clamp(SizeManager::GetSizeAttribute(giant, SizeAttribute::Normal), 1.0f, 999.0f);
-			float damage = Damage_ThighSandwich_Impact * sizedifference * animSpeed * mult * normaldamage * GetPerkBonus_Thighs(giant);
+			damage *= sizedifference * additionaldamage * normaldamage * GetPerkBonus_Thighs(giant);
 			if (TinyCalamityActive(giant)) {
 				damage *= 1.5f;
 			}
@@ -172,7 +172,7 @@ namespace {
 		
 		for (auto tiny: sandwichdata.GetActors()) {
 			if (tiny) {
-				DoThighDamage(&data.giant, tiny, data.animSpeed, 1.0f, 1.0f);
+				DoThighDamage(&data.giant, tiny, Damage_ThighSandwich_Impact_Light);
 				tiny->NotifyAnimationGraph("ragdoll");
 				AllowToBeCrushed(tiny, true);
 			}
@@ -190,7 +190,7 @@ namespace {
 		
 		for (auto tiny: sandwichdata.GetActors()) {
 			if (tiny) {
-				DoThighDamage(&data.giant, tiny, data.animSpeed, 2.2f, 0.75f);
+				DoThighDamage(&data.giant, tiny, Damage_ThighSandwich_Impact_Heavy);
 				tiny->Attacked(&data.giant);
 				tiny->NotifyAnimationGraph("ragdoll");
 				AllowToBeCrushed(tiny, true);

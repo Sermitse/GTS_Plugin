@@ -75,18 +75,19 @@ namespace GTS {
     constexpr float Damage_ButtCrush_HandImpact = 6.0f;
     constexpr float Damage_ButtCrush_LegDrop = 18.0f;
 
-
     constexpr float Damage_ButtCrush_FootImpact = 6.0f;
 
     ////////////////Thigh Sandwich
-    constexpr float Damage_ThighSandwich_Impact = 0.5f;
-
+    constexpr float Damage_ThighSandwich_Impact_Light = 0.4f;
+    constexpr float Damage_ThighSandwich_Impact_Heavy = 1.0f;
+    ///////////////Thigh Sandwich: Second Branch
     constexpr float Damage_ThighSandwich_Butt_Light = 1.25f;
     constexpr float Damage_ThighSandwich_Butt_Heavy = 1.75f;
-    constexpr float Damage_ThighSandwich_Butt_Grind = 0.009f;
+    constexpr float Damage_ThighSandwich_Butt_Grind = 0.008f;
+    ///////////////
 
-    constexpr float Damage_ThighSandwich_FallDownImpact = 12.6f;
-    constexpr float Damage_ThighSandwich_DOT = 0.004f;
+    constexpr float Damage_ThighSandwich_FallDownImpact = 12.6f; // When falling down with Foot from rune
+    constexpr float Damage_ThighSandwich_DOT = 0.003f;
 
     ////////////////Thigh Crush
     constexpr float Damage_ThighCrush_Stand_Up = 8.0f;
