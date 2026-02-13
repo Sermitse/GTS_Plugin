@@ -67,10 +67,11 @@ namespace GTS {
 	VoreInformation GetVoreInfo(Actor* giant, Actor* tiny, float growth_mult) {
 		float recorded_scale = VoreController::ReadOriginalScale(tiny);
 		float Health_Regeneration = 0.0f; // No hp regen by default
-		float duration = 80.0f; // 80 seconds duration by default
 		float growth = 0.275f; // Default power of gaining size
 
-		UpdateVoreValues(giant, tiny, Health_Regeneration, growth, duration);
+		float durationMult = 1.0f;
+
+		UpdateVoreValues(giant, tiny, Health_Regeneration, growth, durationMult);
 
 		float bounding_box = GetSizeFromBoundingBox(tiny);
 		float Vore_Power = growth * growth_mult * bounding_box; // power of most buffs that we start
@@ -82,7 +83,7 @@ namespace GTS {
 			.Vore_Power = Vore_Power,
 			.Health_Regeneration = Health_Regeneration,
 			.Box_Scale = bounding_box,
-			.Duration = duration,
+			.DurationModifierMult = durationMult,
 			.Tiny_Name = tiny->GetDisplayFullName(),
 		};
 
@@ -199,12 +200,13 @@ namespace GTS {
 
 			float Regeneration = VoreInfo.Health_Regeneration;
 			float sizePower = VoreInfo.Vore_Power;
-			float Duration = VoreInfo.Duration;
+			float DurationMult = VoreInfo.DurationModifierMult;
             float tinySize = VoreInfo.Scale;
 
 			float formula = GetGrowthFormula(giantSize, tinySize, false);
 			float size_gain = (sizePower * formula * TimeScale()) / 5000;
 
+			//Add Tiny - Increase Morph
 			if (Config::Gameplay.ActionSettings.bEnableBellyMorph) {
 				MorphManager::AlterMorph(VoreInfo.giantess, MorphManager::Category::kBelly, MorphManager::Action::kModify, Config::Gameplay.ActionSettings.fBellyAbsorbIncrementBy, MorphManager::UpdateKind::kGradual, 1.0f);
 			}
@@ -220,22 +222,24 @@ namespace GTS {
 				if (!tinyhandle) {
 					return false;
 				}
+				//The lower durationmult is the more power.
+				const float timeMultStr = (80.0f / static_cast<float>(Config::Gameplay.ActionSettings.iVoreDigestSpeedTime)) / DurationMult;
 				double timepassed = Time::WorldTimeElapsed() - start_time;
 				auto giantref = gianthandle.get().get();
 				
 				float regen_attributes = GetMaxAV(giantref, ActorValue::kHealth) * 0.0006f;
-				float health = std::clamp(Regeneration/4000.0f, 0.0f, regen_attributes);
+				float health = std::clamp(Regeneration/4000.0f, 0.0f, regen_attributes) * timeMultStr;
 
 				DamageAV(giantref, ActorValue::kHealth, -health * TimeScale());
 				DamageAV(giantref, ActorValue::kStamina, -health * TimeScale()); 
 				// Restore HP and Stamina for GTS
 
 				if (get_target_scale(giantref) < get_max_scale(giantref)) { // For some reason likes to surpass size limit by ~0.03 (multiplies by race scale)
-					update_target_scale(giantref, size_gain, SizeEffectType::kGrow);
-					AddStolenAttributes(giantref, size_gain * TimeScale());
+					update_target_scale(giantref, size_gain * timeMultStr, SizeEffectType::kGrow);
+					AddStolenAttributes(giantref, size_gain * timeMultStr * TimeScale());
 				}
 
-				if (timepassed >= Duration) {
+				if (timepassed >= Config::Gameplay.ActionSettings.iVoreDigestSpeedTime * DurationMult) {
 					Task_Vore_FinishVoreBuff(VoreInfo, tinyhandle.get().get(), amount_of_tinies, false);
 					if (giantref->IsPlayerRef()) {
 						shake_camera(giantref, 0.50f, 0.75f);
