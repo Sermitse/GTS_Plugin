@@ -63,7 +63,7 @@ namespace {
 			return false;
 		}
 
-		if (!IsHuman(a_Performer)) {
+		if (!IsHuman(a_Prey)) {
 			return false;
 		}
 
