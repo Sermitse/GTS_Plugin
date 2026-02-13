@@ -42,9 +42,21 @@ namespace {
 	}
 
 	// ---------- Quest Shrink
+	bool DisallowShrink(RE::Actor* a_Actor) {
+		bool BlockShrink = false;
+		if (TransientActorData* data = Transient::GetActorData(a_Actor)) {
+			if (a_Actor->IsInCombat()) {
+				data->DelayedShrinkTimer.ResetGate();
+			}
+			BlockShrink = data->DelayedShrinkTimer.Gate();
+		} 
+		return BlockShrink;
+	}
 
 	void QuestShrink(RE::Actor* a_Actor, const float a_ShrinkRate, const float a_TargetScale, const float a_NaturalScale) {
-
+		if (DisallowShrink(a_Actor)) {
+			return;
+		}
 		const float ModAmmount = -a_ShrinkRate * Time::WorldTimeDelta();
 		if (fabs(a_ShrinkRate) < EPS) {
 			return;
@@ -110,7 +122,9 @@ namespace {
 			Grow(a_Actor, a_CurrentScale, a_GrowthRate, a_TargetScale, a_MaxScale, Mult);
 		}
 		else {
-			Shrink(a_Actor, a_CurrentScale, a_ShrinkRate, a_TargetScale, a_NaturalScale, Mult);
+			if (!DisallowShrink(a_Actor)) {
+				Shrink(a_Actor, a_CurrentScale, a_ShrinkRate, a_TargetScale, a_NaturalScale, Mult);
+			}
 		}
 	}
 

@@ -101,6 +101,7 @@ namespace GTS {
 		Timer GameModeIntervalTimer = Timer(0);
 		Timer ActionTimer = Timer(0);
 		Timer BlockMovementTimer = Timer(0);
+		Timer DelayedShrinkTimer = Timer(10);
 
 		std::vector<Actor*> shrinkies;
 		float fRecordedFurnScale = 1.0f;
