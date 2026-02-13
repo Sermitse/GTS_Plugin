@@ -27,6 +27,7 @@
 using namespace GTS;
 
 namespace AnimLogic {
+
 	void ResetSandwichData(Actor* giant) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(giant);
 		sandwichdata.EnableSuffocate(false);
@@ -40,8 +41,10 @@ namespace AnimLogic {
 	}
 
 	void PerformAnimations(std::string_view owner_anim, std::string_view receiver_anim = "") {
-		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(PlayerCharacter::GetSingleton());
-		AnimationManager::StartAnim(owner_anim, PlayerCharacter::GetSingleton());
+
+		
+		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(GetPlayerOrControlled());
+		AnimationManager::StartAnim(owner_anim, GetPlayerOrControlled());
 
 		for (auto tiny : sandwichdata.GetActors()) {
 			if (tiny && receiver_anim.size() > 1) {
@@ -120,8 +123,7 @@ namespace DamageLogic {
 				float tiny_health = GetAV(tiny, ActorValue::kHealth);
 				float tiny_health_perc = GetHealthPercentage(tiny);
 			
-				auto& sizemanager = SizeManager::GetSingleton();
-				
+
 				if (CanStartAnim && (tiny_health_perc <= threshold || tiny_health - (damage * damage_Setting) <= max_tiny_hp)) {
 					logger::info("Starting Finisher animation");
 					DealDamage = false;
@@ -158,7 +160,6 @@ namespace DamageLogic {
 		
 		if (!DealDamage) {
 			AnimationManager::StartAnim("Sandwich_Finisher", giant);
-			auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(giant);
 			sandwichdata.EnableSuffocate(false);
 			sandwichdata.SetSuffocateMult(1.0f);
 			for (auto tiny: sandwichdata.GetActors()) {
@@ -333,9 +334,10 @@ namespace AnimEvents {
 }
 
 namespace {
+
 	void ButtStart(const ManagedInputEvent& data) {
-		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(PlayerCharacter::GetSingleton());
-		if (sandwichdata.GetActors().size() > 0) {
+		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(GetPlayerOrControlled());
+		if (!sandwichdata.GetActors().empty()) {
 			AnimLogic::PerformAnimations("Sandwich_ButtStart", "Sandwich_ButtStart_T");
 		}
 	}
@@ -357,14 +359,14 @@ namespace {
 	}
 
 	void ButtGrowth(const ManagedInputEvent& data) {
-		auto player = PlayerCharacter::GetSingleton();
-		bool CanGrow = ButtCrush_IsAbleToGrow(player, GetGrowthLimit(player));
-		bool HasPerk = Runtime::HasPerkTeam(player, Runtime::PERK.GTSPerkButtCrushAug2);
+		Actor* target = GetPlayerOrControlled();
+		bool CanGrow = ButtCrush_IsAbleToGrow(target, GetGrowthLimit(target));
+		bool HasPerk = Runtime::HasPerkTeam(target, Runtime::PERK.GTSPerkButtCrushAug2);
 		if (HasPerk && CanGrow) {
 			AnimLogic::PerformAnimations("Sandwich_Grow", "Sandwich_Grow_T");
 		} else {
-			if (HasPerk) {
-				NotifyWithSound(player, "Your body can't grow any further");
+			if (HasPerk && target->IsPlayerRef()) {
+				NotifyWithSound(target, "Your body can't grow any further");
 			}
 		}
 	}

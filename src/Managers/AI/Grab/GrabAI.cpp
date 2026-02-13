@@ -63,6 +63,10 @@ namespace {
 			return false;
 		}
 
+		if (!IsHuman(a_Performer)) {
+			return false;
+		}
+
 		const float PredScale        = get_visual_scale(a_Performer);
 		const float SizeDiff         = get_scale_difference(a_Performer, a_Prey, SizeType::VisualScale, true, false);
 		constexpr float MinGrabScale = Action_Grab;

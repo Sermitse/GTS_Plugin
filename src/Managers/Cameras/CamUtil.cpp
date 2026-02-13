@@ -588,18 +588,13 @@ namespace GTS {
 		auto& rt = niCamera->GetRuntimeData2();
 		auto& fr = rt.viewFrustum;
 
-		if (fr.fNear <= 0.0f) {
-			fr.fNear = rt.minNearPlaneDist;
-		}
-
 		// ---------------- Far plane ----------------
 		constexpr float BaseFar = 353840.0f;
 		constexpr float MinScale = 0.10f;
-		constexpr float MaxScale = 50000.0f;
+		constexpr float MaxScale = 10000.0f;
 		constexpr float MinMul = 0.1f;
-		constexpr float MaxMul = 100.0f;
+		constexpr float MaxMul = 10.0f;
 
-		float farPlane = fr.fFar;
 
 		if (Config::Camera.bEnableAutoFFarDist) {
 			const float clampedScale = std::clamp(a_ActorScale, MinScale, MaxScale);
@@ -611,41 +606,32 @@ namespace GTS {
 			const float eased = EaseInOutSmoothstep(t);
 			const float farMul = std::lerp(MinMul, MaxMul, eased);
 
-			farPlane = BaseFar * farMul;
-			fr.fFar = farPlane;
+			fr.fFar = BaseFar * farMul;
+
 		}
 
 		// ---------------- Near plane ----------------
-		float nearPlane = fr.fNear;
-
 		if (Config::Camera.bEnableAutoFNearDist) {
-			if (a_ActorScale <= 1.0f) {
-				nearPlane = CalcNearFromScale(a_ActorScale);
-			}
-			else if (a_ActorScale >= 50.0f) {
-				// Counteract far-plane growth at large scales
-				constexpr float NearStartScale = 50.0f;
-				constexpr float NearMaxScale = 50000.0f;
-				constexpr float NearMulMin = 1.0f;
-				constexpr float NearMulMax = 200.0f;
+			float nearPlane = fr.fNear;
 
-				const float clamped = std::clamp(a_ActorScale, NearStartScale, NearMaxScale);
-				const float logMin = std::log(NearStartScale);
-				const float logMax = std::log(NearMaxScale);
-				const float t = (std::log(clamped) - logMin) / (logMax - logMin);
-
-				const float eased = EaseInOutSmoothstep(t);
-				const float nearMul = std::lerp(NearMulMin, NearMulMax, eased);
-
-				nearPlane = rt.minNearPlaneDist * nearMul;
+			if (a_ActorScale < 1.0f) {
+				nearPlane = CalcNearFromScale(a_ActorScale, 15.0f);
+				//nearPlane = std::max(nearPlane, 1.0f);
 			}
 
 			fr.fNear = nearPlane;
+
+			/*if (fr.fNear <= 0.0f) {
+				fr.fNear = 1.0f;
+			}*/
 		}
 
 		// ---------------- Ratio enforcement ----------------
-		const float requiredRatio = fr.fFar / fr.fNear;
-		if (rt.maxFarNearRatio < requiredRatio) {
+		if (Config::Camera.bEnableAutoFNearDist || Config::Camera.bEnableAutoFFarDist) {
+			/*if (rt.maxFarNearRatio < requiredRatio) {
+				rt.maxFarNearRatio = requiredRatio;
+			}*/
+			const float requiredRatio = fr.fFar / fr.fNear;
 			rt.maxFarNearRatio = requiredRatio;
 		}
 	}

@@ -181,6 +181,7 @@ namespace GTS {
 		}
 	}
 
+	//No longer used
 	void set_ref_scale(Actor* actor, float target_scale) {
 		// This is how the game sets scale with the `SetScale` command
 		// It is limited to x10 and messes up all sorts of things like actor damage
@@ -304,8 +305,11 @@ namespace GTS {
 	float game_getactorscale(Actor* actor) {
 		// This function reports same values as GetScale() in the console, so it is a value from SetScale() command
 		// Used inside: GTSManager.cpp - apply_height
-		//              Scale.cpp   -  get_natural_scale   
-		return static_cast<float>(actor->GetReferenceRuntimeData().refScale) / 100.0F;
+		//              Scale.cpp   -  get_natural_scale
+		//return static_cast<float>(actor->GetReferenceRuntimeData().refScale) / 100.0F;
+		// actor->GetBaseHeight(); gets the refscale*racescale*actorBaseScale which is more accurate
+		// refscale is the scalemult in the REFR esp record or runtime value SetScale.
+		return actor->GetBaseHeight();
 	}
 
 	float game_getactorscale(Actor& actor) {
