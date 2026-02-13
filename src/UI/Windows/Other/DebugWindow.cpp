@@ -5,11 +5,62 @@
 
 #include "Config/Config.hpp"
 
+#include "Managers/HighHeel.hpp"
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Input/ManagedInputEvent.hpp"
 
 #include "UI/Core/ImUtil.hpp"
 
+
+
+namespace {
+
+	using namespace RE;
+	using namespace GTS;
+
+	void DrawScaleDebugInfo(Actor* actor) {
+		if (!actor) {
+			return;
+		}
+
+		float hh = HighHeelManager::GetBaseHHOffset(actor)[2] / 100.0f;
+		float gigantism = Ench_Aspect_GetPower(actor) * 100.0f;
+		float naturalscale = get_natural_scale(actor, true);
+		float scale = get_visual_scale(actor);
+		float maxscale = get_max_scale(actor);
+		float bbSize = GetSizeFromBoundingBox(actor);
+		
+		Actor* player = PlayerCharacter::GetSingleton();
+		std::string name = fmt::format("{} - 0x{:X}",actor->GetDisplayFullName(), actor->formID);
+
+		ImGui::SeparatorText(name.c_str());
+
+		ImGui::Text("Bounding Box -> Size: %.2f", bbSize);
+		ImGui::Text("Game Scale: %.2f", game_getactorscale(actor));
+		ImGui::Text("Size Diff vs Player (Visual): %.2f", get_scale_difference(player, actor, SizeType::VisualScale, false, true));
+		ImGui::Text("Height: %s", GetFormatedHeight(actor).c_str());
+		ImGui::Text("Weight: %s", GetFormatedWeight(actor).c_str());
+
+		ImGui::Text(
+			"Scale: %.2f (Natural: %.2f | BB: %.2f | Limit: %.2f | Aspect: %.1f%%)",
+			scale,
+			naturalscale,
+			bbSize,
+			maxscale,
+			gigantism
+		);
+
+		ImGui::Text(
+			"High Heels: %.2f (+%.2f cm / +%.2f ft)",
+			hh,
+			hh,
+			hh * 3.28f
+		);
+
+		ImGui::Spacing();
+
+	}
+}
 
 namespace GTS {
 
@@ -201,7 +252,13 @@ namespace GTS {
 			ImGui::Text("As slope ratio (rise/run): %.2f%%", asFloat * 100.0f);
 		}
 
-		if (ImGui::CollapsingHeader("Test Values", ImUtil::HeaderFlagsDefaultOpen)) {
+		if (ImGui::CollapsingHeader("Size Debug")) {
+			for (const auto& actor : find_actors()) {
+				DrawScaleDebugInfo(actor);
+			}
+		}
+
+		if (ImGui::CollapsingHeader("Test Values")) {
 
 			ImGui::InputFloat("fTest1", &Config::Experiments.fTest1);
 			ImGui::InputFloat("fTest2", &Config::Experiments.fTest2);
