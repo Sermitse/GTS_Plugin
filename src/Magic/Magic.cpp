@@ -155,14 +155,13 @@ namespace GTS {
 	}
 
 	void MagicManager::ProcessActiveEffects(Actor* a_actor) {
-
-		auto effect_list = a_actor->AsMagicTarget()->GetActiveEffectList();
+		BSSimpleList<ActiveEffect*>* effect_list = a_actor->AsMagicTarget()->GetActiveEffectList();
 
 		if (!effect_list) {
 			return;
 		}
 
-		for (auto effect: (*effect_list)) {
+		for (ActiveEffect* effect : (*effect_list)) {
 			numberOfEffects += 1;
 			if (!active_effects.contains(effect)) {
 				EffectSetting* base_spell = effect->GetBaseObject();
@@ -188,7 +187,7 @@ namespace GTS {
 			ProcessActiveEffects(actor);
 		}
 
-		absl::erase_if(active_effects, [&](auto& kv) {
+		std::erase_if(active_effects, [&](auto& kv) {
 			numberOfOurEffects += 1;
 			kv.second->Poll();
 			return kv.second->IsFinished();

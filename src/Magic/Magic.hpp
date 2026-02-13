@@ -90,8 +90,8 @@ namespace GTS {
 		}	
 
 		private:
-		static inline absl::flat_hash_map<ActiveEffect*, std::unique_ptr<Magic>> active_effects;
-		static inline absl::flat_hash_map<EffectSetting*, std::unique_ptr<MagicFactoryBase>> factories;
+		static inline std::unordered_map<ActiveEffect*, std::unique_ptr<Magic>> active_effects;
+		static inline std::unordered_map<EffectSetting*, std::unique_ptr<MagicFactoryBase>> factories;
 		static inline std::uint64_t numberOfEffects = 0;
 		static inline std::uint64_t numberOfOurEffects = 0;
 	};
