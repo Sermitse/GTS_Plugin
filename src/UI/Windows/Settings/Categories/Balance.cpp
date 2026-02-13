@@ -155,25 +155,28 @@ namespace GTS {
             }
 
             if (ImGuiEx::ConditionalHeader("Size Limits", DisableReason, HasPerk && Unlock && !Config::Balance.bBalanceMode)) {
-	            constexpr float Max = 255.0f;
-	            constexpr float Min = 0.0;
+                constexpr float Max = 255.0f;
+                constexpr float Min = 0.0f;
+                constexpr float InfSentinel = 1'000'000.0f;
 
                 const bool IsMassBased = Config::Balance.sSizeMode == "kMassBased";
                 const float MassLimit = get_max_scale(PlayerCharacter::GetSingleton());
 
                 ImGuiEx::HelpText("What is max size determined", THelp);
 
-                {   //Player Size
+                {   // Player Size
                     float* Scale = &Config::Balance.fMaxPlayerSizeOverride;
-                    const bool ShouldBeInf = *Scale > Max - 5.0000f;
-                    const bool ShouldBeAuto = *Scale < Min + 0.1000f;
-                    std::string _Frmt;
 
-                    if (ShouldBeInf) {
-                        *Scale = 1000000.0f;
+                    const bool StoredInf = *Scale >= (Max - 5.0f);
+                    const bool StoredAuto = *Scale <= (Min + 0.1000f);
+
+                    float UIValue = StoredInf ? Max : (StoredAuto ? Min : *Scale);
+
+                    std::string _Frmt;
+                    if (StoredInf) {
                         _Frmt = "Infinite";
                     }
-                    else if (ShouldBeAuto) {
+                    else if (StoredAuto) {
                         float SkillBasedLimit = MassMode_GetValuesForMenu(PlayerCharacter::GetSingleton());
                         if (IsMassBased) {
                             _Frmt = fmt::format("Mass Based [{:.2f}x] Max [{:.2f}x]", MassLimit, SkillBasedLimit);
@@ -181,110 +184,151 @@ namespace GTS {
                         else {
                             _Frmt = fmt::format("Skill Based [{:.2f}x]", SkillBasedLimit);
                         }
-
-                        *Scale = 0.0f;
                     }
                     else {
-
-                        if (IsMassBased) {
-                            _Frmt = fmt::format("Mass Based [{:.2f}x] Max [{:.2f}]", MassLimit, *Scale);
-                        }
-
                         _Frmt = "%.1fx";
                     }
 
-                    {
+                    std::string ToolTip = fmt::format(
+                        "Change the maximum player size\n"
+                        "Higher than {:.0f}x scale disables the limit entirely\n"
+                        "At 0.0x the limit is based on your skill level and perks.",
+                        Max - 5.0f
+                    );
 
-                        std::string ToolTip = fmt::format(
-                            "Change the maximum player size\n"
-                            "Higher than {:.0f}x scale disables the limit entirely\n"
-                            "At 0.0x the limit is based on your skill level and perks.",
-                            Max - 5.0f
-                        );
+                    const bool Changed = ImGuiEx::SliderF("Max Player Size", &UIValue, Min, Max, ToolTip.c_str(), _Frmt.c_str());
 
-                        ImGuiEx::SliderF("Max Player Size", Scale, Min, Max, ToolTip.c_str(), _Frmt.c_str());
+                    if (Changed) {
+                        const bool WantsInf = UIValue >= (Max - 5.0f);
+                        const bool WantsAuto = UIValue <= (Min + 0.1000f);
 
+                        if (WantsInf) {
+                            *Scale = InfSentinel;
+                        }
+                        else if (WantsAuto) {
+                            *Scale = 0.0f;
+                        }
+                        else {
+                            *Scale = UIValue;
+                        }
                     }
-
+                    else {
+                        if (StoredInf) {
+                            *Scale = InfSentinel;
+                        }
+                        else if (StoredAuto) {
+                            *Scale = 0.0f;
+                        }
+                    }
                 }
 
-                {   //Max Follower Size
-
+                {   // Max Follower Size
                     float* Scale = &Config::Balance.fMaxFollowerSize;
-                    const bool ShouldBeInf = *Scale > Max - 5.0000f;
-                    const bool ShouldBeAuto = *Scale < Min + 0.1000f;
+
+                    const bool StoredInf = *Scale >= (Max - 5.0f);
+                    const bool StoredAuto = *Scale <= (Min + 0.1000f);
+
+                    float UIValue = StoredInf ? Max : (StoredAuto ? Min : *Scale);
 
                     std::string _Frmt;
-                    if (ShouldBeInf) {
+                    if (StoredInf) {
                         _Frmt = "Infinite";
-                        *Scale = 1000000.0f;
                     }
-                    else if (ShouldBeAuto) {
-                    
-                        if (IsMassBased) {
-                            _Frmt = fmt::format("Mass Based");
-                        }
-                        else {
-                            _Frmt = fmt::format("Skill Based");
-                        }
-
-                        *Scale = 0.0f;
+                    else if (StoredAuto) {
+                        _Frmt = IsMassBased ? "Mass Based" : "Skill Based";
                     }
                     else {
                         _Frmt = "%.1fx";
                     }
 
-                    {
-                        std::string ToolTip = fmt::format(
-                            "Change the maximum follower size\n"
-                            "Higher than {:.0f}x scale disables the limit entirely\n"
-                            "At 0.0x scale the limit will be based on the follower's GTS Level and perks.",
-                            Max - 5.0f
-                        );
+                    std::string ToolTip = fmt::format(
+                        "Change the maximum follower size\n"
+                        "Higher than {:.0f}x scale disables the limit entirely\n"
+                        "At 0.0x scale the limit will be based on the follower's GTS Level and perks.",
+                        Max - 5.0f
+                    );
 
-                        ImGuiEx::SliderF("Max Follower Size", Scale, Min, Max, ToolTip.c_str(), _Frmt.c_str());
+                    const bool Changed = ImGuiEx::SliderF("Max Follower Size", &UIValue, Min, Max, ToolTip.c_str(), _Frmt.c_str());
 
+                    if (Changed) {
+                        const bool WantsInf = UIValue >= (Max - 5.0f);
+                        const bool WantsAuto = UIValue <= (Min + 0.1000f);
+
+                        if (WantsInf) {
+                            *Scale = InfSentinel;
+                        }
+                        else if (WantsAuto) {
+                            *Scale = 0.0f;
+                        }
+                        else {
+                            *Scale = UIValue;
+                        }
+                    }
+                    else {
+                        if (StoredInf) {
+                            *Scale = InfSentinel;
+                        }
+                        else if (StoredAuto) {
+                            *Scale = 0.0f;
+                        }
                     }
                 }
 
-                {   //Other NPC Max Size
-
+                {   // Other NPC Max Size
                     float* Scale = &Config::Balance.fMaxOtherSize;
-                    const bool ShouldBeInf = *Scale > Max - 5.0000f;
-                    const bool ShouldBeAuto = *Scale < Min + 0.1000f;
+
+                    const bool StoredInf = *Scale >= (Max - 5.0f);
+                    const bool StoredAuto = *Scale <= (Min + 0.1000f);
+
+                    float UIValue = StoredInf ? Max : (StoredAuto ? Min : *Scale);
 
                     std::string _Frmt;
-                    if (ShouldBeInf) {
+                    if (StoredInf) {
                         _Frmt = "Infinite";
-                        *Scale = 1000000.0f;
                     }
-                    else if (ShouldBeAuto) {
-
-                        if (IsMassBased) {
-                            _Frmt = fmt::format("Mass Based");
-                        }
-                        else {
-                            _Frmt = fmt::format("Skill Based");
-                        }
-
-                        *Scale = 0.0f;
+                    else if (StoredAuto) {
+                        _Frmt = IsMassBased ? "Mass Based" : "Skill Based";
                     }
                     else {
                         _Frmt = "%.1fx";
                     }
 
-                    {
-                        std::string ToolTip = fmt::format(
-                            "Change the maximum size for non-follower NPCs\n"
-                            "Higher than {:.0f}x scale disables the limit entirely\n"
-                            "At 0.0x scale the limit will be based on the npc's GTS Level and perks.",
-                            Max - 5.0f
-                        );
-                        ImGuiEx::SliderF("Max NPC Size", Scale, Min, Max, ToolTip.c_str(), _Frmt.c_str());
+                    std::string ToolTip = fmt::format(
+                        "Change the maximum size for non-follower NPCs\n"
+                        "Higher than {:.0f}x scale disables the limit entirely\n"
+                        "At 0.0x scale the limit will be based on the npc's GTS Level and perks.",
+                        Max - 5.0f
+                    );
+
+                    const bool Changed = ImGuiEx::SliderF("Max NPC Size", &UIValue, Min, Max, ToolTip.c_str(), _Frmt.c_str());
+
+                    if (Changed) {
+                        const bool WantsInf = UIValue >= (Max - 5.0f);
+                        const bool WantsAuto = UIValue <= (Min + 0.1000f);
+
+                        if (WantsInf) {
+                            *Scale = InfSentinel;
+                        }
+                        else if (WantsAuto) {
+                            *Scale = 0.0f;
+                        }
+                        else {
+                            *Scale = UIValue;
+                        }
+                    }
+                    else {
+                        if (StoredInf) {
+                            *Scale = InfSentinel;
+                        }
+                        else if (StoredAuto) {
+                            *Scale = 0.0f;
+                        }
                     }
                 }
+
                 ImGui::Spacing();
             }
+
         }
 
         // ---- Multipiers

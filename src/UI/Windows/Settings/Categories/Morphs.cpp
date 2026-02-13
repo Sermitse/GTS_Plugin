@@ -238,10 +238,26 @@ namespace GTS {
 
                 PSString T0 = "Enable belly growth with vore actions.\n"
                             "- !Altering Morphs can be very FPS expensive!";
-                PSString T1 = "Set the amount of growth per eaten tiny.";
+
+				PSString T1 = "Toggle whether the morph should decrease over time.\n"
+					"- !Altering Morphs can be very FPS expensive!";
+
+				PSString T2 = "The belly normally shrinks once eaten NPC's have been absored.\n"
+				  "You can however enable an additional gradual shrink of which the shrink rate value can be set here.";
+
+            	PSString T3 = "Set the amount of growth per eaten NPC.";
+
                 ImGuiEx::CheckBox("Grow Belly On Vore", &Config::Gameplay.ActionSettings.bEnableBellyMorph, T0);
-                ImGuiEx::SliderF("Increase Per Vore", &Config::Gameplay.ActionSettings.fBellyAbsorbIncrementBy, 0.1f, 1.0f, T1, "%.2fx");
-               
+
+				ImGui::BeginDisabled(!Config::Gameplay.ActionSettings.bEnableBellyMorph);
+				{
+					ImGuiEx::CheckBox("Shrink Over Time", &Config::Gameplay.ActionSettings.bShrinkBellyOverTime, T1);
+
+					ImGuiEx::SliderF("Shrink Rate", &Config::Gameplay.ActionSettings.fBellyShrinkRate, 0.001f, 0.2f, T2, "%.3fx", !Config::Gameplay.ActionSettings.bShrinkBellyOverTime);
+					ImGuiEx::SliderF("Increase Per Vore", &Config::Gameplay.ActionSettings.fBellyAbsorbIncrementBy, 0.1f, 1.0f, T3, "%.2fx");
+				}
+				ImGui::EndDisabled();
+
                 ImGui::Spacing();
             }
         }

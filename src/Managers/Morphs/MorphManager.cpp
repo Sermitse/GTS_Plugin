@@ -90,9 +90,9 @@ namespace GTS {
 			}
 		}
 
-		// Apply belly shrinking used as a fallback incase 
-		if (persistentData->fBellyScale > 0.0f) {
-			const float shrinkAmount = 0.05 * deltaTime;
+		// Apply belly shrinking used as a fallback 
+		if (Config::Gameplay.ActionSettings.bShrinkBellyOverTime && persistentData->fBellyScale > 0.0f) {
+			const float shrinkAmount = Config::Gameplay.ActionSettings.fBellyShrinkRate * deltaTime;
 			persistentData->fBellyScale = std::max(0.0f, persistentData->fBellyScale - shrinkAmount);
 			transientData->CurrentBellyScale = std::max(0.0f, transientData->CurrentBellyScale - shrinkAmount);
 			if (std::abs(transientData->CurrentBellyScale - transientData->LastAppliedBellyScale) > EPS ||

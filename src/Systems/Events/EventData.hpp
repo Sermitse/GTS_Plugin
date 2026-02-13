@@ -232,7 +232,7 @@ namespace GTS {
 		float Vore_Power;
 		float Health_Regeneration;
 		float Box_Scale;
-		float Duration;
+		float DurationModifierMult;
 		std::string_view Tiny_Name;
 	};
 

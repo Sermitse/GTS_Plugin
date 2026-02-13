@@ -134,12 +134,16 @@ namespace GTS {
             PSString T5 = "Allow voring undead actors (like draugr).";
 
             PSString T6 = "Toggle whether the GTS should do DV's Endo on the player and teammates instead of doing lethal vore\n"
-			              "if devourment compatibility is enabled.\n";
+			              "if devourment compatibility is enabled.";
+
+
+            PSString T7 = "Set the base time duration for vore absorptions. The actual digestion time can be lower depending on perks.";
 						  
 
             if (ImGui::CollapsingHeader("Vore Settings", ImUtil::HeaderFlagsDefaultOpen)) {
 
                 ImGuiEx::SliderF("Vore Gain Mult", &Config::Gameplay.ActionSettings.fVoreGainMult, 0.1f, 3.0f, T1, "%.1fx");
+                ImGuiEx::SliderU16("Base Digestion Time", &Config::Gameplay.ActionSettings.iVoreDigestSpeedTime, 40, 360, T7, "%d Seconds");
                 ImGuiEx::CheckBox("Allow Insects", &Config::Gameplay.ActionSettings.bAllowInsects, T4);
                 ImGui::SameLine();
                 ImGuiEx::CheckBox("Allow Undead", &Config::Gameplay.ActionSettings.bAllowUndead, T5);

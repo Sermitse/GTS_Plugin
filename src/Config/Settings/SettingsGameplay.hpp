@@ -68,8 +68,9 @@ struct GameplayActionSettings_t {
     bool bAllowInsects = false;
     bool bAllowUndead = false;
     bool bDVDoEndoOnTeam = false;
-    bool bEnableBellyMorph = false;
-    float fBellyAbsorbIncrementBy = 0.55f;
+
+
+    uint16_t iVoreDigestSpeedTime = 80;
 
     //Stomp Settings
     float fPlayerUnderstompGrindChance = 20.0f;
@@ -89,12 +90,20 @@ struct GameplayActionSettings_t {
     
     //Cleavage Settings
     float fGrabPlayVoreOffset_Z = 0.0f;
-    bool bShrinkBreastsOverTime = true;
-    float fBreastShrinkRate = 0.15f;
-    float fBreastsAbsorbIncrementBy = 1.85;
+
+    //Morph Toggles
     bool bEnlargeBreastsOnAbsorption = false;
+    bool bEnableBellyMorph = false;
 
+    //Morph Settings
+    bool bShrinkBreastsOverTime = true;
+    bool bShrinkBellyOverTime = true;
+    float fBreastShrinkRate = 0.15f;
+    float fBellyShrinkRate = 0.01f;
+    float fBreastsAbsorbIncrementBy = 1.85;
+    float fBellyAbsorbIncrementBy = 0.55f;
 
+    float fMorphEPS = 0.08;
 
 	//Morph Lists
     GameplayMorphSettings_t MorphListBreasts = {
@@ -122,7 +131,7 @@ struct GameplayActionSettings_t {
             0.20f,
         }
     };
-    float fMorphEPS = 0.08;
+
 };
 TOML_SERIALIZABLE(GameplayActionSettings_t);
 
