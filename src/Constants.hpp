@@ -78,6 +78,7 @@ namespace GTS {
     constexpr float Damage_ButtCrush_FootImpact = 6.0f;
 
     ////////////////Thigh Sandwich
+    constexpr float Damage_ThighSandwich_Impact_Initial = 0.05f;
     constexpr float Damage_ThighSandwich_Impact_Light = 0.4f;
     constexpr float Damage_ThighSandwich_Impact_Heavy = 1.0f;
     ///////////////Thigh Sandwich: Second Branch

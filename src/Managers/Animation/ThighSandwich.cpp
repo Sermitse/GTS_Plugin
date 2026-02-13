@@ -164,11 +164,28 @@ namespace {
 		DrainStamina(&data.giant, "StaminaDrain_Sandwich", Runtime::PERK.GTSPerkThighAbilities, true, 2.5f);
 	}
 
+	// Same as ThighImpact but deals no damage to not accidentally oneshot a tiny
+	void GTSSandwich_ThighImpact_Initial(AnimationEventData& data) {
+		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
+		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundThighSandwichImpact, &data.giant, 1.0f, "AnimObjectB");
+		sandwichdata.EnableSuffocate(true);
+		sandwichdata.SetSuffocateMult(1.0f);
+
+		for (auto tiny: sandwichdata.GetActors()) {
+			if (tiny) {
+				tiny->NotifyAnimationGraph("ragdoll");
+				AllowToBeCrushed(tiny, true);
+			}
+		}
+		
+		Rumbling::Once("ThighImpact", &data.giant, Rumble_ThighSandwich_ThighImpact, 0.15f, "AnimObjectA", 0.0f);
+	}
+
 	void GTSSandwich_ThighImpact(AnimationEventData& data) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
 		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundThighSandwichImpact, &data.giant, 1.0f, "AnimObjectB");
 		sandwichdata.EnableSuffocate(true);
-
+		sandwichdata.SetSuffocateMult(1.0f);
 		
 		for (auto tiny: sandwichdata.GetActors()) {
 			if (tiny) {
@@ -387,6 +404,7 @@ namespace GTS
 		InputManager::RegisterInputEvent("ThighSandwichAttackHeavy", ThighSandwichHeavyAttackEvent);
 		InputManager::RegisterInputEvent("ThighSandwichExit", ThighSandwichExitEvent);
 
+		AnimationManager::RegisterEvent("GTSSandwich_ThighImpact_Initial", "ThighSandwich", GTSSandwich_ThighImpact_Initial);
 		AnimationManager::RegisterEvent("GTSSandwich_ThighImpact", "ThighSandwich", GTSSandwich_ThighImpact);
 		AnimationManager::RegisterEvent("GTSSandwich_ThighImpact_H", "ThighSandwich", GTSSandwich_ThighImpact_H);
 		AnimationManager::RegisterEvent("GTSSandwich_DropDown", "ThighSandwich", GTSSandwich_DropDown);
