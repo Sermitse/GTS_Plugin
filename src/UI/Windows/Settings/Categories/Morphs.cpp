@@ -8,7 +8,6 @@
 #include "UI/Controls/CollapsingTabHeader.hpp"
 #include "UI/Controls/Slider.hpp"
 #include "UI/Controls/Text.hpp"
-#include "UI/Controls/ToolTip.hpp"
 
 #include "UI/Core/ImUtil.hpp"
 #include "UI/Windows/Settings/SettingsWindow.hpp"
@@ -22,89 +21,121 @@ namespace {
                      "You can find the list of morph names by loading the body mod you use in Outfit Studio.";
                      
 
-    void DrawMorphList(GameplayMorphSettings_t& settings) {
+	void DrawMorphList(GameplayMorphSettings_t& settings) {
 
-        constexpr int32_t MAXIdx = 16;
-		constexpr int32_t LastIdx = MAXIdx - 1;
+		constexpr int32_t kMax = 16;
+		constexpr int32_t kLast = kMax - 1;
 
-        ImGuiEx::HelpText("What is this", THelp);
+		ImGuiEx::HelpText("What is this", THelp);
 
-        if (ImGuiEx::SliderF("Multiplier", &settings.fMultiplier, 0.1f, 5.0f,
-            "Multiply the final combined morph shape by this value.", "%.2fx")) {
-            if (auto win = dynamic_cast<GTS::SettingsWindow*>(GTS::GTSMenu::WindowManager->wSettings)) {
-                win->m_MorphDataWasModified = true;
-            }
-        }
+		auto mark_modified = [] {
+			if (auto* win = dynamic_cast<GTS::SettingsWindow*>(GTS::GTSMenu::WindowManager->wSettings)) {
+				win->m_MorphDataWasModified = true;
+			}
+		};
 
-        ImGui::SeparatorText("Morph List");
+		if (ImGuiEx::SliderF(
+			"Multiplier",
+			&settings.fMultiplier,
+			0.1f,
+			5.0f,
+			"Multiply the final combined morph shape by this value.",
+			"%.2fx")) {
+			mark_modified();
+		}
 
-        int32_t shownCnt = 0;
-        static int32_t activeEditIndex = -1;
+		ImGui::SeparatorText("Morph List");
 
-        for (int i = 0; i < MAXIdx && shownCnt < MAXIdx; ++i)
-        {
-            // Skip empty fields UNLESS this field is currently being edited
-            if (settings.MorphNames[i].empty() && i < LastIdx && activeEditIndex != i) {
-                continue;
-            }
+		static int32_t activeEditIndex = -1;
 
-            ImGui::PushID(i);
+		auto shift_left_from = [&](int32_t idx) {
+			for (int32_t j = idx; j < kLast; ++j) {
+				settings.MorphNames[j] = std::move(settings.MorphNames[j + 1]);
+				settings.MorphScales[j] = settings.MorphScales[j + 1];
+			}
+			settings.MorphNames[kLast].clear();
+			settings.MorphScales[kLast] = 0.0f;
+		};
 
-            ImGui::PushItemWidth(ImGui::GetWindowWidth() * GTS::Config::UI.fItemWidth * 0.5f);
+		auto last_used_index = [&]() -> int32_t {
+			for (int32_t i = kLast; i >= 0; --i) {
+				if (!settings.MorphNames[i].empty()) {
+					return i;
+				}
+			}
+			return -1;
+		};
 
-            bool changed = false;
-            bool nameChanged = ImGui::InputText("##name", &settings.MorphNames[i], ImGuiInputTextFlags_AutoSelectAll);
-            bool isActive = ImGui::IsItemActive();
+		// Always show one empty row after the last non-empty entry (if capacity allows).
+		const int32_t lastUsed = last_used_index();
+		const int32_t renderUpTo = std::min(lastUsed + 1, kLast);
 
-            // Track which field is being edited
-            if (isActive) {
-                activeEditIndex = i;
-            }
-            else if (activeEditIndex == i) {
-                // Field just lost focus
-                if (settings.MorphNames[i].empty() && i < LastIdx) {
-                    // Delete the empty entry
-                    changed = true;
-                    for (int j = i; j < LastIdx; ++j) {
-                        settings.MorphNames[j] = std::move(settings.MorphNames[j + 1]);
-                        settings.MorphScales[j] = settings.MorphScales[j + 1];
-                    }
-                    settings.MorphNames[LastIdx].clear();
-                    settings.MorphScales[LastIdx] = 0.0f;
-                }
-                activeEditIndex = -1;
-            }
+		const float itemWidth = ImGui::GetWindowWidth() * GTS::Config::UI.fItemWidth * 0.5f;
 
-            ImGui::SameLine();
+		for (int32_t i = 0; i <= renderUpTo; ++i) {
+			ImGui::PushID(i);
 
-            bool scaleChanged = ImGui::InputFloat("##Scale", &settings.MorphScales[i], 0.01f, 0.1f, "%.2fx", ImGuiInputTextFlags_AutoSelectAll);
+			bool changed = false;
 
-            ImGui::PopItemWidth();
+			ImGui::PushItemWidth(itemWidth);
 
-            changed = changed || nameChanged || scaleChanged;
+			const bool nameChanged = ImGui::InputText(
+				"##name",
+				&settings.MorphNames[i],
+				ImGuiInputTextFlags_AutoSelectAll
+			);
 
-            if (!settings.MorphNames[i].empty()) {
-                ImGui::SameLine();
-                if (ImGuiEx::ImageButton("##delete", ImageList::Export_Delete, 18,
-                    "Delete this morph entry")) {
-                    changed = true;
-                    for (int j = i; j < LastIdx; ++j) {
-                        settings.MorphNames[j] = std::move(settings.MorphNames[j + 1]);
-                        settings.MorphScales[j] = settings.MorphScales[j + 1];
-                    }
-                    settings.MorphNames[LastIdx].clear();
-                    settings.MorphScales[LastIdx] = 0.0f;
-                }
-            }
-            if (changed) {
-                if (auto win = dynamic_cast<GTS::SettingsWindow*>(GTS::GTSMenu::WindowManager->wSettings)) {
-                    win->m_MorphDataWasModified = true;
-                }
-            }
-            ImGui::PopID();
-            ++shownCnt;
-        }
-    }
+			const bool isActive = ImGui::IsItemActive();
+
+			if (isActive) {
+				activeEditIndex = i;
+			}
+			else if (activeEditIndex == i) {
+				// Field just lost focus: if it is empty and not the last slot, remove it by shifting.
+				if (settings.MorphNames[i].empty() && i < kLast) {
+					shift_left_from(i);
+					changed = true;
+				}
+				activeEditIndex = -1;
+			}
+
+			ImGui::SameLine();
+
+			const bool scaleChanged = ImGui::InputFloat(
+				"##Scale",
+				&settings.MorphScales[i],
+				0.01f,
+				0.1f,
+				"%.2fx",
+				ImGuiInputTextFlags_AutoSelectAll
+			);
+
+			ImGui::PopItemWidth();
+
+			changed = changed || nameChanged || scaleChanged;
+
+			// Delete button only for non-empty rows
+			if (!settings.MorphNames[i].empty()) {
+				ImGui::SameLine();
+				if (ImGuiEx::ImageButton("##delete", ImageList::Export_Delete, 18, "Delete this morph entry")) {
+					shift_left_from(i);
+					changed = true;
+
+					// If we deleted the row being edited, clear edit tracking.
+					if (activeEditIndex == i) {
+						activeEditIndex = -1;
+					}
+				}
+			}
+
+			if (changed) {
+				mark_modified();
+			}
+
+			ImGui::PopID();
+		}
+	}
+
 }
 
 namespace GTS {
