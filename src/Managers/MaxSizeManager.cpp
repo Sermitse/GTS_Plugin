@@ -90,7 +90,7 @@ namespace {
 		float GetLimit = 1.0f;
 
 		if (auto data = Persistent::GetActorData(actor); data) {
-			float ExtraMagicSize = data->fExtraPotionMaxScale * MassMode_ElixirPowerMultiplier;;
+			float ExtraMagicSize = data->fExtraPotionMaxScale * MassMode_ElixirPowerMultiplier;
 			float MaxSize = data->fSizeLimit; // Cap max size through normal size rules
 			float size_calc = NaturalScale + data->fMassBasedLimit + ExtraMagicSize;
 

@@ -12,7 +12,7 @@ namespace GTS {
 		float fMaxScale = 65535.0f;
 		float fExtraPotionMaxScale = 0.0f;
 		float fSizeLimit = 1.0f;
-		float fMassBasedLimit = 1.0f;
+		float fMassBasedLimit = 0.0f;
 
 		//Damage
 		float fNormalDamage = 1.0f;
