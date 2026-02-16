@@ -64,7 +64,8 @@ namespace ImGuiEx {
         enum class Section {
             kNone,
             kSectionExtra,
-            kSectionKillInfo
+            kSectionKillInfo,
+            kSectionAttributes
         };
 
         ActorInfoCard();
@@ -75,6 +76,7 @@ namespace ImGuiEx {
 		private:
 		void DrawSpectateButton(RE::Actor* a_actor) const;
         static void DrawKillStat(RE::Actor* a_actor, const char* a_name, GTS::DeathType a_type, uint8_t a_colOffset = 0, const char* a_toolTip = nullptr);
+        static void DrawStolenAttributes(const ActorInfo& Data);
         static void DrawKillData(RE::Actor* a_actor);
         void DrawMainContent(const ActorInfo& Data) const;
         void DrawExtraStats(const ActorInfo& Data) const;

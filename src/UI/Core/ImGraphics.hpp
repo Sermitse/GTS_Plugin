@@ -11,6 +11,7 @@ namespace ImageList {
     PSString Infocard_Spectate        = "infocard_spectate";
     PSString Infocard_Kills           = "infocard_kills";
     PSString Infocard_ExtraInfo       = "infocard_extra";
+    PSString Infocard_StolenStats     = "infocard_stats";
 
     PSString Export_Cleanup           = "export_cleanup";
     PSString Export_Delete            = "export_delete";

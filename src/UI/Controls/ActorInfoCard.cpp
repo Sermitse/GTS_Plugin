@@ -28,7 +28,7 @@ namespace {
 						         "They'll be randomly distributed between the three main attributes\n"
 						         "Complete perk the requirements to fully utilize them and convert them to absorbed attributes";
 
-	PSString TAbsorbedAttributes = "Absorbed attributes are permanent a permantent increase to Health, Magicka or Stamina";
+	PSString TAbsorbedAttributes = "Absorbed attributes are a permantent increase to Health, Magicka or Stamina";
 
 }
 
@@ -141,8 +141,10 @@ namespace ImGuiEx {
 		if (m_expandedSec == Section::kSectionExtra) {
 			ImGui::Separator();
 			DrawExtraStats(Data.value());
-		}
-		else if (m_expandedSec == Section::kSectionKillInfo) {
+		} else if (m_expandedSec == Section::kSectionAttributes) {
+			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+			DrawStolenAttributes(Data.value());
+		} else if (m_expandedSec == Section::kSectionKillInfo) {
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			DrawKillData(a_actor);
 		}
@@ -155,6 +157,7 @@ namespace ImGuiEx {
 
 		const bool section1_active = m_expandedSec == Section::kSectionExtra;
 		const bool section2_active = m_expandedSec == Section::kSectionKillInfo;
+		const bool section3_active = m_expandedSec == Section::kSectionAttributes;
 
 		if (section1_active) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
 		if (ImageButton("##ExtraInfo", ImageList::Infocard_ExtraInfo, m_baseIconSize, "Show Extended Info")) {
@@ -162,12 +165,17 @@ namespace ImGuiEx {
 		}
 		if (section1_active) ImGui::PopStyleColor();
 		
-		if (section2_active)
-		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+		if (section2_active) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
 		if (ImageButton("##KillInfo", ImageList::Infocard_Kills, m_baseIconSize, "Show Kill Count Info")) {
 			m_expandedSec = section2_active ? Section::kNone : Section::kSectionKillInfo;
 		}
 		if (section2_active) ImGui::PopStyleColor();
+
+		if (section3_active) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+		if (ImageButton("##StatInfo", ImageList::Infocard_StolenStats, m_baseIconSize, "Show Stolen Attributes")) {
+			m_expandedSec = section3_active ? Section::kNone : Section::kSectionAttributes;
+		}
+		if (section3_active) ImGui::PopStyleColor();
 
 		DrawSpectateButton(a_actor);
 
@@ -388,32 +396,6 @@ namespace ImGuiEx {
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text("%.1f%%", Data.fJumpMult);
 
-			// --------------------------------- Perk Related
-
-			if (Data.bHasPerk_GTSFullAssimilation) {
-
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("Stored Attributes:");
-				ImGuiEx::Tooltip(TStoredAttributes, true);
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("+%.2f", Data.fStolenAtributes);
-
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("Absorbed Attributes:");
-				ImGuiEx::Tooltip(TAbsorbedAttributes, true);
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("HP: +%.2f, MP: +%.2f, SP: +%.2f", Data.fStolenHealth, Data.fStolenMagicka, Data.fStolenStamina);
-
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("Max Attributes:");
-				ImGuiEx::Tooltip(TAbsorbedAttributesCap, true);
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("%.2f", Data.fStolenCap);
-
-			}
 			ImGui::EndTable();
 		}
 	}
@@ -458,7 +440,62 @@ namespace ImGuiEx {
 		ImGui::Text("%u", GetKillCount(a_actor, a_type));
 
 	}
+	void ActorInfoCard::DrawStolenAttributes(const ActorInfo& Data) {
+		if (ImGui::BeginTable("##AttributesTable", 2,
+			ImGuiTableFlags_NoSavedSettings |
+			ImGuiTableFlags_NoBordersInBody |
+			ImGuiTableFlags_Hideable,
+			{ ImGui::GetContentRegionAvail().x, 0.0f })) {
 
+			if (Data.bHasPerk_GTSFullAssimilation) {
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Stored Attributes:");
+				ImGuiEx::Tooltip(TStoredAttributes, true);
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("+%.2f", Data.fStolenAtributes);
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Absorbed Attributes:");
+				ImGuiEx::Tooltip(TAbsorbedAttributes, true);
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text(" Max Attributes:");
+				ImGuiEx::Tooltip(TAbsorbedAttributesCap, true);
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%.2f", Data.fStolenCap);
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text(" Health:");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("+%.2f", Data.fStolenHealth);
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text(" Magicka:");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("+%.2f", Data.fStolenMagicka);
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text(" Stamina:");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("+%.2f", Data.fStolenStamina);
+
+			} else {
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Missing perk:");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("'Full Assimilation'");
+			}
+			ImGui::EndTable();
+		}
+	}
 	void ActorInfoCard::DrawKillData(Actor* a_actor) {
 
 		if (!a_actor) return;
