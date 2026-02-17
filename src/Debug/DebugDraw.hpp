@@ -13,9 +13,9 @@ namespace GTS {
 		static inline bool CachedMenuData = false;
 		static inline float ScreenResX = 0.0f;
 		static inline float ScreenResY = 0.0f;
-		static inline std::vector<DebugUtil::DebugLine> LinesToDraw = {};
+		static inline std::vector<std::unique_ptr<DebugUtil::DebugLine>> LinesToDraw = {};
 		static inline bool DEBUG_API_REGISTERED = false;
-		static constexpr int CIRCLE_NUM_SEGMENTS = 32;
+		static constexpr int CIRCLE_NUM_SEGMENTS = 8;
 		static constexpr float DRAW_LOC_MAX_DIF = 1.0f;
 		static constexpr float CLAMP_MAX_OVERSHOOT = 10000.0f;
 
@@ -25,20 +25,6 @@ namespace GTS {
 			kAnyGTS,
 			kAll,
 		};
-
-		struct LineKey {
-			uint64_t hash;
-
-			bool operator==(const LineKey& other) const {
-				return hash == other.hash;
-			}
-		};
-
-
-		static inline absl::flat_hash_map<LineKey, size_t> lineIndexCache;
-
-		static LineKey CreateLineKey(const glm::vec3& from, const glm::vec3& to, const glm::vec4& color, float thickness);
-		static void RebuildLineCache();
 
 		static void Update();
 
@@ -71,14 +57,7 @@ namespace GTS {
 		static void CacheMenuData();
 
 		private:
-		static DebugUtil::DebugLine* GetExistingLine(const glm::vec3& from, const glm::vec3& to, const glm::vec4& color, float lineThickness);
+		static std::optional<std::reference_wrapper<std::unique_ptr<DebugUtil::DebugLine>>> GetExistingLine(const glm::vec3& from, const glm::vec3& to, const glm::vec4& color, float lineThickness);
 	};
 }
-
-template<>
-struct std::hash<GTS::DebugDraw::LineKey> {
-	size_t operator()(const GTS::DebugDraw::LineKey& k) const noexcept {
-		return k.hash;
-	}
-};
 

@@ -23,6 +23,7 @@ namespace GTS {
 		virtual std::string DebugName() override;
         virtual void FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, bool enter) override;
 		virtual void ActorLoaded(RE::Actor* actor) override;
+		virtual void ActorUpdate(RE::Actor* actor) override;
 
 		static void RecordAndHandleFurnState(RE::Actor* activator, TESObjectREFR* object, bool enter);
 		static void Furniture_EnableButtHitboxes(RE::Actor* activator, FurnitureDamageSwitch type);

@@ -174,11 +174,10 @@ namespace {
 			(Config::General.bDynamicFurnSizePlayer && actor->IsPlayerRef()) ||
 			(Config::General.bDynamicFurnSizeFollowers && IsTeammate(actor));
 
-		auto data = Transient::GetActorData(actor);
-		if (ShouldHandleFurnUpdate && 
-			data->bIsUsingFurniture && 
-			target_scale > data->fRecordedFurnScale) {
-			target_scale = data->fRecordedFurnScale;
+		if (auto data = Transient::GetActorData(actor)) {
+			if (ShouldHandleFurnUpdate && data->bIsUsingFurniture && target_scale > data->fRecordedFurnScale) {
+				target_scale = data->fRecordedFurnScale;
+			}
 		}
 
 	}
