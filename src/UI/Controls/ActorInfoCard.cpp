@@ -28,7 +28,7 @@ namespace {
 						         "They'll be randomly distributed between the three main attributes\n"
 						         "Complete perk the requirements to fully utilize them and convert them to absorbed attributes";
 
-	PSString TAbsorbedAttributes = "Absorbed attributes are a permantent increase to Health, Magicka or Stamina";
+	PSString TAbsorbedAttributes = "Absorbed attributes are a permanent increase to Health, Magicka or Stamina";
 
 }
 
