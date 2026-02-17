@@ -6,7 +6,7 @@ namespace GTS {
 
         public:
 
-        static inline const std::filesystem::path _basePath = std::filesystem::current_path() / R"(Data/SKSE/Plugins/GTSPlugin)";
+        static inline const std::filesystem::path _basePath = std::filesystem::current_path() / R"(Data\SKSE\Plugins\GTSPlugin)";
         static inline const std::filesystem::path _exportsDir = _basePath / "Exports";
 
         static std::string GetTimestamp();

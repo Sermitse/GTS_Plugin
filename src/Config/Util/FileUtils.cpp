@@ -92,44 +92,151 @@ namespace GTS {
 	}
 
 	bool FileUtils::CheckOrCreateFile(const std::filesystem::path& a_fullFilePath) {
+		namespace fs = std::filesystem;
+
 		try {
 
-			// Check if the file exists
-			if (std::filesystem::exists(a_fullFilePath)) {
-				return true;
+			if (a_fullFilePath.empty()) {
+				logger::error("CheckOrCreateFile: empty path");
+				return false;
 			}
 
-			// Create parent directories if they don't exist
-			if (std::filesystem::create_directories(a_fullFilePath.parent_path())) {
-				logger::critical("Plugin folder was mising and was created, MOD BROKEN.");
-				ReportAndExit("The GTSPlugin folder was missing and had to be created.\n"
-					"This indicates that the mod was not installed correctly.\n"
-					"The mod will not work if it's contents are missing."
-				);
+			std::error_code ec{};
+
+			// Normalize for logging/debugging (do not require existence)
+			fs::path full = a_fullFilePath;
+			fs::path parent = full.parent_path();
+
+			logger::debug("CheckOrCreateFile: target='{}' parent='{}'",
+				full.string(), parent.string());
+
+			// Fast path: file already exists
+			ec.clear();
+			if (fs::exists(full, ec)) {
+				if (ec) {
+					logger::error("CheckOrCreateFile: exists() failed for '{}' ({})",
+						full.string(), ec.message());
+					return false;
+				}
+
+				ec.clear();
+				if (fs::is_regular_file(full, ec)) {
+					if (ec) {
+						logger::error("CheckOrCreateFile: is_regular_file() failed for '{}' ({})",
+							full.string(), ec.message());
+						return false;
+					}
+					logger::debug("CheckOrCreateFile: file exists");
+					return true;
+				}
+
+				// Exists but isn't a regular file
+				ec.clear();
+				if (fs::is_directory(full, ec)) {
+					logger::error("CheckOrCreateFile: '{}' exists but is a directory", full.string());
+					return false;
+				}
+				logger::error("CheckOrCreateFile: '{}' exists but is not a regular file", full.string());
+				return false;
+			}
+			else if (ec) {
+				logger::error("CheckOrCreateFile: exists() failed for '{}' ({})",
+					full.string(), ec.message());
+				return false;
 			}
 
-			// Try to create the file
-			std::ofstream file(a_fullFilePath);
-			file.exceptions(std::ofstream::failbit);
-			if (file) {
-				file.close();
-				logger::info("File created");
-				return true;
+			// Parent directory handling
+			if (parent.empty()) {
+				logger::warn("CheckOrCreateFile: parent path is empty; using current working directory");
+			}
+			else {
+				ec.clear();
+				const bool parentExists = fs::exists(parent, ec);
+				if (ec) {
+					logger::error("CheckOrCreateFile: exists(parent) failed for '{}' ({})",
+						parent.string(), ec.message());
+					return false;
+				}
+
+				if (parentExists) {
+					ec.clear();
+					if (!fs::is_directory(parent, ec) || ec) {
+						logger::error("CheckOrCreateFile: parent '{}' exists but is not a directory{}",
+							parent.string(),
+							ec ? fmt::format(" ({})", ec.message()) : "");
+						return false;
+					}
+				}
+				else {
+					ec.clear();
+					const bool created = fs::create_directories(parent, ec);
+					if (ec) {
+						logger::error("CheckOrCreateFile: create_directories('{}') failed ({})",
+							parent.string(), ec.message());
+						return false;
+					}
+
+					if (created) {
+						logger::critical("CheckOrCreateFile: plugin folder was missing and was created: '{}'", parent.string());
+						ReportAndExit(
+							"The GTSPlugin folder was missing and had to be created.\n"
+							"This indicates that the mod was not installed correctly.\n"
+							"The mod will not work if it's contents are missing."
+						);
+					}
+				}
 			}
 
-			return false;
+			// Create file: use explicit open so exceptions happen at open(), not at exceptions()
+			{
+				std::ofstream file;
+				file.exceptions(std::ios::failbit | std::ios::badbit);
+
+				try {
+					file.open(full, std::ios::out | std::ios::binary | std::ios::trunc);
+					file.close();
+				}
+				catch (const std::ios_base::failure& e) {
+					// Enrich with errno-style info if possible
+					logger::error("CheckOrCreateFile: ofstream open/close failed for '{}': {}",
+						full.string(), e.what());
+					return false;
+				}
+			}
+
+			// Verify it now exists and is a file
+			ec.clear();
+			if (!fs::exists(full, ec) || ec) {
+				logger::error("CheckOrCreateFile: file creation verification failed for '{}'{}",
+					full.string(),
+					ec ? fmt::format(" ({})", ec.message()) : "");
+				return false;
+			}
+
+			ec.clear();
+			if (!fs::is_regular_file(full, ec) || ec) {
+				logger::error("CheckOrCreateFile: '{}' created but is not a regular file{}",
+					full.string(),
+					ec ? fmt::format(" ({})", ec.message()) : "");
+				return false;
+			}
+
+			logger::info("CheckOrCreateFile: created '{}'", full.string());
+			return true;
 		}
 		catch (const std::filesystem::filesystem_error& e) {
-			logger::error("CheckFile() Filesystem error: {}", e.what());
+			logger::error("CheckOrCreateFile: filesystem_error: {} (path1='{}' path2='{}')",
+				e.what(), e.path1().string(), e.path2().string());
 			return false;
 		}
 		catch (const std::exception& e) {
-			logger::error("CheckFile() -> Exception: {}", e.what());
+			logger::error("CheckOrCreateFile: exception: {}", e.what());
 			return false;
 		}
 		catch (...) {
-			logger::error("CheckFile() -> Unknown Exception");
+			logger::error("CheckOrCreateFile: unknown exception");
 			return false;
 		}
 	}
+
 }
