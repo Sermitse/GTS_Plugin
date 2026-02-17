@@ -13,30 +13,29 @@
 namespace GTS {
 
 	void DebugDraw::DrawLineForMS(const glm::vec3& from, const glm::vec3& to, int liftetimeMS, const glm::vec4& color, float lineThickness) {
-		const uint64_t destroyTick = GetTickCount64() + liftetimeMS;
-
-		// Create hash key for line lookup
-		LineKey key = CreateLineKey(from, to, color, lineThickness);
-
-		auto it = lineIndexCache.find(key);
-		if (it != lineIndexCache.end()) {
-			// Update existing line
-			auto& oldLine = LinesToDraw[it->second];
-			oldLine.From = from;
-			oldLine.To = to;
-			oldLine.DestroyTickCount = destroyTick;
-			oldLine.LineThickness = lineThickness;
+		std::optional<std::reference_wrapper<std::unique_ptr<DebugUtil::DebugLine>>> oldLine = GetExistingLine(from, to, color, lineThickness);
+		if (oldLine.has_value()) {
+			oldLine->get()->From = from;
+			oldLine->get()->To = to;
+			oldLine->get()->DestroyTickCount = GetTickCount64() + liftetimeMS;
+			oldLine->get()->LineThickness = lineThickness;
 			return;
 		}
 
-		// Add new line
-		size_t newIndex = LinesToDraw.size();
-		LinesToDraw.emplace_back(from, to, color, lineThickness, destroyTick);
-		lineIndexCache[key] = newIndex;
+		LinesToDraw.push_back(std::make_unique<DebugUtil::DebugLine>(
+				from,
+				to,
+				color,
+				lineThickness,
+				GetTickCount64() + liftetimeMS
+			)
+		);
 	}
 
 	void DebugDraw::Update() {
+
 		auto hud = GetHUD();
+
 		if (!hud || !hud->uiMovie) {
 			return;
 		}
@@ -44,22 +43,15 @@ namespace GTS {
 		CacheMenuData();
 		ClearLines2D(hud->uiMovie);
 
-		const uint64_t currentTick = GetTickCount64();
+		if (!LinesToDraw.empty()) {
 
-		// Draw all valid lines
-		for (const auto& line : LinesToDraw) {
-			DrawLine3D(hud->uiMovie, line.From, line.To, line.fColor, line.LineThickness, line.Alpha);
-		}
+			for (std::unique_ptr<DebugUtil::DebugLine>& line : LinesToDraw) {
+				DrawLine3D(hud->uiMovie, line->From, line->To, line->fColor, line->LineThickness, line->Alpha);
+			}
 
-		// Remove expired lines efficiently
-		auto newEnd = std::ranges::remove_if(LinesToDraw,[currentTick](const auto& line) {
-            return currentTick > line.DestroyTickCount;
-        }).begin();
-
-		if (newEnd != LinesToDraw.end()) {
-			LinesToDraw.erase(newEnd, LinesToDraw.end());
-			// Rebuild cache after cleanup
-			RebuildLineCache();
+			std::erase_if(LinesToDraw, [](const auto& line) {
+				return GetTickCount64() > line->DestroyTickCount;
+			});
 		}
 	}
 
@@ -591,23 +583,24 @@ namespace GTS {
 
 	}
 
-	DebugUtil::DebugLine* DebugDraw::GetExistingLine(const glm::vec3 & from, const glm::vec3 & to, const glm::vec4 & color, float lineThickness) {
+	std::optional<std::reference_wrapper<std::unique_ptr<DebugUtil::DebugLine>>> DebugDraw::GetExistingLine(const glm::vec3& from, const glm::vec3& to, const glm::vec4& color, float lineThickness) {
 		for (int i = 0; i < LinesToDraw.size(); i++) {
-			DebugUtil::DebugLine& line = LinesToDraw[i];
+			std::unique_ptr<DebugUtil::DebugLine>& line = LinesToDraw[i];
 
 			if (
-				DebugUtil::IsRoughlyEqual(from.x, line.From.x, DRAW_LOC_MAX_DIF) &&
-				DebugUtil::IsRoughlyEqual(from.y, line.From.y, DRAW_LOC_MAX_DIF) &&
-				DebugUtil::IsRoughlyEqual(from.z, line.From.z, DRAW_LOC_MAX_DIF) &&
-				DebugUtil::IsRoughlyEqual(to.x, line.To.x, DRAW_LOC_MAX_DIF) &&
-				DebugUtil::IsRoughlyEqual(to.y, line.To.y, DRAW_LOC_MAX_DIF) &&
-				DebugUtil::IsRoughlyEqual(to.z, line.To.z, DRAW_LOC_MAX_DIF) &&
-				DebugUtil::IsRoughlyEqual(lineThickness, line.LineThickness, DRAW_LOC_MAX_DIF) &&
-				color == line.Color) {
-				return &line;
+				DebugUtil::IsRoughlyEqual(from.x, line->From.x, DRAW_LOC_MAX_DIF) &&
+				DebugUtil::IsRoughlyEqual(from.y, line->From.y, DRAW_LOC_MAX_DIF) &&
+				DebugUtil::IsRoughlyEqual(from.z, line->From.z, DRAW_LOC_MAX_DIF) &&
+				DebugUtil::IsRoughlyEqual(to.x, line->To.x, DRAW_LOC_MAX_DIF) &&
+				DebugUtil::IsRoughlyEqual(to.y, line->To.y, DRAW_LOC_MAX_DIF) &&
+				DebugUtil::IsRoughlyEqual(to.z, line->To.z, DRAW_LOC_MAX_DIF) &&
+				DebugUtil::IsRoughlyEqual(lineThickness, line->LineThickness, DRAW_LOC_MAX_DIF) &&
+				color == line->Color) {
+				return line;
 			}
 		}
-		return nullptr;
+
+		return std::nullopt;
 	}
 
 	void DebugDraw::DrawLine3D(const GPtr<GFxMovieView>& movie, glm::vec3 from, glm::vec3 to, float color, float lineThickness, float alpha) {
@@ -723,6 +716,8 @@ namespace GTS {
 		ScreenResX = abs(rect.left - rect.right);
 		ScreenResY = abs(rect.top - rect.bottom);
 
+		LinesToDraw.reserve(4096);
+
 		CachedMenuData = true;
 		logger::debug("DebugDraw::CacheMenuData");
 
@@ -759,32 +754,5 @@ namespace GTS {
 			}
 		}
 		return false;
-	}
-
-	DebugDraw::LineKey DebugDraw::CreateLineKey(const glm::vec3& from, const glm::vec3& to, const glm::vec4& color, float thickness) {
-		// Quantize positions to avoid floating point precision issues
-		auto quantize = [](float v) { return static_cast<int32_t>(v / DRAW_LOC_MAX_DIF); };
-
-		uint64_t hash = 0;
-		hash ^= std::hash<int32_t>{}(quantize(from.x)) << 0;
-		hash ^= std::hash<int32_t>{}(quantize(from.y)) << 8;
-		hash ^= std::hash<int32_t>{}(quantize(from.z)) << 16;
-		hash ^= std::hash<int32_t>{}(quantize(to.x)) << 24;
-		hash ^= std::hash<int32_t>{}(quantize(to.y)) << 32;
-		hash ^= std::hash<int32_t>{}(quantize(to.z)) << 40;
-		hash ^= std::hash<int32_t>{}(quantize(thickness)) << 48;
-
-		return LineKey{ hash };
-	}
-
-	void DebugDraw::RebuildLineCache() {
-		lineIndexCache.clear();
-		lineIndexCache.reserve(LinesToDraw.size());
-
-		for (size_t i = 0; i < LinesToDraw.size(); ++i) {
-			const auto& line = LinesToDraw[i];
-			LineKey key = CreateLineKey(line.From, line.To, line.Color, line.LineThickness);
-			lineIndexCache[key] = i;
-		}
 	}
 }
