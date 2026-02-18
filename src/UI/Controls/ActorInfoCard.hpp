@@ -19,8 +19,9 @@ namespace ImGuiEx {
             float fScaleProgress    = {};  //Normalized Value from 0 to 1
 
             int iTotalKills     = {};
-            float fOverkills    = {};
-            float fOverkillMult = {};
+
+            float fOverkillsExtraSize    = {};
+            float fCollosalGrowthMult = {};
 
             //Bonuses
             float fScaleBonus          = {};
@@ -54,6 +55,8 @@ namespace ImGuiEx {
 
             //Perk Check
             bool bHasPerk_GTSFullAssimilation = {};
+            bool bHasPerk_GTSCollosalGrowth = {};
+            bool bHasPerk_GTSOverindulgence = {};;
 
             RE::ActorHandle pTargetActor = {};
 

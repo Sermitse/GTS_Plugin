@@ -33,8 +33,8 @@ namespace GTS {
 		float ClothRipOffset = -1.0f;
 		float ShrinkUntil = 0.0f;
 		float BreastSizeBuff = 0.0f;
-		float OverkillSizeBonus = 1.0f;
-		float Overkills = 0.0f;
+		float CollossalGrowthSizeBonus = 1.0f;
+		float OverkillSizeBonus = 0.0f;
 		float FootVelocity_R = 0.0f;
 		float FootVelocity_L = 0.0f;
 		float HandVelocity_R = 0.0f;
