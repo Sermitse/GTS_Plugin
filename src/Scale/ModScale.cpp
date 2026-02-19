@@ -306,10 +306,10 @@ namespace GTS {
 		// This function reports same values as GetScale() in the console, so it is a value from SetScale() command
 		// Used inside: GTSManager.cpp - apply_height
 		//              Scale.cpp   -  get_natural_scale
-		//return static_cast<float>(actor->GetReferenceRuntimeData().refScale) / 100.0F;
 		// actor->GetBaseHeight(); gets the refscale*racescale*actorBaseScale which is more accurate
 		// refscale is the scalemult in the REFR esp record or runtime value SetScale.
-		return actor->GetBaseHeight();
+		//return actor->GetBaseHeight();
+		return static_cast<float>(actor->GetReferenceRuntimeData().refScale) / 100.0F;
 	}
 
 	float game_getactorscale(Actor& actor) {
