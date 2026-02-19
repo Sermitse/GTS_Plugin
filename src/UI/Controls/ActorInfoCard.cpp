@@ -45,15 +45,16 @@ namespace ImGuiEx {
 
 		const auto& P = Persistent::GetActorData(a_actor);
 		const auto& T = Transient::GetActorData(a_actor);
+		//const auto& K = Persistent::GetKillCountData(a_actor);
 		if (!T || !P)  return std::nullopt;
 
 		I.pTargetActor = a_actor->CreateRefHandle();
 		I.Name         = a_actor->GetName();
 
 		//Scale
+		//I.fScaleNatural     = get_natural_scale(a_actor, true);
 		I.fScaleCurrent     = get_visual_scale(a_actor);
 		I.fScaleMax         = get_max_scale(a_actor);
-		I.fScaleNatural     = get_natural_scale(a_actor);
 		I.fMassModeScaleMax = MassMode_GetValuesForMenu(a_actor);
 		I.fScaleProgress    = I.fScaleMax < 250.0f ? I.fScaleCurrent / I.fScaleMax : -1.0f;
 
@@ -82,12 +83,18 @@ namespace ImGuiEx {
 		I.fSkillLevel    = GetGtsSkillLevel(a_actor);
 		I.fSkillRatio    = !I.bIsPlayer ? P->fGTSSkillRatio : Runtime::GetFloat(Runtime::GLOB.GTSSkillRatio);
 
+		//OverKills
+		I.fOverkillsExtraSize = T->CollossalGrowthSizeBonus;
+		I.fCollosalGrowthMult = T->OverkillSizeBonus;
+
 		//Formated
-		I.sFmtScale  = fmt::format("{} ({:.2f}x)", GetFormatedHeight(a_actor), I.fScaleCurrent);
+		I.sFmtScale  = fmt::format("{} [{:.2f}x]", GetFormatedHeight(a_actor), I.fScaleCurrent);
 		I.sFmtWeight = GetFormatedWeight(a_actor).c_str();
 
 		//Perk Check
 		I.bHasPerk_GTSFullAssimilation = Runtime::HasPerk(a_actor, Runtime::PERK.GTSPerkFullAssimilation);
+		I.bHasPerk_GTSCollosalGrowth = Runtime::HasPerk(a_actor, Runtime::PERK.GTSPerkColossalGrowth);
+		I.bHasPerk_GTSOverindulgence = Runtime::HasPerk(a_actor, Runtime::PERK.GTSPerkOverindulgence);
 
 		return std::move(I);
 
@@ -295,26 +302,26 @@ namespace ImGuiEx {
 			const float BonusSize_EssenceAndDragons =    Data.fSizeEssence;
 			const float BonusSize_TempPotionBoost =      Data.fScaleBonus * 100.0f;
 			const float BonusSize_AspectOfGiantess =     Data.fGTSAspect;
-			const float BonusSize_Overkills =            Data.fOverkills;
-			const float BonusSize_Overkills_Multiplier = Data.fOverkillMult;
+			const float BonusSize_Overkills =            Data.fOverkillsExtraSize;
+			const float BonusSize_CollosalGrowth =       Data.fCollosalGrowthMult;
 
 			const std::string TotalSizeBonusCalculation = fmt::format(
 				fmt::runtime(
 					"Size Essence & Absorbed Dragons: +{:.2f}x\n"
-					"Colossal Growth: +{:.2f}x\n"
+					"Colossal Growth: x{:.2f}\n"
 					"Potion Of Heights: +{:.0f}%%\n"
 					"Aspect Of Giantess: +{:.0f}%%\n"
-					"Overkills & C.Growth: +{:.2f}x\n\n"
+					"Overkills: +{:.2f}x\n\n"
 					"- Size Essence Increases the maximum achievable size when the size limit cap is set to \"Skill Based\"\n"
 					"- If Size Gain mode is set to \"Mass Mode\", then Essence Bonus is reduced by {:.0f}%% \n"
 					"- Essence is gained by killing and absorbing dragons while having the correct perk.\n"
 					"- Or by consuming specific potions found all around the world."
 				),
-				bMassModeEnabled ? BonusSize_EssenceAndDragons * MassMode_ElixirPowerMultiplier : BonusSize_EssenceAndDragons * 1.0f,
-				BonusSize_Overkills,
-				BonusSize_TempPotionBoost,
-				BonusSize_AspectOfGiantess,
-				BonusSize_Overkills_Multiplier,
+				(bMassModeEnabled ? BonusSize_EssenceAndDragons * MassMode_ElixirPowerMultiplier : BonusSize_EssenceAndDragons * 1.0f), //"Size Essence & Absorbed Dragons: +{:.2f}x\n"
+				BonusSize_CollosalGrowth,                                                                                               //"Colossal Growth: +{:.2f}x\n"
+				BonusSize_TempPotionBoost,                                                                                              //"Potion Of Heights: +{:.0f}%%\n"
+				BonusSize_AspectOfGiantess,                                                                                             //"Aspect Of Giantess: +{:.0f}%%\n"
+				BonusSize_Overkills,                                                                                                    //"Overkills: +{:.2f}x\n\n"
 				(1.0f - MassMode_ElixirPowerMultiplier) * 100.0f
 			);
 
@@ -349,10 +356,10 @@ namespace ImGuiEx {
 			ImGuiEx::Tooltip(TotalSizeBonusCalculation.c_str(), true);
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text(
-				bMassModeEnabled ? "%.0f%% + [%.2F + %.2Fx possible]" : "%.0f%% + %.2F + %.2Fx",
+				bMassModeEnabled ? "%.0f%% + [%.2fx + %.2fx possible]" : "%.0f%% + %.2fx + %.2fx",
 				(Data.fScaleBonus * 100.0f) + Data.fGTSAspect,
 				bMassModeEnabled ? (Data.fSizeEssence * MassMode_ElixirPowerMultiplier) + BonusSize_Overkills : (Data.fSizeEssence * 1.0f) + BonusSize_Overkills,
-				std::clamp(BonusSize_Overkills_Multiplier, 1.0f, 999999.0f)
+				std::clamp(BonusSize_CollosalGrowth, 1.0f, 999999.0f)
 			);
 
 			// ---------------------------------  High Heel Damage

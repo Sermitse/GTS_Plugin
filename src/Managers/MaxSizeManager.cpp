@@ -46,8 +46,8 @@ namespace {
 
 	void RecordOverkillSize_Transient(TransientActorData* Data, float value, float kills) {
 		if (Data) {
-			Data->OverkillSizeBonus = value;
-			Data->Overkills = kills;
+			Data->CollossalGrowthSizeBonus = value;
+			Data->OverkillSizeBonus = kills;
 		}
 	}
 
@@ -190,7 +190,7 @@ namespace GTS {
 		float PotionSize = 0.0f;
 		float Colossal_kills = 0.0f;
 		float Colossal_lvl = 1.0f;
-		float QuestMult = 0.0f;
+		float QuestMult = 0.6f;
 
 		if (auto data = Persistent::GetActorData(a_Actor); data) {
 			PotionSize = data->fExtraPotionMaxScale * (IsMassBased ? MassMode_ElixirPowerMultiplier : 1.0f);
@@ -201,18 +201,19 @@ namespace GTS {
 			return 1.0f;
 		}
 
-		//If Player
-		const auto Stage = Quest->GetCurrentStageID();
-		if (Stage < 20) {
-			return 1.0f;
-		}
 
-		//if (a_Actor->IsPlayerRef()) {
+
+		if (a_Actor->IsPlayerRef()) {
+			//If Player
+			const auto Stage = Quest->GetCurrentStageID();
+			if (Stage < 20) {
+				return 1.0f;
+			}
 			//Each stage after 20 adds 0.04f in steps of 10 stages
 			//Base value + Current Stage - 20 / 10
 			QuestMult = 0.10f + static_cast<float>(Stage - 20) / 10.f * 0.04f;
 			if (Stage >= 80) QuestMult = 0.60f;
-		//}
+		}
 
 		auto Transient = Transient::GetActorData(a_Actor);
 

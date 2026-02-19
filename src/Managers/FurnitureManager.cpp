@@ -140,7 +140,7 @@ namespace GTS {
 
 
     void FurnitureManager::FurnitureEvent(RE::Actor* activator, TESObjectREFR* object, bool enter) {
-        if (activator && object) {
+        if (activator) {
             if (ValidActor(activator)) {
                 RecordAndHandleFurnState(activator, object, enter);
             }
@@ -161,21 +161,27 @@ namespace GTS {
         if (actor) {
             if (AIProcess* aiProcess = actor->GetActorRuntimeData().currentProcess) {
                 if (ObjectRefHandle handle = aiProcess->GetOccupiedFurniture()) {
-                    if (NiPointer<TESObjectREFR> niRefr = handle.get()) {
-	                    TESObjectREFR* furn = niRefr.get();
-                        if (ValidActor(actor)) {
-	                        if (furn && ValidFurn(furn)) {
-	                        	FurnitureEvent(actor, furn, true);
-	                        }
-                            else {
-                                ResetTrackedFurniture(actor);
-                            }
-                        }
-                    }
+                   if (!handle) ResetTrackedFurniture(actor);
+                   else{
+                       FurnitureEvent(actor, handle.get().get(), true);
+                   }
                 }
             }
         }
     }
+
+    //Fallback check
+    void FurnitureManager::ActorUpdate(RE::Actor* actor) {
+        if (actor) {
+            if (ValidActor(actor)) {
+                if (AIProcess* aiProcess = actor->GetActorRuntimeData().currentProcess) {
+                    ObjectRefHandle handle = aiProcess->GetOccupiedFurniture();
+                    if (!handle) ResetTrackedFurniture(actor);
+                }
+            }
+        }
+    }
+
 
     // If the scale keywords is removed from the default object, through an esp/patch, the game will calculate where
     // the actor should be placed however it does this before this event fires.
@@ -191,9 +197,6 @@ namespace GTS {
 			//but i don't know how to do that.
 
             if (!ValidFurn(object)) return;
-
-			//Swiched to persistent, so on load we can restore the scale if an npc was saved when in furniture.
-
 
             if (enter) {
 
@@ -261,9 +264,7 @@ namespace GTS {
         if (a_actor) {
             if ((a_actor->IsPlayerRef() && Config::General.bDynamicFurnSizePlayer) || (IsTeammate(a_actor) && Config::General.bDynamicFurnSizeFollowers)) {
                 if (IsHuman(a_actor)) {
-                    if (abs((get_visual_scale(a_actor) / std::max(0.01f, get_natural_scale(a_actor, true))) - 1.0f) > 1e-2f) {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
