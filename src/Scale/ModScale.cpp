@@ -283,6 +283,11 @@ namespace GTS {
 
 	float get_model_scale(Actor* actor) {
 		// This will set the scale of the root npc node
+
+		if (!actor) {
+			return -1.0f;
+		}
+
 		if (!actor->Is3DLoaded()) {
 			return 1.0f;
 		}
