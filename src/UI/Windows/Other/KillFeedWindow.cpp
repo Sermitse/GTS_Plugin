@@ -170,17 +170,25 @@ namespace GTS {
 					break;
 				}
 
+				case DeathType::kButtCrushed: {
+					DeathTypeStr = "Butt Crushed";
+					break;
+				}
+				case DeathType::kThighCrushed: {
+					DeathTypeStr = "Thigh Crushed";
+					break;
+				}
 				case DeathType::kCrushed:
 				case DeathType::kBreastCrushed:
-				case DeathType::kHugCrushed:
 				case DeathType::kGrabCrushed:
-				case DeathType::kButtCrushed:
-				case DeathType::kThighCrushed:
 				case DeathType::kFingerCrushed: {
 					DeathTypeStr = "Crushed";
 					break;
 				}
-
+				case DeathType::kHugCrushed: {
+					DeathTypeStr = "Hug Crushed";
+					break;
+				}
 
 				case DeathType::kThighSandwiched: {
 					DeathTypeStr = "Sandwiched";

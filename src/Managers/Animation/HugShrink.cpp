@@ -28,7 +28,27 @@ namespace PreventMoans {
 }
 
 namespace {
+	void DelayedHurtStamina(Actor* giant, float damage) { // Delay hurting stamina, so we avoid early actor drop because of low stamina
+		std::string name = std::format("StaminaDrainTask_{}", giant->formID);
+		ActorHandle gianthandle = giant->CreateRefHandle();
+		double Start = Time::WorldTimeElapsed();
+		
+		TaskManager::Run(name, [=](auto& progressData) {
+			if (!gianthandle) {
+				return false;
+			}
 
+			float Elapsed = static_cast<float>(Time::WorldTimeElapsed() - Start);
+			auto giantref = gianthandle.get().get();
+
+			if (Elapsed >= 0.5f) {
+				DamageAV(giantref, ActorValue::kStamina, damage);
+				return false;
+			} 
+			return true;
+		});
+		
+	}
 	bool CanHugCrush(Actor* giant, Actor* huggedActor) {
 		bool ForceCrush = Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkHugMightyCuddles);
 		float staminapercent = GetStaminaPercentage(giant);
@@ -36,7 +56,7 @@ namespace {
 		if (ForceCrush && staminapercent >= 0.75f) {
 			AnimationManager::StartAnim("Huggies_HugCrush", giant);
 			AnimationManager::StartAnim("Huggies_HugCrush_Victim", huggedActor);
-			DamageAV(giant, ActorValue::kStamina, stamina * 1.10f);
+			DelayedHurtStamina(giant, stamina * 1.10f);
 			return true;
 		}
 		return false;
@@ -360,7 +380,7 @@ namespace {
 					AnimationManager::StartAnim("Huggies_HugCrush", player);
 					AnimationManager::StartAnim("Huggies_HugCrush_Victim", huggedActor);
 					AddSMTPenalty(player, 10.0f); // Mostly called inside ShrinkUntil
-					DamageAV(player, ActorValue::kStamina, 60);
+					DelayedHurtStamina(player, 60.0f);
 					return;
 				} else {
 					if (CanHugCrush(player, huggedActor)) { // Force hug crush in this case
