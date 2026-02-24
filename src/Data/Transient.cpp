@@ -14,10 +14,12 @@ namespace GTS {
 		const FormID ActorID = actor->formID;
 
 		auto tryAdd = [&] {
-			if (get_scale(actor) < 0.0f) {
-				return;
+			if (actor) {
+				if (get_scale(actor) < 0.0f) {
+					return;
+				}
+				TempActorDataMap.try_emplace(ActorID, TransientActorData(actor));
 			}
-			TempActorDataMap.try_emplace(ActorID, TransientActorData(actor));
 		};
 
 		try {
