@@ -41,7 +41,7 @@ namespace {
 			float Elapsed = static_cast<float>(Time::WorldTimeElapsed() - Start);
 			auto giantref = gianthandle.get().get();
 
-			if (Elapsed >= 0.5f) {
+			if (Elapsed >= 0.6f) {
 				DamageAV(giantref, ActorValue::kStamina, damage);
 				return false;
 			} 

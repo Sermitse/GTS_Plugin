@@ -158,7 +158,6 @@ namespace GTS {
 		}*/
 
         float TotalLimit = GetLimit;
-        Ench_Potions_ApplyBonuses(a_actor, TotalLimit);
 
 		if (IsSizeUnlocked()) {
 			float OverrideLimit = 0.0f;
@@ -176,6 +175,8 @@ namespace GTS {
 				TotalLimit = OverrideLimit;
 			}
 		}
+
+		Ench_Potions_ApplyBonuses(a_actor, TotalLimit); // Apply after size override, else Butt Crush growth won't be able to surpass size limit for example
 
 		if (get_max_scale(a_actor) < TotalLimit + Endless || get_max_scale(a_actor) > TotalLimit + Endless) {
 			set_max_scale(a_actor, TotalLimit);
