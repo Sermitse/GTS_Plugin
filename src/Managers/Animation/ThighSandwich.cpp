@@ -179,6 +179,7 @@ namespace {
 		}
 		
 		Rumbling::Once("ThighImpact", &data.giant, Rumble_ThighSandwich_ThighImpact, 0.15f, "AnimObjectA", 0.0f);
+		DrainStamina(&data.giant, "StaminaDrain_Sandwich", Runtime::PERK.GTSPerkThighAbilities, false, 1.0f);
 	}
 
 	void GTSSandwich_ThighImpact(AnimationEventData& data) {

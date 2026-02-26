@@ -27,6 +27,8 @@
 using namespace GTS;
 
 namespace AnimLogic {
+	const float LightAttackStamina = 35.0f;
+	const float HeavyAttackStamina = 75.0f;
 
 	void ResetSandwichData(Actor* giant) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(giant);
@@ -39,10 +41,16 @@ namespace AnimLogic {
 			SetButtCrushSize(giant, 0, true);
 		}
 	}
+	float GetStaminaCost(Actor* giant, float requirement) {
+		if (Runtime::HasPerk(giant, Runtime::PERK.GTSPerkThighAbilities)) {
+			requirement *= 0.65f;
+		}
+		requirement *= Perk_GetCostReduction(giant);
+
+		return requirement;
+	}
 
 	void PerformAnimations(std::string_view owner_anim, std::string_view receiver_anim = "") {
-
-		
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(GetPlayerOrControlled());
 		AnimationManager::StartAnim(owner_anim, GetPlayerOrControlled());
 
@@ -235,12 +243,15 @@ namespace AnimEvents {
 	//Used when the GTS lands the light butt attack
 	void GTS_TSB_LandSmall(AnimationEventData& data) {
 		logger::info("GTS_TSB_LandSmall triggered");
+		DamageAV(&data.giant, ActorValue::kStamina, AnimLogic::GetStaminaCost(&data.giant, AnimLogic::LightAttackStamina));
 		DamageLogic::DoButtDamage(&data.giant, Damage_ThighSandwich_Butt_Light, false);
+		
 		//Do light damage
 	}
 
 	//Used when the GTS lands the first two hits during the Butt state finisher, doesn't do damage
 	void GTS_TSB_LandMid(AnimationEventData& data) {
+		DamageAV(&data.giant, ActorValue::kStamina, AnimLogic::GetStaminaCost(&data.giant, AnimLogic::LightAttackStamina));
 		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundFootstepHighHeels_2x, &data.giant, 1.0f, "AnimObjectA"); 
 		Rumbling::Once("ButtImpact", &data.giant, Rumble_ThighSandwich_ButtImpact, 0.15f, "AnimObjectA", 0.0f);
 	}
@@ -248,6 +259,7 @@ namespace AnimEvents {
 	//Used when the GTS lands the heavy butt attack
 	void GTS_TSB_LandHeavy(AnimationEventData& data) {
 		logger::info("GTS_TSB_LandHeavy triggered");
+		DamageAV(&data.giant, ActorValue::kStamina, AnimLogic::GetStaminaCost(&data.giant, AnimLogic::HeavyAttackStamina));
 		DamageLogic::DoButtDamage(&data.giant, Damage_ThighSandwich_Butt_Heavy, false);
 		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundFootstepHighHeels_2x, &data.giant, 1.0f, "AnimObjectA"); 
 		Rumbling::Once("ButtImpact", &data.giant, Rumble_ThighSandwich_ButtImpact_Heavy, 0.15f, "AnimObjectA", 0.0f);
@@ -347,11 +359,27 @@ namespace {
 	}
 
 	void ButtLightAttack(const ManagedInputEvent& data) {
-		AnimLogic::PerformAnimations("Sandwich_LightAttack", "Sandwich_LightAttack_T");
+		auto player = GetPlayerOrControlled();
+		if (AnimationVars::General::IsGTSBusy(player) && AnimationVars::Action::IsInSecondSandwichBranch(player)) {
+			float Requirement = AnimLogic::GetStaminaCost(player, AnimLogic::LightAttackStamina);
+			if (GetAV(player, ActorValue::kStamina) > Requirement) {
+				AnimLogic::PerformAnimations("Sandwich_LightAttack", "Sandwich_LightAttack_T");
+			} else {
+				NotifyWithSound(player, "You're too tired to perform Light Butt Attack");
+			}
+		}
 	}
 
 	void ButtHeavyAttack(const ManagedInputEvent& data) {
-		AnimLogic::PerformAnimations("Sandwich_HeavyAttack", "Sandwich_HeavyAttack_T");
+		auto player = GetPlayerOrControlled();
+		if (AnimationVars::General::IsGTSBusy(player) && AnimationVars::Action::IsInSecondSandwichBranch(player)) {
+			float Requirement = AnimLogic::GetStaminaCost(player, AnimLogic::HeavyAttackStamina);
+			if (GetAV(player, ActorValue::kStamina) > Requirement) {
+				AnimLogic::PerformAnimations("Sandwich_HeavyAttack", "Sandwich_HeavyAttack_T");
+			} else {
+				NotifyWithSound(player, "You're too tired to perform Heavy Butt Attack");
+			}
+		}
 	}
 
 	void ButtFinisher(const ManagedInputEvent& data) {
