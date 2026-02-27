@@ -30,7 +30,7 @@ Reflection based serializer limitations:
 
 struct SettingsPersistent_t {
 	bool bShowSplashScreen = true;
-	bool bEnableDynamicCollision = true;
+  bool bEnableLootDistribution = true;
 };
 TOML_SERIALIZABLE(SettingsPersistent_t);
 TOML_REGISTER_NAME(SettingsPersistent_t, "Persistent");

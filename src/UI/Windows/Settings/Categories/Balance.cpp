@@ -341,7 +341,7 @@ namespace GTS {
             PSString T2 = "Adjust the speed at which you gain size-related experience.";
             PSString T3 = "Change the ammount of carry weight capacity gained based on your size.";
 
-            if (ImGuiEx::ConditionalHeader("Multipiers", "Balance Mode Active", !Config::Balance.bBalanceMode)) {
+            if (ImGuiEx::ConditionalHeader("Multipiers", "Balance Mode Active", true)) {
 
                 ImGuiEx::SliderF("Size-Related Damage Multiplier", &Config::Balance.fSizeDamageMult, 0.02f, 2.0f, T0, "%.2fx");
                 ImGuiEx::SliderF("Weapon/Magic Damage Multiplier", &Config::Balance.fStatBonusDamageMult, 0.02f, 2.0f, T1, "%.2fx");

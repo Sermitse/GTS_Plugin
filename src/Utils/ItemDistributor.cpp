@@ -1,4 +1,5 @@
 #include "Utils/ItemDistributor.hpp"
+#include "Config/Config.hpp"
 
 using namespace GTS;
 
@@ -173,6 +174,8 @@ namespace GTS {
     }
 
     void ItemDistributor::OnGameLoaded() {
-        DistributeChestItems();
+        if (Config::Persistent.bEnableLootDistribution) {
+            DistributeChestItems();
+        }
     }
 }
