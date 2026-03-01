@@ -172,7 +172,7 @@ namespace GTS {
 			}
 
 			if (OverrideLimit > 0.05f) {
-				TotalLimit = OverrideLimit;
+				TotalLimit = OverrideLimit * NaturalScale;
 			}
 		}
 
