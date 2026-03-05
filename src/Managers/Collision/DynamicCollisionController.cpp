@@ -5,7 +5,6 @@
 namespace {
 
 	const float* gWorldScaleInverse = reinterpret_cast<float*>(RE::Offset::Havok::WorldScaleInverse.address());
-	constexpr float maxUpdateScale = 50.0f;
 
 	constexpr uint8_t Vertex18_Top = 9;
 	constexpr uint8_t Vertex18_Bot = 8;
@@ -349,7 +348,7 @@ namespace GTS {
 							if (IsHuman(Target)) {
 								if (Target->IsPlayerRef() || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
 
-									if (m_currentVisualScale < maxUpdateScale) {
+									if (m_currentVisualScale < Config::Collision.fDynamicColliderMaxUpdateScale) {
 										AdjustBoneDrivenHuman();
 									}
 
@@ -373,7 +372,7 @@ namespace GTS {
 
 							if (ShouldUpdate) {
 
-								if (m_currentVisualScale < maxUpdateScale) {
+								if (m_currentVisualScale < Config::Collision.fDynamicColliderMaxUpdateScale) {
 									AdjustScale();
 								}
 

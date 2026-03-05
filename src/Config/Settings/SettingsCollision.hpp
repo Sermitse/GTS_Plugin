@@ -49,6 +49,8 @@ struct SettingsCollision_t {
 	float fSimpleDrivenHeightMultSneaking = 0.5f;
 	float fSimpleDrivenHeightMultCrawling = 0.4f;
 
+	float fDynamicColliderMaxUpdateScale = 50.0f;
+
 };
 TOML_SERIALIZABLE(SettingsCollision_t);
 TOML_REGISTER_NAME(SettingsCollision_t, "Collision");
