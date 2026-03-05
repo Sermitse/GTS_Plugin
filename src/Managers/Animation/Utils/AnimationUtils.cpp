@@ -272,11 +272,11 @@ namespace GTS {
 
 		if (perk && !hostile && teammate && !force) {
 			AnimationVars::General::SetIsFollower(tiny, true);
-			AnimationVars::Hug::SetIsHuggingTeammate(tiny, true);
+			AnimationVars::Hug::SetIsHuggingTeammate(giant, true);
 		} 
 		else {
 			AnimationVars::General::SetIsFollower(tiny, false);
-			AnimationVars::Hug::SetIsHuggingTeammate(tiny, false);
+			AnimationVars::Hug::SetIsHuggingTeammate(giant, false);
 		}
 		// This function determines the following:
 		// Should the Tiny play "willing" or "Unwilling" hug idle?
@@ -361,22 +361,20 @@ namespace GTS {
 		AdjustFacialExpression(giant, 1, 0.0f, CharEmotionType::Modifier);
 
 		AnimationManager::StartAnim("Huggies_Spare", giant); // Start "Release" animation on Giant
-
-		if (Friendly && !AnimationVars::Crawl::IsCrawling(giant) && tiny) { // If friendly, we don't want to push/release actor
-			EnableCollisions(tiny);
-			SetBeingHeld(tiny, false);
-			UpdateFriendlyHugs(giant, tiny, true); // set GTS_IsFollower (tiny) and GTS_HuggingTeammate (GTS) bools to false
-			Anims_FixAnimationDesync(giant, tiny, true); // reset anim speed override so .dll won't use it
-			AnimationManager::StartAnim("Huggies_Spare", tiny);
-			return; // GTS_Hug_Release event (HugHeal.cpp) handles it instead.
-		}
-
 		if (tiny) {
-			EnableCollisions(tiny);
-			SetBeingHeld(tiny, false);
-			PushActorAway(giant, tiny, 1.0f);
-			UpdateFriendlyHugs(giant, tiny, true); // set GTS_IsFollower (tiny) and GTS_HuggingTeammate (GTS) bools to false
-			Anims_FixAnimationDesync(giant, tiny, true); // reset anim speed override so .dll won't use it
+			if (Friendly && !AnimationVars::Crawl::IsCrawling(giant)) { // If friendly, we don't want to push/release actor
+				EnableCollisions(tiny);
+				SetBeingHeld(tiny, false);
+				UpdateFriendlyHugs(giant, tiny, true); // set GTS_IsFollower (tiny) and GTS_HuggingTeammate (GTS) bools to false
+				Anims_FixAnimationDesync(giant, tiny, true); // reset anim speed override so .dll won't use it
+				AnimationManager::StartAnim("Huggies_Spare", tiny);
+			} else {
+				EnableCollisions(tiny);
+				SetBeingHeld(tiny, false);
+				PushActorAway(giant, tiny, 1.0f);
+				UpdateFriendlyHugs(giant, tiny, true); // set GTS_IsFollower (tiny) and GTS_HuggingTeammate (GTS) bools to false
+				Anims_FixAnimationDesync(giant, tiny, true); // reset anim speed override so .dll won't use it
+			}
 		}
 		HugShrink::Release(giant);
 	}

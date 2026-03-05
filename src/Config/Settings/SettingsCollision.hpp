@@ -39,7 +39,7 @@ struct SettingsCollision_t {
 	float fBoneDrivenWidthMultCrawling = 1.5f;
 	float fBoneDrivenWidthMultProning = 2.0f;
 
-	float fMSimpleDrivenColliderMaxScale = 1.0f;
+	float fMSimpleDrivenColliderMaxScale = 50.0f;
 	float fMSimpleDrivenColliderMinScale = 0.05f;
     float fSimpleDrivenWidthMultBase = 1.25f;
     float fSimpleDrivenWidthMultSwimming = 2.0f;

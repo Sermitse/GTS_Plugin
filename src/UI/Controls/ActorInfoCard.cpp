@@ -56,7 +56,7 @@ namespace ImGuiEx {
 		I.fScaleCurrent     = get_visual_scale(a_actor);
 		I.fScaleMax         = get_max_scale(a_actor);
 		I.fMassModeScaleMax = MassMode_GetValuesForMenu(a_actor);
-		I.fScaleProgress    = I.fScaleMax < 250.0f ? I.fScaleCurrent / I.fScaleMax : -1.0f;
+		I.fScaleProgress    = I.fScaleMax < 2500.0f ? I.fScaleCurrent / I.fScaleMax : -1.0f;
 
 		//Bonuses
 		I.fScaleBonus          = T->PotionMaxSize;
@@ -236,7 +236,7 @@ namespace ImGuiEx {
 			ImGui::Text("Max Size:");
 			ImGui::TableSetColumnIndex(1);
 
-			if (Data.fScaleMax > 250.f) {
+			if (Data.fScaleMax > 2500.f) {
 				ImGui::Text("∞");
 			}
 			else {

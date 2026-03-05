@@ -151,7 +151,7 @@ namespace GTS {
                 DisableReason += "Missing Perk: \"Colossal Growth\"";
             }
             else if (!Unlock) {
-                DisableReason += "Unlimited Mode Required";
+                DisableReason += "'gts unlimited' console command required";
             }
 
             if (ImGuiEx::ConditionalHeader("Size Limits", DisableReason, HasPerk && Unlock && !Config::Balance.bBalanceMode)) {

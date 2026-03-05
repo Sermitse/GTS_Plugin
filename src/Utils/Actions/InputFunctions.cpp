@@ -54,7 +54,7 @@ namespace {
 			);
 		}
 
-		if (maxscale > 250.0f * naturalscale) {
+		if (maxscale > 2500.0f) {
 
 			Cprint("{} Scale: {:.2f}  (Natural Scale: {:.2f}; Bounding Box: {}; Size Limit: Infinite; Aspect Of Giantess: {:.1f}%)", 
 				actor->GetDisplayFullName(), 

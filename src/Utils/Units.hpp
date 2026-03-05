@@ -27,6 +27,6 @@ namespace GTS {
 	NiPoint3 GameUnitToMeter(const NiPoint3& a_unit);
 	NiPoint3 MeterToGameUnit(const NiPoint3& a_meter);
 
-    float GetMetricActorWeight(Actor* a_actor);
+    float GetMetricActorWeight(Actor* a_actor, float BaseWeight = 60.0f);
     float GetMetricActorHeight(Actor* a_actor);
 }

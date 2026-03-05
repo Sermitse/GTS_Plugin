@@ -78,7 +78,7 @@ namespace GTS {
 			PSString TMax = "Maximum scale allowed for the collision shape.\n\n"
 							"Note: NPC movement is navmesh-based, not true physics navigation. Very large colliders can increase the chance of getting stuck,\n"
 							"or trigger physics instability (which can lead to lag).\n\n"
-							"Its recomended that you leave this at 1.0x";
+							"Its recomended that you leave this at 1.0x, or 50x at most";
 
 			PSString TMin = "Minimum scale allowed for the simple collision shape.\n"
 				            "Acts as a safety floor to prevent the collider from becoming too small and causing clipping or unstable behavior.";
@@ -91,7 +91,7 @@ namespace GTS {
 				ImGuiEx::SliderF("Proning Width", &Config::Collision.fBoneDrivenWidthMultCrawling, 0.5f, 3.0f, TWidth, "%.2fx");
 				ImGuiEx::SliderF("Swimming Width", &Config::Collision.fBoneDrivenWidthMultSwimming, 0.5f, 3.0f, TWidth, "%.2fx");
 
-				ImGuiEx::SliderF("Max Scale", &Config::Collision.fMSimpleDrivenColliderMaxScale, Config::Collision.fMSimpleDrivenColliderMinScale, 10.0f, TMax, "%.2fx");
+				ImGuiEx::SliderF("Max Scale", &Config::Collision.fMSimpleDrivenColliderMaxScale, Config::Collision.fMSimpleDrivenColliderMinScale, 250.0f, TMax, "%.2fx");
 				ImGuiEx::SliderF("Min Scale", &Config::Collision.fMSimpleDrivenColliderMinScale, 0.05f, Config::Collision.fMSimpleDrivenColliderMaxScale, TMin, "%.2fx");
 
 				ImGuiEx::SliderF("Swimming Height", &Config::Collision.fSimpleDrivenHeightMultSwimming, 0.1f, 1.0f, THeight, "%.2fx");

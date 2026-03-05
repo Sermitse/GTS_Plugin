@@ -134,7 +134,7 @@ namespace GTS {
 	}
 
     //Returns Metric KG
-    float GetMetricActorWeight(Actor* a_actor) {
+    float GetMetricActorWeight(Actor* a_actor, float BaseWeight) {
 
         if (!a_actor) {
             return 1.0f;
@@ -145,7 +145,6 @@ namespace GTS {
         const uint8_t SMT = TinyCalamityActive(a_actor) ? 6 : 1;
         float TotalScale = Scale + (HHOffset * 0.10f * Scale);
         const float ActorWeight = a_actor->GetWeight();
-        constexpr float BaseWeight = 60.0f; //KG at 0 weight
         return BaseWeight * ((1.0f + ActorWeight / 115.f) * static_cast<float>(std::pow(TotalScale, 3))) * SMT;
     }
 
