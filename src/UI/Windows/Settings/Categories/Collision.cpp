@@ -83,7 +83,7 @@ namespace GTS {
 			PSString TMin = "Minimum scale allowed for the simple collision shape.\n"
 				            "Acts as a safety floor to prevent the collider from becoming too small and causing clipping or unstable behavior.";
 
-			PSString TDMax = "Maximum scale allowed for the bone driven collision shape.\n\n"
+			PSString TDMax = "Maximum scale allowed for the both bone driven and simple collision shape.\n\n"
 							"Note: high values may trigger physics instability (which can lead to lag).\n\n"
 							"It's recomended that you leave this at 50.0x";
 

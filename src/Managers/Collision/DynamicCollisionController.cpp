@@ -348,9 +348,7 @@ namespace GTS {
 							if (IsHuman(Target)) {
 								if (Target->IsPlayerRef() || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
 
-									if (m_currentVisualScale < Config::Collision.fDynamicColliderMaxUpdateScale) {
-										AdjustBoneDrivenHuman();
-									}
+									AdjustBoneDrivenHuman(); // Clamped inside function
 
 									UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
 
@@ -372,9 +370,9 @@ namespace GTS {
 
 							if (ShouldUpdate) {
 
-								if (m_currentVisualScale < Config::Collision.fDynamicColliderMaxUpdateScale) {
-									AdjustScale();
-								}
+								//if (m_currentVisualScale < Config::Collision.fDynamicColliderMaxUpdateScale) {
+									AdjustScale(); // It's clamped by Config::Collision.fMSimpleDrivenColliderMaxScale anyway
+								//}
 
 								UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
 							}
@@ -394,7 +392,9 @@ namespace GTS {
 	void DynamicCollisionController::AdjustBoneDrivenHuman() const {
 		
 		GTS_PROFILE_SCOPE("DynamicCollisionController::AdjustBoneDrivenHuman");
-
+		if (m_currentVisualScale > Config::Collision.fDynamicColliderMaxUpdateScale) {
+			return;
+		}
 		// Bone driven updates only work with convex vertex shape colliders
 		if (!m_originalData.hasVertecesShape) return;
 
@@ -508,7 +508,9 @@ namespace GTS {
 	void DynamicCollisionController::AdjustScale() const {
 
 		GTS_PROFILE_SCOPE("DynamicCollisionController::AdjustScale");
-
+		if (m_currentVisualScale > Config::Collision.fMSimpleDrivenColliderMaxScale) {
+			return; // To save fps
+		}
 		if (NiPointer<Actor> ni_actor = m_actor.get()) {
 			if (Actor* actor = ni_actor.get()) {
 				if (bhkCharacterController* controller = actor->GetCharController()) {
