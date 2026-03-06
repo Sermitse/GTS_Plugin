@@ -4,7 +4,6 @@
 #include "UI/Core/ImUtil.hpp"
 #include "Config/Config.hpp"
 #include "UI/Controls/CheckBox.hpp"
-#include "UI/Controls/ComboBox.hpp"
 #include "UI/Controls/Text.hpp"
 
 namespace GTS {
@@ -19,8 +18,13 @@ namespace GTS {
 		ImUtil_Unique
 		{
 
-			PSString T0 = "Visualize collision shapes for debugging purposes.";
-			PSString T1 = "Show bumper collision shapes.";
+			PSString T0 = "Visualize collision shapes for debugging purposes.\n"
+						  "- Yellow: Capsule colliders\n"
+						  "- Magenta: Simple convex vertices colliders.\n"
+						  "- Cyan: Bone-driven convex vertices colliders.";
+
+			PSString T1 = "Show bumper collision shapes.\n"
+				          "These are purely visual. Character bumper colission is disabled.";
 
 			if (ImGui::CollapsingHeader("Collider Debug", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -40,8 +44,12 @@ namespace GTS {
 		    PSString THelp = "Bone-driven collision dynamically adjusts the collision shape by tracking specific bones (such as the head, arms, and legs).\n"
 						     "This results in more accurate collision but comes at a higher performance cost, so it is only enabled for the player by default.\n\n"
 						     "The simple collider uses uniform scaling: the original collision shape from the base game is scaled up or down as a whole.\n"
-						     "It does not change shape or follow individual bones, and only updates when the character's scale or state changes "
+						     "It does not change shape or follow individual bones, and only updates when the character's scale or state changes\n"
 						     "(for example when switching between walking, sneaking, or swimming).";
+
+			PSString TDMax = "Maximum scale allowed for bone driven collision shape.\n\n"
+							 "Note: A cap for this exists for performance reasons.\n"
+							 "It's recomended that you leave this at 50.0x";
 
 			PSString TWidth = "Adjusts the horizontal width of the collision shape relative to the base size.";
 
@@ -50,7 +58,7 @@ namespace GTS {
 				ImGuiEx::HelpText("What it this", THelp);
 
 				ImGuiEx::CheckBox("Enable Bone-Driven Collision Updates For Followers", &Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers, T0);
-
+				ImGuiEx::SliderF("Max Scale", &Config::Collision.fDynamicColliderMaxUpdateScale, 50.0f, 250.0f, TDMax, "%.2fx");
 				ImGuiEx::SliderF("Base Width", &Config::Collision.fBoneDrivenWidthMultBase, 0.5f, 3.0f, TWidth, "%.2fx");
 				ImGuiEx::SliderF("Sneaking Width", &Config::Collision.fBoneDrivenWidthMultSneaking, 0.5f, 3.0f, TWidth, "%.2fx");
 				ImGuiEx::SliderF("Crawling Width", &Config::Collision.fBoneDrivenWidthMultCrawling, 0.5f, 3.0f, TWidth, "%.2fx");
@@ -59,9 +67,7 @@ namespace GTS {
 
 				ImGui::Spacing();
 			}
-
 		}
-
 	}
 
 	void CategoryCollision::DrawRight() {
@@ -75,17 +81,14 @@ namespace GTS {
 			PSString THeight = "Adjusts the character's collision height multiplier (up/down) relative to the base size.\n"
 				               "1.00x = Standing height.";
 
-			PSString TMax = "Maximum scale allowed for the collision shape.\n\n"
+			PSString TMax = "Maximum scale allowed for the simple (non bone driven) collision shape.\n\n"
 							"Note: NPC movement is navmesh-based, not true physics navigation. Very large colliders can increase the chance of getting stuck,\n"
 							"or trigger physics instability (which can lead to lag).\n\n"
-							"Its recomended that you leave this at 1.0x, or 50x at most";
+							"Note 2: This shape also affects projectile collision (ie. arrows and fireballs for example) and melee collision (if precision is not installed).\n"
+						    "If you don't plan on having GTS NPC's its best to leave this at 1.0 otherwise a max scale of around 50x is recommended.";
 
 			PSString TMin = "Minimum scale allowed for the simple collision shape.\n"
 				            "Acts as a safety floor to prevent the collider from becoming too small and causing clipping or unstable behavior.";
-
-			PSString TDMax = "Maximum scale allowed for the both bone driven and simple collision shape.\n\n"
-							"Note: high values may trigger physics instability (which can lead to lag).\n\n"
-							"It's recomended that you leave this at 50.0x";
 
 			if (ImGui::CollapsingHeader("Simple Collider", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -105,10 +108,6 @@ namespace GTS {
 				ImGui::Spacing();
 			}
 
-			if (ImGui::CollapsingHeader("Bone-Driven Collider", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImGuiEx::SliderF("Max Scale", &Config::Collision.fDynamicColliderMaxUpdateScale, 50.0f, 250.0f, TDMax, "%.2fx");
-				ImGui::Spacing();
-			}
 		}
 	}
 }
