@@ -339,6 +339,8 @@ namespace GTS {
 		if (NiPointer<Actor> niTarget = m_actor.get()) {
 			if (Actor* Target = niTarget.get()) {
 				if (Target->Is3DLoaded()) {
+
+					//Player and Bone driven ActorTypeNPC followers
 					if (bhkCharacterController* controller = Target->GetCharController()) {
 
 						m_currentVisualScale = get_visual_scale(Target);
@@ -349,9 +351,7 @@ namespace GTS {
 								if (Target->IsPlayerRef() || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
 
 									AdjustBoneDrivenHuman(); // Clamped inside function
-
 									UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
-
 									m_lastVisualScale = 0.0f; // Set it to 0 to force an update if followers are switched to simple scaling
 
 									if (Config::Collision.bDrawDebugShapes) {
@@ -363,17 +363,14 @@ namespace GTS {
 							}
 						}
 
+						//Everything else
 						if (ActorState* state = Target->AsActorState()) {
 
 							const bool ShouldUpdate = abs(m_currentVisualScale - m_lastVisualScale) > 1e-4 ||
 								(state->actorState1.swimming != m_lastActorState1.swimming || state->actorState1.sneaking != m_lastActorState1.sneaking);
 
 							if (ShouldUpdate) {
-
-								//if (m_currentVisualScale < Config::Collision.fDynamicColliderMaxUpdateScale) {
-									AdjustScale(); // It's clamped by Config::Collision.fMSimpleDrivenColliderMaxScale anyway
-								//}
-
+								AdjustScale(); // It's clamped by Config::Collision.fMSimpleDrivenColliderMaxScale anyway
 								UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
 							}
 							if (Config::Collision.bDrawDebugShapes) {
@@ -392,79 +389,191 @@ namespace GTS {
 	void DynamicCollisionController::AdjustBoneDrivenHuman() const {
 		
 		GTS_PROFILE_SCOPE("DynamicCollisionController::AdjustBoneDrivenHuman");
-		if (m_currentVisualScale < Config::Collision.fDynamicColliderMaxUpdateScale) {
-			// Bone driven updates only work with convex vertex shape colliders
-			if (!m_originalData.hasVertecesShape) return;
 
-			if (NiPointer<Actor> ni_actor = m_actor.get()) {
-				if (Actor* actor = ni_actor.get()) {
-					if (bhkCharacterController* controller = actor->GetCharController()) {
-						if (TESObjectCELL* cell = actor->GetParentCell()) {
-							if (bhkWorld* world = cell->GetbhkWorld()) {
+		//Stop updating past a certain scale.
+		if (m_currentVisualScale > Config::Collision.fDynamicColliderMaxUpdateScale) return;
 
-								std::vector<hkVector4> modifiedVerts = m_originalData.convexVerteces;
-								const float& bottomZ = m_originalData.convexVerteces[Vertex18_Bot].quad.m128_f32[2];
-								const float vertexRingWidthMult = GetVerticesWidthMult(actor, true) * m_currentVisualScale;
-								//const float vertexRingHBoneDst = GetDistanceBetweenBones({ UppderArmBoneRName, UpperArmBoneLName });
+		// Bone driven updates only work with convex vertex shape colliders
+		if (!m_originalData.hasVertecesShape) return;
 
-								/*if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() != 18) {
-									logger::trace("Actor {} has unexpected vertex shape data count {}", actor->GetDisplayFullName(), m_originalData.convexVerteces.size());
-								}*/
+		if (NiPointer<Actor> ni_actor = m_actor.get()) {
+			if (Actor* actor = ni_actor.get()) {
+				if (bhkCharacterController* controller = actor->GetCharController()) {
+					if (TESObjectCELL* cell = actor->GetParentCell()) {
+						if (bhkWorld* world = cell->GetbhkWorld()) {
 
-								/*if (vertexRingHBoneDst < 0.0f) {
-									return;
-								}*/
+							std::vector<hkVector4> modifiedVerts = m_originalData.convexVerteces;
+							const float& bottomZ = m_originalData.convexVerteces[Vertex18_Bot].quad.m128_f32[2];
+							const float vertexRingWidthMult = GetVerticesWidthMult(actor, true) * m_currentVisualScale;
+							//const float vertexRingHBoneDst = GetDistanceBetweenBones({ UppderArmBoneRName, UpperArmBoneLName });
 
-								// ---- Top vertex
+							/*if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() != 18) {
+								logger::trace("Actor {} has unexpected vertex shape data count {}", actor->GetDisplayFullName(), m_originalData.convexVerteces.size());
+							}*/
+
+							/*if (vertexRingHBoneDst < 0.0f) {
+								return;
+							}*/
+
+							// ---- Top vertex
+							{
+								NiAVObject* headBone = FindBone(HeadBoneName);
+								if (!headBone) return;
+
+								const NiPoint3 BonePos = (headBone->world.translate - actor->GetPosition()) / *gWorldScaleInverse;
+								modifiedVerts[Vertex18_Top].quad.m128_f32[2] = BonePos.z + bottomZ + (0.05f * m_currentVisualScale); //Bone position + small offset Correction
+							}
+
+							// ---- Upper Ring
+							{
+								std::vector<NiAVObject*> boneList = FindBones({UppderArmBoneRName, UpperArmBoneLName});
+								if (boneList.empty()) return;
+
+								float aggregateBoneZPos = 0.0f;
+
+								for (NiAVObject* const& bone : boneList) {
+									if (bone) aggregateBoneZPos += bone->world.translate.z;
+								}
+								aggregateBoneZPos = ((aggregateBoneZPos / static_cast<float>(boneList.size())) - actor->GetPosition().z) / *gWorldScaleInverse;
+
+								// Adjust ring vertices
+								if (aggregateBoneZPos >= 0.0f) {
+									for (uint8_t idx : Vertex18_RingTop) {
+										modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
+										//modifiedVerts[idx] = ScaleRingWidth(modifiedVerts[idx].quad, (vertexRingHBoneDst / *gWorldScaleInverse) * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
+									}
+								}
+								
+							}
+
+							// ---- Lower Ring
+							{
+								std::vector<NiAVObject*> boneList = FindBones({CalfBoneRName, CalfBoneLName});
+
+								if (boneList.empty()) return;
+
+								float aggregateBoneZPos = 0.0f;
+	
+								for (NiAVObject* const& bone : boneList) {
+									if (bone) aggregateBoneZPos += bone->world.translate.z;
+								}
+								aggregateBoneZPos = ((aggregateBoneZPos / static_cast<float>(boneList.size())) - actor->GetPosition().z) / *gWorldScaleInverse;
+
+								// Adjust ring vertices
+								if (aggregateBoneZPos >= 0.0f) {
+									for (uint8_t idx : Vertex18_RingBot) {
+										modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
+										//modifiedVerts[idx] = ScaleRingWidth(modifiedVerts[idx].quad, (vertexRingHBoneDst / *gWorldScaleInverse) * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
+									}
+								}
+							}
+
+							CheckAndCorrectCollapsedVertexShape(modifiedVerts);
+
+							// Set new shape
+							{
+								BSWriteLockGuard lock(world->worldLock);
+								SetNewVerticesShape(controller, modifiedVerts);
+							}
+
+							// ---- Bumper Capsule
+							{
+								// NPC's always have a verteces shape + unique capsule bumper. If the size somehow is not 1, then its not an npc.
+								if (m_originalData.capsules.size() != 1) return; // Actor has no capsules to update
+								if (!m_uniqueShape.get()) return;
+								std::vector<hkpCapsuleShape*> CurrentCapsules{};
+
 								{
-									NiAVObject* headBone = FindBone(HeadBoneName);
-									if (!headBone) return;
-
-									const NiPoint3 BonePos = (headBone->world.translate - actor->GetPosition()) / *gWorldScaleInverse;
-									modifiedVerts[Vertex18_Top].quad.m128_f32[2] = BonePos.z + bottomZ + (0.05f * m_currentVisualScale); //Bone position + small offset Correction
+									BSReadLockGuard lock(world->worldLock);
+									if (!GetCapsulesFromShape(m_uniqueShape.get(), CurrentCapsules)) return; //Should always be 1.
+									if (CurrentCapsules.size() != m_originalData.capsules.size())  return;
 								}
 
-								// ---- Upper Ring
 								{
-									std::vector<NiAVObject*> boneList = FindBones({UppderArmBoneRName, UpperArmBoneLName});
-									if (boneList.empty()) return;
-
-									float aggregateBoneZPos = 0.0f;
-
-									for (NiAVObject* const& bone : boneList) {
-										if (bone) aggregateBoneZPos += bone->world.translate.z;
+									BSWriteLockGuard lock(world->worldLock);
+									for (size_t i = 0; i < CurrentCapsules.size(); ++i) {
+										ScaleCapsule(m_originalData.capsules[i], CurrentCapsules[i], m_currentVisualScale);
 									}
-									aggregateBoneZPos = ((aggregateBoneZPos / static_cast<float>(boneList.size())) - actor->GetPosition().z) / *gWorldScaleInverse;
-
-									// Adjust ring vertices
-									if (aggregateBoneZPos >= 0.0f) {
-										for (uint8_t idx : Vertex18_RingTop) {
-											modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
-											//modifiedVerts[idx] = ScaleRingWidth(modifiedVerts[idx].quad, (vertexRingHBoneDst / *gWorldScaleInverse) * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
-										}
-									}
-									
 								}
-
-								// ---- Lower Ring
-								{
-									std::vector<NiAVObject*> boneList = FindBones({CalfBoneRName, CalfBoneLName});
-
-									if (boneList.empty()) return;
-
-									float aggregateBoneZPos = 0.0f;
+							}
+						}
+					}
+				}
+			}
+		}
 		
-									for (NiAVObject* const& bone : boneList) {
-										if (bone) aggregateBoneZPos += bone->world.translate.z;
-									}
-									aggregateBoneZPos = ((aggregateBoneZPos / static_cast<float>(boneList.size())) - actor->GetPosition().z) / *gWorldScaleInverse;
+	}
 
-									// Adjust ring vertices
-									if (aggregateBoneZPos >= 0.0f) {
-										for (uint8_t idx : Vertex18_RingBot) {
-											modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
-											//modifiedVerts[idx] = ScaleRingWidth(modifiedVerts[idx].quad, (vertexRingHBoneDst / *gWorldScaleInverse) * vertexRingWidthMult, aggregateBoneZPos + bottomZ);
-										}
+	void DynamicCollisionController::AdjustScale() const {
+
+		GTS_PROFILE_SCOPE("DynamicCollisionController::AdjustScale");
+
+		if (NiPointer<Actor> ni_actor = m_actor.get()) {
+			if (Actor* actor = ni_actor.get()) {
+				if (bhkCharacterController* controller = actor->GetCharController()) {
+					if (TESObjectCELL* cell = actor->GetParentCell()) {
+						if (bhkWorld* world = cell->GetbhkWorld()) {
+
+							std::vector<hkVector4> modifiedVerts = m_originalData.convexVerteces;
+							const float fClampedScale = std::clamp(m_currentVisualScale, Config::Collision.fMSimpleDrivenColliderMinScale, Config::Collision.fMSimpleDrivenColliderMaxScale);
+
+							/*if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() != 18) {
+								logger::trace("Actor {} has unexpected vertex shape data count {}", actor->GetDisplayFullName(), m_originalData.convexVerteces.size());
+							}*/
+
+							// ---- Vertex Shape | Some Creatures also use vertex shapes
+							if (m_originalData.hasVertecesShape) {
+
+								float widthMult = GetVerticesWidthMult(actor, false) * fClampedScale;
+
+								float heightMult = 1.0f;
+								if (AnimationVars::Crawl::IsCrawling(actor) && Runtime::HasKeyword(actor, Runtime::KYWD.ActorTypeNPC)) {
+									heightMult = Config::Collision.fSimpleDrivenHeightMultCrawling;
+								}
+								else if (actor->IsSneaking()) {
+									heightMult = Config::Collision.fSimpleDrivenHeightMultSneaking;
+								}
+								else if (actor->AsActorState()->IsSwimming()) {
+									heightMult = Config::Collision.fSimpleDrivenHeightMultSwimming;
+								}
+
+								const float sZ = fClampedScale * heightMult;
+
+								if (m_originalData.convexVerteces.size() == 18) {
+
+									const float& zB0 = m_originalData.convexVerteces[Vertex18_Bot].quad.m128_f32[2];
+									auto ScaleZFromBottom = [&](float z0) -> float {return zB0 + (z0 - zB0) * sZ; };
+
+									// ---- Top vertex
+									modifiedVerts[Vertex18_Top].quad.m128_f32[2] = ScaleZFromBottom(m_originalData.convexVerteces[Vertex18_Top].quad.m128_f32[2]);
+
+									// ---- Upper ring
+									for (uint8_t idx : Vertex18_RingTop) {
+										const float z1 = ScaleZFromBottom(m_originalData.convexVerteces[idx].quad.m128_f32[2]);
+										modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * widthMult, z1);
+									}
+
+									// ---- Lower ring
+									for (uint8_t idx : Vertex18_RingBot) {
+										const float z1 = ScaleZFromBottom(m_originalData.convexVerteces[idx].quad.m128_f32[2]);
+										modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * widthMult, z1);
+									}
+								}
+								else if (m_originalData.convexVerteces.size() == 17) {
+
+									const float& zB0 = m_originalData.convexVerteces[Vertex17_Bot].quad.m128_f32[2];
+									auto ScaleZFromBottom = [&](float z0) -> float {return zB0 + (z0 - zB0) * sZ; };
+
+									// ---- Upper ring
+									for (uint8_t idx : Vertex17_RingTop) {
+										const float z1 = ScaleZFromBottom(m_originalData.convexVerteces[idx].quad.m128_f32[2]);
+										modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * widthMult, z1);
+									}
+
+									// ---- Lower ring
+									for (uint8_t idx : Vertex17_RingBot) {
+										const float z1 = ScaleZFromBottom(m_originalData.convexVerteces[idx].quad.m128_f32[2]);
+										modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * widthMult, z1);
 									}
 								}
 
@@ -475,25 +584,26 @@ namespace GTS {
 									BSWriteLockGuard lock(world->worldLock);
 									SetNewVerticesShape(controller, modifiedVerts);
 								}
+							}
 
-								// ---- Bumper Capsule
+							// ---- Capsule Shapes
+							{
+
+								if (m_originalData.capsules.empty()) return; // Actor has no capsules to update
+								if (!m_uniqueShape.get()) return;
+								std::vector<hkpCapsuleShape*> CurrentCapsules{};
+								CurrentCapsules.reserve(6); //Some actors have up to 6 capsules
+
 								{
-									// NPC's always have a verteces shape + unique capsule bumper. If the size somehow is not 1, then its not an npc.
-									if (m_originalData.capsules.size() != 1) return; // Actor has no capsules to update
-									if (!m_uniqueShape.get()) return;
-									std::vector<hkpCapsuleShape*> CurrentCapsules{};
+									BSReadLockGuard lock(world->worldLock);
+									if (!GetCapsulesFromShape(m_uniqueShape.get(), CurrentCapsules)) return; //Should always be 1.
+									if (CurrentCapsules.size() != m_originalData.capsules.size())  return;
+								}
 
-									{
-										BSReadLockGuard lock(world->worldLock);
-										if (!GetCapsulesFromShape(m_uniqueShape.get(), CurrentCapsules)) return; //Should always be 1.
-										if (CurrentCapsules.size() != m_originalData.capsules.size())  return;
-									}
-
-									{
-										BSWriteLockGuard lock(world->worldLock);
-										for (size_t i = 0; i < CurrentCapsules.size(); ++i) {
-											ScaleCapsule(m_originalData.capsules[i], CurrentCapsules[i], m_currentVisualScale);
-										}
+								{
+									BSWriteLockGuard lock(world->worldLock);
+									for (size_t i = 0; i < CurrentCapsules.size(); ++i) {
+										ScaleCapsule(m_originalData.capsules[i], CurrentCapsules[i], fClampedScale);
 									}
 								}
 							}
@@ -502,117 +612,7 @@ namespace GTS {
 				}
 			}
 		}
-	}
-
-	void DynamicCollisionController::AdjustScale() const {
-
-		GTS_PROFILE_SCOPE("DynamicCollisionController::AdjustScale");
-		if (m_currentVisualScale < Config::Collision.fMSimpleDrivenColliderMaxScale) {
-			if (NiPointer<Actor> ni_actor = m_actor.get()) {
-				if (Actor* actor = ni_actor.get()) {
-					if (bhkCharacterController* controller = actor->GetCharController()) {
-						if (TESObjectCELL* cell = actor->GetParentCell()) {
-							if (bhkWorld* world = cell->GetbhkWorld()) {
-
-								std::vector<hkVector4> modifiedVerts = m_originalData.convexVerteces;
-								const float fClampedScale = std::clamp(m_currentVisualScale, Config::Collision.fMSimpleDrivenColliderMinScale, Config::Collision.fMSimpleDrivenColliderMaxScale);
-
-								/*if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() != 18) {
-									logger::trace("Actor {} has unexpected vertex shape data count {}", actor->GetDisplayFullName(), m_originalData.convexVerteces.size());
-								}*/
-
-								// ---- Vertex Shape | Some Creatures also use vertex shapes
-								if (m_originalData.hasVertecesShape) {
-
-									float widthMult = GetVerticesWidthMult(actor, false) * fClampedScale;
-
-									float heightMult = 1.0f;
-									if (AnimationVars::Crawl::IsCrawling(actor) && Runtime::HasKeyword(actor, Runtime::KYWD.ActorTypeNPC)) {
-										heightMult = Config::Collision.fSimpleDrivenHeightMultCrawling;
-									}
-									else if (actor->IsSneaking()) {
-										heightMult = Config::Collision.fSimpleDrivenHeightMultSneaking;
-									}
-									else if (actor->AsActorState()->IsSwimming()) {
-										heightMult = Config::Collision.fSimpleDrivenHeightMultSwimming;
-									}
-
-									const float sZ = fClampedScale * heightMult;
-
-									if (m_originalData.convexVerteces.size() == 18) {
-
-										const float& zB0 = m_originalData.convexVerteces[Vertex18_Bot].quad.m128_f32[2];
-										auto ScaleZFromBottom = [&](float z0) -> float {return zB0 + (z0 - zB0) * sZ; };
-
-										// ---- Top vertex
-										modifiedVerts[Vertex18_Top].quad.m128_f32[2] = ScaleZFromBottom(m_originalData.convexVerteces[Vertex18_Top].quad.m128_f32[2]);
-
-										// ---- Upper ring
-										for (uint8_t idx : Vertex18_RingTop) {
-											const float z1 = ScaleZFromBottom(m_originalData.convexVerteces[idx].quad.m128_f32[2]);
-											modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * widthMult, z1);
-										}
-
-										// ---- Lower ring
-										for (uint8_t idx : Vertex18_RingBot) {
-											const float z1 = ScaleZFromBottom(m_originalData.convexVerteces[idx].quad.m128_f32[2]);
-											modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * widthMult, z1);
-										}
-									}
-									else if (m_originalData.convexVerteces.size() == 17) {
-
-										const float& zB0 = m_originalData.convexVerteces[Vertex17_Bot].quad.m128_f32[2];
-										auto ScaleZFromBottom = [&](float z0) -> float {return zB0 + (z0 - zB0) * sZ; };
-
-										// ---- Upper ring
-										for (uint8_t idx : Vertex17_RingTop) {
-											const float z1 = ScaleZFromBottom(m_originalData.convexVerteces[idx].quad.m128_f32[2]);
-											modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * widthMult, z1);
-										}
-
-										// ---- Lower ring
-										for (uint8_t idx : Vertex17_RingBot) {
-											const float z1 = ScaleZFromBottom(m_originalData.convexVerteces[idx].quad.m128_f32[2]);
-											modifiedVerts[idx] = ScaleRingWidth(m_originalData.convexVerteces[idx].quad, m_originalData.convexShapeRadius * widthMult, z1);
-										}
-									}
-
-									CheckAndCorrectCollapsedVertexShape(modifiedVerts);
-
-									// Set new shape
-									{
-										BSWriteLockGuard lock(world->worldLock);
-										SetNewVerticesShape(controller, modifiedVerts);
-									}
-								}
-
-								// ---- Capsule Shapes
-								{
-
-									if (m_originalData.capsules.empty()) return; // Actor has no capsules to update
-									if (!m_uniqueShape.get()) return;
-									std::vector<hkpCapsuleShape*> CurrentCapsules{};
-									CurrentCapsules.reserve(6); //Some actors have up to 6 capsules
-
-									{
-										BSReadLockGuard lock(world->worldLock);
-										if (!GetCapsulesFromShape(m_uniqueShape.get(), CurrentCapsules)) return; //Should always be 1.
-										if (CurrentCapsules.size() != m_originalData.capsules.size())  return;
-									}
-
-									{
-										BSWriteLockGuard lock(world->worldLock);
-										for (size_t i = 0; i < CurrentCapsules.size(); ++i) {
-											ScaleCapsule(m_originalData.capsules[i], CurrentCapsules[i], fClampedScale);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		
 	}
 
 	NiAVObject* DynamicCollisionController::FindBone(const std::string_view& a_name) const {
