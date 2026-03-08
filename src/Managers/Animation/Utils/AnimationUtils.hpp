@@ -22,7 +22,7 @@ namespace GTS {
 
 	void HugCrushOther(Actor* giant, Actor* tiny);
 
-	void AbortHugAnimation(Actor* giant, Actor* tiny);
+	void AbortHugAnimation(Actor* giant, Actor* tiny, bool no_reset = false);
 	void Utils_UpdateHugBehaviors(Actor* giant, Actor* tiny);
 	void Utils_UpdateHighHeelBlend(Actor* giant, bool reset);
 	void Task_HighHeel_SyncVoreAnim(Actor* giant);

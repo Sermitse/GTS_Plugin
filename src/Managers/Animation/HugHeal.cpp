@@ -72,7 +72,7 @@ namespace {
 				return true;
 			}
 
-			AbortHugAnimation(giantref, tinyref);
+			AbortHugAnimation(giantref, tinyref, true);
 
 			if (giantref->IsPlayerRef()) {
 				Notify("{} health is full", tinyref->GetDisplayFullName());

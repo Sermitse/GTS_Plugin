@@ -351,7 +351,7 @@ namespace GTS {
 	}
 
 	// Cancels all hug-related things
-	void AbortHugAnimation(Actor* giant, Actor* tiny) {
+	void AbortHugAnimation(Actor* giant, Actor* tiny, bool no_reset) {
 		bool Friendly = AnimationVars::Hug::IsHuggingTeammate(giant);
 
 		SetSneaking(giant, false, 0);
@@ -362,18 +362,22 @@ namespace GTS {
 
 		AnimationManager::StartAnim("Huggies_Spare", giant); // Start "Release" animation on Giant
 		if (tiny) {
+			logger::info("Friendly: {}", Friendly);
 			if (Friendly && !AnimationVars::Crawl::IsCrawling(giant)) { // If friendly, we don't want to push/release actor
 				EnableCollisions(tiny);
 				SetBeingHeld(tiny, false);
-				UpdateFriendlyHugs(giant, tiny, true); // set GTS_IsFollower (tiny) and GTS_HuggingTeammate (GTS) bools to false
 				Anims_FixAnimationDesync(giant, tiny, true); // reset anim speed override so .dll won't use it
 				AnimationManager::StartAnim("Huggies_Spare", tiny);
+				logger::info("Gentle Release");
 			} else {
 				EnableCollisions(tiny);
 				SetBeingHeld(tiny, false);
 				PushActorAway(giant, tiny, 1.0f);
-				UpdateFriendlyHugs(giant, tiny, true); // set GTS_IsFollower (tiny) and GTS_HuggingTeammate (GTS) bools to false
 				Anims_FixAnimationDesync(giant, tiny, true); // reset anim speed override so .dll won't use it
+				logger::info("Rough release");
+			}
+			if (!no_reset) {
+				UpdateFriendlyHugs(giant, tiny, true); // set GTS_IsFollower (tiny) and GTS_HuggingTeammate (GTS) bools to false
 			}
 		}
 		HugShrink::Release(giant);

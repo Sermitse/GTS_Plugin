@@ -23,67 +23,66 @@ namespace {
 	constexpr float DURATION = 2.0f;
 
 	void ReportScaleIntoConsole(Actor* actor, bool enemy) {
-		if (!actor || actor->IsDead()) {
-			return;
-		}
-		float hh = HighHeelManager::GetBaseHHOffset(actor)[2]/100;
-		float gigantism = Ench_Aspect_GetPower(actor) * 100;
-		float naturalscale = get_natural_scale(actor, true);
-		float scale = get_visual_scale(actor);
-		float maxscale = get_max_scale(actor);
+		if (actor && !actor->IsDead()) {
+			float hh = HighHeelManager::GetBaseHHOffset(actor)[2]/100;
+			float gigantism = Ench_Aspect_GetPower(actor) * 100;
+			float naturalscale = get_natural_scale(actor, true);
+			float scale = get_visual_scale(actor);
+			float maxscale = get_max_scale(actor);
 
-		Actor* player = PlayerCharacter::GetSingleton();
+			Actor* player = PlayerCharacter::GetSingleton();
 
-		float BB = GetSizeFromBoundingBox(actor);
-		if (enemy) {
+			float BB = GetSizeFromBoundingBox(actor);
+			if (enemy) {
 
-			Cprint("{} Bounding Box To Size: {:.2f}, GameScale: {:.2f}", 
-				actor->GetDisplayFullName(), 
-				BB, 
-				game_getactorscale(actor)
-			);
+				Cprint("{} Bounding Box To Size: {:.2f}, GameScale: {:.2f}", 
+					actor->GetDisplayFullName(), 
+					BB, 
+					game_getactorscale(actor)
+				);
 
-			Cprint("{} Size Difference With the Player: {:.2f}", 
-				actor->GetDisplayFullName(), 
-				get_scale_difference(player, actor, SizeType::VisualScale, false, true)
-			);
-		}
-		else {
-			Cprint("{} Height: {} Weight: {}", 
-				actor->GetDisplayFullName(),
-				GetFormatedHeight(actor),
-				GetFormatedWeight(actor)
-			);
-		}
+				Cprint("{} Size Difference With the Player: {:.2f}", 
+					actor->GetDisplayFullName(), 
+					get_scale_difference(player, actor, SizeType::VisualScale, false, true)
+				);
+			}
+			else {
+				Cprint("{} Height: {} Weight: {}", 
+					actor->GetDisplayFullName(),
+					GetFormatedHeight(actor),
+					GetFormatedWeight(actor)
+				);
+			}
 
-		if (maxscale > 2500.0f) {
+			if (maxscale > 2500.0f) {
 
-			Cprint("{} Scale: {:.2f}  (Natural Scale: {:.2f}; Bounding Box: {}; Size Limit: Infinite; Aspect Of Giantess: {:.1f}%)", 
-				actor->GetDisplayFullName(), 
-				scale, 
-				naturalscale, 
-				BB, 
-				gigantism
-			);
-		}
-		else {
-			Cprint("{} Scale: {:.2f}  (Natural Scale: {:.2f}; Bounding Box: {}; Size Limit: {:.2f}; Aspect Of Giantess: {:.1f}%)", 
-				actor->GetDisplayFullName(), 
-				scale, 
-				naturalscale, 
-				BB, 
-				maxscale, 
-				gigantism
-			);
-		}
+				Cprint("{} Scale: {:.2f}  (Natural Scale: {:.2f}; Bounding Box: {}; Size Limit: Infinite; Aspect Of Giantess: {:.1f}%)", 
+					actor->GetDisplayFullName(), 
+					scale, 
+					naturalscale, 
+					BB, 
+					gigantism
+				);
+			}
+			else {
+				Cprint("{} Scale: {:.2f}  (Natural Scale: {:.2f}; Bounding Box: {}; Size Limit: {:.2f}; Aspect Of Giantess: {:.1f}%)", 
+					actor->GetDisplayFullName(), 
+					scale, 
+					naturalscale, 
+					BB, 
+					maxscale, 
+					gigantism
+				);
+			}
 
-		if (hh > 0.0f) { // if HH is > 0, print HH info
-			Cprint("{} High Heels: {:.2f} (+{:.2f} cm / +{:.2f} ft)", 
-				actor->GetDisplayFullName(), 
-				hh, 
-				hh, 
-				hh*3.28f
-			);
+			if (hh > 0.0f) { // if HH is > 0, print HH info
+				Cprint("{} High Heels: {:.2f} (+{:.2f} cm / +{:.2f} ft)", 
+					actor->GetDisplayFullName(), 
+					hh, 
+					hh, 
+					hh*3.28f
+				);
+			}
 		}
 	}
 
