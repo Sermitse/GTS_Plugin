@@ -23,7 +23,9 @@ namespace {
 	constexpr float DURATION = 2.0f;
 
 	void ReportScaleIntoConsole(Actor* actor, bool enemy) {
-
+		if (!actor || actor->IsDead()) {
+			return;
+		}
 		float hh = HighHeelManager::GetBaseHHOffset(actor)[2]/100;
 		float gigantism = Ench_Aspect_GetPower(actor) * 100;
 		float naturalscale = get_natural_scale(actor, true);

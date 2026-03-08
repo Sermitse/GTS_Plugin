@@ -31,4 +31,5 @@ namespace GTS {
 	void Steal(Actor* from, Actor* to, float scale_factor, float bonus, float effeciency, ShrinkSource source);
 	void TransferSize(Actor* caster, Actor* target, bool dual_casting, float power, float transfer_effeciency, bool smt, ShrinkSource source);
 	void CrushBonuses(Actor* caster, Actor* target);
+	void EmpowerEnlargeSpells(Actor* caster, float& power);
 }

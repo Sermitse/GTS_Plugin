@@ -69,6 +69,9 @@ namespace RuntimeData {
 		Entry(GTSPerkShrinkAdept,           GTSP, 0x16081F); //Shrink Adept (35);
 		Entry(GTSPerkShrinkExpert,          GTSP, 0x160820); //Shrink Expert (50);
 
+		Entry(GTSPerkEnlargeAdept,         	GTSP, 0x9120C8); // Enlarge Adept (50);
+		Entry(GTSPerkEnlargeExpert,         GTSP, 0x9120C9); // Enlarge Expert (75);
+
 		Entry(GTSPerkGrowthDesire,          GTSP, 0x128CF6); //Growth Desire (60);
 		Entry(GTSPerkGrowthDesireAug,       GTSP, 0x829231); //Manual Growth (85);
 

@@ -11,7 +11,6 @@ namespace GTS {
 
 		private:
 		virtual std::string DebugName() override;
-		virtual void ActorLoaded(RE::Actor* actor) override;
 		virtual void Reset() override;
 		virtual void ResetActor(Actor* actor) override;
 		virtual void OnGameRevert() override;

@@ -6,37 +6,6 @@ namespace GTS {
 		return "::Transient";
 	}
 
-	void Transient::ActorLoaded(RE::Actor* actor) {
-		std::unique_lock lock(_Lock);
-		if (!actor) {
-			return;
-		}
-		const FormID ActorID = actor->formID;
-
-		auto tryAdd = [&] {
-			if (actor) {
-				if (get_scale(actor) < 0.0f) {
-					return;
-				}
-				TempActorDataMap.try_emplace(ActorID, TransientActorData(actor));
-			}
-		};
-
-		try {
-			// If the actor data is not already in the map, try to add it.
-			if (!TempActorDataMap.contains(ActorID)) {
-				tryAdd();
-			}
-		}
-		catch (const std::out_of_range&) {
-			// If an out_of_range exception occurs, try adding again.
-			tryAdd();
-		}
-		catch (const std::exception& e) {
-			logger::warn("Transient Exception ActorLoaded {}", e.what());
-		}
-	}
-
 	void Transient::Reset() {
 		std::unique_lock lock(_Lock);
 		TempActorDataMap.clear();
@@ -56,7 +25,7 @@ namespace GTS {
 	}
 
 	TransientActorData* Transient::GetActorData(Actor* actor) {
-		std::unique_lock lock(_Lock);
+		 std::unique_lock lock(_Lock);
 
 		if (!actor) {
 			return nullptr;

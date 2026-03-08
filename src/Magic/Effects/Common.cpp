@@ -493,4 +493,13 @@ namespace GTS {
 			AdjustMassLimit(0.0066f * target_scale, caster);
 		}
 	}
+
+	void EmpowerEnlargeSpells(Actor* caster, float& power) {
+		if (Runtime::HasPerk(caster, Runtime::PERK.GTSPerkEnlargeAdept)) {
+			power *= 1.1f;
+		}
+		if (Runtime::HasPerk(caster, Runtime::PERK.GTSPerkEnlargeExpert)) {
+			power *= 1.15f;
+		}
+	}
 }

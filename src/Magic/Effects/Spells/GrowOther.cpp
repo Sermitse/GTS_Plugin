@@ -35,6 +35,7 @@ namespace GTS {
 
 		float caster_scale = get_visual_scale(caster);
 		float target_scale = get_visual_scale(target);
+		EmpowerEnlargeSpells(caster, power);
 
 		if (IsDualCasting()) {
 			power *= DUAL_CAST_BONUS;

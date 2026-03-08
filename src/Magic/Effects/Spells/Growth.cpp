@@ -31,6 +31,7 @@ namespace GTS {
 		float power = BASE_POWER * SkillMult;
 
 		auto base_spell = GetBaseEffect();
+		EmpowerEnlargeSpells(caster, power);
 
 		if (base_spell == Runtime::GetMagicEffect(Runtime::MGEF.GTSEffectGrowthAdept)) {
 			power *= 1.33f;

@@ -81,6 +81,14 @@ namespace {
             if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkShrinkExpert) && !Runtime::HasSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkStorm)) {
                 Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkStorm);
             }
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkEnlargeAdept) && !Runtime::HasSpell(evt.actor, Runtime::SPEL.GTSSpellGrowAllyAdept)) {
+                Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellGrowAllyAdept);
+                Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellGrowthAdept);
+            }
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkEnlargeExpert) && !Runtime::HasSpell(evt.actor, Runtime::SPEL.GTSSpellGrowAllyExpert)) {
+                Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellGrowAllyExpert);
+                Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellGrowthExpert);
+            }
             if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkTinyCalamity)) {
                 AddCalamityPerk();
             }
