@@ -21,7 +21,7 @@ namespace GTS {
 	void MorphManager::ActorLoaded(Actor* a_actor) {
 		if (!Racemenu::Loaded()) return;
 		if (!a_actor) return;
-		if (!a_actor->Get3D()) return;
+		if (!a_actor->Is3DLoaded()) return;
 		if (!IsHuman(a_actor)) return;
 		if (!a_actor->IsPlayerRef() && !IsTeammate(a_actor)) return;
 

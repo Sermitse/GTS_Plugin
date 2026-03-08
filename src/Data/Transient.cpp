@@ -65,7 +65,7 @@ namespace GTS {
 
 		auto tryAdd = [&]() -> TransientActorData* {
 			// (Re)check any conditions before adding.
-			if (get_scale(actor) < 0.0f) {
+			if (get_scale(actor) < 0.0f || !actor->Is3DLoaded()) {
 				return nullptr;
 			}
 			// Create and emplace the new data.

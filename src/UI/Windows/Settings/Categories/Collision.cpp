@@ -58,7 +58,7 @@ namespace GTS {
 				ImGuiEx::HelpText("What it this", THelp);
 
 				ImGuiEx::CheckBox("Enable Bone-Driven Collision Updates For Followers", &Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers, T0);
-				ImGuiEx::SliderF("Max Scale", &Config::Collision.fDynamicColliderMaxUpdateScale, 50.0f, 250.0f, TDMax, "%.2fx");
+				ImGuiEx::SliderF("Max Scale", &Config::Collision.fDynamicColliderMaxUpdateScale, 10.0f, 250.0f, TDMax, "%.2fx");
 				ImGuiEx::SliderF("Base Width", &Config::Collision.fBoneDrivenWidthMultBase, 0.5f, 3.0f, TWidth, "%.2fx");
 				ImGuiEx::SliderF("Sneaking Width", &Config::Collision.fBoneDrivenWidthMultSneaking, 0.5f, 3.0f, TWidth, "%.2fx");
 				ImGuiEx::SliderF("Crawling Width", &Config::Collision.fBoneDrivenWidthMultCrawling, 0.5f, 3.0f, TWidth, "%.2fx");

@@ -39,7 +39,7 @@ struct SettingsCollision_t {
 	float fBoneDrivenWidthMultCrawling = 1.5f;
 	float fBoneDrivenWidthMultProning = 2.0f;
 
-	float fMSimpleDrivenColliderMaxScale = 50.0f;
+	float fMSimpleDrivenColliderMaxScale = 20.0f;
 	float fMSimpleDrivenColliderMinScale = 0.05f;
     float fSimpleDrivenWidthMultBase = 1.25f;
     float fSimpleDrivenWidthMultSwimming = 2.0f;
@@ -49,7 +49,7 @@ struct SettingsCollision_t {
 	float fSimpleDrivenHeightMultSneaking = 0.5f;
 	float fSimpleDrivenHeightMultCrawling = 0.4f;
 
-	float fDynamicColliderMaxUpdateScale = 50.0f;
+	float fDynamicColliderMaxUpdateScale = 20.0f;
 
 };
 TOML_SERIALIZABLE(SettingsCollision_t);

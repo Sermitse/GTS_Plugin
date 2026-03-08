@@ -150,6 +150,7 @@ namespace GTS {
 			if (ImGui::CollapsingHeader("Animations Check", ImUtil::HeaderFlagsDefaultOpen)) {
 				const auto Player = PlayerCharacter::GetSingleton();
 				const bool WorkingAnims = AnimationVars::Utility::BehaviorsInstalled(Player);
+				const bool FirstPerson = IsFirstPerson();
 
 				bool IsPandoraGenerated = AnimationVars::Other::IsPandoraGenerated(Player);
 				bool IsNemesisGenerated = AnimationVars::Other::IsNemesisGenerated(Player);
@@ -160,6 +161,14 @@ namespace GTS {
 				if (WorkingAnims && IsPandoraGenerated) {
 					ImGui::SameLine(0);
 					ImGui::TextColored(ImUtil::Colors::Message, "Yes (Warning)");
+				} 
+				else if (FirstPerson) {
+					ImGui::SameLine(0);
+					ImGui::TextColored(ImUtil::Colors::Error, "First Person");
+					ImGuiEx::Tooltip(
+						"Can't check the type of behavior generator used\n"
+						"Switch to 3rd person mode", true
+					);
 				}
 				else if (WorkingAnims) {
 					ImGui::SameLine(0,1);
@@ -185,8 +194,14 @@ namespace GTS {
 				else if (IsNemesisGenerated) {
 					ImGui::SameLine(0);
 					ImGui::TextColored(ImUtil::Colors::OK, "Nemesis");
+				} 
+				else if (FirstPerson) {
+					ImGui::SameLine(0);
+					ImGui::TextColored(ImUtil::Colors::Error, 
+						"Can't check the type of behavior generator used\n"
+						"Switch to 3rd person mode"
+					);
 				}
-
 				else {
 					ImGui::SameLine(0);
 					ImGui::TextColored(ImUtil::Colors::Error, "None/Other (WARNING)");
