@@ -74,8 +74,14 @@ namespace GTS {
 				shrink_value *= 3.0f;
 				gain_value *= 0.20f;
 			}
-
-			TransferSize(caster, target, false, shrink_value, gain_value, false, ShrinkSource::Enchantment);\
+	
+			if (ShrinkToNothing(caster, target, true, 1.0f)) { // STN when size difference is met and when time ticks allow to
+				
+			} else {
+				if (get_target_scale(target) >= SHRINK_TO_NOTHING_SCALE / GetSizeFromBoundingBox(target)) {
+					TransferSize(caster, target, false, shrink_value, gain_value, false, ShrinkSource::Enchantment);
+				}
+			}
 		}
 	}
 
@@ -89,10 +95,6 @@ namespace GTS {
 		auto target = GetTarget();
 		if (!target) {
 			return;
-		}
-
-		if (!IsEssential(caster, target)) {
-			Task_TrackSizeTask(caster, target, "Sword", false, 1.0f);
 		}
 	}
 }

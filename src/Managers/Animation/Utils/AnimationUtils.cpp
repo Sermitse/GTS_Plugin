@@ -1468,7 +1468,6 @@ namespace GTS {
 			auto giantref = giantHandle.get().get();
 			auto tinyref = tinyHandle.get().get();
 
-			float size = get_visual_scale(tinyref);
 			if (ShrinkToNothing(giantref, tinyref, check_ticks, time_mult)) {
 				if (naming == "Absorb") {
 					AbsorbShout_BuffCaster(giantref, tinyref);
