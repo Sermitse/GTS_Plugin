@@ -46,6 +46,7 @@ namespace GTS {
 
         void DataReady() override;
         std::string DebugName() override;
+        void Reset() override;
         void OnGameLoaded() override;
 
         static bool LoadPersistentToml();

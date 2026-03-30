@@ -137,6 +137,10 @@ namespace GTS {
     void Config::CopyLegacySettings() {
         _fileManager.CopyLegacySettings(LegacyConfigFilePath);
     }
+    void Config::Reset() {
+        logger::info("Config:: OnReset()");
+        GTS::EventDispatcher::DoConfigResetEvent(); // DoConfigRefreshEvent
+    }
 
     void Config::OnGameLoaded() {
         LoadSettings();

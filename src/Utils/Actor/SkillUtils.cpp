@@ -52,8 +52,12 @@ namespace GTS {
 		return 0.0f;
 	}
 
-	float GetXpBonus() {
-		return Config::Balance.fExpMult;
+	float GetXpBonus(float a_Legendary) {
+		const auto& GtsLegendaryLevel = Runtime::GetGlobal(Runtime::GLOB.GTSSkillLegendary);
+		if (GtsLegendaryLevel) {
+			float Legendary_Level = std::clamp(GtsLegendaryLevel->value, 0.0f, 3.0f);
+			a_Legendary += Legendary_Level * 0.15f;
+		}
+		return Config::Balance.fExpMult * a_Legendary;
 	}
-
 }
