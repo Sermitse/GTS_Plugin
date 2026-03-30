@@ -130,8 +130,8 @@ namespace GTS {
                             AnimationManager::StartAnim("InstaKill_Start_Tiny", tiny);
                             AnimationManager::StartAnim("InstaKill_Start_GTS", giant);
 
-                            DisarmActor(giant, false);
-                            DisarmActor(tiny, false);
+                            DisarmActor(giant);
+                            DisarmActor(tiny);
                             FaceOpposite(giant, tiny);
                             
                             perform = true;

@@ -329,8 +329,8 @@ namespace GTS {
 		else {
 			AnimationManager::StartAnim("Huggies_Try_Victim", a_Prey); //   GTSBEH_HugAbsorbStart_V
 		}
-
-		DisarmActor(a_Prey, false);
+		DisarmActor(a_Performer);
+		DisarmActor(a_Prey);
 		HugAI_StartLogicTask(a_Performer, a_Prey);
 	}
 }

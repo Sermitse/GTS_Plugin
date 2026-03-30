@@ -1,16 +1,19 @@
 #include "Systems/Misc/Tasks.hpp"
 
 namespace GTS {
-
 	//-----------
 	// TASK
 	//-----------
 
-	Task::Task(const std::function<bool(const TaskUpdate&)>& tasking) : startTime(Time::WorldTimeElapsed()), lastRunTime(Time::WorldTimeElapsed()), tasking(tasking) {}
+	Task::Task(const std::function<bool(const TaskUpdate&)>& tasking)
+		: startTime(Time::WorldTimeElapsed()),
+		  lastRunTime(Time::WorldTimeElapsed()),
+		  tasking(tasking) {}
 
 	bool Task::Update() {
 		TaskUpdate update;
 		double currentTime = Time::WorldTimeElapsed();
+
 		if (this->initRun) {
 			update = TaskUpdate{
 				.runtime = currentTime - this->startTime,
@@ -19,12 +22,14 @@ namespace GTS {
 		}
 		else {
 			update = TaskUpdate{
-				.runtime = 0.0f,
-				.delta = 0.0f,
+				.runtime = 0.0,
+				.delta = 0.0,
 			};
 			this->initRun = true;
 		}
+
 		this->lastRunTime = currentTime;
+
 		return this->tasking(update);
 	}
 
@@ -32,14 +37,23 @@ namespace GTS {
 	// TASK FOR
 	//-----------
 
-	TaskFor::TaskFor(double duration, const std::function<bool(const TaskForUpdate&)>& tasking) : startTime(Time::WorldTimeElapsed()), lastRunTime(Time::WorldTimeElapsed()), tasking(tasking), duration(duration) {}
+	TaskFor::TaskFor(double duration, const std::function<bool(const TaskForUpdate&)>& tasking)
+		: startTime(Time::WorldTimeElapsed()),
+		  lastRunTime(Time::WorldTimeElapsed()),
+		  tasking(tasking),
+		  duration(duration) {}
 
 	bool TaskFor::Update() {
 		double currentTime = Time::WorldTimeElapsed();
 		double currentRuntime = currentTime - this->startTime;
-		double currentProgress = std::clamp(currentRuntime / this->duration, 0.0, 1.0);
+
+		double currentProgress = 0.0;
+		if (this->duration > 0.0) {
+			currentProgress = std::clamp(currentRuntime / this->duration, 0.0, 1.0);
+		}
 
 		TaskForUpdate update;
+
 		if (this->initRun) {
 			update = TaskForUpdate{
 				.runtime = currentRuntime,
@@ -57,41 +71,39 @@ namespace GTS {
 			};
 			this->initRun = true;
 		}
+
 		this->lastRunTime = currentTime;
 		this->lastProgress = currentProgress;
-		if (!this->tasking(update)) {
-			return false;
+
+		bool shouldContinue = this->tasking(update);
+
+		if (shouldContinue) {
+			if (currentRuntime <= this->duration) {
+				return true;
+			}
 		}
-		else {
-			return currentRuntime <= this->duration;
-		}
+
+		return false;
 	}
 
 	//-----------
 	// ONE SHOT
 	//-----------
 
-	Oneshot::Oneshot(const std::function<void(const OneshotUpdate&)>& tasking) : creationTime(Time::WorldTimeElapsed()), tasking(tasking) {}
+	Oneshot::Oneshot(const std::function<void(const OneshotUpdate&)>& tasking)
+		: creationTime(Time::WorldTimeElapsed()),
+		  tasking(tasking) {}
 
 	bool Oneshot::Update() {
 		double currentTime = Time::WorldTimeElapsed();
-		auto update = OneshotUpdate{
+
+		OneshotUpdate update{
 			.timeToLive = currentTime - this->creationTime,
 		};
+
 		this->tasking(update);
+
 		return false;
-	}
-
-	//-----------
-	// BASE TASK
-	//-----------
-
-	UpdateKind BaseTask::UpdateOn() const {
-		return this->updateOnKind;
-	}
-
-	void BaseTask::SetUpdateOn(UpdateKind updateOn) {
-		this->updateOnKind = updateOn;
 	}
 
 	//---------------
@@ -102,24 +114,32 @@ namespace GTS {
 		return "::TaskManager";
 	}
 
+	std::string TaskManager::GenerateName(void* ptr) {
+		return std::format("UNNAMED_{}", reinterpret_cast<std::uintptr_t>(ptr));
+	}
+
 	void TaskManager::Update() {
-		std::vector<std::string> toRemove = {};
-		for (auto& [name, task]: this->m_taskings) {
+		std::vector<std::string> toRemove;
+		toRemove.reserve(m_taskings.size());
+
+		for (auto& [name, task] : m_taskings) {
 			if (task->UpdateOn() == UpdateKind::Main) {
 				if (!task->Update()) {
 					toRemove.push_back(name);
 				}
 			}
 		}
-		for (auto task: toRemove) {
-			this->m_taskings.erase(task);
-		}
 
+		for (auto& name : toRemove) {
+			m_taskings.erase(name);
+		}
 	}
 
 	void TaskManager::CameraUpdate() {
-		std::vector<std::string> toRemove = {};
-		for (auto& [name, task]: this->m_taskings) {
+		std::vector<std::string> toRemove;
+		toRemove.reserve(m_taskings.size());
+
+		for (auto& [name, task] : m_taskings) {
 			if (task->UpdateOn() == UpdateKind::Camera) {
 				if (!task->Update()) {
 					toRemove.push_back(name);
@@ -127,15 +147,16 @@ namespace GTS {
 			}
 		}
 
-		for (auto task: toRemove) {
-			this->m_taskings.erase(task);
+		for (auto& name : toRemove) {
+			m_taskings.erase(name);
 		}
-
 	}
 
 	void TaskManager::HavokUpdate() {
-		std::vector<std::string> toRemove = {};
-		for (auto& [name, task]: this->m_taskings) {
+		std::vector<std::string> toRemove;
+		toRemove.reserve(m_taskings.size());
+
+		for (auto& [name, task] : m_taskings) {
 			if (task->UpdateOn() == UpdateKind::Havok) {
 				if (!task->Update()) {
 					toRemove.push_back(name);
@@ -143,31 +164,16 @@ namespace GTS {
 			}
 		}
 
-		for (auto task: toRemove) {
-			this->m_taskings.erase(task);
-		}
-	}
-
-	void TaskManager::PapyrusUpdate() {
-		std::vector<std::string> toRemove = {};
-		for (auto& [name, task]: this->m_taskings) {
-			if (task->UpdateOn() == UpdateKind::Papyrus) {
-				if (!task->Update()) {
-					toRemove.push_back(name);
-				}
-			}
-		}
-
-		for (auto task: toRemove) {
-			this->m_taskings.erase(task);
+		for (auto& name : toRemove) {
+			m_taskings.erase(name);
 		}
 	}
 
 	void TaskManager::ChangeUpdate(std::string_view name, UpdateKind updateOn) {
-		try {
-			m_taskings.at(std::string(name))->SetUpdateOn(updateOn);
+		auto it = m_taskings.find(std::string(name));
+		if (it != m_taskings.end()) {
+			it->second->SetUpdateOn(updateOn);
 		}
-		catch (const std::out_of_range&) {}
 	}
 
 	void TaskManager::Cancel(std::string_view name) {
@@ -175,34 +181,62 @@ namespace GTS {
 	}
 
 	void TaskManager::Run(const std::function<bool(const TaskUpdate&)>& tasking) {
-		auto task = new Task(tasking);
-		std::string name = std::format("UNNAMED_{}", *reinterpret_cast<std::uintptr_t*>(task));
-		m_taskings.try_emplace(name, task);
+		auto task = std::make_unique<Task>(tasking);
+		std::string name = GenerateName(task.get());
+
+		auto [it, inserted] = m_taskings.try_emplace(name, std::move(task));
+		if (!inserted) {
+			logger::warn("Task '{}' already exists", name);
+		}
 	}
 
 	void TaskManager::Run(std::string_view name, const std::function<bool(const TaskUpdate&)>& tasking) {
-		m_taskings.try_emplace(std::string(name), new Task(tasking));
+		auto task = std::make_unique<Task>(tasking);
+
+		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
+		if (!inserted) {
+			logger::warn("Task '{}' already exists", name);
+		}
 	}
 
 	void TaskManager::RunFor(float duration, const std::function<bool(const TaskForUpdate&)>& tasking) {
-		auto task = new TaskFor(duration, tasking);
-		std::string name = std::format("UNNAMED_{}", *reinterpret_cast<std::uintptr_t*>(task));
-		m_taskings.try_emplace(name, task);
+		auto task = std::make_unique<TaskFor>(duration, tasking);
+		std::string name = GenerateName(task.get());
+
+		auto [it, inserted] = m_taskings.try_emplace(name, std::move(task));
+		if (!inserted) {
+			logger::warn("Task '{}' already exists", name);
+		}
 	}
 
 	void TaskManager::RunFor(std::string_view name, float duration,
 		const std::function<bool(const TaskForUpdate&)>& tasking) {
-		m_taskings.try_emplace(std::string(name), new TaskFor(duration, tasking));
+
+		auto task = std::make_unique<TaskFor>(duration, tasking);
+
+		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
+		if (!inserted) {
+			logger::warn("Task '{}' already exists", name);
+		}
 	}
 
 	void TaskManager::RunOnce(const std::function<void(const OneshotUpdate&)>& tasking) {
-		auto task = new Oneshot(tasking);
-		std::string name = std::format("UNNAMED_{}", *reinterpret_cast<std::uintptr_t*>(task));
-		m_taskings.try_emplace(name, task);
+		auto task = std::make_unique<Oneshot>(tasking);
+		std::string name = GenerateName(task.get());
+
+		auto [it, inserted] = m_taskings.try_emplace(name, std::move(task));
+		if (!inserted) {
+			logger::warn("Task '{}' already exists", name);
+		}
 	}
 
 	void TaskManager::RunOnce(std::string_view name, const std::function<void(const OneshotUpdate&)>& tasking) {
-		m_taskings.try_emplace(std::string(name), new Oneshot(tasking));
+		auto task = std::make_unique<Oneshot>(tasking);
+
+		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
+		if (!inserted) {
+			logger::warn("Task '{}' already exists", name);
+		}
 	}
 
 	void TaskManager::CancelAllTasks() {
@@ -211,6 +245,6 @@ namespace GTS {
 	}
 
 	void TaskManager::OnGameLoaded() {
-		CancelAllTasks(); // just in case
+		CancelAllTasks();
 	}
 }

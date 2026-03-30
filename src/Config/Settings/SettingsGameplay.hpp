@@ -56,8 +56,8 @@ TOML_SERIALIZABLE(GameplayMorphSettings_t);
 struct GameplayActionSettings_t {
 
     // Animation options
-    bool bStompAlternative = false;
-    bool bStomAlternativeOther = false;
+    bool bStompAlternative = true;
+    bool bStomAlternativeOther = true;
     bool bSneakTransitions = true;
     bool bSneakTransitionsOther = true;
 

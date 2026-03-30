@@ -116,12 +116,20 @@ namespace {
     }
 
     void StartStackDecayTask(Actor* giant, float stack_power, TransientActorData* data) {
-        std::string name = std::format("StackDecay_{}_{}", giant->formID, Time::WorldTimeElapsed());
-        ActorHandle gianthandle = giant->CreateRefHandle();
-        double Start = Time::WorldTimeElapsed();
-
         double stack_duration = 300.0;
         if (data) {
+            data->Stacks_Task_ID++; // We can kill multiple actors in single frame, this should make all these tasks unique
+
+            std::string name = std::format(
+                "StackDecay_{}_{}_{}", 
+                giant->formID, 
+                Time::WorldTimeElapsed(), 
+                data->Stacks_Task_ID
+            );
+
+            ActorHandle gianthandle = giant->CreateRefHandle();
+            double Start = Time::WorldTimeElapsed();
+
             if (data->PerkLifeForceStolen < 0.0f) {
                 data->PerkLifeForceStolen = 0.0f;
             }
@@ -163,11 +171,6 @@ namespace {
                 int stack_limit = 25;
                 if (data) {
                     if (data->Stacks_Perk_LifeForce < stack_limit) {
-                        StartStackDecayTask(giant, Perk_LifeAbsorption_GetBonus(giant), data);
-                    } else {
-                        data->Stacks_Perk_LifeForce -= 1;
-                        data->PerkLifeForceStolen -= Perk_LifeAbsorption_GetBonus(giant);
-                        // Just Refresh it
                         StartStackDecayTask(giant, Perk_LifeAbsorption_GetBonus(giant), data);
                     }
                 }

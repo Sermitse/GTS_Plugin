@@ -200,6 +200,7 @@ namespace {
 
     void GTS_LC_Start(AnimationEventData& data) { 
 		auto tinies = Animation_TinyCalamity::GetShrinkActors(&data.giant);
+		DisarmActor(&data.giant);
 		for (auto tiny: tinies) {
 			if (tiny) {
 				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_SpawnRune, tiny, 1.0f, "NPC Root [Root]");

@@ -100,6 +100,7 @@ namespace {
 
     void GTS_TC_ShrinkStart(AnimationEventData& data) {
         auto victims = Animation_TinyCalamity::GetShrinkActors(&data.giant);
+		DisarmActor(&data.giant);
 		for (auto victim: victims) {
 			if (victims.size() > 0 && victim) {
 				SpawnRuneOnTiny(victim);

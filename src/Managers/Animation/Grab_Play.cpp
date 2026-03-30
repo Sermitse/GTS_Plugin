@@ -24,7 +24,7 @@ namespace Triggers {
 		auto player = PlayerCharacter::GetSingleton();
 		auto Camera = PlayerCamera::GetSingleton();
         bool Sheathed = Camera->isWeapSheathed;
-		if (!Sheathed) {
+		if (!Sheathed && Grab::GetHeldActor(player)) {
 			std::string message = std::format("You need to sheathe weapon/magic first");
 			shake_camera(player, 0.45f, 0.30f);
 			NotifyWithSound(player, message);

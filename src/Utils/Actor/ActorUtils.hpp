@@ -40,7 +40,7 @@ namespace GTS {
 	void PushTowards(Actor* a_source, Actor* a_target, NiAVObject* a_bone, float a_power, bool a_doSizeCheck);
 	void Utils_PushCheck(Actor* giant, Actor* tiny, float force);
 
-	void DisarmActor(Actor* a_target, bool a_dropWeapon);
+	void DisarmActor(Actor* a_target, bool a_dropWeapon = false);
 	void ManageRagdoll(Actor* a_actor, float a_deltaLength, NiPoint3 a_deltaLocation, NiPoint3 a_targetLocation);
 	void ChanceToScare(Actor* a_giant, Actor* a_tiny, float a_duration, int a_random, bool a_useSizeDifference);
 	void ShutUp(Actor* a_target);

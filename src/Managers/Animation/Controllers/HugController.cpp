@@ -278,7 +278,8 @@ namespace GTS {
 		UpdateFriendlyHugs(pred, prey, false);
 		RecordSneakState(pred, prey); // Helps to determine which hugs to play: normal or crawl ones
 		RecordSneaking(pred); // store previous sneak value, used to fix missing footstep sounds in sneak later
-		DisarmActor(prey, false);
+		DisarmActor(pred);
+		DisarmActor(prey);
 
 		Task_PerformHugs(pred, prey); // Start hugs
 	}

@@ -14,9 +14,9 @@ namespace Hooks {
 			{
 				GTS_PROFILE_ENTRYPOINT("PapyrusVM::VirtualMachineSendEvent");
 
-				if (a_eventName == "OnUpdate") {
+				/*if (a_eventName == "OnUpdate") {
 					EventDispatcher::DoPapyrusUpdate();
-				}
+				}*/
 
 			}
 
@@ -26,8 +26,9 @@ namespace Hooks {
 	};
 
 	void Hook_VM::Install() {
-		logger::info("Installing VM VTABLE Hooks...");
-		stl::write_vfunc<VirtualMachineSendEvent>(VTABLE_BSScript__Internal__VirtualMachine[0]);
+		//logger::info("Installing VM VTABLE Hooks...");
+		//stl::write_vfunc<VirtualMachineSendEvent>(VTABLE_BSScript__Internal__VirtualMachine[0]);
+		// Loves to lead to crashes when killing lots of actors at once, better not rely on it
 	}
 
 }

@@ -149,7 +149,7 @@ namespace {
 
 	void GTS_ResetVars(const AnimationEventData& data) {
         Actor* giant = &data.giant;
-        std::string name = std::format("ResetIGrowth_{}", giant->formID);
+        std::string name = std::format("ResetGrowth_{}", giant->formID);
 		ActorHandle gianthandle = giant->CreateRefHandle();
 
 		TaskManager::Run(name, [=](auto& progressData) {

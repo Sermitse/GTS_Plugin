@@ -393,6 +393,8 @@ namespace GTS {
 		voreData.AddTiny(prey);
 
 		AnimationManager::StartAnim("StartVore", pred);
+
+		DisarmActor(pred, false);
 	}
 
 	void VoreController::RecordOriginalScale(Actor* tiny) {
