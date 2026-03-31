@@ -88,6 +88,7 @@ namespace GTS {
 		virtual void Update() override;
 		virtual void CameraUpdate() override;
 		virtual void HavokUpdate() override;
+		virtual void Reset() override;
 		virtual void OnGameLoaded() override;
 
 		static void ChangeUpdate(std::string_view name, UpdateKind updateOn);

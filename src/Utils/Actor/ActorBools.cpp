@@ -40,12 +40,20 @@ namespace GTS {
 		return false;
 	}
 
+
 	bool IsInvisible_Devourment(Actor* giant) {
-		if (giant->Is3DLoaded() && IsDevourmentEnabled() && !IsVisible(giant)) {
-			return true;
-		}
-		return false;
-	}
+
+        if(!IsDevourmentEnabled()){
+            return false; //Always Fail, DV not installed
+        }
+        if(!giant){
+            return true; //Assume Invisible
+        }
+        if (!giant->Is3DLoaded()) {
+            return true; //No 3D, so Invisible
+        }
+        return !IsVisible(giant); //Return inverse of visible, so if is Invisible.
+    }
 
 	bool HasHeadTrackingTarget(Actor* giant) {
 		if (auto process = giant->GetActorRuntimeData().currentProcess) {

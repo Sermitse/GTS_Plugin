@@ -169,6 +169,7 @@ namespace GTS {
         bool small_size = sizedifference < Action_Grab;
 
         if (ShouldAbortGrab(giantref, tinyref, CanCancel, Dead, small_size)) {
+            Anims_FixAnimationDesync(giantref, tinyref, true); // Reset anim speed override on Tiny
             return false;
         }
         // Switch to always using Grab Play logic in that case, we need it since it doesn't cancel properly without it

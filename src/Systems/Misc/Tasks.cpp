@@ -280,7 +280,9 @@ namespace GTS {
 
 		logger::info("Canceled all task manager tasks");
 	}
-
+	void TaskManager::Reset() {
+		CancelAllTasks();
+	}
 	void TaskManager::OnGameLoaded() {
 		CancelAllTasks();
 	}
