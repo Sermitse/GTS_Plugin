@@ -15,25 +15,25 @@ namespace {
 
 	hkpWorldExtension* findWorldExtension(hkpWorld* a_world, WorldExtensionIds a_id) {
 		using func_t = decltype(&findWorldExtension);
-		REL::Relocation<func_t> func{ RELOCATION_ID(60549, 61397) };
+		REL::Relocation<func_t> func{ REL::RelocationID(60549, 61397, NULL) };
 		return func(a_world, a_id);
 	}
 
 	bool requireCollisionCallbackUtil(hkpWorld* a_world) {
 		using func_t = decltype(&requireCollisionCallbackUtil);
-		REL::Relocation<func_t> func{ RELOCATION_ID(60588, 61437) };
+		REL::Relocation<func_t> func{ REL::RelocationID(60588, 61437, NULL) };
 		return func(a_world);
 	}
 
 	bool releaseCollisionCallbackUtil(hkpWorld* a_world) {
 		using func_t = decltype(&releaseCollisionCallbackUtil);
-		REL::Relocation<func_t> func{ RELOCATION_ID(61800, 62715) };
+		REL::Relocation<func_t> func{ REL::RelocationID(61800, 62715, NULL) };
 		return func(a_world);
 	}
 
 	void addContactListener(RE::hkpWorld* a_world, RE::hkpContactListener* a_worldListener) {
 		using func_t = decltype(&addContactListener);
-		REL::Relocation<func_t> func{ RELOCATION_ID(60543, 61383) };
+		REL::Relocation<func_t> func{ REL::RelocationID(60543, 61383, NULL) };
 		return func(a_world, a_worldListener);
 	}
 
@@ -51,19 +51,19 @@ namespace {
 
 	void addWorldPostSimulationListener(RE::hkpWorld* a_world, RE::hkpWorldPostSimulationListener* a_worldListener) {
 		using func_t = decltype(&addWorldPostSimulationListener);
-		REL::Relocation<func_t> func{ RELOCATION_ID(60538, 61366) };
+		REL::Relocation<func_t> func{ REL::RelocationID(60538, 61366, NULL) };
 		return func(a_world, a_worldListener);
 	}
 
 	void removeWorldPostSimulationListener(RE::hkpWorld* a_world, RE::hkpWorldPostSimulationListener* a_worldListener) {
 		using func_t = decltype(&removeWorldPostSimulationListener);
-		REL::Relocation<func_t> func{ RELOCATION_ID(60539, 61367) };
+		REL::Relocation<func_t> func{ REL::RelocationID(60539, 61367, NULL) };
 		return func(a_world, a_worldListener);
 	}
 
 	NiAVObject* getNodeFromCollidable(const RE::hkpCollidable* a_collidable) {
 		using func_t = decltype(&getNodeFromCollidable);
-		REL::Relocation<func_t> func{ RELOCATION_ID(76160, 77988) };
+		REL::Relocation<func_t> func{ REL::RelocationID(76160, 77988, NULL) };
 		return func(a_collidable);
 	}
 

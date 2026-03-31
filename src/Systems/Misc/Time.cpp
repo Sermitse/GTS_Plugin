@@ -26,7 +26,7 @@ namespace GTS {
 	void Time::SGTM(float modifier) {
 		*g_SGTM = modifier;
 		using func_t = decltype(SGTM);
-		REL::Relocation<func_t> func{ RELOCATION_ID(66989, 68246) };
+		REL::Relocation<func_t> func{ REL::RelocationID(66989, 68246, NULL) };
 		func(modifier);
 	}
 

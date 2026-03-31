@@ -1,14 +1,57 @@
 #include "Systems/Misc/Tasks.hpp"
 
+namespace {
+
+	struct QueuedTask {
+		std::string name;
+		GTS::BaseTask* task;
+	};
+
+	std::vector<QueuedTask> CollectTasksForUpdate(auto& taskings, std::mutex& taskingsLock, GTS::UpdateKind kind) {
+		std::vector<QueuedTask> queued;
+
+		{
+			std::scoped_lock lock(taskingsLock);
+			queued.reserve(taskings.size());
+
+			for (auto& [name, task] : taskings) {
+				if (task && task->UpdateOn() == kind) {
+					queued.push_back({
+						name,
+						task.get(),
+					});
+				}
+			}
+		}
+
+		return queued;
+	}
+
+	void RemoveCompletedTasks(auto& taskings, std::mutex& taskingsLock, const std::vector<QueuedTask>& toRemove) {
+
+		if (toRemove.empty()) {
+			return;
+		}
+
+		std::scoped_lock lock(taskingsLock);
+
+		for (const auto& queued : toRemove) {
+			auto it = taskings.find(queued.name);
+			if (it != taskings.end() && it->second.get() == queued.task) {
+				taskings.erase(it);
+			}
+		}
+	}
+}
+
 namespace GTS {
+
 	//-----------
 	// TASK
 	//-----------
 
-	Task::Task(const std::function<bool(const TaskUpdate&)>& tasking)
-		: startTime(Time::WorldTimeElapsed()),
-		  lastRunTime(Time::WorldTimeElapsed()),
-		  tasking(tasking) {}
+	Task::Task(const std::function<bool(const TaskUpdate&)>& tasking) : 
+		startTime(Time::WorldTimeElapsed()), lastRunTime(Time::WorldTimeElapsed()), tasking(tasking) {}
 
 	bool Task::Update() {
 		TaskUpdate update;
@@ -29,7 +72,6 @@ namespace GTS {
 		}
 
 		this->lastRunTime = currentTime;
-
 		return this->tasking(update);
 	}
 
@@ -38,10 +80,7 @@ namespace GTS {
 	//-----------
 
 	TaskFor::TaskFor(double duration, const std::function<bool(const TaskForUpdate&)>& tasking)
-		: startTime(Time::WorldTimeElapsed()),
-		  lastRunTime(Time::WorldTimeElapsed()),
-		  tasking(tasking),
-		  duration(duration) {}
+		: startTime(Time::WorldTimeElapsed()),lastRunTime(Time::WorldTimeElapsed()), tasking(tasking), duration(duration) {}
 
 	bool TaskFor::Update() {
 		double currentTime = Time::WorldTimeElapsed();
@@ -76,23 +115,15 @@ namespace GTS {
 		this->lastProgress = currentProgress;
 
 		bool shouldContinue = this->tasking(update);
-
-		if (shouldContinue) {
-			if (currentRuntime <= this->duration) {
-				return true;
-			}
-		}
-
-		return false;
+		return shouldContinue && currentRuntime <= this->duration;
 	}
 
 	//-----------
 	// ONE SHOT
 	//-----------
 
-	Oneshot::Oneshot(const std::function<void(const OneshotUpdate&)>& tasking)
-		: creationTime(Time::WorldTimeElapsed()),
-		  tasking(tasking) {}
+	Oneshot::Oneshot(const std::function<void(const OneshotUpdate&)>& tasking) 
+		: creationTime(Time::WorldTimeElapsed()), tasking(tasking) {}
 
 	bool Oneshot::Update() {
 		double currentTime = Time::WorldTimeElapsed();
@@ -102,13 +133,14 @@ namespace GTS {
 		};
 
 		this->tasking(update);
-
 		return false;
 	}
 
 	//---------------
 	// TASK MANAGER
 	//---------------
+
+	
 
 	std::string TaskManager::DebugName() {
 		return "::TaskManager";
@@ -119,57 +151,53 @@ namespace GTS {
 	}
 
 	void TaskManager::Update() {
-		std::vector<std::string> toRemove;
-		toRemove.reserve(m_taskings.size());
+		std::vector<QueuedTask> queued = CollectTasksForUpdate(m_taskings, m_taskingsLock, UpdateKind::Main);
+		
+		std::vector<QueuedTask> toRemove;
+		toRemove.reserve(queued.size());
 
-		for (auto& [name, task] : m_taskings) {
-			if (task->UpdateOn() == UpdateKind::Main) {
-				if (!task->Update()) {
-					toRemove.push_back(name);
-				}
+		for (const auto& entry : queued) {
+			if (!entry.task->Update()) {
+				toRemove.push_back(entry);
 			}
 		}
 
-		for (auto& name : toRemove) {
-			m_taskings.erase(name);
-		}
+		RemoveCompletedTasks(m_taskings, m_taskingsLock, toRemove);
 	}
 
 	void TaskManager::CameraUpdate() {
-		std::vector<std::string> toRemove;
-		toRemove.reserve(m_taskings.size());
+		auto queued = CollectTasksForUpdate(m_taskings, m_taskingsLock, UpdateKind::Camera);
 
-		for (auto& [name, task] : m_taskings) {
-			if (task->UpdateOn() == UpdateKind::Camera) {
-				if (!task->Update()) {
-					toRemove.push_back(name);
-				}
+		std::vector<QueuedTask> toRemove;
+		toRemove.reserve(queued.size());
+
+		for (const auto& entry : queued) {
+			if (!entry.task->Update()) {
+				toRemove.push_back(entry);
 			}
 		}
 
-		for (auto& name : toRemove) {
-			m_taskings.erase(name);
-		}
+		RemoveCompletedTasks(m_taskings, m_taskingsLock, toRemove);
 	}
 
 	void TaskManager::HavokUpdate() {
-		std::vector<std::string> toRemove;
-		toRemove.reserve(m_taskings.size());
+		auto queued = CollectTasksForUpdate(m_taskings, m_taskingsLock, UpdateKind::Havok);
 
-		for (auto& [name, task] : m_taskings) {
-			if (task->UpdateOn() == UpdateKind::Havok) {
-				if (!task->Update()) {
-					toRemove.push_back(name);
-				}
+		std::vector<QueuedTask> toRemove;
+		toRemove.reserve(queued.size());
+
+		for (const auto& entry : queued) {
+			if (!entry.task->Update()) {
+				toRemove.push_back(entry);
 			}
 		}
 
-		for (auto& name : toRemove) {
-			m_taskings.erase(name);
-		}
+		RemoveCompletedTasks(m_taskings, m_taskingsLock, toRemove);
 	}
 
 	void TaskManager::ChangeUpdate(std::string_view name, UpdateKind updateOn) {
+		std::scoped_lock lock(m_taskingsLock);
+
 		auto it = m_taskings.find(std::string(name));
 		if (it != m_taskings.end()) {
 			it->second->SetUpdateOn(updateOn);
@@ -177,6 +205,7 @@ namespace GTS {
 	}
 
 	void TaskManager::Cancel(std::string_view name) {
+		std::scoped_lock lock(m_taskingsLock);
 		m_taskings.erase(std::string(name));
 	}
 
@@ -184,6 +213,7 @@ namespace GTS {
 		auto task = std::make_unique<Task>(tasking);
 		std::string name = GenerateName(task.get());
 
+		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(name, std::move(task));
 		if (!inserted) {
 			logger::warn("Task '{}' already exists", name);
@@ -193,6 +223,7 @@ namespace GTS {
 	void TaskManager::Run(std::string_view name, const std::function<bool(const TaskUpdate&)>& tasking) {
 		auto task = std::make_unique<Task>(tasking);
 
+		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
 		if (!inserted) {
 			logger::warn("Task '{}' already exists", name);
@@ -203,17 +234,17 @@ namespace GTS {
 		auto task = std::make_unique<TaskFor>(duration, tasking);
 		std::string name = GenerateName(task.get());
 
+		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(name, std::move(task));
 		if (!inserted) {
 			logger::warn("Task '{}' already exists", name);
 		}
 	}
 
-	void TaskManager::RunFor(std::string_view name, float duration,
-		const std::function<bool(const TaskForUpdate&)>& tasking) {
-
+	void TaskManager::RunFor(std::string_view name, float duration, const std::function<bool(const TaskForUpdate&)>& tasking) {
 		auto task = std::make_unique<TaskFor>(duration, tasking);
 
+		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
 		if (!inserted) {
 			logger::warn("Task '{}' already exists", name);
@@ -224,6 +255,7 @@ namespace GTS {
 		auto task = std::make_unique<Oneshot>(tasking);
 		std::string name = GenerateName(task.get());
 
+		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(name, std::move(task));
 		if (!inserted) {
 			logger::warn("Task '{}' already exists", name);
@@ -233,6 +265,7 @@ namespace GTS {
 	void TaskManager::RunOnce(std::string_view name, const std::function<void(const OneshotUpdate&)>& tasking) {
 		auto task = std::make_unique<Oneshot>(tasking);
 
+		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
 		if (!inserted) {
 			logger::warn("Task '{}' already exists", name);
@@ -240,7 +273,11 @@ namespace GTS {
 	}
 
 	void TaskManager::CancelAllTasks() {
-		m_taskings.clear();
+		{
+			std::scoped_lock lock(m_taskingsLock);
+			m_taskings.clear();
+		}
+
 		logger::info("Canceled all task manager tasks");
 	}
 

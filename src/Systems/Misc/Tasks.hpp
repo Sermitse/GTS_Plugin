@@ -1,12 +1,5 @@
 #pragma once
 
-#include <functional>
-#include <unordered_map>
-#include <string>
-#include <memory>
-#include <format>
-#include <algorithm>
-
 namespace GTS {
 
 	enum class UpdateKind {
@@ -20,28 +13,28 @@ namespace GTS {
 	};
 
 	class BaseTask {
-	public:
+		public:
 		virtual bool Update() = 0;
 
-		UpdateKind UpdateOn() const {
+		__forceinline UpdateKind UpdateOn() const {
 			return this->updateOnKind;
 		}
 
-		void SetUpdateOn(UpdateKind updateOn) {
+		__forceinline void SetUpdateOn(UpdateKind updateOn) {
 			this->updateOnKind = updateOn;
 		}
 
-	protected:
+		protected:
 		UpdateKind updateOnKind = UpdateKind::Main;
 	};
 
 	class Oneshot : public BaseTask {
-	public:
+		public:
 		Oneshot(const std::function<void(const OneshotUpdate&)>& tasking);
 
 		virtual bool Update() override;
 
-	private:
+		private:
 		double creationTime = 0.0;
 		std::function<void(const OneshotUpdate&)> tasking;
 	};
@@ -52,12 +45,12 @@ namespace GTS {
 	};
 
 	class Task : public BaseTask {
-	public:
+		public:
 		Task(const std::function<bool(const TaskUpdate&)>& tasking);
 
 		virtual bool Update() override;
 
-	private:
+		private:
 		bool initRun = false;
 		double startTime = 0.0;
 		double lastRunTime = 0.0;
@@ -70,14 +63,15 @@ namespace GTS {
 		double progress;        // How close to completion on a scale of 0.0...1.0
 		double progressDelta;   // How much progress has been gained since last time
 	};
+
 	// A `TaskFor` runs until it returns false OR the duration has elapsed
 	class TaskFor : public BaseTask {
-	public:
+		public:
 		TaskFor(double duration, const std::function<bool(const TaskForUpdate&)>& tasking);
 
 		virtual bool Update() override;
 
-	private:
+		private:
 		bool initRun = false;
 		double startTime = 0.0;
 		double lastRunTime = 0.0;
@@ -88,7 +82,7 @@ namespace GTS {
 
 	class TaskManager : public EventListener, public CInitSingleton<TaskManager> {
 
-	public:
+		public:
 		virtual std::string DebugName() override;
 
 		virtual void Update() override;
@@ -110,9 +104,9 @@ namespace GTS {
 
 		static void CancelAllTasks();
 
-	private:
+		private:
 		static std::string GenerateName(void* ptr);
-
-		static inline std::unordered_map<std::string, std::unique_ptr<BaseTask>> m_taskings;
+		static inline absl::flat_hash_map<std::string, std::unique_ptr<BaseTask>> m_taskings;
+		static inline std::mutex m_taskingsLock;
 	};
 }

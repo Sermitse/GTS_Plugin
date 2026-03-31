@@ -361,7 +361,7 @@ namespace GTS {
 						NiPoint3 direction = a_receiver->GetPosition() - a_source->GetPosition();
 						direction = direction / direction.Length();
 						typedef void (*DefPushActorAway)(AIProcess* ai, Actor* actor, NiPoint3& direction, float force);
-						REL::Relocation<DefPushActorAway> RealPushActorAway{ RELOCATION_ID(38858, 39895) };
+						REL::Relocation<DefPushActorAway> RealPushActorAway{ REL::RelocationID(38858, 39895, NULL) };
 						RealPushActorAway(ai, a_receiver, direction, a_force);
 					}
 				}
