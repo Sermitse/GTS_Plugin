@@ -216,7 +216,7 @@ namespace GTS {
 		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(name, std::move(task));
 		if (!inserted) {
-			logger::warn("Task '{}' already exists", name);
+			//logger::warn("Task '{}' already exists", name);
 		}
 	}
 
@@ -226,7 +226,7 @@ namespace GTS {
 		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
 		if (!inserted) {
-			logger::warn("Task '{}' already exists", name);
+			//logger::warn("Task '{}' already exists", name);
 		}
 	}
 
@@ -237,7 +237,7 @@ namespace GTS {
 		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(name, std::move(task));
 		if (!inserted) {
-			logger::warn("Task '{}' already exists", name);
+			//logger::warn("Task '{}' already exists", name);
 		}
 	}
 
@@ -247,7 +247,7 @@ namespace GTS {
 		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
 		if (!inserted) {
-			logger::warn("Task '{}' already exists", name);
+			//logger::warn("Task '{}' already exists", name);
 		}
 	}
 
@@ -258,7 +258,7 @@ namespace GTS {
 		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(name, std::move(task));
 		if (!inserted) {
-			logger::warn("Task '{}' already exists", name);
+			//logger::warn("Task '{}' already exists", name);
 		}
 	}
 
@@ -268,7 +268,7 @@ namespace GTS {
 		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
 		if (!inserted) {
-			logger::warn("Task '{}' already exists", name);
+			//logger::warn("Task '{}' already exists", name);
 		}
 	}
 

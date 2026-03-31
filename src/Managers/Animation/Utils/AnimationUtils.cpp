@@ -372,7 +372,7 @@ namespace GTS {
 			} else {
 				EnableCollisions(tiny);
 				SetBeingHeld(tiny, false);
-				PushActorAway(giant, tiny, 1.0f);
+				PushForward(giant, tiny, 300.0f);
 				Anims_FixAnimationDesync(giant, tiny, true); // reset anim speed override so .dll won't use it
 				logger::info("Rough release");
 			}
