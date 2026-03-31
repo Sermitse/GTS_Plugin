@@ -97,7 +97,7 @@ namespace GTS {
 				decltype(RE::PlayerCamera::unk120) physics, RE::bhkWorld* world, glm::vec4& rayStart,
 				glm::vec4& rayEnd, uint32_t* rayResultInfo, RE::Character** hitCharacter, float traceHullSize
 				);
-			static auto cameraCaster = REL::Relocation<RayCastFunType>(RELOCATION_ID(32270, 33007));
+			static auto cameraCaster = REL::Relocation<RayCastFunType>(REL::RelocationID(32270, 33007, NULL));
 			res.hit = cameraCaster(
 				cam->unk120, physicsWorld,
 				start, end, static_cast<uint32_t*>(res.data), &res.hitCharacter,

@@ -209,7 +209,7 @@ namespace GTS {
 		if (!giant->IsPlayerRef()) {
 			return false;
 		}
-		REL::Relocation<bool*> singleton{ RELOCATION_ID(517711, 404238) };
+		REL::Relocation<bool*> singleton{ REL::RelocationID(517711, 404238, NULL) };
 		return *singleton;
 	}
 
