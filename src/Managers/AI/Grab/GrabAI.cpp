@@ -187,7 +187,8 @@ namespace {
 			}
 
 			TransientData->ActionTimer.UpdateDelta(Config::AI.Grab.fInterval);
-			const bool IsDead    = PreyActor->IsDead() || GetAV(PreyActor, ActorValue::kHealth) <= 0.0f || PerformerActor->IsDead();
+			const bool Devourment = IsInvisible_Devourment(PreyActor);
+			const bool IsDead    = PreyActor->IsDead() || Devourment || GetAV(PreyActor, ActorValue::kHealth) <= 0.0f || PerformerActor->IsDead();
 			const bool IsBusy    = AnimationVars::Grab::IsGrabAttacking(PerformerActor) || AnimationVars::General::IsTransitioning(PerformerActor);
 			const bool ValidPrey = Grab::GetHeldActor(PerformerActor) != nullptr;
 

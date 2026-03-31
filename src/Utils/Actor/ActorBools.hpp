@@ -7,6 +7,7 @@ namespace GTS {
 	bool IsHumanoid(Actor* giant);
 	bool CountAsGiantess(Actor* giant);
 	bool IsVisible(Actor* giant);
+	bool IsInvisible_Devourment(Actor* giant);
 	bool HasHeadTrackingTarget(Actor* giant);
 	bool KnockedDown(Actor* giant);
 	bool IsinRagdollState(Actor* giant);

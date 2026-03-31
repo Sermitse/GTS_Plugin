@@ -1,3 +1,4 @@
+#include "Utils/Actions/VoreUtils.hpp"
 #include "Utils/Actor/ActorBools.hpp"
 #include "Config/Config.hpp"
 
@@ -35,6 +36,13 @@ namespace GTS {
 	bool IsVisible(Actor* giant) {
 		if (giant) {
 			return giant->GetAlpha() > 0.1f;
+		}
+		return false;
+	}
+
+	bool IsInvisible_Devourment(Actor* giant) {
+		if (giant->Is3DLoaded() && IsDevourmentEnabled() && !IsVisible(giant)) {
+			return true;
 		}
 		return false;
 	}
@@ -209,7 +217,7 @@ namespace GTS {
 		if (!giant->IsPlayerRef()) {
 			return false;
 		}
-		REL::Relocation<bool*> singleton{ RELOCATION_ID(517711, 404238) };
+		REL::Relocation<bool*> singleton{ REL::RelocationID(517711, 404238, NULL) };
 		return *singleton;
 	}
 
