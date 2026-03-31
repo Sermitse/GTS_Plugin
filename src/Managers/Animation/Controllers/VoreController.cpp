@@ -1,4 +1,5 @@
 #include "Managers/Animation/Controllers/VoreController.hpp"
+#include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/Utils/AttachPoint.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
@@ -97,9 +98,14 @@ namespace GTS {
 					TransferInventory(smoll, giant, 1.0f, false, true, DamageSource::Vored, true);
 				});
 			}
-		} else {
+		} else { // If Devourment enabled
+			auto giant = this->giant.get().get();
 			for (auto& tinyref : this->tinies | std::views::values) { // just clear the data
 				auto tiny = tinyref.get().get();
+				Anims_FixAnimationDesync(giant, tiny, true); // Reset anim speed override
+				PushActorAway(giant, tiny, 1.0f);
+				SetBetweenBreasts(tiny, false);
+				SetBeingEaten(tiny, false);
 				SetBeingHeld(tiny, false);
 			}
 		}
