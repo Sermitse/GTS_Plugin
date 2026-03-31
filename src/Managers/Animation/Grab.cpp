@@ -218,7 +218,9 @@ namespace {
 		AnimationManager::StartAnim("TinyDied", giant);
 		if (grabbedActor) {
 			SetBetweenBreasts(grabbedActor, false);
-			PushActorAway(giant, grabbedActor, 1.0f);
+			if (IsHostile(grabbedActor, giant) || IsHostile(giant, grabbedActor)) {
+				PushActorAway(giant, grabbedActor, 1.0f);
+			}
 			EnableCollisions(grabbedActor);
 			SetBeingHeld(grabbedActor, false);
 			Anims_FixAnimationDesync(giant, grabbedActor, true);

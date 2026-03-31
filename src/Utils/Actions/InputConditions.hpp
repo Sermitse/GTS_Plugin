@@ -464,6 +464,9 @@ namespace GTS {
 		auto target = GetPlayerOrControlled();
 
 		if (Grab::GetHeldActor(target)) {
+			if (IsBetweenBreasts(target) || AnimationVars::Action::IsInCleavageState(target) || IsBetweenBreasts(Grab::GetHeldActor(target))) {
+				return false;
+			}
 			if (!IsHumanoid(Grab::GetHeldActor(target))) {
 				if (target->IsPlayerRef()) {
 					std::string_view message = std::format("You don't want to play with {}", Grab::GetHeldActor(target)->GetDisplayFullName());
