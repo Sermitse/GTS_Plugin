@@ -313,8 +313,8 @@ namespace GTS {
 		//              Scale.cpp   -  get_natural_scale
 		// actor->GetBaseHeight(); gets the refscale*racescale*actorBaseScale which is more accurate
 		// refscale is the scalemult in the REFR esp record or runtime value SetScale.
-		return actor->GetBaseHeight();
-		//return static_cast<float>(actor->GetReferenceRuntimeData().refScale) / 100.0F;
+		//return actor->GetBaseHeight();
+		return static_cast<float>(actor->GetReferenceRuntimeData().refScale) / 100.0F;
 	}
 
 	float game_getactorscale(Actor& actor) {
