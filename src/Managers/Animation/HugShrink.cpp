@@ -602,7 +602,8 @@ namespace GTS {
 			}
 			
 			bool GotTiny = HugShrink::GetHuggiesActor(giantref);
-			bool IsDead = (giantref->IsDead() || tinyref->IsDead());
+			bool Escaped = IsEscapingInteraction(tinyref);
+			bool IsDead = (giantref->IsDead() || tinyref->IsDead() || Escaped);
 			
 			if (!AnimationVars::Hug::IsHugCrushing(giantref)) {
 				if (sizedifference < Action_Hug || IsDead || stamina <= 2.0f || !GotTiny) {

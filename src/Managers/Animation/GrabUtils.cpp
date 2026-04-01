@@ -161,10 +161,11 @@ namespace GTS {
         for (auto muted: {giantref, tinyref}) { // Try to stfu actors
             ShutUp(muted);
         }
+        bool Escaped = IsEscapingInteraction(tinyref);
         bool Devourment = IsInvisible_Devourment(tinyref);
         bool Attacking = AnimationVars::Grab::IsGrabAttacking(giantref);
 
-        bool Dead = (giantref->IsDead() || Devourment || tinyref->IsDead() || GetAV(tinyref, ActorValue::kHealth) <= 0.0f);
+        bool Dead = (giantref->IsDead() || Escaped || Devourment || tinyref->IsDead() || GetAV(tinyref, ActorValue::kHealth) <= 0.0f);
         bool CanCancel = (Dead || !AnimationVars::Action::IsVoring(giantref)) && (!Attacking || IsBeingEaten(tinyref));
         bool small_size = sizedifference < Action_Grab;
 

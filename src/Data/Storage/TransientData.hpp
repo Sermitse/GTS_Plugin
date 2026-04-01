@@ -80,6 +80,9 @@ namespace GTS {
 		bool ReattachingTiny = false;
 		bool KissVoring = false;
 
+		float EscapingActionProgress = 0.0f;
+		bool EscapingInteraction = false;
+
 		NiPoint3 BoundingBoxCache = { 0.0f, 0.0f, 0.0f };
 
 		NiPoint3 POSCurrentLegL = { 0.0f, 0.0f, 0.0f };

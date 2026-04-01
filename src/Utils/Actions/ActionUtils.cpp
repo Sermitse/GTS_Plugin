@@ -9,7 +9,16 @@
 #include "Config/Config.hpp"
 
 namespace GTS {
-
+	bool IsEscapingInteraction(Actor* tiny) { // It is player exclusive, only Player can escape interactions
+		if (!tiny->IsPlayerRef()) { // Not player, always false
+			return false;
+		}
+		auto transient = Transient::GetActorData(tiny);
+		if (transient) {
+			return transient->EscapingInteraction;
+		}
+		return false;
+	}
 	bool IsBeingHeld(Actor* giant, Actor* tiny) {
 		auto grabbed = Grab::GetHeldActor(giant);
 

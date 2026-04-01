@@ -21,6 +21,34 @@ using namespace GTS;
 namespace {
 
 	constexpr float DURATION = 2.0f;
+	constexpr int StruggleMax = 40;
+
+	void ResetEscapeDataTask() {
+		std::string name = std::format("ResetStruggle");
+		auto player = PlayerCharacter::GetSingleton();
+
+		ActorHandle gianthandle = player->CreateRefHandle();
+		double Start = Time::WorldTimeElapsed();
+
+		TaskManager::Run(name, [=](auto& progressData) {
+			if (!gianthandle) {
+				return false;
+			}
+			auto giantref = gianthandle.get().get();
+			double Finish = Time::WorldTimeElapsed();
+			double timepassed = Finish - Start;
+			if (timepassed > 0.5f) {
+				auto transient = Transient::GetActorData(giantref);
+				if (transient) {
+					transient->EscapingInteraction = false;
+					transient->EscapingActionProgress = 0.0f;
+					logger::info("Reset Transient Data successfully");
+				}
+				return false;
+			}
+			return true;
+		});
+	}
 
 	void ReportScaleIntoConsole(Actor* actor, bool enemy) {
 		if (actor && !actor->IsDead()) {
@@ -542,6 +570,41 @@ namespace {
 		ForceFollowerAnimation(player, FollowerAnimType::Vore);
 	}
 
+	void StruggleInputEvent(const ManagedInputEvent& data) {
+		auto player = PlayerCharacter::GetSingleton();
+		if (player) {
+			auto transient = Transient::GetActorData(player);
+			if (transient) {
+				float& EscapeProgress = transient->EscapingActionProgress;
+				const bool Grabbed = transient->BeingHeld;
+				if (EscapeProgress < 1.0f) {
+					float stamina = GetAV(player, ActorValue::kStamina);
+					float stamina_req = 10.0f * EscapeProgress;
+
+					if (stamina >= stamina_req) {
+						DamageAV(player, ActorValue::kStamina, stamina_req);
+						shake_camera(player, 2.75f * EscapeProgress, 0.35f);
+
+						EscapeProgress += 1.0f / 40; // Need to struggle 40 times
+						EscapeProgress = std::clamp(EscapeProgress, 0.0f, 1.0f); // Can't go higher than 1
+						logger::info("Escape Progress: {}", EscapeProgress);
+						if (EscapeProgress >= 1.0f) {
+							transient->EscapingInteraction = true;
+							ResetEscapeDataTask();
+						}
+					} else {
+						std::string message = "You're out of stamina to escape";
+						shake_camera(player, 0.45f, 0.30f);
+						NotifyWithSound(player, message);
+					}
+				}
+			}
+		}
+	}
+
+	
+
+
 	//True for player false for fol;
 	void ToggleCrawlImpl(const bool a_IsPlayer) {
 
@@ -636,6 +699,11 @@ namespace GTS {
 
 		InputManager::RegisterInputEvent("Vore", VoreInputEvent, VoreCondition);
 		InputManager::RegisterInputEvent("PlayerVore", VoreInputEvent_Follower, VoreCondition_Follower);
+
+		InputManager::RegisterInputEvent("StruggleUp", StruggleInputEvent, StruggleCondition);
+		InputManager::RegisterInputEvent("StruggleDown", StruggleInputEvent, StruggleCondition);
+		InputManager::RegisterInputEvent("StruggleLeft", StruggleInputEvent, StruggleCondition);
+		InputManager::RegisterInputEvent("StruggleRight", StruggleInputEvent, StruggleCondition);
 
 		//Ported from papyrus
 		InputManager::RegisterInputEvent("TogglePlayerCrawl", ToggleCrawlImpl_Player);

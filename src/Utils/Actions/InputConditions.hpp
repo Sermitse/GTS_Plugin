@@ -537,6 +537,17 @@ namespace GTS {
 		return true;
 	}
 
+	static bool StruggleCondition() {
+		auto player = PlayerCharacter::GetSingleton();
+		auto transient = Transient::GetActorData(player);
+		if (transient) {
+			const bool Grabbed = transient->BeingHeld;
+			const bool CanStruggle = (AnimationVars::General::IsBusy(player) && AnimationVars::Tiny::IsBeingHugged(player)) || Grabbed;
+			return !IsFreeCameraEnabled() && !transient->EscapingInteraction && CanStruggle;
+		}
+		return false;
+	}
+
 	static inline bool AlwaysBlock() {
 		return true;
 	}
