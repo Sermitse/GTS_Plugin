@@ -1814,7 +1814,7 @@ namespace GTS {
 	}
 
 	float GetHugShrinkThreshold(Actor* actor) {
-		float threshold = 2.5f;
+		float threshold = 2.25f * (1.0f + GetGtsSkillLevel(actor) * 0.01f);
 		if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkHugs)) {
 			threshold *= 1.25f;
 		}
@@ -1822,7 +1822,7 @@ namespace GTS {
 			threshold *= 1.35f;
 		}
 		if (HasGrowthSpurt(actor)) {
-			threshold *= 2.0f;
+			threshold *= 1.25f;
 		}
 		return threshold;
 	}
