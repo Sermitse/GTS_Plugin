@@ -47,13 +47,11 @@ namespace {
 			DamageAV(caster, ActorValue::kStamina, 0.15f * perk * caster_scale * stamina * TimeScale() * multiply);
 
 			float shrink = CalcPower(caster, 0.0080f * stamina * multiply, 0.0f, false); // Is automatically *'d by scale through CalcPower()
-
-			if (caster_scale > Minimum_Actor_Scale) {
-				override_actor_scale(caster, -shrink, SizeEffectType::kNeutral);
-			} else {
-				override_actor_scale(caster, Minimum_Actor_Scale, SizeEffectType::kNeutral);
-				set_target_scale(caster, Minimum_Actor_Scale);
+			if (get_target_scale(caster) < Minimum_Actor_Scale * 2.0f) {
+				set_target_scale(caster, Minimum_Actor_Scale * 2.0f);
 				return false;
+			} else {
+				override_actor_scale(caster, -shrink, SizeEffectType::kNeutral);
 			}
 
 			Rumbling::Once("ShrinkButton", caster, 2.0f * stamina, 0.05f, "NPC Pelvis [Pelv]",  0.0f);
