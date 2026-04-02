@@ -172,9 +172,6 @@ namespace GTS {
         logger::info("ImFontManager Init");
         ImFontManager::Init();
 
-        logger::info("ImStyleManager Init");
-        ImStyleManager::ApplyStyle();
-
         AddWindow(std::make_unique<SplashWindow>(),    &wSplash);
         AddWindow(std::make_unique<SettingsWindow>(),  &wSettings);
         AddWindow(std::make_unique<DebugWindow>(),     &wDebug);
@@ -190,7 +187,13 @@ namespace GTS {
         AddWindow(std::make_unique<SizeBarWindow>("F4"),  &wSBarF4);
         AddWindow(std::make_unique<SizeBarWindow>("F5"),  &wSBarF5);
 
+        //Explicitly call reset after windows are created.
+        WindowSettingsRegistry::GetSingleton().ResetAllWindowSettings();
+
         logger::info("ImWindowManager Init OK");
+
+        logger::info("ImStyleManager Init");
+        ImStyleManager::ApplyStyle();
 
     }
 
