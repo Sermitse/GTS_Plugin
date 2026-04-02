@@ -404,7 +404,8 @@ namespace {
 		Actor* player = GetPlayerOrControlled();
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 		if (huggedActor) {
-			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
+			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player) 
+			|| get_visual_scale(huggedActor) <= Minimum_Actor_Scale ) {
 				if (!AnimationVars::Hug::IsHugCrushing(player) && !AnimationVars::Hug::IsHugHealing(player)) {
 					NotifyWithSound(player, "All available size was drained");
 					shake_camera(player, 0.45f, 0.30f);
@@ -422,7 +423,8 @@ namespace {
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 
 		if (huggedActor) {
-			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)) {
+			if (get_scale_difference(player, huggedActor, SizeType::VisualScale, false, true) >= GetHugShrinkThreshold(player)
+			 || get_visual_scale(huggedActor) <= Minimum_Actor_Scale) {
 				if (!AnimationVars::Hug::IsHugCrushing(player) && !AnimationVars::Hug::IsHugHealing(player)) {
 					NotifyWithSound(player, "All available size was drained");
 					shake_camera(player, 0.45f, 0.30f);
@@ -511,14 +513,14 @@ namespace GTS {
 			}
 			stamina *= Perk_GetCostReduction(giantref);
 
-			if (sizedifference >= GetHugShrinkThreshold(giantref)) {
+			if (sizedifference >= GetHugShrinkThreshold(giantref) 
+			|| get_target_scale(tinyref) < Minimum_Actor_Scale) { // Without it, Hugs may shrink into negatives in some cases
 				std::string_view message = fmt::format("{} stole all available size", giantref->GetDisplayFullName());
 				Notify(message);
 				return false;
 			}
 			DamageAV(tinyref, ActorValue::kStamina, (0.60f * TimeScale())); // Drain Stamina
 			DamageAV(giantref, ActorValue::kStamina, 0.50f * stamina * TimeScale()); // Damage GTS Stamina
-			
 			TransferSize(giantref, tinyref, false, shrink, steal, false, ShrinkSource::Hugs); // Shrink foe, enlarge gts
 			ModSizeExperience(giantref, 0.00020f);
 
@@ -602,7 +604,8 @@ namespace GTS {
 			}
 			
 			bool GotTiny = HugShrink::GetHuggiesActor(giantref);
-			bool IsDead = (giantref->IsDead() || tinyref->IsDead());
+			bool Escaped = IsEscapingInteraction(tinyref);
+			bool IsDead = (giantref->IsDead() || tinyref->IsDead() || Escaped);
 			
 			if (!AnimationVars::Hug::IsHugCrushing(giantref)) {
 				if (sizedifference < Action_Hug || IsDead || stamina <= 2.0f || !GotTiny) {

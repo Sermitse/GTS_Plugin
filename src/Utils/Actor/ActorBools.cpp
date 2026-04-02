@@ -1,3 +1,4 @@
+#include "Utils/Actions/VoreUtils.hpp"
 #include "Utils/Actor/ActorBools.hpp"
 #include "Config/Config.hpp"
 
@@ -38,6 +39,21 @@ namespace GTS {
 		}
 		return false;
 	}
+
+
+	bool IsInvisible_Devourment(Actor* giant) {
+
+        if(!IsDevourmentEnabled()){
+            return false; //Always Fail, DV not installed
+        }
+        if(!giant){
+            return true; //Assume Invisible
+        }
+        if (!giant->Is3DLoaded()) {
+            return true; //No 3D, so Invisible
+        }
+        return !IsVisible(giant); //Return inverse of visible, so if is Invisible.
+    }
 
 	bool HasHeadTrackingTarget(Actor* giant) {
 		if (auto process = giant->GetActorRuntimeData().currentProcess) {

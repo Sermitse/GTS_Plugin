@@ -2,6 +2,7 @@
 
 namespace GTS {
 
+	bool IsEscapingInteraction(Actor* tiny);
 	bool IsBeingHeld(Actor* giant, Actor* tiny);
 	bool IsBetweenBreasts(Actor* actor);
 

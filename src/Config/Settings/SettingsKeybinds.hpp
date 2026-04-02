@@ -1302,6 +1302,50 @@ namespace GTS {
 		        .Trigger    = "Continuous",
 		    }
         },
+		{
+			.UICategory    = LInputCategory_t::kMisc,
+			.AdvFeature    = false,
+			.UIName        = "Struggle Up",
+			.UIDescription = "Attempt to escape hugs or being grabbed",
+			.Event = {
+		        .Event      = "StruggleUp",
+		        .Keys       = {"W"},
+		        .Trigger    = "Once",
+		    }
+        },
+		{
+			.UICategory    = LInputCategory_t::kMisc,
+			.AdvFeature    = false,
+			.UIName        = "Struggle Down",
+			.UIDescription = "Attempt to escape hugs or being grabbed",
+			.Event = {
+		        .Event      = "StruggleDown",
+		        .Keys       = {"S"},
+		        .Trigger    = "Once",
+		    }
+        },
+		{
+			.UICategory    = LInputCategory_t::kMisc,
+			.AdvFeature    = false,
+			.UIName        = "Struggle Left",
+			.UIDescription = "Attempt to escape hugs or being grabbed",
+			.Event = {
+		        .Event      = "StruggleLeft",
+		        .Keys       = {"A"},
+		        .Trigger    = "Once",
+		    }
+        },
+		{
+			.UICategory    = LInputCategory_t::kMisc,
+			.AdvFeature    = false,
+			.UIName        = "Struggle Right",
+			.UIDescription = "Attempt to escape hugs or being grabbed",
+			.Event = {
+		        .Event      = "StruggleRight",
+		        .Keys       = {"D"},
+		        .Trigger    = "Once",
+		    }
+        },
 
         //========================================================
 	    //========================= A B I L I T I E S

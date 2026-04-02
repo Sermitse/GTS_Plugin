@@ -22,7 +22,7 @@ namespace GTS {
 
 		inline PSString GrowthSpurtMessage = 
 			"Growth Spurt slowly regenerates your health and increases your size until you reach maximum size.\n"
-			"Growth Spurt doubles the amount of size you can steal during hugs and provides huge resistance against natural shrink sources.\n"
+			"Growth Spurt slightly increases the amount of size you can steal during hugs and provides huge resistance against natural shrink sources.\n"
 			"Unlock Strong Spurt-related perks to increase the maximum size of Growth Spurt.";
 	};
 }

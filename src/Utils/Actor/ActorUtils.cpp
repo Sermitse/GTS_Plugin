@@ -648,7 +648,7 @@ namespace GTS {
 			RE::NiPoint3 direction = globalForwardVector;
 			double endTime = Time::WorldTimeElapsed();
 
-			if ((endTime - startTime) > 0.05) {
+			if ((endTime - startTime) > 0.08) {
 				ApplyManualHavokImpulse(tiny, direction.x, direction.y, direction.z, a_power);
 				return false;
 			}

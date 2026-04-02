@@ -464,6 +464,9 @@ namespace GTS {
 		auto target = GetPlayerOrControlled();
 
 		if (Grab::GetHeldActor(target)) {
+			if (IsBetweenBreasts(target) || AnimationVars::Action::IsInCleavageState(target) || IsBetweenBreasts(Grab::GetHeldActor(target))) {
+				return false;
+			}
 			if (!IsHumanoid(Grab::GetHeldActor(target))) {
 				if (target->IsPlayerRef()) {
 					std::string_view message = std::format("You don't want to play with {}", Grab::GetHeldActor(target)->GetDisplayFullName());
@@ -532,6 +535,17 @@ namespace GTS {
 		}
 
 		return true;
+	}
+
+	static bool StruggleCondition() {
+		auto player = PlayerCharacter::GetSingleton();
+		auto transient = Transient::GetActorData(player);
+		if (transient) {
+			const bool Grabbed = transient->BeingHeld;
+			const bool CanStruggle = (AnimationVars::General::IsBusy(player) && AnimationVars::Tiny::IsBeingHugged(player)) || Grabbed;
+			return !IsFreeCameraEnabled() && !transient->EscapingInteraction && CanStruggle;
+		}
+		return false;
 	}
 
 	static inline bool AlwaysBlock() {

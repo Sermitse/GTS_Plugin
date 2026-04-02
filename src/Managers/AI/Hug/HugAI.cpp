@@ -171,7 +171,7 @@ namespace {
 
 			if (!HugShrink::GetHuggiesActor(PerformerActor) || IsRagdolled(PerformerActor)) {
 				if (!GentleAnim) {
-					PushActorAway(PerformerActor, PreyActor, 1.0f);
+					PushForward(PerformerActor, PreyActor, 300.0f);
 				}
 				return false;
 			}
