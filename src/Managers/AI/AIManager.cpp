@@ -89,6 +89,10 @@ namespace {
 		//Is "Female?"
 		if (IsFemale(a_Actor, true)) {
 
+			if (IsinRagdollState(a_Actor)) { // Without it you can get hugged while NPC is ragdolled :)
+				return false;
+			}
+
 			const bool HasHP = GetAV(a_Actor, ActorValue::kHealth) > 0;
 			const bool IsInNormalState = a_Actor->AsActorState()->GetSitSleepState() == SIT_SLEEP_STATE::kNormal;
 			const bool IsHoldingSomeone = Grab::GetHeldActor(a_Actor) != nullptr || AnimationVars::Action::IsInCleavageState(a_Actor);

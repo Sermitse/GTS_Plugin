@@ -127,7 +127,7 @@ namespace {
 
 			if (!AnimationVars::Hug::IsHugHealing(giantref) && (sizedifference >= threshold || sizedifference < Action_Hug)) {
 				SetBeingHeld(tinyref, false);
-				AbortHugAnimation(giantref, tinyref);
+				AbortHugAnimation(giantref, tinyref, true);
 				if (giantref->IsPlayerRef()) {
 					shake_camera(giantref, 0.50f, 0.15f);
 					Notify("It's difficult to gently hug {}", tinyref->GetDisplayFullName());

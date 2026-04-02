@@ -60,7 +60,11 @@ namespace GTS {
 		if (!a_event) {
 			return;
 		}
-
+		if (auto Player = PlayerCharacter::GetSingleton()) { // Disallow to hug and etc in ragdoll state
+			if (IsinRagdollState(Player)) {
+				return;
+			}
+		}
 		if (State::IsInBlockingMenu() || !State::Live()) {
 			return;
 		}
