@@ -76,7 +76,7 @@ namespace GTS {
 
 		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 
-		// ----- If You need to do something when settings get reset add it here.
+		// ----- If You need to do something when settings get reset add it here. Assumes an ingame reset -----
 
 		DoCameraStateReset();
 		DoHighHeelStateReset();
@@ -90,5 +90,15 @@ namespace GTS {
 		OnGameLoaded();
 	}
 
+	void ConfigModHandler::MenuChange(const RE::MenuOpenCloseEvent* menu_event) {
 
+		//Run Reset if the main menu is loaded
+		if (menu_event->menuName == RE::MainMenu::MENU_NAME && menu_event->opening) {
+
+			Config::ResetToDefaults();
+			ImStyleManager::ApplyStyle();
+			spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
+
+		}
+	}
 }

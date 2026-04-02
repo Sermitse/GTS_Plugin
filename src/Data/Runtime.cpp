@@ -18,7 +18,7 @@ namespace {
 	}
 
 	void CheckModLoaded(bool* a_res, const std::string_view& a_name) {
-		logger::info("Dependency Checker: Checking for {}", a_name);
+
 		if (a_res) {
 			*a_res = CheckModLoaded(a_name);
 			return;
@@ -27,7 +27,6 @@ namespace {
 	}
 
 	bool CheckDLLLoaded(const std::wstring_view& a_name) {
-		logger::info("Dependency DLL Checker: Checking for {}", GTS::Utf16ToUtf8(a_name));
 		return GetModuleHandleW(a_name.data()) != nullptr; // DLL name
 	}
 

@@ -12,6 +12,7 @@ namespace GTS {
 		void OnGameLoaded() override;
 		void OnConfigReset() override;
 		void OnConfigRefresh() override;
+		void MenuChange(const RE::MenuOpenCloseEvent* menu_event) override;
 
 	};
 
