@@ -14,7 +14,7 @@ namespace GTS {
             try {
                 std::lock_guard<std::mutex> lock(_ReadWriteLock);
 
-                a_data = toml::find_or<T>(a_toml, a_tableName, T{});
+                a_data = toml::find_or<T>(a_toml, a_tableName, a_data);
                 logger::info("Struct: {} Parsed!", a_tableName);
                 return true;
             }
