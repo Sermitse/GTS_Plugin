@@ -15,19 +15,6 @@ namespace {
 		} 
 		return AnimationManager::GetAnimSpeed(actor);
 	}
-
-	void AffectByPerk(Actor* giant, float& anim_speed) {
-		auto data = Transient::GetActorData(giant);
-		if (data) {
-			float speed = data->PerkBonusSpeed;
-			if (speed > 1.0f) {
-				bool CanApply = AnimationVars::Action::IsStomping(giant) || AnimationVars::Action::IsFootGrinding(giant) || AnimationVars::Action::IsVoring(giant) || AnimationVars::Stomp::IsTrampling(giant);
-				if (CanApply) {
-					anim_speed *= speed;
-				}
-			}
-		}
-	}
 }
 
 namespace Hooks {
@@ -51,7 +38,7 @@ namespace Hooks {
 							if (graph) {
 								if (a_this == graph->behaviorGraph) {
 									float multi = Animation_GetSpeedCorrection(actor);
-									AffectByPerk(actor, anim_speed);
+									Perk_ApplyAccelerationPerk(actor, anim_speed);
 									anim_speed *= multi;
 								}
 							}

@@ -33,6 +33,8 @@ namespace GTS {
 	// PERKS
 	//----------------------------------------------------
 	float Perk_GetSprintShrinkReduction(Actor* actor);
+	void Perk_ApplyAccelerationPerk(Actor* giant, float& anim_speed);
+	float Perk_ApplyAccelerationPerk(Actor* giant);
 	float GetPerkBonus_OnTheEdge(Actor* giant, float amt);
 	float Perk_GetCostReduction(Actor* giant);
 	void DragonAbsorptionBonuses();

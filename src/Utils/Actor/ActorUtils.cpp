@@ -16,7 +16,11 @@
 namespace {
 	
 	const std::vector<const char*> disarm_nodes = {
-	"WeaponDagger",
+	"WEAPON",
+	"SHIELD",
+	"NPC L MagicNode [LMag]",
+	"NPC R MagicNode [RMag]",
+	/*"WeaponDagger",
 	"WeaponAxe",
 	"WeaponSword",
 	"WeaponMace",
@@ -29,14 +33,8 @@ namespace {
 	"AnimObjectR",
 	"NPC L MagicNode [LMag]",
 	"NPC R MagicNode [RMag]",
-	/*"NPC R Item01",
-	"NPC R Item02",
-	"NPC R Item03",
-	"NPC L Item01",
-	"NPC L Item02",
-	"NPC L Item03",*/
+	*/
 	};
-
 }
 
 namespace GTS {
@@ -439,10 +437,7 @@ namespace GTS {
 		if (!a_dropWeapon) {
 			for (const char* const& node : disarm_nodes) {
 				if (auto object = find_node(a_target, node)) {
-					//log::info("Found Object: {}", object->name.c_str());
 					object->local.scale = 0.01f;
-					//object->SetAppCulled(true);
-
 					update_node(object);
 
 					std::string objectname = object->name.c_str();

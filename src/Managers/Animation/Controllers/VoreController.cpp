@@ -420,12 +420,14 @@ namespace GTS {
 
 	void VoreController::ShrinkOverTime(Actor* giant, Actor* tiny, float time_mult, float targetscale_mult) {
 		if (tiny && !IsDevourmentEnabled()) {
-			float Adjustment_Tiny = GetSizeFromBoundingBox(tiny);
-			float preyscale = get_visual_scale(tiny) * Adjustment_Tiny;
-			float targetScale = std::clamp(preyscale/12.0f * Adjustment_Tiny, 0.01f, 1000000.0f);
+			float Bounding_Box = GetSizeFromBoundingBox(tiny);
+			float preyscale = get_visual_scale(tiny) * Bounding_Box;
+			float targetScale = std::clamp(preyscale / (12.0f * Bounding_Box), 0.01f, 1000000.0f);
 			targetScale *= targetscale_mult;
 
-			float shrink_magnitude = -targetScale * time_mult;
+			float shrink_magnitude = -targetScale * time_mult; 
+			shrink_magnitude *= GetAnimationSlowdown(giant) * Perk_ApplyAccelerationPerk(giant);
+			shrink_magnitude *= Bounding_Box;
 
 			ActorHandle tinyHandle = tiny->CreateRefHandle();
 

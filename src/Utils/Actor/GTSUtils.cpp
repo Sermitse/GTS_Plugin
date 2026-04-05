@@ -379,6 +379,34 @@ namespace GTS {
 		return resistance;
 	}
 
+	void Perk_ApplyAccelerationPerk(Actor* giant, float& anim_speed) {
+		auto data = Transient::GetActorData(giant);
+		if (data) {
+			float speed = data->PerkBonusSpeed;
+			if (speed > 1.0f) {
+				bool CanApply = AnimationVars::Action::IsStomping(giant) || AnimationVars::Action::IsFootGrinding(giant) || AnimationVars::Action::IsVoring(giant) || AnimationVars::Stomp::IsTrampling(giant);
+				if (CanApply) {
+					anim_speed *= speed;
+				}
+			}
+		}
+	}
+
+	float Perk_ApplyAccelerationPerk(Actor* giant) {
+		auto data = Transient::GetActorData(giant);
+		float anim_speed = 1.0f;
+		if (data) {
+			float speed = data->PerkBonusSpeed;
+			if (speed > 1.0f) {
+				bool CanApply = AnimationVars::Action::IsStomping(giant) || AnimationVars::Action::IsFootGrinding(giant) || AnimationVars::Action::IsVoring(giant) || AnimationVars::Stomp::IsTrampling(giant);
+				if (CanApply) {
+					anim_speed *= speed;
+				}
+			}
+		}
+		return anim_speed;
+	}
+
 	float GetPerkBonus_OnTheEdge(Actor* giant, float amt) {
 		// When health is < 60%, empower growth by up to 50%. Max value at 10% health.
 		float bonus = 1.0f;
