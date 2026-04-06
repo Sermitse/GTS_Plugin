@@ -301,61 +301,84 @@ namespace GTS {
         } 
 	}
 
+	static void DoDamage_Thunk(Actor*& a_this, float& a_dmg, Actor*& a_source, bool& a_dontAdjustDifficulty) {
+
+		{
+			GTS_PROFILE_ENTRYPOINT("ActorDamage::TakeDamage");
+
+			if (a_source && a_source != a_this) { // apply to hits only, we don't want to decrease fall damage for example
+
+				const bool ShouldBeKilled = DontAlterDamage(a_this, a_dmg, AddToDamage);
+				// ^ Attempt to fix being unkillable below 5% hp, the bug seems to be player exclusive
+				/*if (a_this->IsPlayerRef()) {
+					logger::info("Damage Pre: {}", a_dmg);
+					logger::info("Should be killed: {}", ShouldBeKilled);
+				}*/
+				if (!ShouldBeKilled) {
+					a_dmg *= GetTotalDamageResistance(a_this, a_source);
+					// ^ This function applies damage resistance from being large
+					// Also makes receiver immune to all (?) damage for ~2.5 sec if health gate was triggered
+				}
+
+				if (HealthGateProtection(a_this, a_source, a_dmg)) { // When Health Gate is true, initial hit full damage immunity is applied here 
+					a_dmg *= 0.0f;
+				}
+
+				TransientActorData* data = Transient::GetActorData(a_this);
+				if (data && data->IsBeingSizeDamaged) return;
+
+				DoOverkill(a_source, a_this, a_dmg);
+				RecordPushForce(a_this, a_source);
+			}
+		}
+
+		// This hook has a 'small' downside:
+		// - Seems like if NPC is about to deal 250 damage and player has 5 health left: 
+		//    - the game will cut excessive damage, so damage is now 5
+		//    - then we further affect said 5 damage by damage resistance
+		//    - which in some cases may make player unkillable since health never reaches 0...
+
+		/*if (a_this->IsPlayerRef()) {
+			logger::info("Damage Post: {}", a_dmg);
+		}*/
+
+	}
 }
 
 namespace Hooks {
 
-	struct DoDamage {
+	struct DoDamage_Jmp {
 
 		static void thunk(Actor* a_this, float a_dmg, Actor* a_source, bool a_dontAdjustDifficulty) {
-
-			{
-				GTS_PROFILE_ENTRYPOINT("ActorDamage::TakeDamage");
-
-				if (a_source && a_source != a_this) { // apply to hits only, we don't want to decrease fall damage for example
-
-					const bool ShouldBeKilled = DontAlterDamage(a_this, a_dmg, AddToDamage);
-					// ^ Attempt to fix being unkillable below 5% hp, the bug seems to be player exclusive
-					/*if (a_this->IsPlayerRef()) {
-						logger::info("Damage Pre: {}", a_dmg);
-						logger::info("Should be killed: {}", ShouldBeKilled);
-					}*/
-					if (!ShouldBeKilled) {
-						a_dmg *= GetTotalDamageResistance(a_this, a_source);
-						// ^ This function applies damage resistance from being large
-						// Also makes receiver immune to all (?) damage for ~2.5 sec if health gate was triggered
-					}
-
-					if (HealthGateProtection(a_this, a_source, a_dmg)) { // When Health Gate is true, initial hit full damage immunity is applied here 
-						a_dmg *= 0.0f;
-					}
-
-					TransientActorData* data = Transient::GetActorData(a_this);
-					if (data && data->IsBeingSizeDamaged) goto skipOverKill;
-
-					DoOverkill(a_source, a_this, a_dmg);
-					RecordPushForce(a_this, a_source);
-				}
-			}
-
-			// This hook has a 'small' downside:
-			// - Seems like if NPC is about to deal 250 damage and player has 5 health left: 
-			//    - the game will cut excessive damage, so damage is now 5
-			//    - then we further affect said 5 damage by damage resistance
-			//    - which in some cases may make player unkillable since health never reaches 0...
-
-			/*if (a_this->IsPlayerRef()) {
-				logger::info("Damage Post: {}", a_dmg);
-			}*/
-			skipOverKill:
+			DoDamage_Thunk(a_this, a_dmg, a_source, a_dontAdjustDifficulty);
 			func(a_this, a_dmg, a_source, a_dontAdjustDifficulty);
-
 		}
-		FUNCTYPE_DETOUR func;
+
+		FUNCTYPE_CALL func;
+	};
+
+	struct DoDamage_Call {
+
+		template <int ID>
+		static void thunk(Actor* a_this, float a_dmg, Actor* a_source, bool a_dontAdjustDifficulty) {
+			DoDamage_Thunk(a_this, a_dmg, a_source, a_dontAdjustDifficulty);
+			func<ID>(a_this, a_dmg, a_source, a_dontAdjustDifficulty);
+		}
+		template <int ID>
+		FUNCTYPE_CALL_UNIQUE func;
 	};
 
 	void Hook_Damage::Install() {
 		logger::info("Installing Character::DoDamage Detour Hook...");
-		stl::write_detour<DoDamage>(REL::RelocationID(36345, 37335, NULL));
+		stl::write_call_unique<DoDamage_Call, 0>(REL::RelocationID(36357, 37348, NULL), REL::VariantOffset(0x8a3, 0x8ee,  NULL));
+		stl::write_call_unique<DoDamage_Call, 1>(REL::RelocationID(36357, 37348, NULL), REL::VariantOffset(0xfb4, 0x10b7, NULL));
+		stl::write_call_unique<DoDamage_Call, 2>(REL::RelocationID(37633, 38586, NULL), REL::VariantOffset(0x397, 0x4a7,  NULL));
+		stl::write_call_unique<DoDamage_Call, 3>(REL::RelocationID(36016, 36991, NULL), REL::VariantOffset(0x4de, 0x545,  NULL));
+		stl::write_call_unique<DoDamage_Call, 4>(REL::RelocationID(37673, 38627, NULL), REL::VariantOffset(0x3dc, 0x4c4,  NULL));
+		stl::write_call_unique<DoDamage_Call, 5>(REL::RelocationID(34286, 35086, NULL), REL::VariantOffset(0x237, 0x232,  NULL));
+		stl::write_call_unique<DoDamage_Call, 6>(REL::RelocationID(36973, 37998, NULL), REL::VariantOffset(0xce,  0xc7,   NULL));
+
+		stl::write_jmp<DoDamage_Jmp>(REL::RelocationID(36346, 37336, NULL), REL::VariantOffset(0x53, 0x53, NULL));
+
 	}
 }
