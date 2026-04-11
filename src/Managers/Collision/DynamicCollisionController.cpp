@@ -391,7 +391,7 @@ namespace GTS {
 		GTS_PROFILE_SCOPE("DynamicCollisionController::AdjustBoneDrivenHuman");
 
 		//Stop updating past a certain scale.
-		if (m_currentVisualScale > Config::Collision.fDynamicColliderMaxUpdateScale) return;
+		const float clampedScale = std::clamp(m_currentVisualScale, 0.05f, Config::Collision.fDynamicColliderMaxUpdateScale);
 
 		// Bone driven updates only work with convex vertex shape colliders
 		if (!m_originalData.hasVertecesShape) return;
@@ -404,7 +404,7 @@ namespace GTS {
 
 							std::vector<hkVector4> modifiedVerts = m_originalData.convexVerteces;
 							const float& bottomZ = m_originalData.convexVerteces[Vertex18_Bot].quad.m128_f32[2];
-							const float vertexRingWidthMult = GetVerticesWidthMult(actor, true) * m_currentVisualScale;
+							const float vertexRingWidthMult = GetVerticesWidthMult(actor, true) * clampedScale;
 							//const float vertexRingHBoneDst = GetDistanceBetweenBones({ UppderArmBoneRName, UpperArmBoneLName });
 
 							/*if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() != 18) {
@@ -421,7 +421,7 @@ namespace GTS {
 								if (!headBone) return;
 
 								const NiPoint3 BonePos = (headBone->world.translate - actor->GetPosition()) / *gWorldScaleInverse;
-								modifiedVerts[Vertex18_Top].quad.m128_f32[2] = BonePos.z + bottomZ + (0.05f * m_currentVisualScale); //Bone position + small offset Correction
+								modifiedVerts[Vertex18_Top].quad.m128_f32[2] = BonePos.z + bottomZ + (0.05f * clampedScale); //Bone position + small offset Correction
 							}
 
 							// ---- Upper Ring
@@ -492,7 +492,7 @@ namespace GTS {
 								{
 									BSWriteLockGuard lock(world->worldLock);
 									for (size_t i = 0; i < CurrentCapsules.size(); ++i) {
-										ScaleCapsule(m_originalData.capsules[i], CurrentCapsules[i], m_currentVisualScale);
+										ScaleCapsule(m_originalData.capsules[i], CurrentCapsules[i], clampedScale);
 									}
 								}
 							}
