@@ -339,7 +339,7 @@ namespace GTS {
 
                     ImGui::PushFont(nullptr, 21.0f);
                     {
-                        ImGuiEx::TextColorShadow(Event.Disabled ? ImUtil::Colors::Message : ImGui::GetStyle().Colors[ImGuiCol_Text] ,"%s", a_name.c_str());
+                        ImGuiEx::TextColorShadow(Event.Disabled ? ImUtil::Colors::Warning : ImGui::GetStyle().Colors[ImGuiCol_Text] ,"%s", a_name.c_str());
                         if (a_description != nullptr && a_description[0] != '\0') {
                             ImGuiEx::Tooltip(a_description, true);
                         }

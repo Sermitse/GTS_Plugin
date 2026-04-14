@@ -24,7 +24,7 @@ namespace ImUtil {
         constexpr ImVec4 OK = { 0.30f, 1.0f, 0.35f, 0.9f };
         constexpr ImVec4 Subscript = { 1.0f, 1.0f, 1.0f, 0.5f };
         constexpr ImVec4 Disabled = { 0.4f, 0.1f, 0.1f, 1.0f };
-        constexpr ImVec4 Message = { 1.0f, 0.5f, 0.0f, 1.0f };
+        constexpr ImVec4 Warning = { 1.0f, 0.5f, 0.0f, 1.0f };
     }
 
     //Predefined colors {R, G, B, A} (0.0 to 1.0f)

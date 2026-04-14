@@ -177,7 +177,7 @@ namespace GTS {
 
                 ImGui::SameLine();
 
-                ImGui::TextColored(ImUtil::Colors::Message, "Info (!)");
+                ImGui::TextColored(ImUtil::Colors::Warning, "Info (!)");
                 ImGuiEx::Tooltip(THelp, true);
 
                 ImGui::Spacing();

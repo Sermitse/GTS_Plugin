@@ -28,8 +28,16 @@ namespace {
 	PSString T_Reset = "Reset all settings, this does not reset any modified action keybinds.\n"
 	                   "If you want to reset those press the reset button on its page instead.";
 
-	PSString T_PandoraWarn = "WARNING: Pandora is not fully compatible with nemesis based behavior mods\n"
-		                     "You WILL experience odd/delayed/bugged animations If you continue to use pandora with this mod.\n";
+	PSString T_PandoraWarn = "The animations for this mod were designed to be used with the Nemesis behavior generator.\n"
+						     "Whilst pandora can use nemesis' behavior format, its not fully compatible with it.\n"
+		                     "You may experience subtle animation bugs, desyncs or some animations not playing at all if behaviors are generated through pandora for this mod.";
+
+	PSString T_FirstPersonWarn = "Animations can't be checked for as they do not exist for first person.\n"
+							     "Either switch to third person or use Improved Camera 2's \"Fake First Person\"\n"
+			                     "to be able to use third person animations in first person.";
+
+	PSString T_UnknownBehavior = "The used behavior generator could not be determined.\n"
+							     "This can either mean that you didn't run Nemsis/Pandora or are using another tool to generate them.";
 
 	void DrawImportExport(){
 
@@ -123,7 +131,7 @@ namespace {
 		// Status message
 		if (!statusText.empty()) {
 			GTS::ImFontManager::Push(GTS::ImFontManager::ActiveFontType::kLargeText);
-			ImGui::TextColored(ImUtil::Colors::Message, statusText.c_str());
+			ImGui::TextColored(ImUtil::Colors::Warning, statusText.c_str());
 			GTS::ImFontManager::Pop();
 		}
 	}
@@ -155,56 +163,53 @@ namespace GTS {
 				bool IsPandoraGenerated = AnimationVars::Other::IsPandoraGenerated(Player);
 				bool IsNemesisGenerated = AnimationVars::Other::IsNemesisGenerated(Player);
 
-				ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetTitle);
+				// "Animations Installed" Header
+				{
+					ImFontManager::Push(ImFontManager::ActiveFontType::kWidgetTitle);
 
-				ImGui::Text("Animations Installed: ");
-				if (WorkingAnims && IsPandoraGenerated) {
-					ImGui::SameLine(0);
-					ImGui::TextColored(ImUtil::Colors::Message, "Yes (Warning)");
-				} 
-				else if (FirstPerson) {
-					ImGui::SameLine(0);
-					ImGui::TextColored(ImUtil::Colors::Error, "First Person");
-					ImGuiEx::Tooltip(
-						"Can't check the type of behavior generator used\n"
-						"Switch to 3rd person mode", true
-					);
-				}
-				else if (WorkingAnims) {
-					ImGui::SameLine(0,1);
-					ImGui::TextColored(ImUtil::Colors::OK,"Yes");
-				}
-				else {
-					ImGui::SameLine(0);
-					ImGui::TextColored(ImUtil::Colors::Error, "No");
-				}
+					ImGui::Text("Animations Installed: ");
+					if (FirstPerson) {
+						ImGui::SameLine(0);
+						ImGui::TextColored(ImUtil::Colors::Warning, "Unknown");
+					}
+					else if (WorkingAnims) {
+						ImGui::SameLine(0, 1);
+						ImGui::TextColored(ImUtil::Colors::OK, "Yes");
+					}
+					else {
+						ImGui::SameLine(0);
+						ImGui::TextColored(ImUtil::Colors::Error, "No");
+					}
 
-				ImFontManager::Pop();
+					ImFontManager::Pop();
 
-				if (IsPandoraGenerated) {
-					ImGuiEx::Tooltip(T_PandoraWarn, true);
+					if (FirstPerson) {
+						ImGuiEx::Tooltip(T_FirstPersonWarn, true);
+					}
 				}
 
-				ImGui::Text("Behavior Generator: ");
-				if (IsPandoraGenerated) {
-					ImGui::SameLine(0);
-					ImGui::TextColored(ImUtil::Colors::Error, "Pandora");
-					ImGuiEx::Tooltip(T_PandoraWarn, true);
-				}
-				else if (IsNemesisGenerated) {
-					ImGui::SameLine(0);
-					ImGui::TextColored(ImUtil::Colors::OK, "Nemesis");
-				} 
-				else if (FirstPerson) {
-					ImGui::SameLine(0);
-					ImGui::TextColored(ImUtil::Colors::Error, 
-						"Can't check the type of behavior generator used\n"
-						"Switch to 3rd person mode"
-					);
-				}
-				else {
-					ImGui::SameLine(0);
-					ImGui::TextColored(ImUtil::Colors::Error, "None/Other (WARNING)");
+				// Behavior Generator Info
+				{
+					ImGui::Text("Behavior Generator: ");
+					if (IsPandoraGenerated) {
+						ImGui::SameLine(0);
+						ImGui::TextColored(ImUtil::Colors::Warning, "Pandora");
+						ImGuiEx::Tooltip(T_PandoraWarn, true);
+					}
+					else if (IsNemesisGenerated) {
+						ImGui::SameLine(0);
+						ImGui::TextColored(ImUtil::Colors::OK, "Nemesis");
+					}
+					else if (FirstPerson) {
+						ImGui::SameLine(0);
+						ImGui::TextColored(ImUtil::Colors::Warning, "Unknown");
+						ImGuiEx::Tooltip(T_FirstPersonWarn, true);
+					}
+					else {
+						ImGui::SameLine(0);
+						ImGui::TextColored(ImUtil::Colors::Error, "None/Other");
+						ImGuiEx::Tooltip(T_UnknownBehavior, true);
+					}
 				}
 
 				if (ImGuiEx::Button("Manualy Test Animations", T0)) {
