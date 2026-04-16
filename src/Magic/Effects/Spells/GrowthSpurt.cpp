@@ -89,7 +89,7 @@ namespace GTS {
 			return;
 		}
 
-		if (!Persistent::MSGSeenGrowthSpurt.value) {
+		if (caster->IsPlayerRef() && !Persistent::MSGSeenGrowthSpurt.value) {
 			PrintMessageBox(GrowthSpurtMessage);
 			Persistent::MSGSeenGrowthSpurt.value = true;
 		}

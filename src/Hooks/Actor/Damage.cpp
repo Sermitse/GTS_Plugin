@@ -154,12 +154,14 @@ namespace GTS {
 		}
 	}
 
-	float TinyAsShield(Actor* receiver) {
+	float TinyAsShield_GetDamageReduction(Actor* receiver) {
 		float protection = 1.0f;
 		if (receiver->IsPlayerRef()) {
 			auto grabbedActor = Grab::GetHeldActor(receiver);
 			if (grabbedActor) {
-				protection = 0.75f; // 25% damage reduction
+				if (!IsBetweenBreasts(grabbedActor)) {
+					protection = 0.75f; // 25% damage reduction
+				}
 			}
 		}
 		return protection;
@@ -268,7 +270,7 @@ namespace GTS {
 		if (const auto& transient = Transient::GetActorData(receiver)) {
 			if (receiver->IsPlayerRef()) {
 				DamageImmunity = transient->TemporaryDamageImmunity;
-				tiny_resistance = TinyAsShield(receiver);
+				tiny_resistance = TinyAsShield_GetDamageReduction(receiver);
 			}
 		}
 

@@ -66,11 +66,11 @@ namespace {
 		return false;
 	}
 
-	void TinyAsShield(Actor* receiver, float a_damage) {
+	void TinyAsShield_ShareDamage(Actor* receiver, float a_damage) {
 		auto grabbedActor = Grab::GetHeldActor(receiver);
 		if (grabbedActor) {
-			if (IsTeammate(grabbedActor)) {
-				return; // Don't kill teammates
+			if (IsTeammate(grabbedActor) || IsBetweenBreasts(grabbedActor)) {
+				return; // Don't kill teammates and don't apply to actors between breasts
 			}
 
 			DamageAV(grabbedActor, ActorValue::kHealth, a_damage * 0.50f);
@@ -229,7 +229,7 @@ namespace {
 	void ApplyToTinies(Actor* attacker, Actor* receiver, float damage) {
 		float sizedifference = get_scale_difference(receiver, attacker, SizeType::VisualScale, true, true);
 		DropTinyChance(receiver, -damage, sizedifference);
-		TinyAsShield(receiver, -damage);
+		TinyAsShield_ShareDamage(receiver, -damage);
 	}
 }
 
