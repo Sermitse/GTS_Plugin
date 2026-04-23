@@ -618,44 +618,29 @@ namespace GTS {
 
 		if (!a_outCapsule) return;
 
-		const float& r0 = a_baseCapsule.radius;
+		const float r0 = a_baseCapsule.radius;
+		const float bottom0 = std::min(a_baseCapsule.vertexA.quad.m128_f32[2], a_baseCapsule.vertexB.quad.m128_f32[2]) - r0;
 
-		// Original endpoints
-		const float& a0x = a_baseCapsule.vertexA.quad.m128_f32[0];
-		const float& a0y = a_baseCapsule.vertexA.quad.m128_f32[1];
-		const float& a0z = a_baseCapsule.vertexA.quad.m128_f32[2];
-		const float& b0x = a_baseCapsule.vertexB.quad.m128_f32[0];
-		const float& b0y = a_baseCapsule.vertexB.quad.m128_f32[1];
-		const float& b0z = a_baseCapsule.vertexB.quad.m128_f32[2];
+		const __m128 scale = _mm_set1_ps(a_scaleFactor);
 
-		const float bottom0 = std::min(a0z, b0z) - r0;
-
-		// Scale radius + endpoints about origin
-		const float r1 = r0 * a_scaleFactor;
-
-		const float a1x = a0x * a_scaleFactor;
-		const float a1y = a0y * a_scaleFactor;
-		float a1z = a0z * a_scaleFactor;
-
-		const float b1x = b0x * a_scaleFactor;
-		const float b1y = b0y * a_scaleFactor;
-		float b1z = b0z * a_scaleFactor;
+		// Scale both vertices in parallel: [x, y, z, w] * scaleFactor
+		__m128 a1 = _mm_mul_ps(a_baseCapsule.vertexA.quad, scale);
+		__m128 b1 = _mm_mul_ps(a_baseCapsule.vertexB.quad, scale);
 
 		if (a_baseCapsule.isBumper) {
-			const float bottom1 = std::min(a1z, b1z) - r1;
+			const float r1 = r0 * a_scaleFactor;
+			const float bottom1 = std::min(a1.m128_f32[2], b1.m128_f32[2]) - r1;
 			const float dz = bottom0 - bottom1;
 
-			a1z += dz;
-			b1z += dz;
+			// Add dz only to the Z lane: [0, 0, dz, 0]
+			const __m128 dzVec = _mm_set_ps(0.0f, dz, 0.0f, 0.0f); // [w, z, y, x]
+			a1 = _mm_add_ps(a1, dzVec);
+			b1 = _mm_add_ps(b1, dzVec);
 		}
 
-		a_outCapsule->radius = r1;
-		a_outCapsule->vertexA.quad.m128_f32[0] = a1x;
-		a_outCapsule->vertexA.quad.m128_f32[1] = a1y;
-		a_outCapsule->vertexA.quad.m128_f32[2] = a1z;
-		a_outCapsule->vertexB.quad.m128_f32[0] = b1x;
-		a_outCapsule->vertexB.quad.m128_f32[1] = b1y;
-		a_outCapsule->vertexB.quad.m128_f32[2] = b1z;
+		a_outCapsule->radius = r0 * a_scaleFactor;
+		a_outCapsule->vertexA.quad = a1;
+		a_outCapsule->vertexB.quad = b1;
 	}
 
 	void DynamicCollisionController::UpdateControllerScaleAndSlope(bhkCharacterController* a_controller, const ShapeData& a_origData, float a_currentScale) {
