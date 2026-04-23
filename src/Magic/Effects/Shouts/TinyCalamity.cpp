@@ -49,14 +49,14 @@ namespace GTS {
 	}
 
 	void TinyCalamity::OnStart() {
-
-		if (!Persistent::MSGSeenTinyCamity.value) {
-			PrintMessageBox(TinyCalamityMessage);
-			Persistent::MSGSeenTinyCamity.value = true;
-		}
-
 		auto caster = GetCaster();
 		if (caster) {
+
+			if (caster->IsPlayerRef() && !Persistent::MSGSeenTinyCamity.value) {
+				PrintMessageBox(TinyCalamityMessage);
+				Persistent::MSGSeenTinyCamity.value = true;
+			}
+
 			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity, caster, 1.0f, "NPC COM [COM ]");
 			AdjustCalamityDuration(caster, GetActiveEffect());
 			auto node = find_node(caster, "NPC Root [Root]");

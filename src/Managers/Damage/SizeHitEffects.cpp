@@ -65,57 +65,7 @@ namespace {
 		}
 		return false;
 	}
-
-	void TinyAsShield(Actor* receiver, float a_damage) {
-		auto grabbedActor = Grab::GetHeldActor(receiver);
-		if (grabbedActor) {
-			if (IsTeammate(grabbedActor)) {
-				return; // Don't kill teammates
-			}
-
-			DamageAV(grabbedActor, ActorValue::kHealth, a_damage * 0.50f);
-			if (grabbedActor->IsDead() || GetAV(grabbedActor, ActorValue::kHealth) < a_damage * 0.50f) {
-				if (!IsBetweenBreasts(grabbedActor)) {
-					ReportDeath(receiver, grabbedActor, DamageSource::BlockDamage);
-				} else {
-					ReportDeath(receiver, grabbedActor, DamageSource::Breast);
-				}
-
-				Grab::DetachActorTask(receiver);
-				ModSizeExperience_Crush(receiver, grabbedActor, false);
-
-				auto hand = find_node(receiver, "NPC L Hand [LHnd]");
-				if (hand) {
-					if (IsLiving(grabbedActor)) {
-						SpawnParticle(receiver, 25.0f, "GTS/Damage/Explode.nif", hand->world.rotate, hand->world.translate, get_visual_scale(grabbedActor) * 5, 4, hand);
-						SpawnParticle(receiver, 25.0f, "GTS/Damage/Crush.nif", hand->world.rotate, hand->world.translate, get_visual_scale(grabbedActor) * 5, 4, hand);
-					} else {
-						SpawnDustParticle(receiver, grabbedActor, "NPC L Hand [LHnd]", 3.0f);
-					}
-				}
-				CrushManager::Crush(receiver, grabbedActor);
-
-				if (!IsActionOnCooldown(receiver, CooldownSource::Emotion_Moan_Crush)) {
-					ApplyActionCooldown(receiver, CooldownSource::Emotion_Moan_Crush);
-					Sound_PlayLaughs(receiver, 1.0f, 0.14f, EmotionTriggerSource::Overkill);
-					Task_FacialEmotionTask_Smile(receiver, 1.25f, "CrushSmile", RandomFloat(0.0f, 0.7f), 0.4f);
-				}
-
-				if (!Config::General.bLessGore) {
-					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
-					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
-					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrunchImpact, receiver, 1.0f, "NPC L Hand [LHnd]");
-				} else {
-					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSoftHandAttack, receiver, 1.0f, "NPC L Hand [LHnd]");
-				}
-				Rumbling::Once("GrabAttackKill", receiver, 8.0f, 0.15f, "NPC L Hand [LHnd]", 0.0f);
-				AnimationManager::StartAnim("GrabAbort", receiver); // Abort Grab animation
-				Grab::Release(receiver);
-			}
-		}
-	}
 	
-
 	void DropTinyChance(Actor* receiver, float damage, float scale) {
 		static Timer DropTimer = Timer(0.33); // Check once per .33 sec
 		float bonus = 1.0f;
@@ -229,7 +179,6 @@ namespace {
 	void ApplyToTinies(Actor* attacker, Actor* receiver, float damage) {
 		float sizedifference = get_scale_difference(receiver, attacker, SizeType::VisualScale, true, true);
 		DropTinyChance(receiver, -damage, sizedifference);
-		TinyAsShield(receiver, -damage);
 	}
 }
 

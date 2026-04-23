@@ -154,17 +154,6 @@ namespace GTS {
 		}
 	}
 
-	float TinyAsShield(Actor* receiver) {
-		float protection = 1.0f;
-		if (receiver->IsPlayerRef()) {
-			auto grabbedActor = Grab::GetHeldActor(receiver);
-			if (grabbedActor) {
-				protection = 0.75f; // 25% damage reduction
-			}
-		}
-		return protection;
-	}
-
 	bool HealthGateProtection(Actor* receiver, Actor* attacker, float a_damage) {
 		bool NullifyDamage = false;
 		if (receiver->IsPlayerRef()) {
@@ -261,18 +250,16 @@ namespace GTS {
 		// Take GetScale into account since it boosts damage as well
 		float attacker_multiplier = AttributeManager::GetAttributeBonus(aggressor, ActorValue::kAttackDamageMult) / game_getactorscale(aggressor); 
 
-		float tiny_resistance = 1.0f; // Tiny in hands takes portion of damage (25%) instead of GTS
 		bool DamageImmunity = false;
 		float TakenDamageMult = 1.0f; // 1.0 = take 100% damage
 
 		if (const auto& transient = Transient::GetActorData(receiver)) {
 			if (receiver->IsPlayerRef()) {
 				DamageImmunity = transient->TemporaryDamageImmunity;
-				tiny_resistance = TinyAsShield(receiver);
 			}
 		}
 
-		TakenDamageMult *= (attacker_multiplier * receiver_resistance * tiny_resistance);
+		TakenDamageMult *= (attacker_multiplier * receiver_resistance);
 		if (DamageImmunity) {
 			TakenDamageMult *= 0.0f; // Fully immune to damage for 2.5 sec after triggering health gate
 		}
