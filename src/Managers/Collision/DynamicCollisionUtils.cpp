@@ -32,7 +32,7 @@ namespace {
 
 			case RE::hkpShapeType::kList:
 			{
-				auto* listShape =skyrim_cast<RE::hkpListShape*>(const_cast<RE::hkpShape*>(a_shape));
+				auto* listShape = skyrim_cast<RE::hkpListShape*>(const_cast<RE::hkpShape*>(a_shape));
 
 				if (!listShape) {
 					return;
