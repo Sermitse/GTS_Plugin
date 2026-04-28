@@ -5,6 +5,7 @@ namespace GTS {
 	//----------------------------------------------------
 	// OTHER
 	//----------------------------------------------------
+	SoftPotential GetSpeedFromConfig();
 	float GetAnimationSlowdown(Actor* giant);
 	float GetMovementModifier(Actor* a_target);
 	float GetRandomBoost();

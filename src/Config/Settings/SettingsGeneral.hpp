@@ -38,7 +38,6 @@ struct SettingsGeneral_t {
     bool bDevourmentCompat = false;
     bool bConversationCamCompat = false;
     bool bOverrideInteractionDist = false;
-    bool bAlternativeSpeedFormula = true;
 
     // Protection toggles
     bool bProtectEssentials = true;

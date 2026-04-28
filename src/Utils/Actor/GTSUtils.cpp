@@ -134,6 +134,16 @@ namespace GTS {
 	//----------------------------------------------------
 	// OTHER
 	//----------------------------------------------------
+	SoftPotential GetSpeedFromConfig() {
+		const std::array<float, 5>& config = Config::Advanced.fAnimSpeedSoftCore;
+		SoftPotential Speed;
+		Speed.k = config[0];
+		Speed.n = config[1];
+		Speed.s = config[2];
+		Speed.o = config[3];
+		Speed.a = config[4];
+		return Speed;
+	}
 
 	float GetAnimationSlowdown(Actor* giant) {
 
@@ -147,19 +157,9 @@ namespace GTS {
 				if (giant->AsActorState()->GetSitSleepState() != SIT_SLEEP_STATE::kNormal) {
 					return 1.0f; // For some reason makes furniture angles funny if there's anim slowdown. So we prevent that
 				}
-
-				const std::array<float, 5>& SpeedVars = Adv.fAnimSpeedFormula;
-
-				const SoftPotential Speed = {
-					SpeedVars[0],
-					SpeedVars[1],
-					SpeedVars[2],
-					SpeedVars[3],
-					SpeedVars[4]
-				};
-
+				
 				float scale = get_visual_scale(giant);
-				float speedmultcalc = soft_core(scale, Speed);
+				float speedmultcalc = soft_core(scale, GetSpeedFromConfig());
 				speedmultcalc = std::clamp(speedmultcalc, Adv.fAnimspeedLowestBoundAllowed, 1.0f);
 
 				if (AnimationVars::General::IsGTSBusy(giant) && Adv.bGTSAnimsFullSpeed) {

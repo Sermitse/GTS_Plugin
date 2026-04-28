@@ -142,10 +142,10 @@ namespace GTS {
 
                 //https://www.desmos.com/calculator/vyofjrqmrn
                 ImGui::Text("Animation Formula");
-                ImGuiEx::SliderF3("Param K, N, S", &Config::Advanced.fAnimSpeedFormula.at(0), 0.0f, 10.0f, T1, "%.3f");
-                ImGuiEx::SliderF2("Param O, A", &Config::Advanced.fAnimSpeedFormula.at(3), 0.0f, 10.0f, T1, "%.3f");
+                ImGuiEx::SliderF3("Param K, N, S", &Config::Advanced.fAnimSpeedSoftCore.at(0), 0.0f, 10.0f, T1, "%.3f");
+                ImGuiEx::SliderF2("Param O, A", &Config::Advanced.fAnimSpeedSoftCore.at(3), 0.0f, 10.0f, T1, "%.3f");
                 if (ImGuiEx::Button("Reset")) {
-                    Config::Advanced.fAnimSpeedFormula = { 0.142f, 0.82f, 1.90f, 1.0f, 0.0f };
+                    Config::Advanced.fAnimSpeedSoftCore = { 0.140f, 0.540f, 1.350f, 1.0f, 0.0f };
                 }
 
                 ImGui::Spacing();

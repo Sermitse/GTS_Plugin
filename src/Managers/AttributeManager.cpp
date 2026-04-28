@@ -11,33 +11,13 @@ using namespace GTS;
 // TODO move away from polling
 namespace {
 
-	constexpr SoftPotential speed_adjustment_walk { .k = 0.265f,.n = 1.11f,.s = 2.0f,.o = 1.0f,.a = 0.0f,};
-	constexpr SoftPotential MS_adjustment{ .k = 0.132f,.n = 0.86f, .s = 1.12f, .o = 1.0f,.a = 0.0f,};
-
-	float GetMovementSpeedFormula_Alternative(Actor* actor, float smt_speed, float MovementDebuff) {
+	float GetMovementSpeedFormula(Actor* actor, float smt_speed, float MovementDebuff) {
 		// In short: 1.0 * (size * animation slowdown) * SMT run speed
-		float gts_speed = get_giantess_scale(actor);
-		float MS_mult = soft_core(gts_speed, MS_adjustment);
+		float scale = get_giantess_scale(actor);
+		float MovementSpeed = soft_core(scale, GetSpeedFromConfig());
 		
-		float power = 1.0f * (gts_speed * (smt_speed/2.0f + 1.0f) * MS_mult);
+		float power = 1.0f * (scale * (smt_speed/2.0f + 1.0f) * MovementSpeed);
 		return power * MovementDebuff;
-	}
-
-	float GetMovementSpeedFormula_Normal(Actor* actor, float smt_speed, float MovementDebuff) {
-		// In short: (1.0 / Animation slowdown) * SMT run speed
-		float gts_speed = get_giantess_scale(actor);
-		float MS_mult = soft_core(gts_speed, MS_adjustment);
-		float MS_mult_limit = std::clamp(MS_mult, 0.750f, 1.0f);
-		float Multy = std::clamp(MS_mult, 0.70f, 1.0f);
-		float speed_mult_walk = soft_core(gts_speed, speed_adjustment_walk);
-		float bonusspeed = std::clamp(speed_mult_walk, 0.90f, 1.0f);
-
-		float power = 1.0f * MovementDebuff * (smt_speed/2.0f + 1.0f)/MS_mult/MS_mult_limit/Multy/bonusspeed;
-		if (gts_speed > 1.0f) {
-			return power;
-		} else {
-			return gts_speed * MovementDebuff * (smt_speed/2.0f + 1.0f);
-		}
 	}
 
 	float GetMovementSlowdown(Actor* tiny) {
@@ -204,11 +184,7 @@ namespace GTS {
 				if (actorData) {
 					smt_speed = actorData->fSMTRunSpeed;
 				}
-				bool AlternativeSpeed = Config::General.bAlternativeSpeedFormula;
-				float MovementSpeed = AlternativeSpeed ? 
-				GetMovementSpeedFormula_Alternative(actor, smt_speed, MovementDebuff)
-				:
-				GetMovementSpeedFormula_Normal(actor, smt_speed, MovementDebuff);
+				float MovementSpeed = GetMovementSpeedFormula(actor, smt_speed, MovementDebuff);
 
 				return MovementSpeed;
 			}

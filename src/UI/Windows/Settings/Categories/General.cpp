@@ -408,13 +408,6 @@ namespace GTS {
 
 		ImUtil_Unique
 		{
-
-			PSString T1 = "Changes Size-Related Movement Speed calculation\n"
-						  "- from: 1.0 / animation slowdown\n"
-						  "- to:   1.0 * (size * anim slowdown)\n\n"
-						  "As a result, movement speed will be faster (which isn't always good)\n"
-						  "But it should drastically reduce or even fix ice-skating effect";
-
 			PSString T2Help = "Movement speed clamping gradually reduces NPC movement speed as they exceed certain size thresholds.\n"
 							  "This prevents large NPCs from moving unrealistically fast.\n"
 							  "The speed reduction scales smoothly between the start and maximum thresholds.";
@@ -428,8 +421,6 @@ namespace GTS {
 
 
 			if (ImGui::CollapsingHeader("Movement", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImGuiEx::CheckBox("Alternative Movement Speed", &Config::General.bAlternativeSpeedFormula, T1);
-
 				ImGuiEx::HelpText("What is this", T2Help);
 				ImGuiEx::SliderF("Start NPC Speed Clamp", &Config::General.fNPCMaxSpeedMultClampStartAt, 1.0f, 20.0f, T2_1, "When larger than %.1fx");
 				ImGuiEx::SliderF("NPC Max Clamp", &Config::General.fNPCMaxSpeedMultClampMaxAt, Config::General.fNPCMaxSpeedMultClampStartAt, Config::General.fNPCMaxSpeedMultClampStartAt + 20.f, T2_2, "At %.1fx");
