@@ -36,93 +36,48 @@ namespace {
 		return true;
 	}
 
-	void CheckAndCorrectCollapsedVertexShape(std::vector<RE::hkVector4>& a_modVerts) {
-
-		constexpr float buffer = 0.05f;
+	void CheckAndCorrectCollapsedVertexShape(std::vector<RE::hkVector4>& a_modVerts)
+	{
 		const std::size_t n = a_modVerts.size();
 
-		// 18-vertex layout
 		if (n == 18) {
-			static_assert(std::is_integral_v<decltype(Vertex18_Top)>);
-			static_assert(std::is_integral_v<decltype(Vertex18_Bot)>);
+			if (static_cast<std::size_t>(Vertex18_Top) >= n || static_cast<std::size_t>(Vertex18_Bot) >= n) return;
+			if (!AllInRange(n, Vertex18_RingTop) || !AllInRange(n, Vertex18_RingBot))                       return;
 
-			if (static_cast<std::size_t>(Vertex18_Top) >= n || static_cast<std::size_t>(Vertex18_Bot) >= n) {
-				return;
-			}
-			if (!AllInRange(n, Vertex18_RingTop) || !AllInRange(n, Vertex18_RingBot)) {
-				return;
-			}
-
-			const float topPos = Z(a_modVerts[Vertex18_Top]);
 			const float botPos = Z(a_modVerts[Vertex18_Bot]);
 
-			float topRingMax = -FLT_MAX;
-			for (uint8_t idx : Vertex18_RingTop) topRingMax = std::max(topRingMax, Z(a_modVerts[idx]));
+			// Nothing may be at or below botPos
+			if (Z(a_modVerts[Vertex18_Top]) <= botPos) Z(a_modVerts[Vertex18_Top]) = botPos + 0.003f;
+			for (uint8_t idx : Vertex18_RingTop) if (Z(a_modVerts[idx]) <= botPos) Z(a_modVerts[idx]) = botPos + 0.002f;
+			for (uint8_t idx : Vertex18_RingBot) if (Z(a_modVerts[idx]) <= botPos) Z(a_modVerts[idx]) = botPos + 0.001f;
 
-			float botRingMin = +FLT_MAX;
-			for (uint8_t idx : Vertex18_RingBot) botRingMin = std::min(botRingMin, Z(a_modVerts[idx]));
+			const float topPos = Z(a_modVerts[Vertex18_Top]);
 
-			// Bottom ring: keep above bottom point by buffer
-			if (botRingMin - botPos < buffer) {
-				const float target = botPos + buffer;
-				for (uint8_t idx : Vertex18_RingBot) Z(a_modVerts[idx]) = std::max(Z(a_modVerts[idx]), target);
-				botRingMin = target;
-			}
+			// topRing must be below topPos
+			for (uint8_t idx : Vertex18_RingTop)
+				if (Z(a_modVerts[idx]) >= topPos) Z(a_modVerts[idx]) = topPos - 0.001f;
 
-			// Top ring: keep above bottom ring by buffer
-			if (topRingMax - botRingMin < buffer) {
-				const float target = botRingMin + buffer;
-				for (uint8_t idx : Vertex18_RingTop) Z(a_modVerts[idx]) = std::max(Z(a_modVerts[idx]), target);
-				topRingMax = target;
-			}
-
-			// Top point: keep above top ring by buffer
-			if (topPos - topRingMax < buffer) {
-				Z(a_modVerts[Vertex18_Top]) = topRingMax + buffer;
-			}
-			return;
+			// botRing must be below topRing
+			float topRingMin = +FLT_MAX;
+			for (uint8_t idx : Vertex18_RingTop) topRingMin = std::min(topRingMin, Z(a_modVerts[idx]));
+			for (uint8_t idx : Vertex18_RingBot)
+				if (Z(a_modVerts[idx]) >= topRingMin) Z(a_modVerts[idx]) = topRingMin - 0.001f;
 		}
-
-		// 17-vertex layout
-		if (n == 17) {
-			static_assert(std::is_integral_v<decltype(Vertex17_Bot)>);
-
-			if (Vertex17_Bot >= n || !AllInRange(n, Vertex17_RingTop) || !AllInRange(n, Vertex17_RingBot)) {
-				return;
-			}
+		else if (n == 17) {
+			if (static_cast<std::size_t>(Vertex17_Bot) >= n) return;
+			if (!AllInRange(n, Vertex17_RingTop) || !AllInRange(n, Vertex17_RingBot)) return;
 
 			const float botPos = Z(a_modVerts[Vertex17_Bot]);
 
-			float topRingMax = -FLT_MAX;
-			for (uint8_t idx : Vertex17_RingTop) topRingMax = std::max(topRingMax, Z(a_modVerts[idx]));
+			// Nothing may be at or below botPos
+			for (uint8_t idx : Vertex17_RingTop) if (Z(a_modVerts[idx]) <= botPos) Z(a_modVerts[idx]) = botPos + 0.002f;
+			for (uint8_t idx : Vertex17_RingBot) if (Z(a_modVerts[idx]) <= botPos) Z(a_modVerts[idx]) = botPos + 0.001f;
 
-			float botRingMin = +FLT_MAX;
-			for (uint8_t idx : Vertex17_RingBot) botRingMin = std::min(botRingMin, Z(a_modVerts[idx]));
-
-			// Bottom ring above bottom point
-			if (botRingMin - botPos < buffer) {
-				const float target = botPos + buffer;
-				for (uint8_t idx : Vertex17_RingBot) Z(a_modVerts[idx]) = std::max(Z(a_modVerts[idx]), target);
-				botRingMin = target;
-			}
-
-			// Top ring above bottom ring
-			if (topRingMax - botRingMin < buffer) {
-				const float target = botRingMin + buffer;
-				for (uint8_t idx : Vertex17_RingTop) Z(a_modVerts[idx]) = std::max(Z(a_modVerts[idx]), target);
-				topRingMax = target;
-			}
-
-			// Ensure overall top has clearance over top ring
-			{
-				std::size_t topIdx = 0;
-				float curMax = -FLT_MAX;
-				for (std::size_t i = 0; i < n; ++i) {
-					if (Z(a_modVerts[i]) > curMax) { curMax = Z(a_modVerts[i]); topIdx = i; }
-				}
-				Z(a_modVerts[topIdx]) = std::max(Z(a_modVerts[topIdx]), topRingMax + buffer);
-			}
-			return;
+			// botRing must be below topRing
+			float topRingMin = +FLT_MAX;
+			for (uint8_t idx : Vertex17_RingTop) topRingMin = std::min(topRingMin, Z(a_modVerts[idx]));
+			for (uint8_t idx : Vertex17_RingBot)
+				if (Z(a_modVerts[idx]) >= topRingMin) Z(a_modVerts[idx]) = topRingMin - 0.001f;
 		}
 	}
 
@@ -390,8 +345,8 @@ namespace GTS {
 		
 		GTS_PROFILE_SCOPE("DynamicCollisionController::AdjustBoneDrivenHuman");
 
-		//Stop updating past a certain scale.
-		const float clampedScale = std::clamp(m_currentVisualScale, 0.05f, Config::Collision.fDynamicColliderMaxUpdateScale);
+		//Stop updating past a certain scale, the shape breaks below around 0.15, just clamp it a bit higher.
+		const float clampedScale = std::clamp(m_currentVisualScale, 0.20f, Config::Collision.fDynamicColliderMaxUpdateScale);
 
 		// Bone driven updates only work with convex vertex shape colliders
 		if (!m_originalData.hasVertecesShape) return;
@@ -663,44 +618,29 @@ namespace GTS {
 
 		if (!a_outCapsule) return;
 
-		const float& r0 = a_baseCapsule.radius;
+		const float r0 = a_baseCapsule.radius;
+		const float bottom0 = std::min(a_baseCapsule.vertexA.quad.m128_f32[2], a_baseCapsule.vertexB.quad.m128_f32[2]) - r0;
 
-		// Original endpoints
-		const float& a0x = a_baseCapsule.vertexA.quad.m128_f32[0];
-		const float& a0y = a_baseCapsule.vertexA.quad.m128_f32[1];
-		const float& a0z = a_baseCapsule.vertexA.quad.m128_f32[2];
-		const float& b0x = a_baseCapsule.vertexB.quad.m128_f32[0];
-		const float& b0y = a_baseCapsule.vertexB.quad.m128_f32[1];
-		const float& b0z = a_baseCapsule.vertexB.quad.m128_f32[2];
+		const __m128 scale = _mm_set1_ps(a_scaleFactor);
 
-		const float bottom0 = std::min(a0z, b0z) - r0;
-
-		// Scale radius + endpoints about origin
-		const float r1 = r0 * a_scaleFactor;
-
-		const float a1x = a0x * a_scaleFactor;
-		const float a1y = a0y * a_scaleFactor;
-		float a1z = a0z * a_scaleFactor;
-
-		const float b1x = b0x * a_scaleFactor;
-		const float b1y = b0y * a_scaleFactor;
-		float b1z = b0z * a_scaleFactor;
+		// Scale both vertices in parallel: [x, y, z, w] * scaleFactor
+		__m128 a1 = _mm_mul_ps(a_baseCapsule.vertexA.quad, scale);
+		__m128 b1 = _mm_mul_ps(a_baseCapsule.vertexB.quad, scale);
 
 		if (a_baseCapsule.isBumper) {
-			const float bottom1 = std::min(a1z, b1z) - r1;
+			const float r1 = r0 * a_scaleFactor;
+			const float bottom1 = std::min(a1.m128_f32[2], b1.m128_f32[2]) - r1;
 			const float dz = bottom0 - bottom1;
 
-			a1z += dz;
-			b1z += dz;
+			// Add dz only to the Z lane: [0, 0, dz, 0]
+			const __m128 dzVec = _mm_set_ps(0.0f, dz, 0.0f, 0.0f); // [w, z, y, x]
+			a1 = _mm_add_ps(a1, dzVec);
+			b1 = _mm_add_ps(b1, dzVec);
 		}
 
-		a_outCapsule->radius = r1;
-		a_outCapsule->vertexA.quad.m128_f32[0] = a1x;
-		a_outCapsule->vertexA.quad.m128_f32[1] = a1y;
-		a_outCapsule->vertexA.quad.m128_f32[2] = a1z;
-		a_outCapsule->vertexB.quad.m128_f32[0] = b1x;
-		a_outCapsule->vertexB.quad.m128_f32[1] = b1y;
-		a_outCapsule->vertexB.quad.m128_f32[2] = b1z;
+		a_outCapsule->radius = r0 * a_scaleFactor;
+		a_outCapsule->vertexA.quad = a1;
+		a_outCapsule->vertexB.quad = b1;
 	}
 
 	void DynamicCollisionController::UpdateControllerScaleAndSlope(bhkCharacterController* a_controller, const ShapeData& a_origData, float a_currentScale) {
