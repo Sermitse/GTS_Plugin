@@ -15,7 +15,7 @@ namespace GTS {
     absl::flat_hash_map<FormID, std::unique_ptr<ImGuiEx::ActorInfoCard>> Cards = {};
 
 	CategoryStats::CategoryStats() {
-		m_name = "Stats";
+		m_name = "状态";
 	}
 
     void CategoryStats::Draw() {

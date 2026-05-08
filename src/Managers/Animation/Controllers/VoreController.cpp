@@ -287,8 +287,8 @@ namespace GTS {
 
 		if (transient) {
 			if (transient->CanBeVored == false) {
-				Notify("{} is already being eaten by someone else", prey->GetDisplayFullName());
-				Cprint("{} is already being eaten by someone else", prey->GetDisplayFullName());
+				Notify("{} 已经在被别人吞食", prey->GetDisplayFullName());
+				Cprint("{} 已经在被别人吞食", prey->GetDisplayFullName());
 				return false;
 			}
 		}
@@ -308,13 +308,13 @@ namespace GTS {
 
 		if (prey_distance <= (MINIMUM_DISTANCE * pred_scale) && sizedifference < MINIMUM_VORE_SCALE) {
 			if (IsInsect(prey, true) || IsBlacklisted(prey) || IsUndead(prey, true)) {
-				std::string_view message = fmt::format("{} has no desire to eat {}", pred->GetDisplayFullName(), prey->GetDisplayFullName());
+				std::string message = fmt::format("{} 不想吞下 {}", pred->GetDisplayFullName(), prey->GetDisplayFullName());
 				NotifyWithSound(pred, message);
 				return false;
 			}
 			
 			if (pred->IsPlayerRef()) {
-				std::string_view message = fmt::format("{} is too big to be eaten: x{:.2f}/{:.2f}", prey->GetDisplayFullName(), sizedifference, MINIMUM_VORE_SCALE);
+				std::string message = fmt::format("{} 体型过大，无法吞食：x{:.2f}/{:.2f}", prey->GetDisplayFullName(), sizedifference, MINIMUM_VORE_SCALE);
 				shake_camera(pred, 0.45f, 0.30f);
 				NotifyWithSound(pred, message);
 			} else if (this->allow_message && prey->IsPlayerRef() && IsTeammate(pred)) {
@@ -328,7 +328,7 @@ namespace GTS {
 				return false; // Disallow to vore flying dragons
 			}
 			if ((!prey->IsPlayerRef() && !CanPerformActionOn(pred, prey, false))) {
-				Notify("{} is important and shouldn't be eaten.", prey->GetDisplayFullName());
+				Notify("{} 是重要角色，不应该被吞食。", prey->GetDisplayFullName());
 				return false;
 			}
 			else {
@@ -370,7 +370,7 @@ namespace GTS {
 
 		if (!Runtime::HasPerkTeam(pred, Runtime::PERK.GTSPerkVoreAbility)) { // Damage stamina if we don't have perk
 			if (staminacheck < wastestamina) {
-				Notify("{} is too tired for vore.", pred->GetDisplayFullName());
+				Notify("{} 体力不足，无法吞食。", pred->GetDisplayFullName());
 				DamageAV(prey, ActorValue::kHealth, 3 * sizedifference);
 				if (pred->IsPlayerRef()) {
 					Runtime::PlaySound(Runtime::SNDR.GTSSoundFail, pred, 0.4f, 1.0f);

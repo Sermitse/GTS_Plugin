@@ -10,7 +10,7 @@ namespace GTS {
 
 
 	CategoryCollision::CategoryCollision() {
-		m_name = "Collision";
+		m_name = "碰撞";
 	}
 
 	void CategoryCollision::DrawLeft() {

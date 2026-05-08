@@ -551,7 +551,7 @@ namespace {
 namespace GTS {
 
 	CategoryWidgets::CategoryWidgets() {
-		m_name = "Widgets";
+		m_name = "组件";
 	}
 
 	void CategoryWidgets::DrawRight() {

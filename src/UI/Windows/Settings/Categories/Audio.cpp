@@ -51,7 +51,7 @@ namespace {
 namespace GTS {
 
 	CategoryAudio::CategoryAudio() {
-		m_name = "Audio";
+		m_name = "音频";
 	}
 
 	void CategoryAudio::DrawLeft(){

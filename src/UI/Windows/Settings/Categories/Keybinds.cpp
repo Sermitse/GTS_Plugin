@@ -56,7 +56,7 @@ namespace {
 namespace GTS {
 
     CategoryKeybinds::CategoryKeybinds() {
-        m_name = "Keybinds";
+        m_name = "按键";
         for(auto& e : DefaultEvents){
             HeaderStateMap.emplace(e.Event.Event,false);
         }

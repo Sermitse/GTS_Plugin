@@ -138,12 +138,12 @@ namespace GTS {
                         } else {
                             if (giant->IsPlayerRef()) {
                                 if (!OnCooldown) {
-                                    std::string message = std::format("{} is too healthy for Wrathful Calamity", tiny->GetDisplayFullName());
-                                    Notify("Health: {:.0f}%; Requirement: {:.0f}%", health * 100.0f, threshold * 100.0f);
+                                    std::string message = std::format("{} 当前生命值过高，无法触发 Wrathful Calamity", tiny->GetDisplayFullName());
+                                    Notify("生命值：{:.0f}%；要求：{:.0f}%", health * 100.0f, threshold * 100.0f);
                                     shake_camera(giant, 0.45f, 0.30f);
                                     NotifyWithSound(giant, message);
                                 } else {
-                                    std::string message = std::format("{} is on a cooldown: {:.1f} sec", "Wrathful Calamity", GetRemainingCooldown(giant, CooldownSource::Misc_TinyCalamityRage));
+                                    std::string message = std::format("Wrathful Calamity 冷却中：{:.1f} 秒", GetRemainingCooldown(giant, CooldownSource::Misc_TinyCalamityRage));
                                     shake_camera(giant, 0.45f, 0.30f);
                                     NotifyWithSound(giant, message);
                                 }
@@ -286,9 +286,9 @@ namespace GTS {
         shake_camera_at_node(giant, "NPC COM [COM ]", 16.0f, 1.0f);
         
         if (IsEssential(giant, tiny)) {
-            Notify("{} is essential", tiny->GetDisplayFullName());
+            Notify("{} 是重要角色", tiny->GetDisplayFullName());
         } else {
-            Notify("{} is too tough to be crushed", tiny->GetDisplayFullName());
+            Notify("{} 体质太强，无法直接碾碎", tiny->GetDisplayFullName());
         }
 
         AnimationVars::General::SetGiantessScale(giant, OldScale);

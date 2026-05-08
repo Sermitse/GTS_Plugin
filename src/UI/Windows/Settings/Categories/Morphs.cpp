@@ -141,7 +141,7 @@ namespace {
 namespace GTS {
 
     CategoryMorphs::CategoryMorphs() {
-        m_name = "Morphs";
+        m_name = "变形";
     }
 
     void CategoryMorphs::DrawLeft() {

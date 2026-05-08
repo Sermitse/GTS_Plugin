@@ -17,7 +17,7 @@ namespace {
 				});
 			}
 		}
-		return "UNKNOWN";
+		return "未绑定";
 	}
 
 }
@@ -38,7 +38,7 @@ namespace GTS {
 
 			ImGui::Text(
 				"Size Matters - %s\n"
-				"Press %s or type \"gts menu\" in the console to open the mod's settings while in-game.",
+				"在游戏内按 %s，或在控制台输入 \"gts menu\" 打开模组设置。",
 				GTSPlugin::ModVersion.string(".").c_str(), 
 				GetSettingsKeybind().c_str()
 			);
@@ -66,7 +66,7 @@ namespace GTS {
 				  ImGuiWindowFlags_NoNav;
 
 		m_name = "SplashWindow";
-		m_title = "Startup Info";
+		m_title = "启动信息";
 		m_anchorPos = WindowAnchor::kTopLeft;
 		m_fadeSettings.visibilityDuration = 10.0f;
 		m_fadeSettings.fadeDuration = 3.0f;

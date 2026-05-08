@@ -27,7 +27,7 @@ namespace GTS {
 		Runtime::SetFloat(Runtime::GLOB.GTSSkillLevel, 100.0f);
 		Runtime::SetFloat(Runtime::GLOB.GTSSkillRatio, 0.0f);
 
-		Notify("All perks have been given.");
+		Notify("已发放全部 Perk。");
 	}
 
 	void GiveAllSpellsToPlayer() {
@@ -39,13 +39,13 @@ namespace GTS {
 			}
 		}
 
-		Notify("All spells have been given.");
+		Notify("已发放全部法术。");
 	}
 
 	void GiveAllShoutsToPlayer() {
 		if (const auto& progressionQuest = Runtime::GetQuest(Runtime::QUST.GTSQuestProgression)) {
 			CallVMFunctionOn(progressionQuest, "GTSProgressionQuest", "Proxy_GetAllShouts");
-			Notify("All shouts have been given.");
+			Notify("已发放全部龙吼。");
 		}
 	}
 
@@ -115,7 +115,7 @@ namespace GTS {
 
 							const float progression = GetQuestProgression((queststage == 40)  ? static_cast<int>(QuestStage::ShrinkToNothing) : static_cast<int>(QuestStage::Crushing));
 							const float goal = queststage == 40 ?  9.0f : 3.0f;
-							Notify("Progress: {:.1f}/{:.1f}", progression, goal);
+							Notify("进度：{:.1f}/{:.1f}", progression, goal);
 						}
 					} break;
 
@@ -125,7 +125,7 @@ namespace GTS {
 						if (queststage == 40) {
 							Persistent::STNCount.value += value;
 							SpawnCustomParticle(tiny, (value < 1) ? ParticleType::DarkRed : ParticleType::Red, NiPoint3(), root_bone_name, 1.0f);
-							Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::ShrinkToNothing)), 9.0f);
+							Notify("进度：{:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::ShrinkToNothing)), 9.0f);
 						}
 					} break;
 
@@ -134,7 +134,7 @@ namespace GTS {
 					{
 						Persistent::HandCrushed.value += value;
 						SpawnCustomParticle(tiny, ParticleType::Red, NiPoint3(), root_bone_name, 1.0f);
-						Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::HandCrush)), 3.0f);
+						Notify("进度：{:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::HandCrush)), 3.0f);
 					} break;
 
 					// Stage 5: Vore 6 enemies
@@ -143,7 +143,7 @@ namespace GTS {
 						if (queststage == 60) {
 							Persistent::VoreCount.value += value;
 							SpawnCustomParticle(tiny, ParticleType::Blue, NiPoint3(), root_bone_name, 1.0f);
-							Notify("Progress: {:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::Vore)), 6.0f);
+							Notify("进度：{:.1f}/{:.1f}", GetQuestProgression(static_cast<int>(QuestStage::Vore)), 6.0f);
 						}
 					} break;
 

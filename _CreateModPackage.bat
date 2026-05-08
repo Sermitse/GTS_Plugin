@@ -12,11 +12,14 @@ set "SOURCE_FOLDER="
 if exist "Distribution\Package-Release" (
     set "SOURCE_FOLDER=Distribution\Package-Release"
     echo Found: Distribution\Package-Release
+) else if exist "Distribution\Package-Release-AVX" (
+    set "SOURCE_FOLDER=Distribution\Package-Release-AVX"
+    echo Found: Distribution\Package-Release-AVX
 ) else if exist "Distribution\Package-Release-AVX2" (
     set "SOURCE_FOLDER=Distribution\Package-Release-AVX2"
     echo Found: Distribution\Package-Release-AVX2
 ) else (
-    echo ERROR: Neither Distribution\Package-Release nor Distribution\Package-Release-AVX2 found!
+    echo ERROR: No packaged build output found in Distribution\Package-Release, Distribution\Package-Release-AVX, or Distribution\Package-Release-AVX2!
     pause
     exit /b 1
 )

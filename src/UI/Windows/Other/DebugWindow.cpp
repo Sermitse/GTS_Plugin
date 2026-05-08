@@ -331,7 +331,7 @@ namespace GTS {
 
 		//m_flags;
 		m_name = "Debug";
-		m_title = "Debug";
+		m_title = "调试";
 		m_windowType = kDebug;
 		m_anchorPos = WindowAnchor::kTopLeft;
 		m_fadeSettings.enabled = false;

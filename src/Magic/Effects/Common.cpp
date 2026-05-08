@@ -11,7 +11,7 @@
 namespace GTS {
 
 	std::string GetAllyEssentialText(const bool Teammate) {
-		return Teammate ? "teammate" : "essential";
+		return Teammate ? "追随者" : "重要角色";
 	}
 
 	const char* GetIconPath(bool Teammate) {
@@ -61,8 +61,8 @@ namespace GTS {
 					}
 				} 
 				else {
-					std::string message_1 = std::format("{} is {}", tiny->GetDisplayFullName(), GetAllyEssentialText(Teammate));
-					std::string message_2 = "Immune to size magic and effects";
+					std::string message_1 = std::format("{} 属于{}", tiny->GetDisplayFullName(), GetAllyEssentialText(Teammate));
+					std::string message_2 = "免疫尺寸魔法与相关效果";
 					Notify(message_1);
 					Notify(message_2);
 				}

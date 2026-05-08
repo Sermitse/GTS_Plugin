@@ -14,7 +14,7 @@ namespace GTS {
 
 		m_windowType = WindowType::kWidget;
 		m_name = "KillFeed";
-		m_title = "KillFeed";
+		m_title = "击杀记录";
 
 		m_flags =
 			ImGuiWindowFlags_NoCollapse |

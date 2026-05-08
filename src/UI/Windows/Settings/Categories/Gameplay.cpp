@@ -17,36 +17,36 @@ namespace GTS {
 
     void CategoryGameplay::GameModeOptions(GameplayActorSettings_t* a_Settings, bool a_isPlayer) {
 
-        PSString T0 = "Select the game mode\n\n"
-                      "Basic:\n"
-                      "- Grow: Slowly grow to your size limit.\n"
-                      "- Shrink: Slowly shrink back to your natural scale.\n"
-                      "- Combat Growth: Grow during combat and shrink outside of combat back to your natural scale.\n"
-                      "- Slow Combat Growth: Slowly grow during combat and retain any size gained.\n\n"
-                      "Curses:\n"
-                      "- Curse of Growth: You will continiously grow in size like \"Grow\" but in spurts of varying strength up until the specified scale limit which you can change below.\n"
-                      "- Curse of the Giantess: You will rapidly grow to the specified size if you are smaller. Spells like \"Restore Size\" will not shrink you below this size.\n"
-                      "- Curse of Diminishing: When not in combat or when not performing any giantess actions. You will slowly shrink to the target scale if too large.\n"
-                      "- Size Locked: Combines the effects of both curses. You will grow to the specified size and slowly shrink back to it if larger.";
+        PSString T0 = "选择游戏模式。\n\n"
+                      "基础模式：\n"
+                      "- Growth：缓慢成长到你的体型上限。\n"
+                      "- Shrink：缓慢缩回自然体型。\n"
+                      "- Combat Growth：战斗中成长，脱战后缓慢缩回自然体型。\n"
+                      "- Slow Combat Growth：战斗中缓慢成长，并保留已经获得的体型。\n\n"
+                      "诅咒模式：\n"
+                      "- Curse of Growth：像 \"Growth\" 一样持续成长，但会以不同强度的爆发方式成长，直到达到你在下方设定的上限。\n"
+                      "- Curse of the Giantess：当你低于指定体型时，会迅速成长到该体型；像 \"Restore Size\" 这类法术不会把你缩到这个值以下。\n"
+                      "- Curse of Diminishing：在非战斗状态或未执行巨化动作时，如果体型过大，会缓慢缩回目标值。\n"
+                      "- Size Locked：结合两种诅咒效果。你会成长到指定体型，并在超过时缓慢缩回该值。";
 
-        PSString T1 = "Modify the amount grown or shrunk each tick.\n"
-    	              "Grow Rate | Shrink Rate";
+        PSString T1 = "修改每次更新时的成长/缩小量。\n"
+                      "成长速率 | 缩小速率";
 
-        PSString T3 = "Set the maximum size for the \"Curse of Growth\" game mode";
+        PSString T3 = "设置 \"Curse of Growth\" 模式的最大体型。";
 
-        PSString T4 = "Multiply the size-gain rate by 25%% of your current size.\n"
-                      "The amount gained caps out at 10x scale.";
+        PSString T4 = "按当前体型的 25% 去乘算成长速度。\n"
+                      "这部分加成最多计算到 10x。";
 
-        PSString T5 = "Set the target scale to grow/shrink to when using the following game modes:\n\n"
+        PSString T5 = "设置以下模式使用的目标体型：\n\n"
                       "- Curse of the Giantess\n"
-                      "- Curse of the Diminishing\n"
+                      "- Curse of Diminishing\n"
                       "- Size Locked";
 
-        PSString T6 = "Change how often the curse effects should be applied.\n"
-                      "The value you select is offset by +/- 10%% each time.";
+        PSString T6 = "调整诅咒效果的触发间隔。\n"
+                      "实际每次会在你设定值基础上额外浮动 +/- 10%。";
 
 
-        ImGuiEx::ComboEx<LActiveGamemode_t>("Game Mode", a_Settings->sGameMode, T0);
+        ImGuiEx::ComboEx<LActiveGamemode_t>("游戏模式", a_Settings->sGameMode, T0);
 
 		auto currentMode = magic_enum::enum_cast<LActiveGamemode_t>(a_Settings->sGameMode);
 
@@ -70,41 +70,41 @@ namespace GTS {
             ImGui::Spacing();
 
             if (UsesRate) {
-                ImGuiEx::SliderF2("Grow/Shrink Rate", pTemp.at(0), 0.001f, 0.2f, T1, "%.3fx");
+                ImGuiEx::SliderF2("成长/缩小速率", pTemp.at(0), 0.001f, 0.2f, T1, "%.3fx");
             }
 
             if (UsesMultiplier) {
-                ImGuiEx::CheckBox("Multiply Rates", &a_Settings->bMultiplyGrowthrate, T4);
+                ImGuiEx::CheckBox("按当前体型放大速率", &a_Settings->bMultiplyGrowthrate, T4);
             }
 
             if (CurseModes) {
-                ImGuiEx::SliderF("Update Interval", &a_Settings->fGameModeUpdateInterval, 1.0f, 60.0f, T6, "Every %.2f Seconds");
+                ImGuiEx::SliderF("更新间隔", &a_Settings->fGameModeUpdateInterval, 1.0f, 60.0f, T6, "每 %.2f 秒");
             }
 
             if (currentMode.value() == LActiveGamemode_t::kCurseOfTheGiantess ||
                 currentMode.value() == LActiveGamemode_t::kCurseOfDiminishing ||
                 currentMode.value() == LActiveGamemode_t::kSizeLocked){
-                ImGuiEx::SliderF("Curse of Growth Limit", &a_Settings->fCurseGrowthSizeLimit, 1.1f, 50.0f, T3, "%.2fx");
-                ImGuiEx::SliderF("Target Scale", &a_Settings->fCurseTargetScale, 0.5f, 5.0f, T5, "%.2fx");
+                ImGuiEx::SliderF("Growth 诅咒上限", &a_Settings->fCurseGrowthSizeLimit, 1.1f, 50.0f, T3, "%.2fx");
+                ImGuiEx::SliderF("目标体型", &a_Settings->fCurseTargetScale, 0.1f, 5.0f, T5, "%.2fx");
             }
             else if (currentMode.value() == LActiveGamemode_t::kLevelLocked) {
 
                 if (a_isPlayer) {
                     Actor* Target = PlayerCharacter::GetSingleton();
                     float TargetScale = (a_Settings->bUseGTSSkill ? GetGtsSkillLevel(Target) : Target->GetLevel()) * a_Settings->fScalePerLevel;
-                    ImGui::Text("%s's Minimum Scale Will Be: %.2fx", Target->GetName(), TargetScale);
+                    ImGui::Text("%s 的最低体型会变成：%.2fx", Target->GetName(), TargetScale);
                 }
                 else {
                     for (const auto& teammate : GTSMenu::WindowManager->GetCachedTeamMateList()) {
                         float TargetScale = (a_Settings->bUseGTSSkill ? GetGtsSkillLevel(teammate) : teammate->GetLevel()) * a_Settings->fScalePerLevel;
                         ImGui::PushID(teammate);
-                        ImGui::Text("%s's Minimum Scale Will Be: %.2fx", teammate->GetName(), TargetScale);
+                        ImGui::Text("%s 的最低体型会变成：%.2fx", teammate->GetName(), TargetScale);
                         ImGui::PopID();
                     }
                 }
 
-                ImGuiEx::SliderF("Scale Per Level", &a_Settings->fScalePerLevel, 0.0001f, 0.2f, "Increase Size per Level", "Adds %.4fx per Level");
-                ImGuiEx::CheckBox("Use GTS Skill Level", &a_Settings->bUseGTSSkill, "Use the GTS Skill Level instead of the regular Level to calculate target scale.");
+                ImGuiEx::SliderF("每级体型增量", &a_Settings->fScalePerLevel, 0.0001f, 0.2f, "按等级提高体型", "每级增加 %.4fx");
+                ImGuiEx::CheckBox("使用 GTS 等级", &a_Settings->bUseGTSSkill, "使用 GTS 技能等级，而不是普通等级，来计算目标体型。");
 
             }
         }
@@ -113,8 +113,8 @@ namespace GTS {
         ImGui::Spacing();
     }
 
-    CategoryGameplay::CategoryGameplay() {
-	    m_name = "Gameplay";
+	CategoryGameplay::CategoryGameplay() {
+	    m_name = "玩法";
     }
 
     void CategoryGameplay::DrawLeft() {
@@ -125,36 +125,36 @@ namespace GTS {
         ImUtil_Unique 
     	{
 
-            if (ImGui::CollapsingHeader("Perk Settings", ImUtil::HeaderFlagsDefaultOpen)) {
+            if (ImGui::CollapsingHeader("Perk 设置", ImUtil::HeaderFlagsDefaultOpen)) {
 
                 const bool PerkCondCrush = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkGrowthDesire);
                 const bool PerkCondHit = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkHitGrowth);
                 const bool PerkCondAtribCap = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkGrowthDesire);
 
-                PSString T1 = "Upon crushing someone: Grow in size.\n"
-                              "Applies to both the player and followers.";
+                PSString T1 = "击败或碾碎目标后会成长。\n"
+                              "同时作用于玩家和追随者。";
 
-                PSString T2 = "On being hit: Grow in size.\n"
-                              "Applies to both the player and followers.";
+                PSString T2 = "受到攻击时会成长。\n"
+                              "同时作用于玩家和追随者。";
 
-                PSString T3 = "By default, the maximum amount of bonus attributes per player level is 2.\n"
-                              "You can adjust the multiplier for this here.";
+                PSString T3 = "默认情况下，每级最多只能获得 2 点额外属性。\n"
+                              "你可以在这里调整这个倍率。";
 
-                const char* T4 = "Multipier for gaining size when being hit, comes from Hit Growth perk";
+                const char* T4 = "控制受击成长 Perk 提供的成长倍率。";
 
-                const std::string tGrowOnCrush = fmt::format("Grow On Crush {}", (!PerkCondCrush ? "[Missing Perk]" : ""));
+                const std::string tGrowOnCrush = fmt::format("击杀成长 {}", (!PerkCondCrush ? "[缺少 Perk]" : ""));
                 ImGuiEx::CheckBox(tGrowOnCrush.c_str(), &Config::Gameplay.bEnableCrushGrowth, T1, !PerkCondCrush);
 
                 ImGui::SameLine();
 
-                const std::string tGrowOnHit = fmt::format("Grow On Hit {}", (!PerkCondHit ? "[Missing Perk]" : ""));
+                const std::string tGrowOnHit = fmt::format("受击成长 {}", (!PerkCondHit ? "[缺少 Perk]" : ""));
                 ImGuiEx::CheckBox(tGrowOnHit.c_str(), &Config::Gameplay.bEnableGrowthOnHit, T2, !PerkCondHit);
 
-                const char* tGrowOnHitPower = (!PerkCondHit ? "[Missing Perk]" : "%.2fx");
-                ImGuiEx::SliderF("Grow On Hit Power", &Config::Gameplay.fHitGrowthPower, 0.01f, 3.0f, T4, tGrowOnHitPower, !PerkCondHit);
+                const char* tGrowOnHitPower = (!PerkCondHit ? "[缺少 Perk]" : "%.2fx");
+                ImGuiEx::SliderF("受击成长强度", &Config::Gameplay.fHitGrowthPower, 0.01f, 3.0f, T4, tGrowOnHitPower, !PerkCondHit);
 
-                const char* tSizeConfFMT = (!PerkCondAtribCap ? "[Missing Perk]" : "%.2fx");
-                ImGuiEx::SliderF("Full Assimilation Attrib. Cap", &Config::Gameplay.fFullAssimilationLevelCap, 0.1f, 5.0f, T3, tSizeConfFMT, !PerkCondAtribCap);
+                const char* tSizeConfFMT = (!PerkCondAtribCap ? "[缺少 Perk]" : "%.2fx");
+                ImGuiEx::SliderF("完全同化属性上限", &Config::Gameplay.fFullAssimilationLevelCap, 0.1f, 5.0f, T3, tSizeConfFMT, !PerkCondAtribCap);
 
                 ImGui::Spacing();
             }
@@ -165,21 +165,21 @@ namespace GTS {
         ImUtil_Unique 
     	{
 
-            if (ImGui::CollapsingHeader("Armor Stripping", ImUtil::HeaderFlagsDefaultOpen)) {
+            if (ImGui::CollapsingHeader("装备破损/脱落", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                PSString T1 = "Enable/disable the automatic unequipping of clothing/armor when large enough.\n"
-                              "Applies to both the player and followers.\n"
-                              "This system works based on size thresholds.\n"
-                              "When an armor piece is stripped, the size required for the next piece to be removed increases.";
+                PSString T1 = "体型足够大时，自动卸下衣物/护甲。\n"
+                              "同时作用于玩家和追随者。\n"
+                              "这个系统按体型阈值运作。\n"
+                              "每脱落一件装备，下一件需要的体型阈值都会提高。";
 
-                PSString T2 = "Set the scale threshold at which to start unequipping pieces of clothing/armor.";
-                PSString T3 = "Set the scale threshold at which all clothing/armor is unequipped.";
+                PSString T2 = "设置开始自动脱落衣物/护甲的体型阈值。";
+                PSString T3 = "设置全部衣物/护甲都会脱落的体型阈值。";
 
-                ImGuiEx::CheckBox("Enable Armor Strip", &Config::Gameplay.bClothTearing, T1);
+                ImGuiEx::CheckBox("启用装备脱落", &Config::Gameplay.bClothTearing, T1);
 
                 ImGui::BeginDisabled(!Config::Gameplay.bClothTearing);
-                ImGuiEx::SliderF("Starting Threshold", &Config::Gameplay.fClothRipStart, 1.1f, 2.5f, T2, "%.2fx");
-                ImGuiEx::SliderF("Strip All Threshold", &Config::Gameplay.fClothRipThreshold, Config::Gameplay.fClothRipStart + 0.1f, 3.5f, T3, "%.2fx",false, true);
+                ImGuiEx::SliderF("开始脱落阈值", &Config::Gameplay.fClothRipStart, 1.1f, 2.5f, T2, "%.2fx");
+                ImGuiEx::SliderF("全部脱落阈值", &Config::Gameplay.fClothRipThreshold, Config::Gameplay.fClothRipStart + 0.1f, 3.5f, T3, "%.2fx",false, true);
                 ImGui::EndDisabled();
 
                 ImGui::Spacing();
@@ -191,21 +191,21 @@ namespace GTS {
         ImUtil_Unique 
     	{
 
-            if (ImGui::CollapsingHeader("Size Effects", ImUtil::HeaderFlagsDefaultOpen)) {
+            if (ImGui::CollapsingHeader("体型效果", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                PSString T1 = "When large enough, footsteps or size-related actions will launch physics-enabled items.";
+                PSString T1 = "体型足够大时，脚步或尺寸相关动作会掀飞带物理效果的物体。";
 
-                PSString T2 = "Apply the physics hit impulse to objects outside of the current cell.\n"
-                              "Beware: This is computationally very heavy. Hence the existence of this toggle.\n"
-                              "If you experience FPS drops, try disabling this.";
+                PSString T2 = "把物理冲击也作用到当前区域外的物体上。\n"
+                              "注意：这个选项计算量很大，所以才单独做成开关。\n"
+                              "如果你遇到掉帧，建议关闭它。";
 
-                PSString T3 = "Enable effects like dust and camera shake/rumble.";
+                PSString T3 = "启用尘土、镜头震动和手柄震动等效果。";
 
-                ImGuiEx::CheckBox("Launch Objects", &Config::Gameplay.bLaunchObjects, T1);
+                ImGuiEx::CheckBox("掀飞物体", &Config::Gameplay.bLaunchObjects, T1);
                 ImGui::SameLine();
-                ImGuiEx::CheckBox("Enable In All Cells", &Config::Gameplay.bLaunchAllCells, T2, !Config::Gameplay.bLaunchObjects);
-                ImGuiEx::CheckBox("Player Dust/Rumble Effects", &Config::Gameplay.bPlayerAnimEffects, T3);
-                ImGuiEx::CheckBox("Follower Dust/Rumble Effects", &Config::Gameplay.bNPCAnimEffects, T3);
+                ImGuiEx::CheckBox("作用于所有区域", &Config::Gameplay.bLaunchAllCells, T2, !Config::Gameplay.bLaunchObjects);
+                ImGuiEx::CheckBox("玩家尘土/震动效果", &Config::Gameplay.bPlayerAnimEffects, T3);
+                ImGuiEx::CheckBox("追随者尘土/震动效果", &Config::Gameplay.bNPCAnimEffects, T3);
 
                 ImGui::Spacing();
             }

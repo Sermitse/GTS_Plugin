@@ -77,7 +77,7 @@ namespace GTS {
 	}
 
 	CategoryCamera::CategoryCamera() {
-		m_name = "Camera";
+		m_name = "镜头";
 	}
 
 	void CategoryCamera::DrawLeft() {

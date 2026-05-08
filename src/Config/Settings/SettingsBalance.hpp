@@ -56,7 +56,10 @@ struct SettingsBalance_t {
     // Size limits
     float fMaxPlayerSizeOverride = 0.0f;
     float fMaxFollowerSize = 0.0f;
+    float fMaxImportantSize = 0.0f;
     float fMaxOtherSize = 0.0f;
+    // Legacy config entry kept so older exported settings still deserialize cleanly.
+    float fMaxOrdinaryNPCSize = 0.0f;
 
 
     // Balance mode adjustments

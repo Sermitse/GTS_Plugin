@@ -31,6 +31,10 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_definitions(_DISABLE_EXTENDED_ALIGNED_STORAGE)
 
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 # Check if MSVC is the compiler
 if(MSVC)
     # Extract the version number of the MSVC compiler

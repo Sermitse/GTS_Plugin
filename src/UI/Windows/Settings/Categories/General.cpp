@@ -140,7 +140,7 @@ namespace {
 namespace GTS {
 
 	CategoryGeneral::CategoryGeneral() {
-		m_name = "General";
+		m_name = "通用";
 	}
 
 	void CategoryGeneral::DrawLeft() {

@@ -47,7 +47,7 @@ namespace GTS {
 		m_windowType = WindowType::kWidget;
 		m_fadeSettings.enabled = true;
 		m_name = "UnderstompAngleBar";
-		m_title = "Understomp Angle Bar Widget";
+		m_title = "下踩角度条";
 
 		m_flags =
 			ImGuiWindowFlags_NoCollapse |

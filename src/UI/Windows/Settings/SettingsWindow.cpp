@@ -105,7 +105,7 @@ namespace GTS {
 
 	void SettingsWindow::Init() {
 
-		m_title = "Size Matters - Settings";
+		m_title = "Size Matters - 设置";
 		m_name = "Settings";
 		m_busy = false;
 		m_windowType = WindowType::kSettings;
@@ -153,7 +153,7 @@ namespace GTS {
 		BuildFooterText();
 
 		InputManager::RegisterInputEvent("OpenModSettings", OpenSettingsKeybindCallback);
-		ConsoleManager::RegisterCommand("menu", OpenSettingsConsoleCallback,"Open the settings menu");
+		ConsoleManager::RegisterCommand("menu", OpenSettingsConsoleCallback, "打开设置菜单");
 	}
 
 	void SettingsWindow::RequestClose() {
@@ -189,14 +189,14 @@ namespace GTS {
 
 		if (!State::Ready() && !m_show) {
 			logger::warn("Can't show menu: Not Ingame!");
-			Cprint("Can not open the settings menu at this time. Try again in game.");
+			Cprint("当前无法打开设置菜单。请进入游戏后再试。");
 			return;
 		}
 
 		if (State::IsInBlockingMenu() && !m_show ) {
 			logger::warn("Can't show menu: A Conflicting game menu is open!");
-			Cprint("Can not open the settings menu at this time. A conflicting game menu is open.");
-			DebugNotification("Can not open the settings menu at this time.", nullptr, false);
+			Cprint("当前无法打开设置菜单。已有其他游戏菜单正在占用。");
+			DebugNotification("当前无法打开设置菜单。", nullptr, false);
 			return;
 		}
 
@@ -246,9 +246,9 @@ namespace GTS {
 
 		if (ImGui::BeginPopupModal(windowName, nullptr, m_flags | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize)) {
 			ImFontManager::Push(ImFontManager::kLargeText);
-			ImGui::TextColored(ImUtil::Colors::Error, "Settings could not be saved\n"
-											          "Check GtsPlugin.log for more info.");
-			if (ImGui::Button("OK")) {
+			ImGui::TextColored(ImUtil::Colors::Error, "设置保存失败\n"
+											          "请查看 GTSPlugin.log 获取更多信息。");
+			if (ImGui::Button("确定")) {
 				ImGui::CloseCurrentPopup();
 
 				GTSMenu::AlterTimeScale(false);
@@ -292,7 +292,7 @@ namespace GTS {
 
 			const ImVec2 pos = ImVec2(ImGui::GetContentRegionAvail().x - (ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetStyle().CellPadding.x), ImGui::GetStyle().FramePadding.y * 2 + ImGui::GetStyle().CellPadding.y);
 			ImGui::SetCursorPos(pos);
-			if (ImGuiEx::ImageButton("Close##", ImageList::Generic_X, 18, "Close")) {
+			if (ImGuiEx::ImageButton("Close##", ImageList::Generic_X, 18, "关闭")) {
 				HandleOpenClose(false);
 			}
 
@@ -354,11 +354,11 @@ namespace GTS {
 			// Validate selectedCategory to ensure it's within bounds
 			if (CategoryMgr->m_activeIndex < Categories.size()) {
 				ImCategory* selected = Categories[CategoryMgr->m_activeIndex].get();
-				m_isConfiguringWidgets = selected->GetTitle() == "Widgets"; // Used to force show widget windows
+				m_isConfiguringWidgets = selected->GetTitle() == "组件"; // Used to force show widget windows
 				selected->Draw(); // Call the Draw method of the selected category
 			}
 			else {
-				ImGui::TextColored(ImUtil::Colors::Error, "Invalid category or no categories exist!");
+				ImGui::TextColored(ImUtil::Colors::Error, "分类无效，或当前没有可用分类。");
 			}
 
 			ImGui::EndChild();
@@ -410,7 +410,7 @@ namespace GTS {
 		}
 
 		if (git::AnyUncommittedChanges()) {
-			m_footerText += "\nDevelopment Build";
+			m_footerText += "\n开发版";
 			m_footerText += "\n" + fmt::format("{} {}", __DATE__, __TIME__);
 		}
 	}

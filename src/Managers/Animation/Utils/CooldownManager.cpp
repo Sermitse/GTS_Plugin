@@ -128,6 +128,21 @@ namespace {
     float Calculate_MoanCooldown(Actor* actor) {
         return MOAN_COOLDOWN / AnimationManager::GetAnimSpeed(actor);
     }
+
+    bool IsCooldownDisabledByCheat(CooldownSource source) {
+        if (Enum_Contains<CooldownSource>(source, "Action")) {
+            return true;
+        }
+
+        switch (source) {
+            case CooldownSource::Misc_ShrinkOutburst:
+            case CooldownSource::Misc_ShrinkOutburst_Forced:
+            case CooldownSource::Misc_TinyCalamityRage:
+                return true;
+            default:
+                return false;
+        }
+    }
 }
 
 namespace GTS {
@@ -147,6 +162,10 @@ namespace GTS {
     }
 
     void ApplyActionCooldown(Actor* giant, CooldownSource source) {
+        if (!Config::Advanced.bCooldowns && IsCooldownDisabledByCheat(source)) {
+            return;
+        }
+
 	    auto& data = CooldownManager::GetSingleton().GetCooldownData(giant);
 
         switch (source) {
@@ -244,6 +263,10 @@ namespace GTS {
     }
 
     double GetRemainingCooldown(Actor* giant, CooldownSource source) {
+        if (!Config::Advanced.bCooldowns && IsCooldownDisabledByCheat(source)) {
+            return 0.0;
+        }
+
         double time = Time::WorldTimeElapsed();
         auto& data = CooldownManager::GetSingleton().GetCooldownData(giant);
 
@@ -261,7 +284,7 @@ namespace GTS {
             case CooldownSource::Action_HealthGate:
                 return (data.lastHealthGateTime + HEALTHGATE_COOLDOWN) - time;
             case CooldownSource::Action_ScareOther:   
-                return time -(data.lastScareTime + SCARE_COOLDOWN) - time;
+                return (data.lastScareTime + SCARE_COOLDOWN) - time;
             case CooldownSource::Action_Hugs:
                 return (data.lastHugTime + HUGS_COOLDOWN) - time;
             case CooldownSource::Action_AbsorbOther:
@@ -307,15 +330,15 @@ namespace GTS {
             case CooldownSource::Emotion_Voice:
                 return (data.lastEmotionTime + Calculate_EmotionCooldown(giant)) - time;
             case CooldownSource::Emotion_Voice_Long:
-                return (data.lastEmotionTime + Calculate_EmotionCooldown_Long(giant)) - time;
+                return (data.lastEmotionTime_Long + Calculate_EmotionCooldown_Long(giant)) - time;
             }
         return 0.0;
     }
 
     bool IsActionOnCooldown(Actor* giant, CooldownSource source) {
 
-        //Check the cleat flag to disable only action cooldowns and not others
-        if (!Config::Advanced.bCooldowns && Enum_Contains<CooldownSource>(source,"Action")) {
+        // Debug cheat: disable gameplay cooldowns while keeping internal anti-spam timers intact.
+        if (!Config::Advanced.bCooldowns && IsCooldownDisabledByCheat(source)) {
             return false;
         }
 

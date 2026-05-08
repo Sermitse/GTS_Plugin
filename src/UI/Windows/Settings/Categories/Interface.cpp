@@ -18,7 +18,7 @@
 namespace GTS {
 
 	CategoryInterface::CategoryInterface() {
-		m_name = "Interface";
+		m_name = "界面";
 	}
 
 	void CategoryInterface::DrawLeft(){

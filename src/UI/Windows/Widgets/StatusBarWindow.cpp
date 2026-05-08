@@ -29,7 +29,7 @@ namespace GTS {
 		m_windowType = WindowType::kWidget;
 		m_fadeSettings.enabled = true;
 		m_name = "StatusBarWindow";
-		m_title = "Buffs Bar";
+		m_title = "增益条";
 
 		m_flags =
 			ImGuiWindowFlags_NoCollapse |

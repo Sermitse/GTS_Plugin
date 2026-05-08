@@ -9,7 +9,7 @@
 namespace GTS {
 
 	CategoryActions::CategoryActions() {
-		m_name = "Actions";
+		m_name = "动作";
 	}
 
 	void CategoryActions::DrawLeft() {

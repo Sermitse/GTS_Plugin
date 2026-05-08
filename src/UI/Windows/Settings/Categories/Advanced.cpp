@@ -7,12 +7,13 @@
 #include "UI/Controls/ComboBox.hpp"
 #include "UI/Controls/Slider.hpp"
 
+#include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Utils/Plugin/Logger.hpp"
 
 namespace GTS {
 
 	CategoryAdvanced::CategoryAdvanced() {
-		m_name = "Advanced";
+		m_name = "高级";
 	}
 
     bool CategoryAdvanced::IsVisible() const {
@@ -28,10 +29,10 @@ namespace GTS {
         ImUtil_Unique 
 		{
 
-            PSString T0 = "Show or hide this page.";
+            PSString T0 = "显示或隐藏这个页面。";
 
-            if (ImGui::CollapsingHeader("Advanced", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::CheckBox("Enable/Disable This Page", &Config::Hidden.IKnowWhatImDoing, T0);
+            if (ImGui::CollapsingHeader("高级设置", ImUtil::HeaderFlagsDefaultOpen)) {
+                ImGuiEx::CheckBox("启用/禁用此页面", &Config::Hidden.IKnowWhatImDoing, T0);
 
                 ImGui::Spacing();
             }
@@ -40,11 +41,11 @@ namespace GTS {
         ImUtil_Unique 
 		{
 
-            PSString T0 = "Set the log severity level. The higher it is the more info is dumped into GTSPlugin.log";
+            PSString T0 = "设置日志级别。级别越高，写入 GTSPlugin.log 的信息越多。";
 
-            if (ImGui::CollapsingHeader("Logging", ImUtil::HeaderFlagsDefaultOpen)) {
+            if (ImGui::CollapsingHeader("日志", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                if (ImGuiEx::ComboEx<spdlog::level::level_enum>("Log Level", Config::Advanced.sLogLevel, T0, false, true)) {
+                if (ImGuiEx::ComboEx<spdlog::level::level_enum>("日志级别", Config::Advanced.sLogLevel, T0, false, true)) {
 	                logger::SetLevel(Config::Advanced.sLogLevel.c_str());
 				}
 
@@ -56,14 +57,18 @@ namespace GTS {
         ImUtil_Unique 
 		{
 
-            PSString T0 = "Enable/Disable DamageAV for the player's stamina and magicka.";
-            PSString T1 = "GTS actions will have cooldowns if this is enabled.";
-            PSString T2 = "Enforce Min/Max Values In UI.";
+            PSString T0 = "启用/禁用对玩家体力和魔力的 ActorValue 消耗。";
+            PSString T1 = "启用后，尺寸相关技能会保留冷却。关闭后，主要技能冷却会被一并跳过。";
+            PSString T2 = "在 UI 中强制执行滑条最小值/最大值限制。";
 
-            if (ImGui::CollapsingHeader("Cheats", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::CheckBox("Enable ActorValue Damage", &Config::Advanced.bDamageAV, T0);
-                ImGuiEx::CheckBox("Enable Size-Action Cooldowns", &Config::Advanced.bCooldowns, T1);
-                ImGuiEx::CheckBox("Enforce Slider Range", &Config::Advanced.bEnforceUIClamps, T2);
+            if (ImGui::CollapsingHeader("调试/作弊", ImUtil::HeaderFlagsDefaultOpen)) {
+                ImGuiEx::CheckBox("启用属性消耗", &Config::Advanced.bDamageAV, T0);
+                ImGuiEx::CheckBox("启用尺寸技能冷却", &Config::Advanced.bCooldowns, T1);
+                ImGuiEx::CheckBox("强制滑条范围", &Config::Advanced.bEnforceUIClamps, T2);
+
+                if (ImGuiEx::Button("清空技能冷却")) {
+                    CooldownManager::GetSingleton().Reset();
+                }
 
 				{   // GTS Skill Level Setter
                     std::string Name = "None";
@@ -84,11 +89,11 @@ namespace GTS {
 
                     if (auto data = Persistent::GetActorData(target)) {
                         float& level = (target == PlayerCharacter::GetSingleton()) ? (Runtime::GetGlobal(Runtime::GLOB.GTSSkillLevel)->value) : data->fGTSSkillLevel;
-                        ImGui::Text("Current Target: %s [%0.f]", target->GetName(), level);
+                        ImGui::Text("当前目标：%s [%0.f]", target->GetName(), level);
 
                         static int TargetLevel = 50;
-                        ImGui::InputInt("Target Level", &TargetLevel, 1, 10);
-                        if (ImGuiEx::Button("Set GTS Skill Level")) {
+                        ImGui::InputInt("目标等级", &TargetLevel, 1, 10);
+                        if (ImGuiEx::Button("设置 GTS 等级")) {
                             level = static_cast<float>(TargetLevel);
                         }
                     }
@@ -103,15 +108,15 @@ namespace GTS {
         ImUtil_Unique 
 		{
 
-	        PSString T1 = "Count Player as NPC, which makes Player perform random animations";
-	        PSString T2 = "Enable the experimental support for devourment using AI manager. Meant to partially replace DV's own PseudoAI";
-	        PSString T3 = "Set the probabilty for a DV action to be started.";
+	        PSString T1 = "把玩家视为 NPC，使玩家也会执行随机动画。";
+	        PSString T2 = "启用对 Devourment 的实验性 AI 支持，用于部分替代 DV 自带的伪 AI。";
+	        PSString T3 = "设置触发 DV 动作的概率。";
 
-	        if (ImGui::CollapsingHeader("Experimental",ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::CheckBox("Player AI", &Config::Advanced.bPlayerAI, T1);
+	        if (ImGui::CollapsingHeader("实验功能",ImUtil::HeaderFlagsDefaultOpen)) {
+                ImGuiEx::CheckBox("玩家 AI", &Config::Advanced.bPlayerAI, T1);
 
-                ImGuiEx::CheckBox("DevourmentAI", &Config::Advanced.bEnableExperimentalDevourmentAI, T2, !Runtime::IsDevourmentInstalled());
-                ImGuiEx::SliderF("DevourmentAI Probability", &Config::Advanced.fExperimentalDevourmentAIProb, 1.0f, 100.0f, T3,"%.0f%%", !Config::Advanced.bEnableExperimentalDevourmentAI, !Runtime::IsDevourmentInstalled());
+                ImGuiEx::CheckBox("Devourment AI", &Config::Advanced.bEnableExperimentalDevourmentAI, T2, !Runtime::IsDevourmentInstalled());
+                ImGuiEx::SliderF("Devourment AI 概率", &Config::Advanced.fExperimentalDevourmentAIProb, 1.0f, 100.0f, T3,"%.0f%%", !Config::Advanced.bEnableExperimentalDevourmentAI, !Runtime::IsDevourmentInstalled());
 
 	            ImGui::Spacing();
 	        }
@@ -120,31 +125,31 @@ namespace GTS {
         ImUtil_Unique
 		{
 
-            PSString T0 = "Multiply the resulting GetAnimationSlowdown Value (Acts as a flat multiplier applied after the main formula).";
-            PSString T1 = "Modify The \"SoftCore\" formula used to calculate the amount animations will slow down relative to scale.";
-            PSString T2 = "Should AnimSpeed be force set to 1x if IsGTSBusy() == true?";
-            PSString T3 = "Define the floor value for the animation speed formula. (Default 0.1f).";
+            PSString T0 = "对最终的 GetAnimationSlowdown 结果再乘上一个系数。";
+            PSString T1 = "修改计算动画减速量的 \"SoftCore\" 公式参数。";
+            PSString T2 = "当 IsGTSBusy() == true 时，是否强制把动画速度设为 1x。";
+            PSString T3 = "定义动画速度公式允许的最低值（默认 0.1f）。";
 
-            if (ImGui::CollapsingHeader("Animation Speed", ImUtil::HeaderFlagsDefaultOpen)) {
+            if (ImGui::CollapsingHeader("动画速度", ImUtil::HeaderFlagsDefaultOpen)) {
 
-                ImGuiEx::CheckBox("GTS Actions Always 1x Speed", &Config::Advanced.bGTSAnimsFullSpeed, T2);
-                ImGuiEx::SliderF("Animspeed Player", &Config::Advanced.fAnimSpeedAdjMultPlayer, 0.1f, 3.0f, T0);
-                ImGuiEx::SliderF("Animspeed Teammate", &Config::Advanced.fAnimSpeedAdjMultTeammate, 0.1f, 3.0f, T0);
-                ImGuiEx::SliderF("Animspeed Lowest Allowed", &Config::Advanced.fAnimspeedLowestBoundAllowed, 0.01f, 1.0f, T3);
+                ImGuiEx::CheckBox("GTS 动作始终 1x 速度", &Config::Advanced.bGTSAnimsFullSpeed, T2);
+                ImGuiEx::SliderF("玩家动画速度", &Config::Advanced.fAnimSpeedAdjMultPlayer, 0.1f, 3.0f, T0);
+                ImGuiEx::SliderF("追随者动画速度", &Config::Advanced.fAnimSpeedAdjMultTeammate, 0.1f, 3.0f, T0);
+                ImGuiEx::SliderF("允许的最低动画速度", &Config::Advanced.fAnimspeedLowestBoundAllowed, 0.01f, 1.0f, T3);
 
                 const float PlayerSlowDown = GetAnimationSlowdown(PlayerCharacter::GetSingleton());
 
                 ImGui::Spacing();
 
-                ImGui::Text("Player Slowdown: %.2fx", PlayerSlowDown);
+                ImGui::Text("玩家减速值：%.2fx", PlayerSlowDown);
 
                 ImGui::Spacing();
 
                 //https://www.desmos.com/calculator/vyofjrqmrn
-                ImGui::Text("Animation Formula");
-                ImGuiEx::SliderF3("Param K, N, S", &Config::Advanced.fAnimSpeedSoftCore.at(0), 0.0f, 10.0f, T1, "%.3f");
-                ImGuiEx::SliderF2("Param O, A", &Config::Advanced.fAnimSpeedSoftCore.at(3), 0.0f, 10.0f, T1, "%.3f");
-                if (ImGuiEx::Button("Reset")) {
+                ImGui::Text("动画公式");
+                ImGuiEx::SliderF3("参数 K, N, S", &Config::Advanced.fAnimSpeedSoftCore.at(0), 0.0f, 10.0f, T1, "%.3f");
+                ImGuiEx::SliderF2("参数 O, A", &Config::Advanced.fAnimSpeedSoftCore.at(3), 0.0f, 10.0f, T1, "%.3f");
+                if (ImGuiEx::Button("重置")) {
                     Config::Advanced.fAnimSpeedSoftCore = { 0.140f, 0.540f, 1.350f, 1.0f, 0.0f };
                 }
 
@@ -155,13 +160,13 @@ namespace GTS {
         ImUtil_Unique 
 		{
 
-            PSString THelp = "Here you can erase the internal actor data of this mod.\n"
-        					 "Make sure you do this in a cell like qasmoke. Only Unloaded actor data will deleted.\n"
-        					 "You must save, close and restart the game after doing this else you risk really breaking stuff.";
+            PSString THelp = "这里可以清除这个模组的内部角色数据。\n"
+                             "请尽量在类似 qasmoke 这样的测试单元执行。只会删除未加载角色的数据。\n"
+                             "执行后你必须保存、退出并重启游戏，否则很容易把存档状态搞乱。";
 
-	        if (ImGui::CollapsingHeader("Data Management",ImUtil::HeaderFlagsDefaultOpen)) {
+	        if (ImGui::CollapsingHeader("数据管理",ImUtil::HeaderFlagsDefaultOpen)) {
 
-                if (ImGuiEx::Button("Erase Persistent", "Clear out all data in persistent", false, 1.0f)) {
+                if (ImGuiEx::Button("清空 Persistent", "清除 persistent 中的全部数据", false, 1.0f)) {
                 	TES::GetSingleton()->PurgeBufferedCells();
                     logger::critical("Purged cell buffers in preperation of persistent erase.");
                 	Persistent::EraseUnloadedData();
@@ -169,7 +174,7 @@ namespace GTS {
 
                 ImGui::SameLine();
 
-                if (ImGuiEx::Button("Erase Transient", "Clear out all data in Transient", false, 1.0f)) {
+                if (ImGuiEx::Button("清空 Transient", "清除 transient 中的全部数据", false, 1.0f)) {
                     TES::GetSingleton()->PurgeBufferedCells();
                     logger::critical("Purged cell buffers in preperation of transient erase.");
                     Transient::EraseUnloadedData();
@@ -177,7 +182,7 @@ namespace GTS {
 
                 ImGui::SameLine();
 
-                ImGui::TextColored(ImUtil::Colors::Warning, "Info (!)");
+                ImGui::TextColored(ImUtil::Colors::Warning, "说明 (!)");
                 ImGuiEx::Tooltip(THelp, true);
 
                 ImGui::Spacing();

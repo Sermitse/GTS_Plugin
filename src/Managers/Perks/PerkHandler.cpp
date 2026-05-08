@@ -73,7 +73,7 @@ namespace {
     void ManageSpellPerks(const AddPerkEvent& evt) {
         if (evt.actor->IsPlayerRef()) {
             if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkGrowthDesireAug)) {
-                PrintMessageBox("You're now able to grow and shrink yourself manually at will. By default, press L.Shift + 1 or 2. You can affect followers by pressing L.Shift + Left Arrow + Arrow Up, and can also affect self by pressing Left Arrow + Arrow Up");
+                PrintMessageBox("你现在可以手动控制自己的变大和缩小了。默认按键是 L.Shift + 1 或 2。按 L.Shift + Left Arrow + Arrow Up 可以影响追随者，按 Left Arrow + Arrow Up 可以作用于自己。");
             }
             if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkShrinkAdept) && !Runtime::HasSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkBolt)) {
                 Runtime::AddSpell(evt.actor, Runtime::SPEL.GTSSpellShrinkBolt);

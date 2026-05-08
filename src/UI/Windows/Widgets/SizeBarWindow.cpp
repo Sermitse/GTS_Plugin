@@ -15,7 +15,7 @@ namespace GTS {
 		m_windowType = WindowType::kWidget;
 		m_fadeSettings.enabled = true;
 		m_name = "Sizebar";
-		m_title = "Size Bar Widget";
+		m_title = "体型条";
 
 		DeriveIdentityFromName();
 

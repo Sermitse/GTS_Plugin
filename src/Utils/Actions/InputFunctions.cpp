@@ -393,13 +393,13 @@ namespace {
 
 	void RapidGrowthEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-			float target = get_target_scale(player);
-			float max_scale = get_max_scale(player);// * get_natural_scale(player);
-			if (target >= max_scale) {
-				NotifyWithSound(player, "You can't grow any further");
-				Rumbling::Once("CantGrow", player, 0.25f, 0.05f);
-				return;
-			}
+		float target = get_target_scale(player);
+		float max_scale = get_max_scale(player);// * get_natural_scale(player);
+		if (target >= max_scale) {
+			NotifyWithSound(player, "已经无法再继续变大了");
+			Rumbling::Once("CantGrow", player, 0.25f, 0.05f);
+			return;
+		}
 			AnimationManager::StartAnim("TriggerGrowth", player);
 	}
 
@@ -407,7 +407,7 @@ namespace {
 		auto player = PlayerCharacter::GetSingleton();
 			float target = get_target_scale(player);
 			if (target <= Minimum_Actor_Scale) {
-				NotifyWithSound(player, "You can't shrink any further");
+				NotifyWithSound(player, "已经无法再继续缩小了");
 				Rumbling::Once("CantGrow", player, 0.25f, 0.05f);
 				return;
 			}
@@ -466,7 +466,7 @@ namespace {
 			if (Runtime::HasPerk(player, Runtime::PERK.GTSPerkSizeReserve)) {
 				float gigantism = 1.0f + Ench_Aspect_GetPower(player);
 				float Value = Cache->fSizeReserve * gigantism;
-				Notify("Size Reserve: {:.2f}", Value);
+				Notify("体型储备：{:.2f}", Value);
 			}
 		}
 	}
@@ -509,7 +509,7 @@ namespace {
 		damagehp /= gigantism;
 
 		if (healthCur < damagehp * 1.10f) {
-			Notify("Your health is too low!");
+			Notify("生命值过低！");
 			return; // don't allow us to die from own shrinking
 		}
 
@@ -518,7 +518,7 @@ namespace {
 		if (OnCooldown) {
 			if (NotifyTimer.ShouldRunFrame()) {
 				double cooldown = GetRemainingCooldown(player, CooldownSource::Misc_ShrinkOutburst);
-				std::string message = std::format("Shrink Outburst is on a cooldown: {:.1f} sec", cooldown);
+				std::string message = std::format("Shrink Outburst 冷却中：{:.1f} 秒", cooldown);
 				shake_camera(player, 0.75f, 0.35f);
 				NotifyWithSound(player, message);
 			}
@@ -593,7 +593,7 @@ namespace {
 							ResetEscapeDataTask();
 						}
 					} else {
-						std::string message = "You're out of stamina to escape";
+						std::string message = "体力不足，无法挣脱";
 						shake_camera(player, 0.45f, 0.30f);
 						NotifyWithSound(player, message);
 					}
@@ -611,13 +611,13 @@ namespace {
 		if (a_IsPlayer) {
 			/// XOR Bit flip to toggle
 			Persistent::EnableCrawlPlayer.value ^= true;
-			const std::string Msg = fmt::format("Player Crawl: {}", Persistent::EnableCrawlPlayer.value ? "Enabled" : "Disabled");
+			const std::string Msg = fmt::format("玩家爬行：{}", Persistent::EnableCrawlPlayer.value ? "已启用" : "已禁用");
 			RE::DebugNotification(Msg.c_str(),nullptr,false);
 		}
 		else {
 			/// XOR Bit flip to toggle
 			Persistent::EnableCrawlFollower.value ^= true;
-			const std::string Msg = fmt::format("Follower Crawl: {}", Persistent::EnableCrawlPlayer.value ? "Enabled" : "Disabled");
+			const std::string Msg = fmt::format("追随者爬行：{}", Persistent::EnableCrawlFollower.value ? "已启用" : "已禁用");
 			RE::DebugNotification(Msg.c_str(),nullptr, false);
 		}
 
@@ -663,7 +663,7 @@ namespace {
 		if (!UI) return;
 
 		if (!State::IsInBlockingMenu() && !UI->IsMenuOpen(DialogueMenu::MENU_NAME) && UI->IsMenuOpen(Console::MENU_NAME)) {
-			Notify("Close all menu's first before opening the skill tree");
+			Notify("打开技能树前，请先关闭其他菜单");
 			return;
 		}
 

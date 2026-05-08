@@ -6,26 +6,42 @@ using namespace GTS;
 
 namespace SizeOverride {
 
+	constexpr float SIZE_OVERRIDE_MIN = 0.05f;
+
+	bool IsImportantTarget(Actor* a_actor) {
+		return a_actor && !a_actor->IsPlayerRef() && !GTS::IsTeammate(a_actor) && a_actor->IsEssential();
+	}
+
+	float GetConfiguredOverrideForActor(Actor* a_actor) {
+		if (!a_actor) {
+			return 0.0f;
+		}
+
+		if (a_actor->IsPlayerRef()) {
+			return Config::Balance.fMaxPlayerSizeOverride;
+		}
+
+		if (GTS::IsTeammate(a_actor)) {
+			return Config::Balance.fMaxFollowerSize;
+		}
+
+		if (IsImportantTarget(a_actor) && Config::Balance.fMaxImportantSize > SIZE_OVERRIDE_MIN) {
+			return Config::Balance.fMaxImportantSize;
+		}
+
+		return Config::Balance.fMaxOtherSize;
+	}
+
 	bool SizeOverrideEnabled() {
 		return !Config::Balance.bBalanceMode && Persistent::UnlockMaxSizeSliders.value;
 	}
 
 	void MassMode_ApplySizeOverride(Actor* a_actor, float& GetLimit) {
 		if (SizeOverrideEnabled()) {
+			float overrideLimit = GetConfiguredOverrideForActor(a_actor);
 
-			float SizeOverride = 0.0f;
-			if (a_actor->IsPlayerRef()) {
-				SizeOverride = Config::Balance.fMaxPlayerSizeOverride;
-			}
-			else if (GTS::IsTeammate(a_actor)) {
-				SizeOverride = Config::Balance.fMaxFollowerSize;
-			}
-			else {
-				SizeOverride = Config::Balance.fMaxOtherSize;
-			}
-
-			if (SizeOverride > 0.05f) {
-				GetLimit = SizeOverride;
+			if (overrideLimit > SIZE_OVERRIDE_MIN) {
+				GetLimit = overrideLimit;
 			}
 		}
 	}
@@ -157,21 +173,12 @@ namespace GTS {
             GetLimit = get_npc_size_limit(NaturalScale, NPCLimit); // Apply Other NPC's max size
 		}*/
 
-        float TotalLimit = GetLimit;
+		float TotalLimit = GetLimit;
 
 		if (IsSizeUnlocked()) {
-			float OverrideLimit = 0.0f;
-			if (a_actor->IsPlayerRef()) {
-				OverrideLimit = Config::Balance.fMaxPlayerSizeOverride;
-			}
-			else if (IsTeammate(a_actor)) {
-				OverrideLimit = Config::Balance.fMaxFollowerSize;
-			}
-			else {
-				OverrideLimit = Config::Balance.fMaxOtherSize;
-			}
+			float OverrideLimit = SizeOverride::GetConfiguredOverrideForActor(a_actor);
 
-			if (OverrideLimit > 0.05f) {
+			if (OverrideLimit > SizeOverride::SIZE_OVERRIDE_MIN) {
 				TotalLimit = OverrideLimit * NaturalScale;
 			}
 		}
@@ -218,7 +225,7 @@ namespace GTS {
 
 		auto Transient = Transient::GetActorData(a_Actor);
 
-		if (Runtime::HasPerk(a_Actor, Runtime::PERK.GTSPerkColossalGrowth)) { //Total Size Control Perk
+			if (Runtime::HasPerk(a_Actor, Runtime::PERK.GTSPerkColossalGrowth)) { //Total Size Control Perk
 			Colossal_lvl = 1.15f;
 			if (auto KillData = Persistent::GetKillCountData(a_Actor)) {
 				Colossal_kills = static_cast<float>(KillData->iTotalKills) * (0.02f / Characters_AssumedCharSize);
@@ -230,19 +237,10 @@ namespace GTS {
 			RecordOverkillSize_Transient(Transient, Colossal_lvl, Colossal_kills);
 			
 			if (SizeOverride::SizeOverrideEnabled()) {
-				float SizeOverride = 0.0f;
-				if (a_Actor->IsPlayerRef()) {
-					SizeOverride = Config::Balance.fMaxPlayerSizeOverride;
-				}
-				else if (IsTeammate(a_Actor)){
-					SizeOverride = Config::Balance.fMaxFollowerSize;
-				}
-				else {
-					SizeOverride = Config::Balance.fMaxOtherSize;
-				}
+				float overrideLimit = SizeOverride::GetConfiguredOverrideForActor(a_Actor);
 
-				if (SizeOverride > 0.05f) {
-					return SizeOverride;
+				if (overrideLimit > SizeOverride::SIZE_OVERRIDE_MIN) {
+					return overrideLimit;
 				}
 			}
 		} 
@@ -263,15 +261,9 @@ namespace GTS {
 
 	void VisualScale_CheckForSizeAdjustment(Actor* actor, float& ScaleMult) {
 		if (IsSizeUnlocked()) {
-			const float PCLimit = Config::Balance.fMaxPlayerSizeOverride;
-			const float NPCLimit = Config::Balance.fMaxOtherSize;
-			const float FollowerLimit = Config::Balance.fMaxFollowerSize;
-			if (IsTeammate(actor)) {
-				ScaleMult = std::clamp(FollowerLimit, 0.1f, 1.0f);
-			} else if (actor->IsPlayerRef()) {
-				ScaleMult = std::clamp(PCLimit, 0.1f, 1.0f);
-			} else {
-				ScaleMult = std::clamp(NPCLimit, 0.1f, 1.0f);
+			const float SizeLimit = SizeOverride::GetConfiguredOverrideForActor(actor);
+			if (SizeLimit > SizeOverride::SIZE_OVERRIDE_MIN) {
+				ScaleMult = std::clamp(SizeLimit, 0.1f, 1.0f);
 			}
 		}
 	}
