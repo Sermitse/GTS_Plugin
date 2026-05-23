@@ -31,6 +31,14 @@ namespace GTS {
 		// Fired after a TESReset event
 		// This event should be when the game attempts to reset their
 		// actor values etc when the cell resets
+
+		//Actor can somehow be null here.
+		//This will mean that said actor wont be reset
+		if (!actor) {
+			logger::error("Persistent::ResetActor: Tried to reset null actor");
+			return;
+		}
+
 		auto key = actor->formID;
 
 		auto it = this->ActorMap.value.find(key);
