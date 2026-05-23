@@ -17,14 +17,16 @@ namespace GTS {
 			return std::addressof(singleton);
 		}
 
-		APIResult GetVisualScale(RE::ActorHandle a_actorHandle, float& a_out) noexcept override;
-		APIResult GetMaxScale(RE::ActorHandle a_actorHandle, float& a_out) noexcept override;
-		APIResult GetNaturalScale(RE::ActorHandle a_actorHandle, float& a_out) noexcept override;
+		APIResult GetVisualScale(Actor* a_actor, float& a_out) noexcept override;
+		APIResult GetMaxScale(Actor* a_actor, float& a_out) noexcept override;
+		APIResult GetNaturalScale(Actor* a_actor, float& a_out) noexcept override;
 
-		APIResult GetTargetScale(RE::ActorHandle a_actorHandle, float& a_out) noexcept override;
-		APIResult SetTargetScale(RE::ActorHandle a_actorHandle, float a_scale) noexcept override;
-		APIResult ModTargetScale(RE::ActorHandle a_actorHandle, float a_modAmount) noexcept override;
+		APIResult GetTargetScale(Actor* a_actor, float& a_out) noexcept override;
+		APIResult SetTargetScale(Actor* a_actor, float a_scale) noexcept override;
+		APIResult ModTargetScale(Actor* a_actor, float a_modAmount) noexcept override;
 
+		APIResult GetAnimationSlowdown(RE::Actor* a_actor, float& a_multiplier) noexcept override;
+		APIResult GetAnimationSlowdownArgs(std::array<float, 5>& a_args) noexcept override;
 	};
 
 }

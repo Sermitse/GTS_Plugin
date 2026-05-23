@@ -1,51 +1,52 @@
 #include "API/GTSPluginInterface.hpp"
+#include "Config/Config.hpp"
 
 namespace GTS {
 
-	APIResult GTSPluginIntfc::GetVisualScale(RE::ActorHandle a_actorHandle, float& a_out) noexcept {
+	APIResult GTSPluginIntfc::GetVisualScale(RE::Actor* a_actor, float& a_out) noexcept {
 		
-		if (const auto& actor = a_actorHandle.get().get(); actor) {
-			a_out = get_visual_scale(actor);
+		if (a_actor && a_actor->Is3DLoaded()) {
+			a_out = get_visual_scale(a_actor);
 			return APIResult::kOk;
 		}
 
 		return APIResult::kFail;
 	}
 
-	APIResult GTSPluginIntfc::GetMaxScale(RE::ActorHandle a_actorHandle, float& a_out) noexcept {
+	APIResult GTSPluginIntfc::GetMaxScale(RE::Actor* a_actor, float& a_out) noexcept {
 		
-		if (const auto& actor = a_actorHandle.get().get(); actor) {
-			a_out = get_max_scale(actor);
+		if (a_actor && a_actor->Is3DLoaded()) {
+			a_out = get_max_scale(a_actor);
 			return APIResult::kOk;
 		}
 
 		return APIResult::kFail;
 	}
 
-	APIResult GTSPluginIntfc::GetNaturalScale(RE::ActorHandle a_actorHandle, float& a_out) noexcept {
+	APIResult GTSPluginIntfc::GetNaturalScale(RE::Actor* a_actor, float& a_out) noexcept {
 		
-		if (const auto& actor = a_actorHandle.get().get(); actor) {
-			a_out = get_natural_scale(actor);
+		if (a_actor && a_actor->Is3DLoaded()) {
+			a_out = get_natural_scale(a_actor);
 			return APIResult::kOk;
 		}
 		
 		return APIResult::kFail;
 	}
 
-	APIResult GTSPluginIntfc::GetTargetScale(RE::ActorHandle a_actorHandle, float& a_out) noexcept {
+	APIResult GTSPluginIntfc::GetTargetScale(RE::Actor* a_actor, float& a_out) noexcept {
 		
-		if (const auto& actor = a_actorHandle.get().get(); actor) {
-			a_out = get_target_scale(actor);
+		if (a_actor && a_actor->Is3DLoaded()) {
+			a_out = get_target_scale(a_actor);
 			return APIResult::kOk;
 		}
 		
 		return APIResult::kFail;
 	}
 
-	APIResult GTSPluginIntfc::SetTargetScale(RE::ActorHandle a_actorHandle, float a_scale) noexcept {
+	APIResult GTSPluginIntfc::SetTargetScale(RE::Actor* a_actor, float a_scale) noexcept {
 		
-		if (const auto& actor = a_actorHandle.get().get(); actor) {
-			set_target_scale(actor, a_scale);
+		if (a_actor && a_actor->Is3DLoaded()) {
+			set_target_scale(a_actor, a_scale);
 			return APIResult::kOk;
 		}
 		
@@ -53,14 +54,28 @@ namespace GTS {
 		return APIResult::kFail;
 	}
 
-	APIResult GTSPluginIntfc::ModTargetScale(RE::ActorHandle a_actorHandle, float a_modAmount) noexcept {
+	APIResult GTSPluginIntfc::ModTargetScale(RE::Actor* a_actor, float a_modAmount) noexcept {
 		
-		if (const auto& actor = a_actorHandle.get().get(); actor) {
-			set_target_scale(actor, a_modAmount);
+		if (a_actor && a_actor->Is3DLoaded()) {
+			set_target_scale(a_actor, a_modAmount);
 			return APIResult::kOk;
 		}
-
 		return APIResult::kFail;
+	}
+
+	APIResult GTSPluginIntfc::GetAnimationSlowdown(RE::Actor* a_actor, float& a_multiplier) noexcept {
+		
+		if (a_actor && a_actor->Is3DLoaded()) {
+			a_multiplier = GTS::GetAnimationSlowdown(a_actor);
+			return APIResult::kOk;
+		}
+		return APIResult::kFail;
+	}
+
+
+	APIResult GTSPluginIntfc::GetAnimationSlowdownArgs(std::array<float, 5>& a_args) noexcept {
+		a_args = GTS::Config::Advanced.fAnimSpeedSoftCore;
+		return APIResult::kOk;
 	}
 }
 
