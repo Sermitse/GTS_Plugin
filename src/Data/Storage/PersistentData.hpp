@@ -33,7 +33,7 @@ namespace GTS {
 		float fAnimSpeed = 1.0f;
 
 		//Voice
-		uint8_t iVoiceBankIndex = 0;
+		bool bUseSLVoice = false;
 
 		//Morphs
 		float fBreastsScale = 0.0f;

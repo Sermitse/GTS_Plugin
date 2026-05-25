@@ -10,43 +10,6 @@
 
 using namespace GTS;
 
-namespace {
-
-	void SelectVoiceBank(RE::Actor* a_actor) {
-
-		if (!a_actor) return;
-
-		static constexpr std::array<const char*, 9> EntriesFemale = {
-			"GTS Voice",
-			"SL F Voice 1",
-			"SL F Voice 2",
-			"SL F Voice 3",
-			"SL F Voice 4",
-			"SL F Voice 5",
-			"SL F Voice 6",
-			"SL F Voice 7",
-			"SL F Voice 8"
-		};
-
-		if (auto ActorData = Persistent::GetActorData(a_actor)) {
-			ImGui::PushID(a_actor);
-			int CurrentIndex = ActorData->iVoiceBankIndex;
-			if (ImGui::BeginCombo(a_actor->GetName(), EntriesFemale[CurrentIndex])) {
-				for (int i = 0; i < EntriesFemale.size(); ++i) {
-					const bool IsSelected = (CurrentIndex == i);
-					if (ImGui::Selectable(EntriesFemale[i], IsSelected)) {
-						ActorData->iVoiceBankIndex = static_cast<uint8_t>(i);
-					}
-					if (IsSelected) {
-						ImGui::SetItemDefaultFocus();
-					}
-				}
-				ImGui::EndCombo();
-			}
-			ImGui::PopID();
-		}
-	}
-}
 
 namespace GTS {
 
@@ -134,16 +97,23 @@ namespace GTS {
 					ImGuiEx::HelpText("What is this", THelp);
 
 					static const auto Player = PlayerCharacter::GetSingleton();
+					const auto ActiveTeammates = FindTeammates();
 
-					if (IsFemale(Player)){
-						SelectVoiceBank(Player);
+					// Player toggle
+					if (auto ActorData = Persistent::GetActorData(Player)) {
+						ImGui::PushID(Player);
+						ImGui::Checkbox(std::format("[{}] Use SL Voice", Player->GetName()).c_str(), &ActorData->bUseSLVoice);
+						ImGui::PopID();
 					}
 
-					const auto ActiveTeammates = FindFemaleTeammates();
-
+					// Teammate toggles
 					if (!ActiveTeammates.empty()) {
 						for (const auto Teammate : ActiveTeammates) {
-							SelectVoiceBank(Teammate);
+							if (auto ActorData = Persistent::GetActorData(Teammate)) {
+								ImGui::PushID(Teammate);
+								ImGui::Checkbox(std::format("[{}] Use SL Voice", Teammate->GetName()).c_str(), &ActorData->bUseSLVoice);
+								ImGui::PopID();
+							}
 						}
 					}
 

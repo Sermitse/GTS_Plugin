@@ -75,34 +75,6 @@ namespace GTS {
         return nullptr;
     }
 
-	// Function that builds the string based on the given index and a random suffix.
-    std::string ObtainSLMoanSound(uint8_t index) {
-
-        constexpr int OuterBoundF = 8;
-
-        if (index > OuterBoundF) {
-            logger::warn("ObtainIndexedMoanSound Out Of Bounds: {}", index);
-            return "";
-        }
-
-        const std::string Base = "SLVoiceF" + std::to_string(index);
-
-        logger::trace("Constructed SLVoice Base String: {}", Base);
-
-        // Pick one of the three suffixes
-        std::string Suffix;
-        switch (RandomIntWeighted(10, 8, 6)) {
-            default:
-            case 0: Suffix = "Mil"; break;
-	        case 1: Suffix = "Mid"; break;
-	        case 2: Suffix = "Hot"; break;
-        }
-
-        const auto Res = Base + Suffix;
-        logger::trace("Resulting SLVoice String: {}", Res);
-
-        return Res;
-    }
 
     std::string ObtainGTSMoanLaughSound(float scale, const std::string& basestring) {
         std::string SoundResult = basestring;
