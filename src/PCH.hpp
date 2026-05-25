@@ -98,6 +98,12 @@
 #include <wincodec.h>
 #include <wrl/client.h>
 
+//WinAPI Fix
+#undef PlaySound 
+#undef DeleteFile
+#undef LoadImage
+#undef GetObject
+
 #include <RE/Skyrim.h>
 #include <REL/Relocation.h>
 #include <SKSE/SKSE.h>
@@ -164,10 +170,7 @@ namespace Hooks {
 //#define GTS_PROFILER_ENABLED //<---- Enable The Performance Profiller. Accessible by opening the debug menu.
 //#define GTS_DISABLE_PLUGIN   //<---- If defined, Disables the entire plugin but keeps serialization active to preserve cosave data.
 
-//WinAPI Fix
-#undef PlaySound 
-#undef DeleteFile
-#undef LoadImage
+
 
 // ---- Own Includes ----
 #include "Constants.hpp"

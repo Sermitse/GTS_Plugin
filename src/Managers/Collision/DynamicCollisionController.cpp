@@ -113,7 +113,7 @@ namespace {
 
 namespace GTS {
 
-	DynamicCollisionController::DynamicCollisionController(const ActorHandle& a_handle) {
+		DynamicCollisionController::DynamicCollisionController(const RE::ActorHandle& a_handle, bool a_isRuntimeConstructed) {
 
 		m_actor = a_handle;
 
@@ -121,6 +121,10 @@ namespace GTS {
 			if (Actor* actor = niActor.get()) {
 				if (TESObjectCELL* cell = actor->GetParentCell()) {
 					if (bhkWorld* world = cell->GetbhkWorld()) {
+
+
+
+						//--------------------- PLAYER
 
 						//bhkCharacterController is the base class
 						//bhkCharRigidBodyController is used by every actor except the player
@@ -186,6 +190,8 @@ namespace GTS {
 
 								m_originalData.controllerActorHeight = controller->actorHeight;
 								m_originalData.controllerActorScale = controller->scale;
+
+								//---------------------- EVERY OTHER ACTOR
 
 								//NPC's Use bhkCharRigidBodyController, clone their capsule colliders as they are shared between all loaded actors with the same skeleton
 								if (bhkCharRigidBodyController* RigidBodyController = skyrim_cast<bhkCharRigidBodyController*>(controller)){
@@ -280,6 +286,10 @@ namespace GTS {
 											}
 										}
 									}
+								}
+
+								if (a_isRuntimeConstructed) {
+									m_originalData.runtimeGeneratedOrigScale = actor->GetBaseHeight();
 								}
 							}
 						}
@@ -470,7 +480,7 @@ namespace GTS {
 						if (bhkWorld* world = cell->GetbhkWorld()) {
 
 							std::vector<hkVector4> modifiedVerts = m_originalData.convexVerteces;
-							const float fClampedScale = std::clamp(m_currentVisualScale, Config::Collision.fMSimpleDrivenColliderMinScale, Config::Collision.fMSimpleDrivenColliderMaxScale);
+							const float fClampedScale = std::clamp(m_currentVisualScale / m_originalData.runtimeGeneratedOrigScale, Config::Collision.fMSimpleDrivenColliderMinScale, Config::Collision.fMSimpleDrivenColliderMaxScale);
 
 							/*if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() != 18) {
 								logger::trace("Actor {} has unexpected vertex shape data count {}", actor->GetDisplayFullName(), m_originalData.convexVerteces.size());

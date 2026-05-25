@@ -231,38 +231,9 @@ namespace RuntimeData {
 		Entry(GTSSoundTinyCalamity_RuneReady,     GTSP, 0x7B9BE5);
 		Entry(GTSSoundTinyCalamity_SpawnRune,     GTSP, 0x7B9BE4);
 
-		//Sexlab Alt Voices
-		Entry(SLVoiceF1Mil, SXLB, 0x066FC0); //Mild
-		Entry(SLVoiceF1Mid, SXLB, 0x067523); //Middle
-		Entry(SLVoiceF1Hot, SXLB, 0x067524); //Hot
 
-		Entry(SLVoiceF2Mil, SXLB, 0x067525);
-		Entry(SLVoiceF2Mid, SXLB, 0x067527);
-		Entry(SLVoiceF2Hot, SXLB, 0x067526);
 
-		Entry(SLVoiceF3Mil, SXLB, 0x06752A);
-		Entry(SLVoiceF3Mid, SXLB, 0x067529);
-		Entry(SLVoiceF3Hot, SXLB, 0x067528);
 
-		Entry(SLVoiceF4Mil, SXLB, 0x06752D);
-		Entry(SLVoiceF4Mid, SXLB, 0x06752C);
-		Entry(SLVoiceF4Hot, SXLB, 0x06752B);
-
-		Entry(SLVoiceF5Mil, SXLB, 0x067530);
-		Entry(SLVoiceF5Mid, SXLB, 0x06752F);
-		Entry(SLVoiceF5Hot, SXLB, 0x06752E);
-
-		Entry(SLVoiceF6Mil, SXLB, 0x067533);
-		Entry(SLVoiceF6Mid, SXLB, 0x067532);
-		Entry(SLVoiceF6Hot, SXLB, 0x067531);
-
-		Entry(SLVoiceF7Mil, SXLB, 0x067536);
-		Entry(SLVoiceF7Mid, SXLB, 0x067535);
-		Entry(SLVoiceF7Hot, SXLB, 0x067534);
-
-		Entry(SLVoiceF8Mil, SXLB, 0x067539);
-		Entry(SLVoiceF8Mid, SXLB, 0x067538);
-		Entry(SLVoiceF8Hot, SXLB, 0x067537);
 
 	};
 }

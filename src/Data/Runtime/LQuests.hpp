@@ -7,5 +7,7 @@ namespace RuntimeData {
 		Entry(GTSQuestProgression, GTSP, 0x005E3A);
 		Entry(GTSQuestProxy,       GTSP, 0x8C104D);
 
+		Entry(SexlabFramework,	   SXLB, 0x000D62);
+
 	};
 }
