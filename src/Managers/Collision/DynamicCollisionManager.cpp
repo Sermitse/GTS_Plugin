@@ -40,11 +40,14 @@ namespace GTS {
 
 	void DynamicCollisionManager::CreateInstance(RE::Actor* a_actor) {
 
-		bool HasRuntimeCol = HasRuntimeCollisions(a_actor);
+		if (a_actor) {
 
-		{
-			WriteLock lock(MapLock);
-			ControllerMap.try_emplace(a_actor->GetCharController(), std::make_shared<DynamicCollisionController>(a_actor->GetHandle(), HasRuntimeCol));
+			bool HasRuntimeCol = HasRuntimeCollisions(a_actor);
+
+			{
+				WriteLock lock(MapLock);
+				ControllerMap.try_emplace(a_actor->GetCharController(), std::make_shared<DynamicCollisionController>(a_actor->GetHandle(), HasRuntimeCol && Runtime::HasKeyword(a_actor, Runtime::KYWD.CreatureKeyword)));
+			}
 		}
 	}
 

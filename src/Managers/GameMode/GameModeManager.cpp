@@ -340,6 +340,7 @@ namespace {
 		// Slider that determines max size cap.
 		float CurseTargetScale;
 		float PowerMult = 0.3f;
+		float natScale = get_natural_scale(a_Actor);
 
 		//Get the actor's Gamemode Timer From Transient and set a random value to it.
 		auto ActorData = Transient::GetActorData(a_Actor);
@@ -348,20 +349,22 @@ namespace {
 		//Set Values based on Settings and actor type.
 		if (a_Actor->IsPlayerRef()) {
 			const auto& Settings = Config::Gameplay.GamemodePlayer;
-			CurseTargetScale = (Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel;
+			CurseTargetScale = natScale + ((Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel);
 
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
 			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else if (IsTeammate(a_Actor)) {
 			const auto& Settings = Config::Gameplay.GamemodeFollower;
-			CurseTargetScale = (Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel;
+			CurseTargetScale = natScale +  ((Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel);
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
 			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
 		}
 		else {
 			return;
 		}
+
+		
 
 		//If the target scale > than the actors max scale return
 		const float ScaleDiff = CurseTargetScale - a_CurrentTargetScale;
@@ -406,6 +409,7 @@ namespace GTS {
 		float TargetScale = get_target_scale(a_Actor);
 		float MaxScale = get_max_scale(a_Actor);
 		float RateMultiplier = 1.0f;
+		bool HasPerk = Runtime::HasPerk(a_Actor, Runtime::PERK.GTSPerkColossalGrowth);
 
 		if (IsFemale(a_Actor, true)) {
 
@@ -418,52 +422,66 @@ namespace GTS {
 
 			switch (a_SelectedGameMode) {
 
-				case LActiveGamemode_t::kNone: {
+				case LActiveGamemode_t::kNone: 
+				{
 					return;
 				}
 
-				case LActiveGamemode_t::kGrow: {
-					Grow(a_Actor,RateMultiplier,a_GrowthRate, TargetScale, MaxScale);
+				case LActiveGamemode_t::kGrow: 
+				{
+					
+					if (HasPerk) Grow(a_Actor,RateMultiplier,a_GrowthRate, TargetScale, MaxScale);
 					return;
 				}
 
-				case LActiveGamemode_t::kShrink: {
-					Shrink(a_Actor, RateMultiplier, a_ShrinkRate, TargetScale, NaturalScale);
+				case LActiveGamemode_t::kShrink: 
+				{
+					if (HasPerk) Shrink(a_Actor, RateMultiplier, a_ShrinkRate, TargetScale, NaturalScale);
 					return;
 				}
 
-				case LActiveGamemode_t::kSlowCombatGrowth: {
-					SlowCombatGrowth(a_Actor, RateMultiplier, a_GrowthRate, TargetScale, MaxScale);
+				case LActiveGamemode_t::kSlowCombatGrowth: 
+				{
+					if (HasPerk) SlowCombatGrowth(a_Actor, RateMultiplier, a_GrowthRate, TargetScale, MaxScale);
 					return;
 				}
 
-				case LActiveGamemode_t::kCombatGrowth: {
-					CombatGrowth(a_Actor, RateMultiplier, a_GrowthRate, a_ShrinkRate, TargetScale, NaturalScale, MaxScale);
+				case LActiveGamemode_t::kCombatGrowth: 
+				{
+					if (HasPerk) CombatGrowth(a_Actor, RateMultiplier, a_GrowthRate, a_ShrinkRate, TargetScale, NaturalScale, MaxScale);
 					return;
 				}
 
-				case LActiveGamemode_t::kCurseOfGrowth: {
-					CurseOfGrowth(a_Actor, TargetScale, MaxScale);
+				case LActiveGamemode_t::kCurseOfGrowth: 
+				{
+					if (HasPerk) CurseOfGrowth(a_Actor, TargetScale, MaxScale);
 					return;
 				}
 
-				case LActiveGamemode_t::kCurseOfTheGiantess: {
-					CurseOfTheGiantess(a_Actor, TargetScale, MaxScale);
+				case LActiveGamemode_t::kCurseOfTheGiantess: 
+				{
+					if (HasPerk) CurseOfTheGiantess(a_Actor, TargetScale, MaxScale);
 					return;
 				}
 
-				case LActiveGamemode_t::kCurseOfDiminishing: {
-					CurseOfDiminishing(a_Actor, TargetScale);
+				case LActiveGamemode_t::kCurseOfDiminishing: 
+				{
+					if (HasPerk) CurseOfDiminishing(a_Actor, TargetScale);
 					return;
 				}
 
-				case LActiveGamemode_t::kSizeLocked: {
-					CurseOfTheGiantess(a_Actor, TargetScale, MaxScale);
-					CurseOfDiminishing(a_Actor, TargetScale);
+				case LActiveGamemode_t::kSizeLocked: 
+				{
+					if (HasPerk) {
+						CurseOfTheGiantess(a_Actor, TargetScale, MaxScale);
+						CurseOfDiminishing(a_Actor, TargetScale);
+					}
 					break;
 				}
 
-				case LActiveGamemode_t::kLevelLocked: {
+				case LActiveGamemode_t::kLevelLocked: 
+				{
+					//Has no perk req.
 					LevelLocked(a_Actor, TargetScale, MaxScale);
 					break;
 				}
@@ -577,7 +595,7 @@ namespace GTS {
 			return;
 		}
 
-		if (!TinyCalamityActive(actor) && Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth)) {
+		if (!TinyCalamityActive(actor)) {
             ApplyGameMode(actor, GameMode, BaseGrowhtRate / 2, BaseShrinkRate);
         }
 	}

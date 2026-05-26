@@ -27,7 +27,9 @@ namespace GTS {
                       "- Curse of Growth: You will continiously grow in size like \"Grow\" but in spurts of varying strength up until the specified scale limit which you can change below.\n"
                       "- Curse of the Giantess: You will rapidly grow to the specified size if you are smaller. Spells like \"Restore Size\" will not shrink you below this size.\n"
                       "- Curse of Diminishing: When not in combat or when not performing any giantess actions. You will slowly shrink to the target scale if too large.\n"
-                      "- Size Locked: Combines the effects of both curses. You will grow to the specified size and slowly shrink back to it if larger.";
+                      "- Size Locked: Combines the effects of both curses. You will grow to the specified size and slowly shrink back to it if larger.\n";
+    				  "- Level Locked: Acts like \"Curse of the Giantess\" with the minimum size being dependent on either game level or GTS Skill level.\n\n"
+		              "Note: Most gamemodes require you to have the colossal growth perk before being able to use them.";
 
         PSString T1 = "Modify the amount grown or shrunk each tick.\n"
     	              "Grow Rate | Shrink Rate";
@@ -46,7 +48,24 @@ namespace GTS {
                       "The value you select is offset by +/- 10%% each time.";
 
 
-        ImGuiEx::ComboEx<LActiveGamemode_t>("Game Mode", a_Settings->sGameMode, T0);
+        const bool hasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth);
+
+        ImGuiEx::ComboExFiltered<LActiveGamemode_t>("Game Mode", a_Settings->sGameMode, [hasPerk](LActiveGamemode_t val) {
+	            constexpr std::array perkGated = {
+	            	LActiveGamemode_t::kGrow,
+                    LActiveGamemode_t::kShrink,
+                    LActiveGamemode_t::kCombatGrowth,
+                    LActiveGamemode_t::kSlowCombatGrowth,
+                    LActiveGamemode_t::kCurseOfGrowth,
+                    LActiveGamemode_t::kCurseOfTheGiantess,
+                    LActiveGamemode_t::kCurseOfDiminishing,
+                    LActiveGamemode_t::kSizeLocked
+	            };
+	            return !hasPerk && std::ranges::contains(perkGated, val);
+	        },
+	        nullptr,  // nothing hidden
+	        T0
+        );
 
 		auto currentMode = magic_enum::enum_cast<LActiveGamemode_t>(a_Settings->sGameMode);
 
@@ -91,12 +110,14 @@ namespace GTS {
 
                 if (a_isPlayer) {
                     Actor* Target = PlayerCharacter::GetSingleton();
-                    float TargetScale = (a_Settings->bUseGTSSkill ? GetGtsSkillLevel(Target) : Target->GetLevel()) * a_Settings->fScalePerLevel;
+                    float natScale = get_natural_scale(PlayerCharacter::GetSingleton());
+                    float TargetScale = natScale + ((a_Settings->bUseGTSSkill ? GetGtsSkillLevel(Target) : Target->GetLevel()) * a_Settings->fScalePerLevel);
                     ImGui::Text("%s's Minimum Scale Will Be: %.2fx", Target->GetName(), TargetScale);
                 }
                 else {
                     for (const auto& teammate : GTSMenu::WindowManager->GetCachedTeamMateList()) {
-                        float TargetScale = (a_Settings->bUseGTSSkill ? GetGtsSkillLevel(teammate) : teammate->GetLevel()) * a_Settings->fScalePerLevel;
+                        float natScale = get_natural_scale(teammate);
+                    	float TargetScale = natScale + ((a_Settings->bUseGTSSkill ? GetGtsSkillLevel(teammate) : teammate->GetLevel()) * a_Settings->fScalePerLevel);
                         ImGui::PushID(teammate);
                         ImGui::Text("%s's Minimum Scale Will Be: %.2fx", teammate->GetName(), TargetScale);
                         ImGui::PopID();
@@ -261,10 +282,6 @@ namespace GTS {
         if (Config::Balance.bBalanceMode) {
             shouldDisable = true;
             Reason = "Balance Mode Active";
-        }
-        else if (!Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth)) {
-            shouldDisable = true;
-            Reason = "Missing Perk: \"Colossal Growth\"";
         }
 
         {
