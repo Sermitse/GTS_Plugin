@@ -8,6 +8,49 @@
 
 using namespace GTS;
 
+
+namespace v2 {
+
+	consteval float ce_sqrt(float x) {
+		float r = x * 0.5f;
+		for (int i = 0; i < 32; ++i)
+			r = 0.5f * (r + x / r);
+		return r;
+	}
+
+	consteval float ce_sin(float x) {
+		// range reduce to [-pi, pi]
+		while (x > std::numbers::pi_v<float>) x -= 2.0f * std::numbers::pi_v<float>;
+		while (x < -std::numbers::pi_v<float>) x += 2.0f * std::numbers::pi_v<float>;
+		// Taylor: x - x^3/6 + x^5/120 - x^7/5040 + x^9/362880
+		const float x2 = x * x;
+		return x * (1.0f - x2 * (1.0f / 6.0f - x2 * (1.0f / 120.0f - x2 * (1.0f / 5040.0f - x2 * (1.0f / 362880.0f)))));
+	}
+
+	consteval float ce_cos(float x) {
+		return ce_sin(x + std::numbers::pi_v<float> *0.5f);
+	}
+
+	struct Vec3 { float x, y, z; };
+
+	consteval Vec3 fibDir(int i, int n) {
+		const float z = 1.0f - (i + 0.5f) * (2.0f / static_cast<float>(n));
+		const float r = ce_sqrt(1.0f - z * z);
+		const float theta = 2.0f * std::numbers::pi_v<float> *static_cast<float>(i) / std::numbers::phi_v<float>;
+		return { r * ce_cos(theta), r * ce_sin(theta), z };
+	}
+
+	template<int N>
+	consteval std::array<Vec3, N> makeFibSphere() {
+		std::array<Vec3, N> dirs{};
+		for (int i = 0; i < N; ++i)
+			dirs[i] = fibDir(i, N);
+		return dirs;
+	}
+}
+
+static constexpr auto kFibDirs64 = v2::makeFibSphere<16>();
+
 namespace {
 
 	void CastRayImpl(TESObjectREFR* ref, const NiPoint3& in_origin, const NiPoint3& direction, const float& unit_length, AllRayCollector* collector) {
@@ -63,26 +106,14 @@ namespace GTS {
 		};
 
 		const RE::hkpCdBody* obj = &body;
-		while (obj) {
-			if (!obj->parent) break;
+		while (obj && obj->parent)
 			obj = obj->parent;
-		}
 
 		hit.body = obj;
-		if (!hit.body) return;
+		if (!hit.body) 
+			return;
 
-		const auto collisionObj = static_cast<const RE::hkpCollidable*>(hit.body);
-		const auto flags = collisionObj->broadPhaseHandle.collisionFilterInfo;
-
-		const uint64_t m = 1ULL << flags;
-		constexpr uint64_t filter = 0x40122716; //TODO: replace with correct layer mask
-		if ((m & filter) == 0) return;
-
-		for (const auto* filteredObj : objectFilter) {
-			if (hit.getAVObject() == filteredObj) return;
-		}
-
-		earlyOutHitFraction = hit.hitFraction;
+		earlyOutHitFraction = 1.0f; // Never early-out, collect everything
 		hits.push_back(hit);
 	}
 
@@ -116,7 +147,9 @@ namespace GTS {
 
 		RE::hkpWorldRayCastInput pickRayInput{};
 		pickRayInput.from = RE::hkVector4(from.x, from.y, from.z, one);
-		pickRayInput.to = RE::hkVector4(0.0f, 0.0f, 0.0f, 0.0f);
+		pickRayInput.to = RE::hkVector4(to.x, to.y, to.z, one);  // 'to' here = end * hkpScale
+		pickRayInput.filterInfo = std::to_underlying(COL_LAYER::kCamera); //TODO Fix this.
+		pickRayInput.enableShapeCollectionFilter = false;
 		//pickRayInput.filterInfo = bhkCollisionFilter::GetSingleton()->GetNewSystemGroup() << 16 | std::to_underlying(COL_LAYER::kCamera) | std::to_underlying(COL_LAYER::kCameraSphere);
 
 		RayCollector collector;
@@ -126,6 +159,7 @@ namespace GTS {
 		pickData.rayInput = pickRayInput;
 		pickData.ray = RE::hkVector4(to.x, to.y, to.z, one);
 		pickData.rayHitCollectorA8 = reinterpret_cast<RE::hkpClosestRayHitCollector*>(&collector);
+
 
 		const auto ply = RE::PlayerCharacter::GetSingleton();
 		auto cell = ply->GetParentCell();
@@ -167,9 +201,9 @@ namespace GTS {
 
 		auto physicsWorld = ply->parentCell->GetbhkWorld();
 		if (physicsWorld) {
-			typedef bool(__fastcall* RayCastFunType)(decltype(RE::PlayerCamera::unk120), RE::bhkWorld*, glm::vec4&, glm::vec4&, uint32_t*, RE::Character**, float);
+			typedef bool(__fastcall* RayCastFunType)(decltype(RE::PlayerCamera::unk120), RE::bhkWorld*, glm::vec4&, glm::vec4&, hkpRootCdPoint*, RE::Character**, float);
 			static auto cameraCaster = REL::Relocation<RayCastFunType>(REL::RelocationID(32270, 33007, NULL));
-			res.hit = cameraCaster(cam->unk120, physicsWorld, start, end, static_cast<uint32_t*>(res.data), &res.hitCharacter, traceHullSize);
+			res.hit = cameraCaster(cam->unk120, physicsWorld, start, end, &res.cdPoint, &res.hitCharacter, traceHullSize);
 		}
 
 		if (res.hit) {
@@ -184,10 +218,35 @@ namespace GTS {
 
 		if (!cameraActor) return rayEnd;
 
-		// Determine hull size.
-		const float Hull = (hullMult < 0.0f) ? GetFrustrumNearDistance() : camhullSize * hullMult;
+		auto cell = cameraActor->GetParentCell();
+		if (!cell) return rayEnd;
+
+		const bhkWorld* physicsWorld = cell->GetbhkWorld();
+		
+
 		NiPoint3 currentStart = rayStart;
 		NiPoint3 lastValidResult = rayEnd;
+		// Determine hull size.
+		//The hull used for tracing extends from the center of the ray. meaning that passing fnear distance doubles the clearance. this is incorrect.
+		const float Hull = (hullMult < 0.0f) ? GetFrustrumNearDistance() / 2.f : defaultCamHullSize * hullMult;
+		const float Hullx2 = Hull * 2.0f;
+		//const float Hullx2lerped = std::lerp(Hull, Hullx2, std::clamp(rayMult, 0.0f, 1.0f));
+		const float Hulllerped = std::lerp(1.f, Hull, std::clamp(rayMult, 0.0f, 1.0f));
+
+		const float RayLen = rayMult > 0.0f ? Hull * rayMult : Hull;
+		//const float RayLen = Hull;
+		const float actorZPos = cameraActor->GetPositionZ();
+		/*{
+			//Underground prevention
+			//Force raystart to the same z pos as hull + char controller position. prevents tracking bones that are underground,
+			//Whichever is less, should always be raylen under normal circuimstances.
+			//This is to prevent the ground the actor is walking on from being hit when small.
+			const float offset = std::min(RayLen, Hull);
+
+			if (currentStart.z < actorZPos + offset) {
+				currentStart.z = actorZPos + offset;
+			}
+		}*/
 
 		const auto toVec4 = [](const NiPoint3& p) { return glm::vec4(p.x, p.y, p.z, 0.0f); };
 		const auto hkpHitPos = [](const glm::vec4& from, const glm::vec4& to, float fraction) {
@@ -199,167 +258,307 @@ namespace GTS {
 		};
 
 		// -------------------------------------------------------------------------
-		std::vector<RE::NiAVObject*> ignoreList;
+		std::vector<RE::hkpCdBody*> ignoreList;
 		{
+			const glm::vec4 origin4 = toVec4(currentStart);
 
-			auto raylen = rayMult > 0.0f ? Hull * rayMult : Hull;
-
-			const glm::vec4 origin4 = toVec4(rayStart);
-			const glm::vec4 probeEnds[6] = {
-				{ rayStart.x + raylen, rayStart.y,          rayStart.z,          0.0f },
-				{ rayStart.x - raylen, rayStart.y,          rayStart.z,          0.0f },
-				{ rayStart.x,          rayStart.y + raylen, rayStart.z,          0.0f },
-				{ rayStart.x,          rayStart.y - raylen, rayStart.z,          0.0f },
-				{ rayStart.x,          rayStart.y,          rayStart.z + raylen, 0.0f },
-				{ rayStart.x,          rayStart.y,          rayStart.z - raylen, 0.0f },
-			};
+			glm::vec4 probeEnds[16];
+			for (int i = 0; i < 16; ++i) {
+				const v2::Vec3& d = kFibDirs64[i];
+				probeEnds[i] = { 
+					currentStart.x + d.x * RayLen,
+					currentStart.y + d.y * RayLen,
+					currentStart.z + d.z * RayLen,
+					0.0f 
+				};
+			}
 
 			for (const glm::vec4& probeEnd : probeEnds) {
 
 				HkpRayResult result = HkpCastRay(origin4, probeEnd);
 
+				//Rays
 				if (Config::Advanced.bShowOverlay) {
-					DebugDraw::DrawLineForMS({ rayStart.x, rayStart.y, rayStart.z }, { probeEnd.x, probeEnd.y, probeEnd.z }, 50, { 1.0f, 1.0f, 0.0f, 1.0f }, 1.0f); //Yellow
+					DebugDraw::DrawLineForMS({ currentStart.x, currentStart.y, currentStart.z }, { probeEnd.x, probeEnd.y, probeEnd.z }, 16, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.1f); //White
 				}
 
 				for (RayCollector::HitResult& hit : result.hitArray) {
-					RE::NiAVObject* av = hit.getAVObject();
-					if (!av) continue;
-					if (!av->GetCollisionObject()) continue;
-					if (av->userData && av->userData->formID == cameraActor->formID) continue;
+
 					NiPoint3 hitPos = hkpHitPos(origin4, probeEnd, hit.hitFraction);
-					if (Config::Advanced.bShowOverlay) {
-						DebugDraw::DrawLineForMS({ rayStart.x, rayStart.y, rayStart.z }, { hitPos.x, hitPos.y, hitPos.z }, 50, { 1.0f, 0.0f, 0.0f, 1.0f }, 1.5f); //Red
-					}
-					if (rayStart.GetDistance(hitPos) < Hull) {
-						ignoreList.push_back(av);
-					}
-				}
-			}
 
-			std::ranges::sort(ignoreList);
-			ignoreList.erase(std::ranges::unique(ignoreList).begin(), ignoreList.end());
-		}
+					if (const auto* collidable = static_cast<const hkpCollidable*>(hit.body)) {
+						const auto layer = static_cast<COL_LAYER>(collidable->broadPhaseHandle.collisionFilterInfo & 0x7F);
 
-		// Keeps track of the original filter info for any object modified across frames
-		absl::flat_hash_map<RE::NiAVObject*, std::uint32_t> originalFilters;
-		originalFilters.reserve(8);
+						//As defined in skyrim.esm minus anything character related.
+						if (
+						    layer == COL_LAYER::kUnidentified         ||
+							layer == COL_LAYER::kStatic               ||
+							layer == COL_LAYER::kAnimStatic           ||
+							layer == COL_LAYER::kTransparent          ||
+							layer == COL_LAYER::kTrees                ||
+							layer == COL_LAYER::kTerrain              ||
+							layer == COL_LAYER::kTrap                 ||
+							layer == COL_LAYER::kCloudTrap            ||
+							layer == COL_LAYER::kGround               ||
+							layer == COL_LAYER::kDebrisSmall          ||
+							layer == COL_LAYER::kTransparentSmallAnim ||
+							layer == COL_LAYER::kItemPicker           ||
+							layer == COL_LAYER::kLOS                  ||
+							layer == COL_LAYER::kUnused0              ||
+							layer == COL_LAYER::kUnused1
+						) {
+							//Hits must be higher than gnd otherwise we disable ground meshes that are fine.
+							if (hitPos.z > actorZPos) {
+								//Hits
+								if (Config::Advanced.bShowOverlay) {
+									DebugDraw::DrawLineForMS({ currentStart.x, currentStart.y, currentStart.z }, { hitPos.x, hitPos.y, hitPos.z }, 16, { 0.0f, 0.0f, 1.0f, 1.0f }, 0.5f); //Blue
+								}
 
-		{
-			for (RE::NiAVObject* av : ignoreList) {
-				if (!av) continue;
-
-				bhkCollisionObject* colObj = av->GetCollisionObject();
-				if (!colObj) continue;
-
-				bhkRigidBody* bRigidBody = colObj->GetRigidBody();
-				if (!bRigidBody) continue;
-
-				hkRefPtr<hkReferencedObject> hkrefObj = bRigidBody->referencedObject;
-				if (!hkrefObj) continue;
-
-				hkReferencedObject* refObj = hkrefObj.get();
-				if (!refObj) continue;
-
-				hkpRigidBody* hRigidbody = skyrim_cast<hkpRigidBody*>(refObj);
-				if (hRigidbody) {
-
-					if (hRigidbody->world && hRigidbody->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
-
-						//rcx+08 crash check
-						std::uintptr_t* internalSimulationPtr = reinterpret_cast<std::uintptr_t*>(reinterpret_cast<char*>(hRigidbody) + 0xF8);
-
-						if (internalSimulationPtr && *internalSimulationPtr != 0) {
-
-							if (!originalFilters.contains(av)) {
-								originalFilters[av] = hRigidbody->collidable.broadPhaseHandle.collisionFilterInfo;
+								ignoreList.push_back(const_cast<hkpCdBody*>(hit.body));
 							}
-
-							hRigidbody->collidable.broadPhaseHandle.collisionFilterInfo |= 1 << 14;
-							hRigidbody->world->UpdateCollisionFilterOnEntity(hRigidbody, hkpUpdateCollisionFilterOnEntityMode::kFullCheck, hkpUpdateCollectionFilterMode::kIncludeCollections);
 						}
 					}
 				}
 			}
 		}
 
-		// Upward check...
-		const NiPoint3 upwardRayStart = currentStart;
-		NiPoint3 upwardRayEnd = currentStart;
-		upwardRayEnd.z += Hull;
+		std::ranges::sort(ignoreList);
+		ignoreList.erase(std::ranges::unique(ignoreList).begin(), ignoreList.end());
 
-		const glm::vec4 upwardRayStart4 = glm::vec4(upwardRayStart.x, upwardRayStart.y, upwardRayStart.z, 0.0f);
-		const glm::vec4 upwardRayEnd4 = glm::vec4(upwardRayEnd.x, upwardRayEnd.y, upwardRayEnd.z, 0.0f);
-		auto groundResult = RaycastAsCamera(upwardRayStart4, upwardRayEnd4, 1.0);
+		absl::flat_hash_map<RE::hkpCdBody*, std::uint32_t> originalFilters;
+		originalFilters.reserve(32);
 
-		if (groundResult.hit) {
-			currentStart.z = groundResult.hitPos.z + 5.0f;
+		{
+			for (RE::hkpCdBody* av : ignoreList) {
+				if (!av) continue;
+
+				const hkpCollidable* collidable = static_cast<const hkpCollidable*>(av);
+				const auto bpType = static_cast<hkpWorldObject::BroadPhaseType>(collidable->broadPhaseHandle.type);
+				hkpWorldObject* worldObj = collidable->GetOwner<hkpWorldObject>();
+
+				if (!worldObj) continue;
+
+				if (bpType == hkpWorldObject::BroadPhaseType::kEntity) {
+					hkpEntity* entity = static_cast<hkpEntity*>(worldObj);
+					if (entity->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
+						if (!originalFilters.contains(av)) {
+							originalFilters[av] = entity->collidable.broadPhaseHandle.collisionFilterInfo;
+						}
+
+						{
+							BSWriteLockGuard lock(physicsWorld->worldLock);
+
+							entity->collidable.broadPhaseHandle.collisionFilterInfo |= (1 << 14);
+							entity->world->UpdateCollisionFilterOnEntity(
+								entity,
+								hkpUpdateCollisionFilterOnEntityMode::kDisableEntityEntityCollisionsOnly,
+								hkpUpdateCollectionFilterMode::kIgnoreCollections
+							);
+						}
+					}
+				}
+				else if (bpType == hkpWorldObject::BroadPhaseType::kPhantom) {
+					hkpPhantom* phantom = static_cast<hkpPhantom*>(worldObj);
+					if (phantom->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
+						if (!originalFilters.contains(av)) {
+							originalFilters[av] = phantom->collidable.broadPhaseHandle.collisionFilterInfo;
+						}
+
+						{
+
+							BSWriteLockGuard lock(physicsWorld->worldLock);
+
+							phantom->collidable.broadPhaseHandle.collisionFilterInfo |= 1 << 14;
+							phantom->world->UpdateCollisionFilterOnPhantom(phantom, hkpUpdateCollectionFilterMode::kIgnoreCollections);
+						}
+					}
+				}
+			}
 		}
 
-		constexpr int maxIterations = 2;
+		// Hard floor clamp
+		if (currentStart.z < actorZPos + Hullx2)
+			currentStart.z = actorZPos + Hullx2;
+
+		// Pre-pass: floor clearance
+		{
+			const glm::vec4 floorStart4 = { currentStart.x, currentStart.y, currentStart.z, 0.0f };
+			const glm::vec4 floorEnd4 = { currentStart.x, currentStart.y, currentStart.z - Hull, 0.0f };
+			const RayResult floorResult = RaycastAsCamera(floorStart4, floorEnd4, 1.0f);
+
+
+			if (floorResult.hit && floorResult.rayLength < Hull)
+				currentStart.z += (Hull - floorResult.rayLength);
+
+			if (Config::Advanced.bShowOverlay) {
+				DebugDraw::DrawLineForMS({ floorStart4.x, floorStart4.y, floorStart4.z }, { currentStart.x, currentStart.y, currentStart.z }, 16, { 0.0f, 1.0f, 1.0f, 1.0f }, 1.5f); //Blue
+			}
+		}
+
+		// Pre-pass: ceiling clearance
+		{
+			const glm::vec4 ceilStart4 = { currentStart.x, currentStart.y, currentStart.z, 0.0f };
+			const glm::vec4 ceilEnd4 = { currentStart.x, currentStart.y, currentStart.z + Hull, 0.0f };
+			const RayResult ceilResult = RaycastAsCamera(ceilStart4, ceilEnd4, 1.0f);
+
+			if (ceilResult.hit && ceilResult.rayLength < Hull)
+				currentStart.z -= (Hull - ceilResult.rayLength);
+
+			if (Config::Advanced.bShowOverlay) {
+				DebugDraw::DrawLineForMS({ ceilStart4.x, ceilStart4.y, ceilStart4.z }, { currentStart.x, currentStart.y, currentStart.z }, 16, { 0.0f, 1.0f, 1.0f, 1.0f }, 1.5f); //Blue
+			}
+
+		}
+
+
+		constexpr int maxIterations = 1;
 		int iterations = 0;
 		NiPoint3 ShiftedStart = currentStart;
+
+		/*while (iterations < maxIterations) {
+			const glm::vec4 rayStart4 = { currentStart.x, currentStart.y, currentStart.z, 0.0f };
+			const glm::vec4 rayEnd4 = { rayEnd.x, rayEnd.y, rayEnd.z, 0.0f };
+			const RayResult result = RaycastAsCamera(rayStart4, rayEnd4, Hull);
+
+			if (!result.hit) break;
+
+			const NiPoint3 ResHit = { result.hitPos.x, result.hitPos.y, result.hitPos.z };
+			const NiPoint3 ResNorm = { result.cdPoint.normal.x, result.cdPoint.normal.y, result.cdPoint.normal.z };
+
+			const NiPoint3 Res = ResHit + (ResNorm * glm::min(result.rayLength, Hull));
+			lastValidResult = Res;
+
+			const float distance = Res.GetDistance(ShiftedStart);
+			if (distance > Hullx2) {
+				lastValidResult = Res;
+				break;
+			}
+
+			const float offset = Hullx2 - distance;
+			currentStart = Res + (ResNorm * offset);
+			++iterations;
+		}*/
 
 		while (iterations < maxIterations) {
 			const glm::vec4 rayStart4 = { currentStart.x, currentStart.y, currentStart.z, 0.0f };
 			const glm::vec4 rayEnd4 = { rayEnd.x, rayEnd.y, rayEnd.z, 0.0f };
 			const RayResult result = RaycastAsCamera(rayStart4, rayEnd4, Hull);
 
-			if (!result.hit) {
-				lastValidResult = rayEnd;
+			if (!result.hit) break;
+
+			const NiPoint3 ResHit = { result.hitPos.x, result.hitPos.y, result.hitPos.z };
+			const NiPoint3 ResNorm = { result.cdPoint.normal.x, result.cdPoint.normal.y, result.cdPoint.normal.z };
+			const NiPoint3 Res = ResHit + (ResNorm * Hull);
+
+			const float distance = Res.GetDistance(ShiftedStart);
+			if (distance > Hullx2) {
+				lastValidResult = Res;
 				break;
 			}
 
-			NiPoint3 ResHit = { result.hitPos.x, result.hitPos.y, result.hitPos.z };
-			NiPoint3 ResNorm = { result.rayNormal.x, result.rayNormal.y, result.rayNormal.z };
-
-			NiPoint3 Res = ResHit + (ResNorm * glm::min(result.rayLength, Hull));
-			lastValidResult = Res;
-
-			float distance = Res.GetDistance(ShiftedStart);
-			if (distance > Hull * 2.0f) {
-				break;
-			}
-
-			float offset = (Hull * 2.0f) - distance;
+			const float offset = Hullx2 - distance;
 			currentStart = Res + (ResNorm * offset);
+			lastValidResult = currentStart;
 			++iterations;
 		}
+
 
 		// Revert the objects back to their original layers so regular game simulation is unaffected
 		// Iterate through the hashmap of tracked NiAVObjects
 		for (auto it = originalFilters.begin(); it != originalFilters.end(); ++it) {
-			NiAVObject* av = it->first;
+			hkpCdBody* av = it->first;
 			if (!av) continue;
 
-			bhkCollisionObject* colObj = av->GetCollisionObject();
-			if (!colObj) continue;
+			const hkpCollidable* collidable = static_cast<const hkpCollidable*>(av);
+			const auto bpType = static_cast<hkpWorldObject::BroadPhaseType>(collidable->broadPhaseHandle.type);
+			hkpWorldObject* worldObj = collidable->GetOwner<hkpWorldObject>();
 
-			bhkRigidBody* bRigidBody = colObj->GetRigidBody();
-			if (!bRigidBody) continue;
+			if (!worldObj) continue;
 
-			hkRefPtr<hkReferencedObject> hkrefObj = bRigidBody->referencedObject;
-			if (!hkrefObj) continue;
+			if (bpType == hkpWorldObject::BroadPhaseType::kEntity) {
+				hkpEntity* entity = static_cast<hkpEntity*>(worldObj);
+				if (entity->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
 
-			hkReferencedObject* refObj = hkrefObj.get();
-			if (!refObj) continue;
-
-			hkpRigidBody* hRigidbody = skyrim_cast<hkpRigidBody*>(refObj);
-			if (hRigidbody) {
-
-				if (hRigidbody->world && hRigidbody->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
-
-					//rcx+08 crash check
-					std::uintptr_t* internalSimulationPtr = reinterpret_cast<std::uintptr_t*>(reinterpret_cast<char*>(hRigidbody) + 0xF8);
-
-					if (internalSimulationPtr && *internalSimulationPtr != 0) {
-						hRigidbody->collidable.broadPhaseHandle.collisionFilterInfo &= ~(1 << 14);
-						hRigidbody->world->UpdateCollisionFilterOnEntity(hRigidbody, hkpUpdateCollisionFilterOnEntityMode::kFullCheck, hkpUpdateCollectionFilterMode::kIncludeCollections);
+					{
+						BSWriteLockGuard lock(physicsWorld->worldLock);
+						entity->collidable.broadPhaseHandle.collisionFilterInfo = it->second;
+						entity->world->UpdateCollisionFilterOnEntity(
+							entity,
+							hkpUpdateCollisionFilterOnEntityMode::kDisableEntityEntityCollisionsOnly,
+							hkpUpdateCollectionFilterMode::kIgnoreCollections
+						);
 					}
 				}
 			}
+			else if (bpType == hkpWorldObject::BroadPhaseType::kPhantom) {
+				hkpPhantom* phantom = static_cast<hkpPhantom*>(worldObj);
+				if (phantom->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
+
+					{
+						BSWriteLockGuard lock(physicsWorld->worldLock);
+
+						phantom->collidable.broadPhaseHandle.collisionFilterInfo = it->second;
+						phantom->world->UpdateCollisionFilterOnPhantom(phantom, hkpUpdateCollectionFilterMode::kIgnoreCollections);
+					}
+				}
+			}
+
 		}
-		return lastValidResult;
+		/*// Exponential smooth toward the raw result -- frame-rate independent
+		static NiPoint3 smoothed = lastValidResult;
+		const float dt = RE::GetSecondsSinceLastFrame();
+		const float alpha = 1.0f - std::expf(-50.0f * dt); // 12.0f = tune this
+		smoothed.x += (lastValidResult.x - smoothed.x) * alpha;
+		smoothed.y += (lastValidResult.y - smoothed.y) * alpha;
+		smoothed.z += (lastValidResult.z - smoothed.z) * alpha;
+		return smoothed;*/
+
+		/*static NiPoint3 smoothed = lastValidResult;
+		const float dt = RE::GetSecondsSinceLastFrame();
+
+		if (lastValidResult != rayEnd) {
+			// Geometry was hit, smooth the pull-back
+			const float alpha = 1.0f - std::expf(-12.0f * dt);
+			smoothed.x += (lastValidResult.x - smoothed.x) * alpha;
+			smoothed.y += (lastValidResult.y - smoothed.y) * alpha;
+			smoothed.z += (lastValidResult.z - smoothed.z) * alpha;
+		}
+		else {
+			smoothed = lastValidResult; // no hit, track instantly
+		}
+
+		return smoothed;*/
+
+		/*static NiPoint3 smoothed = lastValidResult;
+		const float dt = RE::GetSecondsSinceLastFrame();
+
+		const float curDepth = lastValidResult.GetDistance(rayStart);
+		const float prevDepth = smoothed.GetDistance(rayStart);
+
+		// Pull in slowly, release instantly
+		const float k = curDepth < prevDepth ? 12.0f : 40.0f;
+		const float alpha = 1.0f - std::expf(-k * dt);
+		smoothed.x += (lastValidResult.x - smoothed.x) * alpha;
+		smoothed.y += (lastValidResult.y - smoothed.y) * alpha;
+		smoothed.z += (lastValidResult.z - smoothed.z) * alpha;
+
+		return smoothed;*/
+
+		static NiPoint3 smoothed = lastValidResult;
+		const float dt = RE::GetSecondsSinceLastFrame();
+
+		const float curDepth = lastValidResult.GetDistance(rayStart);
+		const float prevDepth = smoothed.GetDistance(rayStart);
+
+		// Pull in slowly, release instantly
+		const float k = curDepth < prevDepth ? 10.0f : 50.0f;
+		const float alpha = 1.0f - std::expf(-k * dt);
+		smoothed.x += (lastValidResult.x - smoothed.x) * alpha;
+		smoothed.y += (lastValidResult.y - smoothed.y) * alpha;
+		smoothed.z += (lastValidResult.z - smoothed.z) * alpha;
+
+		return smoothed;
+
 	}
 
 

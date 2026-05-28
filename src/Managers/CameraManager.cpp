@@ -381,12 +381,6 @@ namespace GTS {
 					if (RayStart != NiPoint3()) {
 						RayCastHitPosition = ComputeCameraCollision(CameraTargetActor, RayStart, LocalSpacePosition, -1.0f, a_ActorScale);
 
-						//If less than frustrum it means the camera is stuck to the raycast origin bone.
-						//"Revert" the colision position if this happens. Effectively disabling camera colision in this case.
-						if (abs(RayCastHitPosition.GetDistance(RayStart)) <= GetFrustrumNearDistance() + 1e-2) {
-							RayCastHitPosition = LocalSpacePosition;
-						}
-
 					}
 
 					// Apply final transformations

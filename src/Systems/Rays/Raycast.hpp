@@ -8,37 +8,34 @@ namespace GTS {
 	};
 
 	struct rayHitShapeInfo {
-		hkpGenericShapeData* hitShape;
-		uint32_t unk;
+		hkpGenericShapeData* hitShape;  // 0x00 8 bytes exactly
 	};
 
+	// based on usage in FUN_14054f720 (.1170)
+	typedef __declspec(align(16)) struct hkpRootCdPoint {
+		glm::vec4 contactPos;   // 0x00 contact position, Havok scale
+		glm::vec4 normal;       // 0x10 surface normal, unit vector
+		float distance;         // 0x20 penetration depth / sweep fraction
+		uint8_t _pad[12];       // 0x24
+		rayHitShapeInfo colA;   // 0x30 hkpCdBody* + unk
+		rayHitShapeInfo colB;   // 0x38 hkpCdBody* + unk
+	} hkpRootCdPoint;           // sizeof == 0x40
+
+	static_assert(sizeof(hkpRootCdPoint) == 0x40);
+
 	typedef __declspec(align(16)) struct bhkRayResult {
-		union {
-			uint32_t data[16];
-			struct {
-				// Might be surface normal
-				glm::vec4 rayUnkPos;
-				// The normal vector of the ray
-				glm::vec4 rayNormal;
+		hkpRootCdPoint cdPoint{};   // pre-allocated, written by FUN_14054f720
 
-				rayHitShapeInfo colA;
-				rayHitShapeInfo colB;
-			};
-		};
-		// Custom utility data, not part of the game
-
-		// True if the trace hit something before reaching it's end position
+		// Custom utility fields
 		bool hit = false;
-		// If the ray hit a character actor, this will point to it
 		RE::Character* hitCharacter = nullptr;
-		// The length of the ray from start to hitPos
 		float rayLength = 0.0f;
-		// The position the ray hit, in world space
-		glm::vec4 hitPos{};
+		glm::vec4 hitPos{};         // hit pos in ganme units, from param_4 writeback
 
-		// pad to 128
-		uint64_t _pad{};
+		uint32_t _pad{};
 	} RayResult;
+
+	static_assert(sizeof(RayResult) == 112);
 
 	class RayCollector {
 	public:
@@ -79,9 +76,9 @@ namespace GTS {
 	HkpRayResult HkpCastRay(const glm::vec4& start, const glm::vec4& end) noexcept;
 
 
-	//Game default is 15.0
-	//Needs to be the same as fneardistance otherwise the camera will clip through.
-	constexpr float camhullSize = 15.0f;
+	//Game default fneardistance is 15.0
+	//Needs to be half of fneardistance otherwise the camera will clip through.
+	constexpr float defaultCamHullSize = 15.0f / 2.0f;
 
 	//Camera
 	NiPoint3 ComputeCameraCollision(RE::Actor* cameraActor, const NiPoint3& rayStart, const NiPoint3& rayEnd, const float hullMult = -1.0f, const float rayMult = -1.0f);
