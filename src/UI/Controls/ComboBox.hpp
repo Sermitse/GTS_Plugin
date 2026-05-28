@@ -50,6 +50,60 @@ namespace ImGuiEx {
 	}
 
 	template <typename T>
+	bool ComboExFiltered(const char* a_label, std::string& a_currentValue, std::function<bool(T)> a_isDisabled = nullptr, std::function<bool(T)> a_isHidden = nullptr, const char* a_toolTip = nullptr, bool a_disabled = false) {
+		constexpr auto enumNames = magic_enum::enum_names<T>();
+		constexpr auto enumValues = magic_enum::enum_values<T>();
+
+		auto currentEnum = magic_enum::enum_cast<T>(a_currentValue);
+		if (!currentEnum.has_value())
+			a_currentValue = std::string(enumNames[0]);
+
+		std::string previewLabel = GTS::HumanizeString(a_currentValue);
+
+		ImGui::BeginDisabled(a_disabled);
+		bool changed = false;
+
+		if (ImGui::BeginCombo(a_label, previewLabel.c_str())) {
+
+			// Build sorted index list: unlocked entries first, disabled after
+			std::vector<size_t> order(enumNames.size());
+			std::iota(order.begin(), order.end(), 0);
+			std::stable_partition(order.begin(), order.end(), [&](size_t i) {
+				T val = enumValues[i];
+				const bool hidden = a_isHidden && a_isHidden(val);
+				const bool disabled = a_isDisabled && a_isDisabled(val);
+				return !hidden && !disabled;
+			});
+
+			for (size_t i : order) {
+				T val = enumValues[i];
+
+				if (a_isHidden && a_isHidden(val)) continue;
+
+				const bool disabled = a_isDisabled && a_isDisabled(val);
+				const bool selected = currentEnum.has_value() && currentEnum.value() == val;
+				std::string label = GTS::HumanizeString(enumNames[i]);
+
+				ImGui::BeginDisabled(disabled);
+				if (ImGui::Selectable(label.c_str(), selected)) {
+					a_currentValue = std::string(enumNames[i]);
+					changed = true;
+				}
+				ImGui::EndDisabled();
+
+				if (selected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+
+		Tooltip(a_toolTip);
+		ImGui::EndDisabled();
+
+		return changed;
+	}
+
+	template <typename T>
 	bool IComboEx(const char* a_label, int* a_currentIndex, const char* a_toolTip = nullptr, bool a_disabled = false, bool a_hasTotal = false) {
 		// Retrieve enum metadata
 		constexpr auto enumNames = magic_enum::enum_names<T>();

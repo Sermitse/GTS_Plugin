@@ -7,6 +7,7 @@
 #include "Config/Config.hpp"
 
 #include "Systems/Rays/raycast.hpp"
+#include "Systems/Rays/Camera/CameraCollision.hpp"
 
 using namespace GTS;
 
@@ -379,14 +380,7 @@ namespace GTS {
 					// Collision handling
 					NiPoint3 RayStart = GetAggregateBoneTarget(CameraTargetActor);
 					if (RayStart != NiPoint3()) {
-						RayCastHitPosition = ComputeRaycast(RayStart, LocalSpacePosition);
-
-						//If less than frustrum it means the camera is stuck to the raycast origin bone.
-						//"Revert" the colision position if this happens. Effectively disabling camera colision in this case.
-						if (abs(RayCastHitPosition.GetDistance(RayStart)) <= GetFrustrumNearDistance() + 1e-2) {
-							RayCastHitPosition = LocalSpacePosition;
-						}
-
+						RayCastHitPosition = CameraCol::ComputeCameraCollision(CameraTargetActor, RayStart, LocalSpacePosition, -1.0f, a_ActorScale);
 					}
 
 					// Apply final transformations
