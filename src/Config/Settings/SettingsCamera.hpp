@@ -111,6 +111,9 @@ struct SettingsCamera_t {
     bool bCamCollideTerrain = true;
     bool bCamCollideStatics = true;
     float fModifyCamCollideAt = 3.0f;
+    
+    bool bDoCameraSmoooth = false;
+    float fCameraSmoothDelta = 27.0f;
 
 };
 TOML_SERIALIZABLE(SettingsCamera_t);

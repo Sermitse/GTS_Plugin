@@ -85,36 +85,48 @@ namespace GTS {
 
 		if (Runtime::IsSexlabInstalled()) {
 
-			ImUtil_Unique 
+			ImUtil_Unique
 			{
 
-				PSString THelp = "Sexlab is installed.\n"
-								 "This mod can now use it's voice files as an alternative\n\n"
-								 "Note: Only The Player\\Current Followers will be listed as to not clutter this menu.\n"
-								 "If this menu is empty it means none of the currently loaded npc's are elidgible for this feature.";
+				PSString THelp = "Sexlab/SL P+ has been detected as installed.\n"
+								 "Its voices can be used used as an alternative for moans/laughs.\n";
+								 "The voice type can be changed in SL's MCM.\n\n"
+							     "Note: Only The Player / Current Followers will be listed as to not clutter this menu.\n"
+							     "If this menu is empty it means none of the currently loaded actors are elidgible for this feature.";
+
 				ImGui::BeginDisabled(!Config::Audio.bMoanEnable);
+
 				if (ImGui::CollapsingHeader("Alternative Voice Options", ImUtil::HeaderFlagsDefaultOpen)) {
 					ImGuiEx::HelpText("What is this", THelp);
 
 					static const auto Player = PlayerCharacter::GetSingleton();
 					const auto ActiveTeammates = FindTeammates();
 
-					// Player toggle
-					if (auto ActorData = Persistent::GetActorData(Player)) {
-						ImGui::PushID(Player);
-						ImGui::Checkbox(std::format("[{}] Use SL Voice", Player->GetName()).c_str(), &ActorData->bUseSLVoice);
-						ImGui::PopID();
-					}
+					// Build actor list
+					std::vector<RE::Actor*> Actors = { Player };
+					Actors.reserve(8);
+					for (const auto T : ActiveTeammates) Actors.push_back(T);
 
-					// Teammate toggles
-					if (!ActiveTeammates.empty()) {
-						for (const auto Teammate : ActiveTeammates) {
-							if (auto ActorData = Persistent::GetActorData(Teammate)) {
-								ImGui::PushID(Teammate);
-								ImGui::Checkbox(std::format("[{}] Use SL Voice", Teammate->GetName()).c_str(), &ActorData->bUseSLVoice);
-								ImGui::PopID();
+					static int SelectedIdx = 0;
+					SelectedIdx = std::clamp(SelectedIdx, 0, static_cast<int>(Actors.size()) - 1);
+
+					const char* PreviewName = Actors[SelectedIdx]->GetName();
+					if (ImGui::BeginCombo("Actor", PreviewName)) {
+						for (int i = 0; i < static_cast<int>(Actors.size()); ++i) {
+							bool Selected = (SelectedIdx == i);
+							if (ImGui::Selectable(Actors[i]->GetName(), Selected)) {
+								SelectedIdx = i;
+							}
+							if (Selected) {
+								ImGui::SetItemDefaultFocus();
 							}
 						}
+						ImGui::EndCombo();
+					}
+
+					if (auto ActorData = Persistent::GetActorData(Actors[SelectedIdx])) {
+						ImGui::SameLine();
+						ImGui::Checkbox("Use SL Voice", &ActorData->bUseSLVoice);
 					}
 
 					ImGui::Spacing();

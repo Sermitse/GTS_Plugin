@@ -7,6 +7,7 @@
 #include "Config/Config.hpp"
 
 #include "Systems/Rays/raycast.hpp"
+#include "Systems/Rays/Camera/CameraCollision.hpp"
 
 using namespace GTS;
 
@@ -379,8 +380,7 @@ namespace GTS {
 					// Collision handling
 					NiPoint3 RayStart = GetAggregateBoneTarget(CameraTargetActor);
 					if (RayStart != NiPoint3()) {
-						RayCastHitPosition = ComputeCameraCollision(CameraTargetActor, RayStart, LocalSpacePosition, -1.0f, a_ActorScale);
-
+						RayCastHitPosition = CameraCol::ComputeCameraCollision(CameraTargetActor, RayStart, LocalSpacePosition, -1.0f, a_ActorScale);
 					}
 
 					// Apply final transformations

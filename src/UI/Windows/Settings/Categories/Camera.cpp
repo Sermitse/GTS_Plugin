@@ -102,8 +102,8 @@ namespace GTS {
 		{
 
 	        PSString T0 = "Change the height multiplier of the camera while crawling.\n"
-							 "1st Person | 3rd Person\n\n"
-							 "Note: 3rd Person wont't work correctly if you are using smoothcam.";
+						  "1st Person | 3rd Person\n\n"
+						  "Note: 3rd Person wont't work correctly if you are using smoothcam.";
 
 			if (ImGui::CollapsingHeader("Crawl Height", ImUtil::HeaderFlagsDefaultOpen)) {
 				//Temp Store
@@ -199,6 +199,8 @@ namespace GTS {
 
 	        PSString T0 = "Enable automatic camera.";
 			PSString T1 = "Change the third-person camera mode.";
+			PSString T2 = "Smooth camera positioning using Expf In/Out";
+			PSString T3 = "Change the move delta used for smoothing, higher values mean less smoothing.";
 
 			//Hack
             auto CamState = std::bit_cast<int*>(&Persistent::TrackedCameraState.value);
@@ -207,6 +209,10 @@ namespace GTS {
 				ImGuiEx::CheckBox("Enable Automatic Camera", &Config::Camera.bAutomaticCamera, T0);
 				ImGuiEx::IComboEx<LCameraMode_t>("Camera Mode", CamState, T1, !Config::Camera.bAutomaticCamera);
 	        	ImGui::Spacing();
+				ImGuiEx::CheckBox("Enable Smoothing", &Config::Camera.bDoCameraSmoooth, T2);
+				ImGuiEx::SliderF("Smoothing Delta", &Config::Camera.fCameraSmoothDelta,5.f, 80.f, T3, "%.0f", !Config::Camera.bDoCameraSmoooth);
+
+
 	        }
 	    }
 
