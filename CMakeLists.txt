@@ -83,7 +83,7 @@ FetchContent_MakeAvailable(cmake_git_version_tracking)
 # https://github.com/qlibs/reflect
 FetchContent_Declare(
     boost_ext_reflect
-    GIT_REPOSITORY https://github.com/BingusEx/reflect/
+    GIT_REPOSITORY https://github.com/Arial6502/reflect/
     GIT_SHALLOW ON
     GIT_TAG 653c94092fa8702dbc33ebf3b570190fb1a9dc28
 )
@@ -92,7 +92,7 @@ FetchContent_MakeAvailable(boost_ext_reflect)
 FetchContent_Declare(
   glaze
   GIT_REPOSITORY https://github.com/stephenberry/glaze.git
-  GIT_TAG v7.0.0
+  GIT_TAG v7.7.1
   GIT_SHALLOW ON
 )
 FetchContent_MakeAvailable(glaze)
