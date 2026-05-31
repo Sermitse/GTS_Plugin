@@ -335,17 +335,6 @@ namespace GTS::CameraCol {
 			}
 		}
 
-		if (Config::Camera.bDoCameraSmoooth) {
-			// Exponential smooth toward the raw result
-			static NiPoint3 smoothed = finalCameraPosition;
-			const float dt = RE::GetSecondsSinceLastFrame();
-			const float alpha = 1.0f - std::expf(-Config::Camera.fCameraSmoothDelta * dt); 
-			smoothed.x += (finalCameraPosition.x - smoothed.x) * alpha;
-			smoothed.y += (finalCameraPosition.y - smoothed.y) * alpha;
-			smoothed.z += (finalCameraPosition.z - smoothed.z) * alpha;
-			return smoothed;
-		}
-
 		return finalCameraPosition;
 
 	}
