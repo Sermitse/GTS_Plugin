@@ -6,7 +6,7 @@ namespace GTS {
 		
 		public:
 
-		DynamicCollisionController(const RE::ActorHandle& a_handle, bool a_isRuntimeConstructed);
+		DynamicCollisionController(const RE::ActorHandle& a_handle, bool a_hasInSkeletonCollision);
 		void Update();
 
 		private:
@@ -26,7 +26,6 @@ namespace GTS {
 			float controllerActorScale = 0.0f;
 			bool hasVertecesShape = false;
 			float maxSlope = 0.0f;
-			float runtimeGeneratedOrigScale = 1.0f;
 		};
 
 		ActorHandle m_actor;                                                     // Handle to the actor this controller manages

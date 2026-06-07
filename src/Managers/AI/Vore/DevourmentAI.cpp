@@ -3,10 +3,10 @@
 
 namespace {
 
-	constexpr float BASE_CONE_WIDTH = 70.0f;
-	constexpr float VORE_ANGLE = 75.0f;
+	constexpr float BASE_CONE_WIDTH = 75.0f;
+	constexpr float VORE_ANGLE = 90.0f;
 	constexpr float PI = std::numbers::pi_v<float>;
-	constexpr float MINIMUM_DISTANCE = 60.0f;
+	constexpr float MINIMUM_DISTANCE = 100.0f;
 }
 
 
@@ -22,18 +22,18 @@ namespace GTS {
 			return false;
 		}
 
-		const auto Transient = Transient::GetActorData(a_Prey);
-		if (Transient) {
-			if (Transient->CanBeVored == false) {
-				return false;
-			}
-		}
+		//const auto Transient = Transient::GetActorData(a_Prey);
+		//if (Transient) {
+		//	if (Transient->CanBeVored == false) {
+		//		return false;
+		//	}
+		//}
 
 		const float PredScale = get_visual_scale(a_Pred);
 		const float PreyDistance = (a_Pred->GetPosition() - a_Prey->GetPosition()).Length();
 
 
-		if (PreyDistance <= MINIMUM_DISTANCE * PredScale) {
+		if (PreyDistance <= MINIMUM_DISTANCE + (PredScale * 25.f)) {
 			return true;
 		}
 
