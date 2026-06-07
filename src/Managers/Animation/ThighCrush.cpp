@@ -300,8 +300,6 @@ namespace {
 	}
 
 	void GTSsitloopexit(AnimationEventData& data) {
-		float scale = get_visual_scale(data.giant);
-		float speed = data.animSpeed;
 
 		data.HHspeed = 1.0f;
 		data.disableHH = false;
