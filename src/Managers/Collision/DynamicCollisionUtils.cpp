@@ -452,28 +452,10 @@ namespace GTS {
 								const float distance = PlayerCharacter::GetSingleton()->GetPosition().GetDistance(a_actor->GetPosition());
 
 								// Configure LOD based on distance
-								int32_t longitudinal_steps, latitude_steps;
 
-								if (distance < 512.0f) {
-									//high detail
-									longitudinal_steps = 8;
-									latitude_steps = 4;
-								}
-								else if (distance < 1024.0f) {
-									//normal detail
-									longitudinal_steps = 6;
-									latitude_steps = 3;
-								}
-								else if (distance < 1536.0f) {
-									//low detail
-									longitudinal_steps = 4;
-									latitude_steps = 2;
-								}
-								else {
-									//minimal detail
-									longitudinal_steps = 1;
-									latitude_steps = 1;
-								}
+								const float t = std::clamp(distance / 4096.0f, 0.0f, 1.0f);
+								int32_t longitudinal_steps = static_cast<int32_t>(std::floorf(std::lerp(8.0f, 3.0f, t)));
+								int32_t latitude_steps = static_cast<int32_t>(std::floorf(std::lerp(4.0f, 2.0f, t)));
 
 								DebugDraw::DrawCapsule(
 									NiPointToVec3(A),

@@ -9,10 +9,6 @@
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Input/ManagedInputEvent.hpp"
 
-#include "UI/Core/ImUtil.hpp"
-
-
-
 namespace {
 
 	using namespace RE;
@@ -68,197 +64,162 @@ namespace GTS {
 
 		ImGui::PushFont(nullptr, 16);
 
+		// ------------------------------ CLOSE BUTTON
 		if (ImGuiEx::Button("Close")) {
 			HandleOpenClose(false);
 		}
 
-		if (ImGui::CollapsingHeader("GTS Debug")) {
-			ImGuiEx::CheckBox("Show Overlay", &Config::Advanced.bShowOverlay);
+		// ------------------------------ GTS
+		if (ImGui::CollapsingHeader("GTS")) {
 
-			#ifdef GTS_PROFILER_ENABLED
-			ImGuiEx::CheckBox("Show Profiler", &Profilers::DrawProfiler);
-			#endif
-		}
+			ImGui::Indent();
+			{
+				ImGuiEx::CheckBox("Show Overlay", &Config::Advanced.bShowOverlay);
 
-		if (ImGui::CollapsingHeader("ImGui Debug Windows")) {
-			ImGuiEx::CheckBox("Show Stack", &m_showStackWindow);
-			ImGuiEx::CheckBox("Show Demo", &m_showDemoWindow);
-			ImGuiEx::CheckBox("Show Metrics", &m_showMetricsWindow);
-		}
+				#ifdef GTS_PROFILER_ENABLED
+				ImGuiEx::CheckBox("Show Profiler", &Profilers::DrawProfiler);
+				#endif
 
-		if (ImGui::CollapsingHeader("Graphics Test")) {
-			ImGraphics::DebugDrawTest();
-			ImGui::Spacing();
-		}
-
-		if (ImGui::CollapsingHeader("Graphics Transform Test")) {
-
-			// Create a transformation with continuously changing values
-			static ImGraphics::ImageTransform transform;
-			static ImGraphics::ImageTransform transform2;
-			static ImGraphics::ImageTransform transform3;
-			static ImGraphics::ImageTransform transform4;
-			static ImGraphics::ImageTransform transform5;
-
-			static float time = 0.0f;
-
-			// Increment time
-			time += ImGui::GetIO().DeltaTime;
-
-			// Oscillating recolor through RGB spectrum
-			transform.recolorEnabled = true;
-			float hue = std::fmod(time * 0.3f, 1.0f); // Cycle through hue every ~3.3 seconds
-			float r = std::abs(std::sin(hue * std::numbers::pi * 2.0f));
-			float g = std::abs(std::sin((hue + 0.333f) * std::numbers::pi * 2.0f));
-			float b = std::abs(std::sin((hue + 0.666f) * std::numbers::pi * 2.0f));
-			transform.targetColor = { r, g, b, 1.0f };
-
-			// Continuous rotation (full rotation every 4 seconds)
-			transform2.affine.rotation = time * (std::numbers::pi / 2.0f);
-
-			// Pulsing scale (between 0.8x and 1.8x)
-			float scaleValue = 1.3f + 0.5f * std::sin(time * 2.0f);
-			transform.affine.scale = { scaleValue, scaleValue };
-
-			// Oscillating translation
-			transform3.affine.translation.x = 10.0f * std::sin(time * 1.5f);
-			transform3.affine.translation.y = 10.0f * std::cos(time * 1.5f);
-
-			// Flip every 2 seconds
-			transform3.affine.flipHorizontal = static_cast<int>(time / 2.0f) % 2 == 0;
-			transform3.affine.flipVertical = static_cast<int>(time / 3.0f) % 2 == 0;
-
-			// Cycling cutoff direction every 5 seconds
-			int dirIndex = static_cast<int>(time / 5.0f) % 4;
-			switch (dirIndex) {
-				case 0: transform4.transformDirection = ImGraphics::Direction::LeftToRight; break;
-				case 1: transform4.transformDirection = ImGraphics::Direction::RightToLeft; break;
-				case 2: transform4.transformDirection = ImGraphics::Direction::TopToBottom; break;
-				case 3: transform4.transformDirection = ImGraphics::Direction::BottomToTop; break;
-				default: break;
-			}
-
-			// Oscillating cutoff percentage (0% to 100% and back)
-			transform4.cutoffPercent = 0.5f + 0.5f * std::sin(time);
-
-			transform5.gradientFadeEnabled  = true;
-			transform5.gradientStartPercent = std::sin(time) * 0.5f + 0.5f; // Varies between 0.0 and 1.0
-			transform5.gradientTargetAlpha = 0.0f;
-
-			switch (dirIndex) {
-				case 0: transform5.transformDirection = ImGraphics::Direction::LeftToRight; break;
-				case 1: transform5.transformDirection = ImGraphics::Direction::RightToLeft; break;
-				case 2: transform5.transformDirection = ImGraphics::Direction::TopToBottom; break;
-				case 3: transform5.transformDirection = ImGraphics::Direction::BottomToTop; break;
-				default: break;
-			}
-
-
-			ImGui::Text("Time: %.2f", time);
-			ImGui::Text("Color: R:%.2f G:%.2f B:%.2f", r, g, b);
-			ImGui::Text("Rotation: %.2f rad (%.1f deg)", transform2.affine.rotation, transform2.affine.rotation * 180.0f / std::numbers::pi);
-			ImGui::Text("Scale: %.2f", scaleValue);
-			ImGui::Text("Cutoff: %s %.1f%%", dirIndex == 0 ? "L->R" : dirIndex == 1 ? "R->L" : dirIndex == 2 ? "T->B" : "B->T", transform4.cutoffPercent * 100.0f);
-
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform,  { 96, 96 });
-			ImGui::SameLine();
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform2, { 96, 96 });
-			ImGui::SameLine();
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform3, { 96, 96 });
-			ImGui::SameLine();
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform4, { 96, 96 });
-			ImGui::SameLine();
-			ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform5, { 96, 96 });
-
-			ImGui::Spacing();
-		}
-
-		//Multi-Language Font Test
-		if (ImGui::CollapsingHeader("Font Test")) {
-			ImGui::Text("This îs à fónt tèst — façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève");
-			ImGui::Text("Αυτή είναι μια δοκιμή για το σύστημα γραμματοσειράς");
-			ImGui::Text("Это тест загрузчика шрифтов");
-			ImGui::Text("これはフォントローダーのテストです");
-			ImGui::Text("이것은 폰트로더 테스트입니다");
-			ImGui::Text("这是一个字体加载器测试");
-			ImGui::Spacing();
-		}
-
-		if (ImGui::CollapsingHeader("Misc")) {
-			if (ImGuiEx::Button("Quit", "This will immediatly close the game.", false, 1.0f)) {
-				WinAPI::TerminateProcess(WinAPI::GetCurrentProcess(), EXIT_SUCCESS);
-			}
-
-			ImGui::SameLine();
-
-			if (ImGuiEx::Button("Trigger Crash", "This will immediatly crash the game.", false, 1.0f)) {
-				using FuncType = void(*)();
-				FuncType func = nullptr;
-				func();
-			}
-		}
-
-		if (ImGui::CollapsingHeader("Experimental", ImUtil::HeaderFlagsDefaultOpen)) {
-
-			if (ImGuiEx::Button("Clear World Decals", "Removes All Loaded World Decals. Needs cell reload to fully take effect.", false, 1.0f)) {
-
-				TES::GetSingleton()->ForEachCell([&](TESObjectCELL* a_ref) {
-					if (const NiPointer<NiNode>& cell = a_ref->GetRuntimeData().loadedData->cell3D) {
-						if (BGSDecalNode* node = static_cast<BGSDecalNode*>(cell->GetObjectByName(FixedStrings::GetSingleton()->decalNode))) {
-							for (NiPointer<BSTempEffect>& decal : node->GetRuntimeData().decals) {
-								decal.get()->lifetime = 0.0f;
-								decal->Detach();
-								decal->Update(0.0f);
-								decal->Get3D()->CullNode(true);
-								decal->Get3D()->UpdateMaterialAlpha(0.0f, false);
-							}
-						}
+				if (ImGui::CollapsingHeader("Scale Information (Size Debug)")) {
+					for (const auto& actor : find_actors()) {
+						DrawScaleDebugInfo(actor);
 					}
-				});
+				}
 			}
-			static int32_t deletedcnt = -1;
-			if (ImGuiEx::Button("Delete Dead Dynamic NPC's", "Disables and deletes dynamic form NPC's (Refid starting with FF) in a 4x4 cell radius.", false, 1.0f)) {
-				deletedcnt = 0;
+			ImGui::Unindent();
+		}
 
-				TES::GetSingleton()->ForEachReferenceInRange(PlayerCharacter::GetSingleton(), 16384.0f, [&](TESObjectREFR* a_ref) {
+		// ------------------------------ UI
+		if (ImGui::CollapsingHeader("UI")) {
+			
 
-					if (Actor* asActor = skyrim_cast<Actor*>(a_ref)) {
+			ImGui::Indent();
+			{
+				if (ImGui::CollapsingHeader("ImGui Debug")) {
+					ImGuiEx::CheckBox("Show Stack", &m_showStackWindow);
+					ImGuiEx::CheckBox("Show Demo", &m_showDemoWindow);
+					ImGuiEx::CheckBox("Show Metrics", &m_showMetricsWindow);
+				}
 
-						if (asActor->IsDynamicForm() && asActor->IsDead()) {
-							asActor->Disable();
-							asActor->SetDelete(true);
-							deletedcnt++;
+				// ------------------------------ ImGraphics Debug
+				if (ImGui::CollapsingHeader("ImGraphics - Images")) {
+					ImGraphics::DebugDrawTest();
+					ImGui::Spacing();
+				}
+
+				// ------------------------------ ImGraphics Transforms
+				if (ImGui::CollapsingHeader("ImGraphics - Transforms")) {
+
+					static ImGraphics::ImageTransform transform, transform2, transform3, transform4, transform5;
+					static float time = 0.0f;
+					time += ImGui::GetIO().DeltaTime;
+
+					auto dirFromIndex = [](int idx) {
+						switch (idx) {
+							case 0:  return ImGraphics::Direction::LeftToRight;
+							case 1:  return ImGraphics::Direction::RightToLeft;
+							case 2:  return ImGraphics::Direction::TopToBottom;
+							default: return ImGraphics::Direction::BottomToTop;
 						}
+					};
 
+					// Oscillating recolor through RGB spectrum
+					{
+						float hue = std::fmod(time * 0.3f, 1.0f);
+						float r = std::abs(std::sin(hue * std::numbers::pi * 2.0f));
+						float g = std::abs(std::sin((hue + 0.333f) * std::numbers::pi * 2.0f));
+						float b = std::abs(std::sin((hue + 0.666f) * std::numbers::pi * 2.0f));
+						transform.recolorEnabled = true;
+						transform.targetColor = { r, g, b, 1.0f };
+						float scaleValue = 1.3f + 0.5f * std::sin(time * 2.0f);
+						transform.affine.scale = { scaleValue, scaleValue };
+
+						ImGui::Text("Time: %.2f", time);
+						ImGui::Text("Color: R:%.2f G:%.2f B:%.2f", r, g, b);
+						ImGui::Text("Scale: %.2f", scaleValue);
 					}
-					return BSContainer::ForEachResult::kContinue;
-				});
-			}
 
-			if (deletedcnt > 0) {
-				ImGui::Text("Deleted %d NPC's", deletedcnt);
+					// Continuous rotation
+					{
+						transform2.affine.rotation = time * (std::numbers::pi / 2.0f);
+						ImGui::Text("Rotation: %.2f rad (%.1f deg)", transform2.affine.rotation, transform2.affine.rotation * 180.0f / std::numbers::pi);
+					}
+
+					// Oscillating translation + flip
+					{
+						transform3.affine.translation = { 10.0f * std::sin(time * 1.5f), 10.0f * std::cos(time * 1.5f) };
+						transform3.affine.flipHorizontal = static_cast<int>(time / 2.0f) % 2 == 0;
+						transform3.affine.flipVertical = static_cast<int>(time / 3.0f) % 2 == 0;
+					}
+
+					// Cycling cutoff direction + gradient
+					{
+						int dir = static_cast<int>(time / 5.0f) % 4;
+						transform4.transformDirection = dirFromIndex(dir);
+						transform4.cutoffPercent = 0.5f + 0.5f * std::sin(time);
+
+						transform5.gradientFadeEnabled = true;
+						transform5.transformDirection = dirFromIndex(dir);
+						transform5.gradientStartPercent = std::sin(time) * 0.5f + 0.5f;
+						transform5.gradientTargetAlpha = 0.0f;
+
+						const char* dirLabel = dir == 0 ? "L->R" : dir == 1 ? "R->L" : dir == 2 ? "T->B" : "B->T";
+						ImGui::Text("Cutoff: %s %.1f%%", dirLabel, transform4.cutoffPercent * 100.0f);
+					}
+
+					{
+						ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform, { 96, 96 });
+						ImGui::SameLine();
+						ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform2, { 96, 96 });
+						ImGui::SameLine();
+						ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform3, { 96, 96 });
+						ImGui::SameLine();
+						ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform4, { 96, 96 });
+						ImGui::SameLine();
+						ImGraphics::RenderTransformed(ImageList::PlaceHolder, transform5, { 96, 96 });
+					}
+
+					ImGui::Spacing();
+				}
+
+				// ------------------------------ ImGui Font2 Tests
+				if (ImGui::CollapsingHeader("Font2 Test")) {
+					ImGui::Text("This îs à fónt tèst - façade, naïve, jalapeño, groß, déjà vu, fiancée, coöperate, élève");
+					ImGui::Text("Αυτή είναι μια δοκιμή για το σύστημα γραμματοσειράς");
+					ImGui::Text("Это тест загрузчика шрифтов");
+					ImGui::Text("これはフォントローダーのテストです");
+					ImGui::Text("이것은 폰트로더 테스트입니다");
+					ImGui::Text("这是一个字体加载器测试");
+					ImGui::Spacing();
+				}
 			}
+			ImGui::Unindent();
 		}
 
-		if (ImGui::CollapsingHeader("bhkCharacterController maxSlope")) {
-			//Value is mislabeled in clib, its a float storing the inverse cosine of the max slope angle in radians.
-			auto& maxSlopeRaw = PlayerCharacter::GetSingleton()->GetCharController()->maxSlope;
-			float asFloat = std::bit_cast<float>(maxSlopeRaw);
-			ImGui::Text("Raw uint32: %u", maxSlopeRaw);
-			ImGui::Text("As float: %.6f", asFloat);
-			ImGui::Text("Radians to degrees: %.2f°", asFloat * 180.0f / std::numbers::pi);
-			ImGui::Text("As tan(angle): %.2f°", std::atan(asFloat) * 180.0f / std::numbers::pi);
-			ImGui::Text("As cos(angle): %.2f°", std::acos(asFloat) * 180.0f / std::numbers::pi);
-			ImGui::Text("As slope ratio (rise/run): %.2f%%", asFloat * 100.0f);
-		}
-
-		if (ImGui::CollapsingHeader("Size Debug")) {
-			for (const auto& actor : find_actors()) {
-				DrawScaleDebugInfo(actor);
+		// ------------------------------ Physics
+		if (ImGui::CollapsingHeader("Havok")) {
+			
+			ImGui::Indent();
+			{
+				// ------------------------------ Char Controller
+				if (ImGui::CollapsingHeader("bhkCharacterController maxSlope")) {
+					//Value is mislabeled in clib, its a float storing the inverse cosine of the max slope angle in radians.
+					auto& maxSlopeRaw = PlayerCharacter::GetSingleton()->GetCharController()->maxSlope;
+					float asFloat = std::bit_cast<float>(maxSlopeRaw);
+					ImGui::Text("Raw uint32: %u", maxSlopeRaw);
+					ImGui::Text("As float: %.6f", asFloat);
+					ImGui::Text("Radians to degrees: %.2f°", asFloat * 180.0f / std::numbers::pi);
+					ImGui::Text("As tan(angle): %.2f°", std::atan(asFloat) * 180.0f / std::numbers::pi);
+					ImGui::Text("As cos(angle): %.2f°", std::acos(asFloat) * 180.0f / std::numbers::pi);
+					ImGui::Text("As slope ratio (rise/run): %.2f%%", asFloat * 100.0f);
+				}
 			}
+			ImGui::Unindent();
+
 		}
 
-		if (ImGui::CollapsingHeader("Test Values")) {
+		// ------------------------------ Test
+		if (ImGui::CollapsingHeader("Scratch/Test Values")) {
 
 			ImGui::InputFloat("fTest1", &Config::Experiments.fTest1);
 			ImGui::InputFloat("fTest2", &Config::Experiments.fTest2);

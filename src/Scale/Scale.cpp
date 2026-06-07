@@ -132,6 +132,22 @@ namespace GTS {
 		return 1.0f;
 	}
 
+	float get_3d_scale(Actor* actor) {
+		if (!actor) return 1.0f;
+
+		const NiAVObject* ni3d = actor->Get3D();
+		const NiAVObject* niNPC = find_node(actor, "NPC");
+		const NiAVObject* niNPCRoot = find_node(actor, "NPC Root [Root]");
+
+		float result = 1.0f;
+
+		if (ni3d)      result *= ni3d->local.scale;
+		if (niNPC)     result *= niNPC->local.scale;
+		if (niNPCRoot) result *= niNPCRoot->local.scale;
+
+		return result;
+	}
+
 	float get_natural_scale(Actor& actor, bool game_scale) {
 		auto actor_data = Transient::GetActorData(&actor);
 		if (actor_data) {

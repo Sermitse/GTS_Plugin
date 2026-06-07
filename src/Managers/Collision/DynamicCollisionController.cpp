@@ -82,7 +82,7 @@ namespace {
 	}
 
 	template <class T>
-	T* Clone(T* a_object) {
+	T* Clone(T* a_object, RE::NiPoint3 a_scale = RE::NiPoint3(1.0f, 1.0f, 1.0f)) {
 
 		if (!a_object) {
 			return nullptr;
@@ -91,7 +91,6 @@ namespace {
 		RE::NiCloningProcess cloningProcess{};
 
 		{
-			static constexpr auto One = RE::NiPoint3(1.0f, 1.0f, 1.0f);
 
 			uintptr_t cloneMap = reinterpret_cast<uintptr_t>(&cloningProcess.cloneMap);
 			void** value1 = reinterpret_cast<void**>(cloneMap + 0x18);
@@ -103,7 +102,7 @@ namespace {
 
 			cloningProcess.copyType = 1;
 			cloningProcess.appendChar = '$';
-			cloningProcess.scale = One;
+			cloningProcess.scale = a_scale;
 		}
 
 		auto clone = reinterpret_cast<T*>(a_object->Clone(cloningProcess));
@@ -113,7 +112,7 @@ namespace {
 
 namespace GTS {
 
-		DynamicCollisionController::DynamicCollisionController(const RE::ActorHandle& a_handle, bool a_isRuntimeConstructed) {
+	DynamicCollisionController::DynamicCollisionController(const RE::ActorHandle& a_handle, bool a_hasInSkeletonCollision) {
 
 		m_actor = a_handle;
 
@@ -123,8 +122,6 @@ namespace GTS {
 					if (bhkWorld* world = cell->GetbhkWorld()) {
 
 
-
-						//--------------------- PLAYER
 
 						//bhkCharacterController is the base class
 						//bhkCharRigidBodyController is used by every actor except the player
@@ -178,12 +175,35 @@ namespace GTS {
 													isBumper = true;
 												}
 											}
-											m_originalData.capsules.push_back({
-												shape->radius,
-												shape->vertexA,
-												shape->vertexB,
-												isBumper,
-											});
+
+											//Fixes edge cases for creatures whom don't have an i- skeleton collision shape.
+											//As the game DOES correctly scale them on character init.
+											//Because of this, this normaly ends up double scaling the collider so it needs to be accounted for.
+											//We only care for actors which don't have an in skeleton shape and don't use a hkpConvexVerticesShape as well.
+											//Creatures who have a ConvexShape appear to not get scaled
+											//We effectively normalize scale here by premtively shrinking the nodes based on the inverse of visual_scale.
+											if (!a_hasInSkeletonCollision && !convexShape && Runtime::HasKeyword(actor, Runtime::KYWD.CreatureKeyword)) {
+												float InitialScale = get_3d_scale(actor); //get_visual_scale is not yet ready at this point due to ModScale's caching system, so get the values directly.
+												const float invScale = (InitialScale > 1e-4f) ? (1.0f / InitialScale) : 1.0f;
+												const __m128 invScaleV = _mm_set_ps(0.0f, invScale, invScale, invScale); // leave W=0
+
+												m_originalData.capsules.push_back({
+													shape->radius * invScale,
+													hkVector4{ _mm_mul_ps(shape->vertexA.quad, invScaleV) },
+													hkVector4{ _mm_mul_ps(shape->vertexB.quad, invScaleV) },
+													isBumper,
+												});
+											}
+											else {
+												m_originalData.capsules.push_back({
+													shape->radius,
+													shape->vertexA,
+													shape->vertexB,
+													isBumper,
+												});
+											}
+
+
 										}
 									}
 								}
@@ -191,7 +211,7 @@ namespace GTS {
 								m_originalData.controllerActorHeight = controller->actorHeight;
 								m_originalData.controllerActorScale = controller->scale;
 
-								//---------------------- EVERY OTHER ACTOR
+								//---------------------- NPC'S With Capsule(List)/MOPP Shapes
 
 								//NPC's Use bhkCharRigidBodyController, clone their capsule colliders as they are shared between all loaded actors with the same skeleton
 								if (bhkCharRigidBodyController* RigidBodyController = skyrim_cast<bhkCharRigidBodyController*>(controller)){
@@ -287,16 +307,17 @@ namespace GTS {
 										}
 									}
 								}
-
-								if (a_isRuntimeConstructed) {
-									m_originalData.runtimeGeneratedOrigScale = actor->GetBaseHeight();
-								}
 							}
+							logger::trace("DCC .ctor on 0x{:X} | {} | HasSkeletonShapes: {} | IsCreature: {} | GameScale: {} | VisualScale: {} | HasConvexShape: {}", actor->formID, actor->GetDisplayFullName(), a_hasInSkeletonCollision, Runtime::HasKeyword(actor, Runtime::KYWD.CreatureKeyword), actor->GetBaseHeight(), get_3d_scale(actor), convexShape != nullptr);
 						}
 					}
 				}
+
 			}
 		}
+
+		
+
 	}
 
 	void DynamicCollisionController::Update() {
@@ -480,7 +501,7 @@ namespace GTS {
 						if (bhkWorld* world = cell->GetbhkWorld()) {
 
 							std::vector<hkVector4> modifiedVerts = m_originalData.convexVerteces;
-							const float fClampedScale = std::clamp(m_currentVisualScale / m_originalData.runtimeGeneratedOrigScale, Config::Collision.fMSimpleDrivenColliderMinScale, Config::Collision.fMSimpleDrivenColliderMaxScale);
+							const float fClampedScale = std::clamp(m_currentVisualScale, Config::Collision.fMSimpleDrivenColliderMinScale, Config::Collision.fMSimpleDrivenColliderMaxScale);
 
 							/*if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() != 18) {
 								logger::trace("Actor {} has unexpected vertex shape data count {}", actor->GetDisplayFullName(), m_originalData.convexVerteces.size());

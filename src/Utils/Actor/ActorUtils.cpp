@@ -808,12 +808,14 @@ namespace GTS {
 	}
 
 	void Utils_PushCheck(Actor* giant, Actor* tiny, float force) {
-		if (tiny->GetCurrent3D()) {
-			bool isdamaging = IsActionOnCooldown(tiny, CooldownSource::Push_Basic);
-			if (!isdamaging && (force >= 0.12f || AnimationVars::Action::IsFootGrinding(giant))) {
-				//log::info("Check passed, pushing {}, force: {}", tiny->GetDisplayFullName(), force);
-				StaggerOr(giant, tiny);
-				ApplyActionCooldown(tiny, CooldownSource::Push_Basic);
+		if (giant && tiny) {
+			if (tiny->Is3DLoaded() && giant->Is3DLoaded()) {
+				bool isdamaging = IsActionOnCooldown(tiny, CooldownSource::Push_Basic);
+				if (!isdamaging && (force >= 0.12f || AnimationVars::Action::IsFootGrinding(giant))) {
+					//log::info("Check passed, pushing {}, force: {}", tiny->GetDisplayFullName(), force);
+					StaggerOr(giant, tiny);
+					ApplyActionCooldown(tiny, CooldownSource::Push_Basic);
+				}
 			}
 		}
 	}

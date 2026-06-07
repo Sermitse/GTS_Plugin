@@ -21,6 +21,8 @@ namespace GTS {
 	float get_visual_scale(Actor& actor);
 	float get_visual_scale(Actor* actor);
 
+	float get_3d_scale(Actor* actor);
+
 	float get_natural_scale(Actor& actor, bool game_scale);
 	float get_natural_scale(Actor* actor, bool game_scale);
 	float get_natural_scale(Actor* actor);
