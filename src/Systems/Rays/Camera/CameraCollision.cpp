@@ -5,7 +5,7 @@
 
 namespace {
 
-	constexpr int FibRayCnt = 8;
+	constexpr int FibRayCnt = 12;
 
 	//---- Compile time fibonacci sequence calc, used to evenly spread out the ignoreList rays
 
@@ -83,7 +83,8 @@ namespace GTS::CameraCol {
 		if (!cell) return rayEnd;
 
 		//Get the world, used for a write lock later.
-		const bhkWorld* physicsWorld = cell->GetbhkWorld();
+		bhkWorld* physicsWorld = cell->GetbhkWorld();
+		RE::bhkCollisionFilter* filter = static_cast<RE::bhkCollisionFilter*>(physicsWorld->GetWorld2()->collisionFilter);
 
 		NiPoint3 currentStart = rayStart;
 		NiPoint3 finalCameraPosition = rayEnd;
@@ -91,7 +92,7 @@ namespace GTS::CameraCol {
 		//The hull used for tracing extends from the center of the ray.
 		const float Hull = (hullMult < 0.0f) ? GetFrustrumNearDistance() / 2.f : defaultCamHullSize * hullMult;
 		const float Hullx2 = Hull * 2.0f;
-		const float RayLen = rayMult > 0.0f ? Hull * rayMult : Hull;
+		const float RayLen = rayMult > 0.0f ? Hull * 1.15f * rayMult : Hull * 1.15f; //Small Buffer
 		const float actorZPos = cameraActor->GetPositionZ();
 
 		const auto toVec4 = [](const NiPoint3& p) { return glm::vec4(p.x, p.y, p.z, 0.0f); };
@@ -135,31 +136,14 @@ namespace GTS::CameraCol {
 					if (const auto* collidable = static_cast<const hkpCollidable*>(hit.body)) {
 						const auto layer = static_cast<COL_LAYER>(collidable->broadPhaseHandle.collisionFilterInfo & 0x7F);
 
-						//As defined in skyrim.esm minus anything character related.
-						if (
-							layer == COL_LAYER::kUnidentified ||
-							layer == COL_LAYER::kStatic ||
-							layer == COL_LAYER::kAnimStatic ||
-							layer == COL_LAYER::kTransparent ||
-							layer == COL_LAYER::kTrees ||
-							layer == COL_LAYER::kTerrain ||
-							layer == COL_LAYER::kTrap ||
-							layer == COL_LAYER::kCloudTrap ||
-							layer == COL_LAYER::kGround ||
-							layer == COL_LAYER::kDebrisSmall ||
-							layer == COL_LAYER::kTransparentSmallAnim ||
-							layer == COL_LAYER::kItemPicker ||
-							layer == COL_LAYER::kLOS ||
-							layer == COL_LAYER::kUnused0 ||
-							layer == COL_LAYER::kUnused1
-							) {
-							//Hits must be higher than ground, otherwise we disable ground meshes that aren't actually intefering.
-							if (hitPos.z > actorZPos) {
-								//Hits
-								if (Config::Advanced.bShowOverlay) {
-									DebugDraw::DrawLineForMS({ currentStart.x, currentStart.y, currentStart.z }, { hitPos.x, hitPos.y, hitPos.z }, 16, { 0.0f, 0.0f, 1.0f, 1.0f }, 0.5f); //Blue
-								}
+						const uint64_t cameraCollidesWithBitfield = filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCamera)];
+						const uint64_t layerBit = 1ULL << static_cast<uint64_t>(layer);
 
+						if (cameraCollidesWithBitfield & layerBit) {
+							if (hitPos.z > actorZPos) {
+								if (Config::Advanced.bShowOverlay) {
+									DebugDraw::DrawLineForMS({ currentStart.x, currentStart.y, currentStart.z }, { hitPos.x, hitPos.y, hitPos.z }, 16, { 0.0f, 0.0f, 1.0f, 1.0f }, 0.5f);
+								}
 								ignoreList.push_back(const_cast<hkpCdBody*>(hit.body));
 							}
 						}
@@ -171,53 +155,28 @@ namespace GTS::CameraCol {
 		std::ranges::sort(ignoreList);
 		ignoreList.erase(std::ranges::unique(ignoreList).begin(), ignoreList.end());
 
-		absl::flat_hash_map<RE::hkpCdBody*, std::uint32_t> originalFilters;
-		originalFilters.reserve(8); //Should be enough
-
 		//Disable collision for all valid hit objects for the duration of this function
+		std::vector<COL_LAYER> disabledLayers;
+		disabledLayers.reserve(8);
+
 		{
 			for (RE::hkpCdBody* av : ignoreList) {
 				if (!av) continue;
-
 				const hkpCollidable* collidable = static_cast<const hkpCollidable*>(av);
-				const auto bpType = static_cast<hkpWorldObject::BroadPhaseType>(collidable->broadPhaseHandle.type);
-				hkpWorldObject* worldObj = collidable->GetOwner<hkpWorldObject>();
-
-				if (!worldObj) continue;
-
-				if (bpType == hkpWorldObject::BroadPhaseType::kEntity) {
-					hkpEntity* entity = static_cast<hkpEntity*>(worldObj);
-					if (entity->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
-						if (!originalFilters.contains(av)) {
-							originalFilters[av] = entity->collidable.broadPhaseHandle.collisionFilterInfo;
-						}
-
-						{
-							BSWriteLockGuard lock(physicsWorld->worldLock);
-
-							entity->collidable.broadPhaseHandle.collisionFilterInfo |= (1 << 14);
-							entity->world->UpdateCollisionFilterOnEntity(
-								entity,
-								hkpUpdateCollisionFilterOnEntityMode::kDisableEntityEntityCollisionsOnly,
-								hkpUpdateCollectionFilterMode::kIgnoreCollections
-							);
-						}
-					}
+				COL_LAYER layer = static_cast<COL_LAYER>(collidable->broadPhaseHandle.collisionFilterInfo & 0x1F);
+				if (std::ranges::find(disabledLayers, layer) == disabledLayers.end()) {
+					disabledLayers.push_back(layer);
 				}
-				else if (bpType == hkpWorldObject::BroadPhaseType::kPhantom) {
-					hkpPhantom* phantom = static_cast<hkpPhantom*>(worldObj);
-					if (phantom->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
-						if (!originalFilters.contains(av)) {
-							originalFilters[av] = phantom->collidable.broadPhaseHandle.collisionFilterInfo;
-						}
+			}
 
-						{
-							BSWriteLockGuard lock(physicsWorld->worldLock);
+			{
+				BSWriteLockGuard lock(physicsWorld->worldLock);
 
-							phantom->collidable.broadPhaseHandle.collisionFilterInfo |= 1 << 14;
-							phantom->world->UpdateCollisionFilterOnPhantom(phantom, hkpUpdateCollectionFilterMode::kIgnoreCollections);
-						}
-					}
+				for (COL_LAYER layer : disabledLayers) {
+					constexpr uint64_t camBit = 1ULL << static_cast<uint64_t>(COL_LAYER::kCamera);
+					const uint64_t layerBit = 1ULL << static_cast<uint64_t>(layer);
+					filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCamera)] &= ~layerBit;
+					filter->layerBitfields[static_cast<uint8_t>(layer)] &= ~camBit;
 				}
 			}
 		}
@@ -296,42 +255,15 @@ namespace GTS::CameraCol {
 
 
 		// Revert the objects back to their original collision filter data.
-		for (auto it = originalFilters.begin(); it != originalFilters.end(); ++it) {
-			hkpCdBody* av = it->first;
-			if (!av) continue;
+		{
 
-			const hkpCollidable* collidable = static_cast<const hkpCollidable*>(av);
-			const auto bpType = static_cast<hkpWorldObject::BroadPhaseType>(collidable->broadPhaseHandle.type);
-			hkpWorldObject* worldObj = collidable->GetOwner<hkpWorldObject>();
+			BSWriteLockGuard lock(physicsWorld->worldLock);
 
-			if (!worldObj) continue;
-
-			if (bpType == hkpWorldObject::BroadPhaseType::kEntity) {
-				hkpEntity* entity = static_cast<hkpEntity*>(worldObj);
-				if (entity->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
-
-					{
-						BSWriteLockGuard lock(physicsWorld->worldLock);
-						entity->collidable.broadPhaseHandle.collisionFilterInfo = it->second;
-						entity->world->UpdateCollisionFilterOnEntity(
-							entity,
-							hkpUpdateCollisionFilterOnEntityMode::kDisableEntityEntityCollisionsOnly,
-							hkpUpdateCollectionFilterMode::kIgnoreCollections
-						);
-					}
-				}
-			}
-			else if (bpType == hkpWorldObject::BroadPhaseType::kPhantom) {
-				hkpPhantom* phantom = static_cast<hkpPhantom*>(worldObj);
-				if (phantom->collidable.broadPhaseHandle.ownerOffset != RE::hkpTypedBroadPhaseHandle::kInvalidOffset) {
-
-					{
-						BSWriteLockGuard lock(physicsWorld->worldLock);
-
-						phantom->collidable.broadPhaseHandle.collisionFilterInfo = it->second;
-						phantom->world->UpdateCollisionFilterOnPhantom(phantom, hkpUpdateCollectionFilterMode::kIgnoreCollections);
-					}
-				}
+			for (COL_LAYER layer : disabledLayers) {
+				constexpr uint64_t camBit = 1ULL << static_cast<uint64_t>(COL_LAYER::kCamera);
+				const uint64_t layerBit = 1ULL << static_cast<uint64_t>(layer);
+				filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCamera)] |= layerBit;
+				filter->layerBitfields[static_cast<uint8_t>(layer)] |= camBit;
 			}
 		}
 
