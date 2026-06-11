@@ -12,6 +12,7 @@ namespace GTS {
         void BuildFooterText();
         void DisableUIInteraction(bool a_disabled);
         void ShowErrorModal(bool* a_requestOpen);
+        void RequestClose() override;
         bool m_busy = false;
         bool m_disableUIInteraction = false;
         bool m_isConfiguringWidgets = false;
@@ -23,7 +24,7 @@ namespace GTS {
         bool SaveImpl();
         void Draw() override;
         void Init() override;
-        void RequestClose() override;
+
         bool WantsToDraw() override;
         static void OpenSettingsKeybindCallback([[maybe_unused]] const ManagedInputEvent& a_event);
         static void OpenSettingsConsoleCallback();

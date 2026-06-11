@@ -382,10 +382,6 @@ namespace {
 		}
 	}
 
-	void ButtFinisher(const ManagedInputEvent& data) {
-		AnimLogic::PerformAnimations("Sandwich_Finisher", "Sandwich_Finisher_T");
-	}
-
 	void ButtGrowth(const ManagedInputEvent& data) {
 		Actor* target = GetPlayerOrControlled();
 		bool CanGrow = ButtCrush_IsAbleToGrow(target, GetGrowthLimit(target));
@@ -407,10 +403,6 @@ namespace {
 		AnimLogic::PerformAnimations("Sandwich_GrindStop", "Sandwich_GrindStop_T");
 	}
 
-	void ButtGrindAbort(const ManagedInputEvent& data) {
-		AnimLogic::PerformAnimations("Sandwich_GrindAbort", "Sandwich_GrindAbort_T");
-	}
-
 	void ButtUB(const ManagedInputEvent& data) {
 		AnimLogic::PerformAnimations("Sandwich_UB", "Sandwich_UB_T");
 	}
@@ -428,9 +420,7 @@ namespace GTS
 		InputManager::RegisterInputEvent("SandwichHeavyAttack", ButtHeavyAttack, SecondThighSandwichBranch);
 		InputManager::RegisterInputEvent("SandwichGrindStart", ButtGrindStart, ThighSandwichGrind_Start);
 		InputManager::RegisterInputEvent("SandwichGrindStop", ButtGrindStop, ThighSandwichGrind);
-		InputManager::RegisterInputEvent("SandwichGrindAbort", ButtGrindAbort, ThighSandwichGrind);
 		InputManager::RegisterInputEvent("SandwichUB", ButtUB, UBCondition);
-		InputManager::RegisterInputEvent("SandwichFinisher", ButtFinisher, SecondThighSandwichBranch);
 		InputManager::RegisterInputEvent("SandwichGrowth", ButtGrowth, SecondThighSandwichBranch);
 
 		//Animation Events
