@@ -23,7 +23,7 @@ namespace {
 		"- Growth rate and growth chance from random growth\n"
 		"- The stregth of the shrink outburst power and the amount of growth gained on hit\n"
 		"- Shrink resistance towards all hostile shrink sources\n\n"
-		"The enchantment can be obtained from the 'Amulet of Giants', which will randomly in end of dungeon hests.";
+		"The enchantment can be obtained from the 'Amulet of Giants', which has a chance to appear in end of dungeon chests.";
 
 	PSString TLifeAbsorb = "Current amount of Life Absorption stacks.\n"
 				           "Gained by having the relevant perk and performing Size-Related Overkills.";

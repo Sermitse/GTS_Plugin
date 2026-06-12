@@ -56,19 +56,42 @@ namespace {
 
         PSString T3 = "Modify the chance to start a heavy attack.";
         PSString T4 = "Modify the chance to start a light attack.";
-
+        PSString T5 = "Modify the chance to enter butt(grind) mode.";
+        PSString T6 = "Modify the chance to start a heavy butt attack";
+        PSString T7 = "Modify the chance to start a light butt attack.";
+        PSString T8 = "Modify the chance of growth spurts in butt mode.";
+        PSString T9 = "Modify the chance to start the butt grind action.";
+        PSString T10 = "Modify the chance to exit out of the butt grind state.";
+        PSString T11 = "Modify the chance to leave butt mode and return to the basic Thigh-Sandwich attack state.";
         
         ImGuiEx::CheckBox("Enable Action", &Config::AI.ThighSandwich.bEnableAction, T0);
     
         ImGui::BeginDisabled(!Config::AI.ThighSandwich.bEnableAction);
         {
             ImGuiEx::SliderF("Start Chance", &Config::AI.ThighSandwich.fProbability, 1.0f, 100.0f, T1, "%.0f%%");
+            ImGuiEx::SliderF("Action Interval", &Config::AI.ThighSandwich.fInterval, 1.0f, 5.0f, T2, "Every %.1f Second(s)");
+            
+            ImGui::Spacing();
+            ImGui::Text("Basic Thigh-Sandwich Attacks");
+        	
+        	ImGuiEx::SliderF("Heavy Attack Chance", &Config::AI.ThighSandwich.fHeavyAttackPob, 0.0f, 100.0f, T3, "%.0f%%");
+            ImGuiEx::SliderF("Light Attack Chance", &Config::AI.ThighSandwich.fLightAttackProb, 0.0f, 100.0f, T4, "%.0f%%");
 
             ImGui::Spacing();
+            ImGui::Text("Butt Mode Options");
 
-            ImGuiEx::SliderF("Action Interval", &Config::AI.ThighSandwich.fInterval, 1.0f, 5.0f, T2, "Every %.1f Second(s)");
-            ImGuiEx::SliderF("Heavy Attack Chance", &Config::AI.ThighSandwich.fProbabilityHeavy, 0.0f, 100.0f, T3, "%.0f%%");
-            ImGuiEx::SliderF("Light Attack Chance", &Config::AI.ThighSandwich.fProbabilityLight, 0.0f, 100.0f, T4, "%.0f%%");
+            ImGuiEx::SliderF("Enter Butt Mode Chance", &Config::AI.ThighSandwich.fEnterButtModeProb, 0.0f, 100.0f, T5, "%.0f%%");
+
+            ImGuiEx::SliderF("Butt Mode Light Attack Chance", &Config::AI.ThighSandwich.fButtLAtkProb, 0.0f, 100.0f, T6, "%.0f%%");
+            ImGuiEx::SliderF("Butt Mode Heavy Attack Chance", &Config::AI.ThighSandwich.fButtHAtkProb, 0.0f, 100.0f, T7, "%.0f%%");
+
+            ImGuiEx::SliderF("Butt Mode Growth Chance", &Config::AI.ThighSandwich.fButtGrowProb, 0.0f, 100.0f, T8, "%.0f%%");
+
+            ImGuiEx::SliderF("Start Butt Grind Chance", &Config::AI.ThighSandwich.fButtGrindStart, 0.0f, 100.0f, T9, "%.0f%%");
+            ImGuiEx::SliderF("Stop Butt Grind Chance", &Config::AI.ThighSandwich.fButtGrindStop, 0.0f, 100.0f, T10, "%.0f%%");
+
+            ImGuiEx::SliderF("Exit Butt Mode", &Config::AI.ThighSandwich.fButtExitProb, 0.0f, 100.0f, T11, "%.0f%%");
+
         }
         ImGui::EndDisabled();
 
