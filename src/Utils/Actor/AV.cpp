@@ -4,76 +4,101 @@
 namespace GTS {
 
 	float GetMaxAV(Actor* actor, ActorValue av) {
-		auto baseValue = actor->AsActorValueOwner()->GetBaseActorValue(av);
-		auto permMod = actor->GetActorValueModifier(ACTOR_VALUE_MODIFIERS::kPermanent, av);
-		auto tempMod = actor->GetActorValueModifier(ACTOR_VALUE_MODIFIERS::kTemporary, av);
-		return baseValue + permMod + tempMod;
+
+		if (actor) {
+			if (ActorValueOwner* const avOwner = actor->AsActorValueOwner()) {
+				const float baseValue = avOwner->GetBaseActorValue(av);
+				const float permMod = actor->GetActorValueModifier(ACTOR_VALUE_MODIFIERS::kPermanent, av);
+				const float tempMod = actor->GetActorValueModifier(ACTOR_VALUE_MODIFIERS::kTemporary, av);
+				return baseValue + permMod + tempMod;
+			}
+		}
+
+		return 0.f;
 	}
 
 	float GetAV(Actor* actor, ActorValue av) {
-		// actor->GetActorValue(av); returns a cached value so we calc directly from mods
-		float max_av = GetMaxAV(actor, av);
-		auto damageMod = actor->GetActorValueModifier(ACTOR_VALUE_MODIFIERS::kDamage, av);
-		return max_av + damageMod;
+		// actor->GetActorValue(av); returns a cached value so we calc directly from mods, 
+		// It also does not work on AE > .629 due to struct changes, will always ctd if called.
+		
+		if (actor) {
+			const float max_av = GetMaxAV(actor, av);
+			const float damageMod = actor->GetActorValueModifier(ACTOR_VALUE_MODIFIERS::kDamage, av);
+			return max_av + damageMod;
+		}
+
+		return 0.0f;
 	}
 
 	void ModAV(Actor* actor, ActorValue av, float amount) {
-		actor->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kTemporary, av, amount);
+		if (actor) {
+			if (ActorValueOwner* const avOwner = actor->AsActorValueOwner()) {
+				avOwner->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kTemporary, av, amount);
+			}
+		}
 	}
 
 	void SetAV(Actor* actor, ActorValue av, float amount) {
-		float currentValue = GetAV(actor, av);
-		float delta = amount - currentValue;
-		ModAV(actor, av, delta);
+		if (actor) {
+			const float currentValue = GetAV(actor, av);
+			const float delta = amount - currentValue;
+			ModAV(actor, av, delta);
+		}
 	}
 
 	void DamageAV(Actor* actor, ActorValue av, float amount) {
-		if (IsInGodMode(actor) && amount > 0) { // do nothing if TGM is on and value is > 0
-			return;
-		}
 
-		if (!Config::Advanced.bDamageAV && actor->IsPlayerRef()) {
-			return;
+		if (actor) {
+			if (ActorValueOwner* const avOwner = actor->AsActorValueOwner()) {
+				if (IsInGodMode(actor) && amount > 0) { // do nothing if TGM is on and value is > 0
+					return;
+				}
+				if (!Config::Advanced.bDamageAV && actor->IsPlayerRef()) {
+					return;
+				}
+				avOwner->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -amount);
+			}
 		}
-
-		actor->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -amount);
 	}
 
 	float GetPercentageAV(Actor* actor, ActorValue av) {
-		return GetAV(actor, av)/GetMaxAV(actor, av);
+		return actor ? GetAV(actor, av) / GetMaxAV(actor, av) : 0.0f;
 	}
 
 	void SetPercentageAV(Actor* actor, ActorValue av, float target) {
-		float currentValue = GetAV(actor, av);
-		float maxValue = GetMaxAV(actor, av);
-		float targetValue = target * maxValue;
-		float delta = targetValue - currentValue;
-		actor->AsActorValueOwner()->RestoreActorValue(ACTOR_VALUE_MODIFIER::kDamage, av, delta);
+		if (actor) {
+			if (ActorValueOwner* const avOwner = actor->AsActorValueOwner()) {
+				const float currentValue = GetAV(actor, av);
+				const float maxValue = GetMaxAV(actor, av);
+				const float targetValue = target * maxValue;
+				const float delta = targetValue - currentValue;
+				avOwner->RestoreActorValue(ACTOR_VALUE_MODIFIER::kDamage, av, delta);
+			}
+		}
 	}
 
 	float GetStaminaPercentage(Actor* actor) {
-		return GetPercentageAV(actor, ActorValue::kStamina);
+		return actor ? GetPercentageAV(actor, ActorValue::kStamina) : 0.f;
 	}
 
 	void SetStaminaPercentage(Actor* actor, float target) {
-		SetPercentageAV(actor, ActorValue::kStamina, target);
+		if (actor) SetPercentageAV(actor, ActorValue::kStamina, target);
 	}
 
 	float GetHealthPercentage(Actor* actor) {
-		return GetPercentageAV(actor, ActorValue::kHealth);
+		return actor ? GetPercentageAV(actor, ActorValue::kHealth) : 0.0f;
 	}
 
 	void SetHealthPercentage(Actor* actor, float target) {
-		GTS_PROFILE_SCOPE("AV: SetHealthPercentage");
-		SetPercentageAV(actor, ActorValue::kHealth, target);
+		if (actor) SetPercentageAV(actor, ActorValue::kHealth, target);
 	}
 
 	float GetMagikaPercentage(Actor* actor) {
-		return GetPercentageAV(actor, ActorValue::kMagicka);
+		return actor ? GetPercentageAV(actor, ActorValue::kMagicka) : 0.f;
 	}
 
 	void SetMagickaPercentage(Actor* actor, float target) {
-		SetPercentageAV(actor, ActorValue::kMagicka, target);
+		if (actor) SetPercentageAV(actor, ActorValue::kMagicka, target);
 	}
 
 }

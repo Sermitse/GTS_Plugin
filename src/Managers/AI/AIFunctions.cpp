@@ -242,12 +242,12 @@ namespace GTS {
 			auto tinyRef = tinyHandle.get().get();
 			auto giantRef = giantHandle.get().get();
 
-			if (!tinyRef || !tinyRef->Is3DLoaded()) {
-				SetAV(tinyRef, ActorValue::kConfidence, oldConfidence);
+			//Can't restore confidence on a non existent ref...
+			if (!tinyRef) {
 				return false;
 			}
 
-			if (tinyRef->IsDead()) {
+			if (tinyRef->IsDead() || !tinyRef->Is3DLoaded()) {
 				SetAV(tinyRef, ActorValue::kConfidence, oldConfidence);
 				return false; // To be safe
 			}
