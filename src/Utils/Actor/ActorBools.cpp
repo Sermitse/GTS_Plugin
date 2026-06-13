@@ -5,32 +5,34 @@
 namespace GTS {
 
 	bool IsInSexlabAnim(Actor* actor_1, Actor* actor_2) {
-		if (Runtime::IsSexlabInstalled()) {
-			const auto& SLAnim = Runtime::FACT.SexLabAnimatingFaction;
-			if (Runtime::InFaction(actor_1, SLAnim) && Runtime::InFaction(actor_2, SLAnim)) {
-				return true;
+		if (actor_1 && actor_2){
+			if (Runtime::IsSexlabInstalled()) {
+				const auto& SLAnim = Runtime::FACT.SexLabAnimatingFaction;
+				if (Runtime::InFaction(actor_1, SLAnim) && Runtime::InFaction(actor_2, SLAnim)) {
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 
 	bool IsStaggered(Actor* tiny) {
-		bool staggered = false;
+
 		if (tiny) {
-			staggered = static_cast<bool>(tiny->AsActorState()->actorState2.staggered);
+			if (ActorState* acState = tiny->AsActorState()) {
+				return static_cast<bool>(acState->actorState2.staggered);
+			}
 		}
-		return staggered;
+		return false;
 	}
 
 
 	bool IsHumanoid(Actor* giant) {
-		const bool Human = Runtime::HasKeyword(giant, Runtime::KYWD.ActorTypeNPC);
-		return Human;
+		return giant ? Runtime::HasKeyword(giant, Runtime::KYWD.ActorTypeNPC) : false;
 	}
 
 	bool CountAsGiantess(Actor* giant) {
-		const bool Giantess = Runtime::HasKeyword(giant, Runtime::KYWD.EnforceGiantessKeyword);
-		return Giantess;
+		return giant ? Runtime::HasKeyword(giant, Runtime::KYWD.EnforceGiantessKeyword) : false;
 	}
 
 	bool IsVisible(Actor* giant) {
@@ -56,7 +58,10 @@ namespace GTS {
     }
 
 	bool HasHeadTrackingTarget(Actor* giant) {
-		if (auto process = giant->GetActorRuntimeData().currentProcess) {
+		 
+		if (!giant) return false;
+
+		if (AIProcess* process = giant->GetActorRuntimeData().currentProcess) {
 			if (process->high) {
 				if (process->GetHeadtrackTarget()) {
 					return true;
@@ -67,18 +72,22 @@ namespace GTS {
 	}
 
 	bool KnockedDown(Actor* giant) {
-		return static_cast<int>(giant->AsActorState()->GetKnockState()) != 0; // Another way of checking ragdoll just in case
+		if (giant) {
+			if (ActorState* acState = giant->AsActorState()) {
+				return static_cast<int>(acState->GetKnockState()) != 0; // Another way of checking ragdoll just in case
+			}
+		}
+		return false;
 	}
 
 	bool IsinRagdollState(Actor* giant) {
-		bool ragdolled = IsRagdolled(giant) || KnockedDown(giant);
-		return ragdolled;
+		return giant ? (IsRagdolled(giant) || KnockedDown(giant)) : false;
 	}
 
 	bool IsInsect(Actor* actor, bool performcheck) {
 		bool Check = Config::Gameplay.ActionSettings.bAllowInsects;
 
-		if (performcheck && Check) {
+		if ((performcheck && Check) || !actor) {
 			return false;
 		}
 
@@ -109,7 +118,7 @@ namespace GTS {
 			}
 		}
 
-		auto base = a_Actor->GetActorBase();
+		TESNPC* base = a_Actor->GetActorBase();
 		int sex = 0;
 		if (base) {
 			if (base->GetSex()) {
@@ -117,46 +126,49 @@ namespace GTS {
 				//log::info("{} Is Female: {}", actor->GetDisplayFullName(), static_cast<bool>(sex));
 			}
 		}
-		return sex; // Else return false
+		return static_cast<bool>(sex); // Else return false
 	}
 
 	bool IsDragon(Actor* actor) {
-		if (Runtime::HasKeyword(actor, Runtime::KYWD.DragonKeyword)) {
-			return true;
-		}
-		if (Runtime::IsRace(actor, Runtime::RACE.DragonRace)) {
-			return true;
+
+		if (actor) {
+			if (Runtime::HasKeyword(actor, Runtime::KYWD.DragonKeyword) ||
+				Runtime::IsRace(actor, Runtime::RACE.DragonRace)) {
+				return true;
+			}
 		}
 		return false;
 	}
 
 	bool IsGiant(Actor* actor) {
-		return Runtime::IsRace(actor, Runtime::RACE.GiantRace);
+		return actor ? Runtime::IsRace(actor, Runtime::RACE.GiantRace) : false;
 	}
 
 	bool IsMammoth(Actor* actor) {
-		return Runtime::IsRace(actor, Runtime::RACE.MammothRace);
+		return actor ? Runtime::IsRace(actor, Runtime::RACE.MammothRace) : false;
 	}
 
 	bool IsLiving(Actor* actor) {
-		bool IsDraugr = Runtime::HasKeyword(actor, Runtime::KYWD.UndeadKeyword);
-		bool IsDwemer = Runtime::HasKeyword(actor, Runtime::KYWD.DwemerKeyword);
-		bool IsVampire = Runtime::HasKeyword(actor, Runtime::KYWD.VampireKeyword);
-		if (IsVampire) {
-			return true;
-		}
-		if (IsDraugr || IsDwemer) {
+
+		if (!actor) return false;
+
+		const bool IsDraugr = Runtime::HasKeyword(actor, Runtime::KYWD.UndeadKeyword);
+		const bool IsDwemer = Runtime::HasKeyword(actor, Runtime::KYWD.DwemerKeyword);
+		const bool IsVampire = Runtime::HasKeyword(actor, Runtime::KYWD.VampireKeyword);
+
+		if ((IsDraugr || IsDwemer) && !IsVampire) {
 			return false;
 		}
-		else {
-			return true;
-		}
 		return true;
+;
 	}
 
 	bool IsUndead(Actor* actor, bool PerformCheck) {
-		bool IsDraugr = Runtime::HasKeyword(actor, Runtime::KYWD.UndeadKeyword);
-		bool Check = Config::Gameplay.ActionSettings.bAllowUndead;
+		
+		if (!actor) return false;
+
+		const bool IsDraugr = Runtime::HasKeyword(actor, Runtime::KYWD.UndeadKeyword);
+		const bool Check = Config::Gameplay.ActionSettings.bAllowUndead;
 		if (Check && PerformCheck) {
 			return false;
 		}
@@ -164,27 +176,31 @@ namespace GTS {
 	}
 
 	bool WasReanimated(Actor* actor) { // must be called while actor is still alive, else it will return false.
-		bool reanimated = false;
-		auto transient = Transient::GetActorData(actor);
-		if (transient) {
-			reanimated = transient->WasReanimated;
+		if (actor) {
+			if (TransientActorData* data = Transient::GetActorData(actor)) {
+				return data->WasReanimated;
+			}
 		}
-		return reanimated;
+		return false;
 	}
 
 	bool IsFlying(Actor* actor) {
-		bool flying = false;
+
 		if (actor) {
-			flying = actor->AsActorState()->IsFlying();
+			if (auto acState = actor->AsActorState()) {
+				return acState->IsFlying();
+			}
 		}
-		return flying;
+		return false;
 	}
 
 	bool IsHostile(Actor* giant, Actor* tiny) {
-		return tiny->IsHostileToActor(giant);
+		return (!giant || !tiny) ? false : tiny->IsHostileToActor(giant);
 	}
 
 	bool IsEssential(Actor* giant, Actor* actor) {
+
+		if (!giant || !actor) return false;
 
 		auto& Settings = Config::General;
 
@@ -215,21 +231,28 @@ namespace GTS {
 	}
 
 	bool IsHeadtracking(Actor* giant) { // Used to report True when we lock onto something, should be Player Exclusive.
-		if (giant->IsPlayerRef()) {
-			return HasHeadTrackingTarget(giant);
+		if (giant) {
+			if (giant->IsPlayerRef()) {
+				return HasHeadTrackingTarget(giant);
+			}
 		}
 		return false;
 	}
 
 	bool IsInGodMode(Actor* giant) {
-		if (!giant->IsPlayerRef()) {
-			return false;
+		if (giant) {
+			if (giant->IsPlayerRef()) {
+				static const REL::Relocation<bool*> singleton{ REL::RelocationID(517711, 404238, NULL) };
+				return *singleton;
+			}
 		}
-		REL::Relocation<bool*> singleton{ REL::RelocationID(517711, 404238, NULL) };
-		return *singleton;
+		return false;
 	}
 
 	bool CanDoDamage(Actor* giant, Actor* tiny, bool HoldCheck) {
+
+		if (!giant || !tiny) return false;
+
 		if (HoldCheck) {
 			if (IsBeingHeld(giant, tiny)) {
 				return false;
@@ -280,6 +303,9 @@ namespace GTS {
 	}
 
 	bool IsEquipBusy(Actor* actor) {
+
+		if (!actor) return false;
+
 		int State = AnimationVars::Other::CurrentDefaultState(actor);
 		if (State >= 10 && State <= 20) {
 			return true;
@@ -288,20 +314,29 @@ namespace GTS {
 	}
 
 	bool IsRagdolled(Actor* actor) {
+
+		if (!actor) return false;
+
 		bool ragdoll = actor->IsInRagdollState();
 		return ragdoll;
 	}
 
 	bool InBleedout(Actor* actor) {
-		return actor->AsActorState()->IsBleedingOut();
+		if (actor) {
+			if (auto acState = actor->AsActorState()) {
+				return acState->IsBleedingOut();
+			}
+		}
+		return false;
 	}
 
 	bool IsMechanical(Actor* actor) {
-		bool dwemer = Runtime::HasKeyword(actor, Runtime::KYWD.DwemerKeyword);
-		return dwemer;
+		return actor ? Runtime::HasKeyword(actor, Runtime::KYWD.DwemerKeyword) : false;
 	}
 
 	bool IsHuman(Actor* actor) { // Check if Actor is humanoid or not. Currently used for Hugs Animation and for playing moans
+
+		if (!actor) return false;
 
 		const bool vampirelord = Runtime::IsRace(actor, Runtime::RACE.DLC1VampireBeastRace);
 		const bool werewolf = Runtime::IsRace(actor, Runtime::RACE.WerewolfBeastRace);
@@ -333,19 +368,15 @@ namespace GTS {
 	}
 
 	bool IsBlacklisted(Actor* actor) {
-		bool blacklist = Runtime::HasKeyword(actor, Runtime::KYWD.GTSKeywordBlackListActor);
-		return blacklist;
+		return actor ? Runtime::HasKeyword(actor, Runtime::KYWD.GTSKeywordBlackListActor) : true;
 	}
 
 	bool IsGTSTeammate(Actor* actor) {
-		return Runtime::HasKeyword(actor, Runtime::KYWD.GTSKeywordCountAsFollower);
+		return actor ? Runtime::HasKeyword(actor, Runtime::KYWD.GTSKeywordCountAsFollower) : false;
 	}
 
 	bool TinyCalamityActive(Actor* giant) {
-		if (Runtime::HasMagicEffect(giant, Runtime::MGEF.GTSEffectTinyCalamity)) {
-			return true;
-		}
-		return false;
+		return giant ? Runtime::HasMagicEffect(giant, Runtime::MGEF.GTSEffectTinyCalamity) : false;
 	}
 
 }
