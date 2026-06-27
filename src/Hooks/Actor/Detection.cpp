@@ -79,7 +79,8 @@ namespace Hooks {
     };
 
     struct CalculateHeading1 {
-
+        // 2026 Note: Disabled.
+        //      It's unclear how exactly it works, better rely on altering Value + Altering Footstep volume
         // SE:
         //  0x1405FD870 : 36758
         //  0x1405fda87 - 0x1405FD870 = 0x217 (line ~150)
@@ -105,8 +106,8 @@ namespace Hooks {
     };
 
     struct CalculateHeading2 {
-
-        // SE:
+        // 2026 Note: Disabled.
+        //      It's unclear how exactly it works, better rely on altering Value + Altering Footstep volume
         //  0x1405FD870 : 36758
         //  0x1405fe19d - 0x1405FD870 = 0x92D (line 370)
         //  altering Character::GetHeading_1405FD780
@@ -245,8 +246,8 @@ namespace Hooks {
 		logger::info("Installing Detection Hooks...");
 
         stl::write_call<CalculateFootStepDetection>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x2D4, 0x2D2, NULL));
-        stl::write_call<CalculateHeading1>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x217, 0x217, NULL));
-        stl::write_call<CalculateHeading2>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x92D, 0xA7F, NULL));
+        //stl::write_call<CalculateHeading1>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x217, 0x217, NULL));
+        //stl::write_call<CalculateHeading2>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x92D, 0xA7F, NULL));
 		stl::write_call<DoDetectionJob_CalculateDetection>(REL::RelocationID(41659, 42742, NULL), REL::VariantOffset(0x526, 0x67B, NULL));
         //stl::write_call<Character_CalculateDetectionStrength>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x5c7, 0x5b9, NULL));
 
