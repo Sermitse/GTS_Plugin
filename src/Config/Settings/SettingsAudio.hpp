@@ -60,7 +60,7 @@ struct SettingsAudio_t {
     float fTargetPitchAtScaleMin = 0.2f;
 
     float fFallOffMultiplier = 1.0f;
-    float fVoiceVolumeMult = 1.0f;
+    float fVoiceVolumeMult = 0.6f;
 
 };
 TOML_SERIALIZABLE(SettingsAudio_t);
