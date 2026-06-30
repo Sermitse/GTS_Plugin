@@ -40,7 +40,7 @@ namespace {
 		std::string_view message = "You're too tired to perform heavy stomp";
 
 		if (player->IsSneaking()) {
-			if (AnimationUnderStomp::ShouldStompUnder(player)) {
+			if (AnimationVars::Crawl::IsCrawling(player) && AnimationUnderStomp::CrosshairUnderstomp(player)) {
 				if (!AnimationVars::Crawl::IsCrawling(player)) {
 					message = "You're too tired to perform sneak butt crush";
 					WasteStamina *= 1.8f;
@@ -248,14 +248,14 @@ namespace {
 
 	void RightStrongStompEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		bool UnderStomp = AnimationUnderStomp::ShouldStompUnder(player);
+		bool UnderStomp = AnimationUnderStomp::ShouldPerformUnderStomp(player, true);
 		const std::string_view StompType = UnderStomp ? "UnderStompStrongRight" : "StrongStompRight";
 		DoStompOrUnderStomp(player, StompType);
 	}
 
 	void LeftStrongStompEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		bool UnderStomp = AnimationUnderStomp::ShouldStompUnder(player);
+		bool UnderStomp = AnimationUnderStomp::ShouldPerformUnderStomp(player, true);
 		const std::string_view StompType = UnderStomp ? "UnderStompStrongLeft" : "StrongStompLeft";
 		DoStompOrUnderStomp(player, StompType);
 	}

@@ -15,8 +15,9 @@ namespace {
 		// In short: 1.0 * (size * animation slowdown) * SMT run speed
 		float scale = get_giantess_scale(actor);
 		float MovementSpeed = soft_core(scale, GetSpeedFromConfig());
+		float smt = 1.0f + (smt_speed * 0.33f);
 		
-		float power = 1.0f * (scale * (smt_speed/2.0f + 1.0f) * MovementSpeed);
+		float power = 1.0f * (scale * smt * MovementSpeed);
 		return power * MovementDebuff;
 	}
 
@@ -179,7 +180,7 @@ namespace GTS {
 			case ActorValue::kSpeedMult: {
 				auto actorData = Persistent::GetActorData(actor);
 				float MovementDebuff = GetMovementSlowdown(actor);
-				float smt_speed = 1.0f;
+				float smt_speed = 0.0f;
 
 				if (actorData) {
 					smt_speed = actorData->fSMTRunSpeed;

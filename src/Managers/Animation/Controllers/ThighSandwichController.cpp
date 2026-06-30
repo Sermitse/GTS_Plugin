@@ -171,12 +171,13 @@ namespace GTS {
 					ShutUp(tiny_is_actor);
 					FaceOpposite(GiantRef, tiny_is_actor);
 				}
-
+				
+				const bool Escaped = IsEscapingInteraction(tiny);
 				float tinyScale = get_visual_scale(tiny);
 				float sizedifference = get_scale_difference(GiantRef, tiny, SizeType::VisualScale, true, false);
 				float threshold = Action_Sandwich;
 
-				if (GiantRef->IsDead() || sizedifference < threshold || !AnimationVars::Action::IsThighSandwiching(GiantRef)) {
+				if (GiantRef->IsDead() || (Escaped && this->Suffocate) || sizedifference < threshold || !AnimationVars::Action::IsThighSandwiching(GiantRef)) {
 					Attachment_SetTargetNode(GiantRef, AttachToNode::None);
 					RestartTinyPhysics(GiantRef, tiny);
 					Cprint("{} slipped out of {} thighs", tiny->GetDisplayFullName(), GiantRef->GetDisplayFullName());
@@ -357,10 +358,15 @@ namespace GTS {
 			ShrinkUntil(pred, prey, 6.0f, 0.20f, true);
 			return;
 		}
-		
-		auto& data = sandwiching.GetSandwichingData(pred);
-		data.AddTiny(prey);
-		//BlockFirstPerson(pred, true);
+
+		auto tranData = Transient::GetActorData(pred);
+		if (tranData) {
+			if (std::find(tranData->toSandwich.begin(),tranData->toSandwich.end(),prey) == tranData->toSandwich.end()) {
+				tranData->toSandwich.push_back(prey);
+				logger::info("Adding {} to data", prey->GetDisplayFullName());
+			}
+		}
+
 		AnimationManager::StartAnim("ThighEnter", pred);
 	}
 

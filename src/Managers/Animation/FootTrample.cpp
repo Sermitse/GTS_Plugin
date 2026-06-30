@@ -244,7 +244,7 @@ namespace {
 		auto player = PlayerCharacter::GetSingleton();
 		float WasteStamina = 35.0f * GetWasteMult(player);
 
-		bool UnderTrample = AnimationUnderStomp::ShouldStompUnder(player);
+		bool UnderTrample = AnimationUnderStomp::ShouldPerformUnderStomp(player, true, true);
 		const std::string_view TrampleType_L = UnderTrample ? "UnderTrampleL" : "TrampleL";
 
 		if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
@@ -258,7 +258,7 @@ namespace {
 		auto player = PlayerCharacter::GetSingleton();
 		float WasteStamina = 35.0f * GetWasteMult(player);
 
-		bool UnderTrample = AnimationUnderStomp::ShouldStompUnder(player);
+		bool UnderTrample = AnimationUnderStomp::ShouldPerformUnderStomp(player, true, false);
 		const std::string_view TrampleType_R = UnderTrample ? "UnderTrampleR" : "TrampleR";
 
 		if (GetAV(player, ActorValue::kStamina) > WasteStamina) {

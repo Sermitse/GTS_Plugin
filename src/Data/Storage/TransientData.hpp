@@ -109,6 +109,7 @@ namespace GTS {
 		Timer DelayedShrinkTimer = Timer(10);
 
 		std::vector<Actor*> shrinkies;
+		std::vector<Actor*> toSandwich;
 		float fRecordedFurnScale = 1.0f;
 		bool bIsUsingFurniture = false;
 		bool IsBeingSizeDamaged = false;

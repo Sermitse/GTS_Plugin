@@ -105,13 +105,23 @@ namespace {
 		}
 	}
 
-	void GTSSandwich_EnterAnim(AnimationEventData& data) {
+	void GTSSandwich_EnterAnim(AnimationEventData& data) { // This animevent doesn't fire????
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
 		sandwichdata.EnableSuffocate(false);
 	}
 
 	void GTSSandwich_MoveBody_start(AnimationEventData& data) {
 		auto& sandwichdata = ThighSandwichController::GetSingleton().GetSandwichingData(&data.giant);
+
+		auto transient = Transient::GetActorData(&data.giant);
+		if (transient) {
+			for (auto tiny: transient->toSandwich) {
+				logger::info("{} was added to sandwich anim", tiny->GetDisplayFullName());
+				sandwichdata.AddTiny(tiny);
+			}
+			transient->toSandwich.clear(); // Reset array
+		}
+
 		for (auto tiny: sandwichdata.GetActors()) {
 			if (tiny) {
 				AllowToBeCrushed(tiny, false);
@@ -121,6 +131,7 @@ namespace {
 			}
 		}
 		StartBodyRumble("BodyRumble", data.giant, 0.5f, 0.25f);
+		sandwichdata.EnableSuffocate(false);
 	}
 
 	void GTSSandwich_EnableRune(AnimationEventData& data) {

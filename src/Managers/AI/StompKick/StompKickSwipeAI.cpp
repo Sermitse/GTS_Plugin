@@ -27,16 +27,6 @@ namespace {
 		"StrongKick_Low_Left",              // 3
 	};
 
-	float GetDistanceBetween(Actor* a_Pred, Actor* a_Prey) {
-		float PreyDistance = 0.0f;
-		if (a_Pred && a_Prey) {
-			PreyDistance = (a_Pred->GetPosition() - a_Prey->GetPosition()).Length();
-			PreyDistance /= get_visual_scale(a_Pred);
-		}
-
-		return PreyDistance;
-	}
-
 	bool ProtectFollowers(Actor* a_Pred, Actor* a_Prey) {
 		bool NPC = Config::General.bProtectFollowers;
 		bool Hostile = IsHostile(a_Pred, a_Prey);
@@ -114,46 +104,43 @@ namespace {
 	}
 
 	void Do_StrongStomp(Actor* a_Performer, Actor* a_Prey) {
-
-		const bool UnderStomp = AnimationUnderStomp::ShouldStompUnder_NPC(a_Performer, GetDistanceBetween(a_Performer, a_Prey));
+		const bool Left = RandomBool();
+		const bool UnderStomp = AnimationUnderStomp::ShouldPerformUnderStomp(a_Performer, true, Left);
 		const std::string_view StompType_R = UnderStomp ? "UnderStompStrongRight" : "StrongStompRight";
 		const std::string_view StompType_L = UnderStomp ? "UnderStompStrongLeft" : "StrongStompLeft";
 
-		if (RandomBool()) {
+		if (!Left) {
 			AnimationManager::StartAnim(StompType_R, a_Performer);
-		}
-		else {
+		} else {
 			AnimationManager::StartAnim(StompType_L, a_Performer);
 		}
 	}
 
 	void Do_LightStomp(Actor* a_Performer, Actor* a_Prey) {
-
+		const bool Left = RandomBool();
 		Utils_UpdateHighHeelBlend(a_Performer, false);
-		const bool UnderStomp = AnimationUnderStomp::ShouldStompUnder_NPC(a_Performer, GetDistanceBetween(a_Performer, a_Prey));
+		const bool UnderStomp = AnimationUnderStomp::ShouldPerformUnderStomp(a_Performer, true, Left);
 		const std::string_view StompType_R = UnderStomp ? "UnderStompRight" : "StompRight";
 		const std::string_view StompType_L = UnderStomp ? "UnderStompLeft" : "StompLeft";
 
-		if (RandomBool()) {
+		if (!Left) {
 			AnimationManager::StartAnim(StompType_R, a_Performer);
-		}
-		else {
+		} else {
 			AnimationManager::StartAnim(StompType_L, a_Performer);
 		}
 	}
 
 	void Do_Tramples(Actor* a_Performer, Actor* a_Prey) {
-
-		bool UnderTrample = AnimationUnderStomp::ShouldStompUnder_NPC(a_Performer, GetDistanceBetween(a_Performer, a_Prey));
+		const bool Left = RandomBool();
+		bool UnderTrample = AnimationUnderStomp::ShouldPerformUnderStomp(a_Performer, true, Left);
 		const std::string_view TrampleType_L = UnderTrample ? "UnderTrampleL" : "TrampleL";
 		const std::string_view TrampleType_R = UnderTrample ? "UnderTrampleR" : "TrampleR";
 
 		Utils_UpdateHighHeelBlend(a_Performer, false);
-		if (RandomBool()) {
-			AnimationManager::StartAnim(TrampleType_L, a_Performer);
-		}
-		else {
+		if (!Left) {
 			AnimationManager::StartAnim(TrampleType_R, a_Performer);
+		} else {
+			AnimationManager::StartAnim(TrampleType_L, a_Performer);
 		}
 	}
 }

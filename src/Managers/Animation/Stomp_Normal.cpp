@@ -310,15 +310,15 @@ namespace {
 
 	void RightStompEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		bool UnderStomp = AnimationUnderStomp::ShouldStompUnder(player);
-		const std::string_view StompType = UnderStomp ? "UnderStompRight" : "StompRight";
+		bool UnderStomp = AnimationUnderStomp::ShouldPerformUnderStomp(player, true, false);
+		const std::string_view StompType = "UnderStompRight"; //UnderStomp ? "UnderStompRight" : "StompRight";
 		DoStompOrUnderStomp(player, StompType);
 	}
 
 	void LeftStompEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		bool UnderStomp = AnimationUnderStomp::ShouldStompUnder(player);
-		const std::string_view StompType = UnderStomp ? "UnderStompLeft" : "StompLeft";
+		bool UnderStomp = AnimationUnderStomp::ShouldPerformUnderStomp(player, true, true);
+		const std::string_view StompType = "UnderStompLeft"; // UnderStomp ? "UnderStompLeft" : "StompLeft";
 		DoStompOrUnderStomp(player, StompType);
 	}
 }

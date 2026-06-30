@@ -117,7 +117,9 @@ namespace GraphVars {
 	constexpr PSString _IsTrampling            = "GTS_IsTrampling";            // Enabled when we Start Tramplings(intro and Main anim)
 
 	//Floats
-	constexpr PSString _StompBlend             = "GTS_StompBlend";
+	constexpr PSString _StompBlend             	= "GTS_StompBlend";		       // Used with old behaviors, may be deprecated. 
+	constexpr PSString _StompBlend_X         	= "GTS_StompBlend_X";          // Requires new behaviors
+	constexpr PSString _StompBlend_Y         	= "GTS_StompBlend_Y";          // Requires new behaviors
 
 	//------------------ // TINY RELATED
 	//Bools
@@ -247,8 +249,8 @@ namespace GTS::AnimationVars {
 		bool SetIsTrampling(RE::Actor* a_actor, bool a_value)             { return SetBool(a_actor, GraphVars::_IsTrampling, a_value); }
 
 		//Float
-		bool SetUnderStompBlend(RE::Actor* a_actor, float a_value) { return SetFloat(a_actor, GraphVars::_StompBlend, a_value); }
-
+		bool SetUnderStompBlend_X(RE::Actor* a_actor, float a_value) { return SetFloat(a_actor, GraphVars::_StompBlend_X, a_value); }
+		bool SetUnderStompBlend_Y(RE::Actor* a_actor, float a_value) { return SetFloat(a_actor, GraphVars::_StompBlend_Y, a_value); }
 	}
 
 	namespace General {
