@@ -230,45 +230,22 @@ namespace GTS {
 		{
 	        .UICategory    = LInputCategory_t::kStomp,
 		    .AdvFeature    = false,
-		    .UIName        = "Start L. Stomp (Right)",
+		    .UIName        = "Start L. Stomp",
 		    .UIDescription = "Start a light stomp action.",
 			.Event = {
-		        .Event      = "RightStomp",
+		        .Event      = "Stomp",
 		        .Keys       = {"LSHIFT", "E"},
-		        .Trigger    = "Release",
-		    }
-        },
-        {
-	        .UICategory    = LInputCategory_t::kStomp,
-		    .AdvFeature    = false,
-		    .UIName        = "Start L. Stomp (Left)",
-		    .UIDescription = "Start a light stomp action.",
-			.Event = {
-		        .Event      = "LeftStomp",
-		        .Keys       = {"LSHIFT", "Q"},
 		        .Trigger    = "Release",
 		    }
         },
         {
 			.UICategory    = LInputCategory_t::kStomp,
 			.AdvFeature    = false,
-			.UIName        = "Start H. Stomp (Right)",
+			.UIName        = "Start H. Stomp",
 			.UIDescription = "Start a heavy stomp action.",
 			.Event = {
-		        .Event      = "RightStomp_Strong",
+		        .Event      = "Strong_Stomp",
 		        .Keys       = {"LSHIFT", "E"},
-		        .Trigger    = "Continuous",
-		        .Duration   = 0.44f,
-		    }
-        },
-        {
-			.UICategory    = LInputCategory_t::kStomp,
-			.AdvFeature    = false,
-			.UIName        = "Start H. Stomp (Left)",
-			.UIDescription = "Start a heavy stomp action.",
-			.Event = {
-		        .Event      = "LeftStomp_Strong",
-		        .Keys       = {"LSHIFT", "Q"},
 		        .Trigger    = "Continuous",
 		        .Duration   = 0.44f,
 		    }
@@ -276,27 +253,16 @@ namespace GTS {
 		{
 			.UICategory    = LInputCategory_t::kStomp,
 			.AdvFeature    = false,
-			.UIName        = "Start Trample (Right)",
+			.UIName        = "Start Trample",
 			.UIDescription = "Start a trample action.",
 			.Event = {
-		        .Event      = "TrampleRight",
+		        .Event      = "Trample",
 		        .Keys       = {"LSHIFT", "E"},
 		        .Trigger    = "Release",
 		        .Duration   = 0.20f,
 		    }
         },
-        {
-			.UICategory    = LInputCategory_t::kStomp,
-			.AdvFeature    = false,
-			.UIName        = "Start Trample (Left)",
-			.UIDescription = "Start a trample action.",
-			.Event = {
-		        .Event      = "TrampleLeft",
-		        .Keys       = {"LSHIFT", "Q"},
-		        .Trigger    = "Release",
-		        .Duration   = 0.20f,
-		    }
-        },
+    
 
         //========================================================
 	    //================ T H I G H  C R U S H
@@ -512,10 +478,10 @@ namespace GTS {
         {
 			.UICategory    = LInputCategory_t::kKickSwipe,
 			.AdvFeature    = false,
-			.UIName        = "Start L. Kick (Right)",
+			.UIName        = "Start L. Kick",
 			.UIDescription = "Perform a light kick.",
 			.Event = {
-		        .Event      = "LightKickRight",
+		        .Event      = "LightKick",
 		        .Keys       = {"LALT", "E"},
 		        .Trigger    = "Release",
 		    }
@@ -523,21 +489,10 @@ namespace GTS {
         {
 			.UICategory    = LInputCategory_t::kKickSwipe,
 			.AdvFeature    = false,
-			.UIName        = "Start L. Kick (Left)",
-			.UIDescription = "Perform a light kick.",
-			.Event = {
-		        .Event      = "LightKickLeft",
-		        .Keys       = {"LALT", "Q"},
-		        .Trigger    = "Release",
-		    }
-        },
-        {
-			.UICategory    = LInputCategory_t::kKickSwipe,
-			.AdvFeature    = false,
-			.UIName        = "Start H. Kick (Right)",
+			.UIName        = "Start H. Kick",
 			.UIDescription = "Perform a heavy kick.",
 			.Event = {
-		        .Event      = "HeavyKickRight",
+		        .Event      = "HeavyKick_High",
 		        .Keys       = {"LALT", "E"},
 		        .Trigger    = "Continuous",
 		        .Duration   = 0.33f,
@@ -546,35 +501,11 @@ namespace GTS {
         {
 			.UICategory    = LInputCategory_t::kKickSwipe,
 			.AdvFeature    = false,
-			.UIName        = "Start H. Kick (Left)",
-			.UIDescription = "Perform a heavy kick.",
-			.Event = {
-		        .Event      = "HeavyKickLeft",
-		        .Keys       = {"LALT", "Q"},
-		        .Trigger    = "Continuous",
-		        .Duration   = 0.33f,
-		    }
-        },
-        {
-			.UICategory    = LInputCategory_t::kKickSwipe,
-			.AdvFeature    = false,
-			.UIName        = "Start H. Low Kick (Right)",
+			.UIName        = "Start H. Low Kick",
 			.UIDescription = "Perform an alternative variant of the heavy kick.",
 			.Event = {
-		        .Event      = "HeavyKickRight_Low",
+		        .Event      = "HeavyKick_Low",
 		        .Keys       = {"LALT", "E"},
-		        .Trigger    = "Release",
-		        .Duration   = 0.1f,
-		    }
-        },
-        {
-			.UICategory    = LInputCategory_t::kKickSwipe,
-			.AdvFeature    = false,
-			.UIName        = "Start H. Low Kick (Left)",
-			.UIDescription = "Perform an alternative variant of the heavy kick.",
-			.Event = {
-		        .Event      = "HeavyKickLeft_Low",
-		        .Keys       = {"LALT", "Q"},
 		        .Trigger    = "Release",
 		        .Duration   = 0.1f,
 		    }
@@ -607,10 +538,10 @@ namespace GTS {
         {
 			.UICategory    = LInputCategory_t::kKickSwipe,
 			.AdvFeature    = false,
-			.UIName        = "Start Swipe L. (Right)",
+			.UIName        = "Start Swipe L. ",
 			.UIDescription = "Perform a light swipe attack (only works when sneaking / crawling).",
 			.Event = {
-		        .Event      = "LightSwipeRight",
+		        .Event      = "LightSwipe",
 		        .Keys       = {"LALT", "E"},
 		        .Trigger    = "Release",
 		    }
@@ -618,34 +549,11 @@ namespace GTS {
         {
 			.UICategory    = LInputCategory_t::kKickSwipe,
 			.AdvFeature    = false,
-			.UIName        = "Start Swipe L. (Left)",
+			.UIName        = "Start Swipe H.",
 			.UIDescription = "Perform a light swipe attack (only works when sneaking / crawling).",
 			.Event = {
-		        .Event      = "LightSwipeLeft",
-		        .Keys       = {"LALT", "Q"},
-		        .Trigger    = "Release",
-		    }
-        },
-        {
-			.UICategory    = LInputCategory_t::kKickSwipe,
-			.AdvFeature    = false,
-			.UIName        = "Start Swipe H. (Right)",
-			.UIDescription = "Perform a heavy swipe attack (only works when sneaking / crawling).",
-			.Event = {
-		        .Event      = "HeavySwipeRight",
+		        .Event      = "HeavySwipe",
 		        .Keys       = {"LALT", "E"},
-		        .Trigger    = "Continuous",
-		        .Duration   = 0.33f,
-		    }
-        },
-        {
-			.UICategory    = LInputCategory_t::kKickSwipe,
-			.AdvFeature    = false,
-			.UIName        = "Start Swipe H. (Left)",
-			.UIDescription = "Perform a light swipe attack (only works when sneaking / crawling).",
-			.Event = {
-		        .Event      = "HeavySwipeLeft",
-		        .Keys       = {"LALT", "Q"},
 		        .Trigger    = "Continuous",
 		        .Duration   = 0.33f,
 		    }

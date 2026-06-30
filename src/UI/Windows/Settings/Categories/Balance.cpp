@@ -55,6 +55,28 @@ namespace GTS {
             }
         }
 
+
+        ImUtil_Unique 
+		{
+
+            PSString T0 = "Controls how much character size affects movement speed.\n"
+            "\n"
+            "- Lower values reduce movement speed, but may cause foot sliding (ice skating).\n"
+            "- Higher values better match model movement, but make large characters move faster.\n"
+            "\n"
+            "Default: 1.0 (Recommended)";
+
+            if (ImGui::CollapsingHeader("Movement Speed", ImUtil::HeaderFlagsDefaultOpen)) {
+
+                {
+                    ImGui::Text("Movement Speed Scaling");
+                    ImGuiEx::SliderF("Size Influence", &Config::Balance.fSizeSpeedPercentage, 0.3f, 1.0f, T0, "%.2fx");
+                }
+
+                ImGui::Spacing();
+            }
+        }
+
     	// ---- Misc
 
         ImUtil_Unique 

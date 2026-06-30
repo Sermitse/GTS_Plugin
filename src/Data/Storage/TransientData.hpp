@@ -80,6 +80,8 @@ namespace GTS {
 		bool ReattachingTiny = false;
 		bool KissVoring = false;
 
+		bool AutoAim_TargetLeft = false;
+
 		float EscapingActionProgress = 0.0f;
 		bool EscapingInteraction = false;
 

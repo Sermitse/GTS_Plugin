@@ -16,8 +16,11 @@ namespace {
 		float scale = get_giantess_scale(actor);
 		float MovementSpeed = soft_core(scale, GetSpeedFromConfig());
 		float smt = 1.0f + (smt_speed * 0.33f);
-		
-		float power = 1.0f * (scale * smt * MovementSpeed);
+
+		const float Config = Config::Balance.fSizeSpeedPercentage;
+		float speedCompensation = std::lerp(1.0f, scale, Config);
+
+		float power = speedCompensation * 1.0f * (smt * MovementSpeed);
 		return power * MovementDebuff;
 	}
 

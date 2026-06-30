@@ -1,4 +1,5 @@
 #include "Managers/Animation/Crawling.hpp"
+#include "Utils/Actor/AutoAimUtils.hpp"
 
 #include "Config/Config.hpp"
 
@@ -263,46 +264,29 @@ namespace {
 		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 10.0f);
 	}
 
-	void LightSwipeLeftEvent(const ManagedInputEvent& data) {
+	void LightSwipeEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-			float WasteStamina = 25.0f * GetWasteMult(player);
-			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
-				Utils_UpdateHighHeelBlend(player, false);
-				AnimationManager::StartAnim("SwipeLight_Left", player);
-			} else {
-				NotifyWithSound(player, "You're too tired for hand swipe");
-			}
-	}
-	void LightSwipeRightEvent(const ManagedInputEvent& data) {
-		auto player = PlayerCharacter::GetSingleton();
-			float WasteStamina = 25.0f * GetWasteMult(player);
-			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
-				Utils_UpdateHighHeelBlend(player, false);
-				AnimationManager::StartAnim("SwipeLight_Right", player);
-			} else {
-				NotifyWithSound(player, "You're too tired for hand swipe");
-			}
+		float WasteStamina = 25.0f * GetWasteMult(player);
+		if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
+			bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
+			Utils_UpdateHighHeelBlend(player, false);
+			AnimationManager::StartAnim(Left ? "SwipeLight_Left" : "SwipeLight_Right", player);
+		} else {
+			NotifyWithSound(player, "You're too tired for hand swipe");
+		}
 	}
 
-	void HeavySwipeLeftEvent(const ManagedInputEvent& data) {
+
+	void HeavySwipeEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-			float WasteStamina = 70.0f * GetWasteMult(player);
-			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
-				Utils_UpdateHighHeelBlend(player, false);
-				AnimationManager::StartAnim("SwipeHeavy_Left", player);
-			} else {
-				NotifyWithSound(player, "You're too tired for hand swipe");
-			}
-	}
-	void HeavySwipeRightEvent(const ManagedInputEvent& data) {
-		auto player = PlayerCharacter::GetSingleton();
-			float WasteStamina = 70.0f * GetWasteMult(player);
-			if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
-				Utils_UpdateHighHeelBlend(player, false);
-				AnimationManager::StartAnim("SwipeHeavy_Right", player);
-			} else {
-				NotifyWithSound(player, "You're too tired for hand swipe");
-			}
+		float WasteStamina = 70.0f * GetWasteMult(player);
+		if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
+			bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
+			Utils_UpdateHighHeelBlend(player, false);
+			AnimationManager::StartAnim(Left ? "SwipeHeavy_Left" : "SwipeHeavy_Right", player);
+		} else {
+			NotifyWithSound(player, "You're too tired for hand swipe");
+		}
 	}
 }
 
@@ -310,10 +294,8 @@ namespace GTS
 {
 	void AnimationCrawling::RegisterEvents() {
 
-		InputManager::RegisterInputEvent("LightSwipeLeft", LightSwipeLeftEvent, SwipeCondition);
-		InputManager::RegisterInputEvent("LightSwipeRight", LightSwipeRightEvent, SwipeCondition);
-		InputManager::RegisterInputEvent("HeavySwipeLeft", HeavySwipeLeftEvent, SwipeCondition);
-		InputManager::RegisterInputEvent("HeavySwipeRight", HeavySwipeRightEvent, SwipeCondition);
+		InputManager::RegisterInputEvent("LightSwipe", LightSwipeEvent, SwipeCondition);
+		InputManager::RegisterInputEvent("HeavySwipe", HeavySwipeEvent, SwipeCondition);
 
 		AnimationManager::RegisterEvent("GTS_Crawl_Knee_Trans_Impact", "Crawl", GTS_Crawl_Knee_Trans_Impact);
 		AnimationManager::RegisterEvent("GTS_Crawl_Hand_Trans_Impact", "Crawl", GTS_Crawl_Hand_Trans_Impact);

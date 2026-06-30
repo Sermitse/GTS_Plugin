@@ -4,6 +4,7 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Damage/LaunchObject.hpp"
 #include "Managers/Input/InputManager.hpp"
+#include "Utils/Actor/AutoAimUtils.hpp"
 
 #include "Utils/Actions/InputConditions.hpp"
 
@@ -108,37 +109,29 @@ namespace {
 	// ======================================================================================
 	//  Animation Triggers
 	// ======================================================================================
-	void LightKickLeftEvent(const ManagedInputEvent& data) {
-		PerformKick("SwipeLight_Left", 35.0f, false);
-	}
-	void LightKickRightEvent(const ManagedInputEvent& data) {
-		PerformKick("SwipeLight_Right", 35.0f, false);
+
+	void LightKickEvent(const ManagedInputEvent& data) {
+		bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
+		PerformKick(Left ? "SwipeLight_Left" : "SwipeLight_Right", 35.0f, false);
 	}
 
-	void HeavyKickLeftEvent(const ManagedInputEvent& data) {
-		PerformKick("SwipeHeavy_Left", 110.0f, true);
-	}
-	void HeavyKickRightEvent(const ManagedInputEvent& data) {
-		PerformKick("SwipeHeavy_Right", 110.0f, true);
+	void HeavyKickHighEvent(const ManagedInputEvent& data) {
+		bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
+		PerformKick(Left ? "SwipeHeavy_Left" : "SwipeHeavy_Right", 110.0f, true);
 	}
 
-	void HeavyKickRightLowEvent(const ManagedInputEvent& data) {
-		PerformKick("StrongKick_Low_Right", 110.0f, true);
-	}
-	void HeavyKickLeftLowEvent(const ManagedInputEvent& data) {
-		PerformKick("StrongKick_Low_Left", 110.0f, true);
+	void HeavyKickLowEvent(const ManagedInputEvent& data) {
+		bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
+		PerformKick(Left ? "StrongKick_Low_Left" : "StrongKick_Low_Right", 110.0f, true);
 	}
 }
 
 namespace GTS
 {
 	void AnimationKicks::RegisterEvents() {
-		InputManager::RegisterInputEvent("LightKickLeft", LightKickLeftEvent, KickCondition);
-		InputManager::RegisterInputEvent("LightKickRight", LightKickRightEvent, KickCondition);
-		InputManager::RegisterInputEvent("HeavyKickLeft", HeavyKickLeftEvent, KickCondition);
-		InputManager::RegisterInputEvent("HeavyKickRight", HeavyKickRightEvent, KickCondition);
-		InputManager::RegisterInputEvent("HeavyKickRight_Low", HeavyKickRightLowEvent, KickCondition);
-		InputManager::RegisterInputEvent("HeavyKickLeft_Low", HeavyKickLeftLowEvent, KickCondition);
+		InputManager::RegisterInputEvent("LightKick", LightKickEvent, KickCondition);
+		InputManager::RegisterInputEvent("HeavyKick_High", HeavyKickHighEvent, KickCondition);
+		InputManager::RegisterInputEvent("HeavyKick_Low", HeavyKickLowEvent, KickCondition);
 		
 
 		AnimationManager::RegisterEvent("GTS_Kick_Camera_On_R", "Kicks", GTS_Kick_Camera_On_R);

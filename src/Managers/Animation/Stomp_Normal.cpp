@@ -9,6 +9,7 @@
 #include "Managers/Rumble.hpp"
 
 #include "Utils/Actions/InputConditions.hpp"
+#include "Utils/Actor/AutoAimUtils.hpp"
 #include "Utils/AttachPoint.hpp"
 
 using namespace GTS;
@@ -308,18 +309,14 @@ namespace {
 		StopLoopRumble(&data.giant);
 	}
 
-	void RightStompEvent(const ManagedInputEvent& data) {
+	void StompEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		bool UnderStomp = AnimationUnderStomp::ShouldPerformUnderStomp(player, true, false);
-		const std::string_view StompType = "UnderStompRight"; //UnderStomp ? "UnderStompRight" : "StompRight";
-		DoStompOrUnderStomp(player, StompType);
-	}
+		bool Left = AutoAim_SetUpDefaultSide(player);
+		bool UnderStomp = AnimationUnderStomp::PerformUnderstompOrAutoAim(player, true, Left);
 
-	void LeftStompEvent(const ManagedInputEvent& data) {
-		auto player = PlayerCharacter::GetSingleton();
-		bool UnderStomp = AnimationUnderStomp::ShouldPerformUnderStomp(player, true, true);
-		const std::string_view StompType = "UnderStompLeft"; // UnderStomp ? "UnderStompLeft" : "StompLeft";
-		DoStompOrUnderStomp(player, StompType);
+		const std::string_view StompType_R = UnderStomp ? "UnderStompRight" : "StompRight";
+		const std::string_view StompType_L = UnderStomp ? "UnderStompLeft" : "StompLeft";
+		DoStompOrUnderStomp(player, Left ? StompType_L : StompType_R);
 	}
 }
 
@@ -337,8 +334,7 @@ namespace GTS
 		AnimationManager::RegisterEvent("GTS_Next", "Stomp", GTS_Next);
 		AnimationManager::RegisterEvent("GTSBEH_Exit", "Stomp", GTSBEH_Exit);
 
-		InputManager::RegisterInputEvent("RightStomp", RightStompEvent, StompCondition);
-		InputManager::RegisterInputEvent("LeftStomp", LeftStompEvent, StompCondition);
+		InputManager::RegisterInputEvent("Stomp", StompEvent, StompCondition);
 	}
 
 	void AnimationStomp::RegisterTriggers() {

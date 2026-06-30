@@ -249,7 +249,7 @@ namespace Hooks {
         //stl::write_call<CalculateHeading1>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x217, 0x217, NULL));
         //stl::write_call<CalculateHeading2>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x92D, 0xA7F, NULL));
 		stl::write_call<DoDetectionJob_CalculateDetection>(REL::RelocationID(41659, 42742, NULL), REL::VariantOffset(0x526, 0x67B, NULL));
-        //stl::write_call<Character_CalculateDetectionStrength>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x5c7, 0x5b9, NULL));
+        stl::write_call<Character_CalculateDetectionStrength>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x5c7, 0x5b9, NULL));
 
 	}
 }

@@ -5,6 +5,7 @@
 #include "Managers/AI/StompKick/StompKickSwipeAI.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
+#include "Utils/Actor/AutoAimUtils.hpp"
 #include "Managers/Cameras/CamUtil.hpp"
 #include "Managers/Audio/Footstep.hpp"
 #include "Managers/Audio/Stomps.hpp"
@@ -35,121 +36,6 @@ namespace {
             }
         }
     }
-    NiPoint3 GetPresetFootPosition(Actor* giant, bool left_foot, float foot_offset) {
-        float yaw = giant->data.angle.z;
-        NiPoint3 center = giant->GetPosition();
-        NiPoint3 forward (std::sin(yaw),std::cos(yaw),0.0f);
-        NiPoint3 right (forward.y,-forward.x,0.0f);
-
-        return left_foot ? center - right * foot_offset : center + right * foot_offset;
-    }
-
-    Actor* FindClosestTargetForFoot(Actor* giant, NiPoint3 footPos, float maxSearchDistance) {
-        Actor* bestVictim = nullptr;
-
-        const float maxDistSq = maxSearchDistance * maxSearchDistance;
-        float bestScore = FLT_MAX;
-
-        const float yaw = giant->data.angle.z;
-        const NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
-
-        constexpr float BackPenalty = 3.0f; // Prioritizes targets in front
-
-        for (auto target : find_actors()) {
-            if (!target || target == giant) {
-                continue;
-            }
-
-            if (!IsHostile(giant, target) && IsTeammate(target) && Config::General.bProtectFollowers) {
-                continue;
-            }
-
-            NiPoint3 delta = target->GetPosition() - footPos;
-            delta.z = 0.0f;
-
-            float distSq = delta.x * delta.x + delta.y * delta.y;
-
-            if (distSq > maxDistSq) {
-                continue;
-            }
-
-            // Back/Forward
-            float localForward = delta.x * forward.x + delta.y * forward.y;
-
-            float score = distSq;
-
-            // If target is behind us - give it decreased priority
-            if (localForward < 0.0f) {
-                score += localForward * localForward * BackPenalty;
-            }
-
-            if (score < bestScore) {
-                bestScore = score;
-                bestVictim = target;
-            }
-        }
-
-        return bestVictim;
-    }
-
-    void CalculateForwardBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, float maxDistance, float& outBlend,float& outForwardDistance, float& outDistance) {
-        float yaw = giant->data.angle.z;
-
-        NiPoint3 offset = targetPos - footPos;
-        NiPoint3 forward(std::sin(yaw),std::cos(yaw),0.0f);
-        offset.z = 0.0f;
-        
-        outDistance = offset.Length();
-
-        float forwardDistance = offset.x * forward.x + offset.y * forward.y;
-
-        float blend = std::clamp(forwardDistance / maxDistance, 0.0f, 1.0f);
-        outForwardDistance = forwardDistance;
-        outBlend = blend;
-    }
-    void CalculateDirectionalBlend2D(Actor* giant, const NiPoint3& footPos,const NiPoint3& targetPos,float maxDistance,float& outX, float& outY, float& outDistanceX,float& outDistanceY, float& outDistance) {
-        float yaw = giant->data.angle.z;
-
-        NiPoint3 offset = targetPos - footPos;
-        offset.z = 0.0f;
-
-        float distance = offset.Length();
-        outDistance = distance;
-
-        if (distance <= 0.001f) {
-            outX = 0.0f;
-            outY = 0.0f;
-            outDistanceX = 0.0f;
-            outDistanceY = 0.0f;
-            return;
-        }
-
-        // Нормализованное направление к цели
-        NiPoint3 dir = offset;
-        dir /= distance;
-
-        // Локальные оси гиганта
-        NiPoint3 forward( std::sin(yaw),std::cos(yaw),0.0f);
-
-        NiPoint3 right(forward.y, -forward.x, 0.0f);
-
-        // Угловая составляющая (-1..1)
-        float angleForward = dir.x * forward.x + dir.y * forward.y;
-
-        float angleRight = dir.x * right.x + dir.y * right.y;
-
-        // Вес расстояния (0..1)
-        float distanceWeight = std::clamp(distance / maxDistance, 0.0f, 1.0f);
-
-        // Итоговый blend
-        outX = angleForward * distanceWeight;
-        outY = angleRight * distanceWeight;
-
-        // Оставляем для логики триггеров
-        outDistanceX = offset.x * forward.x + offset.y * forward.y;
-        outDistanceY = offset.x * right.x + offset.y * right.y;
-    }
-
 
     void UnderStomp_DoEverything(Actor* giant, float animSpeed, bool right, FootEvent Event, DamageSource Source, std::string_view Node, std::string_view rumble) {
 		float perk = GetPerkBonus_Basics(giant);
@@ -208,79 +94,20 @@ namespace {
 
 }
 namespace GTS {
-    bool AnimationUnderStomp::AutoAim_Foot_Directional(Actor* giant, bool left_foot, bool forward_only) {
-        if (!giant) return false;
-        if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
-
-        const float max_distance = 36.0f * get_visual_scale(giant); //37.5f;
-        const float foot_offset = 12.5f * get_visual_scale(giant); // Instead of looking for R/L foot, we do position offset from center to right/left, based on left_foot bool
-
-        NiPoint3 footPos = GetPresetFootPosition(giant, left_foot, foot_offset);
-        auto victim = FindClosestTargetForFoot(giant, footPos, max_distance);
-        if (!victim) {
-            AnimationVars::Stomp::SetUnderStompBlend_X(giant, RandomFloat(0.0f, 0.25f));
-            AnimationVars::Stomp::SetUnderStompBlend_Y(giant, RandomFloat(0.0f, 0.15f));
-            return false;
-        }
-
-        NiPoint3 victimPos = victim->GetPosition();
-
-        //if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
-            DebugDraw::DrawSphere(glm::vec3(footPos.x, footPos.y, footPos.z), 6.0f * get_visual_scale(giant), 600, {0.0f, 0.5f, 1.0f, 1.0f});
-			DebugDraw::DrawSphere(glm::vec3(footPos.x, footPos.y, footPos.z), max_distance, 300, {1.0f, 0.5f, 0.0f, 1.0f});
-		//}
-
-        //if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kAnyGTS)) {
-			DebugDraw::DrawSphere(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), 300, {0.0f, 0.6f, 0.0f, 1.0f});
-		//}
-
-        footPos.z = 0.0f;
-        victimPos.z = 0.0f;
-
-        float x = 0.0f; // forward (>0) /   back (<1)
-        float y = 0.0f; // right (>0)   /   left (<1)
-
-        float dx = 0.0f;
-        float dy = 0.0f;
-
-        float final_distance = 0.0f;
-
-        if (forward_only) {
-            CalculateForwardBlend(giant, footPos, victimPos, max_distance, x, dx, final_distance);
-        } else {
-            CalculateDirectionalBlend2D(giant, footPos, victimPos, max_distance, x, y, dx, dy, final_distance);
-        }
-
-        x = std::clamp(x * 1.15f, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-        y = std::clamp(y * 1.15f, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-
-        logger::info(
-            "Blend2D X:{}, Y:{} | Victim:{}",
-            x, y,
-            victim->GetDisplayFullName()
-        );
-
-    bool ShouldAutoAim = final_distance <= max_distance  && 
-        dx >= -(max_distance * 0.1f); // Allow to auto-aim if enemy is a bit behind
-    if (ShouldAutoAim) {
-        AnimationVars::Stomp::SetUnderStompBlend_X(giant, x); // We added new behavior variables, needs new Behaviors in order to work
-        AnimationVars::Stomp::SetUnderStompBlend_Y(giant, y); // We added new behavior variables, needs new Behaviors in order to work
-    } else { // Reset vars just in case with a bit of rng
-        AnimationVars::Stomp::SetUnderStompBlend_X(giant, RandomFloat(0.0f, 0.15f));
-        AnimationVars::Stomp::SetUnderStompBlend_Y(giant, RandomFloat(0.0f, 0.15f));
-    }
-    return ShouldAutoAim;
-}
-
-    bool AnimationUnderStomp::ShouldPerformUnderStomp(Actor* giant, bool autoAim, bool left) {
+    bool AnimationUnderStomp::PerformUnderstompOrAutoAim(Actor* giant, bool autoAim, bool& left) {
         if (giant->IsPlayerRef() && IsFreeCameraEnabled()) {
             return false;
         }
         if (autoAim) {
-            if (AutoAim_Foot_Directional(giant, left, false)) {
+            if (AutoAim_IsSneakingOrCrawling(giant)) {
+                bool hitTarget = false; // Don't do understomps if HIT the target
+                if (AutoAim_Hand_TryHandAim(giant, left, hitTarget)) {
+                    return !hitTarget; // Hand shouldn't count as Understomp, else actor uses foot to attack
+                }
+            } else if (AutoAim_Foot_Directional(giant, left, false)) {
                 return true;
             }
-            if (!giant->IsPlayerRef()) { // If NPC didn't hit anyone, prevent blend below
+            if (!giant->IsPlayerRef()) { // If NPC didn't hit anyone, prevent look-up-down based blend below
                 return false;
             }
         }

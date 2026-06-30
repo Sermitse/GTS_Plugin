@@ -58,6 +58,8 @@ struct SettingsBalance_t {
     float fMaxFollowerSize = 0.0f;
     float fMaxOtherSize = 0.0f;
 
+    // Movement Speed Config
+    float fSizeSpeedPercentage = 1.0f;
 
     // Balance mode adjustments
     bool bBalanceMode = false;
