@@ -29,10 +29,10 @@ namespace GTS {
             "If disabled, look-down angle will be used to perform attacks, just like before Auto-Aim was introduced\n"
             "Can be disabled for Player only, NPCs will still use it";
 
-            PSString THelp = "Auto-Aim is designed to make size-based attacks smarter while reducing the number of required keybinds.\n"
-                    "It works with most basic attacks, including Stomps and Hand Slams.\n"
-                    "-The system first searches for the closest enemy.\n"
-                    "-It then determines which hand or foot is best suited for the attack.\n"
+            PSString THelp = "Auto-Aim is designed to make size-based attacks smarter while reducing the number of required keybinds\n"
+                    "It works with most basic attacks, including Stomps and Hand Slams\n"
+                    "-The system first searches for the closest enemy\n"
+                    "-It then determines which hand or foot is best suited for the attack\n"
                     "-If no enemy is found, a random attack is performed instead\n\n"
 
                     "Technical limitations:\n"
@@ -68,7 +68,7 @@ namespace GTS {
             PSString T0 = "[Hand Slam] Determines collider size.\n"
             "Default: 15.0";
             PSString T1 = "[Stomp] Determines collider size.\n"
-            "Default: 42.5";
+            "Default: 36.5";
             PSString T2 = "[Kick] Determines collider size.\n"
             "Default: 36.0";
 
@@ -95,10 +95,10 @@ namespace GTS {
 
             if (ImGui::CollapsingHeader("Automatic Aim: Initial Collider Offsets", ImUtil::HeaderFlagsDefaultOpen)) {
                 ImGuiEx::SliderF("[Foot] Side Offset", &Config::AutoAim.fAutoAim_Foot_OffsetDistance, 0.0f, 30.0f, T0, "%.2f");
-                ImGuiEx::SliderF("[Hand] Side Offset", &Config::AutoAim.fAutoAim_Hand_OffsetDistance_Side, 25.0f, 60.0f, T1, "%.2f");
+                ImGuiEx::SliderF("[Hand] Side Offset", &Config::AutoAim.fAutoAim_Hand_OffsetDistance_Side, 5.0f, 60.0f, T1, "%.2f");
                 ImGuiEx::SliderF("[Hand] Forward Offset", &Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward, 40.0f, 70.0f, T2, "%.2f");
                 ImGuiEx::SliderF("[Hand Sneak] Forward Offset", &Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward_Sneak, 20.0f, 50.0f, T3, "%.2f");
-                ImGuiEx::SliderF("[Standing Kicks] Forward Offset", &Config::AutoAim.fAutoAim_Kick_OffsetDistance_Forward, 20.0f, 50.0f, T4, "%.2f");
+                ImGuiEx::SliderF("[Standing Kicks] Forward Offset", &Config::AutoAim.fAutoAim_Kick_OffsetDistance_Forward, 10.0f, 50.0f, T4, "%.2f");
                 ImGui::Spacing();
             }
         }
@@ -109,20 +109,24 @@ namespace GTS {
 		{
             PSString T0 ="Reduces the priority of enemies located behind the Giantess.\n"
             "Higher values make Auto-Aim less likely to target enemies behind you.\n"
-            "Default: 3.0";
-            PSString T1 = "Enemies behind you are ignored once they exceed this percentage of the search collider's range.\n"
+            "Default: 10.0";
+            PSString T1 = "Reduces the priority of dead enemies.\n"
+            "Higher values make Auto-Aim less likely to target dead enemies.\n"
+            "Default: 20.0";
+            PSString T2 = "Enemies behind you are ignored once they exceed this percentage of the search collider's range.\n"
             "Default: 0.25";
-            PSString T2 = "Multiplies the animation blend values used by Auto-Aim.\n"
+            PSString T3 = "Multiplies the animation blend values used by Auto-Aim.\n"
             "Higher values improve targeting near the edges of the search collider.\n"
             "Default: 1.25";
-            PSString T3 = "Controls how much the X and Z animation blend values are randomized when no target is found.\n"
+            PSString T4 = "Controls how much the X and Z animation blend values are randomized when no target is found.\n"
             "Default: 0.25";
 
             if (ImGui::CollapsingHeader("Automatic Aim Behavior Settings", ImUtil::HeaderFlagsDefaultOpen)) {
                 ImGuiEx::SliderF("Behind Target Penalty", &Config::AutoAim.fAutoAim_BackPenalty, 0.01f, 30.0f, T0, "%.2f");
-                ImGuiEx::SliderF("Ignore Rear Targets After", &Config::AutoAim.fAutoAim_IgnoreBehindAfter, 0.0f, 1.0f, T1, "%.2f");
-                ImGuiEx::SliderF("Auto-Aim Blend Multiplier", &Config::AutoAim.fAutoAim_aimMagnitudeMultiplier, 1.0f, 1.5f, T2, "%.2fx");
-                ImGuiEx::SliderF("Blend Randomization on Miss", &Config::AutoAim.fAutoAim_noHitValueRandomRange, 0.0f, 1.0f, T3, "%.2fx");
+                ImGuiEx::SliderF("Dead Target Penalty", &Config::AutoAim.fAutoAim_DeadPenalty, 0.01f, 30.0f, T1, "%.2f");
+                ImGuiEx::SliderF("Ignore Rear Targets After", &Config::AutoAim.fAutoAim_IgnoreBehindAfter, 0.0f, 1.0f, T2, "%.2f");
+                ImGuiEx::SliderF("Auto-Aim Blend Multiplier", &Config::AutoAim.fAutoAim_aimMagnitudeMultiplier, 1.0f, 1.5f, T3, "%.2fx");
+                ImGuiEx::SliderF("Blend Randomization on Miss", &Config::AutoAim.fAutoAim_noHitValueRandomRange, 0.0f, 1.0f, T4, "%.2fx");
                 ImGui::Spacing();
             }
         }

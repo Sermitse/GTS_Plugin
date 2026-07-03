@@ -54,11 +54,12 @@ namespace GTS {
                     continue;
                 }
 
-                if (!IsHostile(giant, target) &&
-                    IsTeammate(target) &&
-                    Config::General.bProtectFollowers) {
+                if (!IsHostile(giant, target) && IsTeammate(target) && Config::General.bProtectFollowers) {
                     continue;
                 }
+
+                const bool Dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
+                float DeadPenalty = Dead ? Config::AutoAim.fAutoAim_DeadPenalty : 1.0f;
 
                 NiPoint3 targetPos = target->GetPosition();
                 targetPos.z = 0.0f;
@@ -96,7 +97,7 @@ namespace GTS {
 
                 // Penalize targets behind the actor
                 if (localForward < 0.0f) {
-                    score += localForward * localForward * Config::AutoAim.fAutoAim_BackPenalty;
+                    score += localForward * localForward * DeadPenalty * Config::AutoAim.fAutoAim_BackPenalty;
                 }
 
                 if (score < bestScore) {

@@ -111,7 +111,7 @@ namespace GTS {
                 return false;
             }
         }
-        return CrosshairUnderstomp(giant);
+        return Config::AutoAim.bEnableAutoAim ? false : CrosshairUnderstomp(giant);
     }
 
     bool AnimationUnderStomp::CrosshairUnderstomp(Actor* giant) { // Should be player exclusive

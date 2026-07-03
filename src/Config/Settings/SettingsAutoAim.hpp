@@ -39,7 +39,7 @@ struct SettingsAutoAim_t {
     bool bDebugAutoAim = false;
 
     // Collider ranges
-    float fAutoAim_Range_Stomp = 42.5f;
+    float fAutoAim_Range_Stomp = 36.5f;
     float fAutoAim_Range_Hand = 15.0f;
     float fAutoAim_Range_Kick = 36.0f;
 
@@ -51,7 +51,8 @@ struct SettingsAutoAim_t {
     float fAutoAim_Kick_OffsetDistance_Forward = 20.0f;
 
     // Auto-Aim settings
-    float fAutoAim_BackPenalty = 3.0f;
+    float fAutoAim_BackPenalty = 10.0f;
+    float fAutoAim_DeadPenalty = 20.0f;
     float fAutoAim_IgnoreBehindAfter = 0.25f;
     float fAutoAim_aimMagnitudeMultiplier = 1.25f;
     float fAutoAim_noHitValueRandomRange = 0.25f;
