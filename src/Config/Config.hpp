@@ -6,6 +6,7 @@
 #include "Config/Settings/SettingsAI.hpp"
 #include "Config/Settings/SettingsAudio.hpp"
 #include "Config/Settings/SettingsBalance.hpp"
+#include "Config/Settings/SettingsAutoAim.hpp"
 #include "Config/Settings/SettingsCamera.hpp"
 #include "Config/Settings/SettingsCollision.hpp"
 #include "Config/Settings/SettingsGameplay.hpp"
@@ -34,12 +35,14 @@ namespace GTS {
         static inline SettingsGeneral_t General       = {};
         static inline SettingsGameplay_t Gameplay     = {};
         static inline SettingsBalance_t Balance       = {};
+        static inline SettingsAutoAim_t AutoAim       = {};
         static inline SettingsAudio_t Audio           = {};
         static inline SettingsAI_t AI                 = {};
         static inline SettingsCamera_t Camera         = {};
         static inline SettingsUI_t UI                 = {};
         static inline SettingsPersistent_t Persistent = {};
 		static inline SettingsCollision_t Collision   = {};
+        
 
         //Not Serialized
         static inline SettingsExperimental_t Experiments = {};

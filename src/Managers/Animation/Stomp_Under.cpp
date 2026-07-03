@@ -102,7 +102,7 @@ namespace GTS {
             if (AutoAim_IsSneakingOrCrawling(giant)) {
                 bool hitTarget = false; // Don't do understomps if HIT the target
                 if (AutoAim_Hand_TryHandAim(giant, left, hitTarget)) {
-                    return !hitTarget; // Hand shouldn't count as Understomp, else actor uses foot to attack
+                    return !hitTarget; // Hand shouldn't count as Understomp, else actor uses foot to attack instead
                 }
             } else if (AutoAim_Foot_Directional(giant, left, false)) {
                 return true;
@@ -114,7 +114,7 @@ namespace GTS {
         return CrosshairUnderstomp(giant);
     }
 
-    bool AnimationUnderStomp::CrosshairUnderstomp(Actor* giant) {
+    bool AnimationUnderStomp::CrosshairUnderstomp(Actor* giant) { // Should be player exclusive
         //Range is between -1 (looking down) and 1 (looking up)
         //abs makes it become 1 -> 0 -> 1 for down -> middle -> up
         const float absPitch = abs(GetCameraRotation().entry[2][1]);
@@ -125,7 +125,8 @@ namespace GTS {
         bool allow = absPitch > InvLookDownStartAngle;
         // Allow to stomp when looking from above or below
         if (allow) {
-            float blend = std::clamp(InvLookdownIntensity * 1.3f, 0.0f, 1.0f);
+            float blend = std::clamp(InvLookdownIntensity * 1.2f, 0.0f, 1.0f);
+            AnimationVars::Stomp::SetUnderStompBlend_Legacy(giant, blend);
             AnimationVars::Stomp::SetUnderStompBlend_X(giant, blend);
             AnimationVars::Stomp::SetUnderStompBlend_Y(giant, 0.0f);
             // Blend between "close" and "far" under-stomps

@@ -409,7 +409,7 @@ namespace GTS {
 		float TargetScale = get_target_scale(a_Actor);
 		float MaxScale = get_max_scale(a_Actor);
 		float RateMultiplier = 1.0f;
-		bool HasPerk = Runtime::HasPerk(a_Actor, Runtime::PERK.GTSPerkColossalGrowth);
+		bool HasPerk = Runtime::HasPerkTeam(a_Actor, Runtime::PERK.GTSPerkColossalGrowth);
 
 		if (IsFemale(a_Actor, true)) {
 

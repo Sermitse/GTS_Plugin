@@ -249,6 +249,7 @@ namespace GTS::AnimationVars {
 		bool SetIsTrampling(RE::Actor* a_actor, bool a_value)             { return SetBool(a_actor, GraphVars::_IsTrampling, a_value); }
 
 		//Float
+		bool SetUnderStompBlend_Legacy(RE::Actor* a_actor, float a_value) { return SetFloat(a_actor, GraphVars::_StompBlend, a_value); }
 		bool SetUnderStompBlend_X(RE::Actor* a_actor, float a_value) { return SetFloat(a_actor, GraphVars::_StompBlend_X, a_value); }
 		bool SetUnderStompBlend_Y(RE::Actor* a_actor, float a_value) { return SetFloat(a_actor, GraphVars::_StompBlend_Y, a_value); }
 	}

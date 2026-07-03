@@ -25,6 +25,7 @@
 #include "UI/Windows/Settings/Categories/Keybinds.hpp"
 #include "UI/Windows/Settings/Categories/General.hpp"
 #include "UI/Windows/Settings/Categories/Balance.hpp"
+#include "UI/Windows/Settings/Categories/AutoAim.hpp"
 #include "UI/Windows/Settings/Categories/Actions.hpp"
 #include "UI/Windows/Settings/Categories/Widgets.hpp"
 #include "UI/Windows/Settings/Categories/Collision.hpp"
@@ -140,6 +141,7 @@ namespace GTS {
 		CategoryMgr->AddCategory(std::make_unique<CategoryGameplay>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryBalance>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryActions>());
+		CategoryMgr->AddCategory(std::make_unique<CategoryAutoAim>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryMorphs>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryAudio>());
 		CategoryMgr->AddCategory(std::make_unique<CategoryAI>());
