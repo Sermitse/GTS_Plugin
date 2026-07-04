@@ -107,7 +107,7 @@ namespace {
 
 	void Do_StrongStomp(Actor* a_Performer, Actor* a_Prey) {
 		bool Left = AutoAim_SetUpDefaultSide(a_Performer);
-		const bool UnderStomp = AnimationUnderStomp::PerformUnderstompOrAutoAim(a_Performer, true, Left);
+		const bool UnderStomp = AnimationUnderStomp::AutoAim_And_DetermineStompType(a_Performer, Left, true);
 		const std::string_view StompType_R = UnderStomp ? "UnderStompStrongRight" : "StrongStompRight";
 		const std::string_view StompType_L = UnderStomp ? "UnderStompStrongLeft" : "StrongStompLeft";
 
@@ -121,7 +121,7 @@ namespace {
 	void Do_LightStomp(Actor* a_Performer, Actor* a_Prey) {
 		bool Left = AutoAim_SetUpDefaultSide(a_Performer);
 		Utils_UpdateHighHeelBlend(a_Performer, false);
-		const bool UnderStomp = AnimationUnderStomp::PerformUnderstompOrAutoAim(a_Performer, true, Left);
+		const bool UnderStomp = AnimationUnderStomp::AutoAim_And_DetermineStompType(a_Performer, Left);
 		const std::string_view StompType_R = UnderStomp ? "UnderStompRight" : "StompRight";
 		const std::string_view StompType_L = UnderStomp ? "UnderStompLeft" : "StompLeft";
 
@@ -134,7 +134,7 @@ namespace {
 
 	void Do_Tramples(Actor* a_Performer, Actor* a_Prey) {
 		bool Left = AutoAim_SetUpDefaultSide(a_Performer);
-		bool UnderTrample = AnimationUnderStomp::PerformUnderstompOrAutoAim(a_Performer, true, Left);
+		bool UnderTrample = AnimationUnderStomp::AutoAim_And_DetermineStompType(a_Performer, Left);
 		const std::string_view TrampleType_L = UnderTrample ? "UnderTrampleL" : "TrampleL";
 		const std::string_view TrampleType_R = UnderTrample ? "UnderTrampleR" : "TrampleR";
 
@@ -232,7 +232,7 @@ namespace GTS {
 			}
 			case 2: {
 
-				if (!AnimationVars::Crawl::IsCrawling(a_Performer)) {
+				if (!AnimationVars::Crawl::IsCrawling(a_Performer) && !a_Performer->IsSneaking()) {
 					Do_Tramples(a_Performer, a_Prey);
 				}
 				else {

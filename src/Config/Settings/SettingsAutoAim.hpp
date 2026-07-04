@@ -34,28 +34,54 @@ Reflection based serializer limitations:
 
 struct SettingsAutoAim_t {
 
-    // Friendly interaction settings
+    // Main settings
     bool bEnableAutoAim = true;
     bool bDebugAutoAim = false;
+    bool bPreventFarStomps = false;
 
-    // Collider ranges
+    //------------------Collider ranges
+    //stomps
     float fAutoAim_Range_Stomp = 36.5f;
+    float fAutoAim_Range_FarStomp = 56.0f;
+    float fAutoAim_Range_FarStomp_Strong = 50.0f;
+    //hand slam
     float fAutoAim_Range_Hand = 15.0f;
+    float fAutoAim_Range_Hand_Crawl = 25.0f;
+    // kick
     float fAutoAim_Range_Kick = 36.0f;
+    float fAutoAim_Range_Kick_Sneak = 48.0f;
+    //butt
+    float fAutoAim_Range_ButtSlam = 40.0f;
+    //breast
+    float fAutoAim_Range_BreastSlam = 32.0f;
 
-    // Initial Offsets
+    //-------------------Initial Offsets
+    // foot
     float fAutoAim_Foot_OffsetDistance = 10.0f;
+    float fAutoAim_Foot_OffsetDistance_FarStomp = 0.0f;
+    // hand
     float fAutoAim_Hand_OffsetDistance_Side = 14.5f;
     float fAutoAim_Hand_OffsetDistance_Forward = 50.0f;
     float fAutoAim_Hand_OffsetDistance_Forward_Sneak = 35.0f;
+    // Hand Crawl
+    float fAutoAim_Hand_Crawl_OffsetDistance_Side = 11.0f;
+    float fAutoAim_Hand_Crawl_OffsetDistance_Forward = 60.0f;
+    float fAutoAim_Hand_Crawl_OffsetDistance_Forward_Sneak = 35.0f;
+    // kick
     float fAutoAim_Kick_OffsetDistance_Forward = 20.0f;
+    // butt
+    float fAutoAim_Butt_OffsetDistance_Forward = 0.0f;
+    float fAutoAim_Butt_OffsetDistance_Side = 15.0f;
+    // breast
+    float fAutoAim_Breast_OffsetDistance_Forward = 25.0f;
+    float fAutoAim_Breast_OffsetDistance_Side = 10.0f;
 
     // Auto-Aim settings
     float fAutoAim_BackPenalty = 10.0f;
     float fAutoAim_DeadPenalty = 20.0f;
     float fAutoAim_IgnoreBehindAfter = 0.25f;
-    float fAutoAim_aimMagnitudeMultiplier = 1.25f;
-    float fAutoAim_noHitValueRandomRange = 0.25f;
+    float fAutoAim_AimMagnitudeMultiplier = 1.25f;
+    float fAutoAim_NoHitValueRandomRange = 0.25f;
 
 };
 TOML_SERIALIZABLE(SettingsAutoAim_t);

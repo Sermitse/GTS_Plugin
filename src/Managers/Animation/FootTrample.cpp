@@ -245,7 +245,7 @@ namespace {
 		auto player = PlayerCharacter::GetSingleton();
 		
 		bool Left = AutoAim_SetUpDefaultSide(player);
-		bool UnderTrample = AnimationUnderStomp::PerformUnderstompOrAutoAim(player, true, Left);
+		bool UnderTrample = AnimationUnderStomp::AutoAim_And_DetermineStompType(player, Left);
 
 		const std::string_view TrampleType_R = UnderTrample ? "UnderTrampleR" : "TrampleR";
 		const std::string_view TrampleType_L = UnderTrample ? "UnderTrampleL" : "TrampleL";
