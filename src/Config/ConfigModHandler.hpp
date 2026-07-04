@@ -9,6 +9,7 @@ namespace GTS {
 		static void HandleRaceMenuDataUpdate();
 		std::string DebugName() override;
 		void OnGameSave() override;
+		void Reset() override;
 		void OnGameLoaded() override;
 		void OnConfigReset() override;
 		void OnConfigRefresh() override;
