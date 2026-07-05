@@ -90,15 +90,24 @@ namespace GTS {
 		OnGameLoaded();
 	}
 
+	void ConfigModHandler::Reset() {
+		//Is run during kPresaveLoad, cleans config data to defaults before a game is loaded.
+		Config::ResetToDefaults();
+		ImStyleManager::ApplyStyle();
+		spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
+	}
+
 	void ConfigModHandler::MenuChange(const RE::MenuOpenCloseEvent* menu_event) {
 
-		//Run Reset if the main menu is loaded
+		//No longer needed, Handled by Reset() now.
+		
+		/*//Run Reset if the main menu is loaded
 		if (menu_event->menuName == RE::MainMenu::MENU_NAME && menu_event->opening) {
 
 			Config::ResetToDefaults();
 			ImStyleManager::ApplyStyle();
 			spdlog::set_level(spdlog::level::from_str(Config::Advanced.sLogLevel));
 
-		}
+		}*/
 	}
 }

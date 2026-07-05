@@ -147,13 +147,21 @@ namespace Hooks {
             {
                 GTS_PROFILE_ENTRYPOINT("ActorDetection::DoDetectionJob");
 
+               
+
                 if (a_observer) {
                     if (IsHuman(a_observer)) {
+
+
+                        //Dont prevent detection against the player.
+						//The player is handled by instead disabling attacks like we do for large actors.
+                        const bool IsPlayerTarget = target && target->IsPlayerRef(); 
+
                         //Basically makes the holder blind to other npcs
                         //or the target if the target is being hugged
                         const bool isTargetBeingHugged = GTS::AnimationVars::Tiny::IsBeingHugged(target) || GTS::AnimationVars::Tiny::IsBeingCrawlHugged(target);
                         const bool isObserverGrabbing = Grab::GetHeldActor(a_observer);
-                        const bool shouldNotBeDetected = isTargetBeingHugged || isObserverGrabbing;
+                        const bool shouldNotBeDetected = (isTargetBeingHugged || isObserverGrabbing) && !IsPlayerTarget;
                        
                     	if (shouldNotBeDetected) {
                             *detScore = -1000;

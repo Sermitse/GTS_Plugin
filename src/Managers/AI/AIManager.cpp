@@ -262,6 +262,46 @@ namespace {
 		}
 	}
 
+	void HandlePlayerBusy() {
+
+		static GTS::Timer BusycheckInterval = Timer(5.0f);
+
+		if (BusycheckInterval.ShouldRun()) {
+
+			RE::PlayerCharacter* const Player = RE::PlayerCharacter::GetSingleton();
+			const bool IsPlayerBeingHugged = GTS::AnimationVars::Tiny::IsBeingHugged(Player) || GTS::AnimationVars::Tiny::IsBeingCrawlHugged(Player);
+			bool IsPlayerBeingGrabbed = false;
+			auto& grab = Grab::GetSingleton();
+
+			for (auto& data : grab.data | std::views::values) {
+				if (data.tiny && data.tiny->IsPlayerRef()) {
+					IsPlayerBeingGrabbed = true;
+					break;
+				}
+			}
+
+			const bool ShouldAttacksBePrevented = (IsPlayerBeingHugged || IsPlayerBeingGrabbed);
+
+			for (auto& npc : find_actors()){
+				if (npc) {
+					
+					const auto* target = npc->GetActorRuntimeData().currentCombatTarget.get().get();
+					const bool DisableAttacks = target && target->IsPlayerRef() && npc->IsInCombat() && ShouldAttacksBePrevented;
+					//If Player is some NPC's combat target while the player is grabbed/hugged
+
+					if (DisableAttacks) {
+						npc->GetActorRuntimeData().boolFlags.set(Actor::BOOL_FLAGS::kAttackingDisabled);
+						npc->GetActorRuntimeData().boolFlags.set(Actor::BOOL_FLAGS::kCastingDisabled);
+					}
+					else {
+						//Allow Attacks
+						npc->GetActorRuntimeData().boolFlags.reset(Actor::BOOL_FLAGS::kAttackingDisabled);
+						npc->GetActorRuntimeData().boolFlags.reset(Actor::BOOL_FLAGS::kCastingDisabled);
+					}
+				}
+			}
+		}
+	}
 }
 
 namespace GTS {
@@ -275,6 +315,8 @@ namespace GTS {
 		if (!State::Live()) {
 			return;
 		}
+
+		HandlePlayerBusy();
 
 		BeginNewActionTimer.UpdateDelta(AISettings.fMasterTimer);
 
