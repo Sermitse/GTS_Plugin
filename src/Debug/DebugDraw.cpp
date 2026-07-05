@@ -122,6 +122,29 @@ namespace GTS {
 		DrawCircle(origin, radius, glm::vec3(glm::half_pi<float>(), 0.0f, 0.0f), liftetimeMS, color, lineThickness);
 	}
 
+	void DebugDraw::DrawRhomb(const glm::vec3& origin, float radius, float rotation, int lifetimeMS, const glm::vec4& color,float lineThickness) {
+		glm::vec2 forward(std::sin(rotation), std::cos(rotation));
+		glm::vec2 right(forward.y, -forward.x);
+
+		auto Transform = [&](float localRight, float localForward) -> glm::vec3 {
+			return {
+				origin.x + right.x * localRight + forward.x * localForward,
+				origin.y + right.y * localRight + forward.y * localForward,
+				origin.z
+			};
+		};
+
+		const glm::vec3 top    = Transform(0.0f,  radius);
+		const glm::vec3 rightP = Transform(radius, 0.0f);
+		const glm::vec3 bottom = Transform(0.0f, -radius);
+		const glm::vec3 left   = Transform(-radius, 0.0f);
+
+		DrawLineForMS(top,    rightP,  lifetimeMS, color, lineThickness);
+		DrawLineForMS(rightP,  bottom, lifetimeMS, color, lineThickness);
+		DrawLineForMS(bottom, left,   lifetimeMS, color, lineThickness);
+		DrawLineForMS(left,   top,    lifetimeMS, color, lineThickness);
+	}
+
 	void DebugDraw::DrawCircle(glm::vec3 origin, float radius, glm::vec3 eulerAngles, int liftetimeMS, const glm::vec4& color, float lineThickness) {
 
 		glm::vec3 lastEndPos = DebugUtil::GetPointOnRotatedCircle(origin, radius, CIRCLE_NUM_SEGMENTS, static_cast<float>(CIRCLE_NUM_SEGMENTS - 1), eulerAngles);

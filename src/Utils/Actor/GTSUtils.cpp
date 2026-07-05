@@ -151,15 +151,20 @@ namespace GTS {
 
 			auto& Gen = Config::General;
 			auto& Adv = Config::Advanced;
+			auto& Bal = Config::Balance;
 
 			if (Gen.bDynamicAnimspeed) {
 
 				if (giant->AsActorState()->GetSitSleepState() != SIT_SLEEP_STATE::kNormal) {
 					return 1.0f; // For some reason makes furniture angles funny if there's anim slowdown. So we prevent that
 				}
+
+				float influence = Bal.fAnimSpeedInfluence; // 0..1
+				float visualScale = get_visual_scale(giant);
+
+				float effectiveScale = std::lerp(1.0f, visualScale, influence);
+				float speedmultcalc = soft_core(effectiveScale, GetSpeedFromConfig());
 				
-				float scale = get_visual_scale(giant);
-				float speedmultcalc = soft_core(scale, GetSpeedFromConfig());
 				speedmultcalc = std::clamp(speedmultcalc, Adv.fAnimspeedLowestBoundAllowed, 1.0f);
 
 				if (AnimationVars::General::IsGTSBusy(giant) && Adv.bGTSAnimsFullSpeed) {

@@ -47,6 +47,7 @@ namespace GTS {
                 ImGuiEx::HelpText("What is auto-aim", THelp);
                 ImGuiEx::CheckBox("Enable Auto-Aim", &Config::AutoAim.bEnableAutoAim, T0);
                 ImGuiEx::CheckBox("Prevent Far Stomps", &Config::AutoAim.bPreventFarStomps, T1);
+                
                 ImGui::Spacing();
             }
         }
@@ -202,6 +203,17 @@ namespace GTS {
 
     //Behavior settings
     void CategoryAutoAim::DrawRight() {
+        ImUtil_Unique 
+		{
+            PSString T0 = "Use Rhomb Shape for colliders instead of Sphere\n"
+            "It may produce more accurate blend results, but may reduce auto-aim trigger distance";
+
+            if (ImGui::CollapsingHeader("Collider Shape", ImUtil::HeaderFlagsDefaultOpen)) {
+                ImGuiEx::CheckBox("Use Rhomb Shape", &Config::AutoAim.bUseRhombShape, T0);
+                
+                ImGui::Spacing();
+            }
+        }
         ImUtil_Unique 
 		{
             PSString T0 ="Reduces the priority of enemies located behind the Giantess.\n"

@@ -40,6 +40,7 @@ namespace GTS {
 		static void DrawLineForMS(const glm::vec3& from, const glm::vec3& to, int liftetimeMS = 10, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f }, float lineThickness = 1.0f);
 		static void DrawBoundsForMS(DebugUtil::ObjectBound objectBound, int liftetimeMS = 10, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f }, float lineThickness = 1.0f);
 		static void DrawSphere(glm::vec3, float radius, int liftetimeMS = 10, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f }, float lineThickness = 1.0f);
+		static void DrawRhomb(const glm::vec3& origin, float radius, float rotation = 0.0f, int lifetimeMS = 10, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f }, float lineThickness = 1.0f);
 		static void DrawCircle(glm::vec3, float radius, glm::vec3 eulerAngles, int liftetimeMS = 10, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f }, float lineThickness = 1.0f);
 		static void DrawHalfCircle(glm::vec3, float radius, glm::vec3 eulerAngles, int liftetimeMS = 10, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f }, float lineThickness = 1.0f);
 		static void DrawConvexVertices(const std::vector<glm::vec3>& vertices, glm::vec3 origin, const glm::mat4& transform = glm::mat4(1.0f), int liftetimeMS = 10, const glm::vec4& color = {1.0f, 0.0f, 0.0f, 1.0f}, float lineThickness = 1.0f);

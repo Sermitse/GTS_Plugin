@@ -76,6 +76,22 @@ namespace GTS {
                 ImGui::Spacing();
             }
         }
+        ImUtil_Unique 
+		{
+
+            PSString T0 = "Controls how much character size affects animation speed.\n"
+            "Default: 1.0 (Recommended)";
+
+            if (ImGui::CollapsingHeader("Animation Speed", ImUtil::HeaderFlagsDefaultOpen)) {
+
+                {
+                    ImGui::Text("Animation Speed Scaling");
+                    ImGuiEx::SliderF("Size Influence", &Config::Balance.fAnimSpeedInfluence, 0.1f, 1.0f, T0, "%.2fx");
+                }
+
+                ImGui::Spacing();
+            }
+        }
 
     	// ---- Misc
 
