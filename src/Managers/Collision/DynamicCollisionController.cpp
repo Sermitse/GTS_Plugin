@@ -337,7 +337,9 @@ namespace GTS {
 								if ((Target->IsPlayerRef() && Target->GetActorBase()->GetSex() != SEX::kMale) || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
 
 									AdjustBoneDrivenHuman(); // Clamped inside function
-									UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
+									if (Target->IsPlayerRef()) {
+										UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
+									}
 									m_lastVisualScale = 0.0f; // Set it to 0 to force an update if followers are switched to simple scaling
 
 									if (Config::Collision.bDrawDebugShapes) {
@@ -357,7 +359,9 @@ namespace GTS {
 
 							if (ShouldUpdate) {
 								AdjustScale(); // It's clamped by Config::Collision.fMSimpleDrivenColliderMaxScale anyway
-								UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
+								if (Target->IsPlayerRef()) {
+									UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
+								}
 							}
 							if (Config::Collision.bDrawDebugShapes) {
 								DrawCollisionShapes(Target, false);
