@@ -5,6 +5,14 @@
 
 #include "Managers/Animation/AnimationManager.hpp"
 
+namespace {
+	constexpr float global_shake_multiplier = 0.125f; // Reduce power of all shakes
+	constexpr float falloff_power = 2.5f;
+
+	constexpr float cam_close_dist = 48.0f;
+	constexpr float cam_far_dist = 300.0f;
+}
+
 namespace GTS {
 
 	RumbleData::RumbleData(float intensity, float duration, float halflife, float shake_duration, bool ignore_scaling, std::string node) :
@@ -190,68 +198,89 @@ namespace GTS {
 
 	void ApplyShakeAtPoint(Actor* caster, float modifier, const NiPoint3& coords, float duration_override, const bool ignore_scaling) {
 		if (caster) {
-			// Reciever is always PC, if it is not PC - we do nothing anyways
 			Actor* receiver = PlayerCharacter::GetSingleton();
 			if (receiver) {
+				float tremor_power = Config::Camera.fCameraShakeOther;
+				float might_potion = 1.0f + Potion_GetMightBonus(caster);
 
-				float tremor_scale = Config::Camera.fCameraShakeOther;
-				float might = 1.0f + Potion_GetMightBonus(caster); // Stronger, more impactful shake with Might potion
+				float distance = (coords - receiver->GetPosition()).Length();
+
+				float sourceSize = get_visual_scale(caster);
+				float receiverSize = get_visual_scale(receiver);
+
+				float sizeDifference = sourceSize / receiverSize;
+				float scale_bonus = 0.1f;
+
+				ApplyPlayerSourceOverrides(caster, distance, coords, tremor_power, sourceSize, sizeDifference);
+
+				float intensity = 0.0f;
+				OverrideStartingIntensity(caster, sourceSize, distance, modifier, intensity);
 				
-				float distance = (coords - receiver->GetPosition()).Length(); // In that case we apply shake based on actor distance
-
-				float sourcesize = get_visual_scale(caster);
-				float receiversize = get_visual_scale(receiver);
-
-				float sizedifference = sourcesize/receiversize;
-				float scale_bonus = 0.0f;
-
-				if (caster->IsPlayerRef()) {
-					distance = get_distance_to_camera(coords); // use player camera distance (for player only)
-					tremor_scale = Config::Camera.fCameraShakePlayer;
-					sizedifference = sourcesize;
-
-					if (TinyCalamityActive(caster)) {
-						sourcesize += 0.2f; // Fix SMT having no shake at x1.0 scale
-					}
-					if (IsFirstPerson() || HasFirstPersonBody()) {
-						tremor_scale *= Config::Camera.fCameraShakePlayerFP; // Less annoying FP screen shake
-					}
-
-					scale_bonus = 0.1f;
-				} 
-
-				if (sourcesize < 2.0f && !ignore_scaling) {  // slowly gain power of shakes
-					float reduction = (sourcesize - 1.0f);
-					reduction = std::max(reduction, 0.0f);
+				// Slowly gain power of shakes for small actors
+				if (sourceSize < 2.0f && !ignore_scaling) {
+					float reduction = std::max(sourceSize - 1.0f, 0.0f);
 					modifier *= reduction;
 				}
+				// Apply modifiers
+				const float size_bonus = 1.0f + std::clamp(((sourceSize * scale_bonus) - scale_bonus), 0.0f, 3.0f); // Player exclusive
+				intensity *= global_shake_multiplier;
+				intensity *= modifier;
+				intensity *= tremor_power;
+				intensity *= might_potion;
+				intensity *= sizeDifference;
+				intensity *= size_bonus;
+				//logger::info("Distance: {}, Intensity: {}", distance, intensity);
 
-				SoftPotential params {.k = 0.0065f, .n = 3.0f, .s = 1.0f, .o = 0.0f, .a = 0.0f, };
-				//https://www.desmos.com/calculator/jeeugm72gn
-
-				sizedifference *= modifier * tremor_scale * might;
-
-				float intensity = soft_core(distance * 2.5f / sizedifference, params);
-				float duration = 0.45f * (1 + intensity);
-
-				intensity *= 1 + ((sourcesize * scale_bonus) - scale_bonus);
-
-				if (duration_override > 0) { // Custom extra duration when needed
+				float duration = 0.25f * size_bonus * might_potion;
+				if (duration_override > 0.0f) {
 					duration *= duration_override;
 				}
 
 				intensity = std::clamp(intensity, 0.0f, 8.8f);
-				duration = std::clamp(duration, 0.0f, 2.6f);
+				duration = std::clamp(duration, 0.0f, 1.2f);
 
-				if (intensity > 0.005f) {
+				if (intensity >= 0.005f) {
 					shake_controller(intensity, intensity, duration);
 
-					auto camera = PlayerCamera::GetSingleton(); // Shake at the camera pos, else it won't always shake properly
-					if (camera) {
+					if (auto camera = PlayerCamera::GetSingleton()) {
 						shake_camera_at_node(camera->pos, intensity, duration);
 					}
 				}
 			}
+		}
+	}
+	void ApplyPlayerSourceOverrides(Actor* caster, float& distance, NiPoint3 coords, float& tremor_power, float& sourceSize, float& sizeDifference) {
+		if (caster->IsPlayerRef()) {
+			const bool isFirstPerson = IsFirstPerson() || HasFirstPersonBody();
+			tremor_power = isFirstPerson ? Config::Camera.fCameraShakePlayerFP : Config::Camera.fCameraShakePlayer;
+			distance = get_distance_to_camera(coords);
+			sizeDifference = sourceSize;
+
+			if (TinyCalamityActive(caster)) {
+				sourceSize += 0.75f;
+			}
+		}
+	}
+	void OverrideStartingIntensity(Actor* caster, float sourceSize, float distance, float range_modifier, float& intensity) {
+		if (caster) {
+			const float PC_Config = 	Config::Camera.fCameraShakeDistanceMultPlayer;
+			const float NPC_Config = 	Config::Camera.fCameraShakeDistanceMultNPC;
+			const float cameraConf = caster->IsPlayerRef() ? PC_Config : NPC_Config; 
+			const float adjustment = range_modifier * sourceSize * cameraConf;
+			const float full_shake_distance = cam_close_dist * sourceSize;
+			const float max_shake_distance =  cam_far_dist 	 * adjustment;
+
+			// Inside full shake radius = maximum shake
+			if (distance <= full_shake_distance) {
+				intensity = 1.0f;
+				//logger::info("Full shake");
+			} else { // Outside full shake radius = smooth falloff
+				float t = std::clamp((distance - full_shake_distance) / (max_shake_distance - full_shake_distance), 0.0f, 1.0f);
+				intensity = pow(1.0f - t, falloff_power);
+				//logger::info("T: {}", t);
+			}
+
+			//logger::info("Full Dist: {}, Max Shake Dist: {}", full_shake_distance, max_shake_distance);
 		}
 	}
 }

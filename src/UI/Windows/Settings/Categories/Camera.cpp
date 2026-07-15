@@ -1,4 +1,5 @@
 #include "UI/Windows/Settings/Categories/Camera.hpp"
+#include "UI/Controls/CollapsingTabHeader.hpp"
 
 #include "UI/Controls/Slider.hpp"
 #include "UI/Core/ImUtil.hpp"
@@ -29,51 +30,49 @@ namespace GTS {
 
 	    PSString T0 = "Select which biped skeleton bone the camera should track.";
 
-	    if (ImGui::CollapsingHeader(a_title, ImUtil::HeaderFlagsDefaultOpen)) {
-			ImGuiEx::ComboEx<LCameraTrackBone_t>("Center On Bone", a_set->sCenterOnBone, T0);
+		ImGuiEx::ComboEx<LCameraTrackBone_t>("Center On Bone", a_set->sCenterOnBone, T0);
 
-	        ImUtil_Unique 
-	    	{
-	            DrawCameraOffsets(
-	                "Offsets | Standing",
-	                "Adjust camera offsets when standing.\n"
-					"Left/Right | Forward/Back | Up/Down",
-	                &a_set->f3NormalStand
-	            );
-	        }
+		ImUtil_Unique 
+		{
+			DrawCameraOffsets(
+				"Offsets | Standing",
+				"Adjust camera offsets when standing.\n"
+				"Left/Right | Forward/Back | Up/Down",
+				&a_set->f3NormalStand
+			);
+		}
 
-	        ImUtil_Unique 
-	    	{
-	            DrawCameraOffsets(
-	                "Offsets | Standing Combat",
-	                "Adjust camera offsets when standing and in combat.\n"
-					"Left/Right | Forward/Back | Up/Down",
-	                &a_set->f3CombatStand
-	            );
-	        }
+		ImUtil_Unique 
+		{
+			DrawCameraOffsets(
+				"Offsets | Standing Combat",
+				"Adjust camera offsets when standing and in combat.\n"
+				"Left/Right | Forward/Back | Up/Down",
+				&a_set->f3CombatStand
+			);
+		}
 
-	        ImUtil_Unique 
-	    	{
-	            DrawCameraOffsets(
-	                "Offsets | Crawling",
-	                "Adjust camera offsets while sneaking, crawling, or prone.\n"
-					"Left/Right | Forward/Back | Up/Down",
-	                &a_set->f3NormalCrawl
-	            );
-	        }
+		ImUtil_Unique 
+		{
+			DrawCameraOffsets(
+				"Offsets | Crawling",
+				"Adjust camera offsets while sneaking, crawling, or prone.\n"
+				"Left/Right | Forward/Back | Up/Down",
+				&a_set->f3NormalCrawl
+			);
+		}
 
-	        ImUtil_Unique 
-	    	{
-	            DrawCameraOffsets(
-	                "Offsets | Crawling Combat",
-	                "Adjust camera offsets while sneaking, crawling, or prone and in combat.\n"
-					"Left/Right | Forward/Back | Up/Down",
-	                &a_set->f3CombatCrawl
-	            );
-	        }
+		ImUtil_Unique 
+		{
+			DrawCameraOffsets(
+				"Offsets | Crawling Combat",
+				"Adjust camera offsets while sneaking, crawling, or prone and in combat.\n"
+				"Left/Right | Forward/Back | Up/Down",
+				&a_set->f3CombatCrawl
+			);
+		}
 
-	        ImGui::Spacing();
-	    }
+		ImGui::Spacing();
 	}
 
 	CategoryCamera::CategoryCamera() {
@@ -88,15 +87,25 @@ namespace GTS {
 	        PSString T0 = "Change the intensity of camera shakes when performing actions as a player.";
 			PSString T1 = "Change the intensity of first-person camera shakes caused by your own size or size actions";
 			PSString T2 = "Change the intensity of camera shakes for NPCs.";
+			
 
 	        if (ImGui::CollapsingHeader("Camera Shake", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImGuiEx::SliderF("Player Total Shake Power", &Config::Camera.fCameraShakePlayer, 0.1f, 3.0f, T0, "%.2fx");
 				ImGuiEx::SliderF("Player FP Shake Power", &Config::Camera.fCameraShakePlayerFP, 0.0f, 1.0f, T1, "%.2fx");
 				ImGuiEx::SliderF("NPC Total Shake Power", &Config::Camera.fCameraShakeOther, 0.1f, 3.0f, T2, "%.2fx");
-
 	            ImGui::Spacing();
 	        }
 	    }
+
+		ImUtil_Unique {
+			PSString T0 = "Change the range multiplier of Player camera shake calculation. Increasing it makes shake occur from further distance.";
+			PSString T1 = "Change the range multiplier of NPC camera shake calculation. Increasing it makes shake occur from further distance.";
+			if (ImGui::CollapsingHeader("Shake Radius", ImUtil::HeaderFlagsDefaultOpen)) {
+				ImGuiEx::SliderF("Player Shake Range Multiplier", &Config::Camera.fCameraShakeDistanceMultPlayer, 0.25f, 3.0f, T0, "%.2fx");
+				ImGuiEx::SliderF("NPC Shake Range Multiplier", &Config::Camera.fCameraShakeDistanceMultNPC, 0.25f, 3.0f, T1, "%.2fx");
+				ImGui::Spacing();
+			}
+		}
 
 	    ImUtil_Unique 
 		{
@@ -212,15 +221,24 @@ namespace GTS {
 
 	    ImGui::BeginDisabled(!Config::Camera.bAutomaticCamera);
 
-	    ImUtil_Unique 
-		{
-	        DrawCameraSettings(&Config::Camera.OffsetsNormal, "Normal Camera");
-	    }
 
-	    ImUtil_Unique 
-		{
-	        DrawCameraSettings(&Config::Camera.OffsetsAlt, "Alternative Camera");
-	    }
+		static ImGuiEx::CollapsingTabHeader ActionHeader (
+            "Camera mode Settings",
+			{
+				"Normal Camera",
+				"Alternative Camera",
+			}
+        );
+
+        if (ImGuiEx::BeginCollapsingTabHeader(ActionHeader)) {
+            // Content based on active tab
+            switch (ActionHeader.GetActiveTab()) {
+                case 0: DrawCameraSettings(&Config::Camera.OffsetsNormal, "Normal Camera");          break;
+                case 1: DrawCameraSettings(&Config::Camera.OffsetsAlt, "Alternative Camera");        break;
+				default:                              	break;
+            }
+        }
+        ImGuiEx::EndCollapsingTabHeader(ActionHeader);
 
 		ImGui::EndDisabled();
 

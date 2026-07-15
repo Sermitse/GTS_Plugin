@@ -15,7 +15,7 @@ namespace {
 		// In short: 1.0 * (size * animation slowdown) * SMT run speed
 		float scale = get_giantess_scale(actor);
 		float MovementSpeed = soft_core(scale, GetSpeedFromConfig());
-		float smt = 1.0f + (smt_speed * 0.33f);
+		float smt = 1.0f + (smt_speed * 0.5f);
 
 		const float Config = Config::Balance.fSizeSpeedPercentage;
 		float speedCompensation = std::lerp(1.0f, scale, Config);

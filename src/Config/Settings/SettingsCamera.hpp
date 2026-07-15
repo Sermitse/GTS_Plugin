@@ -81,6 +81,8 @@ TOML_SERIALIZABLE(CameraOffsets_t);
 struct SettingsCamera_t {
 
     // Shake and crawl multipliers
+    float fCameraShakeDistanceMultPlayer = 1.0f;
+    float fCameraShakeDistanceMultNPC = 0.75f;
     float fCameraShakePlayer = 1.0f;
     float fCameraShakePlayerFP = 0.2f;
     float fCameraShakeOther = 1.0f;

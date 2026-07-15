@@ -75,6 +75,10 @@ namespace {
 	constexpr auto BlockHit =                   80631;
 	constexpr auto BlockHitRoot =               80630;
 
+	bool PreventPlayerSprint() {
+		 return Config::General.bAlterPlayerMaxSpeed && Config::General.bPreventPlayerSprint;
+	}
+
 	bool ShouldBlockFalling(Actor* actor) {
 		bool block = false;
 		auto charCont = actor->GetCharController();
@@ -184,6 +188,10 @@ namespace {
 				//Fully prevent sprinting for npcs at the animation level if they are over the clamp start threshold
 				if (!performer->IsPlayerRef()){
 					if (get_visual_scale(performer) >= Config::General.fNPCMaxSpeedMultClampStartAt) {
+						return true;
+					}
+				} else if (PreventPlayerSprint()) {
+					if (get_visual_scale(performer) >= Config::General.fPlayerMaxSpeedMultClampStartAt) {
 						return true;
 					}
 				}

@@ -78,8 +78,8 @@ struct SettingsAutoAim_t {
     float fAutoAim_Breast_OffsetDistance_Side = 10.0f;
 
     // Auto-Aim settings
-    float fAutoAim_BackPenalty = 10.0f;
-    float fAutoAim_DeadPenalty = 20.0f;
+    float fAutoAim_BackPenalty = 30.0f;
+    float fAutoAim_DeadPenalty = 50.0f;
     float fAutoAim_IgnoreBehindAfter = 0.25f;
     float fAutoAim_AimMagnitudeMultiplier = 1.0f;
     float fAutoAim_NoHitValueRandomRange = 0.25f;

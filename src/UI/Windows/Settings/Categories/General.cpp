@@ -1,4 +1,5 @@
 ﻿#include "UI/Windows/Settings/Categories/General.hpp"
+#include "UI/Controls/CollapsingTabHeader.hpp"
 
 #include "UI/Core/ImUtil.hpp"
 
@@ -37,7 +38,48 @@ namespace {
 			                     "to be able to use third person animations in first person.";
 
 	PSString T_UnknownBehavior = "The used behavior generator could not be determined.\n"
-							     "This can either mean that you didn't run Nemsis/Pandora or are using another tool to generate them.";
+							     "This can either mean that you didn't run Nemesis/Pandora or are using another tool to generate them.";
+
+	void DrawMovement_Player() {
+		PSString T2Help = "Movement speed clamping gradually reduces Player movement speed as Player exceeds certain size threshold.\n"
+							"This prevents large Player from moving unrealistically fast.\n"
+							"The speed reduction scales smoothly between the start and maximum thresholds.";
+		PSString T0 = "Enable or fully disable this effect";
+		PSString T1 = "Prevents player sprint animation when at or above 'Start Player Speed Clamp' scale";
+		PSString T2_1 = "The scale at which sprinting is disabled and the speed reduction begins.";
+		PSString T2_2 = "The scale at which the Player speed multiplier is fully clamped to the value set below.";
+		PSString T2_3 =
+			"Controls how slow Player is allowed to become when size-based speed clamping is applied.\n"
+			"For example, 80%% means Player will still move at least at 80%% of their normal run/jog speed,\n"
+			"even when past the max clamping threshold scale. 0%% effectively disables this feature.";
+
+		ImGuiEx::HelpText("What is this", T2Help);
+		ImGuiEx::CheckBox("Enable this effect", &GTS::Config::General.bAlterPlayerMaxSpeed, T0);
+		ImGuiEx::CheckBox("Prevent Player Sprint", &GTS::Config::General.bPreventPlayerSprint, T1);
+		ImGuiEx::SliderF("Start Player Speed Clamp", &GTS::Config::General.fPlayerMaxSpeedMultClampStartAt, 1.0f, 20.0f, T2_1, "When larger than %.1fx");
+		ImGuiEx::SliderF("Player Max Clamp", &GTS::Config::General.fPlayerMaxSpeedMultClampMaxAt, GTS::Config::General.fPlayerMaxSpeedMultClampStartAt, GTS::Config::General.fPlayerMaxSpeedMultClampStartAt + 20.f, T2_2, "At %.1fx");
+		ImGuiEx::SliderF("Lowest Speed Offset %", &GTS::Config::General.fPlayerMaxSpeedMultLerpTargetPercent, 0.0f, 100.f, T2_3, "%.0f%% Of Walk Speed");
+		ImGui::Spacing();
+	}
+
+	void DrawMovement_NPC() {
+		PSString T2Help = "Movement speed clamping gradually reduces NPC movement speed as they exceed certain size thresholds.\n"
+							"This prevents large NPCs from moving unrealistically fast.\n"
+							"The speed reduction scales smoothly between the start and maximum thresholds.";
+
+		PSString T2_1 = "The scale at which sprinting is disabled and the speed reduction begins.";
+		PSString T2_2 = "The scale at which the NPC speed multiplier is fully clamped to the value set below.";
+		PSString T2_3 =
+			"Controls how slow NPCs are allowed to become when size-based speed clamping is applied.\n"
+			"For example, 80%% means NPCs will still move at least at 80%% of their normal run/jog speed,\n"
+			"even when past the max clamping threshold scale. 0%% effectively disables this feature.";
+
+		ImGuiEx::HelpText("What is this", T2Help);
+		ImGuiEx::SliderF("Start NPC Speed Clamp", &GTS::Config::General.fNPCMaxSpeedMultClampStartAt, 1.0f, 20.0f, T2_1, "When larger than %.1fx");
+		ImGuiEx::SliderF("NPC Max Clamp", &GTS::Config::General.fNPCMaxSpeedMultClampMaxAt, GTS::Config::General.fNPCMaxSpeedMultClampStartAt, GTS::Config::General.fNPCMaxSpeedMultClampStartAt + 20.f, T2_2, "At %.1fx");
+		ImGuiEx::SliderF("Lowest Speed Offset %", &GTS::Config::General.fNPCMaxSpeedMultLerpTargetPercent, 0.0f, 100.f, T2_3, "%.0f%% Of Walk Speed");
+		ImGui::Spacing();
+    }
 
 	void DrawImportExport(){
 
@@ -384,8 +426,26 @@ namespace GTS {
 	void CategoryGeneral::DrawRight() {
 
 
-		//----- Dynamic Scale
+		static ImGuiEx::CollapsingTabHeader ActionHeader (
+            "Movement Settings",
+			{
+				"Player",
+				"NPC",
+			}
+        );
 
+        if (ImGuiEx::BeginCollapsingTabHeader(ActionHeader)) {
+            // Content based on active tab
+            switch (ActionHeader.GetActiveTab()) {
+                case 0: DrawMovement_Player();          break;
+                case 1: DrawMovement_NPC();        		break;
+				default:                              	break;
+            }
+        }
+        ImGuiEx::EndCollapsingTabHeader(ActionHeader);
+
+		//----- Dynamic Scale
+		
 	    ImUtil_Unique 
 		{
 
@@ -408,29 +468,6 @@ namespace GTS {
 
 			ImGui::Spacing();
 	    }
-
-		ImUtil_Unique
-		{
-			PSString T2Help = "Movement speed clamping gradually reduces NPC movement speed as they exceed certain size thresholds.\n"
-							  "This prevents large NPCs from moving unrealistically fast.\n"
-							  "The speed reduction scales smoothly between the start and maximum thresholds.";
-
-			PSString T2_1 = "The scale at which sprinting is disabled and the speed reduction begins.";
-			PSString T2_2 = "The scale at which the NPC speed multiplier is fully clamped to the value set below.";
-			PSString T2_3 =
-				"Controls how slow NPCs are allowed to become when size-based speed clamping is applied.\n"
-				"For example, 80%% means NPCs will still move at least at 80%% of their normal run/jog speed,\n"
-				"even when past the max clamping threshold scale. 0%% effectively disables this feature.";
-
-
-			if (ImGui::CollapsingHeader("Movement", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImGuiEx::HelpText("What is this", T2Help);
-				ImGuiEx::SliderF("Start NPC Speed Clamp", &Config::General.fNPCMaxSpeedMultClampStartAt, 1.0f, 20.0f, T2_1, "When larger than %.1fx");
-				ImGuiEx::SliderF("NPC Max Clamp", &Config::General.fNPCMaxSpeedMultClampMaxAt, Config::General.fNPCMaxSpeedMultClampStartAt, Config::General.fNPCMaxSpeedMultClampStartAt + 20.f, T2_2, "At %.1fx");
-				ImGuiEx::SliderF("Lowest Speed Offset %", &Config::General.fNPCMaxSpeedMultLerpTargetPercent, 0.0f, 100.f, T2_3, "%.0f%% Of Walk Speed");
-				ImGui::Spacing();
-			}
-		}
 
 		//----- HH
 

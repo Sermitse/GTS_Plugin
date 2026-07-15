@@ -620,6 +620,37 @@ namespace GTS {
 		}
 	}
 
+	void PushBackwards(Actor* a_source, Actor* a_target, float a_power) {
+		double startTime = Time::WorldTimeElapsed();
+		ActorHandle tinyHandle = a_target->CreateRefHandle();
+		ActorHandle gianthandle = a_source->CreateRefHandle();
+		std::string taskname = std::format("PushOther_{}", a_target->formID);
+		PushActorAway(a_source, a_target, 1.0f);
+		TaskManager::Run(taskname, [=](auto& update) {
+			if (!gianthandle) {
+				return false;
+			}
+			if (!tinyHandle) {
+				return false;
+			}
+			Actor* giant = gianthandle.get().get();
+			Actor* tiny = tinyHandle.get().get();
+
+			auto playerRotation = giant->GetCurrent3D()->world.rotate;
+			RE::NiPoint3 localForwardVector{ 0.f, 1.f, 0.f };
+			RE::NiPoint3 globalForwardVector = playerRotation * localForwardVector;
+
+			RE::NiPoint3 direction = -globalForwardVector;
+			double endTime = Time::WorldTimeElapsed();
+
+			if ((endTime - startTime) > 0.08) {
+				ApplyManualHavokImpulse(tiny, direction.x, direction.y, direction.z, a_power);
+				return false;
+			}
+			return true;
+		});
+	}
+
 	void PushForward(Actor* a_source, Actor* a_target, float a_power) {
 		double startTime = Time::WorldTimeElapsed();
 		ActorHandle tinyHandle = a_target->CreateRefHandle();

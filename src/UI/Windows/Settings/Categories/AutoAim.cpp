@@ -1,4 +1,5 @@
 #include "UI/Windows/Settings/Categories/AutoAim.hpp"
+#include "UI/Controls/CollapsingTabHeader.hpp"
 
 #include "UI/Core/ImUtil.hpp"
 
@@ -12,6 +13,120 @@
 #include "Config/Config.hpp"
 
 #include "UI/Controls/Text.hpp"
+
+namespace {
+    void DrawCloseStompSettings() {
+        PSString THelp = "Close stomp is a stomp type that is triggered when enemy is close to legs\n"
+        "Can hit enemies that are trying to hide under foot";
+        PSString T0 = "[Radius] Determines collider size.\n"
+        "Default: 36.5";
+        PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
+        "Default: 10.0";
+        ImGuiEx::HelpText("What is close stomp", THelp);
+        ImGuiEx::SliderF("Stomp Radius", &GTS::Config::AutoAim.fAutoAim_Range_Stomp, 30.0f, 60.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Foot_OffsetDistance, 0.0f, 30.0f, T1, "%.2f");
+        ImGui::Spacing();
+    }
+
+    void DrawFarStompSettings() {
+        PSString THelp = "Far stomp is a stomp variation that is triggered when enemy is outside of normal stomp range";
+        PSString T0 = "[Radius] Determines collider size.\n"
+        "Default: 56.0";
+        PSString T1 = "[Radius] Determines collider size of Strong version of Far Stomp\n"
+        "Default: 48.0";
+        PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
+        "Default: 0.0";
+        ImGuiEx::HelpText("What is far stomp", THelp);
+        ImGuiEx::SliderF("Collider Size:", &GTS::Config::AutoAim.fAutoAim_Range_FarStomp, 10.0f, 90.0f, T0, "%.2f");
+        ImGuiEx::SliderF("[Strong] Collider Size:", &GTS::Config::AutoAim.fAutoAim_Range_FarStomp_Strong, 10.0f, 90.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset:", &GTS::Config::AutoAim.fAutoAim_Foot_OffsetDistance_FarStomp, 0.0f, 75.0f, T2, "%.2f");
+        ImGui::Spacing();
+    }
+
+    void DrawHandSlamSettings_Sneak() {
+        PSString THelp = "Hand slam is a light stomp variation, but for the sneak state\n"
+        "Giantess slams the ground with her hand";
+        PSString T0 = "[Radius] Determines collider size.\n"
+        "Default: 15.0";
+        PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
+        "Default: 14.5";
+        PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
+        "Default: 50.0";
+        ImGuiEx::HelpText("What is sneak hand slam", THelp);
+        ImGuiEx::SliderF("Hand Slam Radius", &GTS::Config::AutoAim.fAutoAim_Range_Hand, 10.0f, 30.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Hand_OffsetDistance_Side, 5.0f, 60.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward, 40.0f, 70.0f, T2, "%.2f");
+        ImGui::Spacing();
+    }
+
+    void DrawHandSlamSettings_Crawl() {
+        PSString THelp = "Hand slam is a light stomp variation, but for the crawl state\n"
+        "Giantess slams the ground with her hand";
+        PSString T0 = "[Radius] Determines collider size.\n"
+        "Default: 25.0";
+        PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
+        "Default: 10.0";
+        PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
+        "Default: 40.0";
+        ImGuiEx::HelpText("What is crawl hand slam", THelp);
+        ImGuiEx::SliderF("Hand Slam Radius", &GTS::Config::AutoAim.fAutoAim_Range_Hand_Crawl, 10.0f, 30.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Hand_Crawl_OffsetDistance_Side, 5.0f, 60.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAutoAim_Hand_Crawl_OffsetDistance_Forward, 40.0f, 70.0f, T2, "%.2f");
+        ImGui::Spacing();
+    }
+
+    void DrawButtSlamSettings() {
+        PSString THelp = "Butt Slam is a variation of strong stomp, it can be used in Sneak state\n"
+        "It is performed if enemy is under giantess legs or butt";
+        PSString T0 = "[Radius] Determines collider size.\n"
+        "Default: 40.0";
+        PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
+        "Default: 15.0";
+        PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
+        "Default: 0.0";
+        ImGuiEx::HelpText("What is a butt slam", THelp);
+        ImGuiEx::SliderF("Radius", &GTS::Config::AutoAim.fAutoAim_Range_ButtSlam, 20.0f, 75.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Butt_OffsetDistance_Side, 5.0f, 25.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAutoAim_Butt_OffsetDistance_Forward, 0.0f, 30.0f, T2, "%.2f");
+        ImGui::Spacing();
+    }
+
+    void DrawBreastSlamSettings() {
+        PSString THelp = "Breast Slam is a variation of strong stomp, it can be used in Crawling state\n"
+        "It is performed if enemy is under giantess body and cannot be reached with hands";
+        PSString T0 = "[Radius] Determines collider size.\n"
+        "Default: 32.0";
+        PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
+        "Default: 10.0";
+        PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
+        "Default: 35.0";
+        ImGuiEx::HelpText("What is a breast slam", THelp);
+        ImGuiEx::SliderF("Radius", &GTS::Config::AutoAim.fAutoAim_Range_BreastSlam, 20.0f, 75.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Breast_OffsetDistance_Side, 0.0f, 25.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAutoAim_Breast_OffsetDistance_Forward, 15.0f, 75.0f, T2, "%.2f");
+        ImGui::Spacing();
+    }
+
+    void DrawKickSettings() {
+        PSString THelp = "Kick is a type of size-action that can hit a lot of enemies at once\n"
+        "[Standing] Type of kick performed when character isn't sneaking of crawling\n"
+        "[Hand Swipe] Type of kick performed when Sneaking or Crawling";
+        PSString T0 = "[Radius] Determines collider size.\n"
+        "Default: 36.0";
+        PSString T01 = "[Radius] Determines collider size for Sneak/Crawl state.\n"
+        "Default: 36.0";
+        PSString T1 = "[Offset] back/forward offset of the initial target search collider.\n"
+        "Default: 20.0";
+        PSString T2 = "[Hand Swipe Offset] back/forward offset of the initial target search collider.\n"
+        "Default: 35.0";
+        ImGuiEx::HelpText("What is a kick", THelp);
+        ImGuiEx::SliderF("Kick Radius", &GTS::Config::AutoAim.fAutoAim_Range_Kick, 20.0f, 60.0f, T0, "%.2f");
+        ImGuiEx::SliderF("[Sneaking] Kick Radius", &GTS::Config::AutoAim.fAutoAim_Range_Kick_Sneak, 20.0f, 60.0f, T01, "%.2f");
+        ImGuiEx::SliderF("[Standing] Forward Offset", &GTS::Config::AutoAim.fAutoAim_Kick_OffsetDistance_Forward, 10.0f, 50.0f, T1, "%.2f");
+        ImGuiEx::SliderF("[Sneaking] Forward Offset", &GTS::Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward_Sneak, 20.0f, 50.0f, T2, "%.2f");
+        ImGui::Spacing();
+    }
+}
 
 
 namespace GTS {
@@ -69,136 +184,34 @@ namespace GTS {
                 ImGui::Spacing();
             }
         }
-        // ---- Action settings and offsets
+        // ---- Foot Attacks
+        static ImGuiEx::CollapsingTabHeader ActionHeader_Foot (
+            "Attack Settings",
+			{
+				"[Stomp] Close",
+				"[Stomp] Far",
+                "[Sneak] Slam",
+				"[Crawl] Slam",
+                "[Butt] Slam",
+                "[Breast] Slam",
+                "[Kicks]",
+			}
+        );
 
-        ImUtil_Unique {
-            PSString THelp = "Close stomp is a stomp type that is triggered when enemy is close to legs\n"
-            "Can hit enemies that are trying to hide under foot";
-            PSString T0 = "[Radius] Determines collider size.\n"
-            "Default: 36.5";
-            PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
-            "Default: 10.0";
-            if (ImGui::CollapsingHeader("Close Stomp settings", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::HelpText("What is close stomp", THelp);
-                ImGuiEx::SliderF("Stomp Radius", &Config::AutoAim.fAutoAim_Range_Stomp, 30.0f, 60.0f, T0, "%.2f");
-                ImGuiEx::SliderF("Side Offset", &Config::AutoAim.fAutoAim_Foot_OffsetDistance, 0.0f, 30.0f, T1, "%.2f");
-                ImGui::Spacing();
+        if (ImGuiEx::BeginCollapsingTabHeader(ActionHeader_Foot)) {
+            // Content based on active tab
+            switch (ActionHeader_Foot.GetActiveTab()) {
+                case 0: DrawCloseStompSettings();           break;
+                case 1: DrawFarStompSettings();             break;
+                case 2: DrawHandSlamSettings_Sneak();       break;
+                case 3: DrawHandSlamSettings_Crawl();       break;
+                case 4: DrawButtSlamSettings();             break;
+                case 5: DrawBreastSlamSettings();           break;
+                case 6: DrawKickSettings();                 break;
+				default:                              	    break;
             }
         }
-
-        ImUtil_Unique 
-		{
-            PSString THelp = "Far stomp is a stomp variation that is triggered when enemy is outside of normal stomp range";
-            PSString T0 = "[Radius] Determines collider size.\n"
-            "Default: 56.0";
-            PSString T1 = "[Radius] Determines collider size of Strong version of Far Stomp\n"
-            "Default: 48.0";
-            PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
-            "Default: 0.0";
-            
-            if (ImGui::CollapsingHeader("Far Stomp settings", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::HelpText("What is far stomp", THelp);
-                ImGuiEx::SliderF("Collider Size:", &Config::AutoAim.fAutoAim_Range_FarStomp, 10.0f, 90.0f, T0, "%.2f");
-                ImGuiEx::SliderF("[Strong] Collider Size:", &Config::AutoAim.fAutoAim_Range_FarStomp_Strong, 10.0f, 90.0f, T1, "%.2f");
-                ImGuiEx::SliderF("Forward Offset:", &Config::AutoAim.fAutoAim_Foot_OffsetDistance_FarStomp, 0.0f, 75.0f, T2, "%.2f");
-                ImGui::Spacing();
-            }
-        }
-
-        ImUtil_Unique {
-            PSString THelp = "Hand slam is a light stomp variation, but for the sneak state\n"
-            "Giantess slams the ground with her hand";
-            PSString T0 = "[Radius] Determines collider size.\n"
-            "Default: 15.0";
-            PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
-            "Default: 14.5";
-            PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
-            "Default: 50.0";
-            if (ImGui::CollapsingHeader("[Sneak] Hand Slam settings", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::HelpText("What is hand slam", THelp);
-                ImGuiEx::SliderF("Hand Slam Radius", &Config::AutoAim.fAutoAim_Range_Hand, 10.0f, 30.0f, T0, "%.2f");
-                ImGuiEx::SliderF("Side Offset", &Config::AutoAim.fAutoAim_Hand_OffsetDistance_Side, 5.0f, 60.0f, T1, "%.2f");
-                ImGuiEx::SliderF("Forward Offset", &Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward, 40.0f, 70.0f, T2, "%.2f");
-                ImGui::Spacing();
-            }
-        }
-        ImUtil_Unique {
-            PSString THelp = "Hand slam is a light stomp variation, but for the crawl state\n"
-            "Giantess slams the ground with her hand";
-            PSString THelp1 = "Hand slam is a light stomp variation, but for the crawl state\n"
-            "Giantess slams the ground with her hand";
-            PSString T0 = "[Radius] Determines collider size.\n"
-            "Default: 25.0";
-            PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
-            "Default: 10.0";
-            PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
-            "Default: 40.0";
-            if (ImGui::CollapsingHeader("[Crawl] Hand Slam settings", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::HelpText("What is hand slam", THelp);
-                ImGuiEx::SliderF("Hand Slam Radius", &Config::AutoAim.fAutoAim_Range_Hand_Crawl, 10.0f, 30.0f, T0, "%.2f");
-                ImGuiEx::SliderF("Side Offset", &Config::AutoAim.fAutoAim_Hand_Crawl_OffsetDistance_Side, 5.0f, 60.0f, T1, "%.2f");
-                ImGuiEx::SliderF("Forward Offset", &Config::AutoAim.fAutoAim_Hand_Crawl_OffsetDistance_Forward, 40.0f, 70.0f, T2, "%.2f");
-                ImGuiEx::HelpText("What is strong hand slam", THelp1);
-                ImGui::Spacing();
-            }
-        }
-        ImUtil_Unique {
-            PSString THelp = "Kick is a type of size-action that can hit a lot of enemies at once\n"
-            "[Standing] Type of kick performed when character isn't sneaking of crawling\n"
-            "[Hand Swipe] Type of kick performed when Sneaking or Crawling";
-            PSString T0 = "[Radius] Determines collider size.\n"
-            "Default: 36.0";
-            PSString T01 = "[Radius] Determines collider size for Sneak/Crawl state.\n"
-            "Default: 36.0";
-            PSString T1 = "[Offset] back/forward offset of the initial target search collider.\n"
-            "Default: 20.0";
-            PSString T2 = "[Hand Swipe Offset] back/forward offset of the initial target search collider.\n"
-            "Default: 35.0";
-            if (ImGui::CollapsingHeader("Kick settings", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::HelpText("What is a kick", THelp);
-                ImGuiEx::SliderF("Kick Radius", &Config::AutoAim.fAutoAim_Range_Kick, 20.0f, 60.0f, T0, "%.2f");
-                ImGuiEx::SliderF("[Sneaking] Kick Radius", &Config::AutoAim.fAutoAim_Range_Kick_Sneak, 20.0f, 60.0f, T01, "%.2f");
-                ImGuiEx::SliderF("[Standing] Forward Offset", &Config::AutoAim.fAutoAim_Kick_OffsetDistance_Forward, 10.0f, 50.0f, T1, "%.2f");
-                ImGuiEx::SliderF("[Sneaking] Forward Offset", &Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward_Sneak, 20.0f, 50.0f, T2, "%.2f");
-                ImGui::Spacing();
-            }
-        }
-
-        ImUtil_Unique {
-            PSString THelp = "Butt Slam is a variation of strong stomp, it can be used in Sneak state\n"
-            "It is performed if enemy is under giantess legs or butt";
-            PSString T0 = "[Radius] Determines collider size.\n"
-            "Default: 40.0";
-            PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
-            "Default: 15.0";
-            PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
-            "Default: 0.0";
-            if (ImGui::CollapsingHeader("Butt Slam settings", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::HelpText("What is a butt slam", THelp);
-                ImGuiEx::SliderF("Radius", &Config::AutoAim.fAutoAim_Range_ButtSlam, 20.0f, 75.0f, T0, "%.2f");
-                ImGuiEx::SliderF("Side Offset", &Config::AutoAim.fAutoAim_Butt_OffsetDistance_Side, 5.0f, 25.0f, T1, "%.2f");
-                ImGuiEx::SliderF("Forward Offset", &Config::AutoAim.fAutoAim_Butt_OffsetDistance_Forward, 0.0f, 30.0f, T2, "%.2f");
-                ImGui::Spacing();
-            }
-        }
-
-        ImUtil_Unique {
-            PSString THelp = "Breast Slam is a variation of strong stomp, it can be used in Crawling state\n"
-            "It is performed if enemy is under giantess body and cannot be reached with hands";
-            PSString T0 = "[Radius] Determines collider size.\n"
-            "Default: 32.0";
-            PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
-            "Default: 10.0";
-            PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
-            "Default: 35.0";
-            if (ImGui::CollapsingHeader("Breast Slam settings", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::HelpText("What is a breast slam", THelp);
-                ImGuiEx::SliderF("Radius", &Config::AutoAim.fAutoAim_Range_BreastSlam, 20.0f, 75.0f, T0, "%.2f");
-                ImGuiEx::SliderF("Side Offset", &Config::AutoAim.fAutoAim_Breast_OffsetDistance_Side, 0.0f, 25.0f, T1, "%.2f");
-                ImGuiEx::SliderF("Forward Offset", &Config::AutoAim.fAutoAim_Breast_OffsetDistance_Forward, 15.0f, 75.0f, T2, "%.2f");
-                ImGui::Spacing();
-            }
-        }
+        ImGuiEx::EndCollapsingTabHeader(ActionHeader_Foot);
     }
 
     //Behavior settings
@@ -231,8 +244,8 @@ namespace GTS {
             "Default: 0.25";
 
             if (ImGui::CollapsingHeader("Automatic Aim Behavior Settings", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::SliderF("Behind Target Penalty", &Config::AutoAim.fAutoAim_BackPenalty, 0.01f, 30.0f, T0, "%.2f");
-                ImGuiEx::SliderF("Dead Target Penalty", &Config::AutoAim.fAutoAim_DeadPenalty, 0.01f, 30.0f, T1, "%.2f");
+                ImGuiEx::SliderF("Behind Target Penalty", &Config::AutoAim.fAutoAim_BackPenalty, 0.01f, 100.0f, T0, "%.2f");
+                ImGuiEx::SliderF("Dead Target Penalty", &Config::AutoAim.fAutoAim_DeadPenalty, 0.01f, 100.0f, T1, "%.2f");
                 ImGuiEx::SliderF("Ignore Rear Targets After", &Config::AutoAim.fAutoAim_IgnoreBehindAfter, 0.0f, 1.0f, T2, "%.2f");
                 ImGuiEx::SliderF("Auto-Aim Blend Multiplier", &Config::AutoAim.fAutoAim_AimMagnitudeMultiplier, 1.0f, 1.5f, T3, "%.2fx");
                 ImGuiEx::SliderF("Blend Randomization on Miss", &Config::AutoAim.fAutoAim_NoHitValueRandomRange, 0.0f, 1.0f, T4, "%.2fx");

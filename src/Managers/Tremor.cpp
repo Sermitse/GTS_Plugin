@@ -32,7 +32,7 @@ namespace {
 				tremor *= Rumble_Default_JumpLand; // Jumping makes tremor stronger
 			}
 
-			tremor *= GetHighHeelsBonusDamage(actor, true);
+			tremor *= GetHighHeelsBonusDamage(actor, true, 0.33f);
 		}
 	}
 }

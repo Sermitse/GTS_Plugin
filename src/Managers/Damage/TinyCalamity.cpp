@@ -264,13 +264,25 @@ namespace GTS {
         ScareEnemies(giant);
     }
 
-    void TinyCalamity_StaggerActor(Actor* giant, Actor* tiny, float giantHp) { // when we can't crush the target
+    void TinyCalamity_StaggerActor(Actor* giant, Actor* tiny, float giantHp) { // when we can't explode the target
         float OldScale = AnimationVars::General::GiantessScale(giant);
         AnimationVars::General::SetGiantessScale(giant, 1.0f);
-
-        PushForward(giant, tiny, 800);
-        AddSMTDuration(giant, 2.5f);
-        StaggerActor(giant, 0.5f); // play stagger on the player
+        const float sizeDifference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
+        logger::info("Size Diff: {}", sizeDifference);
+        if (sizeDifference >= 0.4f) {
+            PushForward(giant, tiny, 800);
+            AddSMTDuration(giant, 2.5f);
+            StaggerActor(giant, 0.5f); // play stagger on the player
+        } else {
+            if (sizeDifference >= 0.20f) {
+                PushBackwards(giant, giant, 600);
+                AddSMTDuration(giant, 0.5f);
+                StaggerActor(tiny, 0.5f); // Now stagger 'Tiny' instead
+            } else {
+                PushBackwards(giant, giant, 1200);
+            }
+        }
+        
 
         tiny->Attacked(giant);
 
@@ -288,7 +300,7 @@ namespace GTS {
         if (IsEssential(giant, tiny)) {
             Notify("{} is essential", tiny->GetDisplayFullName());
         } else {
-            Notify("{} is too tough to be crushed", tiny->GetDisplayFullName());
+            Notify(sizeDifference < 0.4f ? "{} is too large to be crushed" : "{} is too tough to be crushed", tiny->GetDisplayFullName());
         }
 
         AnimationVars::General::SetGiantessScale(giant, OldScale);

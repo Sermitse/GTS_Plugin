@@ -69,4 +69,6 @@ namespace GTS {
 	void ApplyShake(Actor* caster, float modifier, float radius);
 	void ApplyShakeAtNode(Actor* caster, float modifier, std::string_view nodesv, const bool ignore_scaling = false);
 	void ApplyShakeAtPoint(Actor* caster, float modifier, const NiPoint3& coords, float duration_override, const bool ignore_scaling = false);
+	void ApplyPlayerSourceOverrides(Actor* caster, float& distance, NiPoint3 coords, float& tremor_power, float& sourceSize, float& sizeDifference); 
+	void OverrideStartingIntensity(Actor* caster, float sourceSize, float distance, float range_modifier, float& intensity);
 }
