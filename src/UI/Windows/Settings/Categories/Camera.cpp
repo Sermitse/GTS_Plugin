@@ -75,37 +75,44 @@ namespace GTS {
 		ImGui::Spacing();
 	}
 
+	void DrawPlayerShake() {
+		PSString T0 = "Change the intensity of camera shakes when performing actions as a player.";
+		PSString T1 = "Change the intensity of first-person camera shakes caused by your own size or size actions";
+		PSString T2 = "Change the range multiplier of Player camera shake calculation. Increasing it makes shake occur from further distance.";
+		ImGuiEx::SliderF("Player Shake Power", &Config::Camera.fCameraShakePlayer, 0.1f, 3.0f, T0, "%.2fx");
+		ImGuiEx::SliderF("First Person Shake Power", &Config::Camera.fCameraShakePlayerFP, 0.0f, 1.0f, T1, "%.2fx");
+		ImGuiEx::SliderF("Player Shake Range", &Config::Camera.fCameraShakeDistanceMultPlayer, 0.25f, 3.0f, T2, "%.2fx");
+	}
+	void DrawNPCShake() {
+		PSString T0 = "Change the intensity of camera shakes for NPCs.";
+		PSString T1 = "Change the range multiplier of NPC camera shake calculation. Increasing it makes shake occur from further distance.";
+		
+		ImGuiEx::SliderF("NPC Shake Power", &Config::Camera.fCameraShakeOther, 0.1f, 3.0f, T0, "%.2fx");
+		ImGuiEx::SliderF("NPC Shake Range", &Config::Camera.fCameraShakeDistanceMultNPC, 0.25f, 3.0f, T1, "%.2fx");
+	}
+
 	CategoryCamera::CategoryCamera() {
 		m_name = "Camera";
 	}
 
 	void CategoryCamera::DrawLeft() {
-
-	    ImUtil_Unique 
-		{
-
-	        PSString T0 = "Change the intensity of camera shakes when performing actions as a player.";
-			PSString T1 = "Change the intensity of first-person camera shakes caused by your own size or size actions";
-			PSString T2 = "Change the intensity of camera shakes for NPCs.";
-			
-
-	        if (ImGui::CollapsingHeader("Camera Shake", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImGuiEx::SliderF("Player Total Shake Power", &Config::Camera.fCameraShakePlayer, 0.1f, 3.0f, T0, "%.2fx");
-				ImGuiEx::SliderF("Player FP Shake Power", &Config::Camera.fCameraShakePlayerFP, 0.0f, 1.0f, T1, "%.2fx");
-				ImGuiEx::SliderF("NPC Total Shake Power", &Config::Camera.fCameraShakeOther, 0.1f, 3.0f, T2, "%.2fx");
-	            ImGui::Spacing();
-	        }
-	    }
-
-		ImUtil_Unique {
-			PSString T0 = "Change the range multiplier of Player camera shake calculation. Increasing it makes shake occur from further distance.";
-			PSString T1 = "Change the range multiplier of NPC camera shake calculation. Increasing it makes shake occur from further distance.";
-			if (ImGui::CollapsingHeader("Shake Radius", ImUtil::HeaderFlagsDefaultOpen)) {
-				ImGuiEx::SliderF("Player Shake Range Multiplier", &Config::Camera.fCameraShakeDistanceMultPlayer, 0.25f, 3.0f, T0, "%.2fx");
-				ImGuiEx::SliderF("NPC Shake Range Multiplier", &Config::Camera.fCameraShakeDistanceMultNPC, 0.25f, 3.0f, T1, "%.2fx");
-				ImGui::Spacing();
+		static ImGuiEx::CollapsingTabHeader ActionHeader (
+            "Size Shake Settings",
+			{
+				"Player",
+				"NPC",
 			}
-		}
+        );
+
+        if (ImGuiEx::BeginCollapsingTabHeader(ActionHeader)) {
+            // Content based on active tab
+            switch (ActionHeader.GetActiveTab()) {
+                case 0: DrawPlayerShake();          	break;
+                case 1: DrawNPCShake();       			break;
+				default:                              	break;
+            }
+        }
+        ImGuiEx::EndCollapsingTabHeader(ActionHeader);
 
 	    ImUtil_Unique 
 		{

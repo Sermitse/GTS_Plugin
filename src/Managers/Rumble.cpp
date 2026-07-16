@@ -6,11 +6,47 @@
 #include "Managers/Animation/AnimationManager.hpp"
 
 namespace {
+	using namespace GTS;
 	constexpr float global_shake_multiplier = 0.125f; // Reduce power of all shakes
 	constexpr float falloff_power = 2.5f;
 
 	constexpr float cam_close_dist = 48.0f;
 	constexpr float cam_far_dist = 300.0f;
+
+	void ApplyPlayerSourceOverrides(Actor* caster, float& distance, NiPoint3 coords, float& tremor_power, float& sourceSize, float& sizeDifference) {
+		if (caster->IsPlayerRef()) {
+			const bool isFirstPerson = IsFirstPerson() || HasFirstPersonBody();
+			tremor_power = isFirstPerson ? Config::Camera.fCameraShakePlayerFP : Config::Camera.fCameraShakePlayer;
+			distance = get_distance_to_camera(coords);
+			sizeDifference = sourceSize;
+
+			if (TinyCalamityActive(caster)) {
+				sourceSize += 0.8f;
+			}
+		}
+	}
+	void OverrideStartingIntensity(Actor* caster, float sourceSize, float distance, float range_modifier, float& intensity) {
+		if (caster) {
+			const float PC_Config = 	Config::Camera.fCameraShakeDistanceMultPlayer;
+			const float NPC_Config = 	Config::Camera.fCameraShakeDistanceMultNPC;
+			const float cameraConf = caster->IsPlayerRef() ? PC_Config : NPC_Config; 
+			const float adjustment = range_modifier * sourceSize * cameraConf;
+			const float full_shake_distance = cam_close_dist * sourceSize;
+			const float max_shake_distance =  cam_far_dist 	 * adjustment;
+
+			// Inside full shake radius = maximum shake
+			if (distance <= full_shake_distance) {
+				intensity = 1.0f;
+				//logger::info("Full shake");
+			} else { // Outside full shake radius = smooth falloff
+				float t = std::clamp((distance - full_shake_distance) / (max_shake_distance - full_shake_distance), 0.0f, 1.0f);
+				intensity = pow(1.0f - t, falloff_power);
+				//logger::info("T: {}", t);
+			}
+
+			//logger::info("Full Dist: {}, Max Shake Dist: {}", full_shake_distance, max_shake_distance);
+		}
+	}
 }
 
 namespace GTS {
@@ -247,40 +283,6 @@ namespace GTS {
 					}
 				}
 			}
-		}
-	}
-	void ApplyPlayerSourceOverrides(Actor* caster, float& distance, NiPoint3 coords, float& tremor_power, float& sourceSize, float& sizeDifference) {
-		if (caster->IsPlayerRef()) {
-			const bool isFirstPerson = IsFirstPerson() || HasFirstPersonBody();
-			tremor_power = isFirstPerson ? Config::Camera.fCameraShakePlayerFP : Config::Camera.fCameraShakePlayer;
-			distance = get_distance_to_camera(coords);
-			sizeDifference = sourceSize;
-
-			if (TinyCalamityActive(caster)) {
-				sourceSize += 0.75f;
-			}
-		}
-	}
-	void OverrideStartingIntensity(Actor* caster, float sourceSize, float distance, float range_modifier, float& intensity) {
-		if (caster) {
-			const float PC_Config = 	Config::Camera.fCameraShakeDistanceMultPlayer;
-			const float NPC_Config = 	Config::Camera.fCameraShakeDistanceMultNPC;
-			const float cameraConf = caster->IsPlayerRef() ? PC_Config : NPC_Config; 
-			const float adjustment = range_modifier * sourceSize * cameraConf;
-			const float full_shake_distance = cam_close_dist * sourceSize;
-			const float max_shake_distance =  cam_far_dist 	 * adjustment;
-
-			// Inside full shake radius = maximum shake
-			if (distance <= full_shake_distance) {
-				intensity = 1.0f;
-				//logger::info("Full shake");
-			} else { // Outside full shake radius = smooth falloff
-				float t = std::clamp((distance - full_shake_distance) / (max_shake_distance - full_shake_distance), 0.0f, 1.0f);
-				intensity = pow(1.0f - t, falloff_power);
-				//logger::info("T: {}", t);
-			}
-
-			//logger::info("Full Dist: {}, Max Shake Dist: {}", full_shake_distance, max_shake_distance);
 		}
 	}
 }
