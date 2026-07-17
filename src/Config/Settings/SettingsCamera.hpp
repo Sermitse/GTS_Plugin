@@ -96,6 +96,7 @@ struct SettingsCamera_t {
     // Automatic camera controls
     bool bAutomaticCamera = true;
     float fCameraInterpolationFactor = 0.35f;
+    bool bDisableBoneTrackingInMenus = false;
 
     // Distance and zoom controls
     bool bEnableAutoFNearDist = false;
@@ -113,7 +114,6 @@ struct SettingsCamera_t {
     bool bCamCollideTerrain = true;
     bool bCamCollideStatics = true;
     float fModifyCamCollideAt = 3.0f;
-
 
 };
 TOML_SERIALIZABLE(SettingsCamera_t);

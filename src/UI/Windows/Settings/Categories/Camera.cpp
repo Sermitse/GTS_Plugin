@@ -215,12 +215,15 @@ namespace GTS {
 
 	        PSString T0 = "Enable automatic camera.";
 			PSString T1 = "Change the third-person camera mode.";
+			PSString T2 = "Disables bone based tracking (Same as selecting \"None\" at the \"Center On Bone\" Option) when a game menu is open.\n"
+			              "This enables compatibility with mods such as \"Show Player In Inventory\".";
 
 			//Hack
             auto CamState = std::bit_cast<int*>(&Persistent::TrackedCameraState.value);
 
 	        if (ImGui::CollapsingHeader("Automatic Camera", ImUtil::HeaderFlagsDefaultOpen)) {
 				ImGuiEx::CheckBox("Enable Automatic Camera", &Config::Camera.bAutomaticCamera, T0);
+				ImGuiEx::CheckBox("Disable Bone Tracking In Menus", &Config::Camera.bDisableBoneTrackingInMenus, T2);
 				ImGuiEx::IComboEx<LCameraMode_t>("Camera Mode", CamState, T1, !Config::Camera.bAutomaticCamera);
 	        	ImGui::Spacing();
 	        }
