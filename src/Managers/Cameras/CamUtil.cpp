@@ -235,15 +235,17 @@ namespace {
 namespace GTS {
 
 	BoneTarget GetBoneTargets(CameraTracking Camera_Anim, LCameraTrackBone_t Camera_MCM) {
+		if (Config::Camera.bDisableBoneTrackingInMenus && State::IsInBlockingMenu()) {
+			return {};
+		}
 		if (HasFirstPersonBody()) {
 			return {};
 		}
 		if (Camera_Anim != CameraTracking::None) { // must take priority
 			return GetBoneTarget_Anim(Camera_Anim);
 		}
-		else {
-			return GetBoneTargetFromSettings(Camera_MCM);
-		}
+
+		return GetBoneTargetFromSettings(Camera_MCM);
 	}
 
 	void UpdateThirdPerson() {
