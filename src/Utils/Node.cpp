@@ -596,6 +596,13 @@ namespace GTS {
 	NiPoint3 get_bound_values(Actor* actor) {
 		NiPoint3 result = NiPoint3(22.0f, 14.0f, 64.0f); // Default human scale that we return if actor for some reason doesn't have BBX data
 		if (actor) {
+			if (IsHumanoid(actor)) { // There's a mod that alters default Human BBX data 
+				//  Which leads to messed up humanoid size numbers (Such as 3m instead of 1.8m)
+				// https://www.nexusmods.com/skyrimspecialedition/mods/161116
+				// Install option: "Bigger XPMSSE Skeleton Collision Bounds"
+				// Fix: always use expected human size for humanoids, regardless of true BBX value
+				return result;
+			}
 			auto bound = get_bound(actor);
 			if (bound) {
 				result = bound->extents;

@@ -94,7 +94,7 @@ namespace GTS {
 	}
 
 	float get_bounding_box_to_mult(Actor* actor) {
-		auto nif_dim = NiPoint3(22.0f, 14.0f, 64.0f);
+		auto nif_dim = NiPoint3(22.0f, 14.0f, 64.0f); // Default BB human scale
 
 		if (const auto& temp_actor_data = Transient::GetActorData(actor)) {
 			nif_dim = temp_actor_data->BoundingBoxCache;
