@@ -2,6 +2,8 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
 
+#include "Hooks/Experiments/Experiments_FootColliders.hpp"
+
 #include "Config/Config.hpp"
 
 #include "Managers/Damage/SizeHitEffects.hpp"
@@ -20,7 +22,9 @@
 using namespace GTS;
 
 namespace {
-
+	bool IsIdleDamage(DamageSource cause) {
+		return cause == DamageSource::FootIdleL || cause == DamageSource::FootIdleR;
+	}
 	bool StrongGore(DamageSource cause) {
 		bool Strong = false;
 		switch (cause) {
@@ -161,6 +165,9 @@ namespace GTS {
 
 		if (!actor) return;
 
+		if (!IsIdleDamage(Cause)) {
+			GTS::ScanFootwearColliders(actor, Right);
+		}
 		// Cache frequently used values
 		float giantScale = get_visual_scale(actor) * GetSizeFromBoundingBox(actor);
 		constexpr auto BASE_CHECK_DISTANCE = 180.0f;
@@ -183,7 +190,7 @@ namespace GTS {
 
 		if (DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kAnyGTS)) {
 			constexpr int duration = 300;
-			if (Cause != DamageSource::FootIdleL && Cause != DamageSource::FootIdleR) {
+			if (!IsIdleDamage(Cause)) {
 				for (auto footPoints : CoordsToCheck) {
 					DebugDraw::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, duration);
 				}

@@ -1,4 +1,5 @@
 #pragma once
+#include "Hooks/Experiments/Experiments_FootColliders.hpp"
 
 namespace GTS {
 
@@ -112,6 +113,9 @@ namespace GTS {
 
 		std::vector<Actor*> shrinkies;
 		std::vector<Actor*> toSandwich;
+
+		FootwearInformation FootwearInfo;
+
 		float fRecordedFurnScale = 1.0f;
 		bool bIsUsingFurniture = false;
 		bool IsBeingSizeDamaged = false;
@@ -124,6 +128,6 @@ namespace GTS {
 
 			BaseHeight = GameUnitToMeter(_BoundValues[2] * _Scale);
 			BoundingBoxCache = _BoundValues;
-		}
+		} 
 	};
 }
