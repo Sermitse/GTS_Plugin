@@ -157,107 +157,115 @@ namespace {
 
 
 namespace GTS {
+	float CollisionDamage::ToHavok() {
+		const float toHavok = 1.0f / *reinterpret_cast<const float*>(RE::Offset::Havok::WorldScaleInverse.address());
+		return toHavok;
+	}
+	void CollisionDamage::DebugCollision(RE::bhkWorld* world, Actor* actor, std::vector<NiPoint3> CoordsToCheck, float maxFootDistance, float toHavok, bool condition) {
+		if (condition) {
+			constexpr int duration = 300;
+				for (const auto& footPoint : CoordsToCheck) {
+					DebugDraw::DrawSphere(glm::vec3(footPoint.x, footPoint.y, footPoint.z), maxFootDistance, duration);
+				}
+				for (auto& otherActor : find_actors()) {
+					if (otherActor == actor) continue;
+					if (auto shapeData = GetControllerShapeData(otherActor, toHavok)) {
+						BSWriteLockGuard lock(world->worldLock);
+						DebugDrawShape(shapeData->shape, shapeData->transform, shapeData->angleZ, 1.0f / toHavok, duration);
+					}
+				}
+			}
+		}
+	
+	bool CollisionDamage::HasCollided(Actor* actor, Actor* otherActor, RE::bhkWorld* world, std::vector<NiPoint3> CoordsToCheck, NiPoint3 giantLocation, float giantScale, float SCALE_RATIO, float maxFootDistance, float maxCheckDistanceSq, float sphereRadiusSq, float toHavok) {
+		// Broad-phase distance cull
+		NiPoint3 diff = otherActor->GetPosition() - giantLocation;
+		float distanceSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+		if (distanceSq > maxCheckDistanceSq) return false;
 
+		// Scale ratio cull
+		float tinyScale = get_visual_scale(otherActor) * GetSizeFromBoundingBox(otherActor);
+		if (giantScale / tinyScale <= SCALE_RATIO) return false;
+		if (auto shapeData = GetControllerShapeData(otherActor, toHavok)) {
+			BSWriteLockGuard lock(world->worldLock);
+			for (const NiPoint3& footPt : CoordsToCheck) {
+				hkVector4 center;
+				center.quad = _mm_mul_ps(_mm_set_ps(0.0f, footPt.z, footPt.y, footPt.x), _mm_set1_ps(toHavok));
+				if (SphereOverlapsShape(shapeData->shape, center, sphereRadiusSq, shapeData->transform, shapeData->angleZ)) {
+					return true;
+					break;
+				}
+			}
+		} else {
+			// Fallback for ragdolled/dead actors with no controller
+			NiPoint3 actorLocation = otherActor->GetPosition();
+			for (const NiPoint3& footPt : CoordsToCheck) {
+				if ((footPt - actorLocation).Length() - Collision_Distance_Override <= maxFootDistance) {
+					return true;
+					break;
+				}
+			}
+		}
+		return false;
+	}
 	// Safer optimization that preserves original behavior
 	void CollisionDamage::DoFootCollision(Actor* actor, float damage, float radius, int random, float bbmult, float crush_threshold, DamageSource Cause, bool Right, bool ApplyCooldown, bool ignore_rotation, bool SupportCalamity) {
 
-		//GTS_PROFILE_SCOPE("CollisionDamage: DoFootCollision");
-
 		if (!actor) return;
-
-		if (!IsIdleDamage(Cause)) {
-			GTS::ScanFootwearColliders(actor, Right);
-		}
-		// Cache frequently used values
+		
 		float giantScale = get_visual_scale(actor) * GetSizeFromBoundingBox(actor);
-		constexpr auto BASE_CHECK_DISTANCE = 180.0f;
+		constexpr float BASE_CHECK_DISTANCE = 180.0f;
+		const float toHavok = ToHavok();
 		float SCALE_RATIO = 1.15f;
 		float Calamity = 1.0f;
 
 		bool SMT = TinyCalamityActive(actor);
 		if (SMT) {
-			if (SupportCalamity) {
-				Calamity = 4.0f;
-			}
+			if (SupportCalamity) Calamity = 4.0f;
 			giantScale += 0.20f;
 			SCALE_RATIO = 0.7f;
 		}
 
 		float maxFootDistance = radius * giantScale;
 		std::vector<NiPoint3> CoordsToCheck = GetFootCoordinates(actor, Right, ignore_rotation);
-
 		if (CoordsToCheck.empty()) return;
 
-		if (DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kAnyGTS)) {
-			constexpr int duration = 300;
-			if (!IsIdleDamage(Cause)) {
-				for (auto footPoints : CoordsToCheck) {
-					DebugDraw::DrawSphere(glm::vec3(footPoints.x, footPoints.y, footPoints.z), maxFootDistance, duration);
-				}
-			}
+		auto* world = actor->GetParentCell() ? actor->GetParentCell()->GetbhkWorld() : nullptr;
+		if (!world) return;
+
+		if (!IsIdleDamage(Cause)) {
+			const bool Condition = DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kAnyGTS);
+			DebugCollision(world, actor, CoordsToCheck, maxFootDistance, toHavok, Condition);
 		}
 
 		NiPoint3 giantLocation = actor->GetPosition();
-
-		// Pre-compute values used in inner loop
 		float maxCheckDistance = BASE_CHECK_DISTANCE * giantScale;
 		float maxCheckDistanceSq = maxCheckDistance * maxCheckDistance;
+		
+		const float sphereRadiusHk = maxFootDistance * toHavok;
+		const float sphereRadiusSq = sphereRadiusHk * sphereRadiusHk;
 
 		for (auto& otherActor : find_actors()) {
-
 			if (otherActor == actor) continue;
 
-			// Use squared distance for initial check
-			NiPoint3 actorLocation = otherActor->GetPosition();
-			NiPoint3 diff = actorLocation - giantLocation;
-			float distanceSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+			bool HitDetected = HasCollided(actor, otherActor, world, CoordsToCheck, giantLocation, giantScale, SCALE_RATIO, maxFootDistance, maxCheckDistanceSq, sphereRadiusSq, toHavok);
 
-			if (distanceSq > maxCheckDistanceSq) continue;
-
-			// Compute scale once instead of in condition
-			float tinyScale = get_visual_scale(otherActor) * GetSizeFromBoundingBox(otherActor);
-			if (giantScale / tinyScale <= SCALE_RATIO) continue;
-
-			int nodeCollisions = 0;
-			bool DoDamage = true;
-
-			const auto model = otherActor->GetCurrent3D();
-
-			if (model) {
-
-				bool StopDamageLookup = false;
-
-				for (auto point : CoordsToCheck) {
-					if (!StopDamageLookup) {
-						VisitNodes(model, [&nodeCollisions, point, maxFootDistance, &StopDamageLookup](NiAVObject& a_obj) {
-							float distance = (point - a_obj.world.translate).Length() - Collision_Distance_Override;
-							if (distance <= maxFootDistance) {
-								StopDamageLookup = true;
-								nodeCollisions += 1;
-								return false;
-							}
-							return true;
-						});
-					}
-				}
-
-				if (SupportCalamity && SMT) {
-					TinyCalamity_SeekForShrink(actor, otherActor, damage, maxFootDistance * Calamity, Cause, Right, ApplyCooldown, ignore_rotation);
-				}
+			// Calamity seek runs regardless of hit result
+			if (SupportCalamity && SMT) {
+				TinyCalamity_SeekForShrink(actor, otherActor, damage, maxFootDistance * Calamity, Cause, Right, ApplyCooldown, ignore_rotation);
 			}
 
-			if (nodeCollisions > 0) {
+			if (HitDetected) {
 				if (ApplyCooldown) {
-					bool OnCooldown = IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh);
-					if (!OnCooldown) {
+					if (!IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh)) {
 						Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause));
-						DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
+						DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, true);
 						ApplyActionCooldown(otherActor, CooldownSource::Damage_Thigh);
 					}
 				}
 				else {
 					Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause));
-					DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, DoDamage);
+					DoSizeDamage(actor, otherActor, damage, bbmult, crush_threshold, random, Cause, true);
 				}
 			}
 		}

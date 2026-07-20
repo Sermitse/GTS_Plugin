@@ -1,10 +1,11 @@
-#pragma once
+//#pragma once
 
-namespace GTS {
+/*namespace GTS {
     struct VertexSkinData {
         uint16_t weights[4];
         uint8_t  bones[4];
     };
+
     static_assert(sizeof(VertexSkinData) == 12);
     
     struct FootwearInformation {
@@ -15,4 +16,4 @@ namespace GTS {
     void VisitGeometry(RE::NiAVObject* object, bool skin, bool right);
     void GetShapeFromWornArmor(Actor* actor);
     void ScanFootwearColliders(Actor* actor, bool right);
-}
+}*/

@@ -25,6 +25,7 @@ namespace GTS {
 	constexpr float Action_Grab          = 8.0f;
 	constexpr float Action_Hug           = 0.92f; // for hug grab/drop threshold 
 	constexpr float Action_FingerGrind   = 6.0f;
+    // Sermit note: changing these is both a sin and a crime
 
 	//-----------------------------------------Default Damage Values
 
@@ -156,14 +157,14 @@ namespace GTS {
 
 	//-----------------------------------------Default Push Power variables
     // For crawling
-    constexpr float Push_Crawl_HandSwipe = 1.35f;           // Used for both Push Actor and Push Object
+    constexpr float Push_Crawl_HandSwipe = 1.8f;           // Used for both Push Actor and Push Object
     constexpr float Push_Crawl_HandSwipe_Strong = 4.2f;     // Used for both Push Actor and Push Object
     // For Sneaking
-    constexpr float Push_Sneak_HandSwipe = 1.6f;
+    constexpr float Push_Sneak_HandSwipe = 1.8f;
     constexpr float Push_Sneak_HandSwipe_Strong = 4.2f;     // Larger value because of anim speed by default
     // For kicking
-    constexpr float Push_Kick_Normal = 1.40f;               // Used for both Push Actor and Push Object
-    constexpr float Push_Kick_Strong = 3.80f;               // Used for both Push Actor and Push Object
+    constexpr float Push_Kick_Normal = 1.7f;               // Used for both Push Actor and Push Object
+    constexpr float Push_Kick_Strong = 4.20f;               // Used for both Push Actor and Push Object
 
     // For launching actor(s) when we do initial jump (Not jump land!)
     constexpr float Push_Jump_Launch_Threshold = 8.0f;

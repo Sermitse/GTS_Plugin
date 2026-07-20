@@ -28,6 +28,11 @@ namespace GTS {
 		static void Perks_Cataclysmic_ManageStacks(Actor* giant, int add_stacks = 0);
 		static float Perks_Cataclysmic_EmpowerStomp(Actor* giant);
 		static void Perks_Cataclysmic_BuffStompSpeed(AnimationEventData& data, bool reset);
+
+		static void KickPerk_ApplyKickSpeed(Actor* giant, float& speed);
+		static void KickPerk_ChangeAnimSpeed(AnimationEventData& data, bool reset = false);
+		static void KickPerk_ApplyDamage(Actor* giant, float& damage, float& power);
+
 		static void RuntimeGivePerksToNPC(Actor* a_actor, float a_currentSkillLevel);
 
 		static void UpdatePerkValues(Actor* giant, PerkUpdate Type);

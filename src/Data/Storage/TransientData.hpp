@@ -114,7 +114,7 @@ namespace GTS {
 		std::vector<Actor*> shrinkies;
 		std::vector<Actor*> toSandwich;
 
-		FootwearInformation FootwearInfo;
+		//FootwearInformation FootwearInfo;
 
 		float fRecordedFurnScale = 1.0f;
 		bool bIsUsingFurniture = false;

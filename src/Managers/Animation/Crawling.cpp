@@ -14,6 +14,7 @@
 #include "Managers/GTSSizeManager.hpp"
 
 #include "Utils/Actions/InputConditions.hpp"
+#include "Managers/Perks/PerkHandler.hpp"
 
 using namespace GTS;
 
@@ -233,35 +234,43 @@ namespace {
 	void GTS_Crawl_Swipe_On_R(AnimationEventData& data) {
 		TriggerHandCollision_Right(&data.giant, 1.0f, 1.6f, Push_Crawl_HandSwipe);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, true, 4.0f);
+		PerkHandler::KickPerk_ChangeAnimSpeed(data);
 	}
 	void GTS_Crawl_Swipe_On_L(AnimationEventData& data) {
 		TriggerHandCollision_Left(&data.giant, 1.0f, 1.6f, Push_Crawl_HandSwipe);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, true, 4.0f);
+		PerkHandler::KickPerk_ChangeAnimSpeed(data);
 	}
 	void GTS_Crawl_Swipe_Off_R(AnimationEventData& data) {
 		DisableHandCollisions(&data.giant);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, false, 4.0f);
+		PerkHandler::KickPerk_ChangeAnimSpeed(data, true);
 	}
 	void GTS_Crawl_Swipe_Off_L(AnimationEventData& data) {
 		DisableHandCollisions(&data.giant);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipe", Runtime::PERK.GTSPerkDestructionBasics, false, 4.0f);
+		PerkHandler::KickPerk_ChangeAnimSpeed(data, true);
 	}
 
 	void GTS_Crawl_Swipe_Power_On_R(AnimationEventData& data) {
 		TriggerHandCollision_Right(&data.giant, 2.0f, 1.3f, Push_Crawl_HandSwipe_Strong);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, true, 10.0f);
+		PerkHandler::KickPerk_ChangeAnimSpeed(data);
 	}
 	void GTS_Crawl_Swipe_Power_On_L(AnimationEventData& data) {
 		TriggerHandCollision_Left(&data.giant, 2.0f, 1.3f, Push_Crawl_HandSwipe_Strong);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, true, 10.0f);
+		PerkHandler::KickPerk_ChangeAnimSpeed(data);
 	}
 	void GTS_Crawl_Swipe_Power_Off_R(AnimationEventData& data) {
 		DisableHandCollisions(&data.giant);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 10.0f);
+		PerkHandler::KickPerk_ChangeAnimSpeed(data, true);
 	}
 	void GTS_Crawl_Swipe_Power_Off_L(AnimationEventData& data) {
 		DisableHandCollisions(&data.giant);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlSwipeStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 10.0f);
+		PerkHandler::KickPerk_ChangeAnimSpeed(data, true);
 	}
 
 	void LightSwipeEvent(const ManagedInputEvent& data) {

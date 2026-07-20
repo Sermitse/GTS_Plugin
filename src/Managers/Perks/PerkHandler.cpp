@@ -376,6 +376,41 @@ namespace GTS {
 		}
 	}
 
+    void PerkHandler::KickPerk_ApplyKickSpeed(Actor* giant, float& speed) {
+        constexpr float default_speed = 0.825f;
+		speed = default_speed;
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkKickPower)) {
+			float bonus = std::max(0.0f, GetGtsSkillLevel(giant) - 65.0f) / 35.0f;
+			bonus = 1.0f + std::min(bonus, 1.0f) * 0.35f;
+            speed = default_speed * bonus;
+		}
+	}
+
+	void PerkHandler::KickPerk_ChangeAnimSpeed(AnimationEventData& data, bool reset) {
+        if (!reset) {
+            data.stage = 1;
+            data.canEditAnimSpeed = true;
+            KickPerk_ApplyKickSpeed(&data.giant, data.animSpeed);
+        } else {
+            data.animSpeed = 1.0f;
+            data.stage = 0;
+            data.canEditAnimSpeed = false;
+        }
+
+        logger::info("AnimSpeed: {}", data.animSpeed);
+	}
+
+    void PerkHandler::KickPerk_ApplyDamage(Actor* giant, float& damage, float& power) {
+		damage *= 0.85f;
+		power *= 0.825f;
+		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkKickPower)) {
+			float bonus = std::max(0.0f, GetGtsSkillLevel(giant) - 65.0f) / 35.0f;
+			bonus = 1.0f + std::min(bonus, 1.0f) * 0.30f;
+            damage *= bonus;
+            power *= bonus;
+		}
+	}
+
     void PerkHandler::UpdatePerkValues(Actor* giant, PerkUpdate Type) {
         if (giant) {
             auto data = Transient::GetActorData(giant);

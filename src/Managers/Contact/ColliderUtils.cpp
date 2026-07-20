@@ -1,6 +1,5 @@
 #include "Managers/Contact/ColliderUtils.hpp"
 
-using namespace GTS;
 namespace GTS {
 	
 	bool SphereOverlapsCapsule(const hkpCapsuleShape* capsule, const hkVector4& center, float radiusSq, const hkTransform& transform, float angleZ) {
@@ -60,41 +59,6 @@ namespace GTS {
 		float distSq = _mm_cvtss_f32(_mm_dp_ps(delta, delta, 0x71));
 
 		return distSq <= radiusSq;
-	}
-
-	std::optional<ControllerShapeData> GetControllerShapeData(Actor* actor, float toHavok) {
-		bhkCharacterController* controller = actor->GetCharController();
-		if (!controller) return std::nullopt;
-
-		hkpShape* shape = nullptr;
-		if (auto* rigid = skyrim_cast<bhkCharRigidBodyController*>(controller)) {
-			hkRefPtr rigidBody{ static_cast<hkpCharacterRigidBody*>(rigid->characterRigidBody.referencedObject.get()) };
-			if (rigidBody && rigidBody->m_character) {
-				shape = const_cast<hkpShape*>(rigidBody->m_character->collidable.shape);
-			}
-		}
-		else if (auto* proxy = skyrim_cast<bhkCharProxyController*>(controller)) {
-			hkRefPtr charProxy{ static_cast<hkpCharacterProxy*>(proxy->proxy.referencedObject.get()) };
-			if (charProxy && charProxy->shapePhantom) {
-				shape = const_cast<hkpShape*>(charProxy->shapePhantom->collidable.shape);
-			}
-		}
-		if (!shape) return std::nullopt;
-
-		// Get controller world position in Havok units
-		hkVector4 controllerPos{};
-		controller->GetPosition(controllerPos, false);
-
-		// Build transform: identity rotation + controller position
-		// Vertices are local to controller and world-axis-aligned (no rotation needed for convex)
-		// Capsules need -actor->data.angle.z rotation around Z applied to vertices before adding position
-		hkTransform transform{};
-		transform.rotation.col0.quad = _mm_set_ps(0.0f, 0.0f, 0.0f, 1.0f);
-		transform.rotation.col1.quad = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
-		transform.rotation.col2.quad = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
-		transform.translation.quad = controllerPos.quad;
-
-		return ControllerShapeData{ shape, transform, actor->data.angle.z };
 	}
 
 	bool SphereOverlapsShape(const hkpShape* shape, const hkVector4& center, float radiusSq, const hkTransform& transform, float angleZ) {
@@ -239,4 +203,39 @@ namespace GTS {
         default: break;
         }
     }
+
+	std::optional<ControllerShapeData> GetControllerShapeData(Actor* actor, float toHavok) {
+		bhkCharacterController* controller = actor->GetCharController();
+		if (!controller) return std::nullopt;
+
+		hkpShape* shape = nullptr;
+		if (auto* rigid = skyrim_cast<bhkCharRigidBodyController*>(controller)) {
+			hkRefPtr rigidBody{ static_cast<hkpCharacterRigidBody*>(rigid->characterRigidBody.referencedObject.get()) };
+			if (rigidBody && rigidBody->m_character) {
+				shape = const_cast<hkpShape*>(rigidBody->m_character->collidable.shape);
+			}
+		}
+		else if (auto* proxy = skyrim_cast<bhkCharProxyController*>(controller)) {
+			hkRefPtr charProxy{ static_cast<hkpCharacterProxy*>(proxy->proxy.referencedObject.get()) };
+			if (charProxy && charProxy->shapePhantom) {
+				shape = const_cast<hkpShape*>(charProxy->shapePhantom->collidable.shape);
+			}
+		}
+		if (!shape) return std::nullopt;
+
+		// Get controller world position in Havok units
+		hkVector4 controllerPos{};
+		controller->GetPosition(controllerPos, false);
+
+		// Build transform: identity rotation + controller position
+		// Vertices are local to controller and world-axis-aligned (no rotation needed for convex)
+		// Capsules need -actor->data.angle.z rotation around Z applied to vertices before adding position
+		hkTransform transform{};
+		transform.rotation.col0.quad = _mm_set_ps(0.0f, 0.0f, 0.0f, 1.0f);
+		transform.rotation.col1.quad = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
+		transform.rotation.col2.quad = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
+		transform.translation.quad = controllerPos.quad;
+
+		return ControllerShapeData{ shape, transform, actor->data.angle.z };
+	}
 }

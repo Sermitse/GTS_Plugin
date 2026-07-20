@@ -103,6 +103,7 @@ namespace RuntimeData {
 		Entry(GTSPerkFullAssimilation,      GTSP, 0x33C765); //Full Assimilation (60);
 		Entry(GTSPerkExperiencedGiantess,   GTSP, 0x61A996); //Experienced Giantess (60);
 		Entry(GTSPerkOvergrowth, 			GTSP, 0x90CFC7); //Overgrowth (100), Legendary Rank 1)
+		Entry(GTSPerkKickPower,				GTSP, 0x9120CA); //Unleashed Kicks (65)
 
 		Entry(GTSUtilTalkToActor,           GTSP, 0x5F7265); //TalkToActorWhenSneaking (Internal);
 
