@@ -140,7 +140,7 @@ namespace GTS {
 			}
 		}
 
-		if (tiny->IsPlayerRef() && TinyCalamityActive(tiny)) {
+		if (TinyCalamityActive(tiny)) {
 			TinyScale += 1.50f;
 		}
 

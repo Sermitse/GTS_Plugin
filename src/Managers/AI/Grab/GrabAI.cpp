@@ -159,6 +159,10 @@ namespace {
 			return;
 		}
 
+		if (TinyCalamity_ShouldShrinkFirst(a_Performer, a_Prey, Action_Grab, 10.2f, 0.18f, 0.13f)) {
+			return;
+		}
+		
 		Grab::GrabActor(a_Performer, a_Prey);
 		AnimationManager::StartAnim("GrabSomeone", a_Performer);
 

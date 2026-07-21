@@ -192,10 +192,10 @@ namespace GTS {
 			shrinkrate = 0.13f;
 		}
 
-		if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_Grab) {
-			ShrinkUntil(pred, prey, 10.2f, shrinkrate, true);
+		if (TinyCalamity_ShouldShrinkFirst(pred, prey, Action_Grab, 10.2f, 0.18f, 0.13f)) {
 			return;
 		}
+	
 		DelayedGrabTask(pred, prey);
 		Utils_UpdateHighHeelBlend(pred, false);
 		AnimationManager::StartAnim("GrabSomeone", pred);

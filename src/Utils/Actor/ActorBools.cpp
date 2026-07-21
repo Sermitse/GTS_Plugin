@@ -381,8 +381,24 @@ namespace GTS {
 		return actor ? Runtime::HasKeyword(actor, Runtime::KYWD.GTSKeywordCountAsFollower) : false;
 	}
 
-	bool TinyCalamityActive(Actor* giant) {
-		return giant ? Runtime::HasMagicEffect(giant, Runtime::MGEF.GTSEffectTinyCalamity) : false;
+	bool TinyCalamityActive(Actor* giant) { // Tiny Calamity should work only on Humanoids
+		return IsHumanoid(giant) ? Runtime::HasMagicEffect(giant, Runtime::MGEF.GTSEffectTinyCalamity) : false;
+	}
+
+	bool TinyCalamity_ShouldShrinkFirst(Actor* giant, Actor* tiny, float size_diff_requirement, float shrink_until, float shrink_rate_normal, float shrink_rate_sneak) {
+		if (!giant->IsPlayerRef() && !Config::AI.bCalamityShrinksFirst) {
+			return false; // Allow cursed and weird ass looking anims to happen
+		}
+		if (get_scale_difference(giant, tiny, SizeType::VisualScale, false, false) < size_diff_requirement) {
+			float shrinkrate = shrink_rate_normal;
+
+			if (giant->IsSneaking()) {
+				shrinkrate = shrink_rate_sneak;
+			}
+			ShrinkUntil(giant, tiny, shrink_until, shrinkrate, true);
+			return true;
+		}
+		return false;
 	}
 
 }

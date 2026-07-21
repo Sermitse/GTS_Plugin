@@ -72,12 +72,11 @@ namespace GTS {
 		float scale = impact.scale;
 		float minimal_size = 2.0f;
 		
-		if (actor->IsPlayerRef()) {
-			if (TinyCalamityActive(actor)) {
-				minimal_size = 1.0f;
-				scale += 0.33f;
-			}
+		if (TinyCalamityActive(actor)) {
+			minimal_size = 1.0f;
+			scale += 0.33f;
 		}
+
 		if (scale > minimal_size && !actor->AsActorState()->IsSwimming()) {
 			ApplyStateAndPerks(actor, scale);
 			FootEvent foot_kind = impact.kind;

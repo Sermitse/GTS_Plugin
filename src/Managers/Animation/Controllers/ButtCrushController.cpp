@@ -294,13 +294,10 @@ namespace GTS {
 		}
 
 		if (CanDoButtCrush(pred, false) && !IsBeingHeld(pred, prey)) {
-			prey->NotifyAnimationGraph("GTS_EnterFear");
-			
-			if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_ButtCrush) {
-				ShrinkUntil(pred, prey, 3.4f, 0.25f, true);
+			if (TinyCalamity_ShouldShrinkFirst(pred, prey, Action_ButtCrush, 3.4f, 0.25f, 0.25f)) {
 				return;
 			}
-
+			prey->NotifyAnimationGraph("GTS_EnterFear");
 			DisableCollisions(prey, pred);
 
 			float WasteStamina = 60.0f * GetButtCrushCost(pred, false);

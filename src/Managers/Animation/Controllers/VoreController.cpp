@@ -381,17 +381,15 @@ namespace GTS {
 			DamageAV(pred, ActorValue::kStamina, wastestamina);
 		}
 
-		
-		if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_Vore) {
-			if (pred->IsSneaking() && !AnimationVars::Crawl::IsCrawling(pred)) {
-				ShrinkUntil(pred, prey, 10.2f, 0.14f, true); // Shrink if we have SMT to allow 'same-size' vore
-			} else {
-				ShrinkUntil(pred, prey, 10.2f, 0.16f, true); // Shrink if we have SMT to allow 'same-size' vore
+		const bool notCrawling = pred->IsSneaking() && !AnimationVars::Crawl::IsCrawling(pred);
+		const float shrinkRate = notCrawling ? 0.14f : 0.16f;
+		if (TinyCalamity_ShouldShrinkFirst(pred, prey, Action_Vore, 10.2f, shrinkRate, shrinkRate)) {
+			if (!notCrawling) {
 				StaggerActor(pred, prey, 0.25f);
 			}
 			return;
 		}
-
+		
 		if (pred->IsPlayerRef()) {
 			Runtime::PlaySound(Runtime::SNDR.GTSSoundFail, pred, 0.4f, 1.0f);
 		}

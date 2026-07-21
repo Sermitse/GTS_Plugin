@@ -23,6 +23,13 @@ namespace {
 			if (TinyCalamityActive(caster)) {
 				sourceSize += 0.8f;
 			}
+		} 
+	}
+	void ApplyNPCSourceOverrides(Actor* caster, float& sourceSize) {
+		if (!caster->IsPlayerRef()) {
+			if (TinyCalamityActive(caster)) {
+				sourceSize += 0.8f;
+			}
 		}
 	}
 	void OverrideStartingIntensity(Actor* caster, float sourceSize, float distance, float range_modifier, float& intensity) {
@@ -248,6 +255,7 @@ namespace GTS {
 				float scale_bonus = 0.1f;
 
 				ApplyPlayerSourceOverrides(caster, distance, coords, tremor_power, sourceSize, sizeDifference);
+				ApplyNPCSourceOverrides(caster, sourceSize);
 
 				float intensity = 0.0f;
 				OverrideStartingIntensity(caster, sourceSize, distance, modifier, intensity);

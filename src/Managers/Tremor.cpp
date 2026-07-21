@@ -59,11 +59,11 @@ namespace GTS {
 
 				if (actor->IsPlayerRef()) {
 					tremor *= 1.20f; // slightly stronger footstep tremor for player
-					if (TinyCalamityActive(actor)) {
-						threshold = 0.55f;
-						calamity = 1.8f;
-					}
 				} 
+				if (TinyCalamityActive(actor)) {
+					threshold = 0.55f;
+					calamity = 1.8f;
+				}
 
 				if (tremor > 1e-5) {
 					if (!actor->AsActorState()->IsSwimming() && size > threshold) {

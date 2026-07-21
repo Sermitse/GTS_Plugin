@@ -353,9 +353,7 @@ namespace GTS {
 		if (IsBeingHeld(pred, prey)) {
 			return;
 		}
-		
-		if (get_scale_difference(pred, prey, SizeType::VisualScale, false, false) < Action_Sandwich) {
-			ShrinkUntil(pred, prey, 6.0f, 0.20f, true);
+		if (TinyCalamity_ShouldShrinkFirst(pred, prey, Action_Sandwich, 6.0f, 0.2f, 0.2f)) {
 			return;
 		}
 

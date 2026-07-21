@@ -366,8 +366,13 @@ namespace GTS {
                              "- If on - followers won't push others away if just standing still\n"
                              "- May affect fps in a negative way since it records data each frame for each follower";
             PSString T4 = "Toggle whether other NPCs should panic when near a GTS.";
+            PSString T5 = "When Tiny Calamity is active: \n"
+                          "- If ON: NPC's shrink enemy first, and only then do size action\n"
+                          "- if OFF: NPC's ignore shrinking part and do anims right away\n"
+                          "Recommended: keep it ON, same size anims look awful and cursed.";
 
             if (ImGui::CollapsingHeader("Misc Settings",ImUtil::HeaderFlagsDefaultOpen)) {
+                ImGuiEx::CheckBox("Tiny Calamity: Enable shrink anims", &Config::AI.bCalamityShrinksFirst, T5);
                 ImGuiEx::CheckBox("Decrease Movement Speed AV", &Config::AI.bSlowMovementDown, T0);
                 ImGuiEx::CheckBox("Decrease Combat Rotation Speed", &Config::AI.bSlowRotationDown, T2);
                 ImGuiEx::CheckBox("Record Node Movement Speed Data", &Config::AI.bRecordBoneSpeedData, T3);

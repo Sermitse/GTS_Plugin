@@ -74,11 +74,11 @@ namespace {
     ///////////////////////////////////////////////////////////////////
 
     void GTS_Sneak_FingerGrind_CameraOn_R(AnimationEventData& data) {
-		ManageCamera(&data.giant, true, CameraTracking::Finger_Right);
+		ManageCamera(&data.giant, true, CameraTracking::Hand_Right);
 	};  
 
     void GTS_Sneak_FingerGrind_CameraOn_L(AnimationEventData& data) {
-		ManageCamera(&data.giant, true, CameraTracking::Finger_Left);
+		ManageCamera(&data.giant, true, CameraTracking::Hand_Left);
 	};  
 
 	void GTS_Sneak_FingerGrind_Impact_R(AnimationEventData& data) {

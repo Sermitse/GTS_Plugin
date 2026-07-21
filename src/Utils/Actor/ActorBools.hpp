@@ -35,5 +35,6 @@ namespace GTS {
 	bool IsBlacklisted(Actor* actor);
 	bool IsGTSTeammate(Actor* actor);
 	bool TinyCalamityActive(Actor* giant);
+	bool TinyCalamity_ShouldShrinkFirst(Actor* giant, Actor* tiny, float size_diff_requirement, float shrink_until, float shrink_rate_normal, float shrink_rate_sneak);
 
 }

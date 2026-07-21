@@ -136,14 +136,31 @@ namespace GTS {
 	}
 
 	void VoreAI_StartVore(Actor* a_Predator, const std::vector<Actor*>& a_PotentialPrey) {
-
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(a_Predator);
+
+		const bool notCrawling = a_Predator->IsSneaking() && !AnimationVars::Crawl::IsCrawling(a_Predator);
+		const float shrinkRate = notCrawling ? 0.14f : 0.16f;
+		int passed = 0;
 		for (auto Prey : a_PotentialPrey) {
-			VoreData.AddTiny(Prey);
+			if (TinyCalamity_ShouldShrinkFirst(a_Predator, Prey, MINIMUM_VORE_SCALE, 10.2f, shrinkRate, shrinkRate)) {
+				if (!notCrawling) {
+					StaggerActor(a_Predator, Prey, 0.25f);
+				}
+				continue;
+			}
+			passed++;
 		}
 
-		DamageAV(a_Predator, ActorValue::kStamina, 30 * a_PotentialPrey.size());
-		AnimationManager::StartAnim("StartVore", a_Predator);
+		if (passed == a_PotentialPrey.size()) { // All passed check, can start Vore anim now
+			for (auto Prey : a_PotentialPrey) {
+				VoreData.AddTiny(Prey);
+			}
+			DamageAV(a_Predator, ActorValue::kStamina, 30 * a_PotentialPrey.size());
+			AnimationManager::StartAnim("StartVore", a_Predator);
+		} else {
+			logger::info("{} tried to start vore, but not all actors passed", a_Predator->GetDisplayFullName());
+			logger::info("Actors passed: {}, Requirement: {}", passed, a_PotentialPrey.size());
+		}
 	}
 }
 

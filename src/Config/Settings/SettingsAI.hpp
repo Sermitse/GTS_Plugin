@@ -188,6 +188,7 @@ struct SettingsAI_t {
     bool bSlowMovementDown     = true;
     bool bSlowRotationDown     = true;
     bool bRecordBoneSpeedData  = false;
+    bool bCalamityShrinksFirst = true;
 };
 TOML_SERIALIZABLE(SettingsAI_t);
 TOML_REGISTER_NAME(SettingsAI_t, "AI");

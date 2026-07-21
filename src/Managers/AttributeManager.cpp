@@ -149,7 +149,7 @@ namespace GTS {
 			case ActorValue::kHealth: {
 				float might = 1.0f + Potion_GetMightBonus(actor);
 
-				if (actor->IsPlayerRef()) {
+				if (actor->IsPlayerRef() || IsTeammate(actor)) {
 					if (TinyCalamityActive(actor)) {
 						scale += 1.0f;
 					}
@@ -170,7 +170,7 @@ namespace GTS {
 
 				float might = 1.0f + Potion_GetMightBonus(actor);
 
-				if (actor->IsPlayerRef() && TinyCalamityActive(actor)) {
+				if (TinyCalamityActive(actor)) {
 					scale += 3.0f;
 				}
 				if (scale > 1.0f) {
@@ -194,7 +194,7 @@ namespace GTS {
 			}
 
 			case ActorValue::kAttackDamageMult: {
-				if (actor->IsPlayerRef() && TinyCalamityActive(actor)) {
+				if (TinyCalamityActive(actor)) {
 					scale += 1.0f;
 				}
 				const float BonusDamageMult = Config::Balance.fStatBonusDamageMult;
