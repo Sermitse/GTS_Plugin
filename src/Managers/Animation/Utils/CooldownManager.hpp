@@ -10,7 +10,7 @@ namespace GTS {
         Action_ButtCrush,
         Action_HealthGate,
         Action_ScareOther,
-        Action_AbsorbOther,
+        Action_HugAbsorbOther,
         Action_Breasts_Absorb,
         Action_Breasts_Suffocate,
         Action_Breasts_Vore,
@@ -27,7 +27,8 @@ namespace GTS {
         Misc_ShrinkParticle,
         Misc_ShrinkParticle_Animation,
         Misc_ShrinkParticle_Gaze,
-        Misc_TinyCalamityRage,
+        Misc_TinyCalamity_WrathfulCalamity,
+        Misc_TinyCalamity_Shrink,
         Footstep_Right,
         Footstep_Left,
         Footstep_JumpLand,
@@ -64,7 +65,8 @@ namespace GTS {
         double lastShrinkParticleTime = -1.0e8f;
         double lastAnimShrinkParticleTime = -1.0e8f;
         double lastGazeShrinkParticleTime = -1.0e8f;
-        double lastTinyCalamityTime = -1.0e8f;
+        double lastTinyCalamityOneShotTime = -1.0e8f;
+        double lastTinyCalamityShrinkTime = -1.0e8f;
 
         double lastFootstepTime_R = -1.0e8f;
         double lastFootstepTime_L = -1.0e8f;
@@ -73,7 +75,11 @@ namespace GTS {
         double lastEmotionTime = -1.0e8f;
         double lastEmotionTime_Long = -1.0e8f;
     };
-
+    float Calculate_ShrinkOutburstTimer(Actor* actor);
+    float Calculate_BreastActionCooldown(Actor* giant, int type);
+    float Calculate_HugCrushCooldown(Actor* giant);
+    float Calculate_ButtCrushTimer(Actor* actor);
+		
     void ApplyActionCooldown(Actor* giant, CooldownSource source);
     double GetRemainingCooldown(Actor* giant, CooldownSource source);
     bool IsActionOnCooldown(Actor* giant, CooldownSource source);

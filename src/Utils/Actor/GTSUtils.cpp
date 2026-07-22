@@ -933,10 +933,8 @@ namespace GTS {
 				}
 
 				Task_AdjustHalfLifeTask(tiny, halflife, 1.2); // to make them shrink faster
-				AddSMTPenalty(giant, 5.0f * Adjustment_Tiny);
 				set_target_scale(tiny, targetScale);
 				tiny->StartCombat(giant);
-				
 			}
 		}
 	}

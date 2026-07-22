@@ -102,7 +102,7 @@ namespace GTS {
             auto giant_get = giantHandle.get().get();
             if (giant_get) {
                 if (AnimationVars::Action::IsInCleavageState(giant_get) || AnimationVars::Hug::IsHugCrushing(giant_get)) {
-                    ApplyActionCooldown(giant_get, CooldownSource::Action_AbsorbOther);
+                    ApplyActionCooldown(giant_get, CooldownSource::Action_HugAbsorbOther);
                     return true; // reapply
                 }
                 return false;

@@ -7,6 +7,17 @@
 #include "UI/Controls/Icons/DynIcon_OnTheEdge.hpp"
 #include "UI/Controls/Icons/DynIcon_SizeReserve.hpp"
 #include "UI/Controls/Icons/DynIcon_VoreBeingAbsorbed.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_CalamityShrink.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_WrathfulCalamity.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_Hugs.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_HugAbsorb.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_HealthGate.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_BreastAbsorb.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_BreastSuffocate.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_BreastVore.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_ButtCrush.hpp"
+#include "UI/Controls/Icons/DynIcon_Cooldown_ShrinkOutburst.hpp"
+
 
 namespace ImGuiEx {
 
@@ -19,6 +30,17 @@ namespace ImGuiEx {
 		StatusbarFlag_HideSizeReserve       = 1 << 4,
 		StatusbarFlag_HideOnTheEdge         = 1 << 5,
 		StatusbarFlag_HideVoreBeingAbsorbed = 1 << 6,
+
+		StatusBarFlag_HideCalamityShrink	= 1 << 7,
+		StatusBarFlag_HideWrathfulCalamity  = 1 << 8,
+		StatusBarFlag_HideHugs				= 1 << 9,
+		StatusBarFlag_HideHugCrush			= 1 << 10,
+		StatusBarFlag_HideHealthGate		= 1 << 11,
+		StatusBarFlag_HideBreastAbsorb		= 1 << 12,
+		StatusBarFlag_HideBreastSuffocate	= 1 << 13,
+		StatusBarFlag_HideBreastVore		= 1 << 14,
+		StatusBarFlag_HideButtCrush			= 1 << 15,
+		StatusBarFlag_HideShrinkOutburst	= 1 << 16,
 	};
 
 	enum StatusbarAlwaysShowFlags : uint32_t {
@@ -30,6 +52,17 @@ namespace ImGuiEx {
 		StatusbarASFlag_ASSizeReserve       = 1 << 4,
 		StatusbarASFlag_ASOnTheEdge         = 1 << 5,
 		StatusbarASFlag_ASVoreBeingAbsorbed = 1 << 6,
+
+		StatusBarASFlag_ASCalamityShrink	= 1 << 7,
+		StatusBarASFlag_ASWrathfulCalamity	= 1 << 8,
+		StatusBarASFlag_ASHugs				= 1 << 9,
+		StatusBarASFlag_ASHugCrush			= 1 << 10,
+		StatusBarASFlag_ASHealthGate		= 1 << 11,
+		StatusBarASFlag_ASBreastAbsorb		= 1 << 12,
+		StatusBarASFlag_ASBreastSuffocate	= 1 << 13,
+		StatusBarASFlag_ASBreastVore		= 1 << 14,
+		StatusBarASFlag_ASButtCrush			= 1 << 15,
+		StatusBarASFlag_ASShrinkOutburst	= 1 << 16,
 	};
 
 	class StatusBar {
@@ -54,5 +87,16 @@ namespace ImGuiEx {
         std::unique_ptr<DynIconCataclysmicStompStacks> m_CataclysmicVoreStacksIcon;
 		std::unique_ptr<DynIconVoreBeingAbsorbed> m_VoreBeingAbsorbedIcon;
 
+		std::unique_ptr<DynIconCooldownCalamityShrink> m_TinyCalamityShrink;
+		std::unique_ptr<DynIconCooldownWrathfulCalamity> m_WrathfulCalamity;
+		std::unique_ptr<DynIconCooldownHugs> m_Hugs;
+		std::unique_ptr<DynIconCooldownHugAbsorb> m_HugCrush;
+		std::unique_ptr<DynIconCooldownHealthGate> m_HealthGate;
+		std::unique_ptr<DynIconCooldownBreastAbsorb> m_BreastAbsorb;
+		std::unique_ptr<DynIconCooldownBreastSuffocate> m_BreastSuffocate;
+		std::unique_ptr<DynIconCooldownBreastVore> m_BreastVore;
+		std::unique_ptr<DynIconCooldownButtCrush> m_ButtCrush;
+		std::unique_ptr<DynIconCooldownShrinkOutburst> m_ShrinkOutburst;
+		
 	};
 }

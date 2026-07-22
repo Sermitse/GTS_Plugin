@@ -1,6 +1,31 @@
+#include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Utils/Actions/VoreUtils.hpp"
 #include "Utils/Actor/ActorBools.hpp"
 #include "Config/Config.hpp"
+
+namespace Cooldown {
+	using namespace GTS;
+	void ApplyDelayedShrinkCooldown(Actor* giant) {
+		std::string taskname = std::format("ShrinkCooldown_{}", giant->formID);
+		ActorHandle giantHandle = giant->CreateRefHandle();
+
+		double Start = Time::WorldTimeElapsed();
+
+		TaskManager::RunFor(taskname, 1.0f, [=](auto& progressData){
+			if (!giantHandle) {
+				return false;
+			}
+			double Finish = Time::WorldTimeElapsed();
+			double timepassed = Finish - Start;
+			if (timepassed > 0.30) {
+				auto giant = giantHandle.get().get();
+				ApplyActionCooldown(giant, CooldownSource::Misc_TinyCalamity_Shrink);
+				return false;
+			}
+			return true;
+		});
+	}
+}
 
 namespace GTS {
 
@@ -382,6 +407,7 @@ namespace GTS {
 	}
 
 	bool TinyCalamityActive(Actor* giant) { // Tiny Calamity should work only on Humanoids
+		if (IsTeammate(giant)) return true;
 		if (auto TranData = Transient::GetActorData(giant)) { // Should save fps a bit compared to checking MGEF
 			return TranData->TinyCalamityActive;
 		}
@@ -393,10 +419,20 @@ namespace GTS {
 			return false; // Allow cursed and weird ass looking anims to happen
 		}
 		if (get_scale_difference(giant, tiny, SizeType::VisualScale, false, false) < size_diff_requirement) {
-			float shrinkrate = giant->IsSneaking() ? shrink_rate_sneak : shrink_rate_normal;
-
-			ShrinkUntil(giant, tiny, shrink_until, shrinkrate, true);
-			
+			if (!IsActionOnCooldown(giant, CooldownSource::Misc_TinyCalamity_Shrink)) {
+				const float shrinkrate = giant->IsSneaking() ? shrink_rate_sneak : shrink_rate_normal;
+				ShrinkUntil(giant, tiny, shrink_until, shrinkrate, true);
+				Cooldown::ApplyDelayedShrinkCooldown(giant);// Fix for only one actor being targeted despite having capacity perks
+			} else {
+				if (giant->IsPlayerRef()) {
+					std::string message = std::format("Shrink is on a cooldown: {:.1f} sec", GetRemainingCooldown(giant, CooldownSource::Misc_TinyCalamity_Shrink));
+                    shake_camera(giant, 0.45f, 0.30f);
+                    NotifyWithSound(giant, message);
+				} else {
+					Cprint("{}'s Shrink is on a cooldown:", giant->GetDisplayFullName(), GetRemainingCooldown(giant, CooldownSource::Misc_TinyCalamity_Shrink));
+					logger::info("{}'s Shrink is on a cooldown:", giant->GetDisplayFullName(), GetRemainingCooldown(giant, CooldownSource::Misc_TinyCalamity_Shrink));
+				}
+			}
 			return true;
 		}
 		return false;

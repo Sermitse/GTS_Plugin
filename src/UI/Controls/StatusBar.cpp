@@ -2,8 +2,21 @@
 #include "UI/Controls/ToolTip.hpp"
 #include "UI/Core/ImUtil.hpp"
 #include "Managers/AttributeManager.hpp"
+#include "Managers/Animation/Utils/CooldownManager.hpp"
+#include "Constants.hpp"
 
+using namespace GTS;
 namespace {
+	PSString TCalamityShrink 	= "Remaining cooldown of Tiny Calamity shrink";
+	PSString TWrathfulCalamity 	= "Remaining cooldown of Wrathful Calamity";
+	PSString THugs			   	= "Remaining cooldown of Hugs";
+	PSString THugCrush			= "Remaining cooldown of Hug Crush";
+	PSString THealthGate		= "Remaining cooldown of Health Gate";
+	PSString TBreastAbsorb		= "Remaining cooldown of Breast Absorb";
+	PSString TBreastSuffocate	= "Remaining cooldown of Breast Suffocate";
+	PSString TBreastVore		= "Remaining cooldown of Breast Vore";
+	PSString TButtCrush			= "Remaining cooldown of Butt Crush";
+	PSString TShrinkOutburst 	= "Remaining cooldown of ShrinkOutburst";
 
 	PSString TDamageResist = "Total damage resistance in percent.\n"
 		"Effectively increases total HP.";
@@ -47,6 +60,17 @@ namespace ImGuiEx {
 		m_onTheEdgeIcon             = std::make_unique<DynIconOnTheEdge>(m_iconSize);
 		m_CataclysmicVoreStacksIcon = std::make_unique<DynIconCataclysmicStompStacks>(m_iconSize);
 		m_VoreBeingAbsorbedIcon     = std::make_unique<DynIconVoreBeingAbsorbed>(m_iconSize);
+
+		m_TinyCalamityShrink 		= std::make_unique<DynIconCooldownCalamityShrink>(m_iconSize);
+		m_WrathfulCalamity			= std::make_unique<DynIconCooldownWrathfulCalamity>(m_iconSize);
+		m_Hugs						= std::make_unique<DynIconCooldownHugs>(m_iconSize);
+		m_HugCrush					= std::make_unique<DynIconCooldownHugAbsorb>(m_iconSize);
+		m_HealthGate				= std::make_unique<DynIconCooldownHealthGate>(m_iconSize);
+		m_BreastAbsorb				= std::make_unique<DynIconCooldownBreastAbsorb>(m_iconSize);
+		m_BreastSuffocate			= std::make_unique<DynIconCooldownBreastSuffocate>(m_iconSize);
+		m_BreastVore				= std::make_unique<DynIconCooldownBreastVore>(m_iconSize);
+		m_ButtCrush					= std::make_unique<DynIconCooldownButtCrush>(m_iconSize);
+		m_ShrinkOutburst			= std::make_unique<DynIconCooldownShrinkOutburst>(m_iconSize);
 	}
 
 	uint8_t StatusBar::Draw(RE::Actor* a_actor, uint32_t a_visFlags, uint32_t a_ASFlags, bool* a_stateChanged, bool a_preview) {
@@ -67,6 +91,37 @@ namespace ImGuiEx {
 		int iVoreStacks = T->Stacks_Perk_CataclysmicStomp;
 		int iVoreAbsorbing = T->VoreCurrentlyAbsorbingCount;
 
+		// ----- Cooldown Vars
+		const float CalamityShrink_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Misc_TinyCalamity_Shrink);
+		float CalamityShrink_ToSeconds = std::clamp(CalamityShrink_Remaining, 0.0f, TINYCALAMITY_SHRINK_COOLDOWN);
+		// 
+		const float WrathfulCalamity_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Misc_TinyCalamity_WrathfulCalamity);
+		float WrathfulCalamity_ToSeconds = std::clamp(WrathfulCalamity_Remaining, 0.0f, TINYCALAMITY_ONESHOT_COOLDOWN);
+		// 
+		const float Hugs_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Action_Hugs);
+		float Hugs_ToSeconds = std::clamp(Hugs_Remaining, 0.0f, HUGS_COOLDOWN);
+		//
+		const float HugCrush_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Action_HugAbsorbOther);
+		float HugCrush_ToSeconds = std::clamp(HugCrush_Remaining, 0.0f, ABSORB_OTHER_COOLDOWN);
+		// 
+		const float HealthGate_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Action_HealthGate);
+		float HealthGate_ToSeconds = std::clamp(HealthGate_Remaining, 0.0f, HEALTHGATE_COOLDOWN);
+		// 
+		const float BreastAbsorb_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Action_Breasts_Absorb);
+		float BreastAbsorb_ToSeconds = std::clamp(BreastAbsorb_Remaining, 0.0f, BREAST_ABSORB_OTHER_COOLDOWN);
+		//
+		const float BreastSuffocate_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Action_Breasts_Suffocate);
+		float BreastSuffocate_ToSeconds = std::clamp(BreastSuffocate_Remaining, 0.0f, BREAST_SUFFOCATE_OTHER_COOLDOWN);
+		//
+		const float BreastVore_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Action_Breasts_Vore);
+		float BreastVore_ToSeconds = std::clamp(BreastVore_Remaining, 0.0f, BREAST_VORE_OTHER_COOLDOWN);
+		//
+		const float ButtCrush_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Action_ButtCrush);
+		float ButtCrush_ToSeconds = std::clamp(ButtCrush_Remaining, 0.0f, BUTTCRUSH_COOLDOWN);
+		//
+		const float ShrinkOutburst_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Misc_ShrinkOutburst);
+		float ShrinkOutburst_ToSeconds = std::clamp(ShrinkOutburst_Remaining, 0.0f, SHRINK_OUTBURST_COOLDOWN);
+
 		// Dummy values for preview mode
 		if (a_preview) {
 			fDamageResist = 100.0f;
@@ -76,6 +131,16 @@ namespace ImGuiEx {
 			iLifeAbsorbStacks = 10;
 			iVoreStacks = 10;
 			iVoreAbsorbing = 4;
+			CalamityShrink_ToSeconds = 10;
+			WrathfulCalamity_ToSeconds = 10;
+			Hugs_ToSeconds = 10;
+			HugCrush_ToSeconds = 10;
+			HealthGate_ToSeconds = 10;
+			BreastAbsorb_ToSeconds = 10;
+			BreastSuffocate_ToSeconds = 10;
+			BreastVore_ToSeconds = 10;
+			ButtCrush_ToSeconds = 10;
+			ShrinkOutburst_ToSeconds = 10;
 		}
 
 		bool Draw_damageReductionIcon       = !(a_visFlags & StatusbarFlag_HideDamageReduction);
@@ -85,20 +150,142 @@ namespace ImGuiEx {
 		bool Draw_sizeReserveIcon           = !(a_visFlags & StatusbarFlag_HideSizeReserve);
 		bool Draw_onTheEdgeIcon             = !(a_visFlags & StatusbarFlag_HideOnTheEdge);
 		bool Draw_voreBeingAbsorbed         = !(a_visFlags & StatusbarFlag_HideVoreBeingAbsorbed);
+		bool Draw_CalamityShrinkCooldown 	= !(a_visFlags & StatusBarFlag_HideCalamityShrink);
+		bool Draw_WrathFulCalamityCooldown  = !(a_visFlags & StatusBarFlag_HideWrathfulCalamity);
+		bool Draw_Hugs						= !(a_visFlags & StatusBarFlag_HideHugs);
+		bool Draw_HugCrush					= !(a_visFlags & StatusBarFlag_HideHugCrush);
+		bool Draw_HealthGate				= !(a_visFlags & StatusBarFlag_HideHealthGate);
+		bool Draw_BreastAbsorb				= !(a_visFlags & StatusBarFlag_HideBreastAbsorb);
+		bool Draw_BreastSuffocate			= !(a_visFlags & StatusBarFlag_HideBreastSuffocate);
+		bool Draw_BreastVore				= !(a_visFlags & StatusBarFlag_HideBreastVore);
+		bool Draw_ButtCrush					= !(a_visFlags & StatusBarFlag_HideButtCrush);
+		bool Draw_ShrinkOutburst 			= !(a_visFlags & StatusBarFlag_HideShrinkOutburst);
 
-		bool AS_damageReductionIcon       = (a_ASFlags & StatusbarASFlag_ASDamageReduction);
-		bool AS_lifeAbsorbIcon            = (a_ASFlags & StatusbarASFlag_ASLifeAbsorbtion);
-		bool AS_enchantmentIcon           = (a_ASFlags & StatusbarASFlag_ASEnchantment);
-		bool AS_CataclysmicVoreStacksIcon = (a_ASFlags & StatusbarASFlag_ASVoreStacks);
-		bool AS_sizeReserveIcon           = (a_ASFlags & StatusbarASFlag_ASSizeReserve);
-		bool AS_onTheEdgeIcon             = (a_ASFlags & StatusbarASFlag_ASOnTheEdge);
-		bool AS_voreBeingAbsorbed         = (a_ASFlags & StatusbarASFlag_ASVoreBeingAbsorbed);
+		bool AS_damageReductionIcon       	= (a_ASFlags & StatusbarASFlag_ASDamageReduction);
+		bool AS_lifeAbsorbIcon            	= (a_ASFlags & StatusbarASFlag_ASLifeAbsorbtion);
+		bool AS_enchantmentIcon           	= (a_ASFlags & StatusbarASFlag_ASEnchantment);
+		bool AS_CataclysmicVoreStacksIcon 	= (a_ASFlags & StatusbarASFlag_ASVoreStacks);
+		bool AS_sizeReserveIcon           	= (a_ASFlags & StatusbarASFlag_ASSizeReserve);
+		bool AS_onTheEdgeIcon             	= (a_ASFlags & StatusbarASFlag_ASOnTheEdge);
+		bool AS_voreBeingAbsorbed         	= (a_ASFlags & StatusbarASFlag_ASVoreBeingAbsorbed);
+		bool AS_CalamityShrinkCooldown    	= (a_ASFlags & StatusBarASFlag_ASCalamityShrink);
+		bool AS_WrathfulCalamityCooldown  	= (a_ASFlags & StatusBarASFlag_ASWrathfulCalamity);
+		bool AS_Hugs					  	= (a_ASFlags & StatusBarASFlag_ASHugs);
+		bool AS_HugCrush					= (a_ASFlags & StatusBarASFlag_ASHugCrush);
+		bool AS_HealthGate					= (a_ASFlags & StatusBarASFlag_ASHealthGate);
+		bool AS_BreastAbsorb				= (a_ASFlags & StatusBarASFlag_ASBreastAbsorb);
+		bool AS_BreastSuffocate				= (a_ASFlags & StatusBarASFlag_ASBreastSuffocate);
+		bool AS_BreastVore					= (a_ASFlags & StatusBarASFlag_ASBreastVore);
+		bool AS_ButtCrush					= (a_ASFlags & StatusBarASFlag_ASButtCrush);
+		bool AS_ShrinkOutburst				= (a_ASFlags & StatusBarASFlag_ASShrinkOutburst);
 
 		const float RowY = ImGui::GetCursorPosY();
 		float cursorX = ImGui::GetCursorPosX();
 		uint8_t drawnIcons = 0;
 		float m_combiCurValueState = 0.0f;
-
+		// -------------   Cooldowns
+		// Calamity Shrink
+		if (Draw_CalamityShrinkCooldown){
+			m_TinyCalamityShrink->Resize(m_iconSize);
+			if (m_TinyCalamityShrink->Draw(CalamityShrink_ToSeconds, TINYCALAMITY_SHRINK_COOLDOWN, AS_CalamityShrinkCooldown)) {
+				if (m_enableToolTips) Tooltip(TCalamityShrink, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += CalamityShrink_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// Wrathful Calamity
+		if (Draw_WrathFulCalamityCooldown){
+			m_WrathfulCalamity->Resize(m_iconSize);
+			if (m_WrathfulCalamity->Draw(WrathfulCalamity_ToSeconds, TINYCALAMITY_ONESHOT_COOLDOWN, AS_WrathfulCalamityCooldown)) {
+				if (m_enableToolTips) Tooltip(TWrathfulCalamity, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += WrathfulCalamity_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// Hugs
+		if (Draw_Hugs) {
+			m_Hugs->Resize(m_iconSize);
+			if (m_Hugs->Draw(Hugs_ToSeconds, HUGS_COOLDOWN, AS_Hugs)) {
+				if (m_enableToolTips) Tooltip(THugs, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += Hugs_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// Hug Crush
+		if (Draw_HugCrush) {
+			m_HugCrush->Resize(m_iconSize);
+			if (m_HugCrush->Draw(HugCrush_ToSeconds, Calculate_HugCrushCooldown(a_actor), AS_HugCrush)) {
+				if (m_enableToolTips) Tooltip(THugCrush, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += HugCrush_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// Health Gate
+		if (Draw_HealthGate) {
+			m_HealthGate->Resize(m_iconSize);
+			if (m_HealthGate->Draw(HealthGate_ToSeconds, HEALTHGATE_COOLDOWN, AS_HealthGate)) {
+				if (m_enableToolTips) Tooltip(THealthGate, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += HealthGate_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// Breast Absorb
+		if (Draw_BreastAbsorb) {
+			m_BreastAbsorb->Resize(m_iconSize);
+			if (m_BreastAbsorb->Draw(BreastAbsorb_ToSeconds, Calculate_BreastActionCooldown(a_actor, 2), AS_BreastAbsorb)) {
+				if (m_enableToolTips) Tooltip(TBreastAbsorb, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += BreastAbsorb_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// Breast Suffocate
+		if (Draw_BreastSuffocate) {
+			m_BreastSuffocate->Resize(m_iconSize);
+			if (m_BreastSuffocate->Draw(BreastSuffocate_ToSeconds, Calculate_BreastActionCooldown(a_actor, 0), AS_BreastSuffocate)) {
+				if (m_enableToolTips) Tooltip(TBreastSuffocate, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += BreastSuffocate_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// Breast Vore
+		if (Draw_BreastVore) {
+			m_BreastVore->Resize(m_iconSize);
+			if (m_BreastVore->Draw(BreastVore_ToSeconds, Calculate_BreastActionCooldown(a_actor, 1), AS_BreastVore)) {
+				if (m_enableToolTips) Tooltip(TBreastVore, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += BreastVore_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// Butt Crush
+		if (Draw_ButtCrush) {
+			m_ButtCrush->Resize(m_iconSize);
+			if (m_ButtCrush->Draw(ButtCrush_ToSeconds, Calculate_ButtCrushTimer(a_actor), AS_ButtCrush)) {
+				if (m_enableToolTips) Tooltip(TButtCrush, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += ButtCrush_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// Shrink Outburst
+		if (Draw_ShrinkOutburst) {
+			m_ShrinkOutburst->Resize(m_iconSize);
+			if (m_ShrinkOutburst->Draw(ShrinkOutburst_ToSeconds, Calculate_ShrinkOutburstTimer(a_actor), AS_ShrinkOutburst)) {
+				if (m_enableToolTips) Tooltip(TShrinkOutburst, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += ShrinkOutburst_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// -------------------------
+		
 		//m_damageReductionIcon
 		if (Draw_damageReductionIcon) {
 			m_damageReductionIcon->Resize(m_iconSize);

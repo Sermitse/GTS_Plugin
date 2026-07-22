@@ -2,7 +2,7 @@
 
 namespace GTS {
 
-    bool TinyCalamity_WrathfulCalamity(Actor* giant);
+    bool TinyCalamity_WrathfulCalamity(Actor* giant, std::vector<Actor*> preys);
     
     void TinyCalamity_ShrinkActor(Actor* giant, Actor* tiny, float shrink);
     void TinyCalamity_SeekForShrink(Actor* giant, Actor* tiny, float damage, float maxFootDistance, DamageSource Cause, bool Right, bool ApplyCooldown, bool ignore_rotation);

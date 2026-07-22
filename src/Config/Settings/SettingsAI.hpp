@@ -164,6 +164,7 @@ struct SettingsAI_t {
     float fMasterTimer   = 3.0f;
 
     // Stateless Actions
+    AIStatelessAction_t WrathfulCalamity  = { .bEnableAction = true, .fProbability = 100.0f };
     AIStatelessAction_t Vore      = { .bEnableAction = true, .fProbability = 33.0f };
     AIStatelessAction_t KickSwipe = { .bEnableAction = true, .fProbability = 25.0f };
 

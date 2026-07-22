@@ -205,7 +205,6 @@ namespace {
             ImGuiEx::SliderF("Chance To Crush", &Config::AI.ButtCrush.fCrushProb, 0.0f, 100.0f, T5, "%.0f%%");
         }
         ImGui::EndDisabled();
-
     }
 
     void DrawAIAction_Grab() {
@@ -287,6 +286,29 @@ namespace {
         ImGui::EndDisabled();
     }
 
+    void DrawAIAction_Calamity() {
+        PSString TCHelp = "Tiny Calamity is a shout effect that is normally player exclusive\n"
+                          "- Mod provides no way to apply this effect on NPC's by default";
+        PSString WCHelp = "Wrathful Calamity is a one-shot attack that is normally player exclusive\n"
+                          "- It can be performed only against humanoid enemies that are on low health\n"
+                          "- And only when Tiny Calamity is active";
+        PSString T0 = "Enable starting a Wrathful Calamity action.";
+        PSString T1 = "Set the chance for a Wrathful Calamity action to be started.";
+        PSString TC = "When Tiny Calamity is active: \n"
+                        "- If ON: NPC's shrink enemy first, and only then do size action\n"
+                        "- if OFF: NPC's ignore shrinking part and do anims right away\n"
+                        "Recommended: keep it ON, same size anims look awful and cursed.";
+        
+        ImGui::Text("Tiny Calamity");
+        ImGuiEx::HelpText("What is Tiny Calamity", TCHelp);
+        ImGuiEx::CheckBox("Tiny Calamity: Enable shrink anims", &Config::AI.bCalamityShrinksFirst, TC);
+        ImGui::Spacing();
+        ImGui::Text("Wrathful Calamity");
+        ImGuiEx::HelpText("What is Wrathful Calamity", WCHelp);
+        ImGuiEx::CheckBox("Enable Action", &Config::AI.WrathfulCalamity.bEnableAction, T0);
+        ImGuiEx::SliderF("Start Chance", &Config::AI.WrathfulCalamity.fProbability, 1.0f, 100.0f, T1, "%.0f%%", !Config::AI.WrathfulCalamity.bEnableAction);
+    }
+
 } 
 
 namespace GTS {
@@ -366,13 +388,8 @@ namespace GTS {
                              "- If on - followers won't push others away if just standing still\n"
                              "- May affect fps in a negative way since it records data each frame for each follower";
             PSString T4 = "Toggle whether other NPCs should panic when near a GTS.";
-            PSString T5 = "When Tiny Calamity is active: \n"
-                          "- If ON: NPC's shrink enemy first, and only then do size action\n"
-                          "- if OFF: NPC's ignore shrinking part and do anims right away\n"
-                          "Recommended: keep it ON, same size anims look awful and cursed.";
 
             if (ImGui::CollapsingHeader("Misc Settings",ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::CheckBox("Tiny Calamity: Enable shrink anims", &Config::AI.bCalamityShrinksFirst, T5);
                 ImGuiEx::CheckBox("Decrease Movement Speed AV", &Config::AI.bSlowMovementDown, T0);
                 ImGuiEx::CheckBox("Decrease Combat Rotation Speed", &Config::AI.bSlowRotationDown, T2);
                 ImGuiEx::CheckBox("Record Node Movement Speed Data", &Config::AI.bRecordBoneSpeedData, T3);
@@ -396,6 +413,7 @@ namespace GTS {
                 "Hugs",
                 "Butt Crush",
                 "Grabs",
+                "Tiny Calamity",
 			}
         );
 
@@ -412,6 +430,7 @@ namespace GTS {
                 case 5: DrawAIAction_Hugs();          break;
                 case 6: DrawAIAction_ButtCrush();     break;
                 case 7: DrawAIAction_Grab();          break;
+                case 8: DrawAIAction_Calamity();      break;
 				default:                              break;
             }
         }

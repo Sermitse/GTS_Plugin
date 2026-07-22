@@ -369,7 +369,7 @@ namespace {
 		Actor* player = GetPlayerOrControlled();
 		auto huggedActor = HugShrink::GetHuggiesActor(player);
 		if (huggedActor) {
-			if (!IsActionOnCooldown(player, CooldownSource::Action_AbsorbOther)) {
+			if (!IsActionOnCooldown(player, CooldownSource::Action_HugAbsorbOther)) {
 				float health = GetHealthPercentage(huggedActor);
 				float HpThreshold = GetHugCrushThreshold(player, huggedActor, true);
 				if (health <= HpThreshold) {
@@ -393,7 +393,7 @@ namespace {
 					Notify("Health: {:.0f}%; Requirement: {:.0f}%", health * 100.0f, HpThreshold * 100.0f);
 				}
 			} else {
-				double cooldown = GetRemainingCooldown(player, CooldownSource::Action_AbsorbOther);
+				double cooldown = GetRemainingCooldown(player, CooldownSource::Action_HugAbsorbOther);
 				std::string message = std::format("Hug Crush is on a cooldown: {:.1f} sec", cooldown);
 				NotifyWithSound(player, message);
 			}

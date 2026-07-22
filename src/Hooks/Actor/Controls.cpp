@@ -1,9 +1,13 @@
+#include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Hooks/Actor/Controls.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Damage/TinyCalamity.hpp"
 #include "Hooks/Util/HookUtil.hpp"
 
 using namespace GTS;
+const RE::BSFixedString sneak 			= "Sneak";
+const RE::BSFixedString activate 		= "Activate";
+
 
 namespace {
 
@@ -13,15 +17,18 @@ namespace {
 			auto player = PlayerCharacter::GetSingleton();
 			if (player) {
 				auto as_str = id->userEvent;
-				if (as_str == "Sneak" && AnimationVars::Prone::IsProne(player)) {
+				if (as_str == sneak && AnimationVars::Prone::IsProne(player)) {
 					if (player->IsSneaking()) {
 						allow = false;
 						AnimationManager::StartAnim("SBO_ProneOff", player);
 					}
 				}
-				else if (as_str == "Activate") {
-					if (TinyCalamity_WrathfulCalamity(player)) {
-						allow = false;
+				else if (as_str == activate) {
+					if (TinyCalamityActive(player)) {
+						auto preys = VoreController::GetSingleton().GetVoreTargetsInFront(player, 1);
+						if (TinyCalamity_WrathfulCalamity(player, preys)) {
+							allow = false;
+						}
 					}
 				}
 			}

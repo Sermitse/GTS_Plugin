@@ -31,6 +31,16 @@ namespace ImageList {
     PSString BuffIcon_SizeReserve        = "bufficon_sizereserve";
     PSString BuffIcon_VoreBeingAbsorbed  = "bufficon_vorebeingabsorbed";
 
+    PSString CooldownIcon_TinyCalamity          =   "cooldownicon_tinycalamityshrink";
+    PSString CooldownIcon_WrathfulCalamity      =   "cooldownicon_wrathfulcalamity";
+    PSString CooldownIcon_Hugs                  =   "cooldownicon_hugs";
+    PSString CooldownIcon_HugAbsorb             =   "cooldownicon_hugabsorb";
+    PSString CooldownIcon_HealthGate            =   "cooldownicon_healthgate";
+    PSString CooldownIcon_BreastAbsorb          =   "cooldownicon_breastabsorb";
+    PSString CooldownIcon_BreastSuffocate       =   "cooldownicon_breastsuffocate";
+    PSString CooldownIcon_BreastVore            =   "cooldownicon_breastvore";
+    PSString CooldownIcon_ButtCrush             =   "cooldownicon_buttcrush";
+    PSString CooldownIcon_ShrinkOutburst        =   "cooldownicon_shrinkoutburst";
 }
 
 namespace GTS {

@@ -1,3 +1,4 @@
+#include "Managers/Damage/TinyCalamity.hpp"
 #include "Managers/AI/AIManager.hpp"
 
 #include "Grab/GrabAI.hpp"
@@ -11,6 +12,7 @@
 #include "Managers/AI/ButtCrush/ButtCrushAI.hpp"
 #include "Managers/AI/Thigh/ThighSandwichAI.hpp"
 #include "Managers/AI/StompKick/StompKickSwipeAI.hpp"
+#include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/HugShrink.hpp"
 #include "Managers/Animation/Controllers/VoreController.hpp"
@@ -30,6 +32,7 @@ namespace {
 		kHug,
 		kGrab,
 		kNone,
+		kWrathfulCalamity,
 		kTotal
 	};
 
@@ -311,6 +314,7 @@ namespace GTS {
 		if (!a_Performer) return false;
 
 		//Actor* container from each filter result.
+		std::vector<Actor*> CanCalamity = {};
 		std::vector<Actor*> CanVore = {};
 		std::vector<Actor*> CanDVVore = {};
 		std::vector<Actor*> CanStompKickSwipe = {};
@@ -326,6 +330,15 @@ namespace GTS {
 		const auto& PreyList = FindValidPrey(a_Performer);
 		if (PreyList.empty()) {
 			return false;
+		}
+
+		//----------- WRATHFUL CALAMITY
+
+		if (AISettings.WrathfulCalamity.bEnableAction && TinyCalamityActive(a_Performer)) {
+			CanCalamity = VoreController::GetSingleton().GetVoreTargetsInFront(a_Performer, 1);  // This action supports only ONE actor
+			if (!CanCalamity.empty() && !IsActionOnCooldown(a_Performer, CooldownSource::Misc_TinyCalamity_WrathfulCalamity)) { 
+				StartableActions.emplace(ActionType::kWrathfulCalamity, static_cast<int>(AISettings.WrathfulCalamity.fProbability));
+			}
 		}
 
 		//----------- VORE
@@ -416,7 +429,7 @@ namespace GTS {
 		
 		Temp.reserve(CanVore.size() + CanStompKickSwipe.size() +
 			CanThighSandwich.size() + CanThighCrush.size() +
-			CanButtCrush.size() + CanHug.size() + CanGrab.size());
+			CanButtCrush.size() + CanHug.size() + CanGrab.size() + CanCalamity.size());
 
 		auto CombineActorList = [&UniqueActors, &Temp](const std::vector<Actor*>& idxActor) {
 			for (Actor* TempActor : idxActor) {
@@ -440,7 +453,14 @@ namespace GTS {
 		HandleAttackBlocking(a_Performer, CombinedList);
 
 		switch (CalculateProbability(StartableActions)) {
-
+			case ActionType::kWrathfulCalamity: {
+				logger::trace("AI wants to start Wrathful calamity");
+				if (TinyCalamity_WrathfulCalamity(a_Performer, CanCalamity)) {
+					logger::trace("AI starting Wrathful calamity");
+					return true;
+				};
+				break;
+			}
 			case ActionType::kVore: {
 
 				logger::trace("AI Starting kVore Action");
