@@ -379,7 +379,6 @@ namespace {
 				} else if (TinyCalamityActive(player)) {
 					AnimationManager::StartAnim("Huggies_HugCrush", player);
 					AnimationManager::StartAnim("Huggies_HugCrush_Victim", huggedActor);
-					AddSMTPenalty(player, 10.0f); // Mostly called inside ShrinkUntil
 					DelayedHurtStamina(player, 60.0f);
 					return;
 				} else {

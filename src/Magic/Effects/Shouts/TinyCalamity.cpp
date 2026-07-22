@@ -6,9 +6,11 @@
 using namespace GTS;
 
 namespace {
-	void RecordTinyCalamity(Actor* actor, bool enable) {
+	void RecordTinyCalamity(Actor* actor, float seconds_passed, float starting_duration, bool enable) {
 		if (auto TranData = Transient::GetActorData(actor)) {
 			TranData->TinyCalamityActive = enable;
+			TranData->TinyCalamity_SecondsPassed = seconds_passed;
+			TranData->TinyCalamity_StartingDuration = starting_duration;
 		}
 	}
 	float GetSMTBonus(Actor* actor) {
@@ -78,7 +80,7 @@ namespace GTS {
 	void TinyCalamity::OnStart() {
 		auto caster = GetCaster();
 		if (caster) {
-			RecordTinyCalamity(caster, true);
+			RecordTinyCalamity(caster, GetActiveEffect()->elapsedSeconds, GetActiveEffect()->duration, true);
 			if (caster->IsPlayerRef() && !Persistent::MSGSeenTinyCamity.value) {
 				PrintMessageBox(TinyCalamityMessage);
 				Persistent::MSGSeenTinyCamity.value = true;
@@ -109,13 +111,14 @@ namespace GTS {
 		}
 		static Timer warningtimer = Timer(3.0);
 		float CasterScale = get_target_scale(caster);
-
+		auto effect = GetActiveEffect();
+		RecordTinyCalamity(caster, effect->elapsedSeconds, effect->duration, true);
 		if (float bonus = GetSMTBonus(caster); bonus > 0.5f) {
-			GetActiveEffect()->duration += bonus;
+			effect->duration += bonus;
 			ResetDurationBonuses(caster);
 		}
 		if (float penalty = GetSMTPenalty(caster); penalty > 0.5f) {
-			GetActiveEffect()->duration -= penalty;
+			effect->duration -= penalty;
 			ResetDurationBonuses(caster);
 		}
 		CapCasterSize(caster, CasterScale, warningtimer.ShouldRun()); // Cap size between 1.0x and 1.5, not bigger than that.
@@ -124,7 +127,7 @@ namespace GTS {
 	void TinyCalamity::OnFinish() {
 		auto caster = GetCaster();
 		if (caster) {
-			RecordTinyCalamity(caster, false);
+			RecordTinyCalamity(caster, 0.0f, 0.0f, false);
 			float CasterScale = get_target_scale(caster);
 			float naturalscale = get_natural_scale(caster, true);
 			if (CasterScale < naturalscale) {

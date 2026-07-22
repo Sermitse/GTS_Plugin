@@ -84,6 +84,8 @@ namespace GTS {
 
 		bool AutoAim_TargetLeft = false;
 
+		float TinyCalamity_StartingDuration = 0.0f;
+		float TinyCalamity_SecondsPassed = 0.0f;
 		float EscapingActionProgress = 0.0f;
 		bool EscapingInteraction = false;
 

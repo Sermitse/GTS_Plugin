@@ -49,7 +49,7 @@ struct SettingsAutoAim_t {
     float fAutoAim_Range_Hand = 15.0f;
     float fAutoAim_Range_Hand_Crawl = 25.0f;
     // kick
-    float fAutoAim_Range_Kick = 36.0f;
+    float fAutoAim_Range_Kick = 48.0f;
     float fAutoAim_Range_Kick_Sneak = 48.0f;
     //butt
     float fAutoAim_Range_ButtSlam = 40.0f;
@@ -63,13 +63,13 @@ struct SettingsAutoAim_t {
     // hand
     float fAutoAim_Hand_OffsetDistance_Side = 14.5f;
     float fAutoAim_Hand_OffsetDistance_Forward = 50.0f;
-    float fAutoAim_Hand_OffsetDistance_Forward_Sneak = 35.0f;
+    float fAutoAim_Hand_OffsetDistance_Forward_Sneak = 50.0f;
     // Hand Crawl
     float fAutoAim_Hand_Crawl_OffsetDistance_Side = 11.0f;
     float fAutoAim_Hand_Crawl_OffsetDistance_Forward = 60.0f;
     float fAutoAim_Hand_Crawl_OffsetDistance_Forward_Sneak = 35.0f;
     // kick
-    float fAutoAim_Kick_OffsetDistance_Forward = 20.0f;
+    float fAutoAim_Kick_OffsetDistance_Forward = 40.0f;
     // butt
     float fAutoAim_Butt_OffsetDistance_Forward = 0.0f;
     float fAutoAim_Butt_OffsetDistance_Side = 15.0f;

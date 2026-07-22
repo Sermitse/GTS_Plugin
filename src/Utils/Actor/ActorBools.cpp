@@ -3,30 +3,6 @@
 #include "Utils/Actor/ActorBools.hpp"
 #include "Config/Config.hpp"
 
-namespace Cooldown {
-	using namespace GTS;
-	void ApplyDelayedShrinkCooldown(Actor* giant) {
-		std::string taskname = std::format("ShrinkCooldown_{}", giant->formID);
-		ActorHandle giantHandle = giant->CreateRefHandle();
-
-		double Start = Time::WorldTimeElapsed();
-
-		TaskManager::RunFor(taskname, 1.0f, [=](auto& progressData){
-			if (!giantHandle) {
-				return false;
-			}
-			double Finish = Time::WorldTimeElapsed();
-			double timepassed = Finish - Start;
-			if (timepassed > 0.30) {
-				auto giant = giantHandle.get().get();
-				ApplyActionCooldown(giant, CooldownSource::Misc_TinyCalamity_Shrink);
-				return false;
-			}
-			return true;
-		});
-	}
-}
-
 namespace GTS {
 
 	bool IsInSexlabAnim(Actor* actor_1, Actor* actor_2) {
@@ -407,7 +383,6 @@ namespace GTS {
 	}
 
 	bool TinyCalamityActive(Actor* giant) { // Tiny Calamity should work only on Humanoids
-		if (IsTeammate(giant)) return true;
 		if (auto TranData = Transient::GetActorData(giant)) { // Should save fps a bit compared to checking MGEF
 			return TranData->TinyCalamityActive;
 		}
@@ -422,7 +397,6 @@ namespace GTS {
 			if (!IsActionOnCooldown(giant, CooldownSource::Misc_TinyCalamity_Shrink)) {
 				const float shrinkrate = giant->IsSneaking() ? shrink_rate_sneak : shrink_rate_normal;
 				ShrinkUntil(giant, tiny, shrink_until, shrinkrate, true);
-				Cooldown::ApplyDelayedShrinkCooldown(giant);// Fix for only one actor being targeted despite having capacity perks
 			} else {
 				if (giant->IsPlayerRef()) {
 					std::string message = std::format("Shrink is on a cooldown: {:.1f} sec", GetRemainingCooldown(giant, CooldownSource::Misc_TinyCalamity_Shrink));

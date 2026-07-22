@@ -88,7 +88,6 @@ namespace {
                         } else if (TinyCalamityActive(player)) {
                             DamageAV(player, ActorValue::kStamina, 60);
                             AnimationManager::StartAnim(pass_anim, player);
-                            AddSMTPenalty(player, 10.0f);
                             return true;
                         } else {
                             if (CanForceAction(player, tiny, pass_anim)) {

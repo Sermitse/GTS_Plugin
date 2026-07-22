@@ -21,7 +21,7 @@ namespace ImGuiEx {
 
 	bool DynIconCooldownWrathfulCalamity::Draw(float a_percent, float a_totalCooldown, bool a_alwaysShow) const {
 
-		if (a_percent <= 0.1f && !a_alwaysShow) return false;
+		if ((a_percent <= 0.1f || a_percent == a_totalCooldown) && !a_alwaysShow) return false;
 
 		float rel_scale = dynamic_cast<GTS::StatusBarWindow*>(GTS::GTSMenu::WindowManager->wStatusBar)->GetExtraSettings<WindowSettingsStatusBar_t>().fRelativeFontScale;
 		GTS::ImFontManager::Push(GTS::ImFontManager::kIconText, (static_cast<float>(m_size) / static_cast<float>(m_referenceSize)) * rel_scale);

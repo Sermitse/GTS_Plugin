@@ -1,4 +1,5 @@
 #include "UI/Windows/Settings/Categories/Widgets.hpp"
+#include "UI/Controls/CollapsingTabHeader.hpp"
 
 #include "Config/Config.hpp"
 
@@ -73,7 +74,201 @@ namespace {
 	PSString KFEnableWorldKills = "Show vanilla game kills that have no attacker (eg. from falling damage, scripted deaths, etc).";
 	PSString KFFontScale = "Set the font size relative to the icon size.";
 
+	void DrawToggle_Buffs(WindowSettingsStatusBar_t& ExtraSettings) {
+		bool sDamReduction   	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideDamageReduction);
+		bool sLifeAbsorbtion 	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideLifeAbsorbtion);
+		bool sEnachantment   	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideEnchantment);
+		bool sVoreStacks     	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideVoreStacks);
+		bool sSizeReserve    	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideSizeReserve);
+		bool sOnTheEdge      	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideOnTheEdge);
+		bool sVoreAbsorbing  	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideVoreBeingAbsorbed);
+		bool sCalamityDuration	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideCalamityDuration);
+		ImUtil_Unique
+		{
+			if (ImGuiEx::CheckBox("Damage Reduction", &sDamReduction, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideDamageReduction, !sDamReduction);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Life Absorbtion", &sLifeAbsorbtion, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideLifeAbsorbtion, !sLifeAbsorbtion);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("GTS Aspect", &sEnachantment, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideEnchantment, !sEnachantment);
+			}
+			//------------ Line 2
+			if (ImGuiEx::CheckBox("Vore Stacks", &sVoreStacks, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideVoreStacks, !sVoreStacks);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Size Reserve", &sSizeReserve, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideSizeReserve, !sSizeReserve);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("On The Edge", &sOnTheEdge, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideOnTheEdge, !sOnTheEdge);
+			}
+			//------------ Line 3
+			if (ImGuiEx::CheckBox("Vore Absorbing", &sVoreAbsorbing, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideVoreBeingAbsorbed, !sVoreAbsorbing);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Calamity Duration", &sCalamityDuration, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideCalamityDuration, !sCalamityDuration);
+			}
+		}
+	}
+	void DrawToggle_Cooldowns(WindowSettingsStatusBar_t& ExtraSettings) {
+		bool sCalamityShrink 	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideCalamityShrink);
+		bool sWrathfulCalamity	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideWrathfulCalamity);
+		bool sHug 				= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideHugs);
+		bool sHugCrush			= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideHugCrush);
+		bool sHealthGate 		= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideHealthGate);
+		bool sBreastAbsorb	 	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideBreastAbsorb);
+		bool sBreastSuffocate 	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideBreastSuffocate);
+		bool sBreastVore 		= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideBreastVore);
+		bool sButtCrush			= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideButtCrush);
+		bool sShrinkOutburst	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideShrinkOutburst);
+		ImUtil_Unique
+			{
+			if (ImGuiEx::CheckBox("Tiny Calamity Cooldown", &sCalamityShrink, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideCalamityShrink, !sCalamityShrink);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Wrathful Calamity Cooldown", &sWrathfulCalamity, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideWrathfulCalamity, !sWrathfulCalamity);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Hug Cooldown", &sHug, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideHugs, !sHug);
+			}
+			if (ImGuiEx::CheckBox("Hug Crush Cooldown", &sHugCrush, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideHugCrush, !sHugCrush);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Health Gate Cooldown", &sHealthGate, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideHealthGate, !sHealthGate);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Breast Absorb Cooldown", &sBreastAbsorb, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideBreastAbsorb, !sBreastAbsorb);
+			}
+			if (ImGuiEx::CheckBox("Breast Suffocate Cooldown", &sBreastSuffocate, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideBreastSuffocate, !sBreastSuffocate);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Breast Vore Cooldown", &sBreastVore, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideBreastVore, !sBreastVore);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Butt Crush Cooldown", &sButtCrush, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideButtCrush, !sButtCrush);
+			}
+			if (ImGuiEx::CheckBox("Shrink Outburst Cooldown", &sShrinkOutburst, TIcoVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideShrinkOutburst, !sShrinkOutburst);
+			}
+		}
+	}
+	void DrawAlwaysShow_Buffs(WindowSettingsStatusBar_t& ExtraSettings) {
+		bool ASDamReduction   	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASDamageReduction);
+		bool ASLifeAbsorbtion 	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASLifeAbsorbtion);
+		bool ASEnachantment   	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASEnchantment);
+		bool ASVoreStacks     	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASVoreStacks);
+		bool ASSizeReserve    	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASSizeReserve);
+		bool ASOnTheEdge      	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASOnTheEdge);
+		bool ASVoreAbsorbing  	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASVoreBeingAbsorbed);
+		bool ASCalamityDuration = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASCalamityDuration);
+		ImUtil_Unique
+		{
+			if (ImGuiEx::CheckBox("Damage Reduction", &ASDamReduction, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASDamageReduction, ASDamReduction);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Life Absorbtion", &ASLifeAbsorbtion, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASLifeAbsorbtion, ASLifeAbsorbtion);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("GTS Aspect", &ASEnachantment, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASEnchantment, ASEnachantment);
+			}
+			//------------ Line 2
 
+			if (ImGuiEx::CheckBox("Vore Stacks", &ASVoreStacks, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASVoreStacks, ASVoreStacks);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Size Reserve", &ASSizeReserve, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASSizeReserve, ASSizeReserve);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("On The Edge", &ASOnTheEdge, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASOnTheEdge, ASOnTheEdge);
+			}
+			//----------- Line 3
+			if (ImGuiEx::CheckBox("Vore Absorbing", &ASVoreAbsorbing, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASVoreBeingAbsorbed, ASVoreAbsorbing);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Calamity Duration", &ASCalamityDuration, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASCalamityDuration, ASCalamityDuration);
+			}
+		}
+	}
+	void DrawAlwaysShow_Cooldowns(WindowSettingsStatusBar_t& ExtraSettings) {
+		bool ASCalamityShrink 	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASCalamityShrink);
+		bool ASWrathfulCalamity = (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASWrathfulCalamity);
+		bool ASHug				= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASHugs);
+		bool ASHugCrush			= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASHugCrush);
+		bool ASHealthGate		= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASHealthGate);
+		bool ASBreastAbsorb		= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASBreastAbsorb);
+		bool ASBreastSuffocate	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASBreastSuffocate);
+		bool ASBreastVore		= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASBreastVore);
+		bool ASButtCrush		= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASButtCrush);
+		bool ASShrinkOutburst	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASShrinkOutburst);
+		ImUtil_Unique
+		{
+			if (ImGuiEx::CheckBox("Tiny Calamity Cooldown", &ASCalamityShrink, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASCalamityShrink, ASCalamityShrink);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Wrathful Calamity Cooldown", &ASWrathfulCalamity, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASWrathfulCalamity, ASWrathfulCalamity);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Hug Cooldown", &ASHug, TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASHugs, ASHug);
+			}
+			// line 2
+			if (ImGuiEx::CheckBox("Hug Crush Cooldown", &ASHugCrush,  TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASHugCrush, ASHugCrush);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Health Gate Cooldown", &ASHealthGate,  TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASHealthGate, ASHealthGate);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Breast Absorb Cooldown", &ASBreastAbsorb,  TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASBreastAbsorb, ASBreastAbsorb);
+			}
+			// line 3
+			if (ImGuiEx::CheckBox("Breast Suffocate Cooldown", &ASBreastSuffocate,  TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASBreastSuffocate, ASBreastSuffocate);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Breast Vore Cooldown", &ASBreastVore,  TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASBreastVore, ASBreastVore);
+			}
+			ImGui::SameLine();
+			if (ImGuiEx::CheckBox("Butt Crush Cooldown", &ASButtCrush,  TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASButtCrush, ASButtCrush);
+			}
+			if (ImGuiEx::CheckBox("Shrink Outburst Cooldown", &ASShrinkOutburst,  TIcoAlwaysVis)) {
+				ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASShrinkOutburst, ASShrinkOutburst);
+			}
+		}
+	}
+
+	
 	void DrawKillFeedWindowBase(GTS::ImWindow* a_KillFeed) {
 
 		if (!a_KillFeed) return;
@@ -338,42 +533,6 @@ namespace {
 			ImGuiEx::SliderU16("Icon Size", &ExtraSettings.iIconSize, 8, 128, TIcoSize, "%d px");
 			ImGuiEx::SliderF("Relative Font Scale", &ExtraSettings.fRelativeFontScale, 0.5f, 1.5f, TRelativeFontScale, "%.1fx");
 
-			bool sDamReduction   	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideDamageReduction);
-			bool sLifeAbsorbtion 	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideLifeAbsorbtion);
-			bool sEnachantment   	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideEnchantment);
-			bool sVoreStacks     	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideVoreStacks);
-			bool sSizeReserve    	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideSizeReserve);
-			bool sOnTheEdge      	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideOnTheEdge);
-			bool sVoreAbsorbing  	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusbarFlag_HideVoreBeingAbsorbed);
-			bool sCalamityShrink 	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideCalamityShrink);
-			bool sWrathfulCalamity	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideWrathfulCalamity);
-			bool sHug 				= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideHugs);
-			bool sHugCrush			= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideHugCrush);
-			bool sHealthGate 		= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideHealthGate);
-			bool sBreastAbsorb	 	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideBreastAbsorb);
-			bool sBreastSuffocate 	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideBreastSuffocate);
-			bool sBreastVore 		= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideBreastVore);
-			bool sButtCrush			= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideButtCrush);
-			bool sShrinkOutburst	= !(ExtraSettings.iFlagsVis & ImGuiEx::StatusBarFlag_HideShrinkOutburst);
-
-			bool ASDamReduction   	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASDamageReduction);
-			bool ASLifeAbsorbtion 	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASLifeAbsorbtion);
-			bool ASEnachantment   	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASEnchantment);
-			bool ASVoreStacks     	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASVoreStacks);
-			bool ASSizeReserve    	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASSizeReserve);
-			bool ASOnTheEdge      	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASOnTheEdge);
-			bool ASVoreAbsorbing  	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusbarASFlag_ASVoreBeingAbsorbed);
-			bool ASCalamityShrink 	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASCalamityShrink);
-			bool ASWrathfulCalamity = (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASWrathfulCalamity);
-			bool ASHug				= (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASHugs);
-			bool ASHugCrush			= (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASHugCrush);
-			bool ASHealthGate		= (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASHealthGate);
-			bool ASBreastAbsorb		= (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASBreastAbsorb);
-			bool ASBreastSuffocate	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASBreastSuffocate);
-			bool ASBreastVore		= (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASBreastVore);
-			bool ASButtCrush		= (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASButtCrush);
-			bool ASShrinkOutburst	= (ExtraSettings.iFlagsAS & ImGuiEx::StatusBarASFlag_ASShrinkOutburst);
-
 			static GTS::ImGraphics::ImageTransform T = {
 				.recolorEnabled = true,
 			};
@@ -389,182 +548,41 @@ namespace {
 			ImGuiEx::SliderF("Backround Alpha", &BaseSettings.fBGAlphaMult, 0.0f, 1.0f, TFrameAlpha, "%.2fx");
 			ImGui::ColorEdit3("Overflow Color", GTS::Config::UI.f3IconOverflowColor.data(), ImGuiColorEditFlags_DisplayHSV);
 
-			ImGui::Spacing();
-
-			ImUtil_Unique
-			{
-
-				ImGui::Text("Icon Visibility Toggles");
-
-				if (ImGuiEx::CheckBox("Damage Reduction", &sDamReduction, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideDamageReduction, !sDamReduction);
+			// -------------- Just Toggles
+			static ImGuiEx::CollapsingTabHeader ActionHeader_Enabler (
+				"Icons: visibility Toggles",
+				{
+					"Buffs",
+					"Cooldowns",
 				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::CheckBox("Life Absorbtion", &sLifeAbsorbtion, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideLifeAbsorbtion, !sLifeAbsorbtion);
-				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::CheckBox("GTS Aspect", &sEnachantment, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideEnchantment, !sEnachantment);
-				}
-
-				//------------ Line 2
-
-				if (ImGuiEx::CheckBox("Vore Stacks", &sVoreStacks, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideVoreStacks, !sVoreStacks);
-				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::CheckBox("Size Reserve", &sSizeReserve, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideSizeReserve, !sSizeReserve);
-				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::CheckBox("On The Edge", &sOnTheEdge, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideOnTheEdge, !sOnTheEdge);
-				}
-
-				//------------ Line 3
-
-				if (ImGuiEx::CheckBox("Vore Absorbing", &sVoreAbsorbing, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusbarFlag_HideVoreBeingAbsorbed, !sVoreAbsorbing);
-				}
-				ImGui::Spacing();
-				ImGui::Text("Cooldown Icon visibility toggles");
-				if (ImGuiEx::CheckBox("Tiny Calamity Cooldown", &sCalamityShrink, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideCalamityShrink, !sCalamityShrink);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Wrathful Calamity Cooldown", &sWrathfulCalamity, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideWrathfulCalamity, !sWrathfulCalamity);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Hug Cooldown", &sHug, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideHugs, !sHug);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Hug Crush Cooldown", &sHugCrush, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideHugCrush, !sHugCrush);
-				}
-				if (ImGuiEx::CheckBox("Health Gate Cooldown", &sHealthGate, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideHealthGate, !sHealthGate);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Breast Absorb Cooldown", &sBreastAbsorb, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideBreastAbsorb, !sBreastAbsorb);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Breast Suffocate Cooldown", &sBreastSuffocate, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideBreastSuffocate, !sBreastSuffocate);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Breast Vore Cooldown", &sBreastVore, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideBreastVore, !sBreastVore);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Butt Crush Cooldown", &sButtCrush, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideButtCrush, !sButtCrush);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Shrink Outburst Cooldown", &sShrinkOutburst, TIcoVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsVis, ImGuiEx::StatusBarFlag_HideShrinkOutburst, !sShrinkOutburst);
+			);
+			if (ImGuiEx::BeginCollapsingTabHeader(ActionHeader_Enabler)) {
+				// Content based on active tab
+				switch (ActionHeader_Enabler.GetActiveTab()) {
+					case 0: DrawToggle_Buffs(ExtraSettings);          					break;
+					case 1: DrawToggle_Cooldowns(ExtraSettings);        				break;
+					default:                              								break;
 				}
 			}
+			ImGuiEx::EndCollapsingTabHeader(ActionHeader_Enabler);
 
 			// -------------- Always Show Toggles
-
-			ImGui::Spacing();
-
-			ImUtil_Unique 
-			{
-
-				ImGui::Text("Always Show Icon Toggles");
-
-				if (ImGuiEx::CheckBox("Damage Reduction", &ASDamReduction, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASDamageReduction, ASDamReduction);
+			static ImGuiEx::CollapsingTabHeader ActionHeader_AlwaysShow (
+				"Icons: always show",
+				{
+					"Buffs",
+					"Cooldowns",
 				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::CheckBox("Life Absorbtion", &ASLifeAbsorbtion, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASLifeAbsorbtion, ASLifeAbsorbtion);
-				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::CheckBox("GTS Aspect", &ASEnachantment, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASEnchantment, ASEnachantment);
-				}
-
-				//------------ Line 2
-
-				if (ImGuiEx::CheckBox("Vore Stacks", &ASVoreStacks, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASVoreStacks, ASVoreStacks);
-				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::CheckBox("Size Reserve", &ASSizeReserve, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASSizeReserve, ASSizeReserve);
-				}
-
-				ImGui::SameLine();
-
-				if (ImGuiEx::CheckBox("On The Edge", &ASOnTheEdge, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASOnTheEdge, ASOnTheEdge);
-				}
-				if (ImGuiEx::CheckBox("Vore Absorbing", &ASVoreAbsorbing, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusbarASFlag_ASVoreBeingAbsorbed, ASVoreAbsorbing);
-				}
-				//------------ Line 3
-				ImGui::Spacing();
-				ImGui::Text("Always Show Size-Action cooldown");
-				if (ImGuiEx::CheckBox("Tiny Calamity Cooldown", &ASCalamityShrink, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASCalamityShrink, ASCalamityShrink);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Wrathful Calamity Cooldown", &ASWrathfulCalamity, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASWrathfulCalamity, ASWrathfulCalamity);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Hug Cooldown", &ASHug, TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASHugs, ASHug);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Hug Crush Cooldown", &ASHugCrush,  TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASHugCrush, ASHugCrush);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Health Gate Cooldown", &ASHealthGate,  TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASHealthGate, ASHealthGate);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Breast Absorb Cooldown", &ASBreastAbsorb,  TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASBreastAbsorb, ASBreastAbsorb);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Breast Suffocate Cooldown", &ASBreastSuffocate,  TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASBreastSuffocate, ASBreastSuffocate);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Breast Vore Cooldown", &ASBreastVore,  TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASBreastVore, ASBreastVore);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Butt Crush Cooldown", &ASButtCrush,  TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASButtCrush, ASButtCrush);
-				}
-				ImGui::SameLine();
-				if (ImGuiEx::CheckBox("Shrink Outburst Cooldown", &ASShrinkOutburst,  TIcoAlwaysVis)) {
-					ImUtil::ToggleFlag(ExtraSettings.iFlagsAS, ImGuiEx::StatusBarASFlag_ASShrinkOutburst, ASShrinkOutburst);
+			);
+			if (ImGuiEx::BeginCollapsingTabHeader(ActionHeader_AlwaysShow)) {
+				// Content based on active tab
+				switch (ActionHeader_AlwaysShow.GetActiveTab()) {
+					case 0: DrawAlwaysShow_Buffs(ExtraSettings);          			break;
+					case 1: DrawAlwaysShow_Cooldowns(ExtraSettings);        		break;
+					default:                              							break;
 				}
 			}
+			ImGuiEx::EndCollapsingTabHeader(ActionHeader_AlwaysShow);
 		}
 		ImGui::EndDisabled();
 	}

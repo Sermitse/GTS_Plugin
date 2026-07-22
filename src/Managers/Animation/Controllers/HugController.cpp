@@ -80,8 +80,6 @@ namespace {
 			} else {
 				AnimationManager::StartAnim("Huggies_Try_Victim", prey); //   GTSBEH_HugAbsorbStart_V
 			}
-
-			ApplyActionCooldown(pred, CooldownSource::Action_Hugs);
 		});
 	}
 }

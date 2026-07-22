@@ -7,7 +7,7 @@ namespace GTS {
 	constexpr float HANDDAMAGE_COOLDOWN = 0.6f;
 	constexpr float THIGHDAMAGE_COOLDOWN = 1.2f;
 
-	constexpr float ABSORB_OTHER_COOLDOWN = 30.0f;
+	constexpr float ABSORB_OTHER_COOLDOWN = 45.0f;
 
 	constexpr float BREAST_SUFFOCATE_OTHER_COOLDOWN = 30.0f;
 	constexpr float BREAST_ABSORB_OTHER_COOLDOWN = 30.0f;

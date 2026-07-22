@@ -17,6 +17,7 @@ namespace {
 	PSString TBreastVore		= "Remaining cooldown of Breast Vore";
 	PSString TButtCrush			= "Remaining cooldown of Butt Crush";
 	PSString TShrinkOutburst 	= "Remaining cooldown of ShrinkOutburst";
+	PSString TCalamityDuration	= "Remaining duration of Tiny Calamity";
 
 	PSString TDamageResist = "Total damage resistance in percent.\n"
 		"Effectively increases total HP.";
@@ -60,7 +61,6 @@ namespace ImGuiEx {
 		m_onTheEdgeIcon             = std::make_unique<DynIconOnTheEdge>(m_iconSize);
 		m_CataclysmicVoreStacksIcon = std::make_unique<DynIconCataclysmicStompStacks>(m_iconSize);
 		m_VoreBeingAbsorbedIcon     = std::make_unique<DynIconVoreBeingAbsorbed>(m_iconSize);
-
 		m_TinyCalamityShrink 		= std::make_unique<DynIconCooldownCalamityShrink>(m_iconSize);
 		m_WrathfulCalamity			= std::make_unique<DynIconCooldownWrathfulCalamity>(m_iconSize);
 		m_Hugs						= std::make_unique<DynIconCooldownHugs>(m_iconSize);
@@ -71,6 +71,7 @@ namespace ImGuiEx {
 		m_BreastVore				= std::make_unique<DynIconCooldownBreastVore>(m_iconSize);
 		m_ButtCrush					= std::make_unique<DynIconCooldownButtCrush>(m_iconSize);
 		m_ShrinkOutburst			= std::make_unique<DynIconCooldownShrinkOutburst>(m_iconSize);
+		m_CalamityDuration			= std::make_unique<DynIconDurationTinyCalamity>(m_iconSize);
 	}
 
 	uint8_t StatusBar::Draw(RE::Actor* a_actor, uint32_t a_visFlags, uint32_t a_ASFlags, bool* a_stateChanged, bool a_preview) {
@@ -121,7 +122,9 @@ namespace ImGuiEx {
 		//
 		const float ShrinkOutburst_Remaining = GetRemainingCooldown(a_actor, CooldownSource::Misc_ShrinkOutburst);
 		float ShrinkOutburst_ToSeconds = std::clamp(ShrinkOutburst_Remaining, 0.0f, SHRINK_OUTBURST_COOLDOWN);
-
+		// ----- Duration
+		const float TotalCalamityDuration = T->TinyCalamity_StartingDuration;
+		float CalamityDurationLeft = TotalCalamityDuration - T->TinyCalamity_SecondsPassed;
 		// Dummy values for preview mode
 		if (a_preview) {
 			fDamageResist = 100.0f;
@@ -141,6 +144,7 @@ namespace ImGuiEx {
 			BreastVore_ToSeconds = 10;
 			ButtCrush_ToSeconds = 10;
 			ShrinkOutburst_ToSeconds = 10;
+			CalamityDurationLeft = 10;
 		}
 
 		bool Draw_damageReductionIcon       = !(a_visFlags & StatusbarFlag_HideDamageReduction);
@@ -150,16 +154,17 @@ namespace ImGuiEx {
 		bool Draw_sizeReserveIcon           = !(a_visFlags & StatusbarFlag_HideSizeReserve);
 		bool Draw_onTheEdgeIcon             = !(a_visFlags & StatusbarFlag_HideOnTheEdge);
 		bool Draw_voreBeingAbsorbed         = !(a_visFlags & StatusbarFlag_HideVoreBeingAbsorbed);
-		bool Draw_CalamityShrinkCooldown 	= !(a_visFlags & StatusBarFlag_HideCalamityShrink);
-		bool Draw_WrathFulCalamityCooldown  = !(a_visFlags & StatusBarFlag_HideWrathfulCalamity);
-		bool Draw_Hugs						= !(a_visFlags & StatusBarFlag_HideHugs);
-		bool Draw_HugCrush					= !(a_visFlags & StatusBarFlag_HideHugCrush);
-		bool Draw_HealthGate				= !(a_visFlags & StatusBarFlag_HideHealthGate);
-		bool Draw_BreastAbsorb				= !(a_visFlags & StatusBarFlag_HideBreastAbsorb);
-		bool Draw_BreastSuffocate			= !(a_visFlags & StatusBarFlag_HideBreastSuffocate);
-		bool Draw_BreastVore				= !(a_visFlags & StatusBarFlag_HideBreastVore);
-		bool Draw_ButtCrush					= !(a_visFlags & StatusBarFlag_HideButtCrush);
-		bool Draw_ShrinkOutburst 			= !(a_visFlags & StatusBarFlag_HideShrinkOutburst);
+		bool Draw_CalamityShrinkCooldown 	= !(a_visFlags & StatusbarFlag_HideCalamityShrink);
+		bool Draw_WrathFulCalamityCooldown  = !(a_visFlags & StatusbarFlag_HideWrathfulCalamity);
+		bool Draw_Hugs						= !(a_visFlags & StatusbarFlag_HideHugs);
+		bool Draw_HugCrush					= !(a_visFlags & StatusbarFlag_HideHugCrush);
+		bool Draw_HealthGate				= !(a_visFlags & StatusbarFlag_HideHealthGate);
+		bool Draw_BreastAbsorb				= !(a_visFlags & StatusbarFlag_HideBreastAbsorb);
+		bool Draw_BreastSuffocate			= !(a_visFlags & StatusbarFlag_HideBreastSuffocate);
+		bool Draw_BreastVore				= !(a_visFlags & StatusbarFlag_HideBreastVore);
+		bool Draw_ButtCrush					= !(a_visFlags & StatusbarFlag_HideButtCrush);
+		bool Draw_ShrinkOutburst 			= !(a_visFlags & StatusbarFlag_HideShrinkOutburst);
+		bool Draw_CalamityDuration			= !(a_visFlags & StatusbarFlag_HideCalamityDuration);
 
 		bool AS_damageReductionIcon       	= (a_ASFlags & StatusbarASFlag_ASDamageReduction);
 		bool AS_lifeAbsorbIcon            	= (a_ASFlags & StatusbarASFlag_ASLifeAbsorbtion);
@@ -168,16 +173,17 @@ namespace ImGuiEx {
 		bool AS_sizeReserveIcon           	= (a_ASFlags & StatusbarASFlag_ASSizeReserve);
 		bool AS_onTheEdgeIcon             	= (a_ASFlags & StatusbarASFlag_ASOnTheEdge);
 		bool AS_voreBeingAbsorbed         	= (a_ASFlags & StatusbarASFlag_ASVoreBeingAbsorbed);
-		bool AS_CalamityShrinkCooldown    	= (a_ASFlags & StatusBarASFlag_ASCalamityShrink);
-		bool AS_WrathfulCalamityCooldown  	= (a_ASFlags & StatusBarASFlag_ASWrathfulCalamity);
-		bool AS_Hugs					  	= (a_ASFlags & StatusBarASFlag_ASHugs);
-		bool AS_HugCrush					= (a_ASFlags & StatusBarASFlag_ASHugCrush);
-		bool AS_HealthGate					= (a_ASFlags & StatusBarASFlag_ASHealthGate);
-		bool AS_BreastAbsorb				= (a_ASFlags & StatusBarASFlag_ASBreastAbsorb);
-		bool AS_BreastSuffocate				= (a_ASFlags & StatusBarASFlag_ASBreastSuffocate);
-		bool AS_BreastVore					= (a_ASFlags & StatusBarASFlag_ASBreastVore);
-		bool AS_ButtCrush					= (a_ASFlags & StatusBarASFlag_ASButtCrush);
-		bool AS_ShrinkOutburst				= (a_ASFlags & StatusBarASFlag_ASShrinkOutburst);
+		bool AS_CalamityShrinkCooldown    	= (a_ASFlags & StatusbarASFlag_ASCalamityShrink);
+		bool AS_WrathfulCalamityCooldown  	= (a_ASFlags & StatusbarASFlag_ASWrathfulCalamity);
+		bool AS_Hugs					  	= (a_ASFlags & StatusbarASFlag_ASHugs);
+		bool AS_HugCrush					= (a_ASFlags & StatusbarASFlag_ASHugCrush);
+		bool AS_HealthGate					= (a_ASFlags & StatusbarASFlag_ASHealthGate);
+		bool AS_BreastAbsorb				= (a_ASFlags & StatusbarASFlag_ASBreastAbsorb);
+		bool AS_BreastSuffocate				= (a_ASFlags & StatusbarASFlag_ASBreastSuffocate);
+		bool AS_BreastVore					= (a_ASFlags & StatusbarASFlag_ASBreastVore);
+		bool AS_ButtCrush					= (a_ASFlags & StatusbarASFlag_ASButtCrush);
+		bool AS_ShrinkOutburst				= (a_ASFlags & StatusbarASFlag_ASShrinkOutburst);
+		bool AS_CalamityDuration			= (a_ASFlags & StatusbarASFlag_ASCalamityDuration);
 
 		const float RowY = ImGui::GetCursorPosY();
 		float cursorX = ImGui::GetCursorPosX();
@@ -281,6 +287,16 @@ namespace ImGuiEx {
 				if (m_enableToolTips) Tooltip(TShrinkOutburst, true);
 				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
 				m_combiCurValueState += ShrinkOutburst_ToSeconds;
+				drawnIcons++;
+			}
+		}
+		// ------------------ Duration
+		if (Draw_CalamityDuration) {
+			m_CalamityDuration->Resize(m_iconSize);
+			if (m_CalamityDuration->Draw(CalamityDurationLeft, TotalCalamityDuration, AS_CalamityDuration)) {
+				if (m_enableToolTips) Tooltip(TCalamityDuration, true);
+				ImUtil::AdvanceCursorInline(cursorX, RowY, m_iconSize, m_padding);
+				m_combiCurValueState += CalamityDurationLeft;
 				drawnIcons++;
 			}
 		}

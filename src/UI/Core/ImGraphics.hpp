@@ -41,6 +41,8 @@ namespace ImageList {
     PSString CooldownIcon_BreastVore            =   "cooldownicon_breastvore";
     PSString CooldownIcon_ButtCrush             =   "cooldownicon_buttcrush";
     PSString CooldownIcon_ShrinkOutburst        =   "cooldownicon_shrinkoutburst";
+
+    PSString DurationIcon_CalamityDuration      =   "durationicon_tinycalamity";
 }
 
 namespace GTS {

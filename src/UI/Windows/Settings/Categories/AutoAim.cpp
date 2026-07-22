@@ -112,18 +112,18 @@ namespace {
         "[Standing] Type of kick performed when character isn't sneaking of crawling\n"
         "[Hand Swipe] Type of kick performed when Sneaking or Crawling";
         PSString T0 = "[Radius] Determines collider size.\n"
-        "Default: 36.0";
+        "Default: 48.0";
         PSString T01 = "[Radius] Determines collider size for Sneak/Crawl state.\n"
-        "Default: 36.0";
+        "Default: 48.0";
         PSString T1 = "[Offset] back/forward offset of the initial target search collider.\n"
-        "Default: 20.0";
+        "Default: 40.0";
         PSString T2 = "[Hand Swipe Offset] back/forward offset of the initial target search collider.\n"
-        "Default: 35.0";
+        "Default: 50.0";
         ImGuiEx::HelpText("What is a kick", THelp);
         ImGuiEx::SliderF("Kick Radius", &GTS::Config::AutoAim.fAutoAim_Range_Kick, 20.0f, 60.0f, T0, "%.2f");
         ImGuiEx::SliderF("[Sneaking] Kick Radius", &GTS::Config::AutoAim.fAutoAim_Range_Kick_Sneak, 20.0f, 60.0f, T01, "%.2f");
-        ImGuiEx::SliderF("[Standing] Forward Offset", &GTS::Config::AutoAim.fAutoAim_Kick_OffsetDistance_Forward, 10.0f, 50.0f, T1, "%.2f");
-        ImGuiEx::SliderF("[Sneaking] Forward Offset", &GTS::Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward_Sneak, 20.0f, 50.0f, T2, "%.2f");
+        ImGuiEx::SliderF("[Standing] Forward Offset", &GTS::Config::AutoAim.fAutoAim_Kick_OffsetDistance_Forward, 10.0f, 70.0f, T1, "%.2f");
+        ImGuiEx::SliderF("[Sneaking] Forward Offset", &GTS::Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward_Sneak, 20.0f, 70.0f, T2, "%.2f");
         ImGui::Spacing();
     }
 }

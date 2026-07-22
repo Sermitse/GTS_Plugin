@@ -351,8 +351,6 @@ namespace {
 
     void GTS_BS_AbsorbStart(AnimationEventData& data) {
         Task_FacialEmotionTask_Smile(&data.giant, 3.2f, "AbsorbStart", 0.3f);
-        Task_ApplyAbsorbCooldown(&data.giant);
-
 
         data.stage = 0;
         auto tiny = Grab::GetHeldActor(&data.giant);

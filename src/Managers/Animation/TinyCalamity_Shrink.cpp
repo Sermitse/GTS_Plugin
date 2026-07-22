@@ -1,3 +1,4 @@
+#include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/TinyCalamity_Shrink.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Rumble.hpp"
@@ -125,6 +126,7 @@ namespace {
 			}
 		}
         AttachRune(&data.giant, true, 1.4f, 0.60f);
+		ApplyActionCooldown(&data.giant, CooldownSource::Misc_TinyCalamity_Shrink);
     }
 
 	void GTS_TC_ShrinkStop(AnimationEventData& data) {
