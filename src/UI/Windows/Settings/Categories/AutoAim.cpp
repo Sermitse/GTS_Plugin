@@ -141,8 +141,9 @@ namespace GTS {
 		{
 
             PSString T0 = "Enables or disables auto-aim for some size-related attacks.\n"
-            "If disabled, look-down angle will be used to perform attacks, just like before Auto-Aim was introduced\n"
-            "Can be disabled for Player only, NPCs will still use it";
+            "- If disabled, look-down angle will be used to perform attacks, just like before Auto-Aim was introduced\n"
+            "- Can be disabled for Player only, NPCs will still use it\n"
+            "- Disables UNDERSTOMP widget.";
             PSString T1 = "Prevents far stomps from happening if no targets were found";
 
             PSString THelp = "Auto-Aim is designed to make size-based attacks smarter while reducing the number of required keybinds\n"

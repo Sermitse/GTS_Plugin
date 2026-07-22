@@ -5,7 +5,11 @@
 using namespace GTS;
 
 namespace {
-
+	void RecordTinyCalamity(Actor* actor, bool enable) {
+		if (auto TranData = Transient::GetActorData(actor)) {
+			TranData->TinyCalamityActive = enable;
+		}
+	}
 	float GetSMTBonus(Actor* actor) {
 		auto transient = Transient::GetActorData(actor);
 		if (transient) {
@@ -51,12 +55,12 @@ namespace GTS {
 	void TinyCalamity::OnStart() {
 		auto caster = GetCaster();
 		if (caster) {
-
+			RecordTinyCalamity(caster, true);
 			if (caster->IsPlayerRef() && !Persistent::MSGSeenTinyCamity.value) {
 				PrintMessageBox(TinyCalamityMessage);
 				Persistent::MSGSeenTinyCamity.value = true;
 			}
-
+			
 			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity, caster, 1.0f, "NPC COM [COM ]");
 			AdjustCalamityDuration(caster, GetActiveEffect());
 			auto node = find_node(caster, "NPC Root [Root]");
@@ -107,6 +111,7 @@ namespace GTS {
 	void TinyCalamity::OnFinish() {
 		auto caster = GetCaster();
 		if (caster) {
+			RecordTinyCalamity(caster, false);
 			float CasterScale = get_target_scale(caster);
 			float naturalscale = get_natural_scale(caster, true);
 			if (CasterScale < naturalscale) {

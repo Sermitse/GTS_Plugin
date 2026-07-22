@@ -234,29 +234,27 @@ namespace {
 
 	//Calculate which actions should be started based on which ones can currently be started
 	ActionType CalculateProbability(const absl::flat_hash_map<ActionType, int>& a_ValidActionMap) {
+		if (a_ValidActionMap.empty()) {
+			return ActionType::kNone;
+		} try {
+			std::array<int, static_cast<int>(ActionType::kTotal)> ProbabilityList = { 0 };
+			bool hasValidAction = false;
 
-		constexpr int DesiredNonePercentage = 30; // Target probability for None
-		if (a_ValidActionMap.empty()) return ActionType::kNone;
-
-		try {
-			std::array<int, static_cast<int>(ActionType::kTotal)> ProbabiltyList = { 0 };
-			int totalActionWeight = 0;
-
-			for (auto Action : a_ValidActionMap) {
-				ProbabiltyList[static_cast<int>(Action.first)] = Action.second;
-				totalActionWeight += Action.second;
+			// Roll percentage chance for every action independently
+			for (const auto& [action, chance] : a_ValidActionMap) {
+				if (chance <= 0) {
+					continue;
+				}
+				if (RandomInt(1, 100) <= chance) {
+					ProbabilityList[static_cast<int>(action)] = 1; // Equal weight
+					hasValidAction = true;
+				}
 			}
 
-			// Scale None weight so it represents DesiredNonePercentage of total probability
-			// If None should be 30%, then actions should be 70% of total
-			// So: NoneWeight / (ActionWeight + NoneWeight) = 0.30
-			// Solving: NoneWeight = ActionWeight * (DesiredNonePercentage / (100 - DesiredNonePercentage))
-			const int noneWeight = (totalActionWeight * DesiredNonePercentage) / (100 - DesiredNonePercentage);
-			ProbabiltyList[static_cast<int>(ActionType::kNone)] = noneWeight;
-
-			return static_cast<ActionType>(RandomIntWeighted(ProbabiltyList));
-		}
-		catch (std::exception& e) {
+			// Nothing succeeded -> do nothing
+			if (!hasValidAction) return ActionType::kNone;
+			return static_cast<ActionType>(RandomIntWeighted(ProbabilityList));
+		} catch (std::exception& e) {
 			logger::warn("CalculateProbability Exception: {}", e.what());
 			return ActionType::kNone;
 		}

@@ -382,6 +382,9 @@ namespace GTS {
 	}
 
 	bool TinyCalamityActive(Actor* giant) { // Tiny Calamity should work only on Humanoids
+		if (auto TranData = Transient::GetActorData(giant)) { // Should save fps a bit compared to checking MGEF
+			return TranData->TinyCalamityActive;
+		}
 		return IsHumanoid(giant) ? Runtime::HasMagicEffect(giant, Runtime::MGEF.GTSEffectTinyCalamity) : false;
 	}
 
@@ -390,12 +393,10 @@ namespace GTS {
 			return false; // Allow cursed and weird ass looking anims to happen
 		}
 		if (get_scale_difference(giant, tiny, SizeType::VisualScale, false, false) < size_diff_requirement) {
-			float shrinkrate = shrink_rate_normal;
+			float shrinkrate = giant->IsSneaking() ? shrink_rate_sneak : shrink_rate_normal;
 
-			if (giant->IsSneaking()) {
-				shrinkrate = shrink_rate_sneak;
-			}
 			ShrinkUntil(giant, tiny, shrink_until, shrinkrate, true);
+			
 			return true;
 		}
 		return false;

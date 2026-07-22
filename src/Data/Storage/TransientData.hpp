@@ -80,6 +80,7 @@ namespace GTS {
 		bool TemporaryDamageImmunity = false;
 		bool ReattachingTiny = false;
 		bool KissVoring = false;
+		bool TinyCalamityActive = false;
 
 		bool AutoAim_TargetLeft = false;
 

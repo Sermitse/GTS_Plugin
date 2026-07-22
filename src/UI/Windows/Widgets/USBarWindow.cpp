@@ -147,6 +147,7 @@ namespace GTS {
 		RE::Actor* Target = PlayerCharacter::GetSingleton();
 
 		if (!Target || !Target->Get3D(false)) return;
+		if (Config::AutoAim.bEnableAutoAim) return; // Understomp bar shouldn't be displayed if it's on
 		CalcUnderstomp(fAngleCurrent, fAngleAbs);
 
 		float fScaleProgress = !Configuring ? fAngleCurrent / 1.0f : 1.0f;
