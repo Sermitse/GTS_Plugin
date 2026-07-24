@@ -93,7 +93,10 @@ namespace GTS {
 	}
 
 	void Rumbling::ResetActor(Actor* actor) {
-		this->data.erase(actor);
+		std::lock_guard lock(_lock);
+		if (actor) {
+			this->data.erase(actor);
+		}
 	}
 
 	void Rumbling::Start(std::string_view tag, Actor* giant, float intensity, float halflife, std::string_view node) {

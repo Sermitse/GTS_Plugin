@@ -14,8 +14,10 @@ namespace GTS {
 
 	void MorphManager::ResetActor(Actor* a_actor) {
 		if (!Racemenu::Loaded()) return;
-		Racemenu::ClearMorphs(a_actor, GetMorphKey(kBreasts));
-		Racemenu::ClearMorphs(a_actor, GetMorphKey(kBelly));
+		if (a_actor) {
+			Racemenu::ClearMorphs(a_actor, GetMorphKey(kBreasts));
+			Racemenu::ClearMorphs(a_actor, GetMorphKey(kBelly));
+		}
 	}
 
 	void MorphManager::ActorLoaded(Actor* a_actor) {

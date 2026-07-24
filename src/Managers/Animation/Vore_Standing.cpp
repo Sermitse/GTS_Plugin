@@ -215,17 +215,7 @@ namespace {
 
 
 	void GTSvore_swallow(AnimationEventData& data) {
-		auto giant = &data.giant;
-		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
-		VoreData.EnableMouthShrinkZone(true);
-		if (IsDevourmentEnabled()) {
-			for (auto& tiny: VoreData.GetVories()) {
-				CallDevourment(giant, tiny);
-			} 
-		} else {
-			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, giant, 1.0f, "NPC Head [Head]"); // Play sound
-			VoreData.Swallow();
-		}
+		ApplySwallowAndDevourment(&data.giant);
 	}
 
 	void GTSvore_swallow_sound(AnimationEventData& data) {
@@ -235,8 +225,6 @@ namespace {
 	void GTSvore_close_mouth(AnimationEventData& data) {
 		auto giant = &data.giant;
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
-
-		VoreData.EnableMouthShrinkZone(false);
 
 		std::string name_1 = std::format("Phenome_{}_{}_{}", giant->formID, 0, 1.0f);
 		std::string name_2 = std::format("Phenome_{}_{}_{}", giant->formID, 1, 0.5f);
@@ -252,11 +240,7 @@ namespace {
 	}
 
 	void GTSvore_handR_reposition_S(AnimationEventData& data) {
-		
 		auto giant = &data.giant;
-		/*if (!IsDevourmentEnabled()) {
-			
-		}*/
 		AdjustFacialExpression(giant, 0, 0.0f, CharEmotionType::Modifier); // blink L
 		AdjustFacialExpression(giant, 1, 0.0f, CharEmotionType::Modifier); // blink R
 		StartRHandRumble("HandR", data.giant, 0.20f, 0.15f);
@@ -277,7 +261,7 @@ namespace {
 	void GTSvore_eat_actor(AnimationEventData& data) {
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(&data.giant);
 		AdjustFacialExpression(&data.giant, 2, 0.0f, CharEmotionType::Expression); // Remove smile
-		VoreData.KillAll();
+		FinishAllTinies(&data.giant);
 	}
 
 	void GTSvore_detachactor_AnimObject_A(AnimationEventData& data) {

@@ -146,9 +146,7 @@ namespace GTS {
 	}
 
 	float GetAnimationSlowdown(Actor* giant) {
-
 		if (giant) {
-
 			auto& Gen = Config::General;
 			auto& Adv = Config::Advanced;
 			auto& Bal = Config::Balance;
@@ -204,6 +202,9 @@ namespace GTS {
 	}
 
 	void StartActorResetTask(Actor* a_target) {
+		if (!a_target) {
+			return;
+		}
 		if (a_target->IsPlayerRef()) {
 			return; //Don't reset Player
 		}

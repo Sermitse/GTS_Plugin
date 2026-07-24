@@ -37,6 +37,7 @@ namespace GTS {
 		static void FailSafeReset(Actor* giantref);
 		static void CancelGrab(Actor* giantref, Actor* tinyref);
 		
+		mutable std::mutex _lock;
 		std::unordered_map<Actor*, GrabData> data;
 	};
 

@@ -28,10 +28,6 @@ namespace GTS {
 		this->tinies.try_emplace(tiny->formID, tiny->CreateRefHandle());
 	}
 
-	void VoreData::EnableMouthShrinkZone(bool enabled) {
-		this->killZoneEnabled = enabled;
-	}
-
 	void VoreData::Swallow() {
 		std::unique_lock lock(_lock);
 		for (auto& tinyref : this->tinies | std::views::values) {
@@ -57,7 +53,6 @@ namespace GTS {
 	void VoreData::KillAll() {
 		std::unique_lock lock(_lock);
 		if (!IsDevourmentEnabled()) {
-
 			for (auto& tinyref : this->tinies | std::views::values) {
 				auto tiny = tinyref.get().get();
 				auto giantref = this->giant;
@@ -347,11 +342,16 @@ namespace GTS {
 
 	void VoreController::ResetActor(Actor* actor) {
 		std::unique_lock lock(_lock);
+		if (!actor) {
+			logger::info("VoreController::ResetActor: actor == nullptr");
+			return;
+		}
+		
 		this->data.erase(actor->formID);
 	}
 
 	void VoreController::StartVore(Actor* pred, Actor* prey) {
-
+		if (!pred || !prey) return;
 		if (!CanVore(pred, prey)) {
 			return;
 		}

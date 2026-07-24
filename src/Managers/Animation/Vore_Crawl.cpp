@@ -134,44 +134,14 @@ namespace {
 	void GTSCrawlVore_CloseMouth(AnimationEventData& data) {
 	}
 	void GTSCrawlVore_Swallow(AnimationEventData& data) {
-		auto giant = &data.giant;
-		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
-
-		if (!IsDevourmentEnabled()) {
-			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, giant, 1.0f, "NPC Head [Head]"); // Play sound
-		}
-
-		for (auto& tiny: VoreData.GetVories()) {
-			AllowToBeCrushed(tiny, true);
-			if (tiny->IsPlayerRef()) {
-				PlayerCamera::GetSingleton()->cameraTarget = giant->CreateRefHandle();
-			}
-			if (IsDevourmentEnabled()) {
-				CallDevourment(&data.giant, tiny);
-				SetBeingHeld(tiny, false);
-				VoreData.AllowToBeVored(true);
-			} else {
-				VoreData.Swallow();
-				tiny->SetAlpha(0.0f);
-			}
-		}
+		ApplySwallowAndDevourment(&data.giant);
 	}
 
 	void GTSCrawlVore_KillAll(AnimationEventData& data) {
 		auto giant = &data.giant;
-		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
-		for (auto& tiny: VoreData.GetVories()) {
-			if (tiny) {
-				AllowToBeCrushed(tiny, true);
-				EnableCollisions(tiny);
-			}
-		}
-		VoreData.AllowToBeVored(true);
-		VoreData.KillAll();
-		VoreData.ReleaseAll();
-
 		ManageCamera(giant, false, CameraTracking::ObjectA);
 		ManageCamera(giant, false, CameraTracking::Hand_Right);
+		FinishAllTinies(giant);
 	}
 
 	void GTSCrawlVore_SmileOff(AnimationEventData& data) {

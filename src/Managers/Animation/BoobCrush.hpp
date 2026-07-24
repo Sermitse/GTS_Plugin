@@ -18,6 +18,7 @@ namespace GTS {
 		static Actor* GetBoobCrushVictim(Actor* giant);
 		static float GetBoobCrushDamage(Actor* actor);
 
+		mutable std::mutex _lock;
 		std::unordered_map<Actor*, BoobCrushData> data;
 	};
 }

@@ -396,8 +396,6 @@ namespace GTS {
             data.stage = 0;
             data.canEditAnimSpeed = false;
         }
-
-        logger::info("AnimSpeed: {}", data.animSpeed);
 	}
 
     void PerkHandler::KickPerk_ApplyDamage(Actor* giant, float& damage, float& power) {

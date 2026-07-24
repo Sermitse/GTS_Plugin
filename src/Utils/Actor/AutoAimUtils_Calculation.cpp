@@ -39,17 +39,24 @@ namespace GTS {
         const NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
         const NiPoint3 right(forward.y, -forward.x, 0.0f);
 
+        NiPoint3 leftPoint = pointL;
+        NiPoint3 rightPoint = pointR;
+        leftPoint.z = 0.0f;
+        rightPoint.z = 0.0f;
+
         for (auto target : find_actors()) {
             if (!target || target == giant) {
                 continue;
             }
 
             if (!IsHostile(giant, target) && IsTeammate(target) && Config::General.bProtectFollowers) {
+                //Cprint("{} is considered friendly, skipping", target->GetDisplayFullName());
                 continue;
             }
 
             const bool dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
             const float deadPenalty = dead ? Config::AutoAim.fAutoAim_DeadPenalty : 1.0f;
+            
 
             NiPoint3 targetPos = target->GetPosition();
             targetPos.z = 0.0f;
@@ -87,8 +94,8 @@ namespace GTS {
             float scoreL;
             float scoreR;
 
-            EvaluatePoint(pointL, scoreL);
-            EvaluatePoint(pointR, scoreR);
+            EvaluatePoint(leftPoint, scoreL);
+            EvaluatePoint(rightPoint, scoreR);
 
             bool useLeft = scoreL <= scoreR;
             float score = useLeft ? scoreL : scoreR;
@@ -107,7 +114,6 @@ namespace GTS {
             Actor* bestVictim = nullptr;
             if (Rhomb) {
                 bestVictim = FindClosestTargetBetweenTwoPoints_Rhomb(giant, pointL, pointR, maxSearchDistance, leftFoot);
-                logger::info("using Rhomb search");
                 return bestVictim;
             }
             
@@ -119,12 +125,18 @@ namespace GTS {
             const NiPoint3 center = giant->GetPosition();
             const NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
 
+            NiPoint3 leftPoint = pointL;
+            NiPoint3 rightPoint = pointR;
+            leftPoint.z = 0.0f;
+            rightPoint.z = 0.0f;
+
             for (auto target : find_actors()) {
                 if (!target || target == giant) {
                     continue;
                 }
 
                 if (!IsHostile(giant, target) && IsTeammate(target) && Config::General.bProtectFollowers) {
+                    //Cprint("{} is considered friendly, skipping", target->GetDisplayFullName());
                     continue;
                 }
 
@@ -135,12 +147,12 @@ namespace GTS {
                 targetPos.z = 0.0f;
 
                 // Distance to left point
-                NiPoint3 deltaL = targetPos - pointL;
+                NiPoint3 deltaL = targetPos - leftPoint;
                 deltaL.z = 0.0f;
                 float distSqL = deltaL.x * deltaL.x + deltaL.y * deltaL.y;
 
                 // Distance to right point
-                NiPoint3 deltaR = targetPos - pointR;
+                NiPoint3 deltaR = targetPos - rightPoint;
                 deltaR.z = 0.0f;
                 float distSqR = deltaR.x * deltaR.x + deltaR.y * deltaR.y;
 

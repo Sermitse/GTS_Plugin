@@ -277,9 +277,10 @@ namespace {
 		auto player = PlayerCharacter::GetSingleton();
 		float WasteStamina = 25.0f * GetWasteMult(player);
 		if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
-			bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
+			bool left = AutoAim_SetUpDefaultSide(PlayerCharacter::GetSingleton());
+			bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
 			Utils_UpdateHighHeelBlend(player, false);
-			AnimationManager::StartAnim(Left ? "SwipeLight_Left" : "SwipeLight_Right", player);
+			AnimationManager::StartAnim(leftKick ? "SwipeLight_Left" : "SwipeLight_Right", player);
 		} else {
 			NotifyWithSound(player, "You're too tired for hand swipe");
 		}
@@ -290,9 +291,10 @@ namespace {
 		auto player = PlayerCharacter::GetSingleton();
 		float WasteStamina = 70.0f * GetWasteMult(player);
 		if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
-			bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
+			bool left = AutoAim_SetUpDefaultSide(PlayerCharacter::GetSingleton());
+			bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
 			Utils_UpdateHighHeelBlend(player, false);
-			AnimationManager::StartAnim(Left ? "SwipeHeavy_Left" : "SwipeHeavy_Right", player);
+			AnimationManager::StartAnim(leftKick ? "SwipeHeavy_Left" : "SwipeHeavy_Right", player);
 		} else {
 			NotifyWithSound(player, "You're too tired for hand swipe");
 		}

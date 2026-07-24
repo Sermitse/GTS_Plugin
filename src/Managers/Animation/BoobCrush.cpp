@@ -336,7 +336,10 @@ namespace GTS {
 	}
 
 	void AnimationBoobCrush::ResetActor(Actor* actor) {
-		this->data.erase(actor);
+		std::lock_guard lock(_lock);
+		if (actor) {
+			this->data.erase(actor);
+		}
 	}
 
 	Actor* AnimationBoobCrush::GetBoobCrushVictim(Actor* giant) {

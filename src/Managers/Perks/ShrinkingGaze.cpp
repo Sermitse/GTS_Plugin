@@ -26,7 +26,6 @@ namespace {
 				return false;
 			}
 
-			/*float Scale = get_visual_scale(actor);*/
 			double End = Time::WorldTimeElapsed();
 
 			if (End - Start < over_time) {
@@ -76,6 +75,24 @@ namespace {
 	}
 
 	void PerformShrinkOnActor(Actor* giant) {
+		/*auto Eye = find_node(giant, "NPCEyeBone");
+		NiPoint3 HitPosition;
+		bool success = false;
+		if (Eye) {
+			glm::vec3 camPos = DebugUtil::GetCameraPos();
+			glm::quat camRot = DebugUtil::GetCameraRot();
+			glm::vec3 forward = DebugUtil::GetForwardVector(camRot);
+			RE::NiPoint3 direction = DebugUtil::Glm2Ni(forward);
+			RE::NiPoint3 origin = Eye->world.translate + DebugUtil::Glm2Ni(forward * 20.0f * get_visual_scale(giant));
+
+			HitPosition = CastRay(
+				giant, 
+				origin, 
+				direction, 
+				240.0f * get_visual_scale(giant), 
+				success
+			);
+		}*/
 		CrosshairPickData* data = CrosshairPickData::GetSingleton();
 		if (data) {
 			float maxDistance = 24.0f;

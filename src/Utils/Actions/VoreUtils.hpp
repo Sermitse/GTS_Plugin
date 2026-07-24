@@ -21,4 +21,6 @@ namespace GTS {
 
     // Make Devourment events apply all bonuses
     void Devourment_Compatibility(Actor* Pred, Actor* Prey, bool Digested);
+    void ApplySwallowAndDevourment(Actor* giant, bool insta_kill = false);
+    void FinishAllTinies(Actor* giant);
 }

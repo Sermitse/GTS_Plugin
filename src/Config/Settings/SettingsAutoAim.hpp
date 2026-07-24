@@ -52,7 +52,7 @@ struct SettingsAutoAim_t {
     float fAutoAim_Range_Kick = 48.0f;
     float fAutoAim_Range_Kick_Sneak = 48.0f;
     //butt
-    float fAutoAim_Range_ButtSlam = 40.0f;
+    float fAutoAim_Range_ButtSlam = 48.0f;
     //breast
     float fAutoAim_Range_BreastSlam = 32.0f;
 

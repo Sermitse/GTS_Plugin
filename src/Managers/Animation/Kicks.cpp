@@ -119,18 +119,21 @@ namespace {
 	// ======================================================================================
 
 	void LightKickEvent(const ManagedInputEvent& data) {
-		bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
-		PerformKick(Left ? "SwipeLight_Left" : "SwipeLight_Right", 35.0f, false);
+		bool left = AutoAim_SetUpDefaultSide(PlayerCharacter::GetSingleton());
+		bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
+		PerformKick(leftKick ? "SwipeLight_Left" : "SwipeLight_Right", 35.0f, false);
 	}
 
 	void HeavyKickHighEvent(const ManagedInputEvent& data) {
-		bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
-		PerformKick(Left ? "SwipeHeavy_Left" : "SwipeHeavy_Right", 110.0f, true);
+		bool left = AutoAim_SetUpDefaultSide(PlayerCharacter::GetSingleton());
+		bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
+		PerformKick(leftKick ? "SwipeHeavy_Left" : "SwipeHeavy_Right", 110.0f, true);
 	}
 
 	void HeavyKickLowEvent(const ManagedInputEvent& data) {
-		bool Left = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton());
-		PerformKick(Left ? "StrongKick_Low_Left" : "StrongKick_Low_Right", 110.0f, true);
+		bool left = AutoAim_SetUpDefaultSide(PlayerCharacter::GetSingleton(), true);
+		bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
+		PerformKick(leftKick ? "StrongKick_Low_Left" : "StrongKick_Low_Right", 110.0f, true);
 	}
 }
 
@@ -141,7 +144,6 @@ namespace GTS
 		InputManager::RegisterInputEvent("HeavyKick_High", HeavyKickHighEvent, KickCondition);
 		InputManager::RegisterInputEvent("HeavyKick_Low", HeavyKickLowEvent, KickCondition);
 		
-
 		AnimationManager::RegisterEvent("GTS_Kick_Camera_On_R", "Kicks", GTS_Kick_Camera_On_R);
 		AnimationManager::RegisterEvent("GTS_Kick_Camera_On_L", "Kicks", GTS_Kick_Camera_On_L);
 		AnimationManager::RegisterEvent("GTS_Kick_Camera_Off_R", "Kicks", GTS_Kick_Camera_Off_R);

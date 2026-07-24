@@ -63,6 +63,7 @@ namespace GTS {
 		static void Once(std::string_view tag, Actor* giant, float intensity, float halflife, const bool ignore_scaling = false);
 
 		private:
+		mutable std::mutex _lock;
 		std::unordered_map<Actor*, ActorRumbleData> data;
 	};
 

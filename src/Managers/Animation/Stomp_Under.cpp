@@ -18,6 +18,18 @@ namespace {
 	constexpr std::string_view RNode = "NPC R Foot [Rft ]";
 	constexpr std::string_view LNode = "NPC L Foot [Lft ]";
 
+    void Stomp_ResetAnimSpeed(AnimationEventData& data) {
+		data.stage = 0;
+		data.canEditAnimSpeed = false;
+		data.animSpeed = 1.0f;
+	}
+
+	void Stomp_IncreaseAnimSpeed(AnimationEventData& data) {
+		data.stage = 1;
+		data.canEditAnimSpeed = true;
+		data.animSpeed = 1.125f;
+	}
+
     void DoImpactRumble(Actor* giant, std::string_view node, std::string_view name) {
 		float shake_power = Rumble_Stomp_Under_Light;
 		float smt = TinyCalamityActive(giant) ? 1.5f : 1.0f;
@@ -71,16 +83,24 @@ namespace {
         DrainStamina(&data.giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
         ManageCamera(&data.giant, true, CameraTracking::R_Foot);
         SetBusyFoot(&data.giant, BusyFoot::RightFoot);
+        Stomp_IncreaseAnimSpeed(data);
     }
 
     void GTS_UnderStomp_CamOnL(AnimationEventData& data) {
         DrainStamina(&data.giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, true, 1.4f);
         ManageCamera(&data.giant, true, CameraTracking::L_Foot);
         SetBusyFoot(&data.giant, BusyFoot::LeftFoot);
+        Stomp_IncreaseAnimSpeed(data);
     }
 
-    void GTS_UnderStomp_CamOffR(AnimationEventData& data) {ManageCamera(&data.giant, false, CameraTracking::R_Foot);}
-    void GTS_UnderStomp_CamOffL(AnimationEventData& data) {ManageCamera(&data.giant, false, CameraTracking::L_Foot);}
+    void GTS_UnderStomp_CamOffR(AnimationEventData& data) {
+        ManageCamera(&data.giant, false, CameraTracking::R_Foot);
+        Stomp_ResetAnimSpeed(data);
+    }
+    void GTS_UnderStomp_CamOffL(AnimationEventData& data) {
+        ManageCamera(&data.giant, false, CameraTracking::L_Foot);
+        Stomp_ResetAnimSpeed(data);
+    }
 
     void GTS_UnderStomp_ImpactR(AnimationEventData& data) {
         UnderStomp_DoEverything(&data.giant, data.animSpeed, true, FootEvent::Right, DamageSource::CrushedRight, RNode, "HeavyStompR");
@@ -92,6 +112,15 @@ namespace {
         UnderStomp_CheckForFootGrind(&data.giant, false, FootActionType::Grind_UnderStomp);
     }
 
+    void RandomizeBlend(Actor* giant) {
+        SetStompBlendValues(giant, false, 
+            RandomFloat(0.0f, Config::AutoAim.fAutoAim_NoHitValueRandomRange), 
+            RandomFloat(0.0f, Config::AutoAim.fAutoAim_NoHitValueRandomRange)
+        );
+    }
+    void FlipNextAttack(bool& left) {
+        left = !left;
+    }
 }
 namespace GTS {
     bool AnimationUnderStomp::AutoAim_And_DetermineStompType(Actor* giant, bool& left, bool strong_Attack) {
@@ -113,6 +142,8 @@ namespace GTS {
                 if (AutoAim_Hand_TryHandAim(giant, left)) { // Didn't find anyone for butt, breast or stomp attacks, try hand now
                     return false; // Hand shouldn't count as Understomp, else actor uses foot to attack instead
                 }
+                RandomizeBlend(giant);
+                FlipNextAttack(left);
                 return RandomBool(); // Everything failed, just rng it
             } 
             else if (AutoAim_Foot_Directional(giant, left, false)) { // Not sneaking or crawling/didn't find any hand targets, try normal understomp
@@ -121,7 +152,10 @@ namespace GTS {
             else if (AutoAim_Foot_Directional_FarStomp(giant, left, strong_Attack)) { // Couldn't find anyone, try far stomp now
                 return false; // Not an understomp
             }
+            RandomizeBlend(giant);
+            FlipNextAttack(left);
         }
+
         return Config::AutoAim.bPreventFarStomps ? true : CrosshairUnderstomp(giant);
     }
 
@@ -140,9 +174,7 @@ namespace GTS {
         // Allow to stomp when looking from above or below
         if (allow) {
             float blend = std::clamp(InvLookdownIntensity * 1.2f, 0.0f, 1.0f);
-            AnimationVars::Stomp::SetUnderStompBlend_Legacy(giant, blend);
-            AnimationVars::Stomp::SetUnderStompBlend_X(giant, blend);
-            AnimationVars::Stomp::SetUnderStompBlend_Y(giant, 0.0f);
+            SetStompBlendValues(giant, false, blend, 0.0f);
             // Blend between "close" and "far" under-stomps
         }
         return allow;

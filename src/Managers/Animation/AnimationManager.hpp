@@ -127,6 +127,7 @@ namespace GTS {
 		static void UpdateGravity(Actor* actor);
 
 		private:
+		mutable std::mutex _lock;
 		std::unordered_map<Actor*, std::unordered_map<std::string, AnimationEventData>> data;
 		std::unordered_map<std::string, AnimationEvent> eventCallbacks;
 		std::unordered_map<std::string, TriggerData> triggers;

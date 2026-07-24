@@ -58,7 +58,8 @@ namespace GTS {
 		std::unordered_map<FormID, SandwichingData> data;
 		void AllowMessage(bool allow);
 
-		private:
+		private: 
+		mutable std::mutex _lock;
 		bool allow_message = false;
 	};
 }

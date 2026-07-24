@@ -52,8 +52,11 @@ namespace GTS {
 			}
 
 			if (Config::AI.bAlwaysDisableAttacks) { // If this option is on, always prevent attacks past 2.5x scale
-				const float VisualScale = get_visual_scale(a_Giant);
+				float VisualScale = get_visual_scale(a_Giant);
 				constexpr float Threshold = 2.5f;
+				if (a_Tiny) {
+					VisualScale = get_scale_difference(a_Giant, a_Tiny, SizeType::VisualScale, false, false);
+				}
 				if (VisualScale >= Threshold) {
 					// past threshold, disable all attacks
 					a_Giant->GetActorRuntimeData().boolFlags.set(Actor::BOOL_FLAGS::kAttackingDisabled);

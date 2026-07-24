@@ -378,7 +378,10 @@ namespace GTS {
 	}
 
 	void ThighSandwichController::ResetActor(Actor* actor) {
-		this->data.erase(actor->formID);
+		std::unique_lock lock(_lock);
+		if (actor) {
+			this->data.erase(actor->formID);
+		}
 	}
 
 	void SandwichingData::Remove(Actor* tiny) {

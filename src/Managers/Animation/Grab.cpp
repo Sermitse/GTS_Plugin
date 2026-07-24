@@ -590,7 +590,10 @@ namespace GTS {
 	}
 
 	void Grab::ResetActor(Actor* actor) {
-		this->data.erase(actor);
+		std::lock_guard lock(_lock);
+		if (actor) {
+			this->data.erase(actor);
+		}
 	}
 
 	void Grab::Release(Actor* giant) {

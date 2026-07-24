@@ -25,7 +25,7 @@ namespace GTS {
 
     //Metric -> Mammoth (Because funny)
     double MetersToMammoth(const double a_meter) {
-        return a_meter / 3.04; 
+        return a_meter / 4.8; 
     }
 
     double KiloToMammoth(const double a_kg) {

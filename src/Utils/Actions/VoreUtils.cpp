@@ -284,4 +284,49 @@ namespace GTS {
 			}
 		}
 	}
+
+	void ApplySwallowAndDevourment(Actor* giant, bool insta_kill) {
+		auto& data = VoreController::GetSingleton().GetVoreData(giant);
+		auto vories = data.GetVories();
+		if (!IsDevourmentEnabled()) { // Play sound first, and swallow tinies
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundSwallow, giant, 1.0f, "NPC Head [Head]"); // Play sound
+			data.Swallow();
+		}
+		for (auto& tiny: vories) { // Do stuff based on Devourment on/off
+			if (tiny) {
+				if (tiny->IsPlayerRef()) {
+					PlayerCamera::GetSingleton()->cameraTarget = giant->CreateRefHandle();
+				}
+				if (IsDevourmentEnabled()) {
+					CallDevourment(giant, tiny);
+					SetBeingHeld(tiny, false);
+					data.AllowToBeVored(true);
+				} else {
+					tiny->SetAlpha(0.0f);
+					if (insta_kill) {
+						AllowToBeCrushed(tiny, true);
+						EnableCollisions(tiny);
+					}
+				}
+			}
+		}
+		if (insta_kill) { // Sneak Vore should instantly kill all tinies, since it's fast anim
+			data.AllowToBeVored(true);
+			data.KillAll();
+			data.ReleaseAll();
+		}
+	}
+
+	void FinishAllTinies(Actor* giant) {
+		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
+		for (auto& tiny: VoreData.GetVories()) {
+			if (tiny) {
+				AllowToBeCrushed(tiny, true);
+				EnableCollisions(tiny);
+			}
+		}
+		VoreData.AllowToBeVored(true);
+		VoreData.KillAll();
+		VoreData.ReleaseAll();
+	}
 }

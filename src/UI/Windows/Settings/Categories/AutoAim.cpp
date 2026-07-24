@@ -79,7 +79,7 @@ namespace {
         PSString THelp = "Butt Slam is a variation of strong stomp, it can be used in Sneak state\n"
         "It is performed if enemy is under giantess legs or butt";
         PSString T0 = "[Radius] Determines collider size.\n"
-        "Default: 40.0";
+        "Default: 48.0";
         PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
         "Default: 15.0";
         PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"

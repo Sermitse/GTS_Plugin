@@ -10,7 +10,6 @@ namespace GTS {
 			// being eaten
 			void AddTiny(Actor* tiny);
 			// Enables/diables the shrink zone
-			void EnableMouthShrinkZone(bool enabled);
 			// Swallow and start the digestion (buffs)
 			void Swallow();
 			// Finishes the process
@@ -41,9 +40,6 @@ namespace GTS {
 			mutable std::mutex _lock;
 			std::unordered_map<FormID, ActorHandle> tinies = {};
 
-			// If true the mouth kill zone is on and we shrink nodes entering the mouth
-			bool killZoneEnabled = false;
-
 			inline static Timer moantimer = Timer(6.0);
 
 			// True if in grabbed state
@@ -72,6 +68,7 @@ namespace GTS {
 
 		// Do the vore
 		void StartVore(Actor* pred, Actor* prey);
+		void ApplySwallowAndDevourment(Actor* giant, bool insta_vore = false);
 
 		static void RecordOriginalScale(Actor* tiny);
 		static float ReadOriginalScale(Actor* tiny);

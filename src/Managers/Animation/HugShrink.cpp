@@ -660,7 +660,9 @@ namespace GTS {
 
 	void HugShrink::ResetActor(Actor* actor) {
 		std::unique_lock lock(_lock);
-		this->data.erase(actor);
+		if (actor) {
+			this->data.erase(actor);
+		}
 	}
 
 	void HugShrink::Release(Actor* giant) {
