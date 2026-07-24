@@ -68,7 +68,6 @@ namespace GTS {
 
 		// Do the vore
 		void StartVore(Actor* pred, Actor* prey);
-		void ApplySwallowAndDevourment(Actor* giant, bool insta_vore = false);
 
 		static void RecordOriginalScale(Actor* tiny);
 		static float ReadOriginalScale(Actor* tiny);
