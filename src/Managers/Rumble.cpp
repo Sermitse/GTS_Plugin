@@ -140,8 +140,16 @@ namespace GTS {
 
 	void Rumbling::Update() {
 		GTS_PROFILE_SCOPE("Rumbling: Update");
-		for (auto& [actor, data]: this->data) {
+		std::vector<Actor*> toErase = {};
+		for (auto& [giant, data]: this->data) {
+			if (!giant) {
+				continue;
+			}
+			if (!giant->Is3DLoaded()) {
+				continue;
+			}
 			// Update values based on time passed
+			bool scheduleErase = false;
 			std::vector<std::string> tagsToErase = {};
 			for (auto& rumbleData : data.tags | std::views::values) {
 				switch (rumbleData.state) {
@@ -173,12 +181,16 @@ namespace GTS {
 					}
 					case RumbleState::Still: {
 						// All finished cleanup
-						this->data.erase(actor);
-						return;
+						toErase.push_back(giant);
+						scheduleErase = true;
+						break;
 					}
 				}
 			}
 
+			if (scheduleErase) {
+				continue;
+			}
 			// Now collect the data
 			//    - Multiple effects can add rumble to the same node
 			//    - We sum those effects up into cummulativeIntensity
@@ -189,7 +201,7 @@ namespace GTS {
 			for (const auto& rumbleData : data.tags | std::views::values) {
 				duration_override = rumbleData.shake_duration;
 				ignore_scaling = rumbleData.ignore_scaling;
-				auto node = find_node(actor, rumbleData.node);
+				auto node = find_node(giant, rumbleData.node);
 				if (node) {
 					cummulativeIntensity.try_emplace(node);
 					cummulativeIntensity.at(node) += rumbleData.currentIntensity.value;
@@ -209,22 +221,29 @@ namespace GTS {
 				averagePos = averagePos + point*intensity;
 				totalWeight += intensity;
 
-				if (get_visual_scale(actor) >= 6.0f) {
-					float volume = 4 * get_visual_scale(actor)/get_distance_to_camera(point);
+				if (get_visual_scale(giant) >= 6.0f) {
+					float volume = 4 * get_visual_scale(giant)/get_distance_to_camera(point);
 					// Lastly play the sound at each node
 					if (data.delay.ShouldRun()) {
-						//log::info("Playing sound at: {}, Intensity: {}", actor->GetDisplayFullName(), intensity);
 						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundWalkAirRumble, volume, node);
 					}
 				}
 			}
-
+			if (totalWeight <= 0.0f) {
+				continue;
+			}
 			averagePos = averagePos * (1.0f / totalWeight);
-			ApplyShakeAtPoint(actor, 0.4f * totalWeight, averagePos, duration_override, ignore_scaling);
+			ApplyShakeAtPoint(giant, 0.4f * totalWeight, averagePos, duration_override, ignore_scaling);
 
 			// There is a way to patch camera not shaking more than once so we won't need totalWeight hacks, but it requires ASM hacks
 			// Done by this mod: https://github.com/jarari/ImmersiveImpactSE/blob/b1e0be03f4308718e49072b28010c38c455c394f/HitStopManager.cpp#L67
 			// Edit: seems to be unstable to do it
+		}
+
+		if (!toErase.empty()) {
+			for (auto actor: toErase) {
+				this->data.erase(actor);
+			}
 		}
 	}
 
