@@ -57,19 +57,20 @@ namespace {
 }
 
 namespace GTS {
+	ActorRumbleData::ActorRumbleData(Actor* giant) : giant(giant ? giant->CreateRefHandle() : ActorHandle()), delay(Timer(0.40f)) {}
 
-	RumbleData::RumbleData(float intensity, float duration, float halflife, float shake_duration, bool ignore_scaling, std::string node) :
-		state(RumbleState::RampingUp),
-		duration(duration),
-		shake_duration(shake_duration),
-		ignore_scaling(ignore_scaling),
+	RumbleData::RumbleData(float intensity, float duration, float halflife, float shake_duration, bool ignore_scaling, std::string_view node) :
+    	state(RumbleState::RampingUp), 
+		duration(duration), 
+		shake_duration(shake_duration), 
+		ignore_scaling(ignore_scaling), 
 		currentIntensity(Spring(0.0f, halflife)),
 		node(node),
-		startTime(0.0f) {
+		startTime(0.0) 
+	{
+		currentIntensity.target = intensity;
 	}
 
-	RumbleData::RumbleData(float intensity, float duration, float halflife, float shake_duration, bool ignore_scaling, std::string_view node) : RumbleData(intensity, duration, halflife, shake_duration, ignore_scaling, std::string(node)) {
-	}
 
 	void RumbleData::ChangeTargetIntensity(float intensity) {
 		this->currentIntensity.target = intensity;
@@ -82,12 +83,33 @@ namespace GTS {
 		this->startTime = 0.0f;
 	}
 
-	ActorRumbleData::ActorRumbleData()  : delay(Timer(0.40)) {}
+	bool ActorRumbleData::Empty() const {
+		return this->tags.empty();
+	}
+
+	void ActorRumbleData::Start(std::string_view tagsv, float intensity, float duration, float halflife, float shake_duration, bool ignore_scaling, std::string_view nodesv) {
+		std::string tag(tagsv);
+		std::string node(nodesv);
+
+		this->tags.try_emplace(tag,intensity,duration,halflife,shake_duration,ignore_scaling,node);
+		auto& rumble = this->tags.at(tag);
+
+		rumble.ChangeTargetIntensity(intensity);
+		rumble.ChangeDuration(duration);
+	}
+
+	void ActorRumbleData::Stop(std::string_view tagsv) {
+		std::string tag(tagsv);
+		auto it = this->tags.find(tag);
+		if (it == this->tags.end()) {
+			return;
+		}
+		it->second.state = RumbleState::RampingDown;
+	}
 
 	std::string Rumbling::DebugName() {
 		return "::Rumbling";
 	}
-
 	void Rumbling::Reset() {
 		this->data.clear();
 	}
@@ -95,157 +117,145 @@ namespace GTS {
 	void Rumbling::ResetActor(Actor* actor) {
 		std::lock_guard lock(_lock);
 		if (actor) {
-			this->data.erase(actor);
+			this->data.erase(actor->formID);
 		}
 	}
 
-	void Rumbling::Start(std::string_view tag, Actor* giant, float intensity, float halflife, std::string_view node) {
-		Rumbling::For(tag, giant, intensity, halflife, node, 0, 0.0f);
+	ActorRumbleData& Rumbling::GetRumbleData(Actor* giant) {
+		this->data.try_emplace(giant->formID, giant);
+		return this->data.at(giant->formID);
+	}
+
+	void Rumbling::Start(std::string_view tag,Actor* giant,float intensity,float halflife,std::string_view node){
+		Rumbling::For(tag, giant, intensity, halflife, node, 0.0f, 0.0f);
 	}
 
 	void Rumbling::Start(std::string_view tag, Actor* giant, float intensity, float halflife) {
-		Rumbling::For(tag, giant, intensity, halflife, "NPC COM [COM ]", 0, 0.0f);
+		Rumbling::For(tag, giant, intensity, halflife, "NPC COM [COM ]", 0.0f,0.0f);
 	}
 
-	void Rumbling::Stop(std::string_view tagsv, Actor* giant) {
-		std::string tag = std::string(tagsv);
-		auto& me = Rumbling::GetSingleton();
-		try {
-			if (!me.data.empty() || !me.data.contains(giant)) {
-				me.data.at(giant).tags.at(tag).state = RumbleState::RampingDown;
+	void Rumbling::Stop(std::string_view tag, Actor* giant) {
+		if (giant) {
+			auto& me = Rumbling::GetSingleton();
+			auto it = me.data.find(giant->formID);
+			if (it == me.data.end()) {
+				return;
 			}
+			it->second.Stop(tag);
 		}
-		catch (const std::out_of_range&) {}
 	}
 
-	void Rumbling::For(std::string_view tagsv, Actor* giant, float intensity, float halflife, std::string_view nodesv, float duration, float shake_duration, const bool ignore_scaling) {
-		std::string tag = std::string(tagsv);
-		std::string node = std::string(nodesv);
-		auto& me = Rumbling::GetSingleton();
-		me.data.try_emplace(giant);
-		me.data.at(giant).tags.try_emplace(tag, intensity, duration, halflife, shake_duration, ignore_scaling, node);
-		// Reset if already there (but don't reset the intensity this will let us smooth into it)
-		me.data.at(giant).tags.at(tag).ChangeTargetIntensity(intensity);
-		me.data.at(giant).tags.at(tag).ChangeDuration(duration);
+	void Rumbling::For(std::string_view tag, Actor* giant, float intensity, float halflife, std::string_view node, float duration, float shake_duration, bool ignore_scaling) {
+		if (giant) {
+			auto& rumble = Rumbling::GetSingleton().GetRumbleData(giant);
+			rumble.Start(tag,intensity,duration,halflife,shake_duration,ignore_scaling,node);
+		}
+	}
+	void Rumbling::Once(std::string_view tag, Actor* giant, float intensity, float halflife, std::string_view node, float shake_duration, bool ignore_scaling){
+		Rumbling::For(tag,giant,intensity,halflife,node,1.0f,shake_duration,ignore_scaling);
 	}
 
-	void Rumbling::Once(std::string_view tag, Actor* giant, float intensity, float halflife, std::string_view node, float shake_duration, const bool ignore_scaling) {
-		Rumbling::For(tag, giant, intensity, halflife, node, 1.0f, shake_duration, ignore_scaling);
-	}
-
-	void Rumbling::Once(std::string_view tag, Actor* giant, float intensity, float halflife, const bool ignore_scaling) {
+	void Rumbling::Once(std::string_view tag, Actor* giant, float intensity, float halflife, bool ignore_scaling) {
 		Rumbling::Once(tag, giant, intensity, halflife, "NPC Root [Root]", 0.0f, ignore_scaling);
 	}
 
-
 	void Rumbling::Update() {
-		GTS_PROFILE_SCOPE("Rumbling: Update");
-		std::vector<Actor*> toErase = {};
-		for (auto& [giant, data]: this->data) {
-			if (!giant) {
-				continue;
-			}
-			if (!giant->Is3DLoaded()) {
-				continue;
-			}
-			// Update values based on time passed
-			bool scheduleErase = false;
-			std::vector<std::string> tagsToErase = {};
-			for (auto& rumbleData : data.tags | std::views::values) {
-				switch (rumbleData.state) {
-					case RumbleState::RampingUp: {
-						// Increasing intensity just let the spring do its thing
-						if (fabs(rumbleData.currentIntensity.value - rumbleData.currentIntensity.target) < 1e-3) {
-							// When spring is done move the state onwards
-							rumbleData.state = RumbleState::Rumbling;
-							rumbleData.startTime = Time::WorldTimeElapsed();
-						}
-						break;
-					}
-					case RumbleState::Rumbling: {
-						// At max intensity
-						rumbleData.currentIntensity.value = rumbleData.currentIntensity.target;
-						if (Time::WorldTimeElapsed() > rumbleData.startTime + rumbleData.duration) {
-							rumbleData.state = RumbleState::RampingDown;
-						}
-						break;
-					}
-					case RumbleState::RampingDown: {
-						// Stoping the rumbling
-						rumbleData.currentIntensity.target = 0; // Ensure ramping down is going to zero intensity
-						if (fabs(rumbleData.currentIntensity.value) <= 1e-3) {
-							// Stopped
-							rumbleData.state = RumbleState::Still;
-						}
-						break;
-					}
-					case RumbleState::Still: {
-						// All finished cleanup
-						toErase.push_back(giant);
-						scheduleErase = true;
-						break;
-					}
-				}
-			}
-
-			if (scheduleErase) {
-				continue;
-			}
-			// Now collect the data
-			//    - Multiple effects can add rumble to the same node
-			//    - We sum those effects up into cummulativeIntensity
-			float duration_override = 0.0f;
-			bool ignore_scaling = false;
-
-			std::unordered_map<NiAVObject*, float> cummulativeIntensity;
-			for (const auto& rumbleData : data.tags | std::views::values) {
-				duration_override = rumbleData.shake_duration;
-				ignore_scaling = rumbleData.ignore_scaling;
-				auto node = find_node(giant, rumbleData.node);
-				if (node) {
-					cummulativeIntensity.try_emplace(node);
-					cummulativeIntensity.at(node) += rumbleData.currentIntensity.value;
-				}
-			}
-			// Now do the rumble
-			//   - Also add up the volume for the rumble
-			//   - Since we can only have one rumble (skyrim limitation)
-			//     we do a weighted average to find the location to rumble from
-			//     and sum the intensities
-			NiPoint3 averagePos = NiPoint3(0.0f, 0.0f, 0.0f);
-			
-			float totalWeight = 0.0f;
-
-			for (const auto &[node, intensity]: cummulativeIntensity) {
-				auto& point = node->world.translate;
-				averagePos = averagePos + point*intensity;
-				totalWeight += intensity;
-
-				if (get_visual_scale(giant) >= 6.0f) {
-					float volume = 4 * get_visual_scale(giant)/get_distance_to_camera(point);
-					// Lastly play the sound at each node
-					if (data.delay.ShouldRun()) {
-						Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundWalkAirRumble, volume, node);
-					}
-				}
-			}
-			if (totalWeight <= 0.0f) {
-				continue;
-			}
-			averagePos = averagePos * (1.0f / totalWeight);
-			ApplyShakeAtPoint(giant, 0.4f * totalWeight, averagePos, duration_override, ignore_scaling);
-
-			// There is a way to patch camera not shaking more than once so we won't need totalWeight hacks, but it requires ASM hacks
-			// Done by this mod: https://github.com/jarari/ImmersiveImpactSE/blob/b1e0be03f4308718e49072b28010c38c455c394f/HitStopManager.cpp#L67
-			// Edit: seems to be unstable to do it
-		}
-
-		if (!toErase.empty()) {
-			for (auto actor: toErase) {
-				this->data.erase(actor);
-			}
+		for (auto& rumble : this->data | std::views::values) {
+			rumble.Update();
 		}
 	}
+	void ActorRumbleData::Update() {
+		auto giant = this->giant.get().get();
+
+		if (!giant) {
+			return;
+		}
+
+		if (!giant->Get3D()) {
+			return;
+		}
+
+		std::vector<std::string> tagsToErase;
+		for (auto& [tag, rumbleData] : this->tags) {
+			switch (rumbleData.state) {
+				case RumbleState::RampingUp: {
+					if (fabs(rumbleData.currentIntensity.value - rumbleData.currentIntensity.target) < 1e-3f) {
+						rumbleData.state = RumbleState::Rumbling;
+						rumbleData.startTime = Time::WorldTimeElapsed();
+					}
+					break;
+				}
+				case RumbleState::Rumbling: {
+					rumbleData.currentIntensity.value = rumbleData.currentIntensity.target;
+					if (Time::WorldTimeElapsed() > rumbleData.startTime + rumbleData.duration) {
+						rumbleData.state = RumbleState::RampingDown;
+					}
+					break;
+				}
+				case RumbleState::RampingDown: {
+					rumbleData.currentIntensity.target = 0.0f;
+					if (fabs(rumbleData.currentIntensity.value) <= 1e-3f) {
+						rumbleData.state = RumbleState::Still;
+						tagsToErase.push_back(tag);
+					}
+					break;
+				}
+				case RumbleState::Still: {
+					tagsToErase.push_back(tag);
+					break;
+				}
+			}
+		}
+
+		for (auto& tag : tagsToErase) {
+			this->tags.erase(tag);
+		}
+
+		if (this->tags.empty()) {
+			return;
+		}
+
+		float duration_override = 0.0f;
+		bool ignore_scaling = false;
+
+		std::unordered_map<NiAVObject*, float> cumulativeIntensity;
+
+		for (auto& [tag, rumbleData] : this->tags) {
+			duration_override = rumbleData.shake_duration;
+			ignore_scaling = rumbleData.ignore_scaling;
+
+			auto node = find_node(giant, rumbleData.node);
+
+			if (node) {
+				cumulativeIntensity[node] += rumbleData.currentIntensity.value;
+			}
+		}
+		// Now do the rumble
+		//   - Also add up the volume for the rumble
+		//   - Since we can only have one rumble (skyrim limitation)
+		//     we do a weighted average to find the location to rumble from
+		//     and sum the intensities
+		NiPoint3 averagePos(0.0f, 0.0f, 0.0f);
+		float totalWeight = 0.0f;
+
+		for (auto& [node, intensity] : cumulativeIntensity) {
+			auto& point = node->world.translate;
+			averagePos += point * intensity;
+			totalWeight += intensity;
+
+			if (get_visual_scale(giant) >= 6.0f) {
+				float volume = 4.0f * get_visual_scale(giant) / get_distance_to_camera(point);
+				if (this->delay.ShouldRun()) {
+					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundWalkAirRumble, volume, node);
+				}
+			}
+		}
+		if (totalWeight > 0.0f) {
+			averagePos *= 1.0f / totalWeight;
+			ApplyShakeAtPoint(giant,0.4f * totalWeight,averagePos,duration_override,ignore_scaling);
+		}
+	}
+	
 
 	void ApplyShake(Actor* caster, float modifier, float radius) {
 		if (caster) {

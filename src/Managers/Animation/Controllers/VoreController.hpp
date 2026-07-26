@@ -61,7 +61,7 @@ namespace GTS {
 		// Get's vore target for any actor based on distance from pred
 		// This will only return actors with appropiate distance/scale
 		// as based on `CanVore`  and can return multiple targets
-		std::vector<Actor*> GetVoreTargetsInFront(Actor* pred, std::size_t numberOfPrey);
+		std::vector<Actor*> GetVoreTargetsInFront(Actor* pred, std::size_t numberOfPrey, bool WrathfulCalamity = false);
 
 		// Check if they can vore based on size difference and reach distance
 		bool CanVore(Actor* pred, Actor* prey) const;

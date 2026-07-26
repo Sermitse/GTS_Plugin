@@ -8,9 +8,11 @@
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/Rumble.hpp"
 
+#include "Utils/Actions/AutoAim/AimAssist.hpp"
+
 #include "Utils/Actions/InputConditions.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
-#include "Utils/Actor/AutoAimUtils.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 
 using namespace GTS;
 
@@ -40,7 +42,7 @@ namespace {
 		std::string_view message = "You're too tired to perform heavy stomp";
 
 		if (player->IsSneaking()) {
-			if (AnimationVars::Crawl::IsCrawling(player) && AnimationUnderStomp::CrosshairUnderstomp(player)) {
+			if (AnimationVars::Crawl::IsCrawling(player) && CrosshairUnderstomp(player)) {
 				if (!AnimationVars::Crawl::IsCrawling(player)) {
 					message = "You're too tired to perform sneak butt crush";
 					WasteStamina *= 1.8f;
@@ -249,7 +251,7 @@ namespace {
 	void StrongStompEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
 		bool Left = AutoAim_SetUpDefaultSide(player);
-		bool UnderStomp = AnimationUnderStomp::AutoAim_And_DetermineStompType(player, Left, true);
+		bool UnderStomp = AutoAim_And_DetermineStompType(player, Left, true);
 
 		const std::string_view StompType_R = UnderStomp ? "UnderStompStrongRight" : "StrongStompRight";
 		const std::string_view StompType_L = UnderStomp ? "UnderStompStrongLeft" : "StrongStompLeft";

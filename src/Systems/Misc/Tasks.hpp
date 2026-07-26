@@ -107,7 +107,7 @@ namespace GTS {
 
 		private:
 		static std::string GenerateName(void* ptr);
-		static inline absl::flat_hash_map<std::string, std::unique_ptr<BaseTask>> m_taskings;
+		static inline absl::flat_hash_map<std::string, std::shared_ptr<BaseTask>> m_taskings;
 		static inline std::mutex m_taskingsLock;
 	};
 }

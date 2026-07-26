@@ -70,6 +70,7 @@ struct AIStompAction_t {
     bool bEnableAction                = true;
     float fProbability                = 33.0f;
     float fUnderstompGrindProbability = 40.0f;
+    float fStompGrindProbability      = 40.0f;
 };
 TOML_SERIALIZABLE(AIStompAction_t);
 

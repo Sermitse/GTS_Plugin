@@ -26,8 +26,9 @@ namespace GTS {
 		// === Calculation of ray directions ===
 		auto transform = root_node->world;
 		transform.scale = 1.0f;
-		// ray 1 center on giant + 70 (default), +100 now
-		auto ray1_p = NiPoint3(0.0f, 0.0f, 100.0f); // in local space
+		// ray 1 center on giant + 100 (default)
+		auto ray1_p = NiPoint3(0.0f, 0.0f, 100.0f); // in local space, never affected by scale
+		// If we scale it with size - it will eventually get too high and won't be able to detect rooms
 		ray1_p = transform * ray1_p; // in global space
 		// straight up
 		auto ray1_d = NiPoint3(0.0f, 0.0f, 1.0f); // direction

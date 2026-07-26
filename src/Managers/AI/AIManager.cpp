@@ -335,7 +335,7 @@ namespace GTS {
 		//----------- WRATHFUL CALAMITY
 
 		if (AISettings.WrathfulCalamity.bEnableAction && TinyCalamityActive(a_Performer)) {
-			CanCalamity = VoreController::GetSingleton().GetVoreTargetsInFront(a_Performer, 1);  // This action supports only ONE actor
+			CanCalamity = VoreController::GetSingleton().GetVoreTargetsInFront(a_Performer, 1, true);  // This action supports only ONE actor
 			if (!CanCalamity.empty() && !IsActionOnCooldown(a_Performer, CooldownSource::Misc_TinyCalamity_WrathfulCalamity)) { 
 				StartableActions.emplace(ActionType::kWrathfulCalamity, static_cast<int>(AISettings.WrathfulCalamity.fProbability));
 			}

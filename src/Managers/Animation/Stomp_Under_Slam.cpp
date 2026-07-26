@@ -21,7 +21,7 @@ namespace {
         DrainStamina(&data.giant,"StaminaDrain_HandSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 1.5f);
     }
     void GTS_UnderStomp_Crawl_ImpactL(AnimationEventData& data) {
-        DoCrawlingFunctions(&data.giant, get_visual_scale(&data.giant), 1.05f, Damage_Sneak_HandSlam_Sneak, CrawlEvent::LeftHand, "RightHandRumble", 0.9f, Radius_Sneak_HandSlam, 1.3f, DamageSource::HandSlamLeft);
+        DoCrawlingFunctions(&data.giant, get_visual_scale(&data.giant), 1.05f, Damage_Sneak_HandSlam_Sneak, CrawlEvent::LeftHand, "LeftHandRumble", 0.9f, Radius_Sneak_HandSlam, 1.3f, DamageSource::HandSlamLeft);
         DrainStamina(&data.giant,"StaminaDrain_HandSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 1.5f);
     }
 

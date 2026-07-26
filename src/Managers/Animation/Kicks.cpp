@@ -4,7 +4,7 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Damage/LaunchObject.hpp"
 #include "Managers/Input/InputManager.hpp"
-#include "Utils/Actor/AutoAimUtils.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 
 
 #include "Managers/Perks/PerkHandler.hpp"

@@ -74,6 +74,7 @@ struct GameplayActionSettings_t {
 
     //Stomp Settings
     float fPlayerUnderstompGrindChance = 20.0f;
+    float fPlayerStompGrindChance      = 20.0f;
 
     //Kick Settings
     bool bEnablePlayerPushBack = true;

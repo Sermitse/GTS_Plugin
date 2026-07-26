@@ -4,7 +4,7 @@ namespace {
 
 	struct QueuedTask {
 		std::string name;
-		GTS::BaseTask* task;
+		std::shared_ptr<GTS::BaseTask> task;
 	};
 
 	std::vector<QueuedTask> CollectTasksForUpdate(auto& taskings, std::mutex& taskingsLock, GTS::UpdateKind kind) {
@@ -18,7 +18,7 @@ namespace {
 				if (task && task->UpdateOn() == kind) {
 					queued.push_back({
 						name,
-						task.get(),
+						task,
 					});
 				}
 			}
@@ -37,7 +37,7 @@ namespace {
 
 		for (const auto& queued : toRemove) {
 			auto it = taskings.find(queued.name);
-			if (it != taskings.end() && it->second.get() == queued.task) {
+			if (it != taskings.end() && it->second == queued.task) {
 				taskings.erase(it);
 			}
 		}
@@ -51,9 +51,26 @@ namespace GTS {
 	//-----------
 
 	Task::Task(const std::function<bool(const TaskUpdate&)>& tasking) : 
-		startTime(Time::WorldTimeElapsed()), lastRunTime(Time::WorldTimeElapsed()), tasking(tasking) {}
+		startTime(Time::WorldTimeElapsed()), lastRunTime(Time::WorldTimeElapsed()), tasking(tasking) {
+			if (!this->tasking) {
+				logger::info("Task constructed with empty callback!");
+			}
+		}
 
 	bool Task::Update() {
+		if (!this->tasking) {
+			logger::info("Task::Update() Created empty Task! Address: {:X}",reinterpret_cast<uintptr_t>(this));
+			return false;
+		}
+
+		auto callback = this->tasking;
+		if (!callback) {
+			logger::error(
+				"Task callback empty! Task {:X}",
+				reinterpret_cast<uintptr_t>(this)
+			);
+			return false;
+		}
 		TaskUpdate update;
 		double currentTime = Time::WorldTimeElapsed();
 
@@ -83,6 +100,10 @@ namespace GTS {
 		: startTime(Time::WorldTimeElapsed()),lastRunTime(Time::WorldTimeElapsed()), tasking(tasking), duration(duration) {}
 
 	bool TaskFor::Update() {
+		if (!this->tasking) {
+			logger::info("TaskFor::Update(): Created empty Task! Address: {:X}",reinterpret_cast<uintptr_t>(this));
+			return false;
+		}
 		double currentTime = Time::WorldTimeElapsed();
 		double currentRuntime = currentTime - this->startTime;
 
@@ -126,6 +147,10 @@ namespace GTS {
 		: creationTime(Time::WorldTimeElapsed()), tasking(tasking) {}
 
 	bool Oneshot::Update() {
+		if (!this->tasking) {
+			logger::info("Oneshot::Update(): Created empty Task! Address: {:X}",reinterpret_cast<uintptr_t>(this));
+			return false;
+		}
 		double currentTime = Time::WorldTimeElapsed();
 
 		OneshotUpdate update{
@@ -157,6 +182,7 @@ namespace GTS {
 		toRemove.reserve(queued.size());
 
 		for (const auto& entry : queued) {
+			if (!entry.task) continue;
 			if (!entry.task->Update()) {
 				toRemove.push_back(entry);
 			}
@@ -172,6 +198,7 @@ namespace GTS {
 		toRemove.reserve(queued.size());
 
 		for (const auto& entry : queued) {
+			if (!entry.task) continue;
 			if (!entry.task->Update()) {
 				toRemove.push_back(entry);
 			}
@@ -187,6 +214,7 @@ namespace GTS {
 		toRemove.reserve(queued.size());
 
 		for (const auto& entry : queued) {
+			if (!entry.task) continue;
 			if (!entry.task->Update()) {
 				toRemove.push_back(entry);
 			}
@@ -210,7 +238,7 @@ namespace GTS {
 	}
 
 	void TaskManager::Run(const std::function<bool(const TaskUpdate&)>& tasking) {
-		auto task = std::make_unique<Task>(tasking);
+		auto task = std::make_shared<Task>(tasking);
 		std::string name = GenerateName(task.get());
 
 		std::scoped_lock lock(m_taskingsLock);
@@ -221,7 +249,11 @@ namespace GTS {
 	}
 
 	void TaskManager::Run(std::string_view name, const std::function<bool(const TaskUpdate&)>& tasking) {
-		auto task = std::make_unique<Task>(tasking);
+		if (!tasking) {
+			logger::info("TaskManager::Run empty callback: {}", name);
+			return;
+		}
+		auto task = std::make_shared<Task>(tasking);
 
 		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
@@ -231,7 +263,7 @@ namespace GTS {
 	}
 
 	void TaskManager::RunFor(float duration, const std::function<bool(const TaskForUpdate&)>& tasking) {
-		auto task = std::make_unique<TaskFor>(duration, tasking);
+		auto task = std::make_shared<TaskFor>(duration, tasking);
 		std::string name = GenerateName(task.get());
 
 		std::scoped_lock lock(m_taskingsLock);
@@ -242,7 +274,7 @@ namespace GTS {
 	}
 
 	void TaskManager::RunFor(std::string_view name, float duration, const std::function<bool(const TaskForUpdate&)>& tasking) {
-		auto task = std::make_unique<TaskFor>(duration, tasking);
+		auto task = std::make_shared<TaskFor>(duration, tasking);
 
 		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));
@@ -252,7 +284,7 @@ namespace GTS {
 	}
 
 	void TaskManager::RunOnce(const std::function<void(const OneshotUpdate&)>& tasking) {
-		auto task = std::make_unique<Oneshot>(tasking);
+		auto task = std::make_shared<Oneshot>(tasking);
 		std::string name = GenerateName(task.get());
 
 		std::scoped_lock lock(m_taskingsLock);
@@ -263,7 +295,7 @@ namespace GTS {
 	}
 
 	void TaskManager::RunOnce(std::string_view name, const std::function<void(const OneshotUpdate&)>& tasking) {
-		auto task = std::make_unique<Oneshot>(tasking);
+		auto task = std::make_shared<Oneshot>(tasking);
 
 		std::scoped_lock lock(m_taskingsLock);
 		auto [it, inserted] = m_taskings.try_emplace(std::string(name), std::move(task));

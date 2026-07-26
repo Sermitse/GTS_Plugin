@@ -100,6 +100,7 @@ namespace GTS {
 		{
 
         	PSString T0 = "Increase/lower the chance to start a foot grinding animation when doing understomps.";
+            PSString T01 = "Increase/lower the chance to start a foot grinding animation when doing normal stomps.";
 
         	PSString T1 = "When enabled:\n"
         				  "Replaces the light, non understomp stomp animations made by SonderBain with different\n"
@@ -111,6 +112,7 @@ namespace GTS {
 			if (ImGui::CollapsingHeader("Stomps/Kicks", ImUtil::HeaderFlagsDefaultOpen)) {
 
 				ImGuiEx::SliderF("Foot Grind On Understomp Chance", &Config::Gameplay.ActionSettings.fPlayerUnderstompGrindChance, 0.0f, 100.0f, T0, "%.0f%%");
+                ImGuiEx::SliderF("Foot Grind On Normal Stomp Chance", &Config::Gameplay.ActionSettings.fPlayerStompGrindChance, 0.0f, 100.0f, T01, "%.0f%%");
                 ImGuiEx::CheckBox("Alternative Stomp Player", &Config::Gameplay.ActionSettings.bStompAlternative, T1);
 			    ImGui::SameLine();
                 ImGuiEx::CheckBox("Alternative Stomp NPCs", &Config::Gameplay.ActionSettings.bStomAlternativeOther, T1);

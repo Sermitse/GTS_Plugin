@@ -1,9 +1,10 @@
 #include "Managers/AI/StompKick/StompKickSwipeAI.hpp"
+#include "Utils/Actions/AutoAim/AimAssist.hpp"
 #include "Config/Config.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Stomp_Under.hpp"
-#include "Utils/Actor/AutoAimUtils.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 
 
 using namespace GTS;
@@ -107,7 +108,7 @@ namespace {
 
 	void Do_StrongStomp(Actor* a_Performer, Actor* a_Prey) {
 		bool Left = AutoAim_SetUpDefaultSide(a_Performer);
-		const bool UnderStomp = AnimationUnderStomp::AutoAim_And_DetermineStompType(a_Performer, Left, true);
+		const bool UnderStomp = AutoAim_And_DetermineStompType(a_Performer, Left, true);
 		const std::string_view StompType_R = UnderStomp ? "UnderStompStrongRight" : "StrongStompRight";
 		const std::string_view StompType_L = UnderStomp ? "UnderStompStrongLeft" : "StrongStompLeft";
 
@@ -121,7 +122,7 @@ namespace {
 	void Do_LightStomp(Actor* a_Performer, Actor* a_Prey) {
 		bool Left = AutoAim_SetUpDefaultSide(a_Performer);
 		Utils_UpdateHighHeelBlend(a_Performer, false);
-		const bool UnderStomp = AnimationUnderStomp::AutoAim_And_DetermineStompType(a_Performer, Left);
+		const bool UnderStomp = AutoAim_And_DetermineStompType(a_Performer, Left);
 		const std::string_view StompType_R = UnderStomp ? "UnderStompRight" : "StompRight";
 		const std::string_view StompType_L = UnderStomp ? "UnderStompLeft" : "StompLeft";
 
@@ -134,7 +135,7 @@ namespace {
 
 	void Do_Tramples(Actor* a_Performer, Actor* a_Prey) {
 		bool Left = AutoAim_SetUpDefaultSide(a_Performer);
-		bool UnderTrample = AnimationUnderStomp::AutoAim_And_DetermineStompType(a_Performer, Left);
+		bool UnderTrample = AutoAim_And_DetermineStompType(a_Performer, Left);
 		const std::string_view TrampleType_L = UnderTrample ? "UnderTrampleL" : "TrampleL";
 		const std::string_view TrampleType_R = UnderTrample ? "UnderTrampleR" : "TrampleR";
 

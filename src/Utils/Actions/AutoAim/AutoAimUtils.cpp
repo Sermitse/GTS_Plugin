@@ -1,5 +1,5 @@
-#include "Utils/Actor/AutoAimUtils_Calculation.hpp"
-#include "Utils/Actor/AutoAimUtils.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils_Calculation.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 #include "Utils/Actor/FindActor.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Config/Config.hpp"
@@ -17,16 +17,16 @@ namespace {
         const bool Rhomb = Config::AutoAim.bUseRhombShape;
         const float rotation = giant->data.angle.z;
         if (Config::AutoAim.bDebugAutoAim) {
-            Rhomb ? DebugDraw::DrawRhomb(glm::vec3(pointPos.x, pointPos.y, pointPos.z), 6.0f * get_visual_scale(giant), rotation, 900, Origin_Point)// Initial search pos
-            :       DebugDraw::DrawSphere(glm::vec3(pointPos.x, pointPos.y, pointPos.z), 6.0f * get_visual_scale(giant), 900, Origin_Point);
+            Rhomb ? DebugDraw::DrawRhomb(glm::vec3(pointPos.x, pointPos.y, pointPos.z), 6.0f * get_visual_scale(giant), rotation, 1500, Origin_Point)// Initial search pos
+            :       DebugDraw::DrawSphere(glm::vec3(pointPos.x, pointPos.y, pointPos.z), 6.0f * get_visual_scale(giant), 1500, Origin_Point);
 
-            Rhomb ? DebugDraw::DrawRhomb(glm::vec3(pointPos.x, pointPos.y, pointPos.z), max_distance, rotation, 500, giantess_color)                // Collider search radius
-            :       DebugDraw::DrawSphere(glm::vec3(pointPos.x, pointPos.y, pointPos.z), max_distance, 500, giantess_color);
+            Rhomb ? DebugDraw::DrawRhomb(glm::vec3(pointPos.x, pointPos.y, pointPos.z), max_distance, rotation, 1500, giantess_color)                // Collider search radius
+            :       DebugDraw::DrawSphere(glm::vec3(pointPos.x, pointPos.y, pointPos.z), max_distance, 1500, giantess_color);
 
             if (victim) {
                 auto victimPos = victim->GetPosition();
-                Rhomb ? DebugDraw::DrawRhomb(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), rotation, 300, {0.0f, 0.6f, 0.0f, 1.0f})
-                :       DebugDraw::DrawSphere(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), 300, {0.0f, 0.6f, 0.0f, 1.0f});
+                Rhomb ? DebugDraw::DrawRhomb(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), rotation, 2000, {0.0f, 0.6f, 0.0f, 1.0f})
+                :       DebugDraw::DrawSphere(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), 2000, {0.0f, 0.6f, 0.0f, 1.0f});
             }
         }
     }
@@ -35,7 +35,7 @@ namespace {
         DrawDebugShape(giant, footPos_R, nullptr, max_distance, giantess_color);
     }
     bool ShouldAutoAim(float final_distance, float max_distance, float dx) {
-        return final_distance <= max_distance  && dx >= -(max_distance * Config::AutoAim.fAutoAim_IgnoreBehindAfter); 
+        return final_distance <= max_distance  && dx >= -(max_distance * Config::AutoAim.fAimAssist_IgnoreBehindAfter); 
         // Allows to auto-aim if enemy is a bit behind
     }
 }
@@ -44,15 +44,15 @@ namespace GTS {
         bool AutoAim_Kick_DeterminePreferredKick(Actor* giant, bool& left) {
             if (!giant) return RandomBool();
 
-            float foot_offset_side = Config::AutoAim.fAutoAim_Foot_OffsetDistance * get_visual_scale(giant);
-            float foot_offset_forward = Config::AutoAim.fAutoAim_Kick_OffsetDistance_Forward * get_visual_scale(giant);
-            float max_distance = Config::AutoAim.fAutoAim_Range_Kick * get_visual_scale(giant);
+            float foot_offset_side = Config::AutoAim.fAimAssist_Foot_OffsetDistance * get_visual_scale(giant);
+            float foot_offset_forward = Config::AutoAim.fAimAssist_Kick_OffsetDistance_Forward * get_visual_scale(giant);
+            float max_distance = Config::AutoAim.fAimAssist_Range_Kick * get_visual_scale(giant);
 
             if (AutoAim_IsSneakingOrCrawling(giant)) {
                 logger::info("Applying sneak attacks");
-                foot_offset_side = Config::AutoAim.fAutoAim_Hand_OffsetDistance_Side * get_visual_scale(giant);
-                foot_offset_forward = Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward_Sneak * get_visual_scale(giant);
-                max_distance = Config::AutoAim.fAutoAim_Range_Kick_Sneak * get_visual_scale(giant);
+                foot_offset_side = Config::AutoAim.fAimAssist_Hand_OffsetDistance_Side * get_visual_scale(giant);
+                foot_offset_forward = Config::AutoAim.fAimAssist_Hand_OffsetDistance_Forward_Sneak * get_visual_scale(giant);
+                max_distance = Config::AutoAim.fAimAssist_Range_Kick_Sneak * get_visual_scale(giant);
             }
 
             NiPoint3 footPos_L = GetPresetAimPosition(giant, true, foot_offset_side, foot_offset_forward);
@@ -85,9 +85,9 @@ namespace GTS {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            const float max_distance = Config::AutoAim.fAutoAim_Range_ButtSlam * get_visual_scale(giant);
-            const float breast_offset_side = Config::AutoAim.fAutoAim_Breast_OffsetDistance_Side * get_visual_scale(giant);
-            const float breast_offset_forward = Config::AutoAim.fAutoAim_Breast_OffsetDistance_Forward * get_visual_scale(giant);
+            const float max_distance = Config::AutoAim.fAimAssist_Range_ButtSlam * get_visual_scale(giant);
+            const float breast_offset_side = Config::AutoAim.fAimAssist_Breast_OffsetDistance_Side * get_visual_scale(giant);
+            const float breast_offset_forward = Config::AutoAim.fAimAssist_Breast_OffsetDistance_Forward * get_visual_scale(giant);
 
             NiPoint3 breastPos_L = GetPresetAimPosition(giant, true, breast_offset_side, breast_offset_forward);
             NiPoint3 breastPos_R = GetPresetAimPosition(giant, false, breast_offset_side, breast_offset_forward);
@@ -124,9 +124,9 @@ namespace GTS {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            const float max_distance = Config::AutoAim.fAutoAim_Range_ButtSlam * get_visual_scale(giant);
-            const float butt_offset_side = Config::AutoAim.fAutoAim_Butt_OffsetDistance_Side * get_visual_scale(giant);
-            const float butt_offset_forward = Config::AutoAim.fAutoAim_Butt_OffsetDistance_Forward * get_visual_scale(giant);
+            const float max_distance = Config::AutoAim.fAimAssist_Range_ButtSlam * get_visual_scale(giant);
+            const float butt_offset_side = Config::AutoAim.fAimAssist_Butt_OffsetDistance_Side * get_visual_scale(giant);
+            const float butt_offset_forward = Config::AutoAim.fAimAssist_Butt_OffsetDistance_Forward * get_visual_scale(giant);
 
             NiPoint3 buttPos_L = GetPresetAimPosition(giant, true, butt_offset_side, butt_offset_forward);
             NiPoint3 buttPos_R = GetPresetAimPosition(giant, false, butt_offset_side, butt_offset_forward);
@@ -154,8 +154,8 @@ namespace GTS {
             float final_distance = 0.0f;
             CalculateDirectionalBlend2D(giant, buttPos, victimPos, max_distance, x, y, dx, dy, final_distance);
 
-            x = std::clamp(x * Config::AutoAim.fAutoAim_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-            y = std::clamp(y * Config::AutoAim.fAutoAim_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            x = std::clamp(x * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            y = std::clamp(y * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
 
             if (Config::AutoAim.bDebugAutoAim) {
                 logger::info("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
@@ -163,7 +163,9 @@ namespace GTS {
             }
 
             bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
-            SetStompBlendValues(giant, AutoAim, x, y);
+            if (AutoAim) {
+                SetStompBlendValues(giant, x, y);
+            }
 
             return AutoAim;
         }
@@ -171,14 +173,14 @@ namespace GTS {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            float max_distance = Config::AutoAim.fAutoAim_Range_Hand * get_visual_scale(giant);
-            float hand_offset_side = Config::AutoAim.fAutoAim_Hand_OffsetDistance_Side * get_visual_scale(giant);
-            float hand_offset_forward = Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward * get_visual_scale(giant);
+            float max_distance = Config::AutoAim.fAimAssist_Range_Hand_Slam * get_visual_scale(giant);
+            float hand_offset_side = Config::AutoAim.fAimAssist_Hand_OffsetDistance_Side * get_visual_scale(giant);
+            float hand_offset_forward = Config::AutoAim.fAimAssist_Hand_OffsetDistance_Forward * get_visual_scale(giant);
 
             if (AnimationVars::Crawl::IsCrawling(giant)) { // Replace with Crawl version
-                max_distance = Config::AutoAim.fAutoAim_Range_Hand_Crawl * get_visual_scale(giant);
-                hand_offset_side = Config::AutoAim.fAutoAim_Hand_Crawl_OffsetDistance_Side * get_visual_scale(giant);
-                hand_offset_forward = Config::AutoAim.fAutoAim_Hand_Crawl_OffsetDistance_Forward * get_visual_scale(giant);
+                max_distance = Config::AutoAim.fAimAssist_Range_Hand_Crawl * get_visual_scale(giant);
+                hand_offset_side = Config::AutoAim.fAimAssist_Hand_Crawl_OffsetDistance_Side * get_visual_scale(giant);
+                hand_offset_forward = Config::AutoAim.fAimAssist_Hand_Crawl_OffsetDistance_Forward * get_visual_scale(giant);
             }
 
             NiPoint3 handPos_L = GetPresetAimPosition(giant, true, hand_offset_side, hand_offset_forward);
@@ -199,18 +201,38 @@ namespace GTS {
             handPos.z = 0.0f;
             victimPos.z = 0.0f;
             float x = 0.0f;
+            float y = 0.0f;
             float dx = 0.0f;
+            float dy = 0.0f;
             float final_distance = 0.0f;
-            CalculateForwardBlend(giant, handPos, victimPos, max_distance, x, dx, final_distance);
-            return final_distance <= max_distance;
+            CalculateAngleBasedSideBlend(giant, handPos, victimPos, y, dy, dx, final_distance);
+
+            x = std::clamp(x * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            y = std::clamp(y * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+
+            if (Config::AutoAim.bDebugAutoAim) {
+                logger::info("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
+                Cprint("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
+            }
+
+            bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
+            if (AutoAim) {
+                SetStompBlendValues(giant, x, y);
+            }
+
+            return AutoAim;
         }
 
         bool AutoAim_Foot_Directional(Actor* giant, bool& left_foot, bool forward_only) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            float max_distance = Config::AutoAim.fAutoAim_Range_Stomp * get_visual_scale(giant);
-            float foot_offset = Config::AutoAim.fAutoAim_Foot_OffsetDistance * get_visual_scale(giant); 
+            float max_distance = Config::AutoAim.fAimAssist_Range_Stomp * get_visual_scale(giant);
+            if (giant->IsSneaking()) {
+               max_distance = Config::AutoAim.fAimAssist_Range_Stomp_Sneak * get_visual_scale(giant);
+            }
+
+            float foot_offset = Config::AutoAim.fAimAssist_Foot_OffsetDistance * get_visual_scale(giant); 
             // ^ Instead of looking for R/L foot, we do position offset from center of Char to right/left, based on left_foot bool
 
             NiPoint3 footPos_L = GetPresetAimPosition(giant, true, foot_offset, 0.0f);
@@ -237,14 +259,10 @@ namespace GTS {
 
             float final_distance = 0.0f;
 
-            if (forward_only) {
-                CalculateForwardBlend(giant, footPos, victimPos, max_distance, x, dx, final_distance);
-            } else {
-                CalculateDirectionalBlend2D(giant, footPos, victimPos, max_distance, x, y, dx, dy, final_distance);
-            }
+            CalculateDirectionalBlend2D(giant, footPos, victimPos, max_distance, x, y, dx, dy, final_distance);
 
-            x = std::clamp(x * Config::AutoAim.fAutoAim_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-            y = std::clamp(y * Config::AutoAim.fAutoAim_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            x = std::clamp(x * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            y = std::clamp(y * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
 
             if (Config::AutoAim.bDebugAutoAim) {
                 logger::info("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
@@ -252,7 +270,9 @@ namespace GTS {
             }
 
             bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
-            SetStompBlendValues(giant, AutoAim, x, y);
+            if (AutoAim) {
+                SetStompBlendValues(giant, x, y);
+            }
 
             return AutoAim;
         }
@@ -261,12 +281,12 @@ namespace GTS {
             if (!giant) return RandomBool();
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return RandomBool();
 
-            float max_distance = Config::AutoAim.fAutoAim_Range_FarStomp * get_visual_scale(giant);
-            const float foot_offset = Config::AutoAim.fAutoAim_Foot_OffsetDistance * get_visual_scale(giant); 
-            const float foot_offset_far = Config::AutoAim.fAutoAim_Foot_OffsetDistance_FarStomp * get_visual_scale(giant); 
+            float max_distance = Config::AutoAim.fAimAssist_Range_FarStomp * get_visual_scale(giant);
+            const float foot_offset = Config::AutoAim.fAimAssist_Foot_OffsetDistance * get_visual_scale(giant); 
+            const float foot_offset_far = Config::AutoAim.fAimAssist_Foot_OffsetDistance_FarStomp * get_visual_scale(giant); 
             // ^ Instead of looking for R/L foot, we do position offset from center of Char to right/left, based on left_foot bool
             if (strong_stomp) {
-                max_distance = Config::AutoAim.fAutoAim_Range_FarStomp_Strong * get_visual_scale(giant); // Strong version has shorter range because that's how it was animated
+                max_distance = Config::AutoAim.fAimAssist_Range_FarStomp_Strong * get_visual_scale(giant); // Strong version has shorter range because that's how it was animated
             }
             NiPoint3 footPos_L = GetPresetAimPosition(giant, true, foot_offset, foot_offset_far);
             NiPoint3 footPos_R = GetPresetAimPosition(giant, false, foot_offset, foot_offset_far);
@@ -291,11 +311,11 @@ namespace GTS {
             float dy = 0.0f;
 
             float final_distance = 0.0f;
+            
+            CalculateAngleBasedSideBlend(giant, footPos, victimPos, y, dy, dx, final_distance);
 
-            CalculateDirectionalBlend2D(giant, footPos, victimPos, max_distance, x, y, dx, dy, final_distance);
-
-            x = std::clamp(x * Config::AutoAim.fAutoAim_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-            y = std::clamp(y * Config::AutoAim.fAutoAim_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            x = std::clamp(x * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            y = std::clamp(y * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
 
             if (Config::AutoAim.bDebugAutoAim) {
                 logger::info("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
@@ -303,7 +323,9 @@ namespace GTS {
             }
 
             bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
-            SetStompBlendValues(giant, AutoAim, x, y);
+            if (AutoAim) {
+                SetStompBlendValues(giant, x, y);
+            }
 
             return AutoAim;
         }
@@ -326,10 +348,9 @@ namespace GTS {
             return RandomBool(); 
         }
 
-        void SetStompBlendValues(Actor* giant, bool AutoAim, float x, float y) {
-            auto rng = RandomFloat(0.0f, Config::AutoAim.fAutoAim_NoHitValueRandomRange);
-            AnimationVars::Stomp::SetUnderStompBlend_Legacy(giant, AutoAim ? x : rng); // Old one stays for compatibility reasons
-            AnimationVars::Stomp::SetUnderStompBlend_X(giant, AutoAim ? x : rng); // We added new behavior variables, needs new Behaviors in order to work
-            AnimationVars::Stomp::SetUnderStompBlend_Y(giant, AutoAim ? y : rng); // We added new behavior variables, needs new Behaviors in order to work
+        void SetStompBlendValues(Actor* giant, float x, float y) {
+            AnimationVars::Stomp::SetUnderStompBlend_Legacy(giant, x); // Old one stays for compatibility reasons
+            AnimationVars::Stomp::SetUnderStompBlend_X(giant, x); // We added new behavior variables, needs new Behaviors in order to work
+            AnimationVars::Stomp::SetUnderStompBlend_Y(giant, y); // We added new behavior variables, needs new Behaviors in order to work
         }
     }

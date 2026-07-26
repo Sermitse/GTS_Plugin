@@ -3,6 +3,7 @@
 
 #include "Config/Config.hpp"
 
+#include "Utils/Actions/AutoAim/AimAssist.hpp"
 #include "Managers/Animation/Stomp_Under.hpp"
 #include "Managers/Cameras/CamUtil.hpp"
 
@@ -30,7 +31,7 @@ namespace {
 		// Remap our starting range
 		constexpr float InvLookDownStartAngle = 0.9f;
 		const float InvLookdownIntensity = std::clamp(
-			GTS::AnimationUnderStomp::Remap(absPitch, 1.0f, InvLookDownStartAngle, 0.0f, 1.0f),
+			GTS::Remap(absPitch, 1.0f, InvLookDownStartAngle, 0.0f, 1.0f),
 			0.0f, 1.0f
 		);
 

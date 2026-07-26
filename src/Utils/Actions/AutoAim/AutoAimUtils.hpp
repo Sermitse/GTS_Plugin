@@ -13,5 +13,5 @@ namespace GTS {
 	bool AutoAim_IsSneakingOrCrawling(Actor* giant);
 	bool AutoAim_SetUpDefaultSide(Actor* giant, bool alt_kick = false);
 
-	void SetStompBlendValues(Actor* giant, bool AutoAim, float x, float y);
+	void SetStompBlendValues(Actor* giant, float x, float y);
 }

@@ -1,5 +1,5 @@
 
-#include "Utils/Actor/AutoAimUtils_Calculation.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils_Calculation.hpp"
 #include "Utils/Actor/FindActor.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Config/Config.hpp"
@@ -8,6 +8,7 @@
 
 namespace {
     using namespace GTS;
+    constexpr float HALF_PI = 1.57079632679f;
 }
 
 namespace GTS {
@@ -55,7 +56,7 @@ namespace GTS {
             }
 
             const bool dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
-            const float deadPenalty = dead ? Config::AutoAim.fAutoAim_DeadPenalty : 1.0f;
+            const float deadPenalty = dead ? Config::AutoAim.fAimAssist_DeadPenalty : 1.0f;
             
 
             NiPoint3 targetPos = target->GetPosition();
@@ -87,7 +88,7 @@ namespace GTS {
                 float centerForward = centerDelta.x * forward.x + centerDelta.y * forward.y;
 
                 if (centerForward < 0.0f) {
-                    score += centerForward * centerForward * deadPenalty * Config::AutoAim.fAutoAim_BackPenalty;
+                    score += centerForward * centerForward * deadPenalty * Config::AutoAim.fAimAssist_BackPenalty;
                 }
             };
 
@@ -141,7 +142,7 @@ namespace GTS {
                 }
 
                 const bool Dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
-                float DeadPenalty = Dead ? Config::AutoAim.fAutoAim_DeadPenalty : 1.0f;
+                float DeadPenalty = Dead ? Config::AutoAim.fAimAssist_DeadPenalty : 1.0f;
 
                 NiPoint3 targetPos = target->GetPosition();
                 targetPos.z = 0.0f;
@@ -179,7 +180,7 @@ namespace GTS {
 
                 // Penalize targets behind the actor
                 if (localForward < 0.0f) {
-                    score += localForward * localForward * DeadPenalty * Config::AutoAim.fAutoAim_BackPenalty;
+                    score += localForward * localForward * DeadPenalty * Config::AutoAim.fAimAssist_BackPenalty;
                 }
 
                 if (score < bestScore) {
@@ -242,4 +243,31 @@ namespace GTS {
             outDistanceX = offset.x * forward.x + offset.y * forward.y;
             outDistanceY = offset.x * right.x + offset.y * right.y;
         }
+
+        void CalculateAngleBasedSideBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, float& outSideBlend, float& outRightDistance, float& outForwardDistance, float& outDistance) {
+            float yaw = giant->data.angle.z;
+
+            NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
+            NiPoint3 right(forward.y, -forward.x, 0.0f);
+
+            NiPoint3 offset = targetPos - footPos;
+            offset.z = 0.0f;
+
+            float length = offset.Length();
+            outDistance = length;
+            if (length < 0.001f) {
+                outSideBlend = 0.0f;
+                outRightDistance = 0.0f;
+                outForwardDistance = 0.0f;
+                return;
+            }
+
+            outRightDistance = offset.x * right.x + offset.y * right.y;
+            outForwardDistance = offset.x * forward.x + offset.y * forward.y;
+
+            float angle = std::atan2(outRightDistance, outForwardDistance);
+
+            outSideBlend = std::clamp(angle / HALF_PI, -1.0f, 1.0f);
+        }
+
     }

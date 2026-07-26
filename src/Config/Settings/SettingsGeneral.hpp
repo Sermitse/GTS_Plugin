@@ -63,7 +63,7 @@ struct SettingsGeneral_t {
     bool bPlayerLootpiles = true;
     bool bFollowerLootpiles = true;
 
-    bool bAlterPlayerGravity = false;
+    bool bAlterPlayerGravity = true;
     float fAdditionalJumpEffectDelay = 0.15f;
     float fAdditionalJumpEffectDelay_Gravity = 0.0f;
 

@@ -182,7 +182,7 @@ namespace GTS {
 		}
 	}
 
-	std::vector<Actor*> VoreController::GetVoreTargetsInFront(Actor* pred, std::size_t numberOfPrey) {
+	std::vector<Actor*> VoreController::GetVoreTargetsInFront(Actor* pred, std::size_t numberOfPrey, bool WrathfulCalamity) {
 		// Get vore target for actor
 		if (!pred) {
 			return {};
@@ -249,7 +249,7 @@ namespace GTS {
 			return cosTheta <= cos(VORE_ANGLE*PI/180.0f);
 		});
 
-		if (numberOfPrey == 1) {
+		if (numberOfPrey == 1 && !WrathfulCalamity) {
 			return GetMaxActionableTinyCount(pred, preys);
 		}
 

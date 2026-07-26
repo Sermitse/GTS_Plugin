@@ -2,6 +2,7 @@
 #include "Managers/Audio/Stomps.hpp"
 
 #include "Stomp_Under.hpp"
+#include "Utils/Actions/AutoAim/AimAssist.hpp"
 
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
@@ -11,7 +12,7 @@
 
 #include "Utils/Actions/InputConditions.hpp"
 #include "Managers/Perks/PerkHandler.hpp"
-#include "Utils/Actor/AutoAimUtils.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 
 using namespace GTS;
 
@@ -245,7 +246,7 @@ namespace {
 		auto player = PlayerCharacter::GetSingleton();
 		
 		bool Left = AutoAim_SetUpDefaultSide(player);
-		bool UnderTrample = AnimationUnderStomp::AutoAim_And_DetermineStompType(player, Left);
+		bool UnderTrample = AutoAim_And_DetermineStompType(player, Left);
 
 		const std::string_view TrampleType_R = UnderTrample ? "UnderTrampleR" : "TrampleR";
 		const std::string_view TrampleType_L = UnderTrample ? "UnderTrampleL" : "TrampleL";

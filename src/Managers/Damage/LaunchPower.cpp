@@ -36,11 +36,12 @@ namespace GTS {
         float power = std::cbrt(SizeDifference) * multiplier * incoming_Formula;
         float result = std::min(power, limit);
 
-        if (Type == LaunchType::Actor_Launch) {
+        /*if (Type == LaunchType::Actor_Launch) {
             logger::info("Incoming Formula: {}", incoming_Formula);
             logger::info("Power: {}", power);
             logger::info("Result: {}", result);
-        }
+            
+        }*/
 
         //log::info("Push Result: {}, {}", result, to_string(Type));
         return result;

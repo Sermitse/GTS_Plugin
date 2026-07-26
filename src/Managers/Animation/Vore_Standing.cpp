@@ -108,7 +108,7 @@ namespace {
 		}
 	}
 	void StopLHandRumble(std::string_view tag, Actor& actor) {
-		for (auto& node_name: RHAND_RUMBLE_NODES) {
+		for (auto& node_name: LHAND_RUMBLE_NODES) {
 			std::string rumbleName = std::format("{}{}", tag, node_name);
 			Rumbling::Stop(rumbleName, &actor);
 		}

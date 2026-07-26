@@ -28,11 +28,12 @@ namespace {
         PSString T0 = "Enable foot stomps when standing or hand stomps when sneaking / crawling.";
         PSString T1 = "Set the chance for a stomp action to be started.";
         PSString T2 = "Set the chance to pefrom a grind animation when doing under stomps";
+        PSString T3 ="Set the chance to pefrom a grind animation when doing normal stomps";
 
         ImGuiEx::CheckBox("Enable Action", &Config::AI.Stomp.bEnableAction, T0);
         ImGuiEx::SliderF("Start Chance", &Config::AI.Stomp.fProbability, 1.0f, 100.0f, T1, "%.0f%%",!Config::AI.Stomp.bEnableAction);
         ImGuiEx::SliderF("Grind On Understomp Chance", &Config::AI.Stomp.fUnderstompGrindProbability, 0.0f, 100.0f, T2, "%.0f%%", !Config::AI.Stomp.bEnableAction);
-            
+        ImGuiEx::SliderF("Grind On Normal Stomp Chance", &Config::AI.Stomp.fStompGrindProbability, 0.0f, 100.0f, T3, "%.0f%%", !Config::AI.Stomp.bEnableAction);    
     }
 
     void DrawAIAction_KickSwipe() {

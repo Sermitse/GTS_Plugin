@@ -2,6 +2,8 @@
 #include "Managers/Animation/Stomp_Under.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 
+#include "Utils/Actions/AutoAim/AimAssist.hpp"
+
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Audio/Footstep.hpp"
 #include "Managers/Audio/Stomps.hpp"
@@ -9,7 +11,7 @@
 #include "Managers/Rumble.hpp"
 
 #include "Utils/Actions/InputConditions.hpp"
-#include "Utils/Actor/AutoAimUtils.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 #include "Utils/AttachPoint.hpp"
 
 using namespace GTS;
@@ -33,42 +35,6 @@ namespace {
 		}
 	}
 
-	std::vector<Actor*> FindSquished(Actor* giant) {
-		/*
-		Find actor that are being pressed underfoot
-		*/
-		std::vector<Actor*> result = {};
-		if (!giant) {
-			return result;
-		}
-		float giantScale = get_visual_scale(giant);
-		auto giantLoc = giant->GetPosition();
-		for (auto tiny: find_actors()) {
-			if (tiny) {
-				float tinyScale = get_visual_scale(tiny);
-				float scaleRatio = giantScale / tinyScale;
-				
-				float actorRadius = 35.0f;
-				auto bounds = get_bound_values(tiny);
-				actorRadius = (bounds.x + bounds.y + bounds.z) / 6.0f;
-				
-
-				actorRadius *= tinyScale;
-				
-				if (scaleRatio > 3.5f) {
-					// 3.5 times bigger
-					auto tinyLoc = tiny->GetPosition();
-					auto distance = (giantLoc - tinyLoc).Length() - actorRadius;
-					if (distance < giantScale * 15.0f) {
-						// About 1.5 the foot size
-						result.push_back(tiny);
-					}
-				}
-			}
-		}
-		return result;
-	}
-
 	void StopLoopRumble(Actor* giant) {
 		Rumbling::Stop("StompR_Loop", giant);
 		Rumbling::Stop("StompL_Loop", giant);
@@ -86,45 +52,6 @@ namespace {
 		data.animSpeed = 1.35f;
 		if (!data.giant.IsPlayerRef()) {
 			data.animSpeed = 1.35f + GetRandomBoost()/2;
-		}
-	}
-
-	void MoveUnderFoot(Actor* giant, std::string_view node) {
-		auto footNode = find_node(giant, RNode);
-		if (footNode) {
-			auto footPos = footNode->world.translate;
-			for (auto tiny: FindSquished(giant)) {
-				if (tiny) {
-					std::uniform_real_distribution<float> dist(-10.f, 10.f);
-					float dx = dist(e2);
-					float dy = dist(e2);
-					auto randomOffset = NiPoint3(dx, dy, 0.0f);
-					tiny->SetPosition(footPos + randomOffset, true);
-				}
-			}
-		}
-	}
-
-	/*
-	Will keep the tiny in place for a second
-	*/
-	void KeepInPlace(Actor* giant, float duration) {
-		for (auto tiny: FindSquished(giant)) {
-			if (tiny) {
-				auto giantRef = giant->CreateRefHandle();
-				auto tinyRef = tiny->CreateRefHandle();
-				auto currentPos = tiny->GetPosition();
-				TaskManager::RunFor(duration, [=](const auto& data){
-					if (!tinyRef) {
-						return false;	
-					}
-					if (!giantRef) {
-						return false;	
-					}
-					AttachTo(giantRef, tinyRef, currentPos);
-					return true;
-				});
-			}
 		}
 	}
 
@@ -170,6 +97,10 @@ namespace {
 		ActorHandle giantHandle = giant->CreateRefHandle();
 
 		double Start = Time::WorldTimeElapsed();
+
+		const float PerformChancePlayer = Config::Gameplay.ActionSettings.fPlayerStompGrindChance;
+		const float PerformChanceNPC = Config::AI.Stomp.fStompGrindProbability;
+		const bool IsPlayer = giant->IsPlayerRef();
 		
 		TaskManager::RunFor(taskname, 1.0f, [=](auto& update){ // Needed because anim has a wrong timing
 			if (!giantHandle) {
@@ -181,14 +112,16 @@ namespace {
 		
 			if (Finish - Start > 0.02) { 
 
-				Rumbling::Once(rumble, giant, shake_power, 0.0f, Node, 1.10f);
+				Rumbling::Once(rumble, giantref, shake_power, 0.0f, Node, 1.10f);
 				DoDamageEffect(giantref, Damage_Stomp * perk, Radius_Stomp, 10, 0.25f, Event, 1.0f, Source);
 				DoDustExplosion(giantref, dust + (animSpeed * 0.05f), Event, Node);
 				StompManager::PlayNewOrOldStomps(giantref, 1.0f, Event, Node, false);
 				
 				DrainStamina(giantref, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.8f); // cancel stamina drain
 
-				FootGrindCheck(giantref, Radius_Stomp, right, FootActionType::Grind_Normal);
+				if (RandomBool(IsPlayer ? PerformChancePlayer : PerformChanceNPC)) {
+					FootGrindCheck(giantref, Radius_Stomp, right, FootActionType::Grind_Normal);
+				}
 
 				DelayedLaunch(giantref, 0.80f * perk, 2.0f* animSpeed, Event);
 
@@ -312,7 +245,7 @@ namespace {
 	void StompEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
 		bool Left = AutoAim_SetUpDefaultSide(player);
-		bool UnderStomp = AnimationUnderStomp::AutoAim_And_DetermineStompType(player, Left);
+		bool UnderStomp = AutoAim_And_DetermineStompType(player, Left);
 
 		const std::string_view StompType_R = UnderStomp ? "UnderStompRight" : "StompRight";
 		const std::string_view StompType_L = UnderStomp ? "UnderStompLeft" : "StompLeft";

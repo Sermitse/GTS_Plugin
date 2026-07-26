@@ -19,27 +19,30 @@ namespace {
         PSString THelp = "Close stomp is a stomp type that is triggered when enemy is close to legs\n"
         "Can hit enemies that are trying to hide under foot";
         PSString T0 = "[Radius] Determines collider size.\n"
-        "Default: 36.5";
+        "Default: 34.0";
+        PSString T01 = "[Radius] Determines collider size.\n"
+        "Default: 46.0";
         PSString T1 = "[Offset] left/right offset of the initial target search collider.\n"
         "Default: 10.0";
         ImGuiEx::HelpText("What is close stomp", THelp);
-        ImGuiEx::SliderF("Stomp Radius", &GTS::Config::AutoAim.fAutoAim_Range_Stomp, 30.0f, 60.0f, T0, "%.2f");
-        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Foot_OffsetDistance, 0.0f, 30.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Stomp Radius", &GTS::Config::AutoAim.fAimAssist_Range_Stomp, 30.0f, 60.0f, T0, "%.2f");
+        ImGuiEx::SliderF("[Sneak] Stomp Radius", &GTS::Config::AutoAim.fAimAssist_Range_Stomp_Sneak, 30.0f, 60.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAimAssist_Foot_OffsetDistance, 0.0f, 30.0f, T1, "%.2f");
         ImGui::Spacing();
     }
 
     void DrawFarStompSettings() {
         PSString THelp = "Far stomp is a stomp variation that is triggered when enemy is outside of normal stomp range";
         PSString T0 = "[Radius] Determines collider size.\n"
-        "Default: 56.0";
+        "Default: 46.0";
         PSString T1 = "[Radius] Determines collider size of Strong version of Far Stomp\n"
-        "Default: 48.0";
+        "Default: 50.0";
         PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
         "Default: 0.0";
         ImGuiEx::HelpText("What is far stomp", THelp);
-        ImGuiEx::SliderF("Collider Size:", &GTS::Config::AutoAim.fAutoAim_Range_FarStomp, 10.0f, 90.0f, T0, "%.2f");
-        ImGuiEx::SliderF("[Strong] Collider Size:", &GTS::Config::AutoAim.fAutoAim_Range_FarStomp_Strong, 10.0f, 90.0f, T1, "%.2f");
-        ImGuiEx::SliderF("Forward Offset:", &GTS::Config::AutoAim.fAutoAim_Foot_OffsetDistance_FarStomp, 0.0f, 75.0f, T2, "%.2f");
+        ImGuiEx::SliderF("Stomp Radius:", &GTS::Config::AutoAim.fAimAssist_Range_FarStomp, 10.0f, 90.0f, T0, "%.2f");
+        ImGuiEx::SliderF("[Strong] Stomp Radius:", &GTS::Config::AutoAim.fAimAssist_Range_FarStomp_Strong, 10.0f, 90.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset:", &GTS::Config::AutoAim.fAimAssist_Foot_OffsetDistance_FarStomp, 0.0f, 75.0f, T2, "%.2f");
         ImGui::Spacing();
     }
 
@@ -53,9 +56,9 @@ namespace {
         PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
         "Default: 50.0";
         ImGuiEx::HelpText("What is sneak hand slam", THelp);
-        ImGuiEx::SliderF("Hand Slam Radius", &GTS::Config::AutoAim.fAutoAim_Range_Hand, 10.0f, 30.0f, T0, "%.2f");
-        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Hand_OffsetDistance_Side, 5.0f, 60.0f, T1, "%.2f");
-        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward, 40.0f, 70.0f, T2, "%.2f");
+        ImGuiEx::SliderF("Hand Slam Radius", &GTS::Config::AutoAim.fAimAssist_Range_Hand_Slam, 10.0f, 90.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAimAssist_Hand_OffsetDistance_Side, 5.0f, 60.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAimAssist_Hand_OffsetDistance_Forward, 0.0f, 70.0f, T2, "%.2f");
         ImGui::Spacing();
     }
 
@@ -69,9 +72,9 @@ namespace {
         PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
         "Default: 40.0";
         ImGuiEx::HelpText("What is crawl hand slam", THelp);
-        ImGuiEx::SliderF("Hand Slam Radius", &GTS::Config::AutoAim.fAutoAim_Range_Hand_Crawl, 10.0f, 30.0f, T0, "%.2f");
-        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Hand_Crawl_OffsetDistance_Side, 5.0f, 60.0f, T1, "%.2f");
-        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAutoAim_Hand_Crawl_OffsetDistance_Forward, 40.0f, 70.0f, T2, "%.2f");
+        ImGuiEx::SliderF("Hand Slam Radius", &GTS::Config::AutoAim.fAimAssist_Range_Hand_Crawl, 10.0f, 90.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAimAssist_Hand_Crawl_OffsetDistance_Side, 5.0f, 60.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAimAssist_Hand_Crawl_OffsetDistance_Forward, 0.0f, 70.0f, T2, "%.2f");
         ImGui::Spacing();
     }
 
@@ -85,9 +88,9 @@ namespace {
         PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
         "Default: 0.0";
         ImGuiEx::HelpText("What is a butt slam", THelp);
-        ImGuiEx::SliderF("Radius", &GTS::Config::AutoAim.fAutoAim_Range_ButtSlam, 20.0f, 75.0f, T0, "%.2f");
-        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Butt_OffsetDistance_Side, 5.0f, 25.0f, T1, "%.2f");
-        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAutoAim_Butt_OffsetDistance_Forward, 0.0f, 30.0f, T2, "%.2f");
+        ImGuiEx::SliderF("Radius", &GTS::Config::AutoAim.fAimAssist_Range_ButtSlam, 20.0f, 75.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAimAssist_Butt_OffsetDistance_Side, 5.0f, 25.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAimAssist_Butt_OffsetDistance_Forward, 0.0f, 30.0f, T2, "%.2f");
         ImGui::Spacing();
     }
 
@@ -101,9 +104,9 @@ namespace {
         PSString T2 = "[Offset] back/forward offset of the initial target search collider.\n"
         "Default: 35.0";
         ImGuiEx::HelpText("What is a breast slam", THelp);
-        ImGuiEx::SliderF("Radius", &GTS::Config::AutoAim.fAutoAim_Range_BreastSlam, 20.0f, 75.0f, T0, "%.2f");
-        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAutoAim_Breast_OffsetDistance_Side, 0.0f, 25.0f, T1, "%.2f");
-        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAutoAim_Breast_OffsetDistance_Forward, 15.0f, 75.0f, T2, "%.2f");
+        ImGuiEx::SliderF("Radius", &GTS::Config::AutoAim.fAimAssist_Range_BreastSlam, 20.0f, 75.0f, T0, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAimAssist_Breast_OffsetDistance_Side, 0.0f, 25.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAimAssist_Breast_OffsetDistance_Forward, 15.0f, 75.0f, T2, "%.2f");
         ImGui::Spacing();
     }
 
@@ -120,10 +123,10 @@ namespace {
         PSString T2 = "[Hand Swipe Offset] back/forward offset of the initial target search collider.\n"
         "Default: 50.0";
         ImGuiEx::HelpText("What is a kick", THelp);
-        ImGuiEx::SliderF("Kick Radius", &GTS::Config::AutoAim.fAutoAim_Range_Kick, 20.0f, 60.0f, T0, "%.2f");
-        ImGuiEx::SliderF("[Sneaking] Kick Radius", &GTS::Config::AutoAim.fAutoAim_Range_Kick_Sneak, 20.0f, 60.0f, T01, "%.2f");
-        ImGuiEx::SliderF("[Standing] Forward Offset", &GTS::Config::AutoAim.fAutoAim_Kick_OffsetDistance_Forward, 10.0f, 70.0f, T1, "%.2f");
-        ImGuiEx::SliderF("[Sneaking] Forward Offset", &GTS::Config::AutoAim.fAutoAim_Hand_OffsetDistance_Forward_Sneak, 20.0f, 70.0f, T2, "%.2f");
+        ImGuiEx::SliderF("Kick Radius", &GTS::Config::AutoAim.fAimAssist_Range_Kick, 20.0f, 60.0f, T0, "%.2f");
+        ImGuiEx::SliderF("[Sneaking] Kick Radius", &GTS::Config::AutoAim.fAimAssist_Range_Kick_Sneak, 20.0f, 60.0f, T01, "%.2f");
+        ImGuiEx::SliderF("[Standing] Forward Offset", &GTS::Config::AutoAim.fAimAssist_Kick_OffsetDistance_Forward, 10.0f, 70.0f, T1, "%.2f");
+        ImGuiEx::SliderF("[Sneaking] Forward Offset", &GTS::Config::AutoAim.fAimAssist_Hand_OffsetDistance_Forward_Sneak, 20.0f, 70.0f, T2, "%.2f");
         ImGui::Spacing();
     }
 }
@@ -245,11 +248,11 @@ namespace GTS {
             "Default: 0.25";
 
             if (ImGui::CollapsingHeader("Automatic Aim Behavior Settings", ImUtil::HeaderFlagsDefaultOpen)) {
-                ImGuiEx::SliderF("Behind Target Penalty", &Config::AutoAim.fAutoAim_BackPenalty, 0.01f, 100.0f, T0, "%.2f");
-                ImGuiEx::SliderF("Dead Target Penalty", &Config::AutoAim.fAutoAim_DeadPenalty, 0.01f, 100.0f, T1, "%.2f");
-                ImGuiEx::SliderF("Ignore Rear Targets After", &Config::AutoAim.fAutoAim_IgnoreBehindAfter, 0.0f, 1.0f, T2, "%.2f");
-                ImGuiEx::SliderF("Auto-Aim Blend Multiplier", &Config::AutoAim.fAutoAim_AimMagnitudeMultiplier, 1.0f, 1.5f, T3, "%.2fx");
-                ImGuiEx::SliderF("Blend Randomization on Miss", &Config::AutoAim.fAutoAim_NoHitValueRandomRange, 0.0f, 1.0f, T4, "%.2fx");
+                ImGuiEx::SliderF("Behind Target Penalty", &Config::AutoAim.fAimAssist_BackPenalty, 0.01f, 100.0f, T0, "%.2f");
+                ImGuiEx::SliderF("Dead Target Penalty", &Config::AutoAim.fAimAssist_DeadPenalty, 0.01f, 100.0f, T1, "%.2f");
+                ImGuiEx::SliderF("Ignore Rear Targets After", &Config::AutoAim.fAimAssist_IgnoreBehindAfter, 0.0f, 1.0f, T2, "%.2f");
+                ImGuiEx::SliderF("Auto-Aim Blend Multiplier", &Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, 1.0f, 1.5f, T3, "%.2fx");
+                ImGuiEx::SliderF("Blend Randomization on Miss", &Config::AutoAim.fAimAssist_NoHitValueRandomRange, 0.0f, 1.0f, T4, "%.2fx");
                 ImGui::Spacing();
             }
         }

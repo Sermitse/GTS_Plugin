@@ -1,5 +1,5 @@
 #include "Managers/Animation/Crawling.hpp"
-#include "Utils/Actor/AutoAimUtils.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 
 #include "Config/Config.hpp"
 
@@ -131,7 +131,7 @@ namespace {
 	void GTSCrawl_SlamStrong_Impact_L(AnimationEventData& data) {
 		auto giant = &data.giant;
 		float scale = get_visual_scale(giant);
-		DoCrawlingFunctions(giant, scale, 2.1f, Damage_Crawl_HandSlam_Strong, CrawlEvent::LeftHand, "RightHandRumble", 1.2f, Radius_Crawl_Slam_Strong, 1.0f, DamageSource::HandSlamLeft);
+		DoCrawlingFunctions(giant, scale, 2.1f, Damage_Crawl_HandSlam_Strong, CrawlEvent::LeftHand, "LeftHandRumble", 1.2f, Radius_Crawl_Slam_Strong, 1.0f, DamageSource::HandSlamLeft);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.4f);
 		DrainStamina(&data.giant, "StaminaDrain_CrawlStompStrong", Runtime::PERK.GTSPerkDestructionBasics, false, 2.3f);
 		Grab::DamageActorInHand(giant, Damage_Crawl_HandSlam_Strong * 0.6f);

@@ -83,7 +83,7 @@ namespace {
 	};
 	void GTS_Sneak_Slam_Impact_L(AnimationEventData& data) {
 		float scale = get_visual_scale(&data.giant);
-		DoCrawlingFunctions(&data.giant, scale, 1.15f, Damage_Sneak_HandSlam, CrawlEvent::LeftHand, "LeftHandRumble", 0.9f, Radius_Sneak_HandSlam, 1.35f, DamageSource::HandSlamRight);
+		DoCrawlingFunctions(&data.giant, scale, 1.15f, Damage_Sneak_HandSlam, CrawlEvent::LeftHand, "LeftHandRumble", 0.9f, Radius_Sneak_HandSlam, 1.35f, DamageSource::HandSlamLeft);
 
 		if (Grab::GetHeldActor(&data.giant)) {
 			Grab::DamageActorInHand(&data.giant, Damage_Sneak_HandSlam * 0.6f);
