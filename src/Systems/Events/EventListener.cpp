@@ -73,8 +73,8 @@ namespace GTS {
 	// Fired when actor uses furniture
 	void EventListener::FurnitureEvent(Actor* user, TESObjectREFR* object, bool enter) {}
 
-	// Fired when actor uses furniture
-	void EventListener::DeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead) {}
+	// GameEvent based Actor Death
+	void EventListener::GameDeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead) {}
 
 	//Fires Before Cosave Serialization
 	void EventListener::OnGameSave() {}
@@ -97,4 +97,6 @@ namespace GTS {
 	//Fires when a GTS gains a level, the callback is fired when the preset perks change the skill level or when a follower gains a skill level through size exp.
 	void EventListener::OnGTSLevelUp(Actor* a_actor) {}
 
+	//Hitdata based death event
+	void EventListener::DeathEvent(Actor* a_source, Actor* a_target) {}
 }

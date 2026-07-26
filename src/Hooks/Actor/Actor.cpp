@@ -233,6 +233,34 @@ namespace Hooks {
 		FUNCTYPE_DETOUR func;
 	};
 
+	struct SendHitEvent_AE {
+
+		static void thunk(RE::AIProcess* a_process, RE::HitData* a_hitData) {
+			func(a_process, a_hitData);
+
+			if (a_hitData) {
+				if (a_hitData->flags.any(RE::HitData::Flag::kFatal) && a_hitData->target.get()) {
+					EventDispatcher::DoDeathEvent(a_hitData);
+				}
+			}
+		}
+
+		FUNCTYPE_CALL func;
+	};
+
+	struct SendHitEvent_SE {
+		static void thunk(RE::ScriptEventSourceHolder* a_holder, RE::NiPointer<RE::TESObjectREFR>& a_target, RE::NiPointer<RE::TESObjectREFR>& a_aggressor, RE::FormID  a_source, RE::FormID  a_projectile, RE::HitData* a_hitData) {
+			func(a_holder, a_target, a_aggressor, a_source, a_projectile, a_hitData);
+
+			if (a_hitData) {
+				if (a_hitData->flags.any(RE::HitData::Flag::kFatal) && a_hitData->target.get()) {
+					EventDispatcher::DoDeathEvent(a_hitData);
+				}
+			}
+		}
+		FUNCTYPE_CALL func;
+	};
+
 	void Hook_Actor::Install() {
 
 		logger::info("Installing Actor VTABLE MultiHooks...");
@@ -258,6 +286,17 @@ namespace Hooks {
 		logger::info("Installing MovementDelta Furniture Pause Hook...");
 		
 		stl::write_call<ApplyMovementDelta>(REL::RelocationID(36359, 37350, NULL), REL::VariantOffset(0xF0, 0xFB, NULL));
+
+		
+		//Based on PO3's killfeed mod.
+		//The game's own deathevent dispatcher was unreliable.
+		stl::write_call<SendHitEvent_AE>(REL::RelocationID(NULL, 38586, NULL), REL::VariantOffset(NULL, 0xFA, NULL));
+
+		//First version specific hook
+		//Func is either inlined in SE or hitevents are fired differently.
+		//In any case the SE version uses the papyrus death event instead.
+		stl::write_call<SendHitEvent_SE>(REL::RelocationID(37633, NULL, NULL), REL::VariantOffset(0x16A, NULL, NULL));
+
 	}
 
 	

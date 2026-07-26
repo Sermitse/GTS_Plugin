@@ -8,6 +8,15 @@
 
 #include "Utils/KillDataUtils.hpp"
 
+
+namespace {
+	ImGuiEx::KillPriority GetAttackerPriority(RE::Actor* a_attacker) {
+		if (!a_attacker) return ImGuiEx::KillPriority::kWorld;
+		if (a_attacker->IsPlayerRef()) return ImGuiEx::KillPriority::kPlayer;
+		return ImGuiEx::KillPriority::kNPC;
+	}
+}
+
 namespace GTS {
 
 	void KillFeedWindow::Init() {
@@ -92,7 +101,7 @@ namespace GTS {
 		return "::KillFeedWindow";
 	}
 
-	void KillFeedWindow::DeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead) {
+	void KillFeedWindow::DeathEvent(Actor* a_killer, Actor* a_victim) {
 
 		static const WindowSettingsKillFeed_t& settings = GetExtraSettings<WindowSettingsKillFeed_t>();
 
@@ -106,24 +115,48 @@ namespace GTS {
 			return;
 		}
 
+		AddKillEntry(a_killer, a_victim, DeathType::kVanillaHit);
+
+	}
+
+	void KillFeedWindow::GameDeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead) {
+
+		static const WindowSettingsKillFeed_t& settings = GetExtraSettings<WindowSettingsKillFeed_t>();
+
+		// Check if we should show any vanilla kills at all
+		if (!settings.bShowGameKills) {
+			return;
+		}
+
+		// Check if we should show kills that have no killer (world kills)
+		if (!a_killer && !settings.bShowWorldKills) {
+			return;
+		}
+
 		if (!a_dead) {
 			// I think the dead bool indicates whether the actor is in a critical stage
 			// We don't really need this event the normal death event which fires slightly earlier is more than enough for this use case.
-			AddKillEntry(a_killer, a_victim, DeathType::kVanilla);
+			AddKillEntry(a_killer, a_victim, DeathType::kVanillaEvt);
 		}
+
 	}
 
 	void KillFeedWindow::AddKillEntry(Actor* a_attacker, Actor* a_victim, DeathType a_type) {
 
 		std::lock_guard lock(_Lock);
 		if (!a_victim) return;
+		if (a_victim->IsDeleted()) return;
+		//if (a_victim->GetWorldspace() != PlayerCharacter::GetSingleton()->GetWorldspace()) return;
+		//if (a_victim->GetParentCell() != PlayerCharacter::GetSingleton()->GetParentCell()) return;
+		//if (a_victim->GetPosition().GetDistance(PlayerCharacter::GetSingleton()->GetPosition()) > 8192.f) return; //More than 2 cells away
 
 		auto Exists = [a_victim](const auto& entry) {
-			return entry && entry->victimptr == reinterpret_cast<uintptr_t>(a_victim);
+			return entry && entry->victimHandle.get().get() && entry->victimHandle.get().get()->formID == a_victim->formID;
 		};
 
 		// Find existing entry in KillEntries or PendingKillEntries
 		std::unique_ptr<ImGuiEx::KillEntry>* targetEntry = nullptr;
+		bool isNewEntry = false;
 
 		if (auto it = std::ranges::find_if(KillEntries, Exists); it != KillEntries.end()) {
 			targetEntry = &(*it);
@@ -132,103 +165,119 @@ namespace GTS {
 			targetEntry = &(*it2);
 		}
 
-		// If no existing entry, create new
 		if (!targetEntry) {
 			PendingKillEntries.emplace_back(std::make_unique<ImGuiEx::KillEntry>());
 			targetEntry = &PendingKillEntries.back();
+			isNewEntry = true;
 		}
 
 		ImGuiEx::KillEntry* entry = targetEntry->get();
+		ImGuiEx::KillPriority NewPriority = GetAttackerPriority(a_attacker);
+
+		// Lower priority attacker can't override an already recorded higher priority kill.
+		if (!isNewEntry && NewPriority < entry->priority) return;
+
+		bool SamePriority = (!isNewEntry && NewPriority == entry->priority);
+
+		entry->priority = NewPriority;
 		entry->victim = a_victim->GetName();
-		entry->victimptr = reinterpret_cast<uintptr_t>(a_victim);
+		entry->victimHandle = a_victim->CreateRefHandle();
 		entry->attacker.clear();
 
-		if (a_attacker) entry->attacker = a_attacker->GetName();
+		if (a_attacker) {
+			entry->attacker = a_attacker->GetName();
+		}
 
-		// Compute death type string
 		std::string DeathTypeStr = "[World]";
 
 		if (a_attacker) {
 
 			switch (a_type) {
 
-				case DeathType::kShrunkToNothing: {
+				case DeathType::kShrunkToNothing: 
+				{
 					DeathTypeStr = "Shrunk To Nothing";
 					break;
 				}
-
 				case DeathType::kVoreAbsorbed:
 				case DeathType::kAbsorbed:
-				case DeathType::kBreastAbsorbed: {
+				case DeathType::kBreastAbsorbed: 
+				{
 					DeathTypeStr = "Absorbed";
 					break;
 				}
-
 				case DeathType::kThighSuffocated:
-				case DeathType::kBreastSuffocated: {
+				case DeathType::kBreastSuffocated: 
+				{
 					DeathTypeStr = "Suffocated";
 					break;
 				}
-
-				case DeathType::kButtCrushed: {
+				case DeathType::kButtCrushed: 
+				{
 					DeathTypeStr = "Butt Crushed";
 					break;
 				}
-				case DeathType::kThighCrushed: {
+				case DeathType::kThighCrushed: 
+				{
 					DeathTypeStr = "Thigh Crushed";
 					break;
 				}
 				case DeathType::kCrushed:
 				case DeathType::kBreastCrushed:
 				case DeathType::kGrabCrushed:
-				case DeathType::kFingerCrushed: {
+				case DeathType::kFingerCrushed: 
+				{
 					DeathTypeStr = "Crushed";
 					break;
 				}
-				case DeathType::kHugCrushed: {
+				case DeathType::kHugCrushed: 
+				{
 					DeathTypeStr = "Hug Crushed";
 					break;
 				}
-
-				case DeathType::kThighSandwiched: {
+				case DeathType::kThighSandwiched: 
+				{
 					DeathTypeStr = "Sandwiched";
 					break;
 				}
-
 				case DeathType::kGrinded:
-				case DeathType::kThighGrinded: {
+				case DeathType::kThighGrinded: 
+				{
 					DeathTypeStr = "Pulverized";
 					break;
 				}
-
-				case DeathType::kErasedFromExistence: {
+				case DeathType::kErasedFromExistence: 
+				{
 					DeathTypeStr = "Erased";
 					break;
 				}
-
-				case DeathType::kKicked: {
+				case DeathType::kKicked: 
+				{
 					DeathTypeStr = "Kicked";
 					break;
 				}
-
-				case DeathType::kEaten: {
+				case DeathType::kEaten: 
+				{
 					DeathTypeStr = "Vored";
 					break;
 				}
-
 				//Generic "Killed"
 				default:
-				case DeathType::kVanilla:
-				case DeathType::kOtherSources: {
+				case DeathType::kVanillaHit:
+				case DeathType::kVanillaEvt:
+				case DeathType::kOtherSources: 
+				{
 					DeathTypeStr = "Killed";
 					break;
 				}
 			}
 		}
 
-		// Only update the type if the existing entry has the fallback "[World] or the generic Killed Event"
-		// We don't want to override the custom death messages with the generic ones.
-		if (entry->type.empty() || entry->type == "[World]" || entry->type == "Killed") {
+		// Higher priority always takes the new type. Same priority still prefers a specific
+		// death message over the generic fallbacks so quirky callers don't clobber good data.
+		bool IsGenericFallback = (a_type == DeathType::kVanillaHit || a_type == DeathType::kVanillaEvt || a_type == DeathType::kOtherSources);
+
+		if (entry->type.empty() || !SamePriority || !IsGenericFallback) {
 			entry->type = DeathTypeStr;
 		}
 
@@ -268,7 +317,7 @@ namespace GTS {
 		// Demo entries if configuring
 		if (Configuring) {
 			static std::unique_ptr<ImGuiEx::KillEntry> DemoEntry = std::make_unique<ImGuiEx::KillEntry>(
-				"Attacker", "Victim", 0, "Killed"
+				"Attacker", "Victim", PlayerCharacter::GetSingleton()->CreateRefHandle(), "Killed", ImGuiEx::KillPriority::kNPC
 			);
 
 			for (uint8_t i = 0; i < ExtraSettings.iMaxVisibleEntries; i++) {
@@ -289,7 +338,12 @@ namespace GTS {
 			// Draw visible entries and update lifetime
 			for (auto& Entry : KillEntries) {
 				Entry->lifetime += Time::WorldTimeDelta();
-				ImGuiEx::DrawKillfeedEntry(Entry, Style);
+				if (auto victim = Entry.get()->victimHandle.get().get()) {
+					if (victim->IsDead()) { //Only draw if actually dead, masks the fact that hitdata will sometimes give us actors that are still alive.
+						ImGuiEx::DrawKillfeedEntry(Entry, Style);
+					}
+				}
+				
 			}
 
 			// Remove expired entries

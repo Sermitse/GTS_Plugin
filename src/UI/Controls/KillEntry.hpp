@@ -8,12 +8,20 @@ namespace ImGuiEx {
         KillFeedEntryFlag_NoKillType = 1 << 1,
     };
 
+    enum class KillPriority : std::uint8_t {
+        kWorld = 0,
+        kPlayer = 1,
+        kNPC = 2,
+    };
+
     struct KillEntry {
         std::string attacker;
         std::string victim;
-        uintptr_t victimptr;
+        RE::ActorHandle victimHandle;
         std::string type;
+        KillPriority priority = KillPriority::kWorld;
         float lifetime = 0.0f;
+       
     };
 
     struct KillFeedStyle {

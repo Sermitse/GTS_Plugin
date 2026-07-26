@@ -12,14 +12,16 @@ namespace GTS {
     	public:
         static void AddKillEntry(Actor* a_attacker, Actor* a_victim, DeathType a_type);
         std::string DebugName() override;
-        void DeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead) override;
+        void DeathEvent(Actor* a_killer, Actor* a_victim) override;
+        void GameDeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead) override;
+      
 
-		private:
+    private:
         void Draw() override;
         void Init() override;
         void RequestClose() override;
         bool WantsToDraw() override;
-        virtual float GetBackgroundAlpha() override;
+        float GetBackgroundAlpha() override;
 
         WindowSettingsKillFeed_t m_extraSettings = {};
 

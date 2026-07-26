@@ -43,7 +43,8 @@ namespace GTS {
 		static void DoConfigRefreshEvent();
 		static void DoPluginPostLoad();
 		static void DoFurnitureEvent(const TESFurnitureEvent* a_event);
-		static void DoDeathEvent(const TESDeathEvent* a_event);
+		static void DoGameDeathEvent(const TESDeathEvent* a_event);
+		static void DoDeathEvent(const RE::HitData* a_data);
 		static void DoGTSLevelUpEvent(RE::Actor* a_actor);
 
 	private:

@@ -95,7 +95,7 @@ namespace GTS {
 	}
 
 	BSEventNotifyControl GameEvents::ProcessEvent(const TESDeathEvent* a_event, BSTEventSource<TESDeathEvent>* a_eventSource) {
-		if (a_event) EventDispatcher::DoDeathEvent(a_event);
+		if (a_event) EventDispatcher::DoGameDeathEvent(a_event);
 		return RE::BSEventNotifyControl::kContinue;
 	}
 }
