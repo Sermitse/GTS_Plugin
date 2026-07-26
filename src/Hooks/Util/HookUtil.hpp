@@ -29,8 +29,13 @@ namespace Hooks::stl {
 
 	template <class T, std::size_t Size = 5>
 	void write_call(std::uintptr_t a_src) {
-
-		logger::debug("Installing write_call<{}> at address: 0x{:X}", 
+		if (!a_src) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
+				Internal::get_type_name<T>()
+			);
+			return;
+		}
+		logger::debug("Installing write_call<{}> at address: 0x{:X}",
 			Internal::get_type_name<T>(), a_src
 		);
 
@@ -42,7 +47,7 @@ namespace Hooks::stl {
 			T::func = trampoline.write_call<Size>(a_src, T::thunk);
 		}
 
-		logger::debug("write_call installed, original function at: 0x{:X}", 
+		logger::debug("write_call installed, original function at: 0x{:X}",
 			a_src, static_cast<std::uintptr_t>(T::func.address())
 		);
 	}
@@ -50,8 +55,13 @@ namespace Hooks::stl {
 	template <class T, std::size_t Size = 5>
 	void write_call(REL::VariantID a_varId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
 		const uintptr_t address = a_varId.address() + a_Offs.offset();
-
-		logger::debug("Installing write_call<{}> at VariantID [0x{:X} + 0x{:X}] resolved to 0x{:X}", 
+		if (!address) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
+				Internal::get_type_name<T>()
+			);
+			return;
+		}
+		logger::debug("Installing write_call<{}> at VariantID [0x{:X} + 0x{:X}] resolved to 0x{:X}",
 			Internal::get_type_name<T>(), a_varId.address(), a_Offs.offset(), address
 		);
 
@@ -63,36 +73,23 @@ namespace Hooks::stl {
 			T::func = trampoline.write_call<Size>(address, T::thunk);
 		}
 
-		logger::debug("write_call installed, original function at: 0x{:X}", 
+		logger::debug("write_call installed, original function at: 0x{:X}",
 			address, static_cast<std::uintptr_t>(T::func.address())
 		);
 	}
 
-	template <class T, int ID, std::size_t Size = 5>
-	void write_call_unique(std::uintptr_t a_src) {
-
-		logger::debug("Installing write_call_unique<{}> at address: 0x{:X} ID {}", 
-			Internal::get_type_name<T>(), a_src, ID
-		);
-
-		auto& trampoline = SKSE::GetTrampoline();
-		if constexpr (Size == 6) {
-			T::template func<ID> = *reinterpret_cast<uintptr_t*>(trampoline.write_call<6>(a_src, T::template thunk<ID>));
-		}
-		else {
-			T::template func<ID> = trampoline.write_call<Size>(a_src, T::template thunk<ID>);
-		}
-
-		logger::debug("write_call_unique installed, original function at: 0x{:X}",
-			a_src, static_cast<std::uintptr_t>(T::template func<ID>.address())
-		);
-	}
 
 	template <class T, int ID, std::size_t Size = 5>
 	void write_call_unique(REL::VariantID a_varId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
 		const uintptr_t address = a_varId.address() + a_Offs.offset();
 
-		logger::debug("Installing write_call_unique<{}> at VariantID [0x{:X} + 0x{:X}] resolved to 0x{:X} ID {}", 
+		if (!address) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}] ID {}",
+				Internal::get_type_name<T>(), ID
+			);
+			return;
+		}
+		logger::debug("Installing write_call_unique<{}> at VariantID [0x{:X} + 0x{:X}] resolved to 0x{:X} ID {}",
 			Internal::get_type_name<T>(), a_varId.address(), a_Offs.offset(), address, ID
 		);
 		auto& trampoline = SKSE::GetTrampoline();
@@ -103,7 +100,7 @@ namespace Hooks::stl {
 			T::template func<ID> = trampoline.write_call<Size>(address, T::template thunk<ID>);
 		}
 
-		logger::debug("write_call_unique installed, original function at: 0x{:X}", 
+		logger::debug("write_call_unique installed, original function at: 0x{:X}",
 			address, static_cast<std::uintptr_t>(T::template func<ID>.address())
 		);
 	}
@@ -112,7 +109,13 @@ namespace Hooks::stl {
 	void write_call_unique(REL::RelocationID a_RelId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
 		const uintptr_t address = a_RelId.address() + a_Offs.offset();
 
-		logger::debug("Installing write_call_unique<{}> at RelocationID({}) [0x{:X} + 0x{:X}] resolved to 0x{:X} ID {}", 
+		if (!address) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}] ID {}",
+				Internal::get_type_name<T>(), ID
+			);
+			return;
+		}
+		logger::debug("Installing write_call_unique<{}> at RelocationID({}) [0x{:X} + 0x{:X}] resolved to 0x{:X} ID {}",
 			Internal::get_type_name<T>(), a_RelId.id(), a_RelId.address(), a_Offs.offset(), address, ID
 		);
 
@@ -124,7 +127,7 @@ namespace Hooks::stl {
 			T::template func<ID> = trampoline.write_call<Size>(address, T::template thunk<ID>);
 		}
 
-		logger::debug("write_call_unique installed, original function at: 0x{:X}", 
+		logger::debug("write_call_unique installed, original function at: 0x{:X}",
 			address, static_cast<std::uintptr_t>(T::template func<ID>.address())
 		);
 	}
@@ -133,7 +136,13 @@ namespace Hooks::stl {
 	void write_call(REL::RelocationID a_RelId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
 		const uintptr_t address = a_RelId.address() + a_Offs.offset();
 
-		logger::debug("Installing write_call<{}> at RelocationID({}) [0x{} + 0x{:X}] resolved to 0x{:X}", 
+		if (!address) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}] ID {} + 0x{:X}",
+				Internal::get_type_name<T>(), a_RelId.id(), a_Offs.offset()
+			);
+			return;
+		}
+		logger::debug("Installing write_call<{}> at RelocationID({}) [0x{} + 0x{:X}] resolved to 0x{:X}",
 			Internal::get_type_name<T>(), a_RelId.id(), a_RelId.address(), a_Offs.offset(), address
 		);
 
@@ -145,7 +154,7 @@ namespace Hooks::stl {
 			T::func = trampoline.write_call<Size>(address, T::thunk);
 		}
 
-		logger::debug("write_call installed, original function at: 0x{:X}", 
+		logger::debug("write_call installed, original function at: 0x{:X}",
 			address, static_cast<std::uintptr_t>(T::func.address())
 		);
 	}
@@ -156,14 +165,20 @@ namespace Hooks::stl {
 	template <class T, std::size_t Size = 5>
 	void write_jmp(std::uintptr_t a_src) {
 
-		logger::debug("Installing write_jmp<{}> at address: 0x{:X}", 
+		if (!a_src) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
+				Internal::get_type_name<T>()
+			);
+			return;
+		}
+		logger::debug("Installing write_jmp<{}> at address: 0x{:X}",
 			Internal::get_type_name<T>(), a_src
 		);
 
 		auto& trampoline = SKSE::GetTrampoline();
 		T::func = trampoline.write_branch<Size>(a_src, T::thunk);
 
-		logger::debug("write_jmp installed, original at: 0x{:X}", 
+		logger::debug("write_jmp installed, original at: 0x{:X}",
 			a_src, static_cast<std::uintptr_t>(T::func.address())
 		);
 	}
@@ -172,7 +187,13 @@ namespace Hooks::stl {
 	void write_jmp(REL::RelocationID a_RelId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
 		const auto address = a_RelId.address() + a_Offs.offset();
 
-		logger::debug("Installing write_jmp<{}> at RelocationID([]) [0x{:X} + 0x{:X}] resolved to 0x{:X}", 
+		if (!address) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
+				Internal::get_type_name<T>()
+			);
+			return;
+		}
+		logger::debug("Installing write_jmp<{}> at RelocationID([]) [0x{:X} + 0x{:X}] resolved to 0x{:X}",
 			Internal::get_type_name<T>(), a_RelId.id(), a_RelId.address(), a_RelId.offset(), address
 		);
 
@@ -204,14 +225,20 @@ namespace Hooks::stl {
 	template <class T>
 	void write_vfunc(REL::VariantID a_varID) {
 
-		logger::debug("Installing vfunc hook [{}] at VariantID [0x{:X} + 0x{:X}] Index: {}", 
+		if (!a_varID.address()) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
+				Internal::get_type_name<T>()
+			);
+			return;
+		}
+		logger::debug("Installing vfunc hook [{}] at VariantID [0x{:X} + 0x{:X}] Index: {}",
 			Internal::get_type_name<T>(), a_varID.address(), T::funcIndex * sizeof(void*), T::funcIndex
 		);
 
 		REL::Relocation<std::uintptr_t> vtbl{ a_varID };
 		T::func = vtbl.write_vfunc(T::funcIndex, T::thunk);
 
-		logger::debug("vfunc hook written, original function at: 0x{:X}", 
+		logger::debug("vfunc hook written, original function at: 0x{:X}",
 			static_cast<std::uintptr_t>(T::func.address())
 		);
 	}
@@ -226,14 +253,20 @@ namespace Hooks::stl {
 	template <class T, int ID>
 	void write_vfunc_unique(REL::VariantID a_varID) {
 
-		logger::debug("Installing vfunc hook [{}] at VariantID [0x{:X} + 0x{:X}] Index {} ID {}", 
+		if (!a_varID.address()) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}] ID {}",
+				Internal::get_type_name<T>(), ID
+			);
+			return;
+		}
+		logger::debug("Installing vfunc hook [{}] at VariantID [0x{:X} + 0x{:X}] Index {} ID {}",
 			Internal::get_type_name<T>(), a_varID.address(), T::funcIndex * sizeof(void*), T::funcIndex, ID
 		);
 
 		REL::Relocation<std::uintptr_t> vtbl{ a_varID };
 		T::template func<ID> = vtbl.write_vfunc(T::funcIndex, T::template thunk<ID>);
 
-		logger::debug("vfunc hook written, original function at: 0x{:X}", 
+		logger::debug("vfunc hook written, original function at: 0x{:X}",
 			static_cast<std::uintptr_t>(T::template func<ID>.address())
 		);
 	}
@@ -263,16 +296,15 @@ namespace Hooks::stl {
 	template <class T>
 	void write_detour(REL::RelocationID a_relId) {
 		uintptr_t addr = REL::RelocationID{ a_relId }.address();
-		logger::debug("Installing detour hook at RelocationID({}) [0x{:X}]", 
+		if (!addr) {
+			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
+				Internal::get_type_name<T>()
+			);
+			return;
+		}
+		logger::debug("Installing detour hook at RelocationID({}) [0x{:X}]",
 			a_relId.id(), a_relId.address()
 		);
-
-		if (!addr) {
-			SKSE::stl::report_and_fail(fmt::format("Invalid target address for detour. RelocationID: {} Address: 0x{:X}",
-				a_relId.id(), a_relId.address())
-			);
-		}
-
 		// Check if this function has already been detoured by another DLL
 		// Examine the first few bytes for common detour signatures
 		const uint8_t* funcBytes = reinterpret_cast<const uint8_t*>(addr);

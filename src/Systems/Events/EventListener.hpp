@@ -8,6 +8,7 @@ namespace GTS {
 		public:
 		EventListener() = default;
 		virtual ~EventListener() = default;
+		
 		EventListener(EventListener const&) = delete;
 		EventListener& operator=(EventListener const&) = delete;
 
@@ -36,7 +37,7 @@ namespace GTS {
 		virtual void MenuChange(const RE::MenuOpenCloseEvent* menu_event);
 		virtual void ActorAnimEvent(RE::Actor* actor, const std::string_view& tag, const std::string_view& payload);
 		virtual void FurnitureEvent(RE::Actor* user, TESObjectREFR* object, bool enter);
-		virtual void DeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead);
+		virtual void GameDeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead);
 		virtual void OnGameSave();
 		virtual void OnGameLoaded();
 		virtual void OnGameRevert();
@@ -44,5 +45,6 @@ namespace GTS {
 		virtual void OnConfigRefresh();
 		virtual void OnPluginPostLoad();
 		virtual void OnGTSLevelUp(Actor* a_actor);
+		virtual void DeathEvent(Actor* a_source, Actor* a_target);
 	};
 }

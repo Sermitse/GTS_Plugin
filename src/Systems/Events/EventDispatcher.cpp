@@ -264,14 +264,30 @@ namespace GTS {
 		}
 	}
 
-	void EventDispatcher::DoDeathEvent(const TESDeathEvent* a_event) {
-		ForEachListener([a_event](EventListener* listener) {
-			GTS_PROFILE_SCOPE(listener->DebugName());
-			Actor* Killer = skyrim_cast<Actor*>(a_event->actorKiller.get());
-			Actor* Victim = skyrim_cast<Actor*>(a_event->actorDying.get());
-			listener->DeathEvent(Killer, Victim, a_event->dead);
+	void EventDispatcher::DoGameDeathEvent(const TESDeathEvent* a_event) {
 
+		Actor* Killer = skyrim_cast<Actor*>(a_event->actorKiller.get());
+		Actor* Victim = skyrim_cast<Actor*>(a_event->actorDying.get());
+		const bool Dead = a_event->dead;
+
+		ForEachListener([&](EventListener* listener) {
+			GTS_PROFILE_SCOPE(listener->DebugName());
+			listener->GameDeathEvent(Killer, Victim, Dead);
 		});
+	}
+
+	void EventDispatcher::DoDeathEvent(const RE::HitData* a_data) {
+
+		Actor* Agressor = a_data->aggressor.get().get();
+		Actor* Victim = a_data->target.get().get();
+
+		//Don't do event on already dead actorts
+		if (!Victim->IsDead()) {
+			ForEachListener([&](EventListener* listener) {
+				GTS_PROFILE_SCOPE(listener->DebugName());
+				listener->DeathEvent(Agressor, Victim);
+			});
+		}
 	}
 
 	void EventDispatcher::DoGTSLevelUpEvent(RE::Actor* a_actor) {

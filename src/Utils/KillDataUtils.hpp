@@ -4,7 +4,9 @@ namespace GTS {
 
     enum class DeathType : int16_t {
 
-		kVanilla = -1,
+
+		kVanillaEvt = -2,
+		kVanillaHit = -1,
 
 		kTotalKills,
 
