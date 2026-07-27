@@ -119,19 +119,19 @@ namespace {
 	// ======================================================================================
 
 	void LightKickEvent(const ManagedInputEvent& data) {
-		bool left = AutoAim_SetUpDefaultSide(PlayerCharacter::GetSingleton());
+		bool left = AutoAim_Miss_GetNextStompSide(PlayerCharacter::GetSingleton(), StompAimType::T1);
 		bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
 		PerformKick(leftKick ? "SwipeLight_Left" : "SwipeLight_Right", 35.0f, false);
 	}
 
 	void HeavyKickHighEvent(const ManagedInputEvent& data) {
-		bool left = AutoAim_SetUpDefaultSide(PlayerCharacter::GetSingleton());
+		bool left = AutoAim_Miss_GetNextStompSide(PlayerCharacter::GetSingleton(), StompAimType::T2);
 		bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
 		PerformKick(leftKick ? "SwipeHeavy_Left" : "SwipeHeavy_Right", 110.0f, true);
 	}
 
 	void HeavyKickLowEvent(const ManagedInputEvent& data) {
-		bool left = AutoAim_SetUpDefaultSide(PlayerCharacter::GetSingleton(), true);
+		bool left = AutoAim_Miss_GetNextStompSide(PlayerCharacter::GetSingleton(), StompAimType::T3);
 		bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
 		PerformKick(leftKick ? "StrongKick_Low_Left" : "StrongKick_Low_Right", 110.0f, true);
 	}

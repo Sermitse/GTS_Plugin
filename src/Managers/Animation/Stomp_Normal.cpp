@@ -244,7 +244,7 @@ namespace {
 
 	void StompEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		bool Left = AutoAim_SetUpDefaultSide(player);
+		bool Left = AutoAim_Miss_GetNextStompSide(player, StompAimType::T1);
 		bool UnderStomp = AutoAim_And_DetermineStompType(player, Left);
 
 		const std::string_view StompType_R = UnderStomp ? "UnderStompRight" : "StompRight";

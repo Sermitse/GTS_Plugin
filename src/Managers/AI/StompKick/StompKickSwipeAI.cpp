@@ -107,7 +107,7 @@ namespace {
 	}
 
 	void Do_StrongStomp(Actor* a_Performer, Actor* a_Prey) {
-		bool Left = AutoAim_SetUpDefaultSide(a_Performer);
+		bool Left = AutoAim_Miss_GetNextStompSide(a_Performer, StompAimType::T1);
 		const bool UnderStomp = AutoAim_And_DetermineStompType(a_Performer, Left, true);
 		const std::string_view StompType_R = UnderStomp ? "UnderStompStrongRight" : "StrongStompRight";
 		const std::string_view StompType_L = UnderStomp ? "UnderStompStrongLeft" : "StrongStompLeft";
@@ -120,7 +120,7 @@ namespace {
 	}
 
 	void Do_LightStomp(Actor* a_Performer, Actor* a_Prey) {
-		bool Left = AutoAim_SetUpDefaultSide(a_Performer);
+		bool Left = AutoAim_Miss_GetNextStompSide(a_Performer, StompAimType::T1);
 		Utils_UpdateHighHeelBlend(a_Performer, false);
 		const bool UnderStomp = AutoAim_And_DetermineStompType(a_Performer, Left);
 		const std::string_view StompType_R = UnderStomp ? "UnderStompRight" : "StompRight";
@@ -134,7 +134,7 @@ namespace {
 	}
 
 	void Do_Tramples(Actor* a_Performer, Actor* a_Prey) {
-		bool Left = AutoAim_SetUpDefaultSide(a_Performer);
+		bool Left = AutoAim_Miss_GetNextStompSide(a_Performer, StompAimType::T1);
 		bool UnderTrample = AutoAim_And_DetermineStompType(a_Performer, Left);
 		const std::string_view TrampleType_L = UnderTrample ? "UnderTrampleL" : "TrampleL";
 		const std::string_view TrampleType_R = UnderTrample ? "UnderTrampleR" : "TrampleR";

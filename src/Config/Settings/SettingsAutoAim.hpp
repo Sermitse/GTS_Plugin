@@ -40,45 +40,49 @@ struct SettingsAutoAim_t {
     bool bPreventFarStomps = false;
     bool bUseRhombShape = true;
 
-    //------------------Collider ranges
-    //stomps
+    //------------------------------------------------------------------------------
+    //----------------------- hand slam
+    float fAimAssist_Range_Hand_Sneak_Slam = 64.0f;
+    float fAimAssist_Range_Hand_Sneak_Slam_Strong = 72.0f;
+    //----------------------- far stomp
+    float fAimAssist_Range_FarStomp = 46.0f;
+    float fAimAssist_Range_FarStomp_Strong = 60.0f;
+    //----------------------- stomp
     float fAimAssist_Range_Stomp = 32.0f;
     float fAimAssist_Range_Stomp_Sneak = 46.0f;
-    float fAimAssist_Range_FarStomp = 46.0f;
-    float fAimAssist_Range_FarStomp_Strong = 50.0f;
-    //hand slam
-    float fAimAssist_Range_Hand_Slam = 64.0f;
-    float fAimAssist_Range_Hand_Crawl = 25.0f;
-    // kick
-    float fAimAssist_Range_Kick = 48.0f;
+    float fAimAssist_OffsetDistance_Foot = 10.0f;
+    float fAimAssist_OffsetDistance_Foot_FarStomp = 0.0f;
+    //----------------------- hand sneak kick
     float fAimAssist_Range_Kick_Sneak = 48.0f;
-    // butt
+    float fAimAssist_OffsetDistance_Hand_Sneak_Side = 10.0f;
+    float fAimAssist_OffsetDistance_Hand_Sneak_Forward = 0.0f;
+    float fAimAssist_OffsetDistance_Hand_Sneak_Forward_Sneak = 50.0f;
+
+    //----------------------- Hand Crawl
+    float fAimAssist_Range_Hand_Crawl_Close = 60.0f;
+    float fAimAssist_Range_Hand_Crawl_Far = 82.0f;
+    float fAimAssist_Range_Hand_Crawl_Strong = 82.0f;
+    float fAimAssist_OffsetDistance_Hand_Crawl_Side_Strong = 10.0f;
+    float fAimAssist_OffsetDistance_Hand_Crawl_Side_Far = 10.0f;
+    float fAimAssist_OffsetDistance_Hand_Crawl_Side = 10.0f;
+    float fAimAssist_OffsetDistance_Hand_Crawl_Forward = 0.0f;
+    float fAimAssist_OffsetDistance_Hand_Crawl_Forward_Far = 0.0f;
+    float fAimAssist_OffsetDistance_Hand_Crawl_Forward_Strong = 0.0f;
+
+    //----------------------- kick
+    float fAimAssist_Range_Kick = 48.0f;
+    float fAimAssist_OffsetDistance_Kick_Forward = 40.0f;
+    //----------------------- butt
     float fAimAssist_Range_ButtSlam = 48.0f;
-    // breast
-    float fAimAssist_Range_BreastSlam = 32.0f;
+    float fAimAssist_OffsetDistance_Butt_Forward = 0.0f;
+    float fAimAssist_OffsetDistance_Butt_Side = 15.0f;
 
-    //-------------------Initial Offsets
-    // foot
-    float fAimAssist_Foot_OffsetDistance = 10.0f;
-    float fAimAssist_Foot_OffsetDistance_FarStomp = 0.0f;
-    // hand
-    float fAimAssist_Hand_OffsetDistance_Side = 10.0f;
-    float fAimAssist_Hand_OffsetDistance_Forward = 0.0f;
-    float fAimAssist_Hand_OffsetDistance_Forward_Sneak = 50.0f;
-    // Hand Crawl
-    float fAimAssist_Hand_Crawl_OffsetDistance_Side = 11.0f;
-    float fAimAssist_Hand_Crawl_OffsetDistance_Forward = 60.0f;
-    float fAimAssist_Hand_Crawl_OffsetDistance_Forward_Sneak = 35.0f;
-    // kick
-    float fAimAssist_Kick_OffsetDistance_Forward = 40.0f;
-    // butt
-    float fAimAssist_Butt_OffsetDistance_Forward = 0.0f;
-    float fAimAssist_Butt_OffsetDistance_Side = 15.0f;
-    // breast
-    float fAimAssist_Breast_OffsetDistance_Forward = 25.0f;
-    float fAimAssist_Breast_OffsetDistance_Side = 10.0f;
+    //----------------------- breast
+    float fAimAssist_Range_BreastSlam = 30.0f;
+    float fAimAssist_OffsetDistance_Breast_Forward = 15.0f;
+    float fAimAssist_OffsetDistance_Breast_Side = 4.0f;
 
-    // Auto-Aim settings
+    //----------------------- Auto-Aim settings
     float fAimAssist_BackPenalty = 30.0f;
     float fAimAssist_DeadPenalty = 50.0f;
     float fAimAssist_IgnoreBehindAfter = 0.25f;
