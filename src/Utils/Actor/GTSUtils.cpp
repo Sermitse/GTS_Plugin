@@ -1,5 +1,7 @@
 #include "Utils/Actor/FindActor.hpp"
 
+#include "Utils/DifficultyUtils.hpp"
+
 #include "Magic/Effects/Common.hpp"
 
 #include "Managers/AI/AIfunctions.hpp"
@@ -686,10 +688,10 @@ namespace GTS {
 
 		if (!receiver->IsDead()) {
 			float HpPercentage = GetHealthPercentage(receiver);
-			float difficulty = 2.0f; // taking Legendary Difficulty as a base
+			float difficulty = 1.0f;
 			float levelbonus = 1.0f + ((GetGtsSkillLevel(attacker) * 0.01f) * 0.50f);
 			value *= levelbonus;
-
+			
 			if (!receiver->IsPlayerRef()) { // Mostly a warning to indicate that actor dislikes it (They don't always aggro right away, with mods at least)
 				if (value >= GetAV(receiver, ActorValue::kHealth) * 0.50f || HpPercentage < 0.70f) { // in that case make hostile
 					if (!IsTeammate(receiver) && !IsHostile(attacker, receiver)) {
@@ -704,15 +706,14 @@ namespace GTS {
 			//The correct thing to do here is to pass the attacker.
 			//This however results in size damage causing overkills due to how the hook for TakeDamage is setup.
 			float damageDealt = value * difficulty * Config::Balance.fSizeDamageMult;
-			
 			if (TransientActorData* data = Transient::GetActorData(receiver))
 			{
 				data->IsBeingSizeDamaged = true;
-				receiver->TakeDamage(attacker, damageDealt, false);
+				receiver->TakeDamage(attacker, damageDealt, false); // TakeDamage applies Difficulty Mult inside
 				data->IsBeingSizeDamaged = false;
 			}
 			else {
-				receiver->TakeDamage(nullptr, damageDealt, false);
+				receiver->TakeDamage(nullptr, damageDealt, false); // TakeDamage applies Difficulty Mult inside
 			}
 
 		}

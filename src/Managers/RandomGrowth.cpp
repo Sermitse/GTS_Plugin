@@ -104,7 +104,8 @@ namespace GTS {
 								float base_power = ((0.00750f * TotalPower * 25) * SpellEfficiency);  // The power of it
 								float Gigantism = 1.0f + Ench_Aspect_GetPower(actor);
 
-								if (Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowthAug) && TotalPower >= Get_Breach_Threshold(actor) && !AnimationVars::General::IsGTSBusy(actor)) {
+								if (!actor->IsSneaking() && Runtime::HasPerkTeam(actor, Runtime::PERK.GTSPerkRandomGrowthAug) && TotalPower >= Get_Breach_Threshold(actor) && !AnimationVars::General::IsGTSBusy(actor)) { 
+									// Shouldn't happen in sneak, we have no anim for it, and i doubt Lajest will make more
 									AnimationManager::StartAnim("StartRandomGrowth", actor);
 								} else {
 									if (!AnimationVars::Growth::IsGrowing(actor)) {

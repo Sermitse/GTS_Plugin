@@ -634,9 +634,12 @@ namespace GTS {
 
 		std::string name = std::format("FootTrample_{}", tiny->formID);
 		auto FrameA = Time::FramesElapsed();
+		auto Start = Time::WorldTimeElapsed();
 
-		auto coordinates = AttachToUnderFoot(giant, tiny, Right); // get XYZ;
-		
+		if (auto TranData = Transient::GetActorData(giant)) {
+			TranData->FootTramplePOS = NiPoint3(0.0f, 0.0f, 0.0f); // Reset cached trample POS
+		}
+
 		SetBeingGrinded(tiny, true);
 		TaskManager::Run(name, [=](auto& progressData) {
 			if (!gianthandle) {
@@ -648,9 +651,26 @@ namespace GTS {
 
 			auto giantref = gianthandle.get().get();
 			auto tinyref = tinyhandle.get().get();
+			auto TranData = Transient::GetActorData(giantref);
 
 			auto FrameB = Time::FramesElapsed() - FrameA;
 			if (FrameB <= 4.0f) {
+				return true;
+			}
+			bool useTranData = false;
+			auto Finish = Time::WorldTimeElapsed();
+			float timePassed = Finish - Start;
+
+			NiPoint3 coordinates; 
+			if (timePassed > 0.5) {useTranData = true;}
+			if (TranData && useTranData) { // Use cached foot pos so enemy isn't sliding around during Foot Trample
+				const bool Cached = TranData->FootTramplePOS.Length() > 0.01f;
+				Cached ? coordinates = TranData->FootTramplePOS : TranData->FootTramplePOS = AttachToUnderFoot(giantref, tinyref, Right); 
+			} else {
+				coordinates = AttachToUnderFoot(giantref, tinyref, Right);
+			}
+
+			if (coordinates == NiPoint3(0,0,0)) {
 				return true;
 			}
 
@@ -662,6 +682,9 @@ namespace GTS {
 			AttachTo(giantref, tinyref, coordinates);
 
 			if (tinyref->IsDead()) {
+				if (TranData) {
+					TranData->FootTramplePOS = NiPoint3(0.0f, 0.0f, 0.0f);
+				}
 				SetBeingGrinded(tinyref, false);
 				return false;
 			}

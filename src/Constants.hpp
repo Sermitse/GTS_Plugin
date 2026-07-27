@@ -38,8 +38,6 @@ namespace GTS {
 
     constexpr float EMOTION_COOLDOWN = 1.5f;
     constexpr float EMOTION_COOLDOWN_LONG = 3.5f;
-
-    constexpr float AUTOAIM_SIDESWITCH = 1.5f;
     
     //-----------------------------------------Perks
     constexpr float Perk_SizeManipulation_3 = 0.0330f;

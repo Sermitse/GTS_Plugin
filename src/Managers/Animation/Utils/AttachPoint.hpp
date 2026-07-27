@@ -215,7 +215,6 @@ namespace GTS {
 				NiPoint3 coords = Foot->world.translate;//foot->world*(rotMat*point);
 				coords.z = CastRayDownwards(tiny).z; // Cast ray down to get precise ground position
 				return coords;
-				//return AttachTo(anyGiant, anyTiny, coords);
 			}
 		}
 		//return false

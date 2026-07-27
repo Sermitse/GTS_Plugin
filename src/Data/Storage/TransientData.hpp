@@ -104,6 +104,8 @@ namespace GTS {
 		NiPoint3 POSLastHandL = { 0.0f, 0.0f, 0.0f };
 		NiPoint3 POSLastHandR = { 0.0f, 0.0f, 0.0f };
 
+		NiPoint3 FootTramplePOS = {0.0f, 0.0f, 0.0f};
+
 		Actor* IsInControl = nullptr;
 
 		TESObjectREFR* DisableColissionWith = nullptr;

@@ -97,6 +97,8 @@ namespace GTS {
 		Thigh_Sandwich,
 		Hand_Right,
 		Hand_Left,
+		ForearmTwist_Right,
+		ForearmTwist_Left,
 		Grab_Left,
 		L_Foot,
 		R_Foot,

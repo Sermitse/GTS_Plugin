@@ -24,9 +24,9 @@ namespace {
 		if (Config::General.bTrackBonesDuringAnim) {
 			auto& sizemanager = SizeManager::GetSingleton();
 			if (kind == CrawlEvent::RightHand) {
-				sizemanager.SetTrackedBone(giant, enable, CameraTracking::Hand_Right);
+				sizemanager.SetTrackedBone(giant, enable, CameraTracking::ForearmTwist_Right);
 			} else if (kind == CrawlEvent::LeftHand) {
-				sizemanager.SetTrackedBone(giant, enable, CameraTracking::Hand_Left);
+				sizemanager.SetTrackedBone(giant, enable, CameraTracking::ForearmTwist_Left);
 			}
 		}
 	}

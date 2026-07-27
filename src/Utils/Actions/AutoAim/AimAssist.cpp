@@ -17,9 +17,6 @@ namespace {
             RandomFloat(0.0f, left ? -range_y : range_y)
         );
     }
-    void FlipNextAttack(bool& left) {
-        left = !left;
-    }
 }
 
 namespace Scan {
@@ -71,7 +68,6 @@ namespace GTS {
             Scan::CrawlBranchCheck(giant, left, strong_Attack, Understomp, Hit);
             
             if (!Hit) {
-                //FlipNextAttack(left);
                 RandomizeBlend(giant, left);
                 Understomp = RandomBool();
             }
