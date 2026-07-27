@@ -82,8 +82,10 @@ namespace GTS {
 		bool KissVoring = false;
 		bool TinyCalamityActive = false;
 
-		bool AutoAim_TargetLeft = false;
-		bool AutoAim_Kick_TargetLeft = false;
+		bool AutoAim_T1 = false;
+		bool AutoAim_T2 = false;
+		bool AutoAim_T3 = false;
+		bool AutoAim_T4 = false;
 
 		float TinyCalamity_StartingDuration = 0.0f;
 		float TinyCalamity_SecondsPassed = 0.0f;

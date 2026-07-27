@@ -106,50 +106,27 @@ namespace {
 			damage = 1.25f;
 		}
 
-		std::string taskname = std::format("StrongStompAttack_{}", giant->formID);
-		ActorHandle giantHandle = giant->CreateRefHandle();
+		float Augment = PerkHandler::Perks_Cataclysmic_EmpowerStomp(giant);
+		bool GotStacks = PerkHandler::Perks_Cataclysmic_HasStacks(giant);
 
-		double Start = Time::WorldTimeElapsed();
-		
-		TaskManager::RunFor(taskname, 1.0f, [=](auto& update){ // Needed because anim has wrong timing
-			if (!giantHandle) {
-				return false;
+		DoDamageEffect(giant, Damage_Stomp_Strong * damage * perk * Augment, Radius_Stomp_Strong, 5, 0.35f, Event, 1.0f, Source);
+		DoImpactRumble(giant, Node, rumble);
+
+		if (!GotStacks) { 
+			DoDustExplosion(giant, 1.33f * (SMT + (animSpeed * 0.05f)), Event, Node);
+		} else {
+			for (auto exp: {1.0f, 0.75f, 0.5f}) { // Multi-explosion, show that it's strong
+				DoDustExplosion(giant, 1.33f * (SMT + (animSpeed * 0.05f)) * Augment * exp, Event, Node);
 			}
+		}
 
-			double Finish = Time::WorldTimeElapsed();
-			auto giantref = giantHandle.get().get();
+		DrainStamina(giant, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 3.4f);
+		StompManager::PlayNewOrOldStomps(giant, SMT + (animSpeed/10), Event, Node, true);
+		LaunchTask(giant, 1.05f * perk * Augment, (3.6f + animSpeed/2) * Augment, Event);
+		FootStepManager::DoStrongSounds(giant, 1.15f + animSpeed/20, Node);
+		FootStepManager::PlayVanillaFootstepSounds(giant, right);
 
-			if (Finish - Start > 0.07) { 
-				float Augment = PerkHandler::Perks_Cataclysmic_EmpowerStomp(giantref);
-				bool GotStacks = PerkHandler::Perks_Cataclysmic_HasStacks(giantref);
-
-				DoDamageEffect(giantref, Damage_Stomp_Strong * damage * perk * Augment, Radius_Stomp_Strong, 5, 0.35f, Event, 1.0f, Source);
-				DoImpactRumble(giantref, Node, rumble);
-
-				if (!GotStacks) { 
-					DoDustExplosion(giantref, 1.33f * (SMT + (animSpeed * 0.05f)), Event, Node);
-				} else {
-					for (auto exp: {1.0f, 0.75f, 0.5f}) { // Multi-explosion, show that it's strong
-						DoDustExplosion(giantref, 1.33f * (SMT + (animSpeed * 0.05f)) * Augment * exp, Event, Node);
-					}
-				}
-
-				DrainStamina(giantref, "StaminaDrain_StrongStomp", Runtime::PERK.GTSPerkDestructionBasics, false, 3.4f);
-
-				StompManager::PlayNewOrOldStomps(giantref, SMT + (animSpeed/10), Event, Node, true);
-
-				LaunchTask(giantref, 1.05f * perk * Augment, (3.6f + animSpeed/2) * Augment, Event);
-
-				FootStepManager::DoStrongSounds(giantref, 1.15f + animSpeed/20, Node);
-				FootStepManager::PlayVanillaFootstepSounds(giantref, right);
-
-				SetBusyFoot(giantref, BusyFoot::None);
-
-				return false;
-			}
-			return true;
-		});
-		
+		SetBusyFoot(giant, BusyFoot::None);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -250,7 +227,7 @@ namespace {
 
 	void StrongStompEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
-		bool Left = AutoAim_SetUpDefaultSide(player);
+		bool Left = AutoAim_Miss_GetNextStompSide(player, StompAimType::T2);
 		bool UnderStomp = AutoAim_And_DetermineStompType(player, Left, true);
 
 		const std::string_view StompType_R = UnderStomp ? "UnderStompStrongRight" : "StrongStompRight";

@@ -245,7 +245,7 @@ namespace {
 	void TrampleEvent(const ManagedInputEvent& data) {
 		auto player = PlayerCharacter::GetSingleton();
 		
-		bool Left = AutoAim_SetUpDefaultSide(player);
+		bool Left = AutoAim_Miss_GetNextStompSide(player, StompAimType::T3);
 		bool UnderTrample = AutoAim_And_DetermineStompType(player, Left);
 
 		const std::string_view TrampleType_R = UnderTrample ? "UnderTrampleR" : "TrampleR";
