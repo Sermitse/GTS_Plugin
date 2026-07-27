@@ -554,7 +554,7 @@ namespace GTS {
 		return {};
 	}
 
-	float GetFrustrumNearDistance() {
+	float GetFrustumNearDistance() {
 		
 		if (auto niCamera = GetNiCamera()) {
 			return niCamera->GetRuntimeData2().viewFrustum.fNear;

@@ -44,6 +44,6 @@ namespace GTS::CameraCol {
 
 	//Camera
 	NiPoint3 ComputeCameraCollision(RE::Actor* cameraActor, const NiPoint3& rayStart, const NiPoint3& rayEnd, const float hullMult = -1.0f, const float rayMult = -1.0f);
-	CamRayResult RaycastAsCamera(glm::vec4 start, glm::vec4 end, float traceHullSize) noexcept;
+	CamRayResult RaycastAsCamera(RE::Actor* cameraActor, glm::vec4 start, glm::vec4 end, float traceHullSize) noexcept;
 
 }
