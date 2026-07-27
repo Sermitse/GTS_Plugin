@@ -6,7 +6,7 @@
 namespace GTS {
 
 	float HighHeelOffset();
-	float GetFrustrumNearDistance();
+	float GetFrustumNearDistance();
 	float ZoomFactor();
 
 	void UpdateThirdPerson();

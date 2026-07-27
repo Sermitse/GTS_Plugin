@@ -7,12 +7,12 @@ namespace {
 
 	constexpr int FibRayCnt = 12;
 
-	//---- Compile time fibonacci sequence calc, used to evenly spread out the ignoreList rays
+	//---- Compile time golden ratio calc, used to evenly spread out the ignoreList rays
 
 	consteval float ce_sqrt(float x) {
-		float r = x * 0.5f;
+		float r = x * 0.5f;           // r = 0 when x = 0
 		for (int i = 0; i < 32; ++i) {
-			r = 0.5f * (r + x / r);
+			r = 0.5f * (r + x / r);   // x/0
 		}
 		return r;
 	}
@@ -52,16 +52,18 @@ namespace {
 
 namespace GTS::CameraCol {
 
-	CamRayResult RaycastAsCamera(glm::vec4 start, glm::vec4 end, float traceHullSize) noexcept {
+	CamRayResult RaycastAsCamera(RE::Actor* cameraActor, glm::vec4 start, glm::vec4 end, float traceHullSize) noexcept {
 
 		CamRayResult res;
 
-		const auto ply = RE::PlayerCharacter::GetSingleton();
 		const auto cam = RE::PlayerCamera::GetSingleton();
-		if (!ply->parentCell || !cam->unk120) return res;
+		if (!cameraActor || !cam) return res;
+		if (!cameraActor->parentCell || !cam->unk120) return res;
 
-		auto physicsWorld = ply->parentCell->GetbhkWorld();
+		auto physicsWorld = cameraActor->parentCell->GetbhkWorld();
 		if (physicsWorld) {
+			//cameraCaster truncates end in place to the actual impact point on hit, that truncated
+			//value is what we read back below as the hit position, not the original ray endpoint.
 			typedef bool(__fastcall* RayCastFunType)(decltype(RE::PlayerCamera::unk120), RE::bhkWorld*, glm::vec4&, glm::vec4&, hkpRootCdPoint*, RE::Character**, float);
 			static auto cameraCaster = REL::Relocation<RayCastFunType>(REL::RelocationID(32270, 33007, NULL));
 			res.hit = cameraCaster(cam->unk120, physicsWorld, start, end, &res.cdPoint, &res.hitCharacter, traceHullSize);
@@ -84,13 +86,14 @@ namespace GTS::CameraCol {
 
 		//Get the world, used for a write lock later.
 		bhkWorld* physicsWorld = cell->GetbhkWorld();
+		if (!physicsWorld) return rayEnd;
 		RE::bhkCollisionFilter* filter = static_cast<RE::bhkCollisionFilter*>(physicsWorld->GetWorld2()->collisionFilter);
 
 		NiPoint3 currentStart = rayStart;
 		NiPoint3 finalCameraPosition = rayEnd;
 		// Determine hull size.
 		//The hull used for tracing extends from the center of the ray.
-		const float Hull = (hullMult < 0.0f) ? GetFrustrumNearDistance() / 2.f : defaultCamHullSize * hullMult;
+		const float Hull = (hullMult < 0.0f) ? GetFrustumNearDistance() / 2.f : defaultCamHullSize * hullMult;
 		const float Hullx2 = Hull * 2.0f;
 		const float RayLen = rayMult > 0.0f ? Hull * 1.15f * rayMult : Hull * 1.15f; //Small Buffer
 		const float actorZPos = cameraActor->GetPositionZ();
@@ -129,6 +132,7 @@ namespace GTS::CameraCol {
 					DebugDraw::DrawLineForMS({ currentStart.x, currentStart.y, currentStart.z }, { probeEnd.x, probeEnd.y, probeEnd.z }, 16, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.1f); //White
 				}
 
+				const uint64_t cameraCollidesWithBitfield = filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCamera)];
 				for (CamRayCollector::HitResult& hit : result.hitArray) {
 
 					NiPoint3 hitPos = hkpHitPos(origin4, probeEnd, hit.hitFraction);
@@ -136,7 +140,7 @@ namespace GTS::CameraCol {
 					if (const auto* collidable = static_cast<const hkpCollidable*>(hit.body)) {
 						const auto layer = static_cast<COL_LAYER>(collidable->broadPhaseHandle.collisionFilterInfo & 0x7F);
 
-						const uint64_t cameraCollidesWithBitfield = filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCamera)];
+						
 						const uint64_t layerBit = 1ULL << static_cast<uint64_t>(layer);
 
 						if (cameraCollidesWithBitfield & layerBit) {
@@ -152,7 +156,7 @@ namespace GTS::CameraCol {
 			}
 		}
 
-		std::ranges::sort(ignoreList);
+		std::ranges::sort(ignoreList, std::less<RE::hkpCdBody*>{});
 		ignoreList.erase(std::ranges::unique(ignoreList).begin(), ignoreList.end());
 
 		//Disable collision for all valid hit objects for the duration of this function
@@ -163,7 +167,7 @@ namespace GTS::CameraCol {
 			for (RE::hkpCdBody* av : ignoreList) {
 				if (!av) continue;
 				const hkpCollidable* collidable = static_cast<const hkpCollidable*>(av);
-				COL_LAYER layer = static_cast<COL_LAYER>(collidable->broadPhaseHandle.collisionFilterInfo & 0x1F);
+				COL_LAYER layer = static_cast<COL_LAYER>(collidable->broadPhaseHandle.collisionFilterInfo & 0x7F);
 				if (std::ranges::find(disabledLayers, layer) == disabledLayers.end()) {
 					disabledLayers.push_back(layer);
 				}
@@ -172,8 +176,9 @@ namespace GTS::CameraCol {
 			{
 				BSWriteLockGuard lock(physicsWorld->worldLock);
 
+				constexpr uint64_t camBit = 1ULL << static_cast<uint64_t>(COL_LAYER::kCamera);
+
 				for (COL_LAYER layer : disabledLayers) {
-					constexpr uint64_t camBit = 1ULL << static_cast<uint64_t>(COL_LAYER::kCamera);
 					const uint64_t layerBit = 1ULL << static_cast<uint64_t>(layer);
 					filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCamera)] &= ~layerBit;
 					filter->layerBitfields[static_cast<uint8_t>(layer)] &= ~camBit;
@@ -194,7 +199,7 @@ namespace GTS::CameraCol {
 		{
 			const glm::vec4 floorStart4 = { currentStart.x, currentStart.y, currentStart.z, 0.0f };
 			const glm::vec4 floorEnd4 = { currentStart.x, currentStart.y, currentStart.z - Hull, 0.0f };
-			const CamRayResult floorResult = RaycastAsCamera(floorStart4, floorEnd4, 1.0f); //Hull should be thin here.
+			const CamRayResult floorResult = RaycastAsCamera(cameraActor, floorStart4, floorEnd4, 1.0f); //Hull should be thin here.
 
 
 			if (floorResult.hit && floorResult.rayLength < Hull) {
@@ -211,7 +216,7 @@ namespace GTS::CameraCol {
 		{
 			const glm::vec4 ceilStart4 = { currentStart.x, currentStart.y, currentStart.z, 0.0f };
 			const glm::vec4 ceilEnd4 = { currentStart.x, currentStart.y, currentStart.z + Hull, 0.0f };
-			const CamRayResult ceilResult = RaycastAsCamera(ceilStart4, ceilEnd4, 1.0f); //Hull should be thin here.
+			const CamRayResult ceilResult = RaycastAsCamera(cameraActor, ceilStart4, ceilEnd4, 1.0f); //Hull should be thin here.
 
 			if (ceilResult.hit && ceilResult.rayLength < Hull) {
 				currentStart.z -= Hull - ceilResult.rayLength;
@@ -230,11 +235,17 @@ namespace GTS::CameraCol {
 			NiPoint3 ShiftedStart = currentStart;
 
 			while (iterations < maxIterations) {
+
+				ShiftedStart = currentStart;
+
 				const glm::vec4 rayStart4 = { currentStart.x, currentStart.y, currentStart.z, 0.0f };
 				const glm::vec4 rayEnd4 = { rayEnd.x, rayEnd.y, rayEnd.z, 0.0f };
-				const CamRayResult result = RaycastAsCamera(rayStart4, rayEnd4, Hull);
+				const CamRayResult result = RaycastAsCamera(cameraActor, rayStart4, rayEnd4, Hull);
 
-				if (!result.hit) break;
+				if (!result.hit) {
+					finalCameraPosition = rayEnd;
+					break;
+				}
 
 				const NiPoint3 ResHit = { result.hitPos.x, result.hitPos.y, result.hitPos.z };
 				const NiPoint3 ResNorm = { result.cdPoint.normal.x, result.cdPoint.normal.y, result.cdPoint.normal.z };
@@ -253,14 +264,33 @@ namespace GTS::CameraCol {
 			}
 		}
 
+		//Post-sweep floor safety, the sweep normal can push finalCameraPosition underground
+		//and its XY may no longer match the pre-sweep floor sample above
+		{
+			const glm::vec4 floorStart4 = { finalCameraPosition.x, finalCameraPosition.y, finalCameraPosition.z, 0.0f };
+			const glm::vec4 floorEnd4 = { finalCameraPosition.x, finalCameraPosition.y, finalCameraPosition.z - Hull, 0.0f };
+			const CamRayResult floorResult = RaycastAsCamera(cameraActor, floorStart4, floorEnd4, 1.0f);
+
+			if (floorResult.hit && floorResult.rayLength < Hull) {
+				finalCameraPosition.z += Hull - floorResult.rayLength;
+			}
+
+			if (finalCameraPosition.z < actorZPos + Hullx2) {
+				finalCameraPosition.z = actorZPos + Hullx2;
+			}
+
+			if (Config::Advanced.bShowOverlay) {
+				DebugDraw::DrawLineForMS({ floorStart4.x, floorStart4.y, floorStart4.z }, { finalCameraPosition.x, finalCameraPosition.y, finalCameraPosition.z }, 16, { 0.0f, 1.0f, 0.0f, 1.0f }, 1.5f); //Green
+			}
+		}
 
 		// Revert the objects back to their original collision filter data.
 		{
 
 			BSWriteLockGuard lock(physicsWorld->worldLock);
 
+			constexpr uint64_t camBit = 1ULL << static_cast<uint64_t>(COL_LAYER::kCamera);
 			for (COL_LAYER layer : disabledLayers) {
-				constexpr uint64_t camBit = 1ULL << static_cast<uint64_t>(COL_LAYER::kCamera);
 				const uint64_t layerBit = 1ULL << static_cast<uint64_t>(layer);
 				filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCamera)] |= layerBit;
 				filter->layerBitfields[static_cast<uint8_t>(layer)] |= camBit;
