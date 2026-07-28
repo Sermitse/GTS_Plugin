@@ -156,6 +156,7 @@ struct GameplayActorSettings_t {
 
     float fScalePerLevel = 0.05f;
 	bool bUseGTSSkill = false;
+    bool bLLShrinkBackDown = true;
 
 };
 TOML_SERIALIZABLE(GameplayActorSettings_t);

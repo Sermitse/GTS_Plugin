@@ -16,7 +16,7 @@ namespace {
 	float GetShrinkPenalty(float size) {
 		// https://www.desmos.com/calculator/pqgliwxzi2
 
-		SoftPotential launch{
+		SoftPotential launch {
 			.k = 0.98f,
 			.n = 0.82f,
 			.s = 0.70f,
@@ -263,7 +263,7 @@ namespace {
 
 			if (RandomBool(12.0f)) {
 				Sound_PlayMoans(a_Actor, a_CurrentTargetScale / 4, 0.14f, EmotionTriggerSource::Growth);
-				Task_FacialEmotionTask_Moan(a_Actor, 2.0f, "CurseOfTheGiantess");
+				Task_FacialEmotionTask_Moan(a_Actor, 2.0f, "GameMode");
 			}
 
 			update_target_scale(a_Actor, ModAmmount, SizeEffectType::kGrow);
@@ -341,6 +341,7 @@ namespace {
 		float CurseTargetScale;
 		float PowerMult = 0.3f;
 		float natScale = get_natural_scale(a_Actor);
+		bool doShrink = false;
 
 		//Get the actor's Gamemode Timer From Transient and set a random value to it.
 		auto ActorData = Transient::GetActorData(a_Actor);
@@ -350,44 +351,46 @@ namespace {
 		if (a_Actor->IsPlayerRef()) {
 			const auto& Settings = Config::Gameplay.GamemodePlayer;
 			CurseTargetScale = natScale + ((Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel);
-
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
 			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+			doShrink = Settings.bLLShrinkBackDown;
 		}
 		else if (IsTeammate(a_Actor)) {
 			const auto& Settings = Config::Gameplay.GamemodeFollower;
-			CurseTargetScale = natScale +  ((Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel);
+			CurseTargetScale = natScale + ((Settings.bUseGTSSkill ? GetGtsSkillLevel(a_Actor) : a_Actor->GetLevel()) * Settings.fScalePerLevel);
 			const float RandomDelay = Settings.fGameModeUpdateInterval;
 			ActorData->GameModeIntervalTimer.UpdateDelta(RandomDelay + RandomFloat(-RandomDelay / 10, RandomDelay / 10));
+			doShrink = Settings.bLLShrinkBackDown;
 		}
 		else {
 			return;
 		}
 
-		
-
-		//If the target scale > than the actors max scale return
 		const float ScaleDiff = CurseTargetScale - a_CurrentTargetScale;
+		const bool IsGrowing = ScaleDiff > 0.0f;
 
-		if (ScaleDiff <= kScaleEpsilon || a_CurrentTargetScale >= a_MaxScale) {
-			return;
-		}
+		if (std::fabs(ScaleDiff) <= kScaleEpsilon) return;
+		if (IsGrowing && a_CurrentTargetScale >= a_MaxScale) return;
 
 		if (ActorData->GameModeIntervalTimer.ShouldRun()) {
-			const float ScaleMult = std::max(ScaleDiff, PowerMult);
-			constexpr float MinStep = 0.05f; // Minimum guaranteed growth per tick
-			float ModAmmount = std::max(PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult),
-				MinStep
-			);
-			ModAmmount = std::min(ModAmmount, ScaleDiff);
+			const float AbsDiff = std::fabs(ScaleDiff);
+			const float ScaleMult = std::max(AbsDiff, PowerMult);
+			constexpr float MinStep = 0.05f; // Minimum guaranteed change per tick
+			float ModAmmount = std::max(PowerMult * (RandomFloat(1.f, 4.5f) * ScaleMult), MinStep);
+			ModAmmount = std::min(ModAmmount, AbsDiff);
 
-			if (RandomBool(25.0f) && ModAmmount > 1.0f) {
-				Sound_PlayMoans(a_Actor, a_CurrentTargetScale / 4, 0.14f, EmotionTriggerSource::Growth);
-				Task_FacialEmotionTask_Moan(a_Actor, 2.0f, "CurseOfTheGiantess");
+			if (IsGrowing) {
+				if (RandomBool(25.0f) && ModAmmount > 1.0f) {
+					Sound_PlayMoans(a_Actor, a_CurrentTargetScale / 4, 0.14f, EmotionTriggerSource::Growth);
+					Task_FacialEmotionTask_Moan(a_Actor, 2.0f, "GameMode");
+				}
+				update_target_scale(a_Actor, ModAmmount, SizeEffectType::kGrow);
+				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
 			}
-
-			update_target_scale(a_Actor, ModAmmount, SizeEffectType::kGrow);
-			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
+			else if (doShrink) {
+				update_target_scale(a_Actor, -ModAmmount, SizeEffectType::kShrink);
+				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundShrink, a_Actor, ModAmmount * 2.0f, "NPC Pelvis [Pelv]");
+			}
 		}
 	}
 

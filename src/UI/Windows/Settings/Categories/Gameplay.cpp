@@ -47,6 +47,10 @@ namespace GTS {
         PSString T6 = "Change how often the curse effects should be applied.\n"
                       "The value you select is offset by +/- 10%% each time.";
 
+        PSString T7 = "Use the GTS Skill Level instead of the regular Level to calculate target scale.";
+        PSString T8 = "Toggle wether to also shrink back down to the target scale.";
+                      
+
 
         const bool hasPerk = Runtime::HasPerk(PlayerCharacter::GetSingleton(), Runtime::PERK.GTSPerkColossalGrowth);
 
@@ -84,13 +88,13 @@ namespace GTS {
                                     currentMode.value() == LActiveGamemode_t::kLevelLocked;
 
             const bool UsesMultiplier = !CurseModes;
-			const bool UsesRate = currentMode.value() != LActiveGamemode_t::kLevelLocked;
+			
+
+            const bool LevelLocked = currentMode.value() == LActiveGamemode_t::kLevelLocked;
 
             ImGui::Spacing();
 
-            if (UsesRate) {
-                ImGuiEx::SliderF2("Grow/Shrink Rate", pTemp.at(0), 0.001f, 0.2f, T1, "%.3fx");
-            }
+        	ImGuiEx::SliderF2("Grow/Shrink Rate", pTemp.at(0), 0.001f, 0.2f, T1, "%.3fx");
 
             if (UsesMultiplier) {
                 ImGuiEx::CheckBox("Multiply Rates", &a_Settings->bMultiplyGrowthrate, T4);
@@ -106,7 +110,7 @@ namespace GTS {
                 ImGuiEx::SliderF("Curse of Growth Limit", &a_Settings->fCurseGrowthSizeLimit, 1.1f, 50.0f, T3, "%.2fx");
                 ImGuiEx::SliderF("Target Scale", &a_Settings->fCurseTargetScale, 0.5f, 5.0f, T5, "%.2fx");
             }
-            else if (currentMode.value() == LActiveGamemode_t::kLevelLocked) {
+            else if (LevelLocked) {
 
                 if (a_isPlayer) {
                     Actor* Target = PlayerCharacter::GetSingleton();
@@ -125,8 +129,8 @@ namespace GTS {
                 }
 
                 ImGuiEx::SliderF("Scale Per Level", &a_Settings->fScalePerLevel, 0.0001f, 0.2f, "Increase Size per Level", "Adds %.4fx per Level");
-                ImGuiEx::CheckBox("Use GTS Skill Level", &a_Settings->bUseGTSSkill, "Use the GTS Skill Level instead of the regular Level to calculate target scale.");
-
+                ImGuiEx::CheckBox("Use GTS Skill Level", &a_Settings->bUseGTSSkill, T7);
+                ImGuiEx::CheckBox("Shrink Back Down", &a_Settings->bLLShrinkBackDown, T8);
             }
         }
 
@@ -161,7 +165,7 @@ namespace GTS {
                 PSString T3 = "By default, the maximum amount of bonus attributes per player level is 2.\n"
                               "You can adjust the multiplier for this here.";
 
-                const char* T4 = "Multipier for gaining size when being hit, comes from Hit Growth perk";
+                PSString T4 = "Multipier for gaining size when being hit, comes from Hit Growth perk";
 
                 const std::string tGrowOnCrush = fmt::format("Grow On Crush {}", (!PerkCondCrush ? "[Missing Perk]" : ""));
                 ImGuiEx::CheckBox(tGrowOnCrush.c_str(), &Config::Gameplay.bEnableCrushGrowth, T1, !PerkCondCrush);
