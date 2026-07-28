@@ -34,8 +34,14 @@ namespace {
         DrawDebugShape(giant, footPos_L, nullptr, max_distance, giantess_color);
         DrawDebugShape(giant, footPos_R, nullptr, max_distance, giantess_color);
     }
-    bool ShouldAutoAim(float final_distance, float max_distance, float dx) {
-        return final_distance <= max_distance  && dx >= -(max_distance * Config::AutoAim.fAimAssist_IgnoreBehindAfter); 
+    bool IsInRange(float final_distance, float max_distance) {
+        // Usage: randomize attack side when enemy is not meant to be auto-aimed at but is still in range
+        // Without it - Giantess uses same left/right attack without any variety
+        return final_distance <= max_distance;
+    }
+    bool ShouldAutoAim(float final_distance, float max_distance, float dx, float modifier = 0.0f) {
+        float ignore_past = std::clamp(Config::AutoAim.fAimAssist_IgnoreBehindAfter + modifier, 0.0f, 1.0f);
+        return final_distance <= max_distance && dx >= -(max_distance * ignore_past); 
         // Allows to auto-aim if enemy is a bit behind
     }
 }
@@ -49,7 +55,6 @@ namespace GTS {
             float max_distance = Config::AutoAim.fAimAssist_Range_Kick * get_visual_scale(giant);
 
             if (AutoAim_IsSneakingOrCrawling(giant)) {
-                logger::info("Applying sneak attacks");
                 foot_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Sneak_Side * get_visual_scale(giant);
                 foot_offset_forward = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Sneak_Forward_Sneak * get_visual_scale(giant);
                 max_distance = Config::AutoAim.fAimAssist_Range_Kick_Sneak * get_visual_scale(giant);
@@ -61,7 +66,6 @@ namespace GTS {
             auto victim = FindClosestTargetBetweenTwoPoints(giant, footPos_L, footPos_R, max_distance, left);
 
             if (!victim) {
-                logger::info("No target found");
                 DrawDebugShape(giant, footPos_L, nullptr, max_distance, Kick_Color);
                 DrawDebugShape(giant, footPos_R, nullptr, max_distance, Kick_Color);
                 left = !left;
@@ -162,9 +166,11 @@ namespace GTS {
                 Cprint("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
             }
 
-            bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
+            bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx, 0.25f);
             if (AutoAim) {
                 SetStompBlendValues(giant, x, y);
+            } else if (IsInRange(final_distance, max_distance)) {
+                left_butt = RandomBool();
             }
 
             return AutoAim;
@@ -218,6 +224,8 @@ namespace GTS {
             bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
             if (AutoAim) {
                 SetStompBlendValues(giant, x, y);
+            } else if (IsInRange(final_distance, max_distance)) {
+                left_hand = RandomBool();
             }
 
             return AutoAim;
@@ -280,25 +288,31 @@ namespace GTS {
             bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
             if (AutoAim) {
                 SetStompBlendValues(giant, x, y);
+            } else if (IsInRange(final_distance, max_distance)) {
+                left_hand = RandomBool();
             }
-
             return AutoAim;
         }
 
-        bool AutoAim_Foot_Directional(Actor* giant, bool& left_foot) {
+        bool AutoAim_Foot_Directional(Actor* giant, bool& left_foot, bool strong_Attack) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
+            float side_offset = Config::AutoAim.fAimAssist_OffsetDistance_Foot * get_visual_scale(giant); 
+            float forward_offset_R = 0.0; float forward_offset_L = 0.0f;
+            // ^ Instead of looking for R/L foot, we do position offset from center of Char to right/left, based on left_foot bool
             float max_distance = Config::AutoAim.fAimAssist_Range_Stomp * get_visual_scale(giant);
             if (giant->IsSneaking()) {
-               max_distance = Config::AutoAim.fAimAssist_Range_Stomp_Sneak * get_visual_scale(giant);
+                forward_offset_R = Config::AutoAim.fAimAssist_OffsetDistance_Stomp_Sneak_Forward_R  * get_visual_scale(giant);
+                forward_offset_L = Config::AutoAim.fAimAssist_OffsetDistance_Stomp_Sneak_Forward_L  * get_visual_scale(giant);
+                side_offset = Config::AutoAim.fAimAssist_OffsetDistance_Stomp_Sneak_Side * get_visual_scale(giant); 
+                max_distance = Config::AutoAim.fAimAssist_Range_Stomp_Sneak * get_visual_scale(giant);
+            } else if (strong_Attack) {
+                max_distance = Config::AutoAim.fAimAssist_Range_Stomp_Strong * get_visual_scale(giant);
             }
 
-            float foot_offset = Config::AutoAim.fAimAssist_OffsetDistance_Foot * get_visual_scale(giant); 
-            // ^ Instead of looking for R/L foot, we do position offset from center of Char to right/left, based on left_foot bool
-
-            NiPoint3 footPos_L = GetPresetAimPosition(giant, true, foot_offset, 0.0f);
-            NiPoint3 footPos_R = GetPresetAimPosition(giant, false, foot_offset, 0.0f);
+            NiPoint3 footPos_L = GetPresetAimPosition(giant, true, side_offset, forward_offset_L);
+            NiPoint3 footPos_R = GetPresetAimPosition(giant, false, side_offset, forward_offset_R);
             auto victim = FindClosestTargetBetweenTwoPoints(giant, footPos_L, footPos_R, max_distance, left_foot); // Overrides left_foot bool
             if (!victim) {
                 DebugMissShape(giant, footPos_L, footPos_R, max_distance, left_foot, Close_Stomp_Color);
@@ -334,6 +348,8 @@ namespace GTS {
             bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
             if (AutoAim) {
                 SetStompBlendValues(giant, x, y);
+            } else if (IsInRange(final_distance, max_distance)) {
+                left_foot = RandomBool();
             }
 
             return AutoAim;
@@ -387,6 +403,8 @@ namespace GTS {
             bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
             if (AutoAim) {
                 SetStompBlendValues(giant, x, y);
+            } else if (IsInRange(final_distance, max_distance)) {
+                left_foot = RandomBool();
             }
 
             return AutoAim;

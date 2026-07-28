@@ -23,7 +23,7 @@ namespace Scan {
     void StandingBranchCheck(Actor* giant, bool& left, bool strong_Attack, bool& Understomp, bool& hit) {
         if (giant->IsSneaking()) return;
 
-        if (AutoAim_Foot_Directional(giant, left)) {
+        if (AutoAim_Foot_Directional(giant, left, strong_Attack)) {
             Understomp = true;  hit = true;
         } else if (AutoAim_Foot_Directional_FarStomp(giant, left, strong_Attack)) { // Couldn't find anyone, try far stomp now
             Understomp = false; hit = true;// Not an understomp
@@ -35,7 +35,7 @@ namespace Scan {
         
         if (strong_Attack && AutoAim_Butt_TryButtSlam(giant, left))  { // Strong Attack ?  First check if we can butt slam
             Understomp = true;  hit = true;// Always counts as UnderStomp
-        } else if (!strong_Attack && AutoAim_Foot_Directional(giant, left)) { // Then try to hit someone with foot
+        } else if (!strong_Attack && AutoAim_Foot_Directional(giant, left, false)) { // Then try to hit someone with foot
             Understomp = true;  hit = true;// Count as under-stomp
         } else if (AutoAim_Hand_TryHandAim(giant, left, strong_Attack)) { // Then try to land hand attack
             Understomp = false; hit = true;// Should never be understomp
@@ -62,24 +62,28 @@ namespace GTS {
             return false;
         }
         bool Understomp = false; bool Hit = false;
-        if (autoAim || !giant->IsPlayerRef()) {
-            Scan::StandingBranchCheck(giant, left, strong_Attack, Understomp, Hit);
-            Scan::SneakBranchCheck(giant, left, strong_Attack, Understomp, Hit);
-            Scan::CrawlBranchCheck(giant, left, strong_Attack, Understomp, Hit);
+        if (!AnimationVars::General::IsBusy(giant)) { 
+            // Some key-binds fight other key-binds, so Tap E overrides Hold E as soon as you release E, overriding Blend we got, messing aim result
+            if (autoAim || !giant->IsPlayerRef()) {
+                Scan::StandingBranchCheck(giant, left, strong_Attack, Understomp, Hit);
+                Scan::SneakBranchCheck(giant, left, strong_Attack, Understomp, Hit);
+                Scan::CrawlBranchCheck(giant, left, strong_Attack, Understomp, Hit);
+
+                if (!Hit) {
+                    RandomizeBlend(giant, left);
+                    Understomp = RandomBool();
+                }
             
-            if (!Hit) {
-                RandomizeBlend(giant, left);
-                Understomp = RandomBool();
+                return Understomp;
             }
-            
-            return Understomp;
         }
-        return Config::AutoAim.bPreventFarStomps ? true : CrosshairUnderstomp(giant);
+        bool ManagedByConfig = Config::AutoAim.bPreventFarStomps && autoAim;
+        return ManagedByConfig ? true : CrosshairUnderstomp(giant);
     }
 
     bool CrosshairUnderstomp(Actor* giant) { // Should be player exclusive
         if (!giant->IsPlayerRef()) { // NPC's shouldn't be able to use it
-            return false;
+            return true;
         }
         //Range is between -1 (looking down) and 1 (looking up)
         //abs makes it become 1 -> 0 -> 1 for down -> middle -> up

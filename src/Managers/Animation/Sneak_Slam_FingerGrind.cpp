@@ -74,11 +74,11 @@ namespace {
     ///////////////////////////////////////////////////////////////////
 
     void GTS_Sneak_FingerGrind_CameraOn_R(AnimationEventData& data) {
-		ManageCamera(&data.giant, true, CameraTracking::Hand_Right);
+		ManageCamera(&data.giant, true, CameraTracking::ForearmTwist_2_Right);
 	};  
 
     void GTS_Sneak_FingerGrind_CameraOn_L(AnimationEventData& data) {
-		ManageCamera(&data.giant, true, CameraTracking::Hand_Left);
+		ManageCamera(&data.giant, true, CameraTracking::ForearmTwist_2_Left);
 	};  
 
 	void GTS_Sneak_FingerGrind_Impact_R(AnimationEventData& data) {
@@ -155,9 +155,9 @@ namespace GTS {
 
     void TrackMatchingHand(Actor* giant, CrawlEvent kind, bool enable) {
         if (kind == CrawlEvent::RightHand) {
-            ManageCamera(giant, enable, CameraTracking::Hand_Right);
+            ManageCamera(giant, enable, CameraTracking::ForearmTwist_2_Right);
         } else if (kind == CrawlEvent::LeftHand) {
-            ManageCamera(giant, enable, CameraTracking::Hand_Left);
+            ManageCamera(giant, enable, CameraTracking::ForearmTwist_2_Left);
         }
     }
 

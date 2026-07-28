@@ -62,7 +62,7 @@ namespace GTS {
 	//----------------------------------------------------
 	void DoDamageEffect(Actor* giant, float damage, float radius, int random, float bonedamage, FootEvent kind, float crushmult, DamageSource Cause);
 	void DoDamageEffect(Actor* giant, float damage, float radius, int random, float bonedamage, FootEvent kind, float crushmult, DamageSource Cause, bool ignore_rotation);
-	void InflictSizeDamage(Actor* attacker, Actor* receiver, float value);
+	void InflictSizeDamage(Actor* attacker, Actor* receiver, float value, bool record_highestDamage = true);
 
 	//----------------------------------------------------
 	// TINY CALAMITY

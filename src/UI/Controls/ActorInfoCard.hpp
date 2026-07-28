@@ -20,6 +20,8 @@ namespace ImGuiEx {
 
             int iTotalKills     = {};
 
+            float fHighestDamage = 0.0f;
+
             float fOverkillsExtraSize    = {};
             float fCollosalGrowthMult = {};
 

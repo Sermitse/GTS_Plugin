@@ -205,7 +205,7 @@ namespace GTS {
 
 		float hp = GetMaxAV(tiny, ActorValue::kHealth) * 9.0f;	
 
-		InflictSizeDamage(giant, tiny, hp); // just to make sure
+		InflictSizeDamage(giant, tiny, hp, false); // just to make sure
 
 		if (tiny->IsPlayerRef()) {
 			tiny->KillImpl(giant, 1, true, true);

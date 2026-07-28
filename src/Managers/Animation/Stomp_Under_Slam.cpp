@@ -9,11 +9,11 @@ using namespace GTS;
 namespace {
     void GTS_UnderStomp_Crawl_CamOnR(AnimationEventData& data) {
 		DrainStamina(&data.giant,"StaminaDrain_HandSlam", Runtime::PERK.GTSPerkDestructionBasics, true, 1.5f);
-		ManageCamera(&data.giant, true, CameraTracking::Hand_Right);
+		ManageCamera(&data.giant, true, CameraTracking::ForearmTwist_2_Right);
 	}
     void GTS_UnderStomp_Crawl_CamOnL(AnimationEventData& data) {
 		DrainStamina(&data.giant,"StaminaDrain_HandSlam", Runtime::PERK.GTSPerkDestructionBasics, true, 1.5f);
-		ManageCamera(&data.giant, true, CameraTracking::Hand_Left);
+		ManageCamera(&data.giant, true, CameraTracking::ForearmTwist_2_Left);
 	}
     
     void GTS_UnderStomp_Crawl_ImpactR(AnimationEventData& data) {
@@ -26,10 +26,10 @@ namespace {
     }
 
     void GTS_UnderStomp_Crawl_CamOffR(AnimationEventData& data) {
-		ManageCamera(&data.giant, false, CameraTracking::Hand_Right);
+		ManageCamera(&data.giant, false, CameraTracking::ForearmTwist_2_Right);
 	}
     void GTS_UnderStomp_Crawl_CamOffL(AnimationEventData& data) {
-		ManageCamera(&data.giant, false, CameraTracking::Hand_Left);
+		ManageCamera(&data.giant, false, CameraTracking::ForearmTwist_2_Left);
 	}
 }
 namespace GTS {

@@ -108,9 +108,8 @@ namespace GTS {
 
             bool OnCooldown = IsActionOnCooldown(giant, CooldownSource::Misc_TinyCalamity_WrathfulCalamity);
             for (auto tiny: preys) {
-                
                 if (tiny) {
-                    if (IsHuman(tiny)) {
+                    if (IsHuman(tiny) && IsHostile(giant, tiny)) {
                         float health = GetHealthPercentage(tiny);
 
                         float gts_hp = GetMaxAV(giant, ActorValue::kHealth);
@@ -184,41 +183,6 @@ namespace GTS {
                 ShrinkActor(tiny, shrink * 0.0045f, 0.0f);
             } else { // cap it just in case
                 set_target_scale(tiny, limit);
-            }
-        }
-    }
-
-    void TinyCalamity_SeekForShrink(Actor* giant, Actor* tiny, float damage, float maxFootDistance, DamageSource Cause, bool Right, bool ApplyCooldown, bool ignore_rotation) {
-        std::vector<NiPoint3> CoordsToCheck = GetFootCoordinates(giant, Right, ignore_rotation);
-        int nodeCollisions = 0;
-        auto model = tiny->GetCurrent3D();
-        if (model) {
-            bool StopDamageLookup = false;
-            if (!StopDamageLookup) {
-                VisitNodes(model, [&nodeCollisions, CoordsToCheck, maxFootDistance, &StopDamageLookup](NiAVObject& a_obj) {
-                    for (auto point : CoordsToCheck) {
-                        float distance = (point - a_obj.world.translate).Length() - Collision_Distance_Override;
-                        if (distance <= maxFootDistance) {
-                            StopDamageLookup = true;
-                            nodeCollisions += 1;
-                            return false;
-                        }
-                    }
-                    return true;
-                });
-            }
-            if (nodeCollisions > 0) {
-                if (ApplyCooldown) { // Needed to fix Thigh Crush stuff
-                    bool OnCooldown = IsActionOnCooldown(tiny, CooldownSource::Damage_Thigh);
-                    if (!OnCooldown) {
-                        Utils_PushCheck(giant, tiny, Get_Bone_Movement_Speed(giant, Cause)); // pass original un-altered force
-                        CollisionDamage::DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
-                        ApplyActionCooldown(giant, CooldownSource::Damage_Thigh);
-                    }
-                } else {
-                    Utils_PushCheck(giant, tiny, Get_Bone_Movement_Speed(giant, Cause)); // pass original un-altered force
-                    CollisionDamage::DoSizeDamage(giant, tiny, damage, 0.0f, 10, 0, Cause, false);
-                }
             }
         }
     }

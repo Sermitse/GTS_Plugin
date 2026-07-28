@@ -65,15 +65,27 @@ namespace {
 					.zoomScale = ZoomIn_LeftHand,
 				};
 			}
-			case CameraTracking::ForearmTwist_Right: {
+			case CameraTracking::ForearmTwist_1_Right: {
 				return BoneTarget {
 					.boneNames = {"NPC R ForearmTwist1 [RLt1]",},
 					.zoomScale = ZoomIn_RightHand,
 				};
 			}
-			case CameraTracking::ForearmTwist_Left: {
+			case CameraTracking::ForearmTwist_1_Left: {
 				return BoneTarget {
 					.boneNames = {"NPC L ForearmTwist1 [LLt1]",},
+					.zoomScale = ZoomIn_LeftHand,
+				};
+			}
+			case CameraTracking::ForearmTwist_2_Right: {
+				return BoneTarget {
+					.boneNames = {"NPC R ForearmTwist2 [RLt2]",},
+					.zoomScale = ZoomIn_RightHand,
+				};
+			}
+			case CameraTracking::ForearmTwist_2_Left: {
+				return BoneTarget {
+					.boneNames = {"NPC L ForearmTwist2 [LLt2]",},
 					.zoomScale = ZoomIn_LeftHand,
 				};
 			}

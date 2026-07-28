@@ -666,13 +666,10 @@ namespace GTS {
 		}
 		if (kind == FootEvent::Right) {
 			CollisionDamage::DoFootCollision(giant, damage, radius, random, bonedamage, crushmult, Cause, true, false, ignore_rotation, true);
-			//                                                                                  ^         ^         ^ - - - - Normal Crush
-			//                                                       Chance to trigger bone crush   Damage of            Threshold multiplication
-			//                                                                                      Bone Crush
 		}
 	}
 
-	void InflictSizeDamage(Actor* attacker, Actor* receiver, float value) {
+	void InflictSizeDamage(Actor* attacker, Actor* receiver, float value, bool record_highestDamage) {
 
 		if (attacker->IsPlayerRef() && IsTeammate(receiver)) {
 			if (Config::Balance.bFollowerFriendlyImmunity) {
@@ -715,7 +712,13 @@ namespace GTS {
 			else {
 				receiver->TakeDamage(nullptr, damageDealt, false); // TakeDamage applies Difficulty Mult inside
 			}
-
+			if (record_highestDamage) {
+				if (PersistentActorData* data = Persistent::GetActorData(attacker)) {
+					if (damageDealt > data->fHighestDamageDealt) {
+						data->fHighestDamageDealt = damageDealt;
+					}
+				}
+			}
 		}
 		else if (receiver->IsDead()) {
 			Task_InitHavokTask(receiver);
@@ -930,7 +933,7 @@ namespace GTS {
 				if (animation) {
 					Animation_TinyCalamity::AddToData(giant, tiny, expected);
 					AnimationManager::StartAnim("Calamity_ShrinkOther", giant);
-					tiny->StopMoving(1.2f);
+					StaggerActor(giant, tiny, 0.25f);
 					return;
 				}
 

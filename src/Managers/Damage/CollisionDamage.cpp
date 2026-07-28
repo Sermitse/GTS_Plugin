@@ -221,12 +221,14 @@ namespace GTS {
 
 		bool SMT = TinyCalamityActive(actor);
 		if (SMT) {
-			if (SupportCalamity) Calamity = 4.0f;
+			if (SupportCalamity) Calamity = 6.0f;
 			giantScale += 0.20f;
 			SCALE_RATIO = 0.7f;
 		}
 
 		float maxFootDistance = radius * giantScale;
+		float maxFootDistance_Calamity = maxFootDistance * Calamity;
+
 		std::vector<NiPoint3> CoordsToCheck = GetFootCoordinates(actor, Right, ignore_rotation);
 		if (CoordsToCheck.empty()) return;
 
@@ -236,6 +238,9 @@ namespace GTS {
 		if (!IsIdleDamage(Cause)) {
 			const bool Condition = DebugDraw::CanDraw(actor, DebugDraw::DrawTarget::kAnyGTS);
 			DebugCollision(world, actor, CoordsToCheck, maxFootDistance, toHavok, Condition);
+			if (SMT) {
+				DebugCollision(world, actor, CoordsToCheck, maxFootDistance * Calamity, toHavok, Condition);
+			}
 		}
 
 		NiPoint3 giantLocation = actor->GetPosition();
@@ -244,18 +249,33 @@ namespace GTS {
 		
 		const float sphereRadiusHk = maxFootDistance * toHavok;
 		const float sphereRadiusSq = sphereRadiusHk * sphereRadiusHk;
+		const float sphereRadiusHk_Calamity = maxFootDistance_Calamity * toHavok;
+		const float sphereRadiusSq_Calamity = sphereRadiusHk_Calamity * sphereRadiusHk_Calamity;
 
 		for (auto& otherActor : find_actors()) {
 			if (otherActor == actor) continue;
 
 			bool HitDetected = HasCollided(actor, otherActor, world, CoordsToCheck, giantLocation, giantScale, SCALE_RATIO, maxFootDistance, maxCheckDistanceSq, sphereRadiusSq, toHavok);
 
-			// Calamity seek runs regardless of hit result
+			// Calamity has larger hit range, but said range is used only for shrinking, it's NOT causing any damage and can't crush/kill
 			if (SupportCalamity && SMT) {
-				TinyCalamity_SeekForShrink(actor, otherActor, damage, maxFootDistance * Calamity, Cause, Right, ApplyCooldown, ignore_rotation);
+				bool HitDetected_SMT = HasCollided(actor, otherActor, world, CoordsToCheck, giantLocation, giantScale, SCALE_RATIO, maxFootDistance_Calamity, maxCheckDistanceSq, sphereRadiusSq_Calamity, toHavok);
+				if (HitDetected_SMT) {
+					if (ApplyCooldown) { // Needed to fix Thigh Crush stuff
+						bool OnCooldown = IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh);
+						if (!OnCooldown) {
+							Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause)); // pass original un-altered force
+							DoSizeDamage(actor, otherActor, damage, 0.0f, 10, 0, Cause, false);
+							ApplyActionCooldown(actor, CooldownSource::Damage_Thigh);
+						}
+					} else {
+						Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause)); // pass original un-altered force
+						DoSizeDamage(actor, otherActor, damage, 0.0f, 10, 0, Cause, false);
+					}
+				}
 			}
 
-			if (HitDetected) {
+			if (HitDetected) { // This is normal collision that deals damage and can crush/kill
 				if (ApplyCooldown) {
 					if (!IsActionOnCooldown(otherActor, CooldownSource::Damage_Thigh)) {
 						Utils_PushCheck(actor, otherActor, Get_Bone_Movement_Speed(actor, Cause));

@@ -66,7 +66,7 @@ namespace GTS {
     // Sermit note: changing these is both a sin and a crime
 
 	//-----------------------------------------Default Damage Values
-
+    constexpr float Damage_Shockwave_LaunchActor = 0.150f;
     constexpr float Damage_Grab_Play_Light = 2.8f;
     constexpr float Damage_Grab_Play_Heavy = 6.2f;
 	constexpr float Damage_Grab_Attack = 4.8f;

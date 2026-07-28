@@ -21,9 +21,6 @@
 using namespace GTS;
 
 namespace {
-
-	constexpr float LAUNCH_DAMAGE = 2.4f;
-	constexpr float LAUNCH_KNOCKBACK = 0.02f;
 	constexpr float BASE_CHECK_DISTANCE = 20.0f;
 
 	bool ObliterateCheck(Actor* giant, Actor* tiny, float sizeRatio, float damage) {
@@ -108,7 +105,7 @@ namespace GTS {
 			return; // Disallow to launch if we're grinding an actor
 		}
 
-		float DamageMult = 0.5f * Config::Balance.fSizeDamageMult;
+		float BaseDamage = Damage_Shockwave_LaunchActor * Config::Balance.fSizeDamageMult;
 		float giantSize = get_visual_scale(giant);
 		float tinySize = std::clamp(get_visual_scale(tiny), 0.5f, 1000000.0f); // clamp else they will fly into the sky
 		float highheel = GetHighHeelsBonusDamage(tiny, true);
@@ -125,6 +122,7 @@ namespace GTS {
 		bool OwnsPerk = false;
 
 		if (TinyCalamityActive(giant)) {
+			launch_power *= 0.5f;
 			threshold = 0.92f;
 			force += 0.02f;
 		}
@@ -139,7 +137,7 @@ namespace GTS {
 					float power = (1.0f * launch_power) / Adjustment;
 					if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDisastrousTremmor)) {
 						float might = 1.0f + Potion_GetMightBonus(giant);
-						DamageMult *= 2.0f * might;
+						BaseDamage *= 2.0f * might;
 						OwnsPerk = true;
 						power *= 1.5f;
 					}
@@ -147,7 +145,7 @@ namespace GTS {
 					ApplyActionCooldown(tiny, CooldownSource::Damage_Launch);
 
 					if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDeadlyRumble) && CanDoDamage(giant, tiny, true)) {
-						float damage = LAUNCH_DAMAGE * sizeRatio * force * DamageMult * highheel;
+						float damage = BaseDamage * sizeRatio * force * highheel;
 						if (OwnsPerk) { // Apply only when we have DisastrousTremor perk
 							update_target_scale(tiny, -(damage / 1500) * Config::Balance.fSizeDamageMult, SizeEffectType::kShrink);
 
@@ -265,6 +263,7 @@ namespace GTS {
 						float distance = (point - actorLocation).Length();
 						if (distance <= maxDistance) {
 							LaunchWithDistance(giant, otherActor, min_radius, distance, maxDistance, power);
+							// min_radius prevents Launch from happening if Actor is inside specific radius of collider
 						}
 					}
 				}
@@ -278,6 +277,8 @@ namespace GTS {
 			return;
 		}
 		float giantScale = get_visual_scale(giant);
+		const float min_distance = Radius_Walk_Default * giantScale; // Enemies shouldn't be launched if they're in this radius
+
 		float SCALE_RATIO = GetLaunchThreshold(giant)/GetMovementModifier(giant);
 		if (TinyCalamityActive(giant)) {
 			SCALE_RATIO = 1.0f / GetMovementModifier(giant);
@@ -309,7 +310,8 @@ namespace GTS {
 						for (auto point: CoordsToCheck) {
 							point.z -= HH;
 							float distance = (point - actorLocation).Length();
-							if (distance <= maxFootDistance) {
+							
+							if (distance <= maxFootDistance && distance > min_distance) {
 								if (AllowStagger(otherActor)) {
 									float force = GetForceFromDistance(distance, maxFootDistance);
 									ApplyLaunchTo(giant, otherActor, force, power);

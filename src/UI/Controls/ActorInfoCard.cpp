@@ -78,6 +78,7 @@ namespace ImGuiEx {
 
 		//Other
 		I.iTotalKills    = GetKillCount(a_actor, DeathType::kTotalKills);
+		I.fHighestDamage = P->fHighestDamageDealt;
 		I.bIsPlayer      = a_actor->IsPlayerRef();
 		I.fSizeEssence   = P->fExtraPotionMaxScale;
 		I.fSkillLevel    = GetGtsSkillLevel(a_actor);
@@ -229,7 +230,12 @@ namespace ImGuiEx {
 			ImGuiTableFlags_NoBordersInBody |
 			ImGuiTableFlags_Hideable,
 			{ ImGui::GetContentRegionAvail().x, 0.0f })) {
-
+			// --------------------------------- Highest Damage
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Highest Damage:");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.1f", Data.fHighestDamage);
 			// --------------------------------- Max Size
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
@@ -253,7 +259,6 @@ namespace ImGuiEx {
 			ImGui::Text("Kills:");
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text("%u", Data.iTotalKills);
-
 			ImGui::EndTable();
 
 		}

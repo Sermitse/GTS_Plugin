@@ -49,7 +49,11 @@ struct SettingsAutoAim_t {
     float fAimAssist_Range_FarStomp_Strong = 60.0f;
     //----------------------- stomp
     float fAimAssist_Range_Stomp = 32.0f;
+    float fAimAssist_Range_Stomp_Strong = 38.0f;
     float fAimAssist_Range_Stomp_Sneak = 46.0f;
+    float fAimAssist_OffsetDistance_Stomp_Sneak_Forward_R = -12.5f;
+    float fAimAssist_OffsetDistance_Stomp_Sneak_Forward_L = -8.0f;
+    float fAimAssist_OffsetDistance_Stomp_Sneak_Side = 8.0f;
     float fAimAssist_OffsetDistance_Foot = 10.0f;
     float fAimAssist_OffsetDistance_Foot_FarStomp = 0.0f;
     //----------------------- hand sneak kick
@@ -73,7 +77,7 @@ struct SettingsAutoAim_t {
     float fAimAssist_Range_Kick = 48.0f;
     float fAimAssist_OffsetDistance_Kick_Forward = 40.0f;
     //----------------------- butt
-    float fAimAssist_Range_ButtSlam = 48.0f;
+    float fAimAssist_Range_ButtSlam = 38.0f;
     float fAimAssist_OffsetDistance_Butt_Forward = 0.0f;
     float fAimAssist_OffsetDistance_Butt_Side = 15.0f;
 

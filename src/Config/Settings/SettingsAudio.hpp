@@ -54,7 +54,7 @@ struct SettingsAudio_t {
     bool bBlendBetweenFootsteps = false;
 
     float fMaxVoiceFreq = 1.6f;                // > Higher Value means Higher Freq -> Higher Voice
-    float fMinVoiceFreq = 0.8355f;             // > Lower Value means Lower Freq -> Lower Voice
+    float fMinVoiceFreq = 1.0f;             // > Lower Value means Lower Freq -> Lower Voice
 
     float fTargetPitchAtScaleMax = 8.0f;
     float fTargetPitchAtScaleMin = 0.2f;
