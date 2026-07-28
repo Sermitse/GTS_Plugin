@@ -88,8 +88,6 @@ namespace {
 			dust = 1.45f;
 		}
 
-		// TO ANDY: i commented it out for tests
-		//MoveUnderFoot(giant, Node); 
 		float hh = GetHighHeelsBonusDamage(giant, true);
 		float shake_power = Rumble_Stomp_Normal * smt * hh;
 
@@ -101,38 +99,22 @@ namespace {
 		const float PerformChancePlayer = Config::Gameplay.ActionSettings.fPlayerStompGrindChance;
 		const float PerformChanceNPC = Config::AI.Stomp.fStompGrindProbability;
 		const bool IsPlayer = giant->IsPlayerRef();
+		Rumbling::Once(rumble, giant, shake_power, 0.0f, Node, 1.10f);
+		DoDamageEffect(giant, Damage_Stomp * perk, Radius_Stomp, 10, 0.25f, Event, 1.0f, Source);
+		DoDustExplosion(giant, dust + (animSpeed * 0.05f), Event, Node);
+		StompManager::PlayNewOrOldStomps(giant, 1.0f, Event, Node, false);
 		
-		TaskManager::RunFor(taskname, 1.0f, [=](auto& update){ // Needed because anim has a wrong timing
-			if (!giantHandle) {
-				return false;
-			}
+		DrainStamina(giant, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.8f); // cancel stamina drain
 
-			double Finish = Time::WorldTimeElapsed();
-			auto giantref = giantHandle.get().get();
-		
-			if (Finish - Start > 0.02) { 
+		if (RandomBool(IsPlayer ? PerformChancePlayer : PerformChanceNPC)) {
+			FootGrindCheck(giant, Radius_Stomp, right, FootActionType::Grind_Normal);
+		}
 
-				Rumbling::Once(rumble, giantref, shake_power, 0.0f, Node, 1.10f);
-				DoDamageEffect(giantref, Damage_Stomp * perk, Radius_Stomp, 10, 0.25f, Event, 1.0f, Source);
-				DoDustExplosion(giantref, dust + (animSpeed * 0.05f), Event, Node);
-				StompManager::PlayNewOrOldStomps(giantref, 1.0f, Event, Node, false);
-				
-				DrainStamina(giantref, "StaminaDrain_Stomp", Runtime::PERK.GTSPerkDestructionBasics, false, 1.8f); // cancel stamina drain
+		DelayedLaunch(giant, 0.80f * perk, 2.0f* animSpeed, Event);
 
-				if (RandomBool(IsPlayer ? PerformChancePlayer : PerformChanceNPC)) {
-					FootGrindCheck(giantref, Radius_Stomp, right, FootActionType::Grind_Normal);
-				}
+		FootStepManager::PlayVanillaFootstepSounds(giant, right);
 
-				DelayedLaunch(giantref, 0.80f * perk, 2.0f* animSpeed, Event);
-
-				FootStepManager::PlayVanillaFootstepSounds(giantref, right);
-
-				SetBusyFoot(giantref, BusyFoot::None);
-
-				return false;
-			}
-			return true;
-		});
+		SetBusyFoot(giant, BusyFoot::None);
 	}
 
 	void Stomp_Land_DoEverything(Actor* giant, float animSpeed, bool right, FootEvent Event, DamageSource Source, std::string_view Node, std::string_view rumble) {

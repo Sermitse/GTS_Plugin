@@ -79,7 +79,7 @@ namespace GTS {
                     return;
                 }
 
-                score = diamondDistance;
+                score = diamondDistance * deadPenalty;
 
                 // Penalty for targets behind the actor
                 NiPoint3 centerDelta = targetPos - center;
@@ -88,7 +88,7 @@ namespace GTS {
                 float centerForward = centerDelta.x * forward.x + centerDelta.y * forward.y;
 
                 if (centerForward < 0.0f) {
-                    score += centerForward * centerForward * deadPenalty * Config::AutoAim.fAimAssist_BackPenalty;
+                    score += centerForward * centerForward * Config::AutoAim.fAimAssist_BackPenalty;
                 }
             };
 
@@ -176,11 +176,11 @@ namespace GTS {
                     centerDelta.x * forward.x +
                     centerDelta.y * forward.y;
 
-                float score = distSq;
+                float score = distSq * DeadPenalty;
 
                 // Penalize targets behind the actor
                 if (localForward < 0.0f) {
-                    score += localForward * localForward * DeadPenalty * Config::AutoAim.fAimAssist_BackPenalty;
+                    score += localForward * localForward * Config::AutoAim.fAimAssist_BackPenalty;
                 }
 
                 if (score < bestScore) {

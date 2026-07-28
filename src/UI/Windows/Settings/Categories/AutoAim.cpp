@@ -190,6 +190,9 @@ namespace GTS {
             }
             ImGui::EndDisabled();
         }
+        if (!Config::Hidden.IKnowWhatImDoing) {
+            return;
+        }
         // ---- Foot Attacks
         static ImGuiEx::CollapsingTabHeader ActionHeader_Foot (
             "Attack Settings",
@@ -203,7 +206,6 @@ namespace GTS {
                 "[Kicks]",
 			}
         );
-
         if (ImGuiEx::BeginCollapsingTabHeader(ActionHeader_Foot)) {
             ImGui::BeginDisabled(!Config::AutoAim.bEnableAutoAim);
             // Content based on active tab
@@ -239,18 +241,13 @@ namespace GTS {
         ImUtil_Unique 
 		{
             PSString T0 ="Reduces the priority of enemies located behind the Giantess.\n"
-            "Higher values make Auto-Aim less likely to target enemies behind you.\n"
-            "Default: 10.0";
+            "Higher values make Auto-Aim less likely to target enemies behind you.";
             PSString T1 = "Reduces the priority of dead enemies.\n"
-            "Higher values make Auto-Aim less likely to target dead enemies.\n"
-            "Default: 20.0";
-            PSString T2 = "Enemies behind you are ignored once they exceed this percentage of the search collider's range.\n"
-            "Default: 0.25";
+            "Higher values make Auto-Aim less likely to target dead enemies.";
+            PSString T2 = "Enemies behind you are ignored once they exceed this percentage of the search collider's range.";
             PSString T3 = "Multiplies the animation blend values used by Auto-Aim.\n"
-            "Higher values improve targeting near the edges of the search collider.\n"
-            "Default: 1.25";
-            PSString T4 = "Controls how much the X and Z animation blend values are randomized when no target is found.\n"
-            "Default: 0.25";
+            "Higher values improve targeting near the edges of the search collider.";
+            PSString T4 = "Controls how much the X and Z animation blend values are randomized when no target is found.";
             ImGui::BeginDisabled(!Config::AutoAim.bEnableAutoAim);
             if (ImGui::CollapsingHeader("Automatic Aim Behavior Settings", ImUtil::HeaderFlagsDefaultOpen)) {
                 ImGuiEx::SliderF("Behind Target Penalty", &Config::AutoAim.fAimAssist_BackPenalty, 0.01f, 100.0f, T0, "%.2f");

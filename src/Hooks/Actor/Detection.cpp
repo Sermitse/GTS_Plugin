@@ -78,7 +78,7 @@ namespace Hooks {
 
     };
 
-    struct CalculateHeading1 {
+    /*struct CalculateHeading1 {
         // 2026 Note: Disabled.
         //      It's unclear how exactly it works, better rely on altering Value + Altering Footstep volume
         // SE:
@@ -102,10 +102,9 @@ namespace Hooks {
         }
 
         FUNCTYPE_CALL func;
+    };*/
 
-    };
-
-    struct CalculateHeading2 {
+    /*struct CalculateHeading2 {
         // 2026 Note: Disabled.
         //      It's unclear how exactly it works, better rely on altering Value + Altering Footstep volume
         //  0x1405FD870 : 36758
@@ -129,7 +128,7 @@ namespace Hooks {
 
         FUNCTYPE_CALL func;
 
-    };
+    };*/
 
 	struct DoDetectionJob_CalculateDetection {
 
@@ -146,13 +145,8 @@ namespace Hooks {
         ){
             {
                 GTS_PROFILE_ENTRYPOINT("ActorDetection::DoDetectionJob");
-
-               
-
                 if (a_observer) {
-                    if (IsHuman(a_observer)) {
-
-
+                    if (IsHumanoid(a_observer) || IsHuman(a_observer)) {
                         //Dont prevent detection against the player.
 						//The player is handled by instead disabling attacks like we do for large actors.
                         const bool IsPlayerTarget = target && target->IsPlayerRef(); 
@@ -237,7 +231,10 @@ namespace Hooks {
 
                 { // scale by target size: larger target is easier to detect, smaller harder
                     float targetVisualScale = get_visual_scale(target);
-                    result = static_cast<int32_t>(std::floorf(result / targetVisualScale));
+                    if (targetVisualScale > 1.0f) { // A lot easier to spot large actors
+                        targetVisualScale *= targetVisualScale;
+                    }
+                    result = static_cast<int32_t>(std::floorf(result * targetVisualScale));
                 }
 
                 return std::clamp(result, 0, 100);

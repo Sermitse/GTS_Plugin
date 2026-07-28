@@ -27,7 +27,7 @@ namespace {
 		"- Hostile shrinking is less effective the less health there is.\n\n"
 		"The effect is strongest when 10%% (or less) HP remains.";
 
-	PSString TSizeReserve = "Total size size stored from the size reserve perk.\n"
+	PSString TSizeReserve = "Total size stored from the size reserve perk.\n"
 		"Gained by eating/absorbing/crushing others";
 
 	PSString TAspectOfGTS = "This is the strength of Aspect of the Giantess enchantment\n"
