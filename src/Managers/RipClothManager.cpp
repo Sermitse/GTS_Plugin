@@ -60,27 +60,47 @@ namespace GTS {
 		// BGSBipedObjectForm::BipedObjectSlot::kFX01,					// 61
 	};
 
-
 	//I don't like this. Ideally we should call the same update func that the game does when the npc changes cells for example.
 	//But alas i have no idea how to do that :(
-	//This will equip all armor in the inventory
+	//This will re-equip only armor pieces that occupy slots we previously blocked
 	static void ReEquipClothing(Actor* a_actor) {
-		//log::info("ReEquip: {}", a_actor->GetName());
+
+		if (!a_actor || a_actor->IsPlayerRef()) return;
+
+		auto persistent = Persistent::GetActorData(a_actor);
+		if (!persistent) return;
+
+		uint32_t BlockedMask = persistent->iBlockedEquipSlots;
+		if (BlockedMask == 0) {
+			return; //Nothing was stripped, nothing to do
+		}
+
 		static const auto equipmgr = RE::ActorEquipManager::GetSingleton();
 		const auto inv = a_actor->GetInventory();
+
 		for (const auto& [item, invData] : inv) {
+
 			const auto& [count, entry] = invData;
-			if (count > 0) {
-				if (item->As<RE::TESObjectARMO>()) {
-					if (!entry->extraLists) {
-						return;
-					}
-					for (const auto& xList : *entry->extraLists) {
-						equipmgr->EquipObject(a_actor, item, xList, 1, nullptr, false, false, false);
-					}
-				}
+			if (count <= 0) continue;
+
+			auto Armor = item->As<RE::TESObjectARMO>();
+			if (!Armor) continue;
+
+			//Only care about armor that actually occupies a slot we blocked
+			uint32_t ArmorSlotMask = static_cast<uint32_t>(Armor->GetSlotMask());
+			if (!(ArmorSlotMask & BlockedMask)) continue;
+
+			if (!entry->extraLists) continue;
+
+			for (const auto& xList : *entry->extraLists) {
+				equipmgr->EquipObject(a_actor, item, xList, 1, nullptr, false, false, false);
 			}
+
+			//This piece is back on, clear its bits from the mask
+			BlockedMask &= ~ArmorSlotMask;
 		}
+
+		persistent->iBlockedEquipSlots = 0;
 	}
 
 	float ClothManager::ReConstructOffset(Actor* a_actor, float scale) {
@@ -109,7 +129,7 @@ namespace GTS {
 		return offset;
 	}
 
-	//Have We Shrinked Since The Last Update?
+	//Have We shrunk Since The Last Update?
 	static bool IsShrinking(Actor* a_actor, float Scale) {
 
 		if (!a_actor) return false;
@@ -125,11 +145,13 @@ namespace GTS {
 
 	static void RipRandomClothing(RE::Actor* a_actor) {
 
-		if(!a_actor) {
+		if (!a_actor) {
 			return;
 		}
 
 		std::vector<TESObjectARMO*> ArmorList;
+		std::unordered_set<TESObjectARMO*> Seen;
+
 		for (auto Slot : VallidSlots) {
 
 			auto Armor = a_actor->GetWornArmor(Slot);
@@ -138,17 +160,22 @@ namespace GTS {
 				continue;
 			}
 
+			//Multi-slot items show up once per slot they occupy, only consider them once
+			if (!Seen.insert(Armor).second) {
+				continue;
+			}
+
 			for (const auto& BKwd : KeywordBlackList) {
 				if (Armor->HasKeywordString(BKwd)) {
 					goto BKwd_Skip; //If blacklisted keyword is found skip
 				}
-				                                  
+
 			}
 
 			//Else Add it to the vector
 			ArmorList.push_back(Armor);
 
-			//Funny label
+
 		BKwd_Skip:
 			continue;
 		}
@@ -165,15 +192,24 @@ namespace GTS {
 		if (!tesarmo) return;
 
 
-		auto manager = RE::ActorEquipManager::GetSingleton();
+		ActorEquipManager* const manager = RE::ActorEquipManager::GetSingleton();
 		manager->UnequipObject(a_actor, tesarmo, nullptr, 1, nullptr, true, false, false);
+
+
+		//Add Unequiped slot to mask.
+		if (!a_actor->IsPlayerRef()) {
+			if (auto data = Persistent::GetActorData(a_actor)) {
+				data->iBlockedEquipSlots |= static_cast<uint32_t>(tesarmo->GetSlotMask());
+			}
+		}
+
 
 		Rumbling::Once("ClothManager", a_actor, Rumble_Misc_TearClothes, 0.075f);
 		Sound_PlayMoans(a_actor, 0.7f, 0.14f, EmotionTriggerSource::RipCloth);
 		Runtime::PlaySound(Runtime::SNDR.GTSSoundRipClothes, a_actor, 0.7f, 1.0f);
 		Task_FacialEmotionTask_Moan(a_actor, 1.0f, "RipCloth");
-		
-		
+
+
 	}
 
 	static void RipAllClothing(RE::Actor* a_actor) {
@@ -183,6 +219,8 @@ namespace GTS {
 		}
 
 		auto manager = RE::ActorEquipManager::GetSingleton();
+		auto persistent = Persistent::GetActorData(a_actor);
+		std::unordered_set<TESObjectARMO*> Seen;
 		bool Ripped = false;
 
 		for (auto Slot : VallidSlots) {
@@ -193,19 +231,28 @@ namespace GTS {
 				continue;
 			}
 
+			//Multi-slot items show up once per slot they occupy, only process them once
+			if (!Seen.insert(Armor).second) {
+				continue;
+			}
+
 			for (const auto& BKwd : KeywordBlackList) {
 				if (Armor->HasKeywordString(BKwd)) {
 					//Simplest way to break the parent loop
 					goto BKwd_Skip;
 				}
 			}
-			
+
 			manager->UnequipObject(a_actor, Armor, nullptr, 1, nullptr, true, false, false);
 			Ripped = true;
 
-			//Funny label
+			//Add Unequiped slot to mask so the game can't silently re-equip it on cell load
+			if (persistent && !a_actor->IsPlayerRef()) {
+				persistent->iBlockedEquipSlots |= static_cast<uint32_t>(Armor->GetSlotMask());
+			}
+
 			BKwd_Skip:
-			     continue;
+				continue;
 		}
 
 		if (Ripped) {
@@ -299,6 +346,20 @@ namespace GTS {
 
 		//if the item is not an armor, allow it
 		if (!TESArmo) return false;
+
+		auto persistent = Persistent::GetActorData(a_actor);
+		if (!persistent) return false;
+
+		const uint32_t BlockedMask = persistent->iBlockedEquipSlots;
+		if (BlockedMask == 0) {
+			return false; //Nothing was stripped for this actor, nothing to block
+		}
+
+		const uint32_t ArmorSlotMask = static_cast<uint32_t>(TESArmo->GetSlotMask());
+
+		//Only prevent re-equip if this item actually occupies a slot we stripped
+		if (!(ArmorSlotMask & BlockedMask)) return false;
+
 		for (auto Slot : VallidSlots) {
 			//For each vallid slot check if the to be equiped slot cotains said slot
 			if (TESArmo->bipedModelData.bipedObjectSlots.any(Slot)) {

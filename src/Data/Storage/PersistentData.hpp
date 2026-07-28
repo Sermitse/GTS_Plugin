@@ -43,8 +43,13 @@ namespace GTS {
 		float fGTSSkillLevel = 0.0f;
 		float fGTSSkillExp   = 0.0f;
 		float fGTSSkillRatio = 0.0f;
+
 		// Highest Damage Dealt
 		float fHighestDamageDealt = 0.0f;
+
+		//Clothing Rip
+		uint32_t iBlockedEquipSlots = 0;
+
 		/*
 		//These two should trigger a hash colission
 		int costarring;  
