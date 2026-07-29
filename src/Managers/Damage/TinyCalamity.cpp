@@ -167,22 +167,23 @@ namespace GTS {
        GTS_PROFILE_SCOPE("TinyCalamity: ShrinkActor");
         if (TinyCalamityActive(giant)) {
             bool HasPerk = Runtime::HasPerk(giant, Runtime::PERK.GTSPerkTinyCalamitySizeSteal);
-            float limit = Minimum_Actor_Scale;
+            float limit = Minimum_Actor_Scale / GetSizeFromBoundingBox(tiny);
             if (HasPerk) {
 				DamageAV(giant, ActorValue::kHealth, -shrink * 1.25f);
                 shrink *= 1.25f;
 			}
 
             float target_scale = get_target_scale(tiny);
-
-            if (target_scale > limit/GetSizeFromBoundingBox(tiny)) {
-                if ((target_scale - shrink*0.0045f) <= limit || target_scale <= limit) {
-                    set_target_scale(tiny, limit);
-                    return;
-                }
-                ShrinkActor(tiny, shrink * 0.0045f, 0.0f);
-            } else { // cap it just in case
+            shrink *= 0.0045f;
+            if (target_scale < limit) {
                 set_target_scale(tiny, limit);
+            } else {
+                if (target_scale - shrink < limit) {
+                    shrink = target_scale - limit;
+                }
+                if (shrink > 0.0f) {
+                    ShrinkActor(tiny, shrink, 0.0f);
+                }
             }
         }
     }
