@@ -122,6 +122,38 @@ namespace GTS {
 		DrawCircle(origin, radius, glm::vec3(glm::half_pi<float>(), 0.0f, 0.0f), liftetimeMS, color, lineThickness);
 	}
 
+	void DebugDraw::DrawRectangle(float rotation, const glm::vec3& origin, float width, float length, int lifetimeMS, const glm::vec4& color, float lineThickness) {
+		const float yaw = rotation;
+
+		glm::vec2 forward(std::sin(yaw), std::cos(yaw) );
+
+		glm::vec2 right(forward.y, -forward.x );
+
+
+		auto Transform = [&](float localRight, float localForward) -> glm::vec3 {
+			return {
+				origin.x + right.x * localRight + forward.x * localForward,
+				origin.y + right.y * localRight + forward.y * localForward,
+				origin.z
+			};
+		};
+
+
+		const float halfWidth = width * 0.5f;
+		const float halfLength = length * 0.5f;
+
+
+		glm::vec3 backLeft = Transform(-halfWidth, -halfLength);
+		glm::vec3 backRight = Transform(halfWidth, -halfLength);
+		glm::vec3 frontLeft = Transform(-halfWidth, halfLength);
+		glm::vec3 frontRight = Transform(halfWidth, halfLength);
+
+		DrawLineForMS(backLeft, backRight, lifetimeMS, color, lineThickness);
+		DrawLineForMS(backRight, frontRight, lifetimeMS, color, lineThickness);
+		DrawLineForMS(frontRight, frontLeft, lifetimeMS, color, lineThickness);
+		DrawLineForMS(frontLeft, backLeft, lifetimeMS, color, lineThickness);
+	}
+
 	void DebugDraw::DrawRhomb(const glm::vec3& origin, float radius, float rotation, int lifetimeMS, const glm::vec4& color,float lineThickness) {
 		glm::vec2 forward(std::sin(rotation), std::cos(rotation));
 		glm::vec2 right(forward.y, -forward.x);

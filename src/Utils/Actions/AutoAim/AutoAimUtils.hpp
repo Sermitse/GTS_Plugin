@@ -11,7 +11,7 @@ namespace GTS {
 		T4,
 	};
 	bool AutoAim_Kick_DeterminePreferredKick(Actor* giant, bool& left);
-	bool AutoAim_Butt_TryBreastSlam(Actor* giant, bool& left_hand);
+	bool AutoAim_Crawl_TryBreastSlam(Actor* giant, bool& left_hand);
 	bool AutoAim_Butt_TryButtSlam(Actor* giant, bool& left_butt);
 	bool AutoAim_Hand_TryHandAim_Far(Actor* giant, bool& left_hand, bool strong_Attack);
 	bool AutoAim_Hand_TryHandAim(Actor* giant, bool& left_hand, bool strong_Attack); 

@@ -8,17 +8,6 @@
 
 using namespace GTS;
 
-namespace {
-    void RandomizeBlend(Actor* giant, bool left) {
-        const float range_x = Config::AutoAim.fAimAssist_NoHitValueRandomRange;
-        const float range_y = Config::AutoAim.fAimAssist_NoHitValueRandomRange;
-        SetStompBlendValues(giant,
-            RandomFloat(0.0f, range_x), 
-            RandomFloat(0.0f, left ? -range_y : range_y)
-        );
-    }
-}
-
 namespace Scan {
     void StandingBranchCheck(Actor* giant, bool& left, bool strong_Attack, bool& Understomp, bool& hit) {
         if (giant->IsSneaking()) return;
@@ -45,7 +34,7 @@ namespace Scan {
         bool Crawling = giant->IsSneaking() && AnimationVars::Crawl::IsCrawling(giant);
         if (!Crawling) return;
 
-        if (strong_Attack && AutoAim_Butt_TryBreastSlam(giant, left))  { // Try breast slam first
+        if (strong_Attack && AutoAim_Crawl_TryBreastSlam(giant, left))  { // Try breast slam first
             Underslam = true;  hit = true;// Always counts as Underslam
         } else if (!strong_Attack && AutoAim_Hand_TryHandAim(giant, left, false)) { 
             Underslam = true; hit = true;// In crawl case it should be underslam
@@ -56,6 +45,14 @@ namespace Scan {
 }
 
 namespace GTS { 
+    void RandomizeBlend(Actor* giant, bool left) {
+        const float range_x = Config::AutoAim.fAimAssist_NoHitValueRandomRange;
+        const float range_y = Config::AutoAim.fAimAssist_NoHitValueRandomRange;
+        SetStompBlendValues(giant,
+            RandomFloat(0.0f, range_x), 
+            RandomFloat(0.0f, left ? -range_y : range_y)
+        );
+    }
     bool AutoAim_And_DetermineStompType(Actor* giant, bool& left, bool strong_Attack) {
         const bool autoAim = Config::AutoAim.bEnableAutoAim;
         if (giant->IsPlayerRef() && IsFreeCameraEnabled()) {

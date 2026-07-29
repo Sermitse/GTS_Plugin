@@ -1,6 +1,7 @@
 #pragma once
 
 namespace GTS {
+    void RandomizeBlend(Actor* giant, bool left);
     bool AutoAim_And_DetermineStompType(Actor* giant, bool& left, bool strong_Attack = false);
     bool CrosshairUnderstomp(Actor* giant);
 

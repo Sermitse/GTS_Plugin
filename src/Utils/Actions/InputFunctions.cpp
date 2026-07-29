@@ -21,8 +21,9 @@ using namespace GTS;
 namespace {
 
 	constexpr float DURATION = 2.0f;
+	constexpr float StruggleCost = 6.0f;
 	constexpr int StruggleMax = 40;
-
+	
 	void ResetEscapeDataTask() {
 		std::string name = std::format("ResetStruggle_{}", Time::WorldTimeElapsed());
 		auto player = PlayerCharacter::GetSingleton();
@@ -578,7 +579,7 @@ namespace {
 				float& EscapeProgress = transient->EscapingActionProgress;
 				if (EscapeProgress < 1.0f) {
 					float stamina = GetAV(player, ActorValue::kStamina);
-					float stamina_req = 10.0f * EscapeProgress;
+					float stamina_req = StruggleCost * EscapeProgress;
 
 					if (stamina >= stamina_req) {
 						DamageAV(player, ActorValue::kStamina, stamina_req);

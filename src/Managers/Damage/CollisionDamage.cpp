@@ -186,8 +186,8 @@ namespace GTS {
 		// Scale ratio cull
 		float tinyScale = get_visual_scale(otherActor) * GetSizeFromBoundingBox(otherActor);
 		if (giantScale / tinyScale <= SCALE_RATIO) return false;
+		BSWriteLockGuard lock(world->worldLock);
 		if (auto shapeData = GetControllerShapeData(otherActor, toHavok)) {
-			BSWriteLockGuard lock(world->worldLock);
 			for (const NiPoint3& footPt : CoordsToCheck) {
 				hkVector4 center;
 				center.quad = _mm_mul_ps(_mm_set_ps(0.0f, footPt.z, footPt.y, footPt.x), _mm_set1_ps(toHavok));

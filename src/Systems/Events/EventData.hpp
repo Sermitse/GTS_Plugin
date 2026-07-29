@@ -93,6 +93,7 @@ namespace GTS {
 		Butt,
 		Knees,
 		Breasts_02,
+		Spine_02,
 		Thigh_Crush,
 		Thigh_Sandwich,
 		Hand_Right,

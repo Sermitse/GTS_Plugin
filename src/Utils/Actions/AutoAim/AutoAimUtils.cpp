@@ -1,5 +1,6 @@
 #include "Utils/Actions/AutoAim/AutoAimUtils_Calculation.hpp"
 #include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
+#include "Utils/Actions/AutoAim/AimAssist.hpp"
 #include "Utils/Actor/FindActor.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Config/Config.hpp"
@@ -12,7 +13,18 @@ namespace {
     constexpr glm::vec4 Origin_Point = {0.07f, 0.4f, 0.54f, 1.0f};
     constexpr glm::vec4 Kick_Color = {0.0f, 0.5f, 0.5f, 1.0f};
 
-
+    void DrawRectangleShape(Actor* giant, NiPoint3 pointPos, Actor* victim, float width, float length, const glm::vec4& giantess_color) {
+        const bool Rhomb = Config::AutoAim.bUseRhombShape;
+        const float rotation = giant->data.angle.z;
+        if (Config::AutoAim.bDebugAutoAim) {
+            DebugDraw::DrawRectangle(rotation, glm::vec3(pointPos.x, pointPos.y, pointPos.z), width, length, 1500, giantess_color);
+            if (victim) {
+                auto victimPos = victim->GetPosition();
+                Rhomb ? DebugDraw::DrawRhomb(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), rotation, 2000, {0.0f, 0.6f, 0.0f, 1.0f})
+                :       DebugDraw::DrawSphere(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), 2000, {0.0f, 0.6f, 0.0f, 1.0f});
+            }
+        }
+    }
     void DrawDebugShape(Actor* giant, NiPoint3 pointPos, Actor* victim, float max_distance, const glm::vec4& giantess_color) {
         const bool Rhomb = Config::AutoAim.bUseRhombShape;
         const float rotation = giant->data.angle.z;
@@ -85,44 +97,53 @@ namespace GTS {
 
             return left;
         }
-        bool AutoAim_Butt_TryBreastSlam(Actor* giant, bool& left_hand) {
+        bool AutoAim_Crawl_TryBreastSlam(Actor* giant, bool& left_hand) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            const float max_distance = Config::AutoAim.fAimAssist_Range_BreastSlam * get_visual_scale(giant);
-            const float breast_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Breast_Side * get_visual_scale(giant);
-            const float breast_offset_forward = Config::AutoAim.fAimAssist_OffsetDistance_Breast_Forward * get_visual_scale(giant);
+            const float side_offset = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Side * get_visual_scale(giant);
+            const float forward_offset = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Forward * get_visual_scale(giant);
+            const float width = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Width * get_visual_scale(giant);
+            const float length = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Length * get_visual_scale(giant);
+            const float blend_offset = Config::AutoAim.fAimAssist_Value_Breasts_BlendOffset;
 
-            NiPoint3 breastPos_L = GetPresetAimPosition(giant, true, breast_offset_side, breast_offset_forward);
-            NiPoint3 breastPos_R = GetPresetAimPosition(giant, false, breast_offset_side, breast_offset_forward);
-            auto victim = FindClosestTargetBetweenTwoPoints(giant, breastPos_L, breastPos_R, max_distance, left_hand); // Overrides left_hand bool
+            NiPoint3 breastPos = GetPresetAimPosition(giant, true, 0.0f, forward_offset);
+            auto victim = FindClosestTargetInRectangle(giant, breastPos, width, length);
 
             if (!victim) {
-                NiPoint3 breastPos_L_1 = GetPresetAimPosition(giant, true, breast_offset_side, -breast_offset_forward);
-                NiPoint3 breastPos_R_1 = GetPresetAimPosition(giant, false, breast_offset_side, -breast_offset_forward);
-                auto victim_1 = FindClosestTargetBetweenTwoPoints(giant, breastPos_L_1, breastPos_R_1, max_distance, left_hand); //Try again
-                if (victim_1) {
-                    victim = victim_1;
-                } else {
-                    DrawDebugShape(giant, breastPos_L, nullptr, max_distance, Breast_Color);
-                    DrawDebugShape(giant, breastPos_R, nullptr, max_distance, Breast_Color);
-                    DrawDebugShape(giant, breastPos_L_1, nullptr, max_distance, Breast_Color);
-                    DrawDebugShape(giant, breastPos_R_1, nullptr, max_distance, Breast_Color);
-                    return false; // No victim found
-                } 
-            }
-            NiPoint3 breastPos = left_hand ? breastPos_L : breastPos_R;
+                DrawRectangleShape(giant, breastPos, nullptr, width, length, Breast_Color);
+                return false; // No victim found
+            } 
             NiPoint3 victimPos = victim->GetPosition();
 
-            DrawDebugShape(giant, breastPos, victim, max_distance, Breast_Color);
+            DrawRectangleShape(giant, breastPos, victim, width, length, Breast_Color);
 
             breastPos.z = 0.0f;
             victimPos.z = 0.0f;
             float x = 0.0f;
+            float y = 0.0f;
             float dx = 0.0f;
             float final_distance = 0.0f;
-            CalculateForwardBlend(giant, breastPos, victimPos, max_distance, x, dx, final_distance);
-            return final_distance <= max_distance;
+            bool inside = false;
+            CalculateRectangleBlend(giant, breastPos, victimPos, length, width, x, y, dx, final_distance, inside, blend_offset);
+
+            x = std::clamp(x * 1.1f, 0.0f, 1.0f); // Slightly stronger blend
+           
+
+            if (Config::AutoAim.bDebugAutoAim) {
+                logger::info("Blend2D X:{} |  Victim:{}", x, victim->GetDisplayFullName());
+                Cprint("Blend2D X:{} | Victim:{}", x, victim->GetDisplayFullName());
+            }
+
+            bool AutoAim = inside;
+            if (AutoAim) {
+                if (x <= 0.01f) {
+                    RandomizeBlend(giant, false); // Add some variety if actor is behind
+                } else {
+                    SetStompBlendValues(giant, x, 0.0f);
+                }
+            } 
+            return AutoAim;
         }
         bool AutoAim_Butt_TryButtSlam(Actor* giant, bool& left_butt) {
             if (!giant) return false;

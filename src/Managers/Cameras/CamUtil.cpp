@@ -41,6 +41,12 @@ namespace {
 					.zoomScale = ZoomIn_Breast02,
 				};
 			}
+			case CameraTracking::Spine_02: {
+				return BoneTarget {
+					.boneNames = {"NPC Spine2 [Spn2]",},
+					.zoomScale = ZoomIn_Breast02,
+				};
+			}
 			case CameraTracking::Thigh_Crush: {
 				return BoneTarget {
 					.boneNames = {"NPC R PreRearCalf","NPC R Foot [Rft ]","NPC L PreRearCalf","NPC L Foot [Lft ]",},

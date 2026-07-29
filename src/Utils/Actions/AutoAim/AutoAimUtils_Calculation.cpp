@@ -12,24 +12,83 @@ namespace {
 }
 
 namespace GTS {
-        NiPoint3 GetPresetAimPosition(Actor* giant, bool left_foot, float side_offset, float forward_offset) {
-            float yaw = giant->data.angle.z;
 
-            NiPoint3 center = giant->GetPosition();
+    NiPoint3 GetPresetAimPosition(Actor* giant, bool left_foot, float side_offset, float forward_offset) {
+        float yaw = giant->data.angle.z;
 
-            NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
-            NiPoint3 right(forward.y, -forward.x, 0.0f);
+        NiPoint3 center = giant->GetPosition();
 
-            NiPoint3 footPos = center;
+        NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
+        NiPoint3 right(forward.y, -forward.x, 0.0f);
 
-            // Right/Left
-            footPos += (left_foot ? -right : right) * side_offset;
+        NiPoint3 footPos = center;
 
-            // Back/Forward
-            footPos += forward * forward_offset;
+        // Right/Left
+        footPos += (left_foot ? -right : right) * side_offset;
 
-            return footPos;
+        // Back/Forward
+        footPos += forward * forward_offset;
+
+        return footPos;
+    }
+    
+    Actor* FindClosestTargetInRectangle(Actor* giant, const NiPoint3 origin, float width, float length) {
+        Actor* bestVictim = nullptr;
+        float bestScore = FLT_MAX;
+
+        NiPoint3 rectOrigin = origin;
+        rectOrigin.z = 0.0f;
+
+        const float halfWidth = width * 0.5f;
+
+        for (auto target : find_actors()) {
+
+            if (!target || target == giant) {
+                continue;
+            }
+
+            if (!IsHostile(giant, target) && IsTeammate(target) && Config::General.bProtectFollowers) {
+                continue;
+            }
+
+            NiPoint3 targetPos = target->GetPosition();
+            targetPos.z = 0.0f;
+
+            float forward;
+            float right;
+
+            GetRectangleCoordinates(giant, rectOrigin, targetPos, length, forward, right);
+
+            if (std::abs(forward) > length * 0.5f)
+                continue;
+
+            if (std::abs(right) > width * 0.5f)
+                continue;
+
+            // Distance from origin of rectangle
+            float score = forward * forward + right * right;
+
+            // Dead targets lower priority
+            if (target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f) {
+                score *= Config::AutoAim.fAimAssist_DeadPenalty;
+            }
+
+            // Targets behind giant get penalty
+            if (forward < 0.0f) {
+                score += (-forward) * Config::AutoAim.fAimAssist_BackPenalty;
+            }
+
+            if (score < bestScore) {
+                bestScore = score;
+                bestVictim = target;
+            }
         }
+
+
+
+        return bestVictim;
+
+    }
     Actor* FindClosestTargetBetweenTwoPoints_Rhomb(Actor* giant, const NiPoint3 pointL, const NiPoint3 pointR, float maxSearchDistance, bool& leftFoot) {
         Actor* bestVictim = nullptr;
         float bestScore = FLT_MAX;
@@ -270,4 +329,30 @@ namespace GTS {
             outSideBlend = std::clamp(angle / HALF_PI, -1.0f, 1.0f);
         }
 
+        void CalculateRectangleBlend(Actor* giant, const NiPoint3& origin, const NiPoint3& target, float length, float width, float& outBlend, float& outForward, float& outRight, float& outDistance, bool& outInside, float blend_offset) {
+            GetRectangleCoordinates(giant, origin, target, length, outForward, outRight);
+            outDistance = std::hypot(outForward, outRight);
+
+            const float halfLength = length * 0.5f;
+            const float halfWidth = width * 0.5f;
+
+            float begin = halfLength * blend_offset;
+
+            outBlend = std::clamp((outForward - begin) / (halfLength - begin), 0.0f, 1.0f);
+            outInside = std::abs(outForward) <= halfLength && std::abs(outRight) <= halfWidth;
+        }
+        
+
+        void GetRectangleCoordinates(Actor* giant,const NiPoint3& origin, const NiPoint3& target, float length, float& forwardDist, float& rightDist) {
+            const float yaw = giant->data.angle.z;
+
+            const NiPoint3 forward( std::sin(yaw), std::cos(yaw), 0.0f);
+            const NiPoint3 right(forward.y, -forward.x,0.0f);
+
+            NiPoint3 delta = target - origin;
+            delta.z = 0.0f;
+
+            forwardDist = delta.x * forward.x + delta.y * forward.y;
+            rightDist = delta.x * right.x + delta.y * right.y;
+        }
     }

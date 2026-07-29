@@ -107,8 +107,11 @@ namespace {
         PSString T2 = "[Offset] back/forward offset of the initial target search collider.";
         ImGuiEx::HelpText("What is a breast slam", THelp);
         ImGuiEx::SliderF("Radius", &GTS::Config::AutoAim.fAimAssist_Range_BreastSlam, 20.0f, 90.0f, T0, "%.2f");
-        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAimAssist_OffsetDistance_Breast_Side, 0.0f, 25.0f, T1, "%.2f");
-        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAimAssist_OffsetDistance_Breast_Forward, 0.0f, 75.0f, T2, "%.2f");
+        ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Side, 0.0f, 25.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Forward, -100.0f, 100.0f, T2, "%.2f");
+        ImGuiEx::SliderF("Width", &GTS::Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Width, 0.0f, 75.0f, T1, "%.2f");
+        ImGuiEx::SliderF("Length", &GTS::Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Length, 0.0f, 100.0f, T2, "%.2f");
+        ImGuiEx::SliderF("Blend Offset", &GTS::Config::AutoAim.fAimAssist_Value_Breasts_BlendOffset, -10.0f, 10.0f, T2, "%.2f");
         ImGui::EndDisabled();
         ImGui::Spacing();
     }

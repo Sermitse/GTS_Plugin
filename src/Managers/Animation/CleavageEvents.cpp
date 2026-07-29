@@ -233,11 +233,11 @@ namespace {
     ///=================================================================== Camera
 
     void GTS_BS_CamOn(const AnimationEventData& data) {
-	    ManageCamera(&data.giant, true, CameraTracking::Breasts_02);
+	    ManageCamera(&data.giant, true, CameraTracking::Spine_02);
     }
 
     void GTS_BS_CamOff(const AnimationEventData& data) {
-	    ManageCamera(&data.giant, false, CameraTracking::Breasts_02);
+	    ManageCamera(&data.giant, false, CameraTracking::Spine_02);
     }
 
     ///===================================================================
