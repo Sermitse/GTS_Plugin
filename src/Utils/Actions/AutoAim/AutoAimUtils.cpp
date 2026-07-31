@@ -1,4 +1,5 @@
 #include "Utils/Actions/AutoAim/AutoAimUtils_Calculation.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove.hpp"
 #include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 #include "Utils/Actions/AutoAim/AimAssist.hpp"
 #include "Utils/Actor/FindActor.hpp"
@@ -56,10 +57,78 @@ namespace {
         return final_distance <= max_distance && dx >= -(max_distance * ignore_past); 
         // Allows to auto-aim if enemy is a bit behind
     }
+
+    bool IsVictimAlive(Actor* victim) {
+        return victim && !(victim->IsDead() || GetAV(victim, ActorValue::kHealth) <= 0.0f);
+    }
+
+    float ApplyMagnitude(float value) {
+        return std::clamp(value * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f);
+    }
+
+    void DebugLogBlend(Actor* victim, float x, float y) {
+        if (Config::AutoAim.bDebugAutoAim) {
+            logger::info("Blend2D X:{}, Y:{} | Victim:{}", x, y, victim->GetDisplayFullName());
+            Cprint("Blend2D X:{}, Y:{} | Victim:{}", x, y, victim->GetDisplayFullName());
+        }
+    }
+
+    Actor* FindAndDebugTwoPointTarget(Actor* giant, NiPoint3 posL, NiPoint3 posR, float max_distance, bool& left, const glm::vec4& color, NiPoint3& outPos, NiPoint3& outVictimPos) {
+        auto victim = FindClosestTargetBetweenTwoPoints(giant, posL, posR, max_distance, left); // Overrides `left`
+        if (!victim) {
+            DebugMissShape(giant, posL, posR, max_distance, left, color);
+            return nullptr;
+        }
+
+        NiPoint3 pos = left ? posL : posR; // Pick which hand/foot should be used
+        outVictimPos = victim->GetPosition();
+
+        DrawDebugShape(giant, pos, victim, max_distance, color);
+
+        pos.z = 0.0f;
+        outVictimPos.z = 0.0f;
+        outPos = pos;
+        return victim;
+    }
+
+    Actor* FindAndDebugRectTarget(Actor* giant, NiPoint3 origin, float width, float length, const glm::vec4& color, NiPoint3& outOrigin, NiPoint3& outVictimPos) {
+        auto victim = FindClosestTargetInRectangle(giant, origin, width, length);
+        if (!victim) {
+            DrawRectangleShape(giant, origin, nullptr, width, length, color);
+            return nullptr;
+        }
+
+        outVictimPos = victim->GetPosition();
+        DrawRectangleShape(giant, origin, victim, width, length, color);
+
+        origin.z = 0.0f;
+        outVictimPos.z = 0.0f;
+        outOrigin = origin;
+        return victim;
+    }
+
+    bool FinalizeAim(Actor* giant, bool& left, Actor* victim, float blend_x, float blend_y, float dx, float final_distance, float max_distance, AimAssistResult* out_result, float modifier = 0.0f) {
+        bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx, modifier);
+        if (AutoAim) {
+            if (out_result) {
+                out_result->hit = true;
+                out_result->alive = IsVictimAlive(victim);
+                out_result->blend_x = blend_x;
+                out_result->blend_y = blend_y;
+                out_result->distance = final_distance;
+                out_result->victim = victim;
+            } else {
+                SetStompBlendValues(giant, blend_x, blend_y);
+            }
+        } else if (IsInRange(final_distance, max_distance)) {
+            left = RandomBool();
+        }
+        return AutoAim;
+    }
 }
 
 namespace GTS {
-        bool AutoAim_Kick_DeterminePreferredKick(Actor* giant, bool& left) {
+        bool AutoAim_Kick_DeterminePreferredKick(Actor* giant, bool& left, bool strong) {
             if (!giant) return RandomBool();
 
             float foot_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Foot * get_visual_scale(giant);
@@ -75,77 +144,74 @@ namespace GTS {
             NiPoint3 footPos_L = GetPresetAimPosition(giant, true, foot_offset_side, foot_offset_forward);
             NiPoint3 footPos_R = GetPresetAimPosition(giant, false, foot_offset_side, foot_offset_forward);
 
-            auto victim = FindClosestTargetBetweenTwoPoints(giant, footPos_L, footPos_R, max_distance, left);
-
+            NiPoint3 footPos, victimPos;
+            auto victim = FindAndDebugTwoPointTarget(giant, footPos_L, footPos_R, max_distance, left, Kick_Color, footPos, victimPos);
             if (!victim) {
-                DrawDebugShape(giant, footPos_L, nullptr, max_distance, Kick_Color);
-                DrawDebugShape(giant, footPos_R, nullptr, max_distance, Kick_Color);
                 left = !left;
                 return left;
             }
-            NiPoint3 victimPos = victim->GetPosition();
-            NiPoint3 footPos = left ? footPos_L : footPos_R;
 
-            DrawDebugShape(giant, footPos, victim, max_distance, Kick_Color);
-
-            footPos.z = 0.0f;
-            victimPos.z = 0.0f;
             float x = 0.0f;
             float dx = 0.0f;
             float final_distance = 0.0f;
             CalculateForwardBlend(giant, footPos, victimPos, max_distance, x, dx, final_distance);
-
+            if (!giant->IsSneaking()) {
+                const auto node = find_node(giant, left ? "NPC L Foot [Lft ]" : "NPC R Foot [Rft ]");
+                const auto cause = left ? DamageSource::KickedLeft : DamageSource::KickedRight;
+                StartKillmove(giant, victim, node, cause, strong ? Damage_Kick_Strong : Damage_Kick, 1.8f, true);
+            }
             return left;
         }
-        bool AutoAim_Crawl_TryBreastSlam(Actor* giant, bool& left_hand) {
+        bool AutoAim_Crawl_TryBreastSlam(Actor* giant, bool& left_hand, AimAssistResult* out_result) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            const float side_offset = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Side * get_visual_scale(giant);
             const float forward_offset = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Forward * get_visual_scale(giant);
             const float width = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Width * get_visual_scale(giant);
             const float length = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Length * get_visual_scale(giant);
             const float blend_offset = Config::AutoAim.fAimAssist_Value_Breasts_BlendOffset;
 
             NiPoint3 breastPos = GetPresetAimPosition(giant, true, 0.0f, forward_offset);
-            auto victim = FindClosestTargetInRectangle(giant, breastPos, width, length);
 
-            if (!victim) {
-                DrawRectangleShape(giant, breastPos, nullptr, width, length, Breast_Color);
-                return false; // No victim found
-            } 
-            NiPoint3 victimPos = victim->GetPosition();
+            NiPoint3 origin, victimPos;
+            auto victim = FindAndDebugRectTarget(giant, breastPos, width, length, Breast_Color, origin, victimPos);
+            if (!victim) return false; // No victim found
 
-            DrawRectangleShape(giant, breastPos, victim, width, length, Breast_Color);
-
-            breastPos.z = 0.0f;
-            victimPos.z = 0.0f;
             float x = 0.0f;
             float y = 0.0f;
             float dx = 0.0f;
             float final_distance = 0.0f;
             bool inside = false;
-            CalculateRectangleBlend(giant, breastPos, victimPos, length, width, x, y, dx, final_distance, inside, blend_offset);
+            CalculateRectangleBlend(giant, origin, victimPos, length, width, x, y, dx, final_distance, inside, blend_offset);
 
             x = std::clamp(x * 1.1f, 0.0f, 1.0f); // Slightly stronger blend
-           
 
             if (Config::AutoAim.bDebugAutoAim) {
                 logger::info("Blend2D X:{} |  Victim:{}", x, victim->GetDisplayFullName());
                 Cprint("Blend2D X:{} | Victim:{}", x, victim->GetDisplayFullName());
             }
 
-            bool AutoAim = inside;
-            if (AutoAim) {
-                if (x <= 0.01f) {
-                    RandomizeBlend(giant, false); // Add some variety if actor is behind
-                } else {
-                    SetStompBlendValues(giant, x, 0.0f);
-                }
-            } 
-            return AutoAim;
+            if (!inside) return false;
+
+            float finalX = x;
+            float finalY = 0.0f;
+            if (x <= 0.01f) { // Add some variety if actor is behind
+                const float range = Config::AutoAim.fAimAssist_NoHitValueRandomRange;
+                finalX = RandomFloat(0.0f, range);
+                finalY = RandomFloat(0.0f, range);
+            }
+
+            if (out_result) {
+                out_result->hit = true;
+                out_result->alive = IsVictimAlive(victim);
+                out_result->blend_x = finalX;
+                out_result->blend_y = finalY;
+            } else {
+                SetStompBlendValues(giant, finalX, finalY);
+            }
+            return true;
         }
-        bool AutoAim_Butt_TryButtSlam(Actor* giant, bool& left_butt) {
+        bool AutoAim_Crawl_TryButtSlam(Actor* giant, bool& left_butt, AimAssistResult* out_result) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
@@ -155,48 +221,25 @@ namespace GTS {
 
             NiPoint3 buttPos_L = GetPresetAimPosition(giant, true, butt_offset_side, butt_offset_forward);
             NiPoint3 buttPos_R = GetPresetAimPosition(giant, false, butt_offset_side, butt_offset_forward);
-            auto victim = FindClosestTargetBetweenTwoPoints(giant, buttPos_L, buttPos_R, max_distance, left_butt); // Overrides left_buttbool
 
-            NiPoint3 buttPos = left_butt ? buttPos_L : buttPos_R; // Pick which butt should be used
+            NiPoint3 buttPos, victimPos;
+            auto victim = FindAndDebugTwoPointTarget(giant, buttPos_L, buttPos_R, max_distance, left_butt, Breast_Color, buttPos, victimPos);
+            if (!victim) return false; // No victim found
 
-            if (!victim) {
-                DrawDebugShape(giant, buttPos_L, nullptr, max_distance, Breast_Color);
-                DrawDebugShape(giant, buttPos_R, nullptr, max_distance, Breast_Color);
-                return false; // No victim found
-            }
-            NiPoint3 victimPos = victim->GetPosition();
-
-            DrawDebugShape(giant, buttPos, victim, max_distance, Breast_Color);
-
-            buttPos.z = 0.0f;
-            victimPos.z = 0.0f;
             float x = 0.0f; // forward (>0) /   back (<1)
             float y = 0.0f; // right (>0)   /   left (<1)
-
             float dx = 0.0f;
             float dy = 0.0f;
-
             float final_distance = 0.0f;
             CalculateDirectionalBlend2D(giant, buttPos, victimPos, max_distance, x, y, dx, dy, final_distance);
 
-            x = std::clamp(x * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-            y = std::clamp(y * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            x = ApplyMagnitude(x);
+            y = ApplyMagnitude(y);
+            DebugLogBlend(victim, x, y);
 
-            if (Config::AutoAim.bDebugAutoAim) {
-                logger::info("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-                Cprint("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-            }
-
-            bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx, 0.25f);
-            if (AutoAim) {
-                SetStompBlendValues(giant, x, y);
-            } else if (IsInRange(final_distance, max_distance)) {
-                left_butt = RandomBool();
-            }
-
-            return AutoAim;
+            return FinalizeAim(giant, left_butt, victim, x, y, dx, final_distance, max_distance, out_result, 0.25f);
         }
-        bool AutoAim_Hand_TryHandAim_Far(Actor* giant, bool& left_hand, bool strong_Attack) {
+        bool AutoAim_Hand_TryHandAim_Far(Actor* giant, bool& left_hand, bool strong_Attack, AimAssistResult* out_result) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
@@ -212,21 +255,11 @@ namespace GTS {
 
             NiPoint3 handPos_L = GetPresetAimPosition(giant, true, hand_offset_side, hand_offset_forward);
             NiPoint3 handPos_R = GetPresetAimPosition(giant, false, hand_offset_side, hand_offset_forward);
-            auto victim = FindClosestTargetBetweenTwoPoints(giant, handPos_L, handPos_R, max_distance, left_hand); // Overrides left_hand bool
 
-            NiPoint3 handPos = left_hand ? handPos_L : handPos_R; // Pick which hand should be used
+            NiPoint3 handPos, victimPos;
+            auto victim = FindAndDebugTwoPointTarget(giant, handPos_L, handPos_R, max_distance, left_hand, Far_Stomp_Color, handPos, victimPos);
+            if (!victim) return false;
 
-            if (!victim) {
-                DrawDebugShape(giant, handPos_L, nullptr, max_distance, Far_Stomp_Color);
-                DrawDebugShape(giant, handPos_R, nullptr, max_distance, Far_Stomp_Color);
-                return false;
-            }
-            NiPoint3 victimPos = victim->GetPosition();
-
-            DrawDebugShape(giant, handPos, victim, max_distance, Far_Stomp_Color);
-
-            handPos.z = 0.0f;
-            victimPos.z = 0.0f;
             float x = 0.0f;
             float y = 0.0f;
             float dx = 0.0f;
@@ -234,24 +267,13 @@ namespace GTS {
             float final_distance = 0.0f;
             CalculateAngleBasedSideBlend(giant, handPos, victimPos, y, dy, dx, final_distance);
 
-            x = std::clamp(x * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-            y = std::clamp(y * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            x = ApplyMagnitude(x);
+            y = ApplyMagnitude(y);
+            DebugLogBlend(victim, x, y);
 
-            if (Config::AutoAim.bDebugAutoAim) {
-                logger::info("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-                Cprint("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-            }
-
-            bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
-            if (AutoAim) {
-                SetStompBlendValues(giant, x, y);
-            } else if (IsInRange(final_distance, max_distance)) {
-                left_hand = RandomBool();
-            }
-
-            return AutoAim;
+            return FinalizeAim(giant, left_hand, victim, x, y, dx, final_distance, max_distance, out_result);
         }
-        bool AutoAim_Hand_TryHandAim(Actor* giant, bool& left_hand, bool strong_Attack) {
+        bool AutoAim_Hand_TryHandAim(Actor* giant, bool& left_hand, bool strong_Attack, AimAssistResult* out_result) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
@@ -271,21 +293,11 @@ namespace GTS {
 
             NiPoint3 handPos_L = GetPresetAimPosition(giant, true, hand_offset_side, hand_offset_forward);
             NiPoint3 handPos_R = GetPresetAimPosition(giant, false, hand_offset_side, hand_offset_forward);
-            auto victim = FindClosestTargetBetweenTwoPoints(giant, handPos_L, handPos_R, max_distance, left_hand); // Overrides left_hand bool
 
-            NiPoint3 handPos = left_hand ? handPos_L : handPos_R; // Pick which hand should be used
+            NiPoint3 handPos, victimPos;
+            auto victim = FindAndDebugTwoPointTarget(giant, handPos_L, handPos_R, max_distance, left_hand, Far_Stomp_Color, handPos, victimPos);
+            if (!victim) return false;
 
-            if (!victim) {
-                DrawDebugShape(giant, handPos_L, nullptr, max_distance, Far_Stomp_Color);
-                DrawDebugShape(giant, handPos_R, nullptr, max_distance, Far_Stomp_Color);
-                return false;
-            }
-            NiPoint3 victimPos = victim->GetPosition();
-
-            DrawDebugShape(giant, handPos, victim, max_distance, Far_Stomp_Color);
-
-            handPos.z = 0.0f;
-            victimPos.z = 0.0f;
             float x = 0.0f;
             float y = 0.0f;
             float dx = 0.0f;
@@ -298,29 +310,19 @@ namespace GTS {
                 CalculateAngleBasedSideBlend(giant, handPos, victimPos, y, dy, dx, final_distance);
             }
 
-            x = std::clamp(x * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-            y = std::clamp(y * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            x = ApplyMagnitude(x);
+            y = ApplyMagnitude(y);
+            DebugLogBlend(victim, x, y);
 
-            if (Config::AutoAim.bDebugAutoAim) {
-                logger::info("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-                Cprint("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-            }
-
-            bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
-            if (AutoAim) {
-                SetStompBlendValues(giant, x, y);
-            } else if (IsInRange(final_distance, max_distance)) {
-                left_hand = RandomBool();
-            }
-            return AutoAim;
+            return FinalizeAim(giant, left_hand, victim, x, y, dx, final_distance, max_distance, out_result);
         }
 
-        bool AutoAim_Foot_Directional(Actor* giant, bool& left_foot, bool strong_Attack) {
+        bool AutoAim_Foot_Directional(Actor* giant, bool& left_foot, bool strong_Attack, AimAssistResult* out_result) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
             float side_offset = Config::AutoAim.fAimAssist_OffsetDistance_Foot * get_visual_scale(giant); 
-            float forward_offset_R = 0.0; float forward_offset_L = 0.0f;
+            float forward_offset_R = 0.0f; float forward_offset_L = 0.0f;
             // ^ Instead of looking for R/L foot, we do position offset from center of Char to right/left, based on left_foot bool
             float max_distance = Config::AutoAim.fAimAssist_Range_Stomp * get_visual_scale(giant);
             if (giant->IsSneaking()) {
@@ -334,49 +336,27 @@ namespace GTS {
 
             NiPoint3 footPos_L = GetPresetAimPosition(giant, true, side_offset, forward_offset_L);
             NiPoint3 footPos_R = GetPresetAimPosition(giant, false, side_offset, forward_offset_R);
-            auto victim = FindClosestTargetBetweenTwoPoints(giant, footPos_L, footPos_R, max_distance, left_foot); // Overrides left_foot bool
-            if (!victim) {
-                DebugMissShape(giant, footPos_L, footPos_R, max_distance, left_foot, Close_Stomp_Color);
-                return false;
-            }
 
-            NiPoint3 victimPos = victim->GetPosition();
-            NiPoint3 footPos = left_foot ? footPos_L : footPos_R; // Pick which foot should be used
-
-            DrawDebugShape(giant, footPos, victim, max_distance, Close_Stomp_Color);
-            
-            footPos.z = 0.0f;
-            victimPos.z = 0.0f;
+            NiPoint3 footPos, victimPos;
+            auto victim = FindAndDebugTwoPointTarget(giant, footPos_L, footPos_R, max_distance, left_foot, Close_Stomp_Color, footPos, victimPos);
+            if (!victim) return false;
 
             float x = 0.0f; // forward (>0) /   back (<1)
             float y = 0.0f; // right (>0)   /   left (<1)
-
             float dx = 0.0f;
             float dy = 0.0f;
-
             float final_distance = 0.0f;
 
             CalculateDirectionalBlend2D(giant, footPos, victimPos, max_distance, x, y, dx, dy, final_distance);
 
-            x = std::clamp(x * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-            y = std::clamp(y * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            x = ApplyMagnitude(x);
+            y = ApplyMagnitude(y);
+            DebugLogBlend(victim, x, y);
 
-            if (Config::AutoAim.bDebugAutoAim) {
-                logger::info("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-                Cprint("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-            }
-
-            bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
-            if (AutoAim) {
-                SetStompBlendValues(giant, x, y);
-            } else if (IsInRange(final_distance, max_distance)) {
-                left_foot = RandomBool();
-            }
-
-            return AutoAim;
+            return FinalizeAim(giant, left_foot, victim, x, y, dx, final_distance, max_distance, out_result);
         }
 
-        bool AutoAim_Foot_Directional_FarStomp(Actor* giant, bool& left_foot, bool strong_stomp) {
+        bool AutoAim_Foot_Directional_FarStomp(Actor* giant, bool& left_foot, bool strong_stomp, AimAssistResult* out_result) {
             if (!giant) return RandomBool();
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return RandomBool();
 
@@ -387,48 +367,27 @@ namespace GTS {
             if (strong_stomp) {
                 max_distance = Config::AutoAim.fAimAssist_Range_FarStomp_Strong * get_visual_scale(giant); // Strong version has further range
             }
+
             NiPoint3 footPos_L = GetPresetAimPosition(giant, true, foot_offset, foot_offset_far);
             NiPoint3 footPos_R = GetPresetAimPosition(giant, false, foot_offset, foot_offset_far);
-            auto victim = FindClosestTargetBetweenTwoPoints(giant, footPos_L, footPos_R, max_distance, left_foot); // Overrides left_foot bool
-            if (!victim) {
-                DebugMissShape(giant, footPos_L, footPos_R, max_distance, left_foot, Far_Stomp_Color);
-                return false;
-            }
 
-            NiPoint3 victimPos = victim->GetPosition();
-            NiPoint3 footPos = left_foot ? footPos_L : footPos_R; // Pick which foot should be used
-
-            DrawDebugShape(giant, footPos, victim, max_distance, Far_Stomp_Color);
-            
-            footPos.z = 0.0f;
-            victimPos.z = 0.0f;
+            NiPoint3 footPos, victimPos;
+            auto victim = FindAndDebugTwoPointTarget(giant, footPos_L, footPos_R, max_distance, left_foot, Far_Stomp_Color, footPos, victimPos);
+            if (!victim) return false;
 
             float x = 0.0f; // forward (>0) /   back (<1)
             float y = 0.0f; // right (>0)   /   left (<1)
-
             float dx = 0.0f;
             float dy = 0.0f;
-
             float final_distance = 0.0f;
             
             CalculateAngleBasedSideBlend(giant, footPos, victimPos, y, dy, dx, final_distance);
 
-            x = std::clamp(x * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
-            y = std::clamp(y * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f); // Slightly increase power of auto-aiming
+            x = ApplyMagnitude(x);
+            y = ApplyMagnitude(y);
+            DebugLogBlend(victim, x, y);
 
-            if (Config::AutoAim.bDebugAutoAim) {
-                logger::info("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-                Cprint("Blend2D X:{}, Y:{} | Victim:{}",x, y,victim->GetDisplayFullName());
-            }
-
-            bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx);
-            if (AutoAim) {
-                SetStompBlendValues(giant, x, y);
-            } else if (IsInRange(final_distance, max_distance)) {
-                left_foot = RandomBool();
-            }
-
-            return AutoAim;
+            return FinalizeAim(giant, left_foot, victim, x, y, dx, final_distance, max_distance, out_result);
         }
 
         bool AutoAim_IsSneakingOrCrawling(Actor* giant) {

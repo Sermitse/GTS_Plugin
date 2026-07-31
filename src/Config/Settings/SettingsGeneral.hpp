@@ -76,6 +76,9 @@ struct SettingsGeneral_t {
     float fPlayerMaxSpeedMultClampStartAt = 1.5f; //Scale at which clamping begins
 	  float fPlayerMaxSpeedMultClampMaxAt = 10.0f;   //Scale at which speed is fully clamped to target
     float fPlayerMaxSpeedMultLerpTargetPercent = 75.0f;
+
+    float fKillMoveChance_Death = 10.0f;
+    float fKillMoveChance_Crush = 25.0f;
 };
 TOML_SERIALIZABLE(SettingsGeneral_t);
 TOML_REGISTER_NAME(SettingsGeneral_t, "General");

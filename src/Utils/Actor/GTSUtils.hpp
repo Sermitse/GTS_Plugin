@@ -8,6 +8,7 @@ namespace GTS {
 	SoftPotential GetSpeedFromConfig();
 	float GetAnimationSlowdown(Actor* giant);
 	float GetMovementModifier(Actor* a_target);
+	float CharState_GetLaunchPowerModifier(Actor* a_target);
 	float GetRandomBoost();
 	void StartActorResetTask(Actor* a_target);
 	float GetFallModifier(Actor* a_target);

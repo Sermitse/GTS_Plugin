@@ -281,7 +281,7 @@ namespace GTS {
     bool IsActionOnCooldown(Actor* giant, CooldownSource source) {
 
         //Check the cleat flag to disable only action cooldowns and not others
-        if (!Config::Advanced.bCooldowns && Enum_Contains<CooldownSource>(source,"Action")) {
+        if (!Config::Advanced.bCooldowns && (Enum_Contains<CooldownSource>(source,"Action") || Enum_Contains<CooldownSource>(source, "TinyCalamity"))) {
             return false;
         }
 

@@ -509,7 +509,7 @@ namespace GTS {
                     mgr.ModSizeVulnerability(grabbed, damage * 0.0010f);
                 }
 
-                TinyCalamity_ShrinkActor(giant, grabbed, damage * 0.10f * Config::Balance.fSizeDamageMult);
+                TinyCalamity_ShrinkActor(giant, grabbed, damage * 0.10f);
 
                 SizeHitEffects::PerformInjuryDebuff(giant, grabbed, damage*0.15f, 6);
                 InflictSizeDamage(giant, grabbed, damage);

@@ -53,7 +53,7 @@ namespace {
                     mgr.ModSizeVulnerability(grabbedActor, damage * 0.0010f);
                 }
 
-                TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f * Config::Balance.fSizeDamageMult);
+                TinyCalamity_ShrinkActor(giant, grabbedActor, damage * 0.10f);
 
                 SizeHitEffects::PerformInjuryDebuff(giant, grabbedActor, damage*0.15f, 6);
                 InflictSizeDamage(giant, grabbedActor, damage);

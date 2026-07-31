@@ -8,6 +8,9 @@
 
 #include "Systems/Rays/raycast.hpp"
 #include "Systems/Rays/Camera/CameraCollision.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove_Calamity.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove_WrathfulCalamity.hpp"
 
 using namespace GTS;
 
@@ -66,7 +69,11 @@ namespace {
 	bool AutoCamEnabledCondition() {
 		return Config::Camera.bAutomaticCamera;
 	}
-
+	void ApplyKillMoveStartPositions() {
+		RecordWrathfulCalamityStartingPosition();
+		RecordCalamityStartingPosition();
+		RecordStartingPosition();
+	}
 }
 
 namespace GTS {
@@ -93,7 +100,7 @@ namespace GTS {
 
 		GTS_PROFILE_SCOPE("CameraManager: CameraUpdate");
 		CameraState* CurrentState = this->GetCameraState();
-
+		ApplyKillMoveStartPositions();
 		if (SmoothCam::Enabled()) {
 			if (auto TPState = reinterpret_cast<ThirdPersonCameraState*>(GetCameraStateTP())) {
 				if ((TPState == &this->CamStateFootL ||
@@ -188,8 +195,8 @@ namespace GTS {
 			offset += this->SpringSmoothOffset.value;
 			this->SpringSmoothScale.target = scale;
 
-			// Apply camera scale and offset
-			if (CurrentState->PermitCameraTransforms()) {
+			if (UpdateKillMove() || UpdateCalamityKillMove() || UpdateWrathfulCalamityKillMove()) {} 
+			else if (CurrentState->PermitCameraTransforms()) { // Apply camera scale and offset
 				ComputeAndApplyFinalCameraTransforms(this->SpringSmoothScale.value, offset, playerLocalOffset);
 			}
 		}

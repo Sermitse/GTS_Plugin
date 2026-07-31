@@ -233,10 +233,12 @@ namespace GTS {
 			}
 			float giantScale = get_visual_scale(giant);
 
-			float SCALE_RATIO = GetLaunchThreshold(giant)/GetMovementModifier(giant);
+			float SCALE_RATIO = GetLaunchThreshold(giant);
+			power *= CharState_GetLaunchPowerModifier(giant);
+			
 			if (TinyCalamityActive(giant)) {
-				SCALE_RATIO = 1.0f/GetMovementModifier(giant);
-				giantScale *= 1.5f;
+				SCALE_RATIO = 0.8f;
+				radius *= 1.5f;
 			}
 
 			NiPoint3 point = node->world.translate;
@@ -262,7 +264,11 @@ namespace GTS {
 						NiPoint3 actorLocation = otherActor->GetPosition();
 						float distance = (point - actorLocation).Length();
 						if (distance <= maxDistance) {
-							LaunchWithDistance(giant, otherActor, min_radius, distance, maxDistance, power);
+							if (tinyScale < 0.8f && giantScale < 2.5f) {
+								StaggerActor(giant, otherActor, std::clamp(0.25f * SCALE_RATIO, 0.25f, 1.0f)); // Stagger instead of launching, ragdolls are buggy at small sizes
+							} else {
+								LaunchWithDistance(giant, otherActor, min_radius, distance, maxDistance, power);
+							}
 							// min_radius prevents Launch from happening if Actor is inside specific radius of collider
 						}
 					}
@@ -281,8 +287,8 @@ namespace GTS {
 
 		float SCALE_RATIO = GetLaunchThreshold(giant)/GetMovementModifier(giant);
 		if (TinyCalamityActive(giant)) {
-			SCALE_RATIO = 1.0f / GetMovementModifier(giant);
-			giantScale *= 1.5f;
+			SCALE_RATIO = 0.8f;
+			radius *= 1.5f;
 		}
 
 		radius *= GetHighHeelsBonusDamage(giant, true);
@@ -312,7 +318,9 @@ namespace GTS {
 							float distance = (point - actorLocation).Length();
 							
 							if (distance <= maxFootDistance && distance > min_distance) {
-								if (AllowStagger(otherActor)) {
+								if (tinyScale < 0.8f && giantScale < 2.5f) {
+									StaggerActor(giant, otherActor, std::clamp(0.25f * SCALE_RATIO, 0.25f, 1.0f)); // Stagger instead of launching, ragdolls are buggy at small sizes
+								} else if (AllowStagger(otherActor)) {
 									float force = GetForceFromDistance(distance, maxFootDistance);
 									ApplyLaunchTo(giant, otherActor, force, power);
 								}

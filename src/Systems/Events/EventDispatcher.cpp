@@ -281,12 +281,14 @@ namespace GTS {
 		Actor* Agressor = a_data->aggressor.get().get();
 		Actor* Victim = a_data->target.get().get();
 
-		//Don't do event on already dead actorts
-		if (!Victim->IsDead()) {
-			ForEachListener([&](EventListener* listener) {
-				GTS_PROFILE_SCOPE(listener->DebugName());
-				listener->DeathEvent(Agressor, Victim);
-			});
+		if (Victim) {
+			//Don't do event on already dead actors
+			if (!Victim->IsDead()) {
+				ForEachListener([&](EventListener* listener) {
+					GTS_PROFILE_SCOPE(listener->DebugName());
+					listener->DeathEvent(Agressor, Victim);
+				});
+			}
 		}
 	}
 

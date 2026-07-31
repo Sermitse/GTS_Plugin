@@ -1,3 +1,4 @@
+#include "Managers/Size_Killmoves/SizeKillMove.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Utils/Actions/AutoAim/AimAssist.hpp"
 #include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
@@ -9,38 +10,104 @@
 using namespace GTS;
 
 namespace Scan {
-    void StandingBranchCheck(Actor* giant, bool& left, bool strong_Attack, bool& Understomp, bool& hit) {
-        if (giant->IsSneaking()) return;
+    // Result of probing one aim "zone" (close or farZone), without side effects.
+    struct AimAttempt {
+        bool hit = false;
+        bool left = false;
+        AimAssistResult result;
+    };
 
-        if (AutoAim_Foot_Directional(giant, left, strong_Attack)) {
-            Understomp = true;  hit = true;
-        } else if (AutoAim_Foot_Directional_FarStomp(giant, left, strong_Attack)) { // Couldn't find anyone, try far stomp now
-            Understomp = false; hit = true;// Not an understomp
+    template <typename Fn>
+    AimAttempt TryAim(Fn&& fn) {
+        AimAttempt a;
+        a.hit = fn(a.left, a.result);
+        return a;
+    }
+    // A living victim always outranks a dead one, whichever zone found it.
+    // If both/neither are alive, the closer zone keeps priority (ties go to Close).
+    bool PreferFar(const AimAttempt& close, const AimAttempt& farZone) {
+        if (!farZone.hit) return false;
+        if (!close.hit) return true;
+        if (farZone.result.alive && !close.result.alive) return true;
+        return false;
+    }
+
+    // Applies whichever attempt wins (if any), updates left/hit accordingly.
+    // Returns true if Close won (caller treats that as "under-stomp/-slam"),
+    // false otherwise (Far won, or nobody hit).
+    bool ApplyBestAim(Actor* giant, bool& left, bool& hit, const AimAttempt& close, const AimAttempt& farZone) {
+        if (PreferFar(close, farZone)) {
+            SetStompBlendValues(giant, farZone.result.blend_x, farZone.result.blend_y);
+            left = farZone.left; hit = true;
+            return false;
+        }
+        if (close.hit) {
+            SetStompBlendValues(giant, close.result.blend_x, close.result.blend_y);
+            left = close.left; hit = true;
+            return true;
+        }
+        return false;
+    }
+    void TryKillMove(bool condition, Actor* giant, AimAttempt close, AimAttempt farZone, bool left, bool strong_Attack, bool hit, bool Understomp, bool sneak, float crush_mult, bool trample = false) {
+        Actor* victim = Understomp ? close.result.victim : hit ? farZone.result.victim : nullptr;
+        if (condition && victim) {
+            float base_strong = Understomp ? Damage_Stomp_Under_Strong : Damage_Stomp_Strong;
+            float base_light = Understomp ? Damage_Stomp_Under_Light : Damage_Stomp;
+            float base_damage = strong_Attack ? base_strong : base_light;
+            if (sneak) {
+                base_damage = Damage_Stomp_Under_Light;
+            } if (trample) {
+                base_damage *= 5.0f; // Does 5 hits
+            }
+            const auto cause = left ? DamageSource::CrushedLeft : DamageSource::CrushedRight;
+            const auto node = find_node(giant, left ? "NPC L Foot [Lft ]" : "NPC R Foot [Rft ]");
+            StartKillmove(giant, victim, node, cause, base_damage, crush_mult, true);
         }
     }
-    void SneakBranchCheck(Actor* giant, bool& left, bool strong_Attack, bool& Understomp, bool& hit) {
+    void StandingBranchCheck(Actor* giant, bool& left, bool strong_Attack, bool& Understomp, bool& hit, bool trample) {
+        if (giant->IsSneaking()) return;
+       
+        auto close = TryAim([&](bool& l, AimAssistResult& r) {
+            return AutoAim_Foot_Directional(giant, l, strong_Attack, &r);
+        });
+        auto farZone = TryAim([&](bool& l, AimAssistResult& r) {
+            return AutoAim_Foot_Directional_FarStomp(giant, l, strong_Attack, &r);
+        });
+        Understomp = ApplyBestAim(giant, left, hit, close, farZone);
+        TryKillMove(hit, giant, close, farZone, left, strong_Attack, hit, Understomp, false, 1.0f, trample);
+    }
+    void SneakBranchCheck(Actor* giant, bool& left, bool strong, bool& Understomp, bool& hit) {
         bool Sneaking = giant->IsSneaking() && !AnimationVars::Crawl::IsCrawling(giant);
         if (!Sneaking) return;
-        
-        if (strong_Attack && AutoAim_Butt_TryButtSlam(giant, left))  { // Strong Attack ?  First check if we can butt slam
-            Understomp = true;  hit = true;// Always counts as UnderStomp
-        } else if (!strong_Attack && AutoAim_Foot_Directional(giant, left, false)) { // Then try to hit someone with foot
-            Understomp = true;  hit = true;// Count as under-stomp
-        } else if (AutoAim_Hand_TryHandAim(giant, left, strong_Attack)) { // Then try to land hand attack
-            Understomp = false; hit = true;// Should never be understomp
-        }
+
+        auto close = TryAim([&](bool& l, AimAssistResult& r) {
+            const bool Aim = strong ? AutoAim_Crawl_TryButtSlam(giant, l, &r) : AutoAim_Foot_Directional(giant, l, false, &r); // Otherwise try to hit someone with foot
+            return Aim;
+        });
+        auto farZone = TryAim([&](bool& l, AimAssistResult& r) {
+            const bool Aim = AutoAim_Hand_TryHandAim(giant, l, strong, &r); // Fallback: land a hand attack
+            return Aim;
+        });
+
+        Understomp = ApplyBestAim(giant, left, hit, close, farZone);
+
+        const bool canKillMove = !strong && hit && Understomp;
+        TryKillMove(canKillMove, giant, close, farZone, left, strong, hit, Understomp, false, 1.0f);
     }
-    void CrawlBranchCheck(Actor* giant, bool& left, bool strong_Attack, bool& Underslam, bool& hit) {
+    void CrawlBranchCheck(Actor* giant, bool& left, bool strong, bool& Underslam, bool& hit) {
         bool Crawling = giant->IsSneaking() && AnimationVars::Crawl::IsCrawling(giant);
         if (!Crawling) return;
 
-        if (strong_Attack && AutoAim_Crawl_TryBreastSlam(giant, left))  { // Try breast slam first
-            Underslam = true;  hit = true;// Always counts as Underslam
-        } else if (!strong_Attack && AutoAim_Hand_TryHandAim(giant, left, false)) { 
-            Underslam = true; hit = true;// In crawl case it should be underslam
-        } else if (AutoAim_Hand_TryHandAim_Far(giant, left, strong_Attack)) {
-            Underslam = false; hit = true; // Far slam, in both cases (Strong/Light attack) NOT an underslam
-        }
+        auto close = TryAim([&](bool& l, AimAssistResult& r) {
+            const bool Aim = strong ? AutoAim_Crawl_TryBreastSlam(giant, l, &r) : AutoAim_Hand_TryHandAim(giant, l, false, &r);
+            return Aim;   // Try breast slam first                    
+        });
+        auto farZone = TryAim([&](bool& l, AimAssistResult& r) {
+            const bool Aim = AutoAim_Hand_TryHandAim_Far(giant, l, strong, &r); // Far slam
+            return Aim;
+        });
+
+        Underslam = ApplyBestAim(giant, left, hit, close, farZone);
     }
 }
 
@@ -53,7 +120,7 @@ namespace GTS {
             RandomFloat(0.0f, left ? -range_y : range_y)
         );
     }
-    bool AutoAim_And_DetermineStompType(Actor* giant, bool& left, bool strong_Attack) {
+    bool AutoAim_And_DetermineStompType(Actor* giant, bool& left, bool strong_Attack, bool trample) {
         const bool autoAim = Config::AutoAim.bEnableAutoAim;
         if (giant->IsPlayerRef() && IsFreeCameraEnabled()) {
             return false;
@@ -62,7 +129,7 @@ namespace GTS {
         if (!AnimationVars::General::IsBusy(giant)) { 
             // Some key-binds fight other key-binds, so Tap E overrides Hold E as soon as you release E, overriding Blend we got, messing aim result
             if (autoAim || !giant->IsPlayerRef()) {
-                Scan::StandingBranchCheck(giant, left, strong_Attack, Understomp, Hit);
+                Scan::StandingBranchCheck(giant, left, strong_Attack, Understomp, Hit, trample);
                 Scan::SneakBranchCheck(giant, left, strong_Attack, Understomp, Hit);
                 Scan::CrawlBranchCheck(giant, left, strong_Attack, Understomp, Hit);
 
@@ -94,7 +161,7 @@ namespace GTS {
         if (allow) {
             float blend = std::clamp(InvLookdownIntensity * 1.2f, 0.0f, 1.0f);
             SetStompBlendValues(giant, blend, 0.0f);
-            // Blend between "close" and "far" under-stomps
+            // Blend between "close" and "farZone" under-stomps
         }
         return allow;
     }

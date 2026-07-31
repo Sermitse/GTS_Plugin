@@ -252,19 +252,18 @@ namespace {
 		ShrinkTinyUntil(&data.giant, 0.28f, 0.0420f);
     }
 	void GTS_LC_Shrink_2(AnimationEventData& data) { 
+		Task_FacialEmotionTask_Smile(&data.giant, 1.55f + RandomFloat(0.01f, 0.25f), "KillSmile1", 0.9f, 0.6f);
 		ShrinkTinyUntil(&data.giant, 0.20f, 0.0175f);
     }
 	void GTS_LC_Shrink_3(AnimationEventData& data) { 
-		Task_FacialEmotionTask_Smile(&data.giant, 1.25f + RandomFloat(0.01f, 0.25f), "KillSmile", 0.12f);
-		/*for (auto tiny: Animation_TinyCalamity::GetShrinkActors(&data.giant)) { 
-			if (tiny) {
-				SpawnRuneOnTiny(&data.giant, 0.8f);
-			}
-		}*/
+		Task_FacialEmotionTask_Smile(&data.giant, 1.55f + RandomFloat(0.01f, 0.25f), "KillSmile2", 0.9f, 0.6f);
 		ShrinkTinyUntil(&data.giant, 0.012f, 0.00525f);
     }
+	void GTS_LC_Shrink_4(AnimationEventData& data) { 
+		Task_FacialEmotionTask_Smile(&data.giant, 1.55f + RandomFloat(0.01f, 0.25f), "KillSmile3", 0.9f, 0.6f);
+    }
 	void GTS_LC_FingerSnap(AnimationEventData& data) { 
-		Task_FacialEmotionTask_SlightSmile(&data.giant, 1.525f + RandomFloat(0.35f, 0.75f), "SnapSmile", 0.25f);
+		Task_FacialEmotionTask_SlightSmile(&data.giant, 2.6f + RandomFloat(0.35f, 0.75f), "SnapSmile", 0.75f);
 		int laugh_rng = RandomInt(1, 4);
 		if (laugh_rng >= 1) {
 			Sound_PlayLaughs(&data.giant, 1.0f, 0.14f, EmotionTriggerSource::Superiority);
@@ -295,6 +294,7 @@ namespace GTS
 		AnimationManager::RegisterEvent("GTS_LC_Shrink_1", "CalamityIC", GTS_LC_Shrink_1);
 		AnimationManager::RegisterEvent("GTS_LC_Shrink_2", "CalamityIC", GTS_LC_Shrink_2);
 		AnimationManager::RegisterEvent("GTS_LC_Shrink_3", "CalamityIC", GTS_LC_Shrink_3);
+		AnimationManager::RegisterEvent("GTS_LC_Shrink_4", "CalamityIC", GTS_LC_Shrink_4);
 		AnimationManager::RegisterEvent("GTS_LC_FingerSnap", "CalamityIC", GTS_LC_FingerSnap);
 	}
 

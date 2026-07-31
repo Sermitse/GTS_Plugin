@@ -819,7 +819,7 @@ namespace GTS {
 		float tinySize = get_visual_scale(a_target);
 
 		if (TinyCalamityActive(a_source)) {
-			giantSize += 1.0f;
+			giantSize += 0.2f;
 		} if (a_target->IsPlayerRef() && TinyCalamityActive(a_target)) {
 			tinySize += 1.25f;
 		}
@@ -828,10 +828,9 @@ namespace GTS {
 		float sizedifference_tinypov = tinySize / giantSize;
 
 		int ragdollchance = RandomInt(0, 30);
-		if ((giantSize >= 2.0f || AnimationVars::Tiny::IsBeingGrinded(a_target)) && !IsRagdolled(a_target) && sizedifference > 2.8f && ragdollchance < 4.0f * sizedifference) { // Chance for ragdoll. Becomes 100% at high scales
+		if ((giantSize >= 2.5f || AnimationVars::Tiny::IsBeingGrinded(a_target)) && !IsRagdolled(a_target) && sizedifference > 2.8f && ragdollchance < 4.0f * sizedifference) { // Chance for ragdoll. Becomes 100% at high scales
 			PushActorAway(a_source, a_target, 1.0f); // Ragdoll
-		}
-		else if (sizedifference > 1.25f) { // Always Stagger
+		} else if (sizedifference > 1.25f) { // Always Stagger
 			AnimationVars::General::SetGiantessScale(a_target, sizedifference_tinypov); // enable stagger just in case
 			float push = std::clamp(0.25f * (sizedifference - 0.25f), 0.25f, 1.0f);
 			StaggerActor(a_source, a_target, push);

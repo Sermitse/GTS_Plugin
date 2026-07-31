@@ -3,6 +3,7 @@
 #include "Config/Config.hpp"
 
 #include "Managers/Animation/Controllers/VoreController.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove_WrathfulCalamity.hpp"
 #include "Managers/Animation/Utils/TurnTowards.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
@@ -24,6 +25,41 @@
 using namespace GTS;
 
 namespace {
+    static constexpr std::array<WeightedNode, 3> candidates = {{
+        { "NPC Head [Head]",      0.50f },
+        { "NPC R Hand [RHnd]",    0.30f },
+        { "NPC R Breast01",       0.20f },
+    }};
+
+    NiAVObject* GetRandomizedFocusNode(Actor* giant) {
+        std::vector<std::pair<NiAVObject*, float>> nodes;
+
+        for (const auto& candidate : candidates) {
+            if (auto node = find_node(giant, candidate.name)) {
+                nodes.emplace_back(node, candidate.weight);
+            }
+        }
+
+        if (nodes.empty()) {
+            return find_node(giant, "NPC R Hand [RHnd]");
+        }
+
+        float total = 0.0f;
+        for (const auto& [_, weight] : nodes) {
+            total += weight;
+        }
+
+        float r = RandomFloat(0.0f, total);
+
+        for (const auto& [node, weight] : nodes) {
+            if (r < weight) {
+                return node;
+            }
+            r -= weight;
+        }
+
+        return nodes.back().first;
+    }
 
     void ScareEnemies(Actor* giant)  {
 		int FearChance = RandomInt(0, 2);
@@ -109,7 +145,7 @@ namespace GTS {
             bool OnCooldown = IsActionOnCooldown(giant, CooldownSource::Misc_TinyCalamity_WrathfulCalamity);
             for (auto tiny: preys) {
                 if (tiny) {
-                    if (IsHuman(tiny) && IsHostile(giant, tiny)) {
+                    if ((IsHuman(tiny) || IsHumanoid(tiny)) && IsHostile(giant, tiny)) {
                         float health = GetHealthPercentage(tiny);
 
                         float gts_hp = GetMaxAV(giant, ActorValue::kHealth);
@@ -133,7 +169,10 @@ namespace GTS {
                             DisarmActor(giant);
                             DisarmActor(tiny);
                             FaceOpposite(giant, tiny);
-                            
+ 
+                            auto node = GetRandomizedFocusNode(giant);
+                        
+                            StartWrathfulCalamityKillmove(giant, tiny, node, DamageSource::Overkill, 10000.0f, 0.05f, false, true);
                             perform = true;
                         } else {
                             if (giant->IsPlayerRef()) {
@@ -156,6 +195,17 @@ namespace GTS {
                                 logger::info("Health: {:.0f}%; Requirement: {:.0f}%", health * 100.0f, threshold * 100.0f);
                             }
                         }
+                    } else {
+                        if (giant->IsPlayer()) {
+                            std::string message;
+                            if (!IsHostile(giant, tiny)) {
+                                message = std::format("{} is friendly", tiny->GetDisplayFullName());
+                            } else if (bool nonHuman = !(IsHuman(tiny) || IsHumanoid(tiny))) {
+                                message = std::format("{} isn't a human", tiny->GetDisplayFullName());
+                            }
+                            shake_camera(giant, 0.45f, 0.30f);
+                            NotifyWithSound(giant, message);
+                        }
                     }
                 } 
             }  
@@ -172,9 +222,10 @@ namespace GTS {
 				DamageAV(giant, ActorValue::kHealth, -shrink * 1.25f);
                 shrink *= 1.25f;
 			}
-
+            
+            shrink *= Config::Balance.fSizeDamageMult * 0.0045f;
             float target_scale = get_target_scale(tiny);
-            shrink *= 0.0045f;
+            
             if (target_scale < limit) {
                 set_target_scale(tiny, limit);
             } else {

@@ -1,3 +1,5 @@
+#include "Managers/Size_Killmoves/SizeKillMove_WrathfulCalamity.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove_Calamity.hpp"
 #include "Hooks/Actor/HeadTracking.hpp"
 #include "Hooks/Util/HookUtil.hpp"
 
@@ -33,6 +35,45 @@ namespace {
 							}
 						}
 					} 
+				}
+			}
+		}
+	}
+	bool IsUsingCalamity(Actor* actor) {
+		if (actor->IsPlayerRef()) {
+			auto state_wrath = WrathfulCalamity::_state;
+			auto state_calam = Calamity::_state;
+			bool usingCalamity = false;
+			const bool wrath = state_wrath != WrathfulCalamity::WrathfulPOVState::None;
+			const bool calam = state_calam != Calamity::TinyPOVState::None;
+			usingCalamity = wrath || calam;
+			return usingCalamity;
+		}
+		return false;
+	}
+	void ForceLookAtKillMoveVictim(Actor* actor, NiPoint3& target) { // Forces someone to look at breasts
+		if (IsUsingCalamity(actor)) {
+			auto state_wrath = WrathfulCalamity::_state;
+			auto state_calam = Calamity::_state;
+			if (state_wrath != WrathfulCalamity::WrathfulPOVState::None) {
+				if (auto victim = WrathfulCalamity::_victim) {
+					auto cam = PlayerCamera::GetSingleton();
+					if (cam) {
+						auto root = cam->cameraRoot;
+						if (root) {
+							target = root->world.translate;
+						}
+					}
+				}
+			} else if (state_calam != Calamity::TinyPOVState::None) {
+				if (auto victim = Calamity::_victim) {
+					auto cam = PlayerCamera::GetSingleton();
+					if (cam) {
+						auto root = cam->cameraRoot;
+						if (root) {
+							target = root->world.translate;
+						}
+					}
 				}
 			}
 		}
@@ -81,7 +122,10 @@ namespace {
 	void HT_ScaleNonTargeted_Impl(Actor* actor, NiPoint3& target) { // NPC's always use this one, Player also uses this one when in non-tdm tracking mode
 		if (actor) {
 			if (actor->Is3DLoaded()) {
-				if (!actor->IsPlayerRef() || (actor->IsPlayerRef() && !IsHeadtracking(actor))) {
+				const bool calamity = actor->IsPlayerRef() && IsUsingCalamity(actor);
+				const bool playerBusy = actor->IsPlayerRef() && !IsHeadtracking(actor);
+				const bool headtrack = !actor->IsPlayerRef() || calamity || playerBusy;
+				if (headtrack) {
 					// We don't want to apply it when TDM lock is enabled
 					const bool ApplyScaling = !(IsinRagdollState(actor) || IsDragon(actor)); 
 					if (ApplyScaling) {
@@ -96,7 +140,7 @@ namespace {
 							auto unscaledHeadPos = trans * (transInv*headPos * (natural_size/scale));
 
 							//ForceLookAtCleavage(actor, target); // If enabled, need to make sure that only one hook is affecting NPC's 
-
+							ForceLookAtKillMoveVictim(actor, target);
 							auto direction = target - headPos;
 							target = unscaledHeadPos + direction;
 						}

@@ -8,6 +8,8 @@
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/TinyCalamity_Shrink.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove_Calamity.hpp"
 #include "Managers/Audio/MoansLaughs.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
 #include "Managers/Damage/LaunchPower.hpp"
@@ -196,6 +198,17 @@ namespace GTS {
 		}
 		return modifier;
 	}
+	float CharState_GetLaunchPowerModifier(Actor* a_target) {
+		float modifier = 1.0f;
+		if (a_target->AsActorState()->IsSprinting()) {
+			modifier *= 1.2f;
+		} if (a_target->AsActorState()->IsWalking()) {
+			modifier *= 0.85f;
+		} if (a_target->AsActorState()->IsSneaking()) {
+			modifier *= 0.85f;
+		}
+		return modifier;
+	}
 
 	float GetRandomBoost() {
 		float rng = (RandomFloat(0, 150));
@@ -368,7 +381,6 @@ namespace GTS {
 
 	float Ench_Aspect_GetPower(Actor* a_actor) {
 		return SizeManager::GetSingleton().GetEnchantmentBonus(a_actor) * 0.01f;
-
 	}
 
 	float Ench_Hunger_GetPower(Actor* a_actor) {
@@ -932,7 +944,8 @@ namespace GTS {
 
 				if (animation) {
 					Animation_TinyCalamity::AddToData(giant, tiny, expected);
-					AnimationManager::StartAnim("Calamity_ShrinkOther", giant);
+					AnimationManager::StartAnim("Calamity_ShrinkOther", giant); 
+					StartCalamityKillmove(giant, tiny, find_node(giant, "NPC R Hand [RHnd]"), DamageSource::Overkill, 10000.0f, 0.05f, false, true);
 					StaggerActor(giant, tiny, 0.25f);
 					return;
 				}

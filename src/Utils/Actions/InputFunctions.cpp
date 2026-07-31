@@ -21,7 +21,7 @@ using namespace GTS;
 namespace {
 
 	constexpr float DURATION = 2.0f;
-	constexpr float StruggleCost = 6.0f;
+	constexpr float StruggleCost = 10.0f;
 	constexpr int StruggleMax = 40;
 	
 	void ResetEscapeDataTask() {
@@ -579,7 +579,8 @@ namespace {
 				float& EscapeProgress = transient->EscapingActionProgress;
 				if (EscapeProgress < 1.0f) {
 					float stamina = GetAV(player, ActorValue::kStamina);
-					float stamina_req = StruggleCost * EscapeProgress;
+					float skill_level = std::clamp(1.0f + GetGtsSkillLevel(player)*0.01f, 1.0f, 2.0f);
+					float stamina_req = (StruggleCost / skill_level) * EscapeProgress;
 
 					if (stamina >= stamina_req) {
 						DamageAV(player, ActorValue::kStamina, stamina_req);

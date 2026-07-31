@@ -35,6 +35,7 @@ namespace GTS {
     Actor* FindClosestTargetInRectangle(Actor* giant, const NiPoint3 origin, float width, float length) {
         Actor* bestVictim = nullptr;
         float bestScore = FLT_MAX;
+        int bestTier = INT_MAX; // 0 = alive, 1 = dead
 
         NiPoint3 rectOrigin = origin;
         rectOrigin.z = 0.0f;
@@ -65,11 +66,13 @@ namespace GTS {
             if (std::abs(right) > width * 0.5f)
                 continue;
 
+            const bool dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
+            const int tier = dead ? 1 : 0;
+
             // Distance from origin of rectangle
             float score = forward * forward + right * right;
 
-            // Dead targets lower priority
-            if (target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f) {
+            if (dead) {
                 score *= Config::AutoAim.fAimAssist_DeadPenalty;
             }
 
@@ -78,20 +81,19 @@ namespace GTS {
                 score += (-forward) * Config::AutoAim.fAimAssist_BackPenalty;
             }
 
-            if (score < bestScore) {
+            if (tier < bestTier || (tier == bestTier && score < bestScore)) {
+                bestTier = tier;
                 bestScore = score;
                 bestVictim = target;
             }
         }
 
-
-
         return bestVictim;
-
     }
     Actor* FindClosestTargetBetweenTwoPoints_Rhomb(Actor* giant, const NiPoint3 pointL, const NiPoint3 pointR, float maxSearchDistance, bool& leftFoot) {
         Actor* bestVictim = nullptr;
         float bestScore = FLT_MAX;
+        int bestTier = INT_MAX;
 
         const float yaw = giant->data.angle.z;
 
@@ -110,13 +112,12 @@ namespace GTS {
             }
 
             if (!IsHostile(giant, target) && IsTeammate(target) && Config::General.bProtectFollowers) {
-                //Cprint("{} is considered friendly, skipping", target->GetDisplayFullName());
                 continue;
             }
 
             const bool dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
+            const int tier = dead ? 1 : 0;
             const float deadPenalty = dead ? Config::AutoAim.fAimAssist_DeadPenalty : 1.0f;
-            
 
             NiPoint3 targetPos = target->GetPosition();
             targetPos.z = 0.0f;
@@ -127,10 +128,8 @@ namespace GTS {
                 delta.z = 0.0f;
 
                 float localForward = delta.x * forward.x + delta.y * forward.y;
-
                 float localRight = delta.x * right.x + delta.y * right.y;
 
-                // Diamond (L1) distance
                 float diamondDistance = std::abs(localForward) + std::abs(localRight);
 
                 if (diamondDistance > maxSearchDistance) {
@@ -138,9 +137,8 @@ namespace GTS {
                     return;
                 }
 
-                score = diamondDistance * deadPenalty;
+                score = diamondDistance * deadPenalty; 
 
-                // Penalty for targets behind the actor
                 NiPoint3 centerDelta = targetPos - center;
                 centerDelta.z = 0.0f;
 
@@ -157,10 +155,15 @@ namespace GTS {
             EvaluatePoint(leftPoint, scoreL);
             EvaluatePoint(rightPoint, scoreR);
 
+            if (scoreL == FLT_MAX && scoreR == FLT_MAX) {
+                continue;
+            }
+
             bool useLeft = scoreL <= scoreR;
             float score = useLeft ? scoreL : scoreR;
 
-            if (score < bestScore) {
+            if (tier < bestTier || (tier == bestTier && score < bestScore)) {
+                bestTier = tier;
                 bestScore = score;
                 bestVictim = target;
                 leftFoot = useLeft;
@@ -169,88 +172,82 @@ namespace GTS {
 
         return bestVictim;
     }
-        Actor* FindClosestTargetBetweenTwoPoints(Actor* giant, const NiPoint3 pointL, const NiPoint3 pointR, float maxSearchDistance, bool& leftFoot) {
-            const bool Rhomb = Config::AutoAim.bUseRhombShape;
-            Actor* bestVictim = nullptr;
-            if (Rhomb) {
-                bestVictim = FindClosestTargetBetweenTwoPoints_Rhomb(giant, pointL, pointR, maxSearchDistance, leftFoot);
-                return bestVictim;
-            }
-            
-            const float maxDistSq = maxSearchDistance * maxSearchDistance;
-            float bestScore = FLT_MAX;
-
-            const float yaw = giant->data.angle.z;
-
-            const NiPoint3 center = giant->GetPosition();
-            const NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
-
-            NiPoint3 leftPoint = pointL;
-            NiPoint3 rightPoint = pointR;
-            leftPoint.z = 0.0f;
-            rightPoint.z = 0.0f;
-
-            for (auto target : find_actors()) {
-                if (!target || target == giant) {
-                    continue;
-                }
-
-                if (!IsHostile(giant, target) && IsTeammate(target) && Config::General.bProtectFollowers) {
-                    //Cprint("{} is considered friendly, skipping", target->GetDisplayFullName());
-                    continue;
-                }
-
-                const bool Dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
-                float DeadPenalty = Dead ? Config::AutoAim.fAimAssist_DeadPenalty : 1.0f;
-
-                NiPoint3 targetPos = target->GetPosition();
-                targetPos.z = 0.0f;
-
-                // Distance to left point
-                NiPoint3 deltaL = targetPos - leftPoint;
-                deltaL.z = 0.0f;
-                float distSqL = deltaL.x * deltaL.x + deltaL.y * deltaL.y;
-
-                // Distance to right point
-                NiPoint3 deltaR = targetPos - rightPoint;
-                deltaR.z = 0.0f;
-                float distSqR = deltaR.x * deltaR.x + deltaR.y * deltaR.y;
-
-                bool useLeft = distSqL <= distSqR;
-                float distSq = useLeft ? distSqL : distSqR;
-
-                if (distSq > maxDistSq) {
-                    continue;
-                }
-
-                //
-                // IMPORTANT:
-                // Front/back priority is calculated relative to the actor,
-                // not relative to the hand/foot search point.
-                //
-                NiPoint3 centerDelta = targetPos - center;
-                centerDelta.z = 0.0f;
-
-                float localForward =
-                    centerDelta.x * forward.x +
-                    centerDelta.y * forward.y;
-
-                float score = distSq * DeadPenalty;
-
-                // Penalize targets behind the actor
-                if (localForward < 0.0f) {
-                    score += localForward * localForward * Config::AutoAim.fAimAssist_BackPenalty;
-                }
-
-                if (score < bestScore) {
-                    bestScore = score;
-                    bestVictim = target;
-                    leftFoot = useLeft;
-                }
-            }
-
+    Actor* FindClosestTargetBetweenTwoPoints(Actor* giant, const NiPoint3 pointL, const NiPoint3 pointR, float maxSearchDistance, bool& leftFoot) {
+        const bool Rhomb = Config::AutoAim.bUseRhombShape;
+        Actor* bestVictim = nullptr;
+        if (Rhomb) {
+            bestVictim = FindClosestTargetBetweenTwoPoints_Rhomb(giant, pointL, pointR, maxSearchDistance, leftFoot);
             return bestVictim;
         }
+
+        const float maxDistSq = maxSearchDistance * maxSearchDistance;
+        float bestScore = FLT_MAX;
+        int bestTier = INT_MAX;
+
+        const float yaw = giant->data.angle.z;
+
+        const NiPoint3 center = giant->GetPosition();
+        const NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
+
+        NiPoint3 leftPoint = pointL;
+        NiPoint3 rightPoint = pointR;
+        leftPoint.z = 0.0f;
+        rightPoint.z = 0.0f;
+
+        for (auto target : find_actors()) {
+            if (!target || target == giant) {
+                continue;
+            }
+
+            if (!IsHostile(giant, target) && IsTeammate(target) && Config::General.bProtectFollowers) {
+                continue;
+            }
+
+            const bool dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
+            const int tier = dead ? 1 : 0;
+            const float DeadPenalty = dead ? Config::AutoAim.fAimAssist_DeadPenalty : 1.0f;
+
+            NiPoint3 targetPos = target->GetPosition();
+            targetPos.z = 0.0f;
+
+            NiPoint3 deltaL = targetPos - leftPoint;
+            deltaL.z = 0.0f;
+            float distSqL = deltaL.x * deltaL.x + deltaL.y * deltaL.y;
+
+            NiPoint3 deltaR = targetPos - rightPoint;
+            deltaR.z = 0.0f;
+            float distSqR = deltaR.x * deltaR.x + deltaR.y * deltaR.y;
+
+            bool useLeft = distSqL <= distSqR;
+            float distSq = useLeft ? distSqL : distSqR;
+
+            if (distSq > maxDistSq) {
+                continue;
+            }
+
+            NiPoint3 centerDelta = targetPos - center;
+            centerDelta.z = 0.0f;
+
+            float localForward =
+                centerDelta.x * forward.x +
+                centerDelta.y * forward.y;
+
+            float score = distSq * DeadPenalty;
+
+            if (localForward < 0.0f) {
+                score += localForward * localForward * Config::AutoAim.fAimAssist_BackPenalty;
+            }
+
+            if (tier < bestTier || (tier == bestTier && score < bestScore)) {
+                bestTier = tier;
+                bestScore = score;
+                bestVictim = target;
+                leftFoot = useLeft;
+            }
+        }
+
+        return bestVictim;
+    }
         
         void CalculateForwardBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, float maxDistance, float& outBlend,float& outForwardDistance, float& outDistance) {
             float yaw = giant->data.angle.z;

@@ -85,7 +85,7 @@ struct SettingsAutoAim_t {
     float fAimAssist_Range_BreastSlam = 30.0f;
     float fAimAssist_OffsetDistance_Breasts_Forward = 5.0f;
     float fAimAssist_OffsetDistance_Breasts_Side = 4.0f;
-    float fAimAssist_OffsetDistance_Breasts_Width = 38.0f;
+    float fAimAssist_OffsetDistance_Breasts_Width = 52.0f;
     float fAimAssist_OffsetDistance_Breasts_Length = 100.0f;
     float fAimAssist_Value_Breasts_BlendOffset = -0.25f;
 

@@ -278,7 +278,7 @@ namespace {
 		float WasteStamina = 25.0f * GetWasteMult(player);
 		if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
 			bool left = AutoAim_Miss_GetNextStompSide(PlayerCharacter::GetSingleton(), StompAimType::T4);
-			bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
+			bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left, false);
 			Utils_UpdateHighHeelBlend(player, false);
 			AnimationManager::StartAnim(leftKick ? "SwipeLight_Left" : "SwipeLight_Right", player);
 		} else {
@@ -292,7 +292,7 @@ namespace {
 		float WasteStamina = 70.0f * GetWasteMult(player);
 		if (GetAV(player, ActorValue::kStamina) > WasteStamina) {
 			bool left = AutoAim_Miss_GetNextStompSide(PlayerCharacter::GetSingleton(), StompAimType::T4);
-			bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left);
+			bool leftKick = AutoAim_Kick_DeterminePreferredKick(PlayerCharacter::GetSingleton(), left, true);
 			Utils_UpdateHighHeelBlend(player, false);
 			AnimationManager::StartAnim(leftKick ? "SwipeHeavy_Left" : "SwipeHeavy_Right", player);
 		} else {
