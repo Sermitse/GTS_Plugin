@@ -27,6 +27,10 @@ namespace {
     float Calculate_MoanCooldown(Actor* actor) {
         return MOAN_COOLDOWN / AnimationManager::GetAnimSpeed(actor);
     }
+    float Calculate_CalamityShrinkCooldown(Actor* actor) {
+        float cooldown = actor->IsPlayerRef() ? TINYCALAMITY_SHRINK_COOLDOWN : TINYCALAMITY_SHRINK_COOLDOWN_NPC;
+        return cooldown;
+    }
 }
 
 namespace GTS {
@@ -263,7 +267,7 @@ namespace GTS {
             case CooldownSource::Misc_TinyCalamity_WrathfulCalamity:
                 return (data.lastTinyCalamityOneShotTime + TINYCALAMITY_ONESHOT_COOLDOWN) - time;
             case CooldownSource::Misc_TinyCalamity_Shrink:
-                return (data.lastTinyCalamityShrinkTime + TINYCALAMITY_SHRINK_COOLDOWN) - time;
+                return (data.lastTinyCalamityShrinkTime + Calculate_CalamityShrinkCooldown(giant)) - time;
             case CooldownSource::Footstep_Right:
                 return (data.lastFootstepTime_R + Calculate_FootstepTimer(giant)) - time;   
             case CooldownSource::Footstep_Left:
@@ -340,7 +344,7 @@ namespace GTS {
             case CooldownSource::Misc_TinyCalamity_WrathfulCalamity:
                 return time <= (data.lastTinyCalamityOneShotTime + TINYCALAMITY_ONESHOT_COOLDOWN); 
             case CooldownSource::Misc_TinyCalamity_Shrink:
-                return time <= (data.lastTinyCalamityShrinkTime + TINYCALAMITY_SHRINK_COOLDOWN); 
+                return time <= (data.lastTinyCalamityShrinkTime + Calculate_CalamityShrinkCooldown(giant)); 
             case CooldownSource::Footstep_Right:
                 return time <= (data.lastFootstepTime_R + Calculate_FootstepTimer(giant));    
             case CooldownSource::Footstep_Left:

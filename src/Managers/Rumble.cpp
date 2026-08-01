@@ -39,7 +39,7 @@ namespace {
 			const float cameraConf = caster->IsPlayerRef() ? PC_Config : NPC_Config; 
 			const float adjustment = range_modifier * sourceSize * cameraConf;
 			const float full_shake_distance = cam_close_dist * sourceSize;
-			const float max_shake_distance =  cam_far_dist 	 * adjustment;
+			const float max_shake_distance =  full_shake_distance + cam_far_dist * adjustment;
 
 			// Inside full shake radius = maximum shake
 			if (distance <= full_shake_distance) {
@@ -52,6 +52,7 @@ namespace {
 			}
 
 			//logger::info("Full Dist: {}, Max Shake Dist: {}", full_shake_distance, max_shake_distance);
+			//logger::info("Range modifier: {}", range_modifier);
 		}
 	}
 }

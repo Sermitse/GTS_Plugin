@@ -15,6 +15,7 @@ namespace GTS {
 
 	constexpr float TINYCALAMITY_ONESHOT_COOLDOWN = 60.0f;
     constexpr float TINYCALAMITY_SHRINK_COOLDOWN = 9.0f;
+    constexpr float TINYCALAMITY_SHRINK_COOLDOWN_NPC = 3.0f;
 
 	constexpr float HEALTHGATE_COOLDOWN = 60.0f;
 	constexpr float SCARE_COOLDOWN = 6.0f;
@@ -401,8 +402,8 @@ namespace GTS {
     constexpr float Rumble_Growth_GrowthSpurt = 0.75f;
     constexpr float Rumble_Shrink_GrowthSpurt = 0.75f;
 
-    constexpr float Rumble_Growth_SlowGrowth_Start = 1.75f;
-    constexpr float Rumble_Growth_SlowGrowth_Loop = 0.35f;
+    constexpr float Rumble_Growth_SlowGrowth_Start = 3.5f;
+    constexpr float Rumble_Growth_SlowGrowth_Loop = 0.9f;
 
     constexpr float Rumble_Kill_CrushOther = 7.6f;
     constexpr float Rumble_Kill_ShrinkToNothing = 8.6f;
