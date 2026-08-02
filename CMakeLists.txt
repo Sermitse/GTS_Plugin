@@ -92,7 +92,7 @@ FetchContent_MakeAvailable(boost_ext_reflect)
 FetchContent_Declare(
   glaze
   GIT_REPOSITORY https://github.com/stephenberry/glaze.git
-  GIT_TAG v7.7.1
+  GIT_TAG v7.9.1
   GIT_SHALLOW ON
 )
 FetchContent_MakeAvailable(glaze)
@@ -101,7 +101,6 @@ FetchContent_MakeAvailable(glaze)
 # # Find dependencies - VCPKG
 # #######################################################################################################################
 
-find_package(Boost REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(lz4 CONFIG REQUIRED)
 find_package(xbyak CONFIG REQUIRED)
@@ -130,7 +129,6 @@ target_link_libraries(
 	PRIVATE
     ${DETOURS_LIBRARY}
 	xbyak::xbyak
-	Boost::headers
 	glaze::glaze
 	toml11::toml11
 	lz4::lz4

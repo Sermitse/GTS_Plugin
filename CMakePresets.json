@@ -96,19 +96,11 @@
     {
       "name": "config-debug",
       "displayName": "Debug",
-      "description": "A debug build using RelWithDebInfo and debug flags. This builds the project with full debug info but builds all deps as RelWithDebInfo, Commonlib has issues if compiled as debug. Callhooks don't work correctly and end up causing stack corruption in other SKSE plugins.",
+      "description": "A debug build.",
       "inherits": "base-config",
       "binaryDir": "${sourceDir}/build/Debug",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "CMAKE_C_FLAGS": "/EHsc /Zi /FS /MP /D_CRTDBG_MAP_ALLOC /DDEBUG_HEAP",
-        "CMAKE_CXX_FLAGS": "/EHsc /Zi /FS /MP /D_CRTDBG_MAP_ALLOC /DDEBUG_HEAP",
-        "CMAKE_C_FLAGS_RELWITHDEBINFO": "/Od /Ob0 /Zi /RTC1",
-        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/Od /Ob0 /Zi /RTC1",
-        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG /DEBUG:FULL /OPT:NOREF /OPT:NOICF /INCREMENTAL",
-        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG /DEBUG:FULL /OPT:NOREF /OPT:NOICF /INCREMENTAL",
-        "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG /DEBUG:FULL /OPT:NOREF /OPT:NOICF /INCREMENTAL",
-        "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO": "/DEBUG /DEBUG:FULL /OPT:NOREF /OPT:NOICF /INCREMENTAL"
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
@@ -119,14 +111,14 @@
       "binaryDir": "${sourceDir}/build/Release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_C_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
-        "CMAKE_CXX_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
-        "CMAKE_C_FLAGS_RELEASE": "/arch:SSE4.2 /O2 /Ob2 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
-        "CMAKE_CXX_FLAGS_RELEASE": "/arch:SSE4.2 /O2 /Ob2 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
-        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO"
+        "CMAKE_C_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS /guard:cf- /Qpar",
+        "CMAKE_C_FLAGS_RELEASE": "/arch:SSE4.2 /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:SSE4.2 /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
+        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO"
       }
     },
     {
@@ -137,14 +129,50 @@
       "binaryDir": "${sourceDir}/build/Release-AVX",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_C_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
-        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf-",
-        "CMAKE_C_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
-        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf-",
-        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:NOICF /LTCG /INCREMENTAL:NO"
+        "CMAKE_C_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
+        "CMAKE_C_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
+        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO"
+      }
+    },
+    {
+      "name": "config-release-avx2",
+      "displayName": "Release (AVX)",
+      "description": "Configure release build with AVX2.",
+      "inherits": "base-config",
+      "binaryDir": "${sourceDir}/build/Release-AVX2",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_FLAGS": "/arch:AVX2 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
+        "CMAKE_C_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
+        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO"
+      }
+    },
+    {
+      "name": "config-release-avx512",
+      "displayName": "Release (AVX512)",
+      "description": "Configure release build with AVX.",
+      "inherits": "base-config",
+      "binaryDir": "${sourceDir}/build/Release-AVX512",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_FLAGS": "/arch:AVX512 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
+        "CMAKE_C_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
+        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO"
       }
     },
     {
@@ -154,7 +182,7 @@
       "inherits": "base-config",
       "binaryDir": "${sourceDir}/build/Strict",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_BUILD_TYPE": "Debug",
         "GTS_STRICT_COMPILE": "ON"
       }
     }
@@ -177,6 +205,18 @@
       "displayName": "Build AE/SE (Release AVX)",
       "configurePreset": "config-release-avx",
       "description": "Compile an optimized release build (AVX)."
+    },
+    {
+      "name": "build-release-avx2",
+      "displayName": "Build AE/SE (Release AVX2)",
+      "configurePreset": "config-release-avx2",
+      "description": "Compile an optimized release build (AVX2)."
+    },
+    {
+      "name": "build-release-avx512",
+      "displayName": "Build AE/SE (Release AVX512)",
+      "configurePreset": "config-release-avx512",
+      "description": "Compile an optimized release build (AVX512)."
     },
     {
       "name": "build-strict",

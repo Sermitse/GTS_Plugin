@@ -12,7 +12,6 @@
         "glm",
         "toml11",
         "magic-enum",
-        "boost-pfr",
         "lz4",
         "detours",
         "lunasvg",
