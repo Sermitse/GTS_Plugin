@@ -7,8 +7,21 @@
 
 namespace {
 	using namespace GTS;
+	// Sermit's Note:
+	// In perfect scenario, this .cpp/hpp should be rewritten into using struct like
+	// RumbleVariation {
+	// 		rumble_intensity; 
+	//		rumble_halflife; 
+	//		rumble_duration; 
+	//		rumble_min_distance; 
+	//		rumble_max_distance; 
+	//		ignore_scaling; 
+	// };
+	// But it's too much work since we have a lot of functions that call Rumbling::once/for
+
 	constexpr float global_shake_multiplier = 0.125f; // Reduce power of all shakes
 	constexpr float falloff_power = 2.5f;
+	constexpr float scale_bonus = 0.1f;
 
 	constexpr float cam_close_dist = 48.0f;
 	constexpr float cam_far_dist = 300.0f;
@@ -32,18 +45,19 @@ namespace {
 			}
 		}
 	}
-	void OverrideStartingIntensity(Actor* caster, float sourceSize, float distance, float range_modifier, float& intensity) {
+	// intensity here is purely a distance-falloff multiplier (0..1) - NOT the
+	// final shake strength. The source's actual strength comes in separately as `power` 
+	void OverrideStartingIntensity(Actor* caster, float sourceSize, float distance, float power, float& intensity) {
 		if (caster) {
-			const float PC_Config = 	Config::Camera.fCameraShakeDistanceMultPlayer;
-			const float NPC_Config = 	Config::Camera.fCameraShakeDistanceMultNPC;
-			const float cameraConf = caster->IsPlayerRef() ? PC_Config : NPC_Config; 
-			const float adjustment = range_modifier * sourceSize * cameraConf;
-			const float full_shake_distance = cam_close_dist * sourceSize;
-			const float max_shake_distance =  full_shake_distance + cam_far_dist * adjustment;
+			const float PC_Config 				= 			Config::Camera.fCameraShakeDistanceMultPlayer;
+			const float NPC_Config 				= 			Config::Camera.fCameraShakeDistanceMultNPC;
+			const float cameraConf 				= 			caster->IsPlayerRef() ? PC_Config : NPC_Config; 
+			const float adjustment 				= 			power * sourceSize * cameraConf;
+			const float full_shake_distance 	= 			cam_close_dist * sourceSize;
+			const float max_shake_distance 		=  			full_shake_distance + cam_far_dist * adjustment;
 
-			// Inside full shake radius = maximum shake
 			if (distance <= full_shake_distance) {
-				intensity = 1.0f;
+				intensity = power < 1.0f ? std::clamp(power, 0.0f, 1.0f) : 1.0f;
 				//logger::info("Full shake");
 			} else { // Outside full shake radius = smooth falloff
 				float t = std::clamp((distance - full_shake_distance) / (max_shake_distance - full_shake_distance), 0.0f, 1.0f);
@@ -52,7 +66,7 @@ namespace {
 			}
 
 			//logger::info("Full Dist: {}, Max Shake Dist: {}", full_shake_distance, max_shake_distance);
-			//logger::info("Range modifier: {}", range_modifier);
+			//logger::info("Range power: {}", range_power);
 		}
 	}
 }
@@ -164,7 +178,53 @@ namespace GTS {
 		for (auto& rumble : this->data | std::views::values) {
 			rumble.Update();
 		}
+		UpdateScreenShake();
 	}
+
+	void Rumbling::QueueScreenShake(FormID source, const void* channel, float intensity, float duration) {
+		auto& me = Rumbling::GetSingleton();
+		std::lock_guard lock(me._shakeLock);
+
+		double now = Time::WorldTimeElapsed();
+		float clampedDuration = std::max(duration, 0.01f);
+
+		me._screenShakeQueue.insert_or_assign(
+			ShakeChannelKey{ source, channel },
+			ShakeRequest{ intensity, now, clampedDuration }
+		);
+	}
+
+	void Rumbling::UpdateScreenShake() {
+		std::lock_guard lock(_shakeLock);
+
+		double now = Time::WorldTimeElapsed();
+		float combined = 0.0f;
+		float maxRemaining = 0.0f;
+
+		for (auto it = _screenShakeQueue.begin(); it != _screenShakeQueue.end();) {
+			float elapsed = static_cast<float>(now - it->second.startTime);
+			float t = elapsed / it->second.duration;
+			if (t >= 1.0f) {
+				it = _screenShakeQueue.erase(it);
+				continue;
+			}
+			combined += it->second.intensity * (1.0f - t);
+			maxRemaining = std::max(maxRemaining, it->second.duration - elapsed);
+			++it;
+		}
+
+		combined = std::clamp(combined, 0.0f, 8.8f); 
+
+		if (combined >= 0.005f) {
+			float holdTime = std::max(maxRemaining, 0.05f);
+			shake_controller(combined, combined, holdTime);
+
+			if (auto camera = PlayerCamera::GetSingleton()) {
+				shake_camera_at_node(camera->pos, combined, holdTime);
+			}
+		}
+	}
+
 	void ActorRumbleData::Update() {
 		auto giant = this->giant.get().get();
 
@@ -216,33 +276,31 @@ namespace GTS {
 			return;
 		}
 
-		float duration_override = 0.0f;
-		bool ignore_scaling = false;
-
-		std::unordered_map<NiAVObject*, float> cumulativeIntensity;
+		struct NodeAggregate {
+			float intensity = 0.0f;
+			float duration_override = 0.0f;
+			bool ignore_scaling = false;
+		};
+		std::unordered_map<NiAVObject*, NodeAggregate> perNode;
 
 		for (auto& [tag, rumbleData] : this->tags) {
-			duration_override = rumbleData.shake_duration;
-			ignore_scaling = rumbleData.ignore_scaling;
-
 			auto node = find_node(giant, rumbleData.node);
-
-			if (node) {
-				cumulativeIntensity[node] += rumbleData.currentIntensity.value;
+			if (!node) {
+				continue;
 			}
-		}
-		// Now do the rumble
-		//   - Also add up the volume for the rumble
-		//   - Since we can only have one rumble (skyrim limitation)
-		//     we do a weighted average to find the location to rumble from
-		//     and sum the intensities
-		NiPoint3 averagePos(0.0f, 0.0f, 0.0f);
-		float totalWeight = 0.0f;
 
-		for (auto& [node, intensity] : cumulativeIntensity) {
+			auto& agg = perNode[node];
+			agg.intensity += rumbleData.currentIntensity.value;
+			agg.duration_override = rumbleData.shake_duration;
+			agg.ignore_scaling = rumbleData.ignore_scaling;
+		}
+
+		for (auto& [node, agg] : perNode) {
+			if (agg.intensity <= 0.0f) {
+				continue;
+			}
+
 			auto& point = node->world.translate;
-			averagePos += point * intensity;
-			totalWeight += intensity;
 
 			if (get_visual_scale(giant) >= 6.0f) {
 				float volume = 4.0f * get_visual_scale(giant) / get_distance_to_camera(point);
@@ -250,29 +308,28 @@ namespace GTS {
 					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundWalkAirRumble, volume, node);
 				}
 			}
-		}
-		if (totalWeight > 0.0f) {
-			averagePos *= 1.0f / totalWeight;
-			ApplyShakeAtPoint(giant,0.4f * totalWeight,averagePos,duration_override,ignore_scaling);
+
+			// Each node gets its own shake channel 
+			ApplyShakeAtPoint(giant, 0.4f * agg.intensity, point, agg.duration_override, agg.ignore_scaling, node);
 		}
 	}
 	
 
-	void ApplyShake(Actor* caster, float modifier, float radius) {
+	void ApplyShake(Actor* caster, float power, float radius) {
 		if (caster) {
 			auto position = caster->GetPosition();
-			ApplyShakeAtPoint(caster, modifier, position, 0.0f);
+			ApplyShakeAtPoint(caster, power, position, 0.0f);
 		}
 	}
 
-	void ApplyShakeAtNode(Actor* caster, float modifier, std::string_view nodesv, const bool ignore_scaling) {
+	void ApplyShakeAtNode(Actor* caster, float power, std::string_view nodesv, const bool ignore_scaling) {
 		auto node = find_node(caster, nodesv);
 		if (node) {
-			ApplyShakeAtPoint(caster, modifier, node->world.translate, 0.0f, ignore_scaling);
+			ApplyShakeAtPoint(caster, power, node->world.translate, 0.0f, ignore_scaling, node);
 		}
 	}
 
-	void ApplyShakeAtPoint(Actor* caster, float modifier, const NiPoint3& coords, float duration_override, const bool ignore_scaling) {
+	void ApplyShakeAtPoint(Actor* caster, float power, const NiPoint3& coords, float duration_override, const bool ignore_scaling, const void* channel) {
 		if (caster) {
 			Actor* receiver = PlayerCharacter::GetSingleton();
 			if (receiver) {
@@ -285,23 +342,23 @@ namespace GTS {
 				float receiverSize = get_visual_scale(receiver);
 
 				float sizeDifference = sourceSize / receiverSize;
-				float scale_bonus = 0.1f;
+				
 
 				ApplyPlayerSourceOverrides(caster, distance, coords, tremor_power, sourceSize, sizeDifference);
 				ApplyNPCSourceOverrides(caster, sourceSize);
 
 				float intensity = 0.0f;
-				OverrideStartingIntensity(caster, sourceSize, distance, modifier, intensity);
+				OverrideStartingIntensity(caster, sourceSize, distance, power, intensity);
 				
 				// Slowly gain power of shakes for small actors
 				if (sourceSize < 2.0f && !ignore_scaling) {
 					float reduction = std::max(sourceSize - 1.0f, 0.0f);
-					modifier *= reduction;
+					power *= reduction;
 				}
-				// Apply modifiers
+				// Apply powers
 				const float size_bonus = 1.0f + std::clamp(((sourceSize * scale_bonus) - scale_bonus), 0.0f, 3.0f); // Player exclusive
 				intensity *= global_shake_multiplier;
-				intensity *= modifier;
+				intensity *= power;
 				intensity *= tremor_power;
 				intensity *= might_potion;
 				intensity *= sizeDifference;
@@ -317,11 +374,7 @@ namespace GTS {
 				duration = std::clamp(duration, 0.0f, 1.2f);
 
 				if (intensity >= 0.005f) {
-					shake_controller(intensity, intensity, duration);
-
-					if (auto camera = PlayerCamera::GetSingleton()) {
-						shake_camera_at_node(camera->pos, intensity, duration);
-					}
+					Rumbling::QueueScreenShake(caster->formID, channel, intensity, duration);
 				}
 			}
 		}

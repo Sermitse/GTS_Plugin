@@ -39,44 +39,13 @@ namespace {
 			}
 		}
 	}
-	bool IsUsingCalamity(Actor* actor) {
-		if (actor->IsPlayerRef()) {
-			auto state_wrath = WrathfulCalamity::_state;
-			auto state_calam = Calamity::_state;
-			bool usingCalamity = false;
-			const bool wrath = state_wrath != WrathfulCalamity::WrathfulPOVState::None;
-			const bool calam = state_calam != Calamity::TinyPOVState::None;
-			usingCalamity = wrath || calam;
-			return usingCalamity;
+	
+	void ForceLookAtKillMoveVictim(Actor* actor, NiPoint3& target) { // Forces someone to look at killmove victim, works only during WrathfulCalamity/TinyCalamityShrink
+		if (!ShouldHeadTrackCalamityVictim(actor)) {
+			return;
 		}
-		return false;
-	}
-	void ForceLookAtKillMoveVictim(Actor* actor, NiPoint3& target) { // Forces someone to look at breasts
-		if (IsUsingCalamity(actor)) {
-			auto state_wrath = WrathfulCalamity::_state;
-			auto state_calam = Calamity::_state;
-			if (state_wrath != WrathfulCalamity::WrathfulPOVState::None) {
-				if (auto victim = WrathfulCalamity::_victim) {
-					auto cam = PlayerCamera::GetSingleton();
-					if (cam) {
-						auto root = cam->cameraRoot;
-						if (root) {
-							target = root->world.translate;
-						}
-					}
-				}
-			} else if (state_calam != Calamity::TinyPOVState::None) {
-				if (auto victim = Calamity::_victim) {
-					auto cam = PlayerCamera::GetSingleton();
-					if (cam) {
-						auto root = cam->cameraRoot;
-						if (root) {
-							target = root->world.translate;
-						}
-					}
-				}
-			}
-		}
+		if (OverrideWrathfulCalamityHeadtracking(target)) 	{}  // These functions just override NiPoint3 &target
+		else if (OverrideCalamityHeadtracking(target)) 		{}
 	}
 
 	float GetRacemenuScale(Actor* giant) { // Used only on NPC's since we don't want to apply Natural Scale to them
@@ -122,7 +91,7 @@ namespace {
 	void HT_ScaleNonTargeted_Impl(Actor* actor, NiPoint3& target) { // NPC's always use this one, Player also uses this one when in non-tdm tracking mode
 		if (actor) {
 			if (actor->Is3DLoaded()) {
-				const bool calamity = actor->IsPlayerRef() && IsUsingCalamity(actor);
+				const bool calamity = actor->IsPlayerRef() && ShouldHeadTrackCalamityVictim(actor);
 				const bool playerBusy = actor->IsPlayerRef() && !IsHeadtracking(actor);
 				const bool headtrack = !actor->IsPlayerRef() || calamity || playerBusy;
 				if (headtrack) {

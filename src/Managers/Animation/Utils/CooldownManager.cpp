@@ -193,6 +193,12 @@ namespace GTS {
             case CooldownSource::Misc_TinyCalamity_Shrink:
                 data.lastTinyCalamityShrinkTime = Time::WorldTimeElapsed();
                 break;
+            case CooldownSource::Misc_TinyCalamity_Hit:
+                data.lastTinyCalamityHitTime = Time::WorldTimeElapsed();
+                break;
+            case CooldownSource::Misc_TinyCalamity_Ragdoll:
+                data.lastTinyCalamityRagdollTime = Time::WorldTimeElapsed();
+                break;
             case CooldownSource::Footstep_Right:
                 data.lastFootstepTime_R = Time::WorldTimeElapsed();
                 break;
@@ -268,6 +274,10 @@ namespace GTS {
                 return (data.lastTinyCalamityOneShotTime + TINYCALAMITY_ONESHOT_COOLDOWN) - time;
             case CooldownSource::Misc_TinyCalamity_Shrink:
                 return (data.lastTinyCalamityShrinkTime + Calculate_CalamityShrinkCooldown(giant)) - time;
+            case CooldownSource::Misc_TinyCalamity_Hit:
+                return (data.lastTinyCalamityHitTime + TINYCALAMITY_HIT_PUSH) - time;
+            case CooldownSource::Misc_TinyCalamity_Ragdoll:
+                return (data.lastTinyCalamityRagdollTime + TINYCALAMITY_HIT_RAGDOLL) - time;
             case CooldownSource::Footstep_Right:
                 return (data.lastFootstepTime_R + Calculate_FootstepTimer(giant)) - time;   
             case CooldownSource::Footstep_Left:
@@ -345,6 +355,10 @@ namespace GTS {
                 return time <= (data.lastTinyCalamityOneShotTime + TINYCALAMITY_ONESHOT_COOLDOWN); 
             case CooldownSource::Misc_TinyCalamity_Shrink:
                 return time <= (data.lastTinyCalamityShrinkTime + Calculate_CalamityShrinkCooldown(giant)); 
+            case CooldownSource::Misc_TinyCalamity_Hit:
+                return time <= (data.lastTinyCalamityHitTime + TINYCALAMITY_HIT_PUSH);
+            case CooldownSource::Misc_TinyCalamity_Ragdoll:
+                return time <= (data.lastTinyCalamityRagdollTime + TINYCALAMITY_HIT_RAGDOLL);
             case CooldownSource::Footstep_Right:
                 return time <= (data.lastFootstepTime_R + Calculate_FootstepTimer(giant));    
             case CooldownSource::Footstep_Left:

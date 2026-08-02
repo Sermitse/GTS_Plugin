@@ -155,9 +155,9 @@ namespace Grab_Fixes {
 		auto& VoreData = VoreController::GetSingleton().GetVoreData(giant);
 		auto otherActor = Grab::GetHeldActor(giant);
 		if (otherActor) {
+			VoreData.Swallow();
 			for (auto& tiny: VoreData.GetVories()) {
 				if (!IsDevourmentEnabled()) {
-					VoreData.Swallow();
 					if (AnimationVars::Crawl::IsCrawling(giant)) {
 						otherActor->SetAlpha(0.0f); // Hide Actor
 					}

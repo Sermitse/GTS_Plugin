@@ -1,3 +1,4 @@
+#include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/GTSSizeManager.hpp"
 #include "Managers/HitManager.hpp"
 
@@ -15,6 +16,47 @@ namespace {
 		};
 		float power = soft_power(sizeRatio, push);
 		return power;
+	}
+
+	const bool TinyCalamity_PushFromHit(Actor* attacker, Actor* receiver, bool wasPowerAttack, std::string_view hitName) {
+		if (TinyCalamityActive(attacker)) {
+			if (hitName.contains("Bow")) {
+				return false;
+			}
+			float size_difference = get_scale_difference(attacker, receiver, SizeType::VisualScale, true, false);
+			float camShake = wasPowerAttack ? size_difference * 0.125f : size_difference * 0.075f;
+			float soundVolume = wasPowerAttack ? 0.5f : 0.3f;
+			float penalty = wasPowerAttack ? 0.5f : 0.25f;
+
+			const float ragdollThreshold = wasPowerAttack ? 0.35 : 0.25f;
+			float hp = GetHealthPercentage(receiver);
+
+			const bool canRagdoll = hp <= 0.25f * (wasPowerAttack ? 0.75f : 1.0f) && !IsActionOnCooldown(receiver, CooldownSource::Misc_TinyCalamity_Ragdoll);
+			const bool canStagger = !IsActionOnCooldown(receiver, CooldownSource::Misc_TinyCalamity_Hit);	
+
+			float staggerChance = std::clamp(1.35f - hp, 0.35f, 1.0f);
+			const bool allowStagger = RandomFloat(0.0f, 100.0f) <= staggerChance * 100.0f;
+			logger::info("HP %: {}, can Ragdoll: {}", hp, canRagdoll);
+
+			if (canRagdoll) {
+				SpawnParticle(receiver, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), receiver->GetPosition(), get_visual_scale(receiver) * 4.5f, 7, nullptr); 
+				PushForward(attacker, receiver, std::clamp(160.0f * size_difference, 120.0f, 1200.0f));
+				ApplyActionCooldown(receiver, CooldownSource::Misc_TinyCalamity_Ragdoll);
+				soundVolume = 1.0f;
+				camShake *= 2.0f;
+				penalty += 0.5f;
+			} else if (canStagger) {
+				const float pushPower = std::clamp(0.25f + (1.0f - hp), 0.25f, 1.0f);
+				ApplyActionCooldown(receiver, CooldownSource::Misc_TinyCalamity_Hit);
+				StaggerActor(attacker, receiver, pushPower);
+				penalty += 0.25f;
+			} 
+			Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Impact, receiver, soundVolume, "NPC COM [COM ]");
+			shake_camera(attacker, camShake, 0.35f);
+			AddSMTPenalty(attacker, penalty);
+			return true;
+		}
+		return false;
 	}
 }
 
@@ -64,26 +106,27 @@ namespace GTS {
 
 		float size_difference = attackerscale/receiverscale;
 
-		if (TinyCalamityActive(player)) {
-			size_difference += 3.0f;
-		}
-
 		// Apply it
+		logger::info("Hit Name: {}", hitName);
+		logger::info("Hit FormType: {}", RE::FormTypeToString(HitId->GetFormType()));
 		float pushpower = GetPushPower(size_difference);
-		if (attacker->IsPlayerRef() && size_difference >= 4.0f) {
+		if (attacker->IsPlayerRef()) {
 			FormType formType = HitId->GetFormType();
 			if (formType != FormType::Weapon) {
 				return;
 			}
-			if (wasPowerAttack || hitName.find("Bow") != std::string::npos) {
-				size_difference *= 2.0f;
-				pushpower *= 2.0f;
+			if (TinyCalamity_PushFromHit(attacker, receiver, wasPowerAttack, hitName)) {
+				// Do stuff
+			} else if (size_difference >= 4.0f) {
+				if (wasPowerAttack || hitName.find("Bow") != std::string::npos) {
+					size_difference *= 2.0f;
+					pushpower *= 2.0f;
+				}
+				if (hitName.find("Bow") == std::string::npos) {
+					shake_camera(attacker, size_difference * 0.20f, 0.35f);
+				}
+				PushForward(attacker, receiver, pushpower * 25.0f);
 			}
-			if (hitName.find("Bow") == std::string::npos) {
-				shake_camera(attacker, size_difference * 0.20f, 0.35f);
-			}
-			PushForward(attacker, receiver, pushpower * 25.0f);
-			//log::info("Size difference is met, pushing actor away");
 		}
 	}
 }

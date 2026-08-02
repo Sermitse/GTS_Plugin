@@ -195,7 +195,7 @@ namespace GTS {
 
 			case ActorValue::kAttackDamageMult: {
 				if (TinyCalamityActive(actor)) {
-					scale += 1.0f;
+					scale += 2.0f;
 				}
 				const float BonusDamageMult = Config::Balance.fStatBonusDamageMult;
 				const float DamageStorage = 1.0f + ((BonusDamageMult) * (scale - 1.0f));

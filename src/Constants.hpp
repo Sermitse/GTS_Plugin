@@ -17,6 +17,9 @@ namespace GTS {
     constexpr float TINYCALAMITY_SHRINK_COOLDOWN = 9.0f;
     constexpr float TINYCALAMITY_SHRINK_COOLDOWN_NPC = 3.0f;
 
+    constexpr float TINYCALAMITY_HIT_PUSH = 3.0f;
+    constexpr float TINYCALAMITY_HIT_RAGDOLL = 7.0f;
+
 	constexpr float HEALTHGATE_COOLDOWN = 60.0f;
 	constexpr float SCARE_COOLDOWN = 6.0f;
 	constexpr float BUTTCRUSH_COOLDOWN = 30.0f;
@@ -56,6 +59,7 @@ namespace GTS {
 	constexpr float Shrink_To_Nothing_After = 3.0f; // Shrink To Nothing immunity in seconds
 	constexpr float SHRINK_TO_NOTHING_SCALE = 0.08f;
 	//-----------------------------------------Default Trigger Threshold Values
+    constexpr float Action_MinPushScale  = 3.0f;
 	constexpr float Action_Sandwich      = 6.0f; // used for sandwich only
 	constexpr float Action_AI_ThighCrush = 4.0f; // Used for AI only
 	constexpr float Action_Crush         = 10.0f;
@@ -306,107 +310,7 @@ namespace GTS {
     /////////////////////////////////////////////////////
 
 
-    //-----------------------------------------Camera Rumble power settings
-    constexpr float Rumble_Default_FootWalk = 2.10f * 1.0f; // Used for vanilla anims such as walking, running, sprinting
-    constexpr float Rumble_Default_JumpLand = 1.6f * 1.0f; // Multiplies footwalk, used for vanilla anims such as walking, running, sprinting
-
-    constexpr float Rumble_Default_MassiveJump = 2.6f * 1.0f; // Used when player jumps and scale is >= x3.0
-
-    ////////////////////////////////////////////////////
-
-    constexpr float Rumble_Stomp_Normal = 2.25f * 1.0f;
-    constexpr float Rumble_Stomp_Strong = 4.0f * 1.0f;
-    constexpr float Rumble_Stomp_Land_Normal = 2.75f * 1.0f;
-
-    constexpr float Rumble_Stomp_Under_Light = 2.35f * 1.0f;
-    constexpr float Rumble_Stomp_Under_Strong = 3.85f * 1.0f;
-
-
-    // Tramples
-    constexpr float Rumble_Trample_Stage1 = 2.2f * 1.0f;
-    constexpr float Rumble_Trample_Stage2 = 3.0f * 1.0f;
-    constexpr float Rumble_Trample_Stage3 = 4.15f * 1.0f;
-
-    // Foot Grind
-    constexpr float Rumble_FootGrind_DOT = 0.25f;
-    constexpr float Rumble_FootGrind_Rotate = 0.75f;
-    constexpr float Rumble_FootGrind_Impact = 2.4f * 1.0f;
-
-    // Hugs
-
-    constexpr float Rumble_Hugs_HugCrush = 6.0f;
-    constexpr float Rumble_Hugs_Release = 4.2f;
-    constexpr float Rumble_Hugs_Shrink = 2.0f;
-    constexpr float Rumble_Hugs_Catch = 3.0f;
-    constexpr float Rumble_Hugs_Heal = 1.6f;
-
-    // Grab
-    constexpr float Rumble_Grab_Throw_Footstep = 3.0f;
-    constexpr float Rumble_Grab_Hand_Attack = 3.4f;
-
-    // Thigh Sandwich
-    constexpr float Rumble_ThighSandwich_ThighImpact_Heavy = 2.8f;
-    constexpr float Rumble_ThighSandwich_ThighImpact = 2.0f;
-    constexpr float Rumble_ThighSandwich_DropDown = 3.2f;
-
-    constexpr float Rumble_ThighSandwich_ButtImpact = 2.2f;
-    constexpr float Rumble_ThighSandwich_ButtImpact_Heavy = 3.0f;
-    constexpr float Rumble_ThighSandwich_ButtImpact_Finisher = 3.8f;
-
-    /// Thigh Crush
-    constexpr float Rumble_ThighCrush_StandUp = 2.0f;
-    constexpr float Rumble_ThighCrush_LegSpread_Light_End = 0.16f;
-    constexpr float Rumble_ThighCrush_LegCross_Heavy_End = 0.18f;
-
-    constexpr float Rumble_ThighCrush_LegSpread_Light_Loop = 1.20f;
-    constexpr float Rumble_ThighCrush_LegSpread_Heavy_Loop = 1.45f;
-
-    // Furniture Sitting
-
-    constexpr float Rumble_ButtCrush_Sit = 2.0f;
-
-    // Butt crush
-    constexpr float Rumble_ButtCrush_FeetImpact = 2.5f * 1.0f;
-    constexpr float Rumble_ButtCrush_ButtImpact = 5.8f;  // Butt Crush
-
-    constexpr float Rumble_ButtCrush_UnderStomp_ButtImpact = 3.4f;  // Butt Crush
-
-    // Knee Crush
-    constexpr float Rumble_KneeCrush_FootImpact = 1.75f * 1.0f;
-
-    // Breast crush
-    constexpr float Rumble_Cleavage_HoverLoop = 0.06f;
-    constexpr float Rumble_Cleavage_Impact = 4.9f;      // Breast Crush
-
-    // Crawling
-    constexpr float Rumble_Crawl_KneeDrop = 4.9f;       // Knee Crush
-    constexpr float Rumble_Crawl_KneeHand_Impact = 2.1f;// A bit higher value since it gets cut off by sneak modifier
-
-    // Finger Grind
-    constexpr float Rumble_FingerGrind_Rotate = 1.0f;
-    constexpr float Rumble_FingerGrind_Impact = 1.25f;
-    constexpr float Rumble_FingerGrind_Finisher = 1.8f;
-
-    // Vore
-    constexpr float Rumble_Vore_Stomp_Light = 2.0f;
-
-    // Misc
-    constexpr float Rumble_Misc_ShrinkOutburst = 6.25f; // when performing shrink outburst
-    constexpr float Rumble_Misc_MightOfDragons = 2.85f; // when growing after gaining dragon soul
-    constexpr float Rumble_Misc_TearClothes = 3.5f;
-    constexpr float Rumble_Misc_TearAllClothes = 5.5f;
-
-    constexpr float Rumble_Misc_EnableTinyProtection = 3.8f;
-    constexpr float Rumble_Misc_FailTinyProtection = 6.2f;
-
-    constexpr float Rumble_Growth_GrowthSpurt = 0.75f;
-    constexpr float Rumble_Shrink_GrowthSpurt = 0.75f;
-
-    constexpr float Rumble_Growth_SlowGrowth_Start = 3.5f;
-    constexpr float Rumble_Growth_SlowGrowth_Loop = 0.9f;
-
-    constexpr float Rumble_Kill_CrushOther = 7.6f;
-    constexpr float Rumble_Kill_ShrinkToNothing = 8.6f;
+    
 
     //=========================================================================================
     //Zoom-in parameters
@@ -451,5 +355,4 @@ namespace GTS {
     //////////////////
     
     constexpr float ZoomIn_LookAt_BothFeet = 0.5f;
-
 }

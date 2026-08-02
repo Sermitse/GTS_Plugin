@@ -148,7 +148,7 @@ namespace GTS {
 	void DoOverkill(Actor* attacker, Actor* receiver, float damage) {
 		if (damage > GetMaxAV(receiver, ActorValue::kHealth)) { // Overkill effect
 			float size_difference = get_scale_difference(attacker, receiver, SizeType::VisualScale, true, false);
-			if (size_difference >= 12.0f) {
+			if (size_difference >= 16.0f) {
 				OverkillManager::GetSingleton().Overkill(attacker, receiver);
 			}
 		}

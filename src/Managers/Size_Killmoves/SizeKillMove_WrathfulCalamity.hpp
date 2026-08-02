@@ -30,8 +30,8 @@ namespace WrathfulCalamity {
         // visual scale - but that scale is floored at MinAnchorScale first, so the offsets don't
         // collapse toward zero (and the camera doesn't clip into the enemy) once they've shrunk
         // to very small scales (e.g. ~0.10x).
-        float FocusForwardOffset = -15.0f;  // units, along head-forward
-        float FocusHeightOffset  = 6.0f;  // units, world-up - raised above the head so the shot clears a tiny enemy
+        float FocusForwardOffset = -30.0f;  // units, along head-forward
+        float FocusHeightOffset  = 35.0f;  // units, world-up - raised above the head so the shot clears a tiny enemy
         float MinAnchorScale     = 0.35f; // floor applied to the enemy's visual scale for the offsets above
 
         // 3) Enemy anchor -> giant node hand-off blend.
@@ -80,4 +80,5 @@ namespace GTS {
     void StartWrathfulCalamityKillmove(RE::Actor* giant, RE::Actor* victim, RE::NiAVObject* giantLookNode, DamageSource Cause, float base_damage, float crush_mult, bool isFootNode = false, bool TinyCalamity = true);
     bool UpdateWrathfulCalamityKillMove();
     void RecordWrathfulCalamityStartingPosition();
+    bool OverrideWrathfulCalamityHeadtracking(NiPoint3 &target);
 }

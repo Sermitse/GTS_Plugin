@@ -155,11 +155,13 @@ namespace GTS {
             float dx = 0.0f;
             float final_distance = 0.0f;
             CalculateForwardBlend(giant, footPos, victimPos, max_distance, x, dx, final_distance);
-            if (!giant->IsSneaking()) {
+
+            if (!giant->IsSneaking() && !victim->IsDead()) {
                 const auto node = find_node(giant, left ? "NPC L Foot [Lft ]" : "NPC R Foot [Rft ]");
                 const auto cause = left ? DamageSource::KickedLeft : DamageSource::KickedRight;
                 StartKillmove(giant, victim, node, cause, strong ? Damage_Kick_Strong : Damage_Kick, 1.8f, true);
             }
+
             return left;
         }
         bool AutoAim_Crawl_TryBreastSlam(Actor* giant, bool& left_hand, AimAssistResult* out_result) {
@@ -380,7 +382,9 @@ namespace GTS {
             float dx = 0.0f;
             float dy = 0.0f;
             float final_distance = 0.0f;
-            
+            //---------- Back-stomps test
+            //CalculateDirectionalBlend2D(giant, footPos, victimPos, max_distance, x, y, dx, dy, final_distance); //
+            // ^ Back-stomps test
             CalculateAngleBasedSideBlend(giant, footPos, victimPos, y, dy, dx, final_distance);
 
             x = ApplyMagnitude(x);

@@ -29,6 +29,8 @@ namespace GTS {
         Misc_ShrinkParticle_Gaze,
         Misc_TinyCalamity_WrathfulCalamity,
         Misc_TinyCalamity_Shrink,
+        Misc_TinyCalamity_Hit,
+        Misc_TinyCalamity_Ragdoll,
         Footstep_Right,
         Footstep_Left,
         Footstep_JumpLand,
@@ -67,6 +69,9 @@ namespace GTS {
         double lastGazeShrinkParticleTime = -1.0e8f;
         double lastTinyCalamityOneShotTime = -1.0e8f;
         double lastTinyCalamityShrinkTime = -1.0e8f;
+
+        double lastTinyCalamityHitTime = -1.0e8f;
+        double lastTinyCalamityRagdollTime = -1.0e8f;
 
         double lastFootstepTime_R = -1.0e8f;
         double lastFootstepTime_L = -1.0e8f;

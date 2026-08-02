@@ -149,6 +149,8 @@ namespace WrathfulCalamity {
         bool dead = _victim && _victim->IsDead();
 
         if (dead) {
+            _cam.stageFromPos = _cam.cameraPos;
+            _cam.stageFromRot = _cam.cameraRot;
             _returnFromSGTM = slowMo;
             EnterStage(_cam, _state, WrathfulPOVState::ImpactHold);
         }
@@ -304,5 +306,19 @@ namespace GTS {
 
     void RecordWrathfulCalamityStartingPosition() {
         RecordStartingPosition(_cam, _state, WrathfulPOVState::None);
+    }
+
+    bool OverrideWrathfulCalamityHeadtracking(NiPoint3 &target) {
+        if (!_cam.active) {
+            return false;
+        }
+        NiPoint3 coords = _victim->GetPosition();
+        if (auto head = find_node(_victim, "NPC Head [Head]")) {
+            coords = head->world.translate;
+        } else if (auto COM = find_node(_victim, "NPC COM [COM ]")) {
+            coords = COM->world.translate;
+        }
+        target = coords;
+        return false;
     }
 }

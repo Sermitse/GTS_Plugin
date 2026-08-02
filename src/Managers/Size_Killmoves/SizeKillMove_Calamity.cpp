@@ -305,4 +305,18 @@ namespace GTS {
     void RecordCalamityStartingPosition() {
         RecordStartingPosition(_cam, _state, TinyPOVState::None);
     }
+
+    bool OverrideCalamityHeadtracking(NiPoint3 &target) {
+        if (!_cam.active) {
+            return false;
+        }
+        NiPoint3 coords = _victim->GetPosition();
+        if (auto head = find_node(_victim, "NPC Head [Head]")) {
+            coords = head->world.translate;
+        } else if (auto COM = find_node(_victim, "NPC COM [COM ]")) {
+            coords = COM->world.translate;
+        }
+        target = coords;
+        return false;
+    }
 }

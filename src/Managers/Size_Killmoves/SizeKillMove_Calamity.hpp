@@ -28,8 +28,8 @@ namespace Calamity {
 
         // Where exactly "the eyes" sit relative to the victim's head node, scaled by the
         // VICTIM's own visual scale (so the anchor shrinks together with them).
-        float EyeForwardOffset = 3.0f; // units, along head-forward, to clear the front of the face
-        float EyeHeightOffset  = 2.0f; // units, world-up, head node -> eye height
+        float EyeForwardOffset = 5.0f; // units, along head-forward, to clear the front of the face
+        float EyeHeightOffset  = 40.0f; // units, world-up, head node -> eye height
 
         // 2) Look up at giant (fallback/maximum; ends early if a tracked giant node closes in, see below)
         float LookUpAtGiantTime = 1.2f; // seconds
@@ -87,4 +87,5 @@ namespace GTS {
     void StartCalamityKillmove(RE::Actor* giant, RE::Actor* victim, RE::NiAVObject* giantLookNode, DamageSource Cause, float base_damage, float crush_mult, bool isFootNode = false, bool TinyCalamity = true);
     bool UpdateCalamityKillMove();
     void RecordCalamityStartingPosition();
+    bool OverrideCalamityHeadtracking(NiPoint3 &target);
 }

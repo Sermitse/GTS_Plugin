@@ -11,7 +11,7 @@
 using namespace GTS;
 
 namespace {
-    constexpr float reduce_calculation = 0.7f;
+    constexpr float reduce_damage_result = 0.6f;
 }
 
 namespace GTS {
@@ -22,7 +22,7 @@ namespace GTS {
 
             float levelbonus = 1.0f + ((GetGtsSkillLevel(giant) * 0.01f) * 0.50f);
             damage_result *= levelbonus * Config::Balance.fSizeDamageMult;
-            damage_result *= reduce_calculation; // To be safe
+            damage_result *= reduce_damage_result; // To be safe
             logger::info("Damage Result: {}, Health: {}, Can Start: {}", damage_result, GetAV(enemy, ActorValue::kHealth), damage_result > GetAV(enemy, ActorValue::kHealth));
             return damage_result;
         }
@@ -56,8 +56,7 @@ namespace GTS {
 
     float Ease(float x) {
         x = Clamp01(x);
-        return x < 0.5f ? 4.0f * x * x * x
-                         : 1.0f - std::pow(-2.0f * x + 2.0f, 3.0f) / 2.0f;
+        return x < 0.5f ? 4.0f * x * x * x : 1.0f - std::pow(-2.0f * x + 2.0f, 3.0f) / 2.0f;
     }
 
     RE::NiPoint3 Lerp(const RE::NiPoint3& a, const RE::NiPoint3& b, float t) {

@@ -1,3 +1,5 @@
+#include "Managers/Size_Killmoves/SizeKillMove_WrathfulCalamity.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove_Calamity.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Utils/Actions/VoreUtils.hpp"
 #include "Utils/Actor/ActorBools.hpp"
@@ -230,7 +232,9 @@ namespace GTS {
 		}
 		return false;
 	}
-
+	bool ShouldHeadTrackCalamityVictim(Actor* actor) {
+		return actor->IsPlayerRef() && (WrathfulCalamity::_state != WrathfulCalamity::WrathfulPOVState::None || Calamity::_state != Calamity::TinyPOVState::None);
+	}
 	bool IsHeadtracking(Actor* giant) { // Used to report True when we lock onto something, should be Player Exclusive.
 		if (giant) {
 			if (giant->IsPlayerRef()) {

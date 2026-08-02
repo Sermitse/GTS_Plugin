@@ -256,6 +256,7 @@ namespace GTS {
 			bool IsFoot = (node->name == "NPC R Foot [Rft ]" || node->name == "NPC L Foot [Lft ]");
 
 			PushObjectsUpwards(giant, LaunchObjectPoints, maxDistance, power, IsFoot);
+			const bool Calamity = TinyCalamityActive(giant);
 
 			for (auto otherActor: find_actors()) {
 				if (otherActor != giant) {
@@ -263,13 +264,18 @@ namespace GTS {
 					if (giantScale / tinyScale > SCALE_RATIO) {
 						NiPoint3 actorLocation = otherActor->GetPosition();
 						float distance = (point - actorLocation).Length();
+
+						const bool canStagger = (giantScale / tinyScale > 1.325f);
+
 						if (distance <= maxDistance) {
-							if (tinyScale < 0.8f && giantScale < 2.5f) {
-								StaggerActor(giant, otherActor, std::clamp(0.25f * SCALE_RATIO, 0.25f, 1.0f)); // Stagger instead of launching, ragdolls are buggy at small sizes
-							} else {
-								LaunchWithDistance(giant, otherActor, min_radius, distance, maxDistance, power);
+							if (AllowStagger(otherActor)) {
+								if (canStagger || Calamity) {
+									StaggerOr(giant, otherActor); // Stagger instead of launching, ragdolls are buggy at small sizes
+								} else if (!Calamity && giantScale >= Action_MinPushScale) { // Never ragdoll in Calamity
+									LaunchWithDistance(giant, otherActor, min_radius, distance, maxDistance, power);
+									// min_radius prevents Launch from happening if Actor is inside specific radius of collider
+								}
 							}
-							// min_radius prevents Launch from happening if Actor is inside specific radius of collider
 						}
 					}
 				}
@@ -286,6 +292,7 @@ namespace GTS {
 		const float min_distance = Radius_Walk_Default * giantScale; // Enemies shouldn't be launched if they're in this radius
 
 		float SCALE_RATIO = GetLaunchThreshold(giant)/GetMovementModifier(giant);
+		
 		if (TinyCalamityActive(giant)) {
 			SCALE_RATIO = 0.8f;
 			radius *= 1.5f;
@@ -307,7 +314,7 @@ namespace GTS {
 			}
 
 			PushObjectsUpwards(giant, CoordsToCheck, maxFootDistance, power, true);
-
+			const bool Calamity = TinyCalamityActive(giant);
 			for (auto otherActor: find_actors()) {
 				if (otherActor != giant) {
 					float tinyScale = get_visual_scale(otherActor);
@@ -317,12 +324,16 @@ namespace GTS {
 							point.z -= HH;
 							float distance = (point - actorLocation).Length();
 							
+							const bool canStagger = (giantScale / tinyScale > 1.325f);
+							
 							if (distance <= maxFootDistance && distance > min_distance) {
-								if (tinyScale < 0.8f && giantScale < 2.5f) {
-									StaggerActor(giant, otherActor, std::clamp(0.25f * SCALE_RATIO, 0.25f, 1.0f)); // Stagger instead of launching, ragdolls are buggy at small sizes
-								} else if (AllowStagger(otherActor)) {
-									float force = GetForceFromDistance(distance, maxFootDistance);
-									ApplyLaunchTo(giant, otherActor, force, power);
+								if (AllowStagger(otherActor)) {
+									if (canStagger || Calamity) {
+										StaggerOr(giant, otherActor); // Stagger instead of launching, ragdolls are buggy at small sizes
+									} else if (!Calamity && giantScale >= Action_MinPushScale) { // Never ragdoll in Calamity
+										float force = GetForceFromDistance(distance, maxFootDistance);
+										ApplyLaunchTo(giant, otherActor, force, power);
+									}
 								}
 							}
 						}

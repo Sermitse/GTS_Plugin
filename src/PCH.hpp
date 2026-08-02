@@ -173,6 +173,7 @@ namespace Hooks {
 
 
 // ---- Own Includes ----
+#include "Constants_Rumble.hpp"
 #include "Constants.hpp"
 
 //Debugging

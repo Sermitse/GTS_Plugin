@@ -169,7 +169,7 @@ namespace GTS {
                 AdjustMassLimit(0.0106f * multiplier, giant);
             }
             if (VoreController::GetSingleton().GetVoreData(giant).GetTimer() == true) {
-				Task_FacialEmotionTask_Moan(giant, 1.0f, "Vore", RandomFloat(0.0f, 0.35f));
+				Task_FacialEmotionTask_Moan(giant, 1.6f, "Vore", RandomFloat(0.0f, 0.35f));
                 Sound_PlayMoans(giant, 1.0f, 0.14f, EmotionTriggerSource::Vore);
             }
 

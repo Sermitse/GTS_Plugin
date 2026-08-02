@@ -22,6 +22,7 @@ namespace GTS {
 	bool IsFlying(Actor* actor);
 	bool IsHostile(Actor* giant, Actor* tiny);
 	bool IsEssential(Actor* giant, Actor* actor);
+	bool ShouldHeadTrackCalamityVictim(Actor* actor);
 	bool IsHeadtracking(Actor* giant);
 	bool IsInGodMode(Actor* giant);
 	bool CanBeCrushed(Actor* actor);

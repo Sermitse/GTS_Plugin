@@ -1444,9 +1444,6 @@ namespace GTS {
 		AdjustFacialExpression(giant, 0, 0.80f, CharEmotionType::Modifier, open_speed, open_speed); // blink L
 		AdjustFacialExpression(giant, 1, 0.80f, CharEmotionType::Modifier, open_speed, open_speed); // blink R
 
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Phenome, true);
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Modifier, true);
-
 		TaskManager::Run(name, [=](auto& progressData) {
 			if (!giantHandle) {
 				return false;
@@ -1461,17 +1458,12 @@ namespace GTS {
 			
 			if (ShouldRevert) {
 				float close_speed = duration / 6.0f;
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, false);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, false);
 
 				AdjustFacialExpression(giantref, 0, 0.0f, CharEmotionType::Phenome, close_speed, close_speed); // Start opening mouth
 				AdjustFacialExpression(giantref, 1, 0.0f, CharEmotionType::Phenome, close_speed, close_speed); // Open it wider
 
 				AdjustFacialExpression(giantref, 0, 0.0f, CharEmotionType::Modifier, close_speed, close_speed); // blink L
 				AdjustFacialExpression(giantref, 1, 0.0f, CharEmotionType::Modifier, close_speed, close_speed); // blink R
-
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, true);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, true);
 				return false;
 			}
 			return true;
@@ -1488,9 +1480,6 @@ namespace GTS {
 		AdjustFacialExpression(giant, 1, 1.0f, CharEmotionType::Modifier); // blink R
 		AdjustFacialExpression(giant, 0, 1.0f, CharEmotionType::Phenome); // open mouth
 
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Phenome, true);
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Modifier, true);
-
 		TaskManager::Run(name, [=](auto& progressData) {
 			if (!giantHandle) {
 				return false;
@@ -1502,15 +1491,9 @@ namespace GTS {
 			bool ShouldRevert = timepassed >= duration + duration_add;
 
 			if (ShouldRevert) {
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, false);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, false);
-
 				AdjustFacialExpression(giantref, 0, 0.0f, CharEmotionType::Modifier); // blink L
 				AdjustFacialExpression(giantref, 1, 0.0f, CharEmotionType::Modifier); // blink R
 				AdjustFacialExpression(giantref, 0, 0.0f, CharEmotionType::Phenome); // close mouth
-
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, true);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, true);
 				return false;
 			}
 			return true;
@@ -1534,9 +1517,6 @@ namespace GTS {
 		AdjustFacialExpression(giant, 5, 0.5f, CharEmotionType::Phenome); // Actual smile but leads to opening mouth 
 		AdjustFacialExpression(giant, 7, 1.0f, CharEmotionType::Phenome); // Close mouth stronger to counter opened mouth from smiling
 
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Phenome, true);
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Modifier, true);
-		
 		// Emotion guide:
 		// https://steamcommunity.com/sharedfiles/filedetails/?id=187155077
 
@@ -1551,9 +1531,6 @@ namespace GTS {
 			bool ShouldRevert = timepassed >= duration + duration_add;
 			
 			if (ShouldRevert) {
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, false);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, false);
-
 				AdjustFacialExpression(giantref, 0, 0.0f, CharEmotionType::Phenome); // Start closing mouth
 
 				AdjustFacialExpression(giantref, 0, 0.0f, CharEmotionType::Modifier); // blink L
@@ -1562,9 +1539,6 @@ namespace GTS {
 				AdjustFacialExpression(giantref, 3, 0.0f, CharEmotionType::Phenome); // Smile a bit (Mouth)
 				AdjustFacialExpression(giantref, 5, 0.0f, CharEmotionType::Phenome); // Smile a bit (Mouth)
 				AdjustFacialExpression(giantref, 7, 0.0f, CharEmotionType::Phenome); // Smile a bit (Mouth)
-
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, true);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, true);
 				return false;
 			}
 			return true;
@@ -1584,10 +1558,6 @@ namespace GTS {
 		AdjustFacialExpression(giant, 5, 0.5f, CharEmotionType::Phenome); 
 		AdjustFacialExpression(giant, 6, 0.25f, CharEmotionType::Phenome); 
 
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Phenome, true);
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Modifier, true);
-		
-
 		// Emotion guide:
 		// https://steamcommunity.com/sharedfiles/filedetails/?id=187155077
 
@@ -1602,17 +1572,11 @@ namespace GTS {
 			bool ShouldRevert = timepassed >= duration + duration_add;
 			
 			if (ShouldRevert) {
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, false);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, false);
-
 				AdjustFacialExpression(giantref, 0, 0.0f, CharEmotionType::Modifier);
 				AdjustFacialExpression(giantref, 1, 0.0f, CharEmotionType::Modifier); 
 
 				AdjustFacialExpression(giantref, 5, 0.0f, CharEmotionType::Phenome);
 				AdjustFacialExpression(giantref, 6, 0.0f, CharEmotionType::Phenome);
-
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, true);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, true);
 				return false;
 			}
 			return true;
@@ -1632,9 +1596,6 @@ namespace GTS {
 
 		AdjustFacialExpression(giant, 0, random, CharEmotionType::Expression);
 		AdjustFacialExpression(giant, 2, 0.75f, CharEmotionType::Phenome);
-
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Expression, true);
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Phenome, true);
 		
 		// Emotion guide:
 		// https://steamcommunity.com/sharedfiles/filedetails/?id=187155077
@@ -1650,15 +1611,8 @@ namespace GTS {
 			bool ShouldRevert = timepassed >= duration + duration_add;
 			
 			if (ShouldRevert) {
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Expression, false);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, false);
-
 				AdjustFacialExpression(giantref, 0, 0.0f, CharEmotionType::Expression);
 				AdjustFacialExpression(giantref, 2, 0.0f, CharEmotionType::Phenome); 
-				
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Expression, true);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, true);
-				
 				return false;
 			}
 			return true;
@@ -1683,9 +1637,6 @@ namespace GTS {
 		// 7 = ~100
 		// 12 = 100
 
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Phenome, true);
-		EmotionManager::SetEmotionBusy(giant, CharEmotionType::Modifier, true);
-		
 		// Emotion guide:
 		// https://steamcommunity.com/sharedfiles/filedetails/?id=187155077
 
@@ -1700,9 +1651,6 @@ namespace GTS {
 			bool ShouldRevert = timepassed >= duration + duration_add;
 			
 			if (ShouldRevert) {
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, false);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, false);
-
 				AdjustFacialExpression(giantref, 0, 0.0f, CharEmotionType::Modifier, 0.32f, 0.075f); // blink L
 				AdjustFacialExpression(giantref, 1, 0.0f, CharEmotionType::Modifier, 0.32f, 0.075f); // blink R
 
@@ -1711,9 +1659,6 @@ namespace GTS {
 				AdjustFacialExpression(giantref, 12, 0.0f, CharEmotionType::Phenome); 
 
 				AdjustFacialExpression(giantref, 1, 0.0f, CharEmotionType::Expression); 
-
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Phenome, true);
-				EmotionManager::SetEmotionBusy(giantref, CharEmotionType::Modifier, true);
 				return false;
 			}
 			return true;

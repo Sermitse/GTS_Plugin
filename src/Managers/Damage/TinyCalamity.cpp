@@ -343,7 +343,7 @@ namespace GTS {
 
                 float giantScale = get_visual_scale(giant);
 
-                constexpr float BASE_DISTANCE = 48.0f;
+                constexpr float BASE_DISTANCE = 52.0f;
                 float CheckDistance = BASE_DISTANCE*giantScale;
 
                 if (DebugDraw::CanDraw(giant, DebugDraw::DrawTarget::kPlayerAndFollowers)) {
@@ -354,7 +354,7 @@ namespace GTS {
                 for (auto otherActor: find_actors()) {
                     if (otherActor != giant) {
                         NiPoint3 actorLocation = otherActor->GetPosition();
-                        if ((actorLocation - giantLocation).Length() < BASE_DISTANCE*giantScale*3) {
+                        if ((actorLocation - giantLocation).Length() < BASE_DISTANCE*giantScale*3.0f) {
                             int nodeCollisions = 0;
 
                             auto model = otherActor->GetCurrent3D();
@@ -389,21 +389,29 @@ namespace GTS {
         }
 
 		if (const auto& Data = Persistent::GetActorData(giant)) {
-			if (Data->fSMTRunSpeed >= 1.0f) {
-                float giantHp = GetAV(giant, ActorValue::kHealth);
-
-				if (giantHp <= 0) {
-					return; // just in case, to avoid CTD
-				}
-
-				if (Collision_AllowTinyCalamityCrush(giant, tiny)) {
-                    tiny->StartCombat(giant);
-                    TinyCalamity_ExplodeActor(giant, tiny);
-				} else {
-                    tiny->StartCombat(giant);
-                    TinyCalamity_StaggerActor(giant, tiny, giantHp);
-				}
-			}
+            float giantHp = GetAV(giant, ActorValue::kHealth);
+            if (giantHp > 0.0f) {
+                if (Data->fSMTRunSpeed >= 1.0f) {
+                    if (Collision_AllowTinyCalamityCrush(giant, tiny)) {
+                        tiny->StartCombat(giant);
+                        TinyCalamity_ExplodeActor(giant, tiny);
+                    } else {
+                        tiny->StartCombat(giant);
+                        TinyCalamity_StaggerActor(giant, tiny, giantHp);
+                    } 
+                } else if (!IsActionOnCooldown(giant, CooldownSource::Misc_TinyCalamity_Hit)) { // Non max speed behavior
+                    const float sizeDifference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
+                    if (Data->fSMTRunSpeed >= 0.25f) { // Try to push away
+                        if (sizeDifference >= 1.0f - Data->fSMTRunSpeed * 0.4f) {
+                            ApplyActionCooldown(giant, CooldownSource::Misc_TinyCalamity_Hit);
+                            PushForward(giant, tiny, std::clamp(400.0f * sizeDifference, 300.0f, 800.0f));
+                        }
+                    } else if (sizeDifference >= 0.85f - Data->fSMTRunSpeed * 0.25f) { // Try to just stagger
+                        ApplyActionCooldown(giant, CooldownSource::Misc_TinyCalamity_Hit);
+                        StaggerActor(tiny, 0.25f + Data->fSMTRunSpeed);
+                    }
+                }
+            }
 		}
 	}
 

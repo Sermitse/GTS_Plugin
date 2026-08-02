@@ -1,7 +1,22 @@
 #pragma once
+#include <set>
+#include <unordered_map>
 #include "Hooks/Experiments/Experiments_FootColliders.hpp"
 
 namespace GTS {
+
+	// Live parameters of an in-flight Phenome/Modifier ramp (see EmotionManager).
+	// The running TaskManager task re-reads this every tick instead of
+	// capturing it once, so a later call targeting the same index can just
+	// overwrite it - the task picks up the new StartValue/Target on its next
+	// tick and continues smoothly from wherever the value actually is, rather
+	// than snapping back to 0 first.
+	struct EmotionRampState {
+		double StartTime  = 0.0;
+		float  StartValue = 0.0f;
+		float  Target     = 0.0f;
+		float  MfgSpeed   = 1.0f; // the caller-supplied halflife/speed knob (AdjustFacialExpression's phenome_halflife/modifier_speed)
+	};
 
 	struct TransientActorData {
 
@@ -73,14 +88,23 @@ namespace GTS {
 		bool DevourmentDevoured = false;
 		bool DevourmentEaten = false;
 		bool WasSneaking = false;
-		bool EmotionModifierBusy = false;
-		bool EmotionPhonemeBusy = false;
 		bool ImmuneToBreastOneShot = true;
 		bool IsSlowGrowing = false;
 		bool TemporaryDamageImmunity = false;
 		bool ReattachingTiny = false;
 		bool KissVoring = false;
 		bool TinyCalamityActive = false;
+
+		// Which Phenome/Modifier indices currently have an active ramp task
+		// running on them (see EmotionManager) - tracked per-index so multiple
+		// different facial emotions can blend on the same actor at once, and
+		// only clash if two calls target the exact same index.
+		std::set<std::uint32_t> BusyEmotionPhenomes;
+		std::set<std::uint32_t> BusyEmotionModifiers;
+
+		// Current ramp target/origin per index - see EmotionRampState above.
+		std::unordered_map<std::uint32_t, EmotionRampState> PhenomeRamps;
+		std::unordered_map<std::uint32_t, EmotionRampState> ModifierRamps;
 
 		bool AutoAim_T1 = false;
 		bool AutoAim_T2 = false;

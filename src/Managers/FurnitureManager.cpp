@@ -93,7 +93,7 @@ namespace GTS_Hitboxes {
 		float dust = SMT ? 1.25f : 1.0f;
 		float smt = SMT ? 1.5f : 1.0f;
 
-        float shake_power = Rumble_ButtCrush_Sit/2.0f * dust * damage;
+        float shake_power = Rumble_Furniture_Sit * dust * damage;
         for (auto Nodes: Butt_Zones) {
             auto Butt = find_node(giant, Nodes);
             if (Butt) {

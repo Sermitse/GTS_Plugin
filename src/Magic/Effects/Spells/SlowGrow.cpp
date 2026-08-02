@@ -13,13 +13,13 @@
 using namespace GTS;
 
 namespace {
-
+	
 	constexpr float BASE_POWER = 0.000025f; 	// Default growth over time.
 	constexpr float DUAL_CAST_BONUS = 2.25f;
 	constexpr float MOAN_CHANCE = 25.0f; 		// In %
 	constexpr float EMPOWER_CHANCE = 75.0f; 	// in%
 
-	void PerformMoanAndParticle(Actor* caster, float& power, float& shakePower) {
+	void PerformMoanAndParticle(Actor* caster, float& power, float& shakePower, bool dualCast) {
 		if (caster && IsFemale(caster) && !IsActionOnCooldown(caster, CooldownSource::Emotion_Moan) && RandomBool(EMPOWER_CHANCE)) {
 			for (auto Foot: {"NPC L Foot [Lft ]", "NPC R Foot [Rft ]"}) {
 				auto FootNode = find_node(caster, Foot);
@@ -29,7 +29,8 @@ namespace {
 			}
 			shakePower *= 2.5f; power *= 320.0f; // First empower
 			if (Config::Audio.bSlowGrowMoans && RandomBool(MOAN_CHANCE)) {
-				SpawnCustomParticle(caster, ParticleType::Green, NiPoint3(), "NPC COM [COM ]", get_visual_scale(caster) * 1.5f);
+				float mult = dualCast ? 0.6f : 0.40f;
+				SpawnCustomParticle(caster, ParticleType::Green, NiPoint3(), "NPC COM [COM ]", get_visual_scale(caster) * 1.5f * mult);
 				Task_FacialEmotionTask_Moan(caster, 1.0f + RandomFloat(0.0f, 0.25f), "SlowGrow");
 				float MoanVolume = std::clamp(get_visual_scale(caster)/4.0f, 0.5f, 1.0f);
 				Sound_PlayMoans(caster, MoanVolume, 0.14f, EmotionTriggerSource::Growth, CooldownSource::Emotion_Voice_Long);
@@ -89,7 +90,7 @@ namespace {
 				power *= DUAL_CAST_BONUS;
 			}
 			
-			PerformMoanAndParticle(Caster, power, shakePower); // Empowers growth effects
+			PerformMoanAndParticle(Caster, power, shakePower, dualCast); // Empowers growth effects
 
 			Rumbling::Once("SlowGrowth", Caster, Rumble_Growth_SlowGrowth_Loop * shakePower, 0.05f, "NPC COM [COM ]", 0.0f, true);
 			Grow(Caster, 0.0f, power * bonus);
@@ -119,6 +120,7 @@ namespace GTS {
 
 	void SlowGrow::OnStart() {
 		Actor* caster = GetCaster();
+		float duration = 90.0f;
 		if (caster) {
 			if (const auto ActorTransient = Transient::GetActorData(caster)) {
 				float scale = get_visual_scale(caster);
@@ -129,7 +131,10 @@ namespace GTS {
 					mult *= 1.5f;
 				}
 				SpawnCustomParticle(caster, ParticleType::Green, NiPoint3(), "NPC COM [COM ]", scale * mult * 1.75f);
-				auto duration = this->GetActiveEffect()->duration;
+				
+				if (auto effect = this->GetActiveEffect()) {
+					duration = effect->duration;
+				}
 				if (ActorTransient->IsSlowGrowing) {
 					ActorTransient->IsSlowGrowing = false;
 					return;
