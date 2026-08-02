@@ -275,10 +275,6 @@ namespace GTS::CameraCol {
 				finalCameraPosition.z += Hull - floorResult.rayLength;
 			}
 
-			if (finalCameraPosition.z < actorZPos + Hullx2) {
-				finalCameraPosition.z = actorZPos + Hullx2;
-			}
-
 			if (Config::Advanced.bShowOverlay) {
 				DebugDraw::DrawLineForMS({ floorStart4.x, floorStart4.y, floorStart4.z }, { finalCameraPosition.x, finalCameraPosition.y, finalCameraPosition.z }, 16, { 0.0f, 1.0f, 0.0f, 1.0f }, 1.5f); //Green
 			}

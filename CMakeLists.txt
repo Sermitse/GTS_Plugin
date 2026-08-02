@@ -92,7 +92,7 @@ FetchContent_MakeAvailable(boost_ext_reflect)
 FetchContent_Declare(
   glaze
   GIT_REPOSITORY https://github.com/stephenberry/glaze.git
-  GIT_TAG v7.7.1
+  GIT_TAG v7.9.1
   GIT_SHALLOW ON
 )
 FetchContent_MakeAvailable(glaze)
@@ -101,7 +101,6 @@ FetchContent_MakeAvailable(glaze)
 # # Find dependencies - VCPKG
 # #######################################################################################################################
 
-find_package(Boost REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(lz4 CONFIG REQUIRED)
 find_package(xbyak CONFIG REQUIRED)
@@ -130,7 +129,6 @@ target_link_libraries(
 	PRIVATE
     ${DETOURS_LIBRARY}
 	xbyak::xbyak
-	Boost::headers
 	glaze::glaze
 	toml11::toml11
 	lz4::lz4
@@ -148,15 +146,15 @@ target_link_libraries(
 include(Package)
 
 # ----- debug
-message(STATUS "Using toolchain file:                   ${CMAKE_TOOLCHAIN_FILE}.")
-message(STATUS "CMAKE_CXX_FLAGS:                        ${CMAKE_CXX_FLAGS}")
-message(STATUS "CMAKE_CXX_FLAGS_DEBUG:                  ${CMAKE_CXX_FLAGS_DEBUG}")
-message(STATUS "CMAKE_CXX_FLAGS_RELEASE:                ${CMAKE_CXX_FLAGS_RELEASE}")
-message(STATUS "CMAKE_CXX_FLAGS_RELWITHDEBINFO:         ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-message(STATUS "CMAKE_EXE_LINKER_FLAGS:                 ${CMAKE_EXE_LINKER_FLAGS}")
-message(STATUS "CMAKE_EXE_LINKER_FLAGS_DEBUG:           ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
-message(STATUS "CMAKE_EXE_LINKER_FLAGS_RELEASE:         ${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
-message(STATUS "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:  ${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
+message(STATUS "Using toolchain file:                      ${CMAKE_TOOLCHAIN_FILE}.")
+message(STATUS "CMAKE_CXX_FLAGS:                           ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMAKE_CXX_FLAGS_DEBUG:                     ${CMAKE_CXX_FLAGS_DEBUG}")
+message(STATUS "CMAKE_CXX_FLAGS_RELEASE:                   ${CMAKE_CXX_FLAGS_RELEASE}")
+message(STATUS "CMAKE_CXX_FLAGS_RELWITHDEBINFO:            ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+message(STATUS "CMAKE_SHARED_LINKER_FLAGS:                 ${CMAKE_SHARED_LINKER_FLAGS}")
+message(STATUS "CMAKE_SHARED_LINKER_FLAGS_DEBUG:           ${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+message(STATUS "CMAKE_SHARED_LINKER_FLAGS_RELEASE:         ${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
+message(STATUS "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO:  ${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}")
 
 get_target_property(compile_flags GtsPlugin COMPILE_OPTIONS)
 message(STATUS "GtsPlugin COMPILE_OPTIONS:      ${compile_flags}")

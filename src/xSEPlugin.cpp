@@ -79,6 +79,10 @@ namespace {
 
 SKSEPluginLoad(const SKSE::LoadInterface* a_skse){
 
+	//Explicitly reset,
+	//fixes bad exe base image address when building as debug
+	REL::Module::reset();
+
 	Init(a_skse);
 	logger::Initialize();
 

@@ -3,7 +3,11 @@ find_package(CommonLibSSE CONFIG REQUIRED)
 
 #mimicks add_commonlibsse_plugin but without the PluginInfo Insertion
 add_library("${PROJECT_NAME}" SHARED ${headers} ${sources})
-target_compile_definitions("${PROJECT_NAME}"PRIVATE __CMAKE_COMMONLIBSSE_PLUGIN=1)
+target_compile_definitions("${PROJECT_NAME}"
+    PRIVATE 
+    __CMAKE_COMMONLIBSSE_PLUGIN=1
+    ENABLE_COMMONLIBSSE_TESTING=1
+)
 target_link_libraries("${PROJECT_NAME}" PUBLIC CommonLibSSE::CommonLibSSE)
 target_include_directories("${PROJECT_NAME}" PUBLIC ${CommonLibSSE_INCLUDE_DIRS})
 
