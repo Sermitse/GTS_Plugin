@@ -111,13 +111,9 @@
       "binaryDir": "${sourceDir}/build/Release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_C_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS /guard:cf- /Qpar",
         "CMAKE_CXX_FLAGS": "/arch:SSE4.2 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS /guard:cf- /Qpar",
-        "CMAKE_C_FLAGS_RELEASE": "/arch:SSE4.2 /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
-        "CMAKE_CXX_FLAGS_RELEASE": "/arch:SSE4.2 /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
-        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:SSE4.2 /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS /guard:cf- /Qpar",
         "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
         "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO"
       }
     },
@@ -129,13 +125,9 @@
       "binaryDir": "${sourceDir}/build/Release-AVX",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_C_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
-        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
-        "CMAKE_C_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
-        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
-        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS /guard:cf- /Qpar",
         "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
         "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO"
       }
     },
@@ -147,31 +139,23 @@
       "binaryDir": "${sourceDir}/build/Release-AVX2",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_C_FLAGS": "/arch:AVX2 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
-        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
-        "CMAKE_C_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
-        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
-        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_CXX_FLAGS": "/arch:AVX2 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX2 /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS /guard:cf- /Qpar",
         "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
         "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO"
       }
     },
     {
       "name": "config-release-avx512",
       "displayName": "Release (AVX512)",
-      "description": "Configure release build with AVX.",
+      "description": "Configure release build with AVX512.",
       "inherits": "base-config",
       "binaryDir": "${sourceDir}/build/Release-AVX512",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_C_FLAGS": "/arch:AVX512 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
-        "CMAKE_CXX_FLAGS": "/arch:AVX /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS- /guard:cf- /Qpar",
-        "CMAKE_C_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
-        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS- /guard:cf- /Qpar",
-        "CMAKE_EXE_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
+        "CMAKE_CXX_FLAGS": "/arch:AVX512 /EHsc /Zi /FS /fp:fast /GL /GT /Zc:inline /d2FH4 /Gw /O2 /Ob2 /Oi /Ot /Oy /fp:except- /Gy /Gm- /sdl- /GS /guard:cf- /Qpar",
+        "CMAKE_CXX_FLAGS_RELEASE": "/arch:AVX512 /O2 /Ob2 /DNDEBUG /GL /GT /Zc:inline /d2FH4 /Gw /Gy /Oi /Ot /Oy /fp:fast /fp:except- /GS /guard:cf- /Qpar",
         "CMAKE_SHARED_LINKER_FLAGS": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
-        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO",
         "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG:FULL /OPT:REF /OPT:ICF /LTCG /INCREMENTAL:NO"
       }
     },
