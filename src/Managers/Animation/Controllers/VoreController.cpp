@@ -149,10 +149,10 @@ namespace GTS {
 			for (auto& tinyref : this->tinies | std::views::values) {
 				auto tiny = tinyref.get().get();
 				if (!tiny) {
-					return;
+					continue;
 				}
 				if (!giant) {
-					return;
+					continue;
 				}
 
 				if (this->allGrabbed && !giant->IsDead()) {

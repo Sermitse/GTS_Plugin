@@ -184,7 +184,7 @@ namespace {
 			case LCameraTrackBone_t::kBreasts:
 			{
 				return BoneTarget{
-					.boneNames = {"NPC L Breast01","NPC R Breast01"},
+					.boneNames = {"L Breast01","R Breast01"},
 					.zoomScale = ZoomIn_Cam_Breasts,
 				};
 			}
@@ -414,6 +414,7 @@ namespace GTS {
 						cameraRot = QuatToMatrix(cameraQuat);
 					}
 				}
+				break;
 			}
 			case CameraDataMode::Transform: {
 				//log::info("Camera State: Transform");
@@ -424,6 +425,7 @@ namespace GTS {
 						cameraRot = cameraRoot->world.rotate;
 					}
 				}
+				break;
 			}
 		}
 		auto camera = PlayerCamera::GetSingleton();

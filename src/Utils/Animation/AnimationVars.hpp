@@ -38,6 +38,8 @@ namespace GTS::AnimationVars {
 		bool IsTrampling(RE::Actor* a_actor);
 
 		float UnderStompBlend(RE::Actor* a_actor);
+		float GetStompBlend_X(RE::Actor* a_actor);
+		float GetStompBlend_Y(RE::Actor* a_actor);
 
 		bool SetAlternativeStompEnabled(RE::Actor* a_actor, bool a_value);
 		bool SetIsAlternativeGrindEnabled(RE::Actor* a_actor, bool a_value);

@@ -1,5 +1,6 @@
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Controllers/VoreController.hpp"
+#include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/Animation/Grab_Play_Events.hpp"
 
@@ -202,7 +203,7 @@ namespace Grab_Fixes {
 			float sizeDiff = gts_scale/tiny_scale;
 			float power = std::clamp(sizemanager.GetSizeAttribute(giant, SizeAttribute::Normal), 1.0f, 1000000.0f);
 			float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(grabbedActor);
-			float damage = (base_damage * sizeDiff) * power * additionaldamage * additionaldamage;
+			float damage = (base_damage * BalanceSizeDamage(sizeDiff)) * power * additionaldamage * additionaldamage;
 			float experience = std::clamp(damage/1600, 0.0f, 0.06f);
 
             if (CanDoDamage(giant, grabbedActor, false)) {

@@ -505,16 +505,11 @@ namespace GTS {
 
 		std::string_view TinyName = tiny->GetDisplayFullName();
 		std::string_view GiantName = giant->GetDisplayFullName();
-
 		switch (cause) {
 
 			case DamageSource::Shockwave:
 			{
-
-				if (!tiny->IsDead()) {
-					RecordKill(giant, tiny, DeathType::kOtherSources);
-				}
-
+				RecordKill(giant, tiny, DeathType::kOtherSources);
 				ShockwaveMessage(GiantName, TinyName, random);
 				break;
 			}
@@ -526,11 +521,7 @@ namespace GTS {
 			case DamageSource::WalkRight:
 			case DamageSource::WalkLeft:
 			{
-
-				if (!tiny->IsDead()) {
-					RecordKill(giant, tiny, DeathType::kCrushed);
-				}
-
+				RecordKill(giant, tiny, DeathType::kCrushed);
 				CrushedMessage(GiantName, TinyName, random, HighHeelManager::IsWearingHH(giant));
 				break;
 			}
@@ -551,7 +542,7 @@ namespace GTS {
 
 			case DamageSource::ShrinkToNothing:
 			{
-				if (!tiny->IsDead()) { RecordKill(giant, tiny, DeathType::kShrunkToNothing); }
+				RecordKill(giant, tiny, DeathType::kShrunkToNothing); 
 				ShrinkToNothingMessage(GiantName, TinyName, random);
 				break;
 			}

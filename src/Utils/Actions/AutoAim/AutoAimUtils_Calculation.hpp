@@ -9,10 +9,10 @@ namespace GTS {
 	Actor* FindClosestTargetBetweenTwoPoints_Rhomb(Actor* giant, const NiPoint3 pointL, const NiPoint3 pointR, float maxSearchDistance, bool& leftFoot);
 	Actor* FindClosestTargetBetweenTwoPoints(Actor* giant, const NiPoint3 pointL, const NiPoint3 pointR, float maxSearchDistance, bool& leftFoot);
 
-	void CalculateForwardBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, float maxDistance, float& outBlend,float& outForwardDistance, float& outDistance);
-	void CalculateDirectionalBlend2D(Actor* giant, const NiPoint3& footPos,const NiPoint3& targetPos,float maxDistance,float& outX, float& outY, float& outDistanceX,float& outDistanceY, float& outDistance);
-	void CalculateAngleBasedSideBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, float& outSideBlend, float& outRightDistance, float& outForwardDistance, float& outDistance);
+	void CalculateForwardBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, AnimationBlendInfo& info);
+	void CalculateDirectionalBlend2D(Actor* giant, const NiPoint3& footPos,const NiPoint3& targetPos, AnimationBlendInfo& info);
+	void CalculateAngleBasedSideBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, AnimationBlendInfo& info);
 
-	void CalculateRectangleBlend(Actor* giant, const NiPoint3& origin, const NiPoint3& target, float length, float width, float& outBlend, float& outForward, float& outRight, float& outDistance, bool& outInside, float blend_offset);
+	void CalculateRectangleBlend(Actor* giant, const NiPoint3& origin, const NiPoint3& target, AnimationBlendInfo& info);
 	void GetRectangleCoordinates(Actor* giant,const NiPoint3& origin, const NiPoint3& target, float length, float& forwardDist, float& rightDist);
 }

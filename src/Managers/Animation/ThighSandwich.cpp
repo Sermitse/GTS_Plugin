@@ -3,6 +3,7 @@
 
 #include "Managers/Animation/Controllers/ThighSandwichController.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
+#include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 
 #include "Managers/Audio/GoreAudio.hpp"
 #include "Managers/Input/InputManager.hpp"
@@ -48,7 +49,7 @@ namespace {
 			float sizedifference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
 			float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(tiny); // Get size damage debuff from enemy
 			float normaldamage = std::clamp(SizeManager::GetSizeAttribute(giant, SizeAttribute::Normal), 1.0f, 999.0f);
-			damage *= sizedifference * additionaldamage * normaldamage * GetPerkBonus_Thighs(giant);
+			damage *= BalanceSizeDamage(sizedifference) * additionaldamage * normaldamage * GetPerkBonus_Thighs(giant);
 			if (TinyCalamityActive(giant)) {
 				damage *= 1.5f;
 			}

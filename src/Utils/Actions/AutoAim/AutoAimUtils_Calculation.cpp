@@ -1,5 +1,6 @@
 
 #include "Utils/Actions/AutoAim/AutoAimUtils_Calculation.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 #include "Utils/Actor/FindActor.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Config/Config.hpp"
@@ -249,36 +250,36 @@ namespace GTS {
         return bestVictim;
     }
         
-        void CalculateForwardBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, float maxDistance, float& outBlend,float& outForwardDistance, float& outDistance) {
+        void CalculateForwardBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, AnimationBlendInfo& info) {
             float yaw = giant->data.angle.z;
 
             NiPoint3 offset = targetPos - footPos;
             NiPoint3 forward(std::sin(yaw),std::cos(yaw),0.0f);
             offset.z = 0.0f;
             
-            outDistance = offset.Length();
+            info.finalDistance = offset.Length();
 
             float forwardDistance = offset.x * forward.x + offset.y * forward.y;
 
-            float blend = std::clamp(forwardDistance / maxDistance, 0.0f, 1.0f);
-            outForwardDistance = forwardDistance;
-            outBlend = blend;
+            float blend = std::clamp(forwardDistance / info.maxDistance, 0.0f, 1.0f);
+            info.outDistanceX = forwardDistance;
+            info.blendX = blend;
         }
 
-        void CalculateDirectionalBlend2D(Actor* giant, const NiPoint3& footPos,const NiPoint3& targetPos,float maxDistance,float& outX, float& outY, float& outDistanceX,float& outDistanceY, float& outDistance) {
+        void CalculateDirectionalBlend2D(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, AnimationBlendInfo& info) {
             float yaw = giant->data.angle.z;
 
             NiPoint3 offset = targetPos - footPos;
             offset.z = 0.0f;
 
             float distance = offset.Length();
-            outDistance = distance;
+            info.finalDistance = distance;
 
             if (distance <= 0.001f) {
-                outX = 0.0f;
-                outY = 0.0f;
-                outDistanceX = 0.0f;
-                outDistanceY = 0.0f;
+                info.blendX = 0.0f;
+                info.blendY = 0.0f;
+                info.outDistanceX = 0.0f;
+                info.outDistanceY = 0.0f;
                 return;
             }
             // 
@@ -291,17 +292,17 @@ namespace GTS {
             float angleForward = dir.x * forward.x + dir.y * forward.y;
             float angleRight = dir.x * right.x + dir.y * right.y;
             // 
-            float distanceWeight = std::clamp(distance / maxDistance, 0.0f, 1.0f);
+            float distanceWeight = std::clamp(distance / info.maxDistance, 0.0f, 1.0f);
             // 
-            outX = angleForward * distanceWeight;
-            outY = angleRight * distanceWeight;
+            info.blendX = angleForward * distanceWeight;
+            info.blendY = angleRight * distanceWeight;
             // 
-            outDistanceX = offset.x * forward.x + offset.y * forward.y;
-            outDistanceY = offset.x * right.x + offset.y * right.y;
+            info.outDistanceX = offset.x * forward.x + offset.y * forward.y;
+            info.outDistanceY = offset.x * right.x + offset.y * right.y;
         }
 
-        void CalculateAngleBasedSideBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, float& outSideBlend, float& outRightDistance, float& outForwardDistance, float& outDistance) {
-            float yaw = giant->data.angle.z;
+        void CalculateAngleBasedSideBlend(Actor* giant, const NiPoint3& footPos, const NiPoint3& targetPos, AnimationBlendInfo& info) {
+            const float yaw = giant->data.angle.z;
 
             NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
             NiPoint3 right(forward.y, -forward.x, 0.0f);
@@ -309,37 +310,46 @@ namespace GTS {
             NiPoint3 offset = targetPos - footPos;
             offset.z = 0.0f;
 
-            float length = offset.Length();
-            outDistance = length;
+            const float length = offset.Length();
+            info.finalDistance = length;
+
             if (length < 0.001f) {
-                outSideBlend = 0.0f;
-                outRightDistance = 0.0f;
-                outForwardDistance = 0.0f;
+                info.blendY = 0.0f;
+                info.outDistanceY = 0.0f;
+                info.outDistanceX = 0.0f;
                 return;
             }
 
-            outRightDistance = offset.x * right.x + offset.y * right.y;
-            outForwardDistance = offset.x * forward.x + offset.y * forward.y;
+            info.outDistanceY   = offset.x * right.x   + offset.y * right.y;
+            info.outDistanceX = offset.x * forward.x + offset.y * forward.y;
+            
+            const float angle = std::atan2(info.outDistanceY, info.outDistanceX);
 
-            float angle = std::atan2(outRightDistance, outForwardDistance);
-
-            outSideBlend = std::clamp(angle / HALF_PI, -1.0f, 1.0f);
+            // 0° -> 0
+            // ±90° -> ±1
+            // ±180° -> 0
+            float side = 1.0f - std::abs(std::abs(angle) - HALF_PI) / HALF_PI;
+            info.blendY = std::copysign(std::clamp(side, 0.0f, 1.0f), angle);
         }
 
-        void CalculateRectangleBlend(Actor* giant, const NiPoint3& origin, const NiPoint3& target, float length, float width, float& outBlend, float& outForward, float& outRight, float& outDistance, bool& outInside, float blend_offset) {
-            GetRectangleCoordinates(giant, origin, target, length, outForward, outRight);
-            outDistance = std::hypot(outForward, outRight);
+        void CalculateRectangleBlend(Actor* giant, const NiPoint3& origin, const NiPoint3& target, AnimationBlendInfo& info) {
+            GetRectangleCoordinates(giant, origin, target, info.length, info.outDistanceX, info.outDistanceY);
+            info.finalDistance = std::hypot(info.outDistanceX, info.outDistanceY);
 
-            const float halfLength = length * 0.5f;
-            const float halfWidth = width * 0.5f;
+            const float halfLength = info.length * 0.5f;
+            const float halfWidth = info.width * 0.5f;
 
-            float begin = halfLength * blend_offset;
+            float begin = halfLength * info.blendOffset;
 
-            outBlend = std::clamp((outForward - begin) / (halfLength - begin), 0.0f, 1.0f);
-            outInside = std::abs(outForward) <= halfLength && std::abs(outRight) <= halfWidth;
+            info.blendX = std::clamp((info.outDistanceX - begin) / (halfLength - begin), 0.0f, 1.0f);
+            info.isInsideRectangle = std::abs(info.outDistanceX) <= halfLength && std::abs(info.outDistanceY) <= halfWidth;
+
+            if (info.isInsideRectangle) {
+                info.inPercent_Directional = 1.0f - std::abs(info.outDistanceX) / halfLength;
+                info.inPercent_Side        = 1.0f - std::abs(info.outDistanceY) / halfWidth;
+            } 
         }
         
-
         void GetRectangleCoordinates(Actor* giant,const NiPoint3& origin, const NiPoint3& target, float length, float& forwardDist, float& rightDist) {
             const float yaw = giant->data.angle.z;
 

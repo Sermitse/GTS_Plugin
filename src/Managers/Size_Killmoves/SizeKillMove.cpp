@@ -11,12 +11,6 @@
 
 using namespace GTS;
 namespace {
-
-    // ---------------------------------------------------------------------
-    // actor/node lookups - specific to this sequence (everything generic
-    // - stage timers, blends, impact hit-stop - now lives in KillMoveHelper)
-    // ---------------------------------------------------------------------
-
     float Scale() { return _enemy ? get_visual_scale(_enemy) : 1.0f; }
 
     RE::NiPoint3 HeadPos() {
@@ -65,11 +59,27 @@ namespace {
         return player ? get_visual_scale(player) : 1.0f;
     }
 
-    RE::NiAVObject* ResolveLookNode() {
-        if (_node) {
-            return _node;
+    bool ResolveLookPos(RE::NiPoint3& outPos) {
+        if (!_nodes.empty()) {
+            RE::NiPoint3 pos;
+            for (auto* node : _nodes) {
+                if (!node) {
+                    continue;
+                }
+                pos += node->world.translate / static_cast<float>(_nodes.size());
+            }
+            outPos = pos;
+            return true;
         }
-        return _enemy ? find_node(_enemy, _settings.DefaultLookNodeName) : nullptr;
+
+        if (_enemy) {
+            if (auto node = find_node(_enemy, _settings.DefaultLookNodeName)) {
+                outPos = node->world.translate;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Kicks off the LookAtFace -> LookAtNode hand-off. lookDown selects the
@@ -95,7 +105,7 @@ namespace {
         }
 
         BeginBlend(_cam, blendTime);
-        EnterStage(_cam, _state, FakeKillmoveState::LookAtNode);
+        EnterStage(_cam, _state, SizeKillMoveState::LookAtNode);
     }
 
     // ---------------------------------------------------------------------
@@ -123,7 +133,7 @@ namespace {
             // banked MoveToEnemyRiseFrac of it in the approach point).
             float remainingRise = _settings.RiseHeight * (1.0f - _settings.MoveToEnemyRiseFrac) * Scale();
             _cam.stageToPos = _cam.cameraPos + RE::NiPoint3(0.f, 0.f, 1.f) * remainingRise;
-            EnterStage(_cam, _state, FakeKillmoveState::RiseAboveEnemy);
+            EnterStage(_cam, _state, SizeKillMoveState::RiseAboveEnemy);
         }
     }
 
@@ -133,7 +143,7 @@ namespace {
         _cam.cameraRot = BuildLookAt(_cam.cameraPos, HeadPos());
 
         if (t >= 1.0f) {
-            EnterStage(_cam, _state, FakeKillmoveState::LookAtFace);
+            EnterStage(_cam, _state, SizeKillMoveState::LookAtFace);
         }
     }
 
@@ -200,7 +210,7 @@ namespace {
             side.Unitize();
 
             _cam.stageToPos = node + side * (_settings.DeathHoldDistance * get_visual_scale(PlayerCharacter::GetSingleton()));
-            EnterStage(_cam, _state, FakeKillmoveState::DeathFlyOff);
+            EnterStage(_cam, _state, SizeKillMoveState::DeathFlyOff);
         }
     }
 
@@ -223,13 +233,13 @@ namespace {
         _cam.cameraRot = BuildLookAt(_cam.cameraPos, node);
 
         // Note: whether the player is still "busy" (i.e. the killmove animation
-        // is still playing) is checked centrally in UpdateFakeKillmove(), which
+        // is still playing) is checked centrally in UpdateSizeKillmove(), which
         // will force us straight into ReturnCamera the moment it isn't - so
         // this stage only needs its own safety timeout.
         bool timedOut = _cam.timer >= (_settings.DeathFlyOffTime + _settings.OrbitTime + _settings.PostDeathMaxWait) * 4.0f;
 
         if (timedOut) {
-            EnterStage(_cam, _state, FakeKillmoveState::ReturnCamera);
+            EnterStage(_cam, _state, SizeKillMoveState::ReturnCamera);
         }
     }
 
@@ -253,16 +263,20 @@ namespace {
             Time::SGTM(1.0f);
 
             _enemy = nullptr;
-            _node = nullptr;
+            _nodes.clear();
             _cam.active = false;
-            _state = FakeKillmoveState::None;
+            _state = SizeKillMoveState::None;
         }
     }
 }
 
 namespace GTS {
 
-    void StartKillmove(RE::Actor* giant, RE::Actor* enemy, RE::NiAVObject* lookNode, DamageSource Cause, float base_damage, float crush_mult, bool isFoot, bool TinyCalamity) {
+    void StartKillmove(RE::Actor* giant, RE::Actor* enemy, RE::NiAVObject* lookNode, DamageSource Cause, KillMoveParameters params) {
+        StartKillmove(giant, enemy, lookNode ? std::vector<RE::NiAVObject*>{ lookNode } : std::vector<RE::NiAVObject*>{}, params);
+    }
+
+    void StartKillmove(RE::Actor* giant, RE::Actor* enemy, std::vector<RE::NiAVObject*> lookNodes, KillMoveParameters params) {
         if (!giant) {
             return;
         }
@@ -272,10 +286,10 @@ namespace GTS {
         if (!enemy) {
             return;
         }
-        if (!lookNode) {
+        if (lookNodes.empty()) {
             return;
         }
-        if (!ShouldTrigger(PlayerCharacter::GetSingleton(), enemy, Cause, base_damage, crush_mult)) {
+        if (!ShouldTrigger(PlayerCharacter::GetSingleton(), enemy, params.damageSource, params.baseDamage, params.crushThreshold)) {
             logger::info("Can't start killmove");
             return;
         }
@@ -292,10 +306,15 @@ namespace GTS {
         _cam.impactActive = false;
         _cam.impactTimer = 0.0f;
 
+        _settings.LookAtNodeDistance    = params.lookAtNodeDistance;
+        _settings.DeathHoldDistance     = params.deathHoldDistance;
+        _settings.OrbitAngle            = params.orbitAngle;
+        _settings.OrbitTime             = params.orbitTime;
+
         _enemy = enemy;
-        _node = lookNode;
+        _nodes = std::move(lookNodes);
         _nodeLookDown = false;
-        _isFoot = isFoot;
+        _isFoot = params.isFootAttack;
 
         float scale = Scale();
         RE::NiPoint3 headPos = HeadPos();
@@ -305,10 +324,10 @@ namespace GTS {
         // stage 2 (RiseAboveEnemy) then finishes the climb.
         _cam.stageToPos = CameraAnchor();
 
-        EnterStage(_cam, _state, FakeKillmoveState::MoveToEnemy);
+        EnterStage(_cam, _state, SizeKillMoveState::MoveToEnemy);
     }
 
-    void UpdateFakeKillmove() {
+    void UpdateSizeKillmove() {
         if (!_cam.active) {
             return;
         }
@@ -318,19 +337,19 @@ namespace GTS {
         // still tracking the enemy, don't keep the camera glued to them -
         // ease back out immediately instead of waiting for a stage-specific
         // timeout to eventually notice.
-        if (_state != FakeKillmoveState::None && _state != FakeKillmoveState::ReturnCamera && !IsPlayerAnimBusy()) {
-            EnterStage(_cam, _state, FakeKillmoveState::ReturnCamera);
+        if (_state != SizeKillMoveState::None && _state != SizeKillMoveState::ReturnCamera && !IsPlayerAnimBusy()) {
+            EnterStage(_cam, _state, SizeKillMoveState::ReturnCamera);
         }
 
         float dt = Time::WorldTimeDelta() * GetAnimationSlowdown(PlayerCharacter::GetSingleton());
 
         switch (_state) {
-            case FakeKillmoveState::MoveToEnemy:    UpdateMoveToEnemy(dt);    break;
-            case FakeKillmoveState::RiseAboveEnemy: UpdateRiseAboveEnemy(dt); break;
-            case FakeKillmoveState::LookAtFace:     UpdateLookAtFace(dt);     break;
-            case FakeKillmoveState::LookAtNode:     UpdateLookAtNode(dt);     break;
-            case FakeKillmoveState::DeathFlyOff:    UpdateDeathFlyOff(dt);    break;
-            case FakeKillmoveState::ReturnCamera:   UpdateReturnCamera(dt);   break;
+            case SizeKillMoveState::MoveToEnemy:    UpdateMoveToEnemy(dt);    break;
+            case SizeKillMoveState::RiseAboveEnemy: UpdateRiseAboveEnemy(dt); break;
+            case SizeKillMoveState::LookAtFace:     UpdateLookAtFace(dt);     break;
+            case SizeKillMoveState::LookAtNode:     UpdateLookAtNode(dt);     break;
+            case SizeKillMoveState::DeathFlyOff:    UpdateDeathFlyOff(dt);    break;
+            case SizeKillMoveState::ReturnCamera:   UpdateReturnCamera(dt);   break;
             default: break;
         }
 
@@ -340,8 +359,8 @@ namespace GTS {
     }
 
     RE::NiPoint3 NodeOrHeadPos() {
-        if (auto node = ResolveLookNode()) {
-            RE::NiPoint3 pos = node->world.translate;
+        RE::NiPoint3 pos;
+        if (ResolveLookPos(pos)) {
             // The skeleton bone itself doesn't move when heels go on - HighHeelManager's
             // offset is a purely visual effect the game doesn't bake into the node
             // transform. Correct for it here, once, so every caller downstream (proximity
@@ -354,17 +373,17 @@ namespace GTS {
     }
 
     bool UpdateKillMove() {
-        if (_state == FakeKillmoveState::None) {
+        if (_state == SizeKillMoveState::None) {
             return false;
         }
         if (!DriveCameraWithCollision(_cam, NodeOrHeadPos())) {
             return false;
         }
-        UpdateFakeKillmove();
+        UpdateSizeKillmove();
         return true;
     }
 
     void RecordStartingPosition() {
-        RecordStartingPosition(_cam, _state, FakeKillmoveState::None);
+        RecordStartingPosition(_cam, _state, SizeKillMoveState::None);
     }
 }

@@ -4,22 +4,6 @@ namespace GTS {
     //-----------------------------------------------------
 	// FOOT OR HAND AUTO AIM
 	//-----------------------------------------------------
-	enum class StompAimType {
-		T1,
-		T2,
-		T3,
-		T4,
-	};
-
-	struct AimAssistResult {
-		bool hit = false;     
-		bool alive = false;   
-		float blend_x = 0.0f;
-		float blend_y = 0.0f;
-		float distance = FLT_MAX;
-		Actor* victim = nullptr;
-	};
-
 	bool AutoAim_Kick_DeterminePreferredKick(Actor* giant, bool& left, bool strong);
 	bool AutoAim_Crawl_TryBreastSlam(Actor* giant, bool& left_hand, AimAssistResult* out_result = nullptr);
 	bool AutoAim_Crawl_TryButtSlam(Actor* giant, bool& left_butt, AimAssistResult* out_result = nullptr);

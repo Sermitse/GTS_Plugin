@@ -115,6 +115,7 @@ namespace GTS {
     // aren't available (caller should treat that as "nothing to update").
     bool DriveCameraWithCollision(const CameraSequenceState& state, const RE::NiPoint3& collisionRayStart);
 
+    void TryKillMove(Actor* giant, const AimOutcome& aim, KillMoveParameters params);
     // Captures the player camera's current position/rotation into `state`,
     // but only while the sequence is inactive (state == noneStage) - called
     // every frame from outside so that whenever a sequence *does* start, its

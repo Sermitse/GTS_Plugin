@@ -10,7 +10,10 @@ namespace GTS {
 		if (!a_giant) {
 			return;
 		}
-
+		const bool IsDead = a_victim->IsDead();
+		if (IsDead) {
+			return;
+		}
 		if (a_giant->IsPlayerRef() || IsTeammate(a_giant)) {
 
 			PersistentKillCountData* KillData = Persistent::GetKillCountData(a_giant);

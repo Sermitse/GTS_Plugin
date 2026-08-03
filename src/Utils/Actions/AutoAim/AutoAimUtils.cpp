@@ -1,10 +1,13 @@
 #include "Utils/Actions/AutoAim/AutoAimUtils_Calculation.hpp"
+#include "Managers/Size_Killmoves/KillMoveParamObtainer.hpp"
 #include "Managers/Size_Killmoves/SizeKillMove.hpp"
 #include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 #include "Utils/Actions/AutoAim/AimAssist.hpp"
 #include "Utils/Actor/FindActor.hpp"
 #include "Magic/Effects/Common.hpp"
 #include "Config/Config.hpp"
+
+
 
 namespace {
     using namespace GTS;
@@ -62,8 +65,8 @@ namespace {
         return victim && !(victim->IsDead() || GetAV(victim, ActorValue::kHealth) <= 0.0f);
     }
 
-    float ApplyMagnitude(float value) {
-        return std::clamp(value * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier, -1.0f, 1.0f);
+    float ApplyMagnitude(float value, float multiplier = 1.0f) {
+        return std::clamp(value * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier * multiplier, -1.0f, 1.0f);
     }
 
     void DebugLogBlend(Actor* victim, float x, float y) {
@@ -107,20 +110,20 @@ namespace {
         return victim;
     }
 
-    bool FinalizeAim(Actor* giant, bool& left, Actor* victim, float blend_x, float blend_y, float dx, float final_distance, float max_distance, AimAssistResult* out_result, float modifier = 0.0f) {
-        bool AutoAim = ShouldAutoAim(final_distance, max_distance, dx, modifier);
+    bool FinalizeAim(Actor* giant, bool& left, Actor* victim, AnimationBlendInfo& params, AimAssistResult* out_result, float modifier = 0.0f) {
+        bool AutoAim = ShouldAutoAim(params.finalDistance, params.maxDistance, params.outDistanceX, modifier);
         if (AutoAim) {
             if (out_result) {
                 out_result->hit = true;
                 out_result->alive = IsVictimAlive(victim);
-                out_result->blend_x = blend_x;
-                out_result->blend_y = blend_y;
-                out_result->distance = final_distance;
+                out_result->blend_x = params.blendX;
+                out_result->blend_y = params.blendY;
+                out_result->distance = params.finalDistance;
                 out_result->victim = victim;
             } else {
-                SetStompBlendValues(giant, blend_x, blend_y);
+                SetStompBlendValues(giant, params.blendX, params.blendY);
             }
-        } else if (IsInRange(final_distance, max_distance)) {
+        } else if (IsInRange(params.finalDistance, params.maxDistance)) {
             left = RandomBool();
         }
         return AutoAim;
@@ -150,16 +153,15 @@ namespace GTS {
                 left = !left;
                 return left;
             }
+            AnimationBlendInfo params;
+            params.maxDistance = max_distance;
 
-            float x = 0.0f;
-            float dx = 0.0f;
-            float final_distance = 0.0f;
-            CalculateForwardBlend(giant, footPos, victimPos, max_distance, x, dx, final_distance);
+            CalculateForwardBlend(giant, footPos, victimPos, params);
 
             if (!giant->IsSneaking() && !victim->IsDead()) {
-                const auto node = find_node(giant, left ? "NPC L Foot [Lft ]" : "NPC R Foot [Rft ]");
-                const auto cause = left ? DamageSource::KickedLeft : DamageSource::KickedRight;
-                StartKillmove(giant, victim, node, cause, strong ? Damage_Kick_Strong : Damage_Kick, 1.8f, true);
+                auto params = GetKickKillMoveParams(left, strong);
+                const auto node = find_node(giant, params.nodeLookups[0]);
+                StartKillmove(giant, victim, node, params.damageSource, params);
             }
 
             return left;
@@ -179,37 +181,44 @@ namespace GTS {
             auto victim = FindAndDebugRectTarget(giant, breastPos, width, length, Breast_Color, origin, victimPos);
             if (!victim) return false; // No victim found
 
-            float x = 0.0f;
-            float y = 0.0f;
-            float dx = 0.0f;
-            float final_distance = 0.0f;
-            bool inside = false;
-            CalculateRectangleBlend(giant, origin, victimPos, length, width, x, y, dx, final_distance, inside, blend_offset);
+            AnimationBlendInfo params;
+            params.blendOffset = blend_offset;
+            params.length = length;
+            params.width = width;
 
-            x = std::clamp(x * 1.1f, 0.0f, 1.0f); // Slightly stronger blend
+            CalculateRectangleBlend(giant, origin, victimPos, params);
+            params.blendX = std::clamp(params.blendX * 1.1f, 0.0f, 1.0f); // Slightly stronger blend
+
+            
+
+            if (!params.isInsideRectangle) return false;
+            bool InFrontOfGTS = true; 
+
+            if (params.blendX <= 0.01f) { // Add some variety if actor is behind
+                const float range = Config::AutoAim.fAimAssist_NoHitValueRandomRange;
+                params.blendX = RandomFloat(0.0f, range);
+                params.blendY= RandomFloat(0.0f, range);
+                InFrontOfGTS = false; // Disallow Killmove, it's supposed to trigger near breasts, not in butt or legs area.
+            }
 
             if (Config::AutoAim.bDebugAutoAim) {
-                logger::info("Blend2D X:{} |  Victim:{}", x, victim->GetDisplayFullName());
-                Cprint("Blend2D X:{} | Victim:{}", x, victim->GetDisplayFullName());
+                logger::info("Blend2D X:{} |  Victim:{}", params.blendX, victim->GetDisplayFullName());
+                logger::info("FinalDist: {}", params.finalDistance);
+                Cprint("Blend2D X:{} | Victim:{}", params.blendX, victim->GetDisplayFullName());
             }
-
-            if (!inside) return false;
-
-            float finalX = x;
-            float finalY = 0.0f;
-            if (x <= 0.01f) { // Add some variety if actor is behind
-                const float range = Config::AutoAim.fAimAssist_NoHitValueRandomRange;
-                finalX = RandomFloat(0.0f, range);
-                finalY = RandomFloat(0.0f, range);
-            }
+            const bool AllowKillMove = InFrontOfGTS && params.inPercent_Side >= 0.3f;
+            // Actor must be at least 30% 'deep' inside rectangle (so breasts don't strike air) and in front part of it
 
             if (out_result) {
                 out_result->hit = true;
                 out_result->alive = IsVictimAlive(victim);
-                out_result->blend_x = finalX;
-                out_result->blend_y = finalY;
+                out_result->canKillMove = AllowKillMove;  
+                out_result->blend_x = params.blendX;
+                out_result->blend_y = params.blendY;
+                out_result->distance = params.finalDistance;
+                out_result->victim = victim;
             } else {
-                SetStompBlendValues(giant, finalX, finalY);
+                SetStompBlendValues(giant, params.blendX, params.blendY);
             }
             return true;
         }
@@ -228,18 +237,16 @@ namespace GTS {
             auto victim = FindAndDebugTwoPointTarget(giant, buttPos_L, buttPos_R, max_distance, left_butt, Breast_Color, buttPos, victimPos);
             if (!victim) return false; // No victim found
 
-            float x = 0.0f; // forward (>0) /   back (<1)
-            float y = 0.0f; // right (>0)   /   left (<1)
-            float dx = 0.0f;
-            float dy = 0.0f;
-            float final_distance = 0.0f;
-            CalculateDirectionalBlend2D(giant, buttPos, victimPos, max_distance, x, y, dx, dy, final_distance);
+            AnimationBlendInfo params;
+            params.maxDistance = max_distance;
+            
+            CalculateDirectionalBlend2D(giant, buttPos, victimPos, params);
 
-            x = ApplyMagnitude(x);
-            y = ApplyMagnitude(y);
-            DebugLogBlend(victim, x, y);
+            params.blendX = ApplyMagnitude(params.blendX);
+            params.blendY = ApplyMagnitude(params.blendY, 1.5f);
+            DebugLogBlend(victim, params.blendX, params.blendY);
 
-            return FinalizeAim(giant, left_butt, victim, x, y, dx, final_distance, max_distance, out_result, 0.25f);
+            return FinalizeAim(giant, left_butt, victim, params, out_result, 0.25f);
         }
         bool AutoAim_Hand_TryHandAim_Far(Actor* giant, bool& left_hand, bool strong_Attack, AimAssistResult* out_result) {
             if (!giant) return false;
@@ -262,18 +269,16 @@ namespace GTS {
             auto victim = FindAndDebugTwoPointTarget(giant, handPos_L, handPos_R, max_distance, left_hand, Far_Stomp_Color, handPos, victimPos);
             if (!victim) return false;
 
-            float x = 0.0f;
-            float y = 0.0f;
-            float dx = 0.0f;
-            float dy = 0.0f;
-            float final_distance = 0.0f;
-            CalculateAngleBasedSideBlend(giant, handPos, victimPos, y, dy, dx, final_distance);
+            AnimationBlendInfo params;
+            params.maxDistance = max_distance;
 
-            x = ApplyMagnitude(x);
-            y = ApplyMagnitude(y);
-            DebugLogBlend(victim, x, y);
+            CalculateAngleBasedSideBlend(giant, handPos, victimPos, params);
 
-            return FinalizeAim(giant, left_hand, victim, x, y, dx, final_distance, max_distance, out_result);
+            params.blendX = ApplyMagnitude(params.blendX);
+            params.blendY = ApplyMagnitude(params.blendY);
+            DebugLogBlend(victim, params.blendX, params.blendY);
+
+            return FinalizeAim(giant, left_hand, victim, params, out_result);
         }
         bool AutoAim_Hand_TryHandAim(Actor* giant, bool& left_hand, bool strong_Attack, AimAssistResult* out_result) {
             if (!giant) return false;
@@ -305,18 +310,20 @@ namespace GTS {
             float dx = 0.0f;
             float dy = 0.0f;
             float final_distance = 0.0f;
+            AnimationBlendInfo params;
+            params.maxDistance = max_distance;
 
             if (AnimationVars::Crawl::IsCrawling(giant)) {
-                CalculateDirectionalBlend2D(giant, handPos, victimPos, max_distance, x, y, dx, dy, final_distance);
+                CalculateDirectionalBlend2D(giant, handPos, victimPos, params);
             } else {
-                CalculateAngleBasedSideBlend(giant, handPos, victimPos, y, dy, dx, final_distance);
+                CalculateAngleBasedSideBlend(giant, handPos, victimPos, params);
             }
 
-            x = ApplyMagnitude(x);
-            y = ApplyMagnitude(y);
-            DebugLogBlend(victim, x, y);
+            params.blendX = ApplyMagnitude(params.blendX);
+            params.blendY = ApplyMagnitude(params.blendY);
+            DebugLogBlend(victim, params.blendX, params.blendY);
 
-            return FinalizeAim(giant, left_hand, victim, x, y, dx, final_distance, max_distance, out_result);
+            return FinalizeAim(giant, left_hand, victim, params, out_result);
         }
 
         bool AutoAim_Foot_Directional(Actor* giant, bool& left_foot, bool strong_Attack, AimAssistResult* out_result) {
@@ -343,19 +350,16 @@ namespace GTS {
             auto victim = FindAndDebugTwoPointTarget(giant, footPos_L, footPos_R, max_distance, left_foot, Close_Stomp_Color, footPos, victimPos);
             if (!victim) return false;
 
-            float x = 0.0f; // forward (>0) /   back (<1)
-            float y = 0.0f; // right (>0)   /   left (<1)
-            float dx = 0.0f;
-            float dy = 0.0f;
-            float final_distance = 0.0f;
+            AnimationBlendInfo params;
+            params.maxDistance = max_distance;
 
-            CalculateDirectionalBlend2D(giant, footPos, victimPos, max_distance, x, y, dx, dy, final_distance);
+            CalculateDirectionalBlend2D(giant, footPos, victimPos, params);
 
-            x = ApplyMagnitude(x);
-            y = ApplyMagnitude(y);
-            DebugLogBlend(victim, x, y);
+            params.blendX = ApplyMagnitude(params.blendX);
+            params.blendY = ApplyMagnitude(params.blendY);
+            DebugLogBlend(victim, params.blendX, params.blendY);
 
-            return FinalizeAim(giant, left_foot, victim, x, y, dx, final_distance, max_distance, out_result);
+            return FinalizeAim(giant, left_foot, victim, params, out_result);
         }
 
         bool AutoAim_Foot_Directional_FarStomp(Actor* giant, bool& left_foot, bool strong_stomp, AimAssistResult* out_result) {
@@ -376,22 +380,18 @@ namespace GTS {
             NiPoint3 footPos, victimPos;
             auto victim = FindAndDebugTwoPointTarget(giant, footPos_L, footPos_R, max_distance, left_foot, Far_Stomp_Color, footPos, victimPos);
             if (!victim) return false;
+            AnimationBlendInfo params;
+            params.maxDistance = max_distance;
+            //---------- Needed for back-stomps, we just want to fill X value here
+            CalculateDirectionalBlend2D(giant, footPos, victimPos, params); 
+            // Fill Y value, Far Stomps have only Side Blends
+            CalculateAngleBasedSideBlend(giant, footPos, victimPos, params);
 
-            float x = 0.0f; // forward (>0) /   back (<1)
-            float y = 0.0f; // right (>0)   /   left (<1)
-            float dx = 0.0f;
-            float dy = 0.0f;
-            float final_distance = 0.0f;
-            //---------- Back-stomps test
-            //CalculateDirectionalBlend2D(giant, footPos, victimPos, max_distance, x, y, dx, dy, final_distance); //
-            // ^ Back-stomps test
-            CalculateAngleBasedSideBlend(giant, footPos, victimPos, y, dy, dx, final_distance);
+            params.blendX = ApplyMagnitude(params.blendX);
+            params.blendY = ApplyMagnitude(params.blendY);
+            DebugLogBlend(victim, params.blendX, params.blendY);
 
-            x = ApplyMagnitude(x);
-            y = ApplyMagnitude(y);
-            DebugLogBlend(victim, x, y);
-
-            return FinalizeAim(giant, left_foot, victim, x, y, dx, final_distance, max_distance, out_result);
+            return FinalizeAim(giant, left_foot, victim, params, out_result);
         }
 
         bool AutoAim_IsSneakingOrCrawling(Actor* giant) {

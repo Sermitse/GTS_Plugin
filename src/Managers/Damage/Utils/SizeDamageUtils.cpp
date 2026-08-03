@@ -200,7 +200,7 @@ namespace GTS {
 	}
 
 	float CalculateSizeDamage(Actor* giant, Actor* tiny, DamageSource Cause, float damage) {
-		float size_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, true);
+		float size_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
 		auto& sizemanager = SizeManager::GetSingleton();
 		bool SMT = TinyCalamityActive(giant);
 		float size_threshold = 1.25f;
@@ -208,7 +208,7 @@ namespace GTS {
 		if (SMT) {
 			size_threshold = 0.9f;
 		}
-
+		
 		if (size_difference > size_threshold) {
 			if (Allow_Damage(giant, tiny, Cause, size_difference)) {
 				float damagebonus = HighHeels_PerkDamage(giant, Cause); // 15% bonus HH damage if we have perk
@@ -230,15 +230,30 @@ namespace GTS {
 				}
 
 				float Might = 1.0f + Potion_GetMightBonus(giant);
-				float damage_result = (damage * size_difference * damagebonus) * (normaldamage * sprintdamage) * (highheelsdamage * weightdamage) * vulnerability;
+				float damage_result = (damage * BalanceSizeDamage(size_difference) * damagebonus) * (normaldamage * sprintdamage) 
+									* (highheelsdamage * weightdamage) * vulnerability;
+				/*logger::info("Damage: {}, Size Difference: {}, Damage Bonus {}", damage, size_difference, damagebonus);
+				logger::info("Normal Damage {}, Sprint Damage {}", normaldamage, sprintdamage);
+				logger::info("Heels Damage: {}, Weight Damage {}", highheelsdamage, weightdamage);
+				logger::info("Vulnerability: {}, Might: {}", vulnerability, Might);
+				logger::info("Idle Damage: {}, TimeScale: {}, TimeDelta: {}", Damage_Default_Underfoot * TimeScale(), TimeScale(), Time::WorldTimeDelta());
+				*/
 
 				if (giant->IsSneaking()) {
 					damage_result *= 0.85f;
 				}
 				damage_result *= Might;
+				//logger::info("Total Damage: {}", damage_result);
 				return damage_result;
 			}
 		}
 		return 0.0f;
+	}
+
+	float BalanceSizeDamage(float sizeDifference) { // Reduces power of Size Difference Damage Bonus based on toggles
+		if (!SizeManager::BalancedMode() && !Config::Balance.bReducedSizeDamage) {
+			return sizeDifference;
+		}
+		return sizeDifference > 0.0f ? std::pow(sizeDifference, Damage_SizeDifferenceReductionMult) : sizeDifference;
 	}
 }

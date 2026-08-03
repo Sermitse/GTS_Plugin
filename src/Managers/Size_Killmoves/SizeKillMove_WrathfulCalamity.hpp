@@ -6,7 +6,7 @@ namespace WrathfulCalamity {
 
     // Stages of the WrathfulCalamity fake killmove camera sequence, played in this order.
     //
-    // Unlike the regular FakeKillmoveState sequence (external camera orbiting the enemy),
+    // Unlike the regular SizeKillMoveState sequence (external camera orbiting the enemy),
     // this sequence settles the camera close to (and slightly above) the shrunken enemy and
     // has it look toward the giantess - first at her generally, then at a specific node
     // (hand/foot/etc). The longer the camera holds on the giantess' node before the kill, the

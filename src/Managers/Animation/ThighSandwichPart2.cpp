@@ -3,6 +3,7 @@
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Controllers/ThighSandwichController.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
+#include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 #include "Managers/Audio/GoreAudio.hpp"
 #include "Managers/Input/InputManager.hpp"
 #include "Managers/CrushManager.hpp"
@@ -124,7 +125,7 @@ namespace DamageLogic {
 				float sizedifference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
 				float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(tiny); // Get size damage debuff from enemy
 				float normaldamage = std::clamp(SizeManager::GetSizeAttribute(giant, SizeAttribute::Normal), 1.0f, 999.0f);
-				damage *= mult * sizedifference * normaldamage * additionaldamage * GetPerkBonus_Thighs(giant);
+				damage *= mult * BalanceSizeDamage(sizedifference) * normaldamage * additionaldamage * GetPerkBonus_Thighs(giant);
 
 				float max_tiny_hp = GetMaxAV(tiny, ActorValue::kHealth) * threshold;
 				float damage_Setting = GetDifficultyMultiplier(giant, tiny);

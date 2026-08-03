@@ -241,6 +241,8 @@ namespace GTS::AnimationVars {
 
 		//Float
 		float UnderStompBlend(RE::Actor* a_actor) { return GetFloat(a_actor, GraphVars::_StompBlend); }
+		float GetStompBlend_X(RE::Actor* a_actor) {return GetFloat(a_actor, GraphVars::_StompBlend_X);}
+		float GetStompBlend_Y(RE::Actor* a_actor) {return GetFloat(a_actor, GraphVars::_StompBlend_Y);}
 
 		//---- SETTERS
 		//Bool

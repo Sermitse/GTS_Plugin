@@ -1,4 +1,5 @@
 #include "Managers/Damage/LaunchActor.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 #include "Config/Config.hpp"
 
@@ -12,6 +13,7 @@
 
 #include "Managers/Animation//Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
+#include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 
 #include "Managers/Audio/MoansLaughs.hpp"
 #include "Managers/Audio/GoreAudio.hpp"
@@ -48,7 +50,7 @@ namespace {
 		return false;
 	}
 
-	float GetLaunchThreshold(Actor* giant) {
+	float GetActorRagdollThreshold(Actor* giant) {
 		float threshold = 8.0f;
 		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRumblingFeet)) {
 			threshold *= 0.75f;
@@ -145,7 +147,8 @@ namespace GTS {
 					ApplyActionCooldown(tiny, CooldownSource::Damage_Launch);
 
 					if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkDeadlyRumble) && CanDoDamage(giant, tiny, true)) {
-						float damage = BaseDamage * sizeRatio * force * highheel;
+
+						float damage = BaseDamage * BalanceSizeDamage(sizeRatio) * force * highheel;
 						if (OwnsPerk) { // Apply only when we have DisastrousTremor perk
 							update_target_scale(tiny, -(damage / 1500) * Config::Balance.fSizeDamageMult, SizeEffectType::kShrink);
 
@@ -233,11 +236,13 @@ namespace GTS {
 			}
 			float giantScale = get_visual_scale(giant);
 
-			float SCALE_RATIO = GetLaunchThreshold(giant);
+			float LAUNCH_UP_THRESHOLD = GetActorRagdollThreshold(giant);
+			float STAGGER_THRESHOLD = Action_StaggerStartsAt;
+			
 			power *= CharState_GetLaunchPowerModifier(giant);
 			
 			if (TinyCalamityActive(giant)) {
-				SCALE_RATIO = 0.8f;
+				STAGGER_THRESHOLD = 0.8f;
 				radius *= 1.5f;
 			}
 
@@ -261,19 +266,20 @@ namespace GTS {
 			for (auto otherActor: find_actors()) {
 				if (otherActor != giant) {
 					float tinyScale = get_visual_scale(otherActor);
-					if (giantScale / tinyScale > SCALE_RATIO) {
+					if (giantScale / tinyScale > STAGGER_THRESHOLD) {
 						NiPoint3 actorLocation = otherActor->GetPosition();
 						float distance = (point - actorLocation).Length();
 
-						const bool canStagger = (giantScale / tinyScale > 1.325f);
+						const bool canStagger = (giantScale / tinyScale > STAGGER_THRESHOLD);
+						const bool canRagdoll = (giantScale / tinyScale > LAUNCH_UP_THRESHOLD);
 
 						if (distance <= maxDistance) {
 							if (AllowStagger(otherActor)) {
-								if (canStagger || Calamity) {
-									StaggerOr(giant, otherActor); // Stagger instead of launching, ragdolls are buggy at small sizes
-								} else if (!Calamity && giantScale >= Action_MinPushScale) { // Never ragdoll in Calamity
+								if (!Calamity && canRagdoll) { // Never ragdoll in Calamity
 									LaunchWithDistance(giant, otherActor, min_radius, distance, maxDistance, power);
 									// min_radius prevents Launch from happening if Actor is inside specific radius of collider
+								} else if (canStagger || Calamity) {
+									StaggerOrRagdoll(giant, otherActor); // Stagger instead of launching, ragdolls are buggy at small sizes
 								}
 							}
 						}
@@ -291,10 +297,13 @@ namespace GTS {
 		float giantScale = get_visual_scale(giant);
 		const float min_distance = Radius_Walk_Default * giantScale; // Enemies shouldn't be launched if they're in this radius
 
-		float SCALE_RATIO = GetLaunchThreshold(giant)/GetMovementModifier(giant);
+		float LAUNCH_UP_THRESHOLD = GetActorRagdollThreshold(giant);
+		float STAGGER_THRESHOLD = Action_StaggerStartsAt;
+		
+		power *= CharState_GetLaunchPowerModifier(giant);
 		
 		if (TinyCalamityActive(giant)) {
-			SCALE_RATIO = 0.8f;
+			STAGGER_THRESHOLD = 0.8f;
 			radius *= 1.5f;
 		}
 
@@ -318,22 +327,23 @@ namespace GTS {
 			for (auto otherActor: find_actors()) {
 				if (otherActor != giant) {
 					float tinyScale = get_visual_scale(otherActor);
-					if (giantScale / tinyScale > SCALE_RATIO) {
+					if (giantScale / tinyScale > STAGGER_THRESHOLD) {
 						NiPoint3 actorLocation = otherActor->GetPosition();
 						for (auto point: CoordsToCheck) {
 							point.z -= HH;
 							float distance = (point - actorLocation).Length();
 							
-							const bool canStagger = (giantScale / tinyScale > 1.325f);
+							const bool canStagger = (giantScale / tinyScale > STAGGER_THRESHOLD);
+							const bool canRagdoll = (giantScale / tinyScale > LAUNCH_UP_THRESHOLD);
 							
 							if (distance <= maxFootDistance && distance > min_distance) {
 								if (AllowStagger(otherActor)) {
-									if (canStagger || Calamity) {
-										StaggerOr(giant, otherActor); // Stagger instead of launching, ragdolls are buggy at small sizes
-									} else if (!Calamity && giantScale >= Action_MinPushScale) { // Never ragdoll in Calamity
+									if (!Calamity && canRagdoll) { // Never ragdoll in Calamity
 										float force = GetForceFromDistance(distance, maxFootDistance);
 										ApplyLaunchTo(giant, otherActor, force, power);
-									}
+									} else if (canStagger || Calamity) {
+										StaggerOrRagdoll(giant, otherActor); // Stagger instead of launching, ragdolls are buggy at small sizes
+									} 
 								}
 							}
 						}

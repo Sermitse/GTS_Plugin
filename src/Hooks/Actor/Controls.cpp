@@ -1,3 +1,6 @@
+#include "Managers/Size_Killmoves/SizeKillMove_WrathfulCalamity.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove_Calamity.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove.hpp"
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Hooks/Actor/Controls.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
@@ -10,7 +13,14 @@ const RE::BSFixedString activate 		= "Activate";
 
 
 namespace {
+	bool IsInGTSKillMove() {
+		const bool WrathfulCalamity = WrathfulCalamity::_state != WrathfulCalamity::WrathfulPOVState::None;
+		const bool Calamity 		= Calamity::_state != Calamity::TinyPOVState::None;		
+		const bool SizeKillMove		= _state != SizeKillMoveState::None;
 
+		const bool InKillMove		= Calamity || WrathfulCalamity || SizeKillMove;
+		return InKillMove;
+	}
 	bool AllowToPerformSneak(RE::IDEvent* id) {
 		bool allow = true;
 		if (id) {
@@ -22,8 +32,7 @@ namespace {
 						allow = false;
 						AnimationManager::StartAnim("SBO_ProneOff", player);
 					}
-				}
-				else if (as_str == activate) {
+				} else if (as_str == activate) {
 					if (TinyCalamityActive(player)) {
 						auto preys = VoreController::GetSingleton().GetVoreTargetsInFront(player, 1);
 						if (TinyCalamity_WrathfulCalamity(player, preys)) {
@@ -98,7 +107,23 @@ namespace Hooks {
 
 		template<int ID>
 		FUNCTYPE_VFUNC_UNIQUE func;
+	};
 
+	struct ProcessMouseMove {
+		static constexpr size_t funcIndex = 0x01;
+
+		template<int ID>
+		static bool thunk(void* a_this, RE::InputEvent* a_event) {
+			if (a_event->GetEventType() == INPUT_EVENT_TYPE::kMouseMove || a_event->GetEventType() == INPUT_EVENT_TYPE::kThumbstick) {
+				if (IsInGTSKillMove()) {
+					return false;
+				}
+			}
+			return func<ID>(a_this, a_event);
+		}
+
+		template<int ID>
+		FUNCTYPE_VFUNC_UNIQUE func;
 	};
 
 
@@ -112,6 +137,8 @@ namespace Hooks {
 		stl::write_vfunc_unique<CanProcess, 3>(VTABLE_SneakHandler[0]);
 		stl::write_vfunc_unique<CanProcess, 4>(VTABLE_ToggleRunHandler[0]);
 		stl::write_vfunc_unique<CanProcess, 5>(VTABLE_AttackBlockHandler[0]);
+
+		stl::write_vfunc_unique<ProcessMouseMove, 6>(VTABLE_LookHandler[0]);
 
 		//stl::write_vfunc_unique<CanProcess, 6>(VTABLE_AutoMoveHandler[0]);
 		//stl::write_vfunc_unique<CanProcess, 7>(VTABLE_MovementHandler[0]);

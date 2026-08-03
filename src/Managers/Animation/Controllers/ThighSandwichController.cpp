@@ -1,4 +1,5 @@
 #include "Managers/Animation/Controllers/ThighSandwichController.hpp"
+#include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 
 #include "Managers/Animation/AnimationManager.hpp"
 
@@ -186,7 +187,8 @@ namespace GTS {
 
 				if (this->Suffocate && CanDoDamage(GiantRef, tiny, false) && !AnimationVars::Action::IsThighGrinding(GiantRef)) {
 					sizedifference = giantScale/tinyScale;
-					float damage = Damage_ThighSandwich_DOT * sizedifference * TimeScale();
+
+					float damage = Damage_ThighSandwich_DOT * BalanceSizeDamage(sizedifference) * TimeScale();
 					damage *= this->SuffocateMult;
 					
 					float hp = GetAV(tiny, ActorValue::kHealth);

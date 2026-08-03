@@ -1,4 +1,5 @@
 #include "Utils/Actor/ActorUtils.hpp"
+#include "Managers/GTSSizeManager.hpp"
 
 #include "Config/Config.hpp"
 
@@ -801,7 +802,7 @@ namespace GTS {
 		});
 	}
 
-	void StaggerOr(Actor* a_source, Actor* a_target) {
+	void StaggerOrRagdoll(Actor* a_source, Actor* a_target) {
 		if (a_target->IsDead()) {
 			return;
 		}
@@ -829,10 +830,10 @@ namespace GTS {
 		float sizedifference = giantSize / tinySize;
 		float sizedifference_tinypov = tinySize / giantSize;
 
-		const bool canRagdoll = !IsRagdolled(a_target) && sizedifference > 2.8f && giantSize >= Action_MinPushScale
+		const bool canRagdoll = !IsRagdolled(a_target) && sizedifference > 2.8f && giantSize >= Action_RagdollStartsAt
 								&& RandomInt(0, 30) < 4.0f * sizedifference;
 		
-		if (!Calamity && (giantSize >= Action_MinPushScale * 1.15f || AnimationVars::Tiny::IsBeingGrinded(a_target) || canRagdoll)) { // Chance for ragdoll. Becomes 100% at high scales
+		if (!Calamity && (giantSize >= Action_RagdollStartsAt * 1.15f || AnimationVars::Tiny::IsBeingGrinded(a_target) || canRagdoll)) { // Chance for ragdoll. Becomes 100% at high scales
 			PushActorAway(a_source, a_target, 1.0f); // Ragdoll
 		} else if (sizedifference > 1.325f) { // Always Stagger
 			AnimationVars::General::SetGiantessScale(a_target, sizedifference_tinypov); // enable stagger just in case
@@ -847,7 +848,7 @@ namespace GTS {
 				bool isdamaging = IsActionOnCooldown(tiny, CooldownSource::Push_Basic);
 				if (!isdamaging && (force >= 0.12f || AnimationVars::Action::IsFootGrinding(giant))) {
 					//log::info("Check passed, pushing {}, force: {}", tiny->GetDisplayFullName(), force);
-					StaggerOr(giant, tiny);
+					StaggerOrRagdoll(giant, tiny);
 					ApplyActionCooldown(tiny, CooldownSource::Push_Basic);
 				}
 			}

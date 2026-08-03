@@ -18,7 +18,7 @@ namespace GTS {
     constexpr float TINYCALAMITY_SHRINK_COOLDOWN_NPC = 3.0f;
 
     constexpr float TINYCALAMITY_HIT_PUSH = 3.0f;
-    constexpr float TINYCALAMITY_HIT_RAGDOLL = 7.0f;
+    constexpr float TINYCALAMITY_HIT_RAGDOLL = 6.0f;
 
 	constexpr float HEALTHGATE_COOLDOWN = 60.0f;
 	constexpr float SCARE_COOLDOWN = 6.0f;
@@ -59,15 +59,16 @@ namespace GTS {
 	constexpr float Shrink_To_Nothing_After = 3.0f; // Shrink To Nothing immunity in seconds
 	constexpr float SHRINK_TO_NOTHING_SCALE = 0.08f;
 	//-----------------------------------------Default Trigger Threshold Values
-    constexpr float Action_MinPushScale  = 3.0f;
-	constexpr float Action_Sandwich      = 6.0f; // used for sandwich only
-	constexpr float Action_AI_ThighCrush = 4.0f; // Used for AI only
-	constexpr float Action_Crush         = 10.0f;
-	constexpr float Action_ButtCrush     = 2.0f; // for butt and cleavage crush
-	constexpr float Action_Vore          = 8.0f;
-	constexpr float Action_Grab          = 8.0f;
-	constexpr float Action_Hug           = 0.92f; // for hug grab/drop threshold 
-	constexpr float Action_FingerGrind   = 6.0f;
+    constexpr float Action_StaggerStartsAt= 1.325f;
+    constexpr float Action_RagdollStartsAt= 3.0f;
+	constexpr float Action_Sandwich       = 6.0f; // used for sandwich only
+	constexpr float Action_AI_ThighCrush  = 4.0f; // Used for AI only
+	constexpr float Action_Crush          = 10.0f;
+	constexpr float Action_ButtCrush      = 2.0f; // for butt and cleavage crush
+	constexpr float Action_Vore           = 8.0f;
+	constexpr float Action_Grab           = 8.0f;
+	constexpr float Action_Hug            = 0.92f; // for hug grab/drop threshold 
+	constexpr float Action_FingerGrind    = 6.0f;
     // Sermit note: changing these is both a sin and a crime
 
 	//-----------------------------------------Default Damage Values
@@ -77,6 +78,8 @@ namespace GTS {
 	constexpr float Damage_Grab_Attack = 4.8f;
 	constexpr float Damage_Breast_Squish = 2.2f;
 	constexpr float Damage_Breast_Strangle = 0.00980f;
+
+    constexpr float Damage_SizeDifferenceReductionMult = 0.65f;
     ////////////////Defaults
 
     constexpr float Damage_Default_Underfoot = 0.003f; // when we just stand still

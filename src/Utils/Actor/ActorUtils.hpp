@@ -31,7 +31,7 @@ namespace GTS {
 	void StaggerActor(Actor* a_target, float a_power);
 	void StaggerActor(Actor* a_source, Actor* a_target, float a_power);
 	void StaggerActor_Around(Actor* a_source, const float a_radius, bool a_doLaunch);
-	void StaggerOr(Actor* a_source, Actor* a_target);
+	void StaggerOrRagdoll(Actor* a_source, Actor* a_target);
 
 	void PushActorAway(Actor* a_source, Actor* a_receiver, float a_force);
 	void PushBackwards(Actor* a_source, Actor* a_target, float a_power);

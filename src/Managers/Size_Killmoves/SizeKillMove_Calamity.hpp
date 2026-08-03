@@ -6,7 +6,7 @@ namespace Calamity {
 
     // Stages of the "true POV" fake killmove camera sequence, played in this order.
     //
-    // Unlike the regular FakeKillmoveState sequence (which flies an external camera
+    // Unlike the regular SizeKillMoveState sequence (which flies an external camera
     // around the ENEMY from the giant's point of view), this sequence pins the camera
     // to the shrinking victim's own eyes and looks *up* at the giant towering over them.
     // The camera position basically never leaves the victim's head after stage 1 - only

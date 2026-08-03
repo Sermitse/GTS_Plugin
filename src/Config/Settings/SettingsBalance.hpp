@@ -70,6 +70,7 @@ struct SettingsBalance_t {
     float fBMShrinkRateCombat = 0.08f;
     float fBMShrinkOnHitMult = 1.0f;
     bool bSharePerks = false;
+    bool bReducedSizeDamage = false;
 
 };
 TOML_SERIALIZABLE(SettingsBalance_t);

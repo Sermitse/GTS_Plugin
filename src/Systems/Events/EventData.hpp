@@ -1,6 +1,17 @@
 #pragma once
 
 namespace GTS {
+	enum class AimZone { 
+		None, 
+		Close, 
+		Far 
+	};
+    enum class StompAimType {
+		T1, 
+		T2, 
+		T3, 
+		T4 
+	};
 
 	enum class GrabBranch {
 		None,
@@ -271,4 +282,54 @@ namespace GTS {
 		RE::BGSPerk* perk;
 	};
 
+    struct KillMoveParameters {
+        bool isStrongAttack             = false;
+        bool isFootAttack               = false; // if True = we take HH offset into account for camera
+        float baseDamage                = 1.0f;
+        float crushThreshold            = 1.0f;
+        float lookAtNodeDistance        = 30.0f;
+        float deathHoldDistance         = 40.0f;
+		float orbitAngle				= 360.0f;
+		float orbitTime					= 9.0f;
+        std::vector<std::string_view>   nodeLookups;
+        DamageSource damageSource       = DamageSource::CrushedLeft;
+    };
+	struct AimAssistResult {
+		bool hit 				= false;     
+		bool alive 				= false;  
+		bool canKillMove 		= false; 		// Used only in Breast Crush atm
+		float blend_x 			= 0.0f;
+		float blend_y 			= 0.0f;
+		float distance 			= FLT_MAX;
+		Actor* victim 			= nullptr;
+	};
+
+	struct AnimationBlendInfo {
+		float blendX 				= 0.0f; 	// forward (>0) /   back (<1)
+		float blendY 				= 0.0f;	// right (>0)   /   left (<1)
+		float outDistanceX 	 		= 0.0f;
+		float outDistanceY   		= 0.0f;
+		float maxDistance			= 0.0f;
+		float finalDistance			= 0.0f;
+
+		bool isInsideRectangle		= false; // Everything below is used only in crawl breast slam
+		float length				= 0.0f;
+		float width					= 0.0f;
+		float blendOffset			= 0.0f;
+		float inPercent_Directional	= 0.0f;
+		float inPercent_Side		= 0.0f;
+
+	};
+
+    struct AimAttempt {
+        bool hit = false;
+        bool left = false;
+        AimAssistResult result;
+    };
+    struct AimOutcome {
+        AimZone zone = AimZone::None;
+        bool left = false;
+        bool hit = false;
+        Actor* victim = nullptr;
+    };
 }

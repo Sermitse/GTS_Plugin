@@ -28,7 +28,7 @@ namespace {
     static constexpr std::array<WeightedNode, 3> candidates = {{
         { "NPC Head [Head]",      0.50f },
         { "NPC R Hand [RHnd]",    0.30f },
-        { "NPC R Breast01",       0.20f },
+        { "R Breast01",       0.20f },
     }};
 
     NiAVObject* GetRandomizedFocusNode(Actor* giant) {

@@ -4,6 +4,7 @@
 
 #include "Managers/Animation/Controllers/GrabAnimationController.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
+#include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 
 #include "Managers/Damage/SizeHitEffects.hpp"
 #include "Managers/Damage/TinyCalamity.hpp"
@@ -497,7 +498,7 @@ namespace GTS {
 			float sizeDiff = gts_scale/tiny_scale;
 			float power = std::clamp(SizeManager::GetSizeAttribute(giant, SizeAttribute::Normal), 1.0f, 999999.0f);
 			float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(grabbed);
-			float damage = (Damage * sizeDiff) * power * additionaldamage * additionaldamage;
+			float damage = (Damage * BalanceSizeDamage(sizeDiff)) * power * additionaldamage * additionaldamage;
 			float experience = std::clamp(damage/1600, 0.0f, 0.06f);
 			if (TinyCalamityActive(giant)) {
 				bonus = 1.65f;

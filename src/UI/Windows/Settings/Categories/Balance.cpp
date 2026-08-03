@@ -32,10 +32,10 @@ namespace GTS {
             PSString T4 = "Affects amount of size you lose when being hit.";
 
             PSString THelp = "Balance mode makes it harder to gain size in general.\n"
-                             "- Enemies resist size damage while they have stamina.\n"
+                             "- Size-related damage scaling is reduced\n"
                              "- You constantly shrink on hit and out of combat.\n\n"
-                             "- On top of that all attribute increases are 50%% weaker and some configuration options are disabled.\n"
-                             "- You cannot skip the quest while Balance Mode is enabled.";
+                             "- All attribute bonuses are 50%% weaker, and some configuration options are disabled.\n"
+                             "- Quest skipping is unavailable while Balance Mode is enabled.";
 
             if (ImGui::CollapsingHeader("Balance Mode", ImUtil::HeaderFlagsDefaultOpen)) {
 
@@ -378,9 +378,13 @@ namespace GTS {
             PSString T1 = "Changes the amount of damage increase regular melee and magic atacks gain.";
             PSString T2 = "Adjust the speed at which you gain size-related experience.";
             PSString T3 = "Change the ammount of carry weight capacity gained based on your size.";
+            PSString T4 = "Changes size-based damage scaling to be less aggressive.\n"
+                        "- By default, damage scales linearly with size difference.\n"
+                        "- When enabled, scaling becomes non-linear.\n"
+                        "- Larger size differences still increase damage, but with diminishing returns.";
 
             if (ImGuiEx::ConditionalHeader("Multipiers", "Balance Mode Active", true)) {
-
+                ImGuiEx::CheckBox("Reduced Size-Related Damage Scaling", &Config::Balance.bReducedSizeDamage, T4);
                 ImGuiEx::SliderF("Size-Related Damage Multiplier", &Config::Balance.fSizeDamageMult, 0.02f, 2.0f, T0, "%.2fx");
                 ImGuiEx::SliderF("Weapon/Magic Damage Multiplier", &Config::Balance.fStatBonusDamageMult, 0.02f, 2.0f, T1, "%.2fx");
                 ImGuiEx::SliderF("Carry Weight Multiplier", &Config::Balance.fStatBonusCarryWeightMult, 0.02f, 2.0f, T3, "%.2fx");

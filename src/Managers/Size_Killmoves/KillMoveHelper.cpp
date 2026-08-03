@@ -1,12 +1,18 @@
+#include "Managers/Size_Killmoves/KillMoveParamObtainer.hpp"
 #include "Managers/Size_Killmoves/KillMoveHelper.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove.hpp"
 #include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 #include "Systems/Rays/Camera/CameraCollision.hpp"
+#include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
+#include "Utils/Actions/AutoAim/AimAssist.hpp"
 #include "Managers/Cameras/CamUtil.hpp"
 #include "Managers/GTSSizeManager.hpp"
 #include "Utils/DifficultyUtils.hpp"
 #include "Managers/HighHeel.hpp"
 #include "Config/Config.hpp"
+
+
 
 using namespace GTS;
 
@@ -257,33 +263,49 @@ namespace GTS {
     bool DriveCameraWithCollision(const CameraSequenceState& state, const RE::NiPoint3& collisionRayStart) {
         auto camera = RE::PlayerCamera::GetSingleton();
         auto player = RE::PlayerCharacter::GetSingleton();
-        if (!camera || !player) {
+        if (!camera || !camera->cameraRoot || !player) {
             return false;
         }
 
-        RE::NiPointer<RE::NiNode>& cameraRoot = camera->cameraRoot;
-        RE::NiTransform worldTransform = GetCameraWorldTransform();
-
+        float scale = get_visual_scale(player);
         RE::NiPoint3 finalPos = state.cameraPos;
 
         if (collisionRayStart != RE::NiPoint3()) {
-            if (RE::NiNode* parent = cameraRoot->parent) {
-                RE::NiTransform invRoot = parent->world.Invert();
-                RE::NiPoint3 localTarget = invRoot * finalPos;
-                float scale = get_visual_scale(player);
-                RE::NiPoint3 hitLocal = CameraCol::ComputeCameraCollision(player, collisionRayStart, localTarget, -1.0f, scale);
-                finalPos = parent->world * hitLocal;
+            finalPos = CameraCol::ComputeCameraCollision(player, collisionRayStart, finalPos, -1.0f, scale);
+        }
+
+        // UpdatePlayerCamera/UpdateNiCamera only ever touch translation, so
+        // set the rotation directly first.
+        camera->cameraRoot->local.rotate = state.cameraRot;
+        camera->cameraRoot->world.rotate = state.cameraRot;
+
+        SetCameraNearFarPlanes(scale);
+        UpdatePlayerCamera(finalPos);
+        UpdateNiCamera(finalPos);
+
+        return true;
+    }
+
+    void TryKillMove(Actor* giant, const AimOutcome& aim, KillMoveParameters params) {
+        if (!aim.victim) {
+            logger::info("No victim");
+            return;
+        }
+        std::vector<NiAVObject*> nodes;
+        nodes.reserve(params.nodeLookups.size());
+
+        for (auto name : params.nodeLookups) {
+            if (auto node = find_node(giant, name)) {
+                logger::info("Found node {}, pushing back", name);
+                nodes.push_back(node);
             }
         }
-
-        worldTransform.translate = finalPos;
-        worldTransform.rotate = state.cameraRot;
-
-        if (RE::NiNode* parent = cameraRoot->parent) {
-            cameraRoot->local = parent->world.Invert() * worldTransform;
-        } else {
-            cameraRoot->world = worldTransform;
-        }
-        return true;
+        
+        StartKillmove(
+            giant, 
+            aim.victim, 
+            nodes, 
+            params
+        );
     }
 }

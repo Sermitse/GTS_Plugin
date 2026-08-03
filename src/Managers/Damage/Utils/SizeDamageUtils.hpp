@@ -12,4 +12,5 @@ namespace GTS {
 	float HighHeels_PerkDamage(Actor* giant, DamageSource Cause);
 	void CrushCheck(Actor* giant, Actor* tiny, float size_difference, float crush_threshold, DamageSource Cause);
 	float CalculateSizeDamage(Actor* giant, Actor* tiny, DamageSource Cause, float damage);
+	float BalanceSizeDamage(float sizeDifference);
 }

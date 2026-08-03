@@ -1,5 +1,6 @@
 #include "Managers/Animation/CleavageStrangle.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
+#include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/Grab.hpp"
 #include "Managers/GTSSizeManager.hpp"
@@ -113,7 +114,7 @@ namespace {
             float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(tinyref);
             float speed = AnimationManager::GetBonusAnimationSpeed(giantref);
 
-            float damage = Damage_Breast_Strangle * power * additionaldamage * sizeDiff * TimeScale() * speed;
+            float damage = Damage_Breast_Strangle * power * additionaldamage * BalanceSizeDamage(sizeDiff) * TimeScale() * speed;
             TinyCalamityActive(giantref) ? damage *= 1.5f : damage *= 1.0f;
 
             if (!AnimationVars::Cleavage::IsBoobsDoting(giantref) && !AnimationVars::General::IsGTSBusy(giantref)) {

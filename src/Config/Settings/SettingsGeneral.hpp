@@ -78,7 +78,7 @@ struct SettingsGeneral_t {
     float fPlayerMaxSpeedMultLerpTargetPercent = 75.0f;
 
     float fKillMoveChance_Death = 10.0f;
-    float fKillMoveChance_Crush = 25.0f;
+    float fKillMoveChance_Crush = 10.0f;
 };
 TOML_SERIALIZABLE(SettingsGeneral_t);
 TOML_REGISTER_NAME(SettingsGeneral_t, "General");

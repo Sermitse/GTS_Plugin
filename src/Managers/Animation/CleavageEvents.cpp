@@ -3,6 +3,7 @@
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
+#include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/CleavageState.hpp"
 
@@ -194,7 +195,7 @@ namespace {
 			float sizeDiff = gts_scale/tiny_scale;
 			float power = std::clamp(SizeManager::GetSizeAttribute(giant, SizeAttribute::Normal), 1.0f, 1000000.0f);
 			float additionaldamage = 1.0f + sizemanager.GetSizeVulnerability(tiny);
-			float damage = (Damage_Breast_Squish * damage_mult) * power * additionaldamage * additionaldamage * sizeDiff;
+			float damage = (Damage_Breast_Squish * damage_mult) * power * additionaldamage * additionaldamage * BalanceSizeDamage(sizeDiff);
 			float experience = std::clamp(damage/1600, 0.0f, 0.06f);
 
 			if (TinyCalamityActive(giant)) {
