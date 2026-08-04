@@ -830,12 +830,12 @@ namespace GTS {
 		float sizedifference = giantSize / tinySize;
 		float sizedifference_tinypov = tinySize / giantSize;
 
-		const bool canRagdoll = !IsRagdolled(a_target) && sizedifference > 2.8f && giantSize >= Action_RagdollStartsAt
+		const bool canRagdoll = !IsRagdolled(a_target) && sizedifference > 2.8f && giantSize >= Action_Ragdoll_MinSizeDiff
 								&& RandomInt(0, 30) < 4.0f * sizedifference;
 		
-		if (!Calamity && (giantSize >= Action_RagdollStartsAt * 1.15f || AnimationVars::Tiny::IsBeingGrinded(a_target) || canRagdoll)) { // Chance for ragdoll. Becomes 100% at high scales
+		if (!Calamity && (giantSize >= Action_Ragdoll_MinSizeDiff * 1.15f || AnimationVars::Tiny::IsBeingGrinded(a_target) || canRagdoll)) { // Chance for ragdoll. Becomes 100% at high scales
 			PushActorAway(a_source, a_target, 1.0f); // Ragdoll
-		} else if (sizedifference > Action_StaggerStartsAt) { // Always Stagger
+		} else if (sizedifference > Action_Stagger_MinSizeDiff) { // Always Stagger
 			AnimationVars::General::SetGiantessScale(a_target, sizedifference_tinypov); // enable stagger just in case
 			float push = std::clamp(0.25f * (sizedifference - 0.25f), 0.25f, 1.0f);
 			StaggerActor(a_source, a_target, push);

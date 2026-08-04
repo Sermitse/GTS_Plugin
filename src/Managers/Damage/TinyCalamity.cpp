@@ -399,15 +399,15 @@ namespace GTS {
                         tiny->StartCombat(giant);
                         TinyCalamity_StaggerActor(giant, tiny, giantHp);
                     } 
-                } else if (!IsActionOnCooldown(giant, CooldownSource::Misc_TinyCalamity_Hit)) { // Non max speed behavior
+                } else if (!IsActionOnCooldown(tiny, CooldownSource::Misc_TinyCalamity_RunPushAway)) { // Non max speed behavior
                     const float sizeDifference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
                     if (Data->fSMTRunSpeed >= 0.25f) { // Try to push away
                         if (sizeDifference >= 1.0f - Data->fSMTRunSpeed * 0.4f) {
-                            ApplyActionCooldown(giant, CooldownSource::Misc_TinyCalamity_Hit);
+                            ApplyActionCooldown(tiny, CooldownSource::Misc_TinyCalamity_RunPushAway);
                             PushForward(giant, tiny, std::clamp(400.0f * sizeDifference, 300.0f, 800.0f));
                         }
                     } else if (sizeDifference >= 0.85f - Data->fSMTRunSpeed * 0.25f) { // Try to just stagger
-                        ApplyActionCooldown(giant, CooldownSource::Misc_TinyCalamity_Hit);
+                        ApplyActionCooldown(tiny, CooldownSource::Misc_TinyCalamity_RunPushAway);
                         StaggerActor(tiny, 0.25f + Data->fSMTRunSpeed);
                     }
                 }

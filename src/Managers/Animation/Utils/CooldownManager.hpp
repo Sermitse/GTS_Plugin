@@ -30,6 +30,7 @@ namespace GTS {
         Misc_TinyCalamity_WrathfulCalamity,
         Misc_TinyCalamity_Shrink,
         Misc_TinyCalamity_Hit,
+        Misc_TinyCalamity_RunPushAway,
         Misc_TinyCalamity_Ragdoll,
         Footstep_Right,
         Footstep_Left,
@@ -72,6 +73,7 @@ namespace GTS {
 
         double lastTinyCalamityHitTime = -1.0e8f;
         double lastTinyCalamityRagdollTime = -1.0e8f;
+        double lastTinyCalamityRunPushAwayTime = -1.0e8f;
 
         double lastFootstepTime_R = -1.0e8f;
         double lastFootstepTime_L = -1.0e8f;

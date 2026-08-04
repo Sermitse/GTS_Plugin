@@ -17,8 +17,9 @@ namespace GTS {
     constexpr float TINYCALAMITY_SHRINK_COOLDOWN = 9.0f;
     constexpr float TINYCALAMITY_SHRINK_COOLDOWN_NPC = 3.0f;
 
-    constexpr float TINYCALAMITY_HIT_PUSH = 3.0f;
-    constexpr float TINYCALAMITY_HIT_RAGDOLL = 6.0f;
+    constexpr float TINYCALAMITY_MELEEHIT_PUSH = 3.0f;
+    constexpr float TINYCALAMITY_MELEEHIT_RAGDOLL = 6.0f;
+    constexpr float TINYCALAMITY_RUN_PUSHAWAY = 3.0f;
 
 	constexpr float HEALTHGATE_COOLDOWN = 60.0f;
 	constexpr float SCARE_COOLDOWN = 6.0f;
@@ -59,8 +60,8 @@ namespace GTS {
 	constexpr float Shrink_To_Nothing_After = 3.0f; // Shrink To Nothing immunity in seconds
 	constexpr float SHRINK_TO_NOTHING_SCALE = 0.08f;
 	//-----------------------------------------Default Trigger Threshold Values
-    constexpr float Action_StaggerStartsAt= 1.325f;
-    constexpr float Action_RagdollStartsAt= 3.0f;
+    constexpr float Action_Stagger_MinSizeDiff = 1.325f; // Push is possible past this size diff
+    constexpr float Action_Ragdoll_MinSizeDiff = 3.0f;   // Ragdoll is possible past this size diff
 	constexpr float Action_Sandwich       = 6.0f; // used for sandwich only
 	constexpr float Action_AI_ThighCrush  = 4.0f; // Used for AI only
 	constexpr float Action_Crush          = 10.0f;

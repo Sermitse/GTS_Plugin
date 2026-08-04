@@ -237,7 +237,7 @@ namespace GTS {
 			float giantScale = get_visual_scale(giant);
 
 			float LAUNCH_UP_THRESHOLD = GetActorRagdollThreshold(giant);
-			float STAGGER_THRESHOLD = Action_StaggerStartsAt;
+			float STAGGER_THRESHOLD = Action_Stagger_MinSizeDiff;
 			
 			power *= CharState_GetLaunchPowerModifier(giant);
 			
@@ -298,7 +298,7 @@ namespace GTS {
 		const float min_distance = Radius_Walk_Default * giantScale; // Enemies shouldn't be launched if they're in this radius
 
 		float LAUNCH_UP_THRESHOLD = GetActorRagdollThreshold(giant);
-		float STAGGER_THRESHOLD = Action_StaggerStartsAt;
+		float STAGGER_THRESHOLD = Action_Stagger_MinSizeDiff;
 		
 		power *= CharState_GetLaunchPowerModifier(giant);
 		

@@ -196,6 +196,9 @@ namespace GTS {
             case CooldownSource::Misc_TinyCalamity_Hit:
                 data.lastTinyCalamityHitTime = Time::WorldTimeElapsed();
                 break;
+            case CooldownSource::Misc_TinyCalamity_RunPushAway:
+                data.lastTinyCalamityRunPushAwayTime = Time::WorldTimeElapsed();
+                break;
             case CooldownSource::Misc_TinyCalamity_Ragdoll:
                 data.lastTinyCalamityRagdollTime = Time::WorldTimeElapsed();
                 break;
@@ -275,9 +278,11 @@ namespace GTS {
             case CooldownSource::Misc_TinyCalamity_Shrink:
                 return (data.lastTinyCalamityShrinkTime + Calculate_CalamityShrinkCooldown(giant)) - time;
             case CooldownSource::Misc_TinyCalamity_Hit:
-                return (data.lastTinyCalamityHitTime + TINYCALAMITY_HIT_PUSH) - time;
+                return (data.lastTinyCalamityHitTime + TINYCALAMITY_MELEEHIT_PUSH) - time;
+            case CooldownSource::Misc_TinyCalamity_RunPushAway:
+                return (data.lastTinyCalamityRunPushAwayTime + TINYCALAMITY_RUN_PUSHAWAY) - time;
             case CooldownSource::Misc_TinyCalamity_Ragdoll:
-                return (data.lastTinyCalamityRagdollTime + TINYCALAMITY_HIT_RAGDOLL) - time;
+                return (data.lastTinyCalamityRagdollTime + TINYCALAMITY_MELEEHIT_RAGDOLL) - time;
             case CooldownSource::Footstep_Right:
                 return (data.lastFootstepTime_R + Calculate_FootstepTimer(giant)) - time;   
             case CooldownSource::Footstep_Left:
@@ -356,9 +361,11 @@ namespace GTS {
             case CooldownSource::Misc_TinyCalamity_Shrink:
                 return time <= (data.lastTinyCalamityShrinkTime + Calculate_CalamityShrinkCooldown(giant)); 
             case CooldownSource::Misc_TinyCalamity_Hit:
-                return time <= (data.lastTinyCalamityHitTime + TINYCALAMITY_HIT_PUSH);
+                return time <= (data.lastTinyCalamityHitTime + TINYCALAMITY_MELEEHIT_PUSH);
+            case CooldownSource::Misc_TinyCalamity_RunPushAway:
+                return time <= (data.lastTinyCalamityRunPushAwayTime + TINYCALAMITY_RUN_PUSHAWAY);
             case CooldownSource::Misc_TinyCalamity_Ragdoll:
-                return time <= (data.lastTinyCalamityRagdollTime + TINYCALAMITY_HIT_RAGDOLL);
+                return time <= (data.lastTinyCalamityRagdollTime + TINYCALAMITY_MELEEHIT_RAGDOLL);
             case CooldownSource::Footstep_Right:
                 return time <= (data.lastFootstepTime_R + Calculate_FootstepTimer(giant));    
             case CooldownSource::Footstep_Left:
