@@ -116,6 +116,7 @@ namespace GTS {
     bool DriveCameraWithCollision(const CameraSequenceState& state, const RE::NiPoint3& collisionRayStart);
 
     void TryKillMove(Actor* giant, const AimOutcome& aim, KillMoveParameters params);
+    bool IsInGTSKillMove();
     // Captures the player camera's current position/rotation into `state`,
     // but only while the sequence is inactive (state == noneStage) - called
     // every frame from outside so that whenever a sequence *does* start, its
@@ -130,4 +131,5 @@ namespace GTS {
             state.cameraRot = root->world.rotate;
         }
     }
+
 }

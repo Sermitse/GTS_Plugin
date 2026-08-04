@@ -2,6 +2,7 @@
 #include "Config/Config.hpp"
 #include "Core/ImGraphics.hpp"
 #include "UI/Util/ScaleformLogger.hpp"
+#include "Managers/Size_Killmoves/KillMoveHelper.hpp"
 
 namespace GTS {
 
@@ -296,8 +297,23 @@ namespace GTS {
 
 			// Only 0->1 captures original + applies slowdown
 			if (m_localSlowMoCount.fetch_add(1, std::memory_order_acq_rel) == 0) {
+
+				// A killmove camera sequence continuously drives Time::SGTM() itself
+				// and restores it correctly on its own once it finishes. If one is
+				// active right now, Time::GGTM() is whatever mid-sequence value it
+				// currently holds (e.g. 0.25) - not "normal" speed - so capturing it
+				// here as m_originalGameTime and writing that back later (possibly
+				// well after the killmove has already finished and correctly reset
+				// SGTM itself) is exactly what left the game stuck slowed. Simplest
+				// fix: don't touch SGTM at all while a killmove owns it.
+				if (IsInGTSKillMove()) {
+					m_slowMoAppliedByUs.store(false, std::memory_order_release);
+					return;
+				}
+
 				m_originalGameTime.store(Time::GGTM(), std::memory_order_release);
 				Time::SGTM(Config::UI.fSGTMMult);
+				m_slowMoAppliedByUs.store(true, std::memory_order_release);
 			}
 		}
 		else {
@@ -305,10 +321,16 @@ namespace GTS {
 			uint32_t prev = m_localSlowMoCount.load(std::memory_order_acquire);
 			while (prev > 0) {
 				if (m_localSlowMoCount.compare_exchange_weak(prev, prev - 1, std::memory_order_acq_rel, std::memory_order_acquire)){
-					// Only 1->0 restores original
-					if (prev == 1) {
-						const float original = m_originalGameTime.load(std::memory_order_acquire);
-						Time::SGTM(original);
+					// Only 1->0 restores original, and only if we actually captured
+					// one above (see the AnyKillMoveActive() skip on the open side).
+					if (prev == 1 && m_slowMoAppliedByUs.exchange(false, std::memory_order_acq_rel)) {
+						// Mirror the same check on the way out: if a killmove sequence
+						// has since taken ownership of time (or is still holding it),
+						// don't stomp its current value with our stale snapshot.
+						if (!IsInGTSKillMove()) {
+							const float original = m_originalGameTime.load(std::memory_order_acquire);
+							Time::SGTM(original);
+						}
 					}
 					break;
 				}

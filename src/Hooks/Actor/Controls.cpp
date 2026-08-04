@@ -1,5 +1,6 @@
 #include "Managers/Size_Killmoves/SizeKillMove_WrathfulCalamity.hpp"
 #include "Managers/Size_Killmoves/SizeKillMove_Calamity.hpp"
+#include "Managers/Size_Killmoves/KillMoveHelper.hpp"
 #include "Managers/Size_Killmoves/SizeKillMove.hpp"
 #include "Managers/Animation/Controllers/VoreController.hpp"
 #include "Hooks/Actor/Controls.hpp"
@@ -13,14 +14,6 @@ const RE::BSFixedString activate 		= "Activate";
 
 
 namespace {
-	bool IsInGTSKillMove() {
-		const bool WrathfulCalamity = WrathfulCalamity::_state != WrathfulCalamity::WrathfulPOVState::None;
-		const bool Calamity 		= Calamity::_state != Calamity::TinyPOVState::None;		
-		const bool SizeKillMove		= _state != SizeKillMoveState::None;
-
-		const bool InKillMove		= Calamity || WrathfulCalamity || SizeKillMove;
-		return InKillMove;
-	}
 	bool AllowToPerformSneak(RE::IDEvent* id) {
 		bool allow = true;
 		if (id) {

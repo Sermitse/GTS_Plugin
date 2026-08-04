@@ -1,3 +1,5 @@
+#include "Managers/Size_Killmoves/SizeKillMove_WrathfulCalamity.hpp"
+#include "Managers/Size_Killmoves/SizeKillMove_Calamity.hpp"
 #include "Managers/Size_Killmoves/KillMoveParamObtainer.hpp"
 #include "Managers/Size_Killmoves/KillMoveHelper.hpp"
 #include "Managers/Size_Killmoves/SizeKillMove.hpp"
@@ -308,4 +310,13 @@ namespace GTS {
             params
         );
     }
+
+    bool IsInGTSKillMove() {
+		const bool WrathfulCalamity = WrathfulCalamity::_state != WrathfulCalamity::WrathfulPOVState::None;
+		const bool Calamity 		= Calamity::_state != Calamity::TinyPOVState::None;		
+		const bool SizeKillMove		= _state != SizeKillMoveState::None;
+
+		const bool InKillMove		= Calamity || WrathfulCalamity || SizeKillMove;
+		return InKillMove;
+	}
 }

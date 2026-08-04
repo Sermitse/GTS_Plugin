@@ -378,10 +378,10 @@ namespace GTS {
             PSString T1 = "Changes the amount of damage increase regular melee and magic atacks gain.";
             PSString T2 = "Adjust the speed at which you gain size-related experience.";
             PSString T3 = "Change the ammount of carry weight capacity gained based on your size.";
-            PSString T4 = "Changes size-based damage scaling to be less aggressive.\n"
-                        "- By default, damage scales linearly with size difference.\n"
-                        "- When enabled, scaling becomes non-linear.\n"
-                        "- Larger size differences still increase damage, but with diminishing returns.";
+            PSString T4 = "Changes size-based damage scaling to be less powerful.\n"
+                        "- By default, damage scales linearly with size difference\n"
+                        "- When enabled, scaling becomes non-linear\n"
+                        "- Larger size differences still increase damage, but with diminishing returns";
 
             if (ImGuiEx::ConditionalHeader("Multipiers", "Balance Mode Active", true)) {
                 ImGuiEx::CheckBox("Reduced Size-Related Damage Scaling", &Config::Balance.bReducedSizeDamage, T4);

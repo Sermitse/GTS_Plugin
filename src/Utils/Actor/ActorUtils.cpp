@@ -835,7 +835,7 @@ namespace GTS {
 		
 		if (!Calamity && (giantSize >= Action_RagdollStartsAt * 1.15f || AnimationVars::Tiny::IsBeingGrinded(a_target) || canRagdoll)) { // Chance for ragdoll. Becomes 100% at high scales
 			PushActorAway(a_source, a_target, 1.0f); // Ragdoll
-		} else if (sizedifference > 1.325f) { // Always Stagger
+		} else if (sizedifference > Action_StaggerStartsAt) { // Always Stagger
 			AnimationVars::General::SetGiantessScale(a_target, sizedifference_tinypov); // enable stagger just in case
 			float push = std::clamp(0.25f * (sizedifference - 0.25f), 0.25f, 1.0f);
 			StaggerActor(a_source, a_target, push);
