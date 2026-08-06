@@ -2,31 +2,11 @@
 #pragma once
 
 namespace GTS {
-    struct RumbleParameters {
-        float rumble_intensity;
-        float rumble_halflife;
-        float rumble_duration;
-        float duration_multiplier;
-        bool ignore_scaling;
-        std::string_view node_name = "NPC Root [Root]";
-    };
-    // Sermit's note:
-    // ---
-    // Initially, i planned to replace most Rumbling::Once with just passing (Name, Actor, RumbleParameters)
-    // But we have too many of these and it requres redoing most of them
-    // ---
-    // While goal was shortening the code, it would add even more code in some places that needs 2 bones, such as L/R breast / L/R Foot
-    // On top of that, some parts of old code multiply 'rumble_intensity', and we'd have to do stuff like 
-    //      auto params = Rumble_Params_GrowthPotion_Start
-    //      params.rumble_intensity *= bonus
-    // In order to achieve same thing, which adds even more code lines, despite goal being shortening it
-    // Maybe i'll get back to it someday and that's why im keeping this code, but for now it's abandoned
-
     //-----------------------------------------Camera Rumble power settings
-    constexpr float Rumble_Default_FootWalk                         = 2.10f; // Used for vanilla anims such as walking, running, sprinting
-    constexpr float Rumble_Default_JumpLand                         = 1.6f; // Multiplies footwalk, used for vanilla anims such as walking, running, sprinting
+    constexpr float Rumble_Walk_FootWalk                         = 0.735f; // Used for vanilla anims such as walking, running, sprinting
 
-    constexpr float Rumble_Default_MassiveJump                      = 2.6f; // Used when player jumps and scale is >= x3.0
+    constexpr float Rumble_Jump_JumpLand                         = 1.6f; // Used when player jump lands
+    constexpr float Rumble_Jump_MassiveJump                      = 2.6f; // Used when player jumps and scale is >= x3.0
 
     ////////////////////////////////////////////////////
 
@@ -83,7 +63,8 @@ namespace GTS {
 
     // Butt crush
     constexpr float Rumble_ButtCrush_FeetImpact                     = 2.5f;
-    constexpr float Rumble_ButtCrush_ButtImpact                     = 5.8f;  // Butt Crush
+    constexpr float Rumble_ButtCrush_ButtImpact                     = 2.9f;  // Butt Crush
+    constexpr float Rumble_ButtCrush_Growth                         = 1.25f;
 
     constexpr float Rumble_ButtCrush_UnderStomp_ButtImpact          = 3.4f;  // Butt Crush
 
@@ -92,11 +73,15 @@ namespace GTS {
 
     // Breast crush
     constexpr float Rumble_Cleavage_HoverLoop                       = 0.06f;
-    constexpr float Rumble_Cleavage_Impact                          = 4.9f;      // Breast Crush
+    constexpr float Rumble_Body_HoverLoop                           = 0.045f;
+    constexpr float Rumble_Cleavage_Impact                          = 2.45f;      // Breast Crush
+
+    // 
+    constexpr float Rumble_Clevage_Strangle_ReachedThreshold        = 4.2f;
 
     // Crawling
-    constexpr float Rumble_Crawl_KneeDrop                           = 4.9f;       // Knee Crush
-    constexpr float Rumble_Crawl_KneeHand_Impact                    = 2.1f;// A bit higher value since it gets cut off by sneak modifier
+    constexpr float Rumble_Crawl_KneeDrop                           = 2.45f;       // Knee Crush
+    constexpr float Rumble_Crawl_KneeHand_Impact                    = 1.05f;// A bit higher value since it gets cut off by sneak modifier
 
     // Finger Grind
     constexpr float Rumble_FingerGrind_Rotate                       = 1.0f;
@@ -115,31 +100,26 @@ namespace GTS {
     constexpr float Rumble_Misc_EnableTinyProtection                = 3.8f;
     constexpr float Rumble_Misc_FailTinyProtection                  = 6.2f;
 
-    constexpr float Rumble_Growth_GrowthSpurt                       = 0.75f;
-    constexpr float Rumble_Shrink_GrowthSpurt                       = 0.75f;
+    constexpr float Rumble_GrowthSpurt_Shrink                       = 0.75f;
+    constexpr float Rumble_GrowthSpurt_Grow                         = 0.75f;
 
     constexpr float Rumble_Growth_SlowGrowth_Start                  = 3.5f;
     constexpr float Rumble_Growth_SlowGrowth_Loop                   = 0.6f;
 
     constexpr float Rumble_Kill_CrushOther                          = 7.6f;
     constexpr float Rumble_Kill_ShrinkToNothing                     = 8.6f;
-    constexpr float Rumble_Furniture_Sit                            = 1.0f;
+    constexpr float Rumble_Furniture_Sit                            = 0.75f;
 
-    constexpr RumbleParameters Rumble_Params_Default_MassiveJump    = {Rumble_Default_MassiveJump, 0.035f, 1.0f, 0.0f, false};
-    constexpr RumbleParameters Rumble_Params_ShrinkPoison_Start     = {2.0f, 0.035f, 1.0f, 0.0f, false};
-    constexpr RumbleParameters Rumble_Params_ShrinkPoison_Loop      = {0.4f, 0.05f, 1.0f, 0.0f, false};
-    constexpr RumbleParameters Rumble_Params_GrowthPotion_Start     = {2.0f, 0.05f, 1.0f, 0.0f, false};
-    constexpr RumbleParameters Rumble_Params_GrowthPotion_Loop      = {1.0f, 0.10f, 1.0f, 0.0f, false, "NPC COM [COM ]"};
-    constexpr RumbleParameters Rumble_Params_ShrinkPotion_Start     = {2.0f, 0.05f, 1.0f, 0.0f, false, "NPC COM [COM ]"};
-    constexpr RumbleParameters Rumble_Params_ShrinkPotion_Loop      = {0.4f, 0.05f, 1.0f, 0.0f, false, "NPC COM [COM ]"};
-    constexpr RumbleParameters Rumble_Params_GrowthSpurt_Shrink     = {Rumble_Shrink_GrowthSpurt, 0.05f, 1.0f, 0.0f};
-    constexpr RumbleParameters Rumble_Params_GrowthSpurt_Growth     = {Rumble_Growth_GrowthSpurt, 0.05f, 1.0f, 0.0f, true};
-    constexpr RumbleParameters Rumble_Params_RestoreSize_Loop       = {0.6f, 0.05f, 1.0f, 0.0f, false};
-    constexpr RumbleParameters Rumble_Params_SlowGrowth_Start       = {Rumble_Growth_SlowGrowth_Start, 0.1f, 1.0f, 0.0f, true, "NPC COM [COM ]"};
-    constexpr RumbleParameters Rumble_Params_SlowGrowth_Loop        = {Rumble_Growth_SlowGrowth_Loop, 0.05f, 1.0f, 0.0f, true, "NPC COM [COM ]"};
-    constexpr RumbleParameters Rumble_Params_ButtCrush_Sit          = {Rumble_Furniture_Sit, 0.075f, 1.0f, 0.0f, false, "NPC R Butt"};
-    constexpr RumbleParameters Rumble_Params_RandomGrowth           = {0.0f, 0.1f, 1.0f, 0.0f, false, "NPC COM [COM ]"}; 
-    // ^ Intensity is 0 because it's based on growth power, it's altered by function inside RandomGrowth.cpp
-    constexpr RumbleParameters Rumble_Params_TearClothes            = {Rumble_Misc_TearClothes, 0.075f, 1.0f, 0.0f, false,};
-    constexpr RumbleParameters Rumble_Params_TearClothes_All        = {Rumble_Misc_TearAllClothes, 0.095f, 1.0f, 0.0f, false,};
+    constexpr float Rumble_ShrinkPoison_Start                       = 2.0f;
+    constexpr float Rumble_ShrinkPoison_Loop                        = 0.4f;
+
+    constexpr float Rumble_GrowthPotion_Start                       = 2.0f;
+    constexpr float Rumble_GrowthPotion_Loop                        = 1.0f;
+
+    constexpr float Rumble_ShrinkPotion_Start                       = 2.0f;
+    constexpr float Rumble_ShrinkPotion_Loop                        = 0.4f;
+
+    constexpr float Rumble_RestoreSize_Loop                         = 0.6f;
+
+    constexpr float Rumble_Vore_FinishBuff                          = 1.75f;
 }

@@ -19,6 +19,9 @@ namespace {
 
 	void UpdateTremorValues(Actor* actor, FootEvent kind, float& tremor) {
 		if (actor) {
+			if (kind == FootEvent::JumpLand) {
+				tremor = Rumble_Jump_JumpLand; // Jumping makes tremor stronger
+			}
 			if (actor->AsActorState()->IsSprinting()) {
 				tremor *= 1.10f; // Sprinting makes tremor stronger
 			}
@@ -28,9 +31,7 @@ namespace {
 			if (actor->IsSneaking()) {
 				tremor *= 0.80f; // Sneaking makes tremor weaker
 			}
-			if (kind == FootEvent::JumpLand) {
-				tremor *= Rumble_Default_JumpLand; // Jumping makes tremor stronger
-			}
+			
 
 			tremor *= GetHighHeelsBonusDamage(actor, true, 0.33f);
 		}
@@ -50,7 +51,7 @@ namespace GTS {
 			auto actor = impact.actor;
 			if (actor) {
 				
-				float tremor = Rumble_Default_FootWalk * 0.35f;
+				float tremor = Rumble_Walk_FootWalk;
 				float duration = 1.25f;
 				float calamity = 1.0f;
 
@@ -73,20 +74,17 @@ namespace GTS {
 							if (node) {
 								const bool npcEffects = Config::Gameplay.bNPCAnimEffects;
 								const bool pcEffects = Config::Gameplay.bPlayerAnimEffects;
+								const bool isPlayer = actor->IsPlayerRef();
 
-								if (actor->IsPlayerRef() && pcEffects) {
+								const bool isAllowed = (isPlayer && pcEffects) || (!isPlayer && npcEffects);
+
+								if (isAllowed) {
 									if (impact.kind == FootEvent::JumpLand) { // let Rumble Manager handle it.
 										DoJumpingRumble(actor, tremor * calamity, 0.03f, node->name, duration);
 									} else {
 										ApplyShakeAtPoint(actor, tremor * calamity, node->world.translate, duration);
 									}
-								} else if (!actor->IsPlayerRef() && npcEffects) {
-									if (impact.kind == FootEvent::JumpLand) { // let Rumble Manager handle it.
-										DoJumpingRumble(actor, tremor * calamity, 0.03f, node->name, duration);
-									} else {
-										ApplyShakeAtPoint(actor, tremor * calamity, node->world.translate, duration);
-									}
-								}
+								} 
 							}
 						}
 					}

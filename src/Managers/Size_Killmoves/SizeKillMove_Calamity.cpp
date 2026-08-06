@@ -228,7 +228,7 @@ namespace GTS {
         if (!victim) {
             return;
         }
-        if (!ShouldTrigger(PlayerCharacter::GetSingleton(), victim, Cause, base_damage, crush_mult)) {
+        if (!CanTriggerKillMove(PlayerCharacter::GetSingleton(), victim, Cause, base_damage, crush_mult)) {
             logger::info("Can't start Calamity killmove");
             return;
         }

@@ -67,7 +67,7 @@ namespace {
 			smt = 1.5f;
 		}
 
-		float shake_power = Rumble_Cleavage_Impact/2.5f * dust * damage;
+		float shake_power = Rumble_Cleavage_Impact * dust * damage;
 
 		DoDamageAtPoint(giant, Radius_BreastCrush_BreastImpact, Damage_BreastCrush_BreastImpact * damage, BreastL, 4, 0.70f, 0.8f, DamageSource::BreastImpact);
 		DoDamageAtPoint(giant, Radius_BreastCrush_BreastImpact, Damage_BreastCrush_BreastImpact * damage, BreastR, 4, 0.70f, 0.8f, DamageSource::BreastImpact);

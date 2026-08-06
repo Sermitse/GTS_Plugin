@@ -289,7 +289,7 @@ namespace GTS {
         if (lookNodes.empty()) {
             return;
         }
-        if (!ShouldTrigger(PlayerCharacter::GetSingleton(), enemy, params.damageSource, params.baseDamage, params.crushThreshold)) {
+        if (!CanTriggerKillMove(PlayerCharacter::GetSingleton(), enemy, params.damageSource, params.baseDamage, params.crushThresholdMult)) {
             logger::info("Can't start killmove");
             return;
         }

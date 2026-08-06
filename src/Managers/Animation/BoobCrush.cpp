@@ -217,7 +217,7 @@ namespace {
 		auto BreastL02 = find_node(giant, "L Breast02");
 		auto BreastR02 = find_node(giant, "R Breast02");
 
-		float shake_power = Rumble_Cleavage_Impact/2 * dust * damage;
+		float shake_power = Rumble_Cleavage_Impact * dust * damage;
 
 		if (BreastL02 && BreastR02) {
 			DoDamageAtPoint(giant, Radius_BreastCrush_BreastImpact, Damage_BreastCrush_BreastImpact * damage, BreastL02, 4, 0.70f, 0.8f, DamageSource::BreastImpact);

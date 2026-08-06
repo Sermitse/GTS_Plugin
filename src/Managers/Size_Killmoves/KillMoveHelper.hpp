@@ -2,7 +2,7 @@
 
 namespace GTS {
     float PredictDamage(Actor* giant, Actor* enemy, DamageSource Cause, float base);
-    bool ShouldTrigger(Actor* giant, Actor* enemy, DamageSource Cause, float base, float crush_threshold, float increase = 0.0f);
+    bool CanTriggerKillMove(Actor* giant, Actor* enemy, DamageSource Cause, float baseDamage, float crushModifier, float killMoveChance_Crush = 0.0f);
     float ApplyHeelOffset(bool foot);
 
     // ---------------------------------------------------------------------

@@ -15,7 +15,7 @@ namespace {
 			float falloff = 0.16f * scale;
 			float Volume = std::clamp(scale/10.0f, 0.20f, 2.0f);
 
-			Rumbling::Once("GrowthPotion", giant, 2.0f, 0.05f);
+			Rumbling::Once("GrowthPotion", giant, Rumble_GrowthPotion_Start, 0.05f);
 
 			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundGrowth, giant, Volume, "NPC Pelvis [Pelv]", falloff);
 		}
@@ -89,7 +89,7 @@ namespace GTS {
 		float Power = BASE_POWER * 1.5f;
 
 		Grow(caster, Power, 0.0f);
-		Rumbling::Once("GrowthPotion", caster, 1.0f, 0.10f, "NPC COM [COM ]", 0.0f);
+		Rumbling::Once("GrowthPotion", caster, Rumble_GrowthPotion_Loop, 0.10f, "NPC COM [COM ]", 0.0f);
 
 		//log::info("This Power: {}", this->power);
 		//log::info("Enlarging {} with the power of {}", caster->GetDisplayFullName(), Power);

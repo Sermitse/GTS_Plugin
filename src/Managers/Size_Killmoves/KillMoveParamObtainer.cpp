@@ -1,4 +1,5 @@
 #include "Managers/Size_Killmoves/KillMoveParamObtainer.hpp"
+#include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 #include "Utils/Actions/AutoAim/AimAssist.hpp"
 
@@ -37,7 +38,7 @@ namespace GTS {
         params.baseDamage           = strongAttack ? Damage_ButtCrush_ButtImpact : Damage_Stomp_Under_Light;
         params.lookAtNodeDistance   = strongAttack ? 70.0f : 30.0f;
         params.deathHoldDistance    = strongAttack ? 80.0f : 40.0f;
-        params.crushThreshold       = strongAttack ? 0.925f : 1.0f;
+        params.crushThresholdMult   = strongAttack ? 0.925f : 1.0f;
 
         return params;
     }
@@ -49,7 +50,7 @@ namespace GTS {
         params.baseDamage           = Damage_BreastCrush_BreastImpact;
         params.lookAtNodeDistance   = 45.0f;
         params.deathHoldDistance    = 50.0f;
-        params.crushThreshold       = 0.8f;
+        params.crushThresholdMult   = 0.8f;
         params.orbitAngle           = 45.0f;
         params.orbitTime            = 12.0f;
         return params;
@@ -60,7 +61,7 @@ namespace GTS {
         params.damageSource         = left ? DamageSource::KickedLeft : DamageSource::KickedRight;
         params.baseDamage           = strong ? Damage_Kick_Strong : Damage_Kick;
         params.isStrongAttack       = strong;
-        params.crushThreshold       = 1.8f;
+        params.crushThresholdMult   = 1.8f;
         return params;
     }
 }

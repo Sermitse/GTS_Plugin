@@ -182,7 +182,7 @@ namespace GTS {
 				}
 			}
 
-            Rumbling::Once("GrowthRumble", giant, 1.75f, 0.30f);
+            Rumbling::Once("GrowthRumble", giant, Rumble_Vore_FinishBuff, 0.30f);
         }
 	}
 

@@ -19,7 +19,7 @@ namespace {
 	void Jump_ApplyExtraJumpEffects(Actor* actor, float size, float Might) {
 		if (!actor->IsInMidair()) {
 			NiPoint3 pos = actor->GetPosition(); 
-			pos.z += 4.0f; //shift it up a little
+			pos.z += 4.0f * size;
 
 			if (TinyCalamityActive(actor)) {
 				size += 2.8f;
@@ -43,7 +43,7 @@ namespace {
 				//log::info("Jump Power: {}", power);
 				//log::info("Jump Radius: {}", stagger_radius);
 
-				Rumbling::Once("MassiveJump", actor, Rumble_Default_MassiveJump * power * Might, 0.035f * power);
+				Rumbling::Once("MassiveJump", actor, Rumble_Jump_MassiveJump * power * Might, 0.035f * power);
 			}
 		}
 	}

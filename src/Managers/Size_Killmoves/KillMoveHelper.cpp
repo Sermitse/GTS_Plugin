@@ -19,33 +19,38 @@
 using namespace GTS;
 
 namespace {
-    constexpr float reduce_damage_result = 0.6f;
+    constexpr float reducefinalDamage = 0.55f;
 }
 
 namespace GTS {
-    float PredictDamage(Actor* giant, Actor* enemy, DamageSource Cause, float base) {
+    float PredictDamage(Actor* giant, Actor* enemy, DamageSource Cause, float baseDamage) {
         if (DamageAllowed(giant, enemy, Cause)) {
-            float damage_result = CalculateSizeDamage(giant, enemy, Cause, base);
-            damage_result /= GetDifficultyMultiplier(giant, enemy);
+            float finalDamage = CalculateSizeDamage(giant, enemy, Cause, baseDamage);
+            finalDamage /= GetDifficultyMultiplier(giant, enemy);
 
             float levelbonus = 1.0f + ((GetGtsSkillLevel(giant) * 0.01f) * 0.50f);
-            damage_result *= levelbonus * Config::Balance.fSizeDamageMult;
-            damage_result *= reduce_damage_result; // To be safe
-            logger::info("Damage Result: {}, Health: {}, Can Start: {}", damage_result, GetAV(enemy, ActorValue::kHealth), damage_result > GetAV(enemy, ActorValue::kHealth));
-            return damage_result;
+            finalDamage *= levelbonus * Config::Balance.fSizeDamageMult;
+            finalDamage *= reducefinalDamage; // To be safe
+            logger::info("Damage Result: {}, Health: {}, Can Start: {}", finalDamage, GetAV(enemy, ActorValue::kHealth), finalDamage > GetAV(enemy, ActorValue::kHealth));
+            return finalDamage;
         }
         return 0.0f;
     }
 
-    bool ShouldTrigger(Actor* giant, Actor* enemy, DamageSource Cause, float base, float crush_threshold, float increase) {
-        if (get_scale_difference(giant, enemy, SizeType::VisualScale, false, false) >= Action_Crush * crush_threshold) {
-            increase = Config::General.fKillMoveChance_Crush;
+    bool CanTriggerKillMove(Actor* giant, Actor* enemy, DamageSource Cause, float baseDamage, float crushModifier, float killMoveChance_Crush) {
+        if (get_scale_difference(giant, enemy, SizeType::VisualScale, false, false) >= Action_Crush * crushModifier) {
+            killMoveChance_Crush = Config::General.fKillMoveChance_Crush;
         }
-        float combined = std::clamp(Config::General.fKillMoveChance_Death + increase, 0.0f, 100.0f);
-        const float expected = PredictDamage(giant, enemy, Cause, base);
-        const bool triggerKillMove = RandomBool(combined);
+        const float combinedChance = std::clamp(Config::General.fKillMoveChance_Death + killMoveChance_Crush, 0.0f, 100.0f);
+        const float predictedDamage = PredictDamage(giant, enemy, Cause, baseDamage);
 
-        return !enemy->IsDead() && triggerKillMove && GetAV(enemy, ActorValue::kHealth) <= expected;
+        const bool isEnemyLowHealth = predictedDamage >= GetAV(enemy, ActorValue::kHealth);
+        const bool isRandomTrue = RandomBool(combinedChance);
+        const bool isEnemyAlive = !enemy->IsDead();
+
+        const bool canStartKillMove = isEnemyAlive && isRandomTrue && isEnemyLowHealth;
+        
+        return canStartKillMove;
     }
 
     float ApplyHeelOffset(bool foot) {

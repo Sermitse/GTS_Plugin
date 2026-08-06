@@ -611,19 +611,13 @@ namespace GTS {
 	}
 
 	float GetPerkBonus_Basics(Actor* Giant) {
-		if (Runtime::HasPerkTeam(Giant, Runtime::PERK.GTSPerkDestructionBasics)) {
-			return 1.25f;
-		} else {
-			return 1.0f;
-		}
+		const bool hasPerk = Runtime::HasPerkTeam(Giant, Runtime::PERK.GTSPerkDestructionBasics);
+		return hasPerk ? 1.15f : 1.0f;
 	}
 
 	float GetPerkBonus_Thighs(Actor* Giant) {
-		if (Runtime::HasPerkTeam(Giant, Runtime::PERK.GTSPerkThighAbilities)) {
-			return 1.25f;
-		} else {
-			return 1.0f;
-		}
+		const bool hasPerk = Runtime::HasPerkTeam(Giant, Runtime::PERK.GTSPerkThighAbilities);
+		return hasPerk ? 1.25f : 1.0f;
 	}
 
 	void DoFootTrample(Actor* giant, Actor* tiny, bool Right) {

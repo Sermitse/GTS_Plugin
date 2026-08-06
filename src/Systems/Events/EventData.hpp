@@ -286,7 +286,7 @@ namespace GTS {
         bool isStrongAttack             = false;
         bool isFootAttack               = false; // if True = we take HH offset into account for camera
         float baseDamage                = 1.0f;
-        float crushThreshold            = 1.0f;
+        float crushThresholdMult        = 1.0f;  // Multiplies size difference threshold for crushing. x1.0 = base threshold
         float lookAtNodeDistance        = 30.0f;
         float deathHoldDistance         = 40.0f;
 		float orbitAngle				= 360.0f;

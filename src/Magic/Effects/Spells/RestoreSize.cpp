@@ -31,7 +31,7 @@ namespace {
 				Runtime::PlaySound(Runtime::SNDR.GTSSoundShrink, casterref, Volume, 1.0f);
 			}
 
-			Rumbling::Once("RestoreSizeOther", casterref, 0.6f, 0.05f);
+			Rumbling::Once("RestoreSizeOther", casterref, Rumble_RestoreSize_Loop, 0.05f);
 
 			if (!Revert(casterref, Power, Power/2.5f)) { // Terminate the task once revert size is complete
 				return false;

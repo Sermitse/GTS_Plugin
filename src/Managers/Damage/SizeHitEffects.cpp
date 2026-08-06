@@ -215,7 +215,7 @@ namespace GTS {
 							SpawnParticle(tiny, 0.20f, "GTS/Damage/Explode.nif", root->world.rotate, root->world.translate, get_visual_scale(tiny), 7, root);
 						}
 					}
-					if (damage > 0) {
+					if (damage > 0.0f) {
 						InflictSizeDamage(giant, tiny, damage * 1.5f);
 					}
 				}

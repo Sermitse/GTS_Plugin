@@ -10,7 +10,7 @@ namespace {
 	void PlayShrinkAudio(Actor* actor, bool timer_1, bool timer_2, float power) {
 		float scale = get_visual_scale(actor);
 		float falloff = 0.18f * scale;
-		Rumbling::Once("GrowthSpurt", actor, Rumble_Shrink_GrowthSpurt, 0.05f);
+		Rumbling::Once("GrowthSpurt", actor, Rumble_GrowthSpurt_Shrink, 0.05f);
 		if (timer_1) {
 			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundRumble, actor, power/20, "NPC Pelvis [Pelv]", falloff);
 		}
@@ -23,7 +23,7 @@ namespace {
 	void PlayGrowthAudio(Actor* actor, bool timer_1, bool timer_2, float power) {
 		float scale = get_visual_scale(actor);
 		float falloff = 0.18f * scale;
-		Rumbling::Once("GrowthSpurt", actor, Rumble_Growth_GrowthSpurt, 0.05f);
+		Rumbling::Once("GrowthSpurt", actor, Rumble_GrowthSpurt_Grow, 0.05f);
 		if (timer_1) {
 			Runtime::PlaySoundAtNode_FallOff(Runtime::SNDR.GTSSoundRumble, actor, power/20, "NPC Pelvis [Pelv]", falloff);
 		}

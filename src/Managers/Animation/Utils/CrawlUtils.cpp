@@ -80,7 +80,7 @@ namespace GTS {
 
 		//std::string rumbleName = std::format("{}{}", tag, actor->formID);
 		std::string rumbleName = std::format("CrawlRumble_{}", actor->formID);
-		Rumbling::Once(rumbleName, actor, Rumble_Crawl_KneeHand_Impact/2 * multiplier * smt, 0.02f, name, 0.0f); // Do Rumble
+		Rumbling::Once(rumbleName, actor, Rumble_Crawl_KneeHand_Impact * multiplier * smt, 0.02f, name, 0.0f); // Do Rumble
 
 		DoDamageAtPoint(actor, damage_dist, damage, node, 20, 0.05f, crushmult, Cause); // Do size-related damage
 		DoCrawlingSounds(actor, scale, node, FootEvent::Left);                      // Do impact sounds

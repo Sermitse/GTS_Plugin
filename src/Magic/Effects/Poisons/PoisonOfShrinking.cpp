@@ -23,7 +23,7 @@ namespace GTS {
 			return;
 		}
 
-		Rumbling::Once("Shrink_Poison", target, 2.0f, 0.05f);
+		Rumbling::Once("Shrink_Poison", target, Rumble_ShrinkPoison_Start, 0.05f);
 
 		float Volume = std::clamp(get_visual_scale(target) * 0.10f, 0.10f, 1.0f);
 		Runtime::PlaySound(Runtime::SNDR.GTSSoundShrink, target, Volume, 1.0f);
@@ -44,7 +44,7 @@ namespace GTS {
 		}
 		const float sizeLimit = 0.08f/GetSizeFromBoundingBox(target);
 		float AlchemyLevel = std::clamp(caster->AsActorValueOwner()->GetActorValue(ActorValue::kAlchemy)/100.0f + 1.0f, 1.0f, 2.0f);
-		Rumbling::Once("Shrink_Poison", target, 0.4f, 0.05f);
+		Rumbling::Once("Shrink_Poison", target, Rumble_ShrinkPoison_Loop, 0.05f);
 		float powercap = std::clamp(get_visual_scale(target), 0.85f, 1.10f);
 		float Power = BASE_POWER * powercap * AlchemyLevel;
 		

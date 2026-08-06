@@ -15,7 +15,7 @@ namespace GTS {
 			return;
 		}
 
-		Rumbling::Once("ShrinkPotion", caster, 2.0f, 0.05f);
+		Rumbling::Once("ShrinkPotion", caster, Rumble_ShrinkPotion_Start, 0.05f);
 
 		Potion_Penalty(caster);
 
@@ -33,7 +33,7 @@ namespace GTS {
 		}
 
 		float AlchemyLevel = std::clamp(caster->AsActorValueOwner()->GetActorValue(ActorValue::kAlchemy)/100.0f + 1.0f, 1.0f, 2.0f);
-		Rumbling::Once("ShrinkPotion", caster, 0.4f, 0.05f);
+		Rumbling::Once("ShrinkPotion", caster, Rumble_ShrinkPotion_Loop, 0.05f);
 
 		float Power = BASE_POWER * get_visual_scale(caster) * AlchemyLevel;
 

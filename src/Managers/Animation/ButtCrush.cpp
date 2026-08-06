@@ -147,7 +147,7 @@ namespace {
 
 		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundGrowth, giant, 1.0f, "NPC Pelvis [Pelv]");
 
-		StartRumble("BCRumble", data.giant, 1.25f, 0.30f);
+		StartRumble("BCRumble", data.giant, Rumble_ButtCrush_Growth, 0.30f);
 	}
 
 	void GTSBEH_ButtCrush_GrowthFinish(AnimationEventData& data) {
@@ -238,9 +238,9 @@ namespace {
 				auto ButtL = find_node(giantref, "NPC L Butt");
 
 				ApplyThighDamage(giantref, true, false, Radius_ThighCrush_ButtCrush_Drop, Damage_ButtCrush_LegDrop * damage, 0.35f, 1.0f, 14, DamageSource::Booty);
-				ApplyThighDamage(giant, false, false, Radius_ThighCrush_ButtCrush_Drop, Damage_ButtCrush_LegDrop * damage, 0.35f, 1.0f, 14, DamageSource::Booty);
+				ApplyThighDamage(giantref, false, false, Radius_ThighCrush_ButtCrush_Drop, Damage_ButtCrush_LegDrop * damage, 0.35f, 1.0f, 14, DamageSource::Booty);
 
-				float shake_power = Rumble_ButtCrush_ButtImpact/2 * dust * damage;
+				float shake_power = Rumble_ButtCrush_ButtImpact * dust * damage;
 
 				if (ButtR && ButtL) {
 					if (ThighL && ThighR) {

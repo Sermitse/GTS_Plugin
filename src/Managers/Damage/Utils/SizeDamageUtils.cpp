@@ -203,12 +203,8 @@ namespace GTS {
 		float size_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
 		auto& sizemanager = SizeManager::GetSingleton();
 		bool SMT = TinyCalamityActive(giant);
-		float size_threshold = 1.25f;
+		float size_threshold = SMT ? 0.9f : 1.25f;
 
-		if (SMT) {
-			size_threshold = 0.9f;
-		}
-		
 		if (size_difference > size_threshold) {
 			if (Allow_Damage(giant, tiny, Cause, size_difference)) {
 				float damagebonus = HighHeels_PerkDamage(giant, Cause); // 15% bonus HH damage if we have perk
@@ -216,13 +212,10 @@ namespace GTS {
 				float vulnerability = 1.0f + sizemanager.GetSizeVulnerability(tiny); // Get size damage debuff from enemy
 				float normaldamage = std::clamp(SizeManager::GetSizeAttribute(giant, SizeAttribute::Normal) * 0.30f, 0.30f, 1000000.0f);
 
-				float highheelsdamage = 1.0f;
-				if (ApplyHighHeelBonus(giant, Cause)) {
-					highheelsdamage = GetHighHeelsBonusDamage(giant, true);
-				}
+				float highheelsdamage = ApplyHighHeelBonus(giant, Cause) ? GetHighHeelsBonusDamage(giant, true) : 1.0f;
 
 				float sprintdamage = 1.0f; // default Sprint damage of 1.0
-				float weightdamage = 1.0f + (giant->GetWeight()*0.01f);
+				float weightdamage = 1.0f + (giant->GetWeight() * 0.01f);
 
 				if (giant->AsActorState()->IsSprinting()) {
 					sprintdamage = 1.5f * SizeManager::GetSizeAttribute(giant, SizeAttribute::Sprint);
