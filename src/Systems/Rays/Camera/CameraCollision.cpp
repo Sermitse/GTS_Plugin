@@ -143,17 +143,7 @@ namespace GTS::CameraCol {
 						
 						const uint64_t layerBit = 1ULL << static_cast<uint64_t>(layer);
 
-						// Only ever ignore collision for the tracked actor's OWN body/gear -
-						// never world geometry (terrain, statics, clutter props, trees,
-						// etc). Without this, anything within RayLen of the tracked bone
-						// whose hit point happens to be above the actor's feet - e.g. a
-						// hillside the camera orbit swings close to - got its camera
-						// collision disabled here too, so the main sweep below would sail
-						// straight through it.
-						bool bodyLayer = layer == COL_LAYER::kBiped || layer == COL_LAYER::kBipedNoCC
-										|| layer == COL_LAYER::kDeadBip || layer == COL_LAYER::kWeapon;
-
-						if (cameraCollidesWithBitfield & layerBit && bodyLayer) {
+						if (cameraCollidesWithBitfield & layerBit) {
 							if (hitPos.z > actorZPos) {
 								if (Config::Advanced.bShowOverlay) {
 									DebugDraw::DrawLineForMS({ currentStart.x, currentStart.y, currentStart.z }, { hitPos.x, hitPos.y, hitPos.z }, 16, { 0.0f, 0.0f, 1.0f, 1.0f }, 0.5f);
@@ -288,25 +278,6 @@ namespace GTS::CameraCol {
 			if (Config::Advanced.bShowOverlay) {
 				DebugDraw::DrawLineForMS({ floorStart4.x, floorStart4.y, floorStart4.z }, { finalCameraPosition.x, finalCameraPosition.y, finalCameraPosition.z }, 16, { 0.0f, 1.0f, 0.0f, 1.0f }, 1.5f); //Green
 			}
-		}
-
-		//Absolute underground floor. The probe above only reaches Hull units below
-		//finalCameraPosition - if the tracked bone (rayEnd) was already sitting deeper
-		//underground than that, or the sweep never registered a hit against the floor
-		//at all (gaps/layer mismatches in the collision mesh), that probe finds nothing
-		//to correct against, since the real floor is now above the point instead of
-		//below it. currentStart.z was already floored at actorZPos + Hullx2 further up
-		//for this exact "tracked bone went underground" reason - apply the same floor
-		//to the result too, so the camera can never end up lower than the actor's own
-		//feet regardless of what the tracked node/bone is doing.
-		//
-		//A small extra pad (scaled by Hull, so it stays proportional at any actor
-		//size) is added on top of Hullx2 - Hullx2 alone still leaves the camera
-		//sitting right at the collision hull surface, which is close enough to still
-		//clip a sliver of near-plane geometry at some viewing angles.
-		const float UndergroundPad = Hull * 0.5f;
-		if (finalCameraPosition.z < actorZPos + Hullx2 + UndergroundPad) {
-			finalCameraPosition.z = actorZPos + Hullx2 + UndergroundPad;
 		}
 
 		// Revert the objects back to their original collision filter data.
