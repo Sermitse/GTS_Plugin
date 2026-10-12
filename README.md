@@ -1,6 +1,6 @@
 [![CI](https://github.com/Sermitse/GTS_Plugin/actions/workflows/build.yml/badge.svg)](https://github.com/Sermitse/GTS_Plugin/actions/workflows/build.yml)
 ![C++23](https://img.shields.io/static/v1?label=Standard&message=C%2B%2B%2023&color=blue&logo=c%2B%2B&&logoColor=white&style=flat)
-![Licence](https://img.shields.io/badge/license-GPL%203-green)
+![Licence](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 # Size Matters SKSE64 Plugin
 This is the source code for the [Gianttess Mod - Size matters NG](https://www.nexusmods.com/skyrimspecialedition/mods/37823?tab=description) SKSE plugin.
 
