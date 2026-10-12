@@ -350,7 +350,7 @@ namespace GTS {
 		this->data.erase(actor->formID);
 	}
 
-	void VoreController::StartVore(Actor* pred, Actor* prey) {
+	void VoreController::StartVore(Actor* pred, Actor* prey, bool FastAnim) {
 		if (!pred || !prey) return;
 		if (!CanVore(pred, prey)) {
 			return;
@@ -395,8 +395,8 @@ namespace GTS {
 		}
 		auto& voreData = this->GetVoreData(pred);
 		voreData.AddTiny(prey);
-
-		AnimationManager::StartAnim("StartVore", pred);
+		const std::string voreType = FastAnim ? "StartVore_Fast" : "StartVore";
+		AnimationManager::StartAnim(voreType, pred);
 
 		DisarmActor(pred, false);
 	}

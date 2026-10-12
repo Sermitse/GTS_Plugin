@@ -85,7 +85,7 @@ FetchContent_Declare(
     boost_ext_reflect
     GIT_REPOSITORY https://github.com/Arial6502/reflect/
     GIT_SHALLOW ON
-    GIT_TAG 653c94092fa8702dbc33ebf3b570190fb1a9dc28
+    GIT_TAG ab2bad2e5600e0890380f0226412d91ffaed3c39
 )
 FetchContent_MakeAvailable(boost_ext_reflect)
 

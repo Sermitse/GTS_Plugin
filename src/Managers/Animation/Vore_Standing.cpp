@@ -327,5 +327,6 @@ namespace GTS
 
 	void Animation_VoreStanding::RegisterTriggers() {
 		AnimationManager::RegisterTrigger("StartVore", "Vore", "GTSBEH_StartVore");
+		AnimationManager::RegisterTrigger("StartVore_Fast", "FastVore", "GTSBEH_StartVore_Fast");
 	}
 }

@@ -196,16 +196,28 @@ namespace GTS {
         //========================================================
 	    //================ V O R E
 	    //========================================================
-
 		{
 	        .UICategory    = LInputCategory_t::kVore,
 		    .AdvFeature    = false,
-		    .UIName        = "Start Vore",
+		    .UIName        = "Start Fast Vore",
+		    .UIDescription = "Start the basic vore action (Standing Only).",
+			.Event = {
+		        .Event      = "FastVore",
+		        .Keys       = {"LSHIFT", "V"},
+				.Trigger    = "Release",
+				.Duration   = 0.0f,
+		    }
+        },
+		{
+	        .UICategory    = LInputCategory_t::kVore,
+		    .AdvFeature    = false,
+		    .UIName        = "Start Slow Vore",
 		    .UIDescription = "Start the basic vore action.",
 			.Event = {
 		        .Event      = "Vore",
 		        .Keys       = {"LSHIFT", "V"},
-		        .Trigger    = "Once"
+		        .Trigger    = "Continuous",
+				.Duration   = 0.33f,
 		    }
         },
         {
@@ -217,10 +229,9 @@ namespace GTS {
 		        .Event      = "PlayerVore",
 		        .Keys       = {"LSHIFT", "V"},
 		        .Trigger    = "Continuous",
-		        .Duration   = 1.0,
+		        .Duration   = 1.0f,
 		        .BlockInput = "Never"
 		    }
-
         },
 
         //========================================================

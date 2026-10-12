@@ -92,7 +92,6 @@ struct SettingsAutoAim_t {
     //----------------------- Auto-Aim settings
     float fAimAssist_BackPenalty = 30.0f;
     float fAimAssist_DeadPenalty = 50.0f;
-    float fAimAssist_IgnoreBehindAfter = 1.0f;
     float fAimAssist_AimMagnitudeMultiplier = 1.0f;
     float fAimAssist_NoHitValueRandomRange = 0.25f;
 

@@ -23,7 +23,24 @@ namespace {
 	constexpr float DURATION = 2.0f;
 	constexpr float StruggleCost = 10.0f;
 	constexpr int StruggleMax = 40;
-	
+
+	void PerformVore(bool CheckFastVore) {
+		static Timer voreTimer = Timer(0.25);
+		auto pred = PlayerCharacter::GetSingleton();
+		if (AnimationVars::General::IsGTSBusy(pred)) {
+			return;
+		}
+		const bool Standing = CheckFastVore && !pred->IsSneaking() && !AnimationVars::Crawl::IsCrawling(pred);
+		if (voreTimer.ShouldRunFrame()) {
+			auto& VoreManager = VoreController::GetSingleton();
+
+			std::vector<Actor*> preys = VoreManager.GetVoreTargetsInFront(pred, 1);
+			for (auto prey: preys) {
+				VoreManager.StartVore(pred, prey, Standing);
+			}
+		}
+	}
+
 	void ResetEscapeDataTask() {
 		std::string name = std::format("ResetStruggle_{}", Time::WorldTimeElapsed());
 		auto player = PlayerCharacter::GetSingleton();
@@ -548,22 +565,11 @@ namespace {
 	void AnimMaxSpeedEvent(const ManagedInputEvent& data) {
 		AnimationManager::AdjustAnimSpeed(0.090f); // Strongest attack speed buff
 	}
-
+	void FastVoreInputEvent(const ManagedInputEvent& data) {
+		PerformVore(true);
+	}
 	void VoreInputEvent(const ManagedInputEvent& data) {
-		static Timer voreTimer = Timer(0.25);
-		auto pred = PlayerCharacter::GetSingleton();
-		if (AnimationVars::General::IsGTSBusy(pred)) {
-			return;
-		}
-
-		if (voreTimer.ShouldRunFrame()) {
-			auto& VoreManager = VoreController::GetSingleton();
-
-			std::vector<Actor*> preys = VoreManager.GetVoreTargetsInFront(pred, 1);
-			for (auto prey: preys) {
-				VoreManager.StartVore(pred, prey);
-			}
-		}
+		PerformVore(false);
 	}
 
 	void VoreInputEvent_Follower(const ManagedInputEvent& data) {
@@ -699,6 +705,7 @@ namespace GTS {
 		InputManager::RegisterInputEvent("ManualShrinkOtherOverTime", TotalControlShrinkTeammate_OverTime, TotalControlCondition);
 
 		InputManager::RegisterInputEvent("Vore", VoreInputEvent, VoreCondition);
+		InputManager::RegisterInputEvent("FastVore", FastVoreInputEvent, VoreCondition);
 		InputManager::RegisterInputEvent("PlayerVore", VoreInputEvent_Follower, VoreCondition_Follower);
 
 		InputManager::RegisterInputEvent("StruggleUp", StruggleInputEvent, StruggleCondition);

@@ -67,7 +67,7 @@ namespace GTS {
 		bool CanVore(Actor* pred, Actor* prey) const;
 
 		// Do the vore
-		void StartVore(Actor* pred, Actor* prey);
+		void StartVore(Actor* pred, Actor* prey, bool FastAnim = false);
 
 		static void RecordOriginalScale(Actor* tiny);
 		static float ReadOriginalScale(Actor* tiny);
