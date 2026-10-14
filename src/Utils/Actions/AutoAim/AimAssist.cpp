@@ -5,10 +5,19 @@
 #include "Utils/Actions/AutoAim/AimAssist.hpp"
 #include "Utils/Actions/AutoAim/AutoAimUtils.hpp"
 #include "Managers/Cameras/CamUtil.hpp"
+#include "Systems/Events/EventData.hpp"
 #include "Managers/Rumble.hpp"
 #include "Config/Config.hpp"
 
 using namespace GTS;
+
+namespace {
+    // Fixes an issue with broken Y blends in edge cases. 
+    // If left stomp Y blend goes into positives, it breaks blending. Same if right stomp goes into negative direction. This is a fix: just disallow it to happen
+    float FixYBlend(const bool left, float blendY) {
+        return left ? std::min(-0.005f, blendY) : std::max(0.005f, blendY); 
+    }
+}
 
 namespace Scan {
     // A living victim always outranks a dead one, whichever zone found it.
@@ -33,16 +42,18 @@ namespace Scan {
 
         switch (outcome.zone) {
             case AimZone::Far:
-                SetStompBlendValues(giant, farZone.result.blend_x, farZone.result.blend_y, "Far Auto Aim Zone");
+                SetStompBlendValues(giant, farZone.result.blend_x, FixYBlend(farZone.left, farZone.result.blend_y), "Far Auto Aim Zone");
                 outcome.left = farZone.left;
                 outcome.hit = true;
                 outcome.victim = farZone.result.victim;
+                outcome.victim_color = farZone.result.victim_color;
                 break;
             case AimZone::Close:
-                SetStompBlendValues(giant, close.result.blend_x, close.result.blend_y, "Close Auto Aim Zone");
+                SetStompBlendValues(giant, close.result.blend_x, FixYBlend(close.left, close.result.blend_y), "Close Auto Aim Zone");
                 outcome.left = close.left;
                 outcome.hit = true;
                 outcome.victim = close.result.victim;
+                outcome.victim_color = close.result.victim_color;
                 break;
             case AimZone::None:
                 break;
@@ -107,7 +118,7 @@ namespace Scan {
         bool isKillMoveAllowed = false; // Used only in Breast Crush bool calculation, idea is to allow KillMove only when enemy is in front 
         auto close = strong
             ? TryAim([&](bool& l, AimAssistResult& r) { 
-                auto result = AutoAim_Crawl_TryBreastSlam(giant, l, &r); 
+                auto result = AutoAim_Crawl_TryBreastSlam(giant, &r); 
                 isKillMoveAllowed = r.canKillMove;
                 return result;
             }) // breast slam first
@@ -153,7 +164,9 @@ namespace GTS {
                 AimOutcome outcome = Scan::StandingBranchCheck(giant, strong_Attack, trample);
                 if (!outcome.hit) outcome = Scan::SneakBranchCheck(giant, strong_Attack);
                 if (!outcome.hit) outcome = Scan::CrawlBranchCheck(giant, strong_Attack);
-
+                if (outcome.hit && outcome.victim) {    
+                    HighlightVictim(giant, outcome.victim, outcome);
+                }
                 if (!outcome.hit) {
                     left = !left;
                     RandomizeBlend(giant, left);
@@ -167,5 +180,21 @@ namespace GTS {
 
         const bool managedByConfig = Config::AutoAim.bPreventFarStomps && autoAim;
         return managedByConfig ? true : RandomBool();
+    }
+
+    void HighlightVictim(Actor* giant, Actor* victim, const AimOutcome& outcome) {
+        if (Config::AutoAim.bDebugAutoAim) {
+            const bool Rhomb = Config::AutoAim.bUseRhombShape;
+            const float rotation = giant->data.angle.z;
+            if (victim) {
+                auto color = outcome.victim_color;
+                color[3] *= 1.5f;
+
+                auto victimPos = victim->GetPosition();
+            
+                Rhomb ? DebugDraw::DrawRhomb(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), rotation, 2000, color)
+                :       DebugDraw::DrawSphere(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), 2000, color);
+            }
+        }
     }
 }

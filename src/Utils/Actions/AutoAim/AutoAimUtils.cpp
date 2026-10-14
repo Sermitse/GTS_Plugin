@@ -11,22 +11,12 @@
 
 namespace {
     using namespace GTS;
-    constexpr glm::vec4 Breast_Color = {0.961f, 0.157f, 0.569f, 0.8f};
-    constexpr glm::vec4 Close_Stomp_Color = {1.0f, 0.0f, 0.0f, 1.0f};
-    constexpr glm::vec4 Far_Stomp_Color = {0.5f, 0.5f, 0.0f, 1.0f};
-    constexpr glm::vec4 Origin_Point = {0.07f, 0.4f, 0.54f, 1.0f};
-    constexpr glm::vec4 Kick_Color = {0.0f, 0.5f, 0.5f, 1.0f};
-
+    
     void DrawRectangleShape(Actor* giant, NiPoint3 pointPos, Actor* victim, float width, float length, const glm::vec4& giantess_color) {
         const bool Rhomb = Config::AutoAim.bUseRhombShape;
         const float rotation = giant->data.angle.z;
         if (Config::AutoAim.bDebugAutoAim) {
             DebugDraw::DrawRectangle(rotation, glm::vec3(pointPos.x, pointPos.y, pointPos.z), width, length, 1500, giantess_color);
-            if (victim) {
-                auto victimPos = victim->GetPosition();
-                Rhomb ? DebugDraw::DrawRhomb(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), rotation, 2000, {0.0f, 0.6f, 0.0f, 1.0f})
-                :       DebugDraw::DrawSphere(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), 2000, {0.0f, 0.6f, 0.0f, 1.0f});
-            }
         }
     }
     void DrawDebugShape(Actor* giant, NiPoint3 pointPos, Actor* victim, float max_distance, const glm::vec4& giantess_color) {
@@ -39,11 +29,6 @@ namespace {
             Rhomb ? DebugDraw::DrawRhomb(glm::vec3(pointPos.x, pointPos.y, pointPos.z), max_distance, rotation, 1500, giantess_color)                // Collider search radius
             :       DebugDraw::DrawSphere(glm::vec3(pointPos.x, pointPos.y, pointPos.z), max_distance, 1500, giantess_color);
 
-            if (victim) {
-                auto victimPos = victim->GetPosition();
-                Rhomb ? DebugDraw::DrawRhomb(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), rotation, 2000, {0.0f, 0.6f, 0.0f, 1.0f})
-                :       DebugDraw::DrawSphere(glm::vec3(victimPos.x, victimPos.y, victimPos.z), 6.0f * get_visual_scale(giant), 2000, {0.0f, 0.6f, 0.0f, 1.0f});
-            }
         }
     }
     void DebugMissShape(Actor* giant, NiPoint3 footPos_L, NiPoint3 footPos_R, float max_distance, bool& left_foot, const glm::vec4& giantess_color) {
@@ -108,7 +93,7 @@ namespace {
         return victim;
     }
 
-    bool FinalizeAim(Actor* giant, bool& left, Actor* victim, AnimationBlendInfo& params, AimAssistResult* out_result) {
+    bool FinalizeAim(Actor* giant, bool& left, Actor* victim, AnimationBlendInfo& params, AimAssistResult* out_result, const glm::vec4 color) {
         bool AutoAim = ShouldAutoAim(params.finalDistance, params.maxDistance, params.outDistanceX);
         if (AutoAim) {
             if (out_result) {
@@ -118,6 +103,7 @@ namespace {
                 out_result->blend_y = params.blendY;
                 out_result->distance = params.finalDistance;
                 out_result->victim = victim;
+                out_result->victim_color = color;
             } else {
                 SetStompBlendValues(giant, params.blendX, params.blendY, "Finalize Aim Function");
             }
@@ -153,6 +139,11 @@ namespace GTS {
             AnimationBlendInfo params;
             params.maxDistance = max_distance;
 
+            AimOutcome outcome;
+            outcome.victim = victim;
+            outcome.victim_color = Kick_Color;
+            HighlightVictim(giant, victim, outcome);
+
             CalculateForwardBlend(giant, footPos, victimPos, params);
 
             if (!giant->IsSneaking() && !victim->IsDead()) {
@@ -163,7 +154,7 @@ namespace GTS {
 
             return left;
         }
-        bool AutoAim_Crawl_TryBreastSlam(Actor* giant, bool& left_hand, AimAssistResult* out_result) {
+        bool AutoAim_Crawl_TryBreastSlam(Actor* giant, AimAssistResult* out_result) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
@@ -176,6 +167,7 @@ namespace GTS {
 
             NiPoint3 origin, victimPos;
             auto victim = FindAndDebugRectTarget(giant, breastPos, width, length, Breast_Color, origin, victimPos);
+            
             if (!victim) return false; // No victim found
 
             AnimationBlendInfo params;
@@ -185,8 +177,6 @@ namespace GTS {
 
             CalculateRectangleBlend(giant, origin, victimPos, params);
             params.blendX = std::clamp(params.blendX * 1.1f, 0.0f, 1.0f); // Slightly stronger blend
-
-            
 
             if (!params.isInsideRectangle) return false;
             bool InFrontOfGTS = true; 
@@ -214,6 +204,7 @@ namespace GTS {
                 out_result->blend_y = params.blendY;
                 out_result->distance = params.finalDistance;
                 out_result->victim = victim;
+                out_result->victim_color = Breast_Color;
             } else {
                 SetStompBlendValues(giant, params.blendX, params.blendY, "Breast Slam");
             }
@@ -245,7 +236,7 @@ namespace GTS {
             params.blendY = ApplyMagnitude(params.blendY, 1.5f);
             DebugLogBlend(giant, victim, params.blendX, params.blendY, "Sneak Butt Slam");
 
-            return FinalizeAim(giant, left_butt, victim, params, out_result);
+            return FinalizeAim(giant, left_butt, victim, params, out_result, Breast_Color);
         }
         bool AutoAim_Hand_TryHandAim_Far(Actor* giant, bool& left_hand, bool strong_Attack, AimAssistResult* out_result) {
             if (!giant) return false;
@@ -282,7 +273,7 @@ namespace GTS {
             params.blendY = ApplyMagnitude(params.blendY);
             DebugLogBlend(giant, victim, params.blendX, params.blendY, "Hand Aim Far");
 
-            return FinalizeAim(giant, left_hand, victim, params, out_result);
+            return FinalizeAim(giant, left_hand, victim, params, out_result, Far_Stomp_Color);
         }
         bool AutoAim_Hand_TryHandAim(Actor* giant, bool& left_hand, bool strong_Attack, AimAssistResult* out_result) {
             if (!giant) return false;
@@ -327,7 +318,7 @@ namespace GTS {
             }
             DebugLogBlend(giant, victim, params.blendX, params.blendY, debugString);
 
-            return FinalizeAim(giant, left_hand, victim, params, out_result);
+            return FinalizeAim(giant, left_hand, victim, params, out_result, Far_Stomp_Color);
         }
 
         bool AutoAim_Foot_Directional(Actor* giant, bool& left_foot, bool strong_Attack, AimAssistResult* out_result) {
@@ -365,7 +356,7 @@ namespace GTS {
             params.blendY = ApplyMagnitude(params.blendY);
             DebugLogBlend(giant, victim, params.blendX, params.blendY, "Close Stomp");
 
-            return FinalizeAim(giant, left_foot, victim, params, out_result);
+            return FinalizeAim(giant, left_foot, victim, params, out_result, Close_Stomp_Color);
         }
 
         bool AutoAim_Foot_Directional_FarStomp(Actor* giant, bool& left_foot, bool strong_stomp, AimAssistResult* out_result) {
@@ -397,7 +388,7 @@ namespace GTS {
             params.blendY = ApplyMagnitude(params.blendY);
             DebugLogBlend(giant, victim, params.blendX, params.blendY, "Far Stomp");
 
-            return FinalizeAim(giant, left_foot, victim, params, out_result);
+            return FinalizeAim(giant, left_foot, victim, params, out_result, Far_Stomp_Color);
         }
 
         bool AutoAim_IsSneakingOrCrawling(Actor* giant) {
@@ -430,11 +421,13 @@ namespace GTS {
             return RandomBool(); 
         }
 
-        void SetStompBlendValues(Actor* giant, float x, float y, std::string_view source) {
+        void SetStompBlendValues(Actor* giant, float x, float y, std::string_view source, bool print) {
             AnimationVars::Stomp::SetUnderStompBlend_Legacy(giant, x); // Old one stays for compatibility reasons
             AnimationVars::Stomp::SetUnderStompBlend_X(giant, x); // We added new behavior variables, needs new Behaviors in order to work
             AnimationVars::Stomp::SetUnderStompBlend_Y(giant, y); // We added new behavior variables, needs new Behaviors in order to work
-            logger::info("Applying final blend: X: {}, Y: {}", x, y);
-            Cprint("Applying final blend: X: {}, Y: {}, Source: {}", x, y, source);
+            if (print) {
+                logger::info("Applying final blend: X: {}, Y: {}", x, y);
+                Cprint("Applying final blend: X: {}, Y: {}, Source: {}", x, y, source);
+            }
         }
     }

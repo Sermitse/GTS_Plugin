@@ -77,7 +77,7 @@ struct SettingsAutoAim_t {
     float fAimAssist_Range_Kick = 48.0f;
     float fAimAssist_OffsetDistance_Kick_Forward = 40.0f;
     //----------------------- butt
-    float fAimAssist_Range_ButtSlam = 38.0f;
+    float fAimAssist_Range_ButtSlam = 42.0f;
     float fAimAssist_OffsetDistance_Butt_Forward = 0.0f;
     float fAimAssist_OffsetDistance_Butt_Side = 15.0f;
 

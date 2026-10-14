@@ -85,13 +85,13 @@ namespace {
         ImGui::Spacing();
     }
 
-    void DrawButtSlamSettings() {
+    void DrawSneakButtSlamSettings() {
         PSString THelp = "Butt Slam is a variation of strong stomp, it can be used in Sneak state\n"
         "It is performed if enemy is under giantess legs or butt";
         PSString T0 = "[Radius] Determines collider size.";
         PSString T1 = "[Offset] left/right offset of the initial target search collider.";
         PSString T2 = "[Offset] back/forward offset of the initial target search collider.";
-        ImGuiEx::HelpText("What is a butt slam", THelp);
+        ImGuiEx::HelpText("What is a sneak butt slam", THelp);
         ImGuiEx::SliderF("Radius", &GTS::Config::AutoAim.fAimAssist_Range_ButtSlam, 20.0f, 75.0f, T0, "%.2f");
         ImGuiEx::SliderF("Side Offset", &GTS::Config::AutoAim.fAimAssist_OffsetDistance_Butt_Side, 5.0f, 25.0f, T1, "%.2f");
         ImGuiEx::SliderF("Forward Offset", &GTS::Config::AutoAim.fAimAssist_OffsetDistance_Butt_Forward, 0.0f, 30.0f, T2, "%.2f");
@@ -204,7 +204,7 @@ namespace GTS {
 				"[Stomp] Far",
                 "[Sneak] Slam",
 				"[Crawl] Slam",
-                "[Butt] Slam",
+                "[Sneak] Butt Slam",
                 "[Breast] Slam",
                 "[Kicks]",
 			}
@@ -217,7 +217,7 @@ namespace GTS {
                 case 1: DrawFarStompSettings();             break;
                 case 2: DrawHandSlamSettings_Sneak();       break;
                 case 3: DrawHandSlamSettings_Crawl();       break;
-                case 4: DrawButtSlamSettings();             break;
+                case 4: DrawSneakButtSlamSettings();        break;
                 case 5: DrawBreastSlamSettings();           break;
                 case 6: DrawKickSettings();                 break;
 				default:                              	    break;

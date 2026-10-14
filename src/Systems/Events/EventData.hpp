@@ -302,6 +302,7 @@ namespace GTS {
 		float blend_y 			= 0.0f;
 		float distance 			= FLT_MAX;
 		Actor* victim 			= nullptr;
+		glm::vec4 victim_color	= {0.0f, 0.6f, 0.0f, 1.0f};
 	};
 
 	struct AnimationBlendInfo {
@@ -331,5 +332,6 @@ namespace GTS {
         bool left = false;
         bool hit = false;
         Actor* victim = nullptr;
+		glm::vec4 victim_color	= {0.0f, 0.6f, 0.0f, 1.0f};
     };
 }
