@@ -7,11 +7,15 @@
 #include "Magic/Effects/Common.hpp"
 #include "Config/Config.hpp"
 
-
+using namespace GTS;
 
 namespace {
-    using namespace GTS;
-    
+    void ConfigureEnemyTracking(AimAssistResult* out_result, float max_distance, NiPoint3 startPos, bool isSideBlend, bool trackEnemy) {
+        out_result->shapeRange = max_distance;
+        out_result->startPos = startPos;
+        out_result->isSideBlend = isSideBlend;
+        out_result->trackEnemy = trackEnemy;
+    }
     void DrawRectangleShape(Actor* giant, NiPoint3 pointPos, Actor* victim, float width, float length, const glm::vec4& giantess_color) {
         const bool Rhomb = Config::AutoAim.bUseRhombShape;
         const float rotation = giant->data.angle.z;
@@ -49,7 +53,7 @@ namespace {
     }
 
     float ApplyMagnitude(float value, float multiplier = 1.0f) {
-        return std::clamp(value * Config::AutoAim.fAimAssist_AimMagnitudeMultiplier * multiplier, -1.0f, 1.0f);
+        return std::clamp(value * Config::AutoAim.fAimAssistP_AimMagnitudeMultiplier * multiplier, -1.0f, 1.0f);
     }
 
     void DebugLogBlend(Actor* giant, Actor* victim, float x, float y, std::string_view name) {
@@ -118,14 +122,14 @@ namespace GTS {
         bool AutoAim_Kick_DeterminePreferredKick(Actor* giant, bool& left, bool strong) {
             if (!giant) return RandomBool();
 
-            float foot_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Foot * get_visual_scale(giant);
-            float foot_offset_forward = Config::AutoAim.fAimAssist_OffsetDistance_Kick_Forward * get_visual_scale(giant);
-            float max_distance = Config::AutoAim.fAimAssist_Range_Kick * get_visual_scale(giant);
+            float foot_offset_side = Config::AutoAim.fAimAssistP_OffsetDistance_Foot * get_visual_scale(giant);
+            float foot_offset_forward = Config::AutoAim.fAimAssistP_OffsetDistance_Kick_Forward * get_visual_scale(giant);
+            float max_distance = Config::AutoAim.fAimAssistP_Range_Kick * get_visual_scale(giant);
 
             if (AutoAim_IsSneakingOrCrawling(giant)) {
-                foot_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Sneak_Side * get_visual_scale(giant);
-                foot_offset_forward = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Sneak_Forward_Sneak * get_visual_scale(giant);
-                max_distance = Config::AutoAim.fAimAssist_Range_Kick_Sneak * get_visual_scale(giant);
+                foot_offset_side = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Sneak_Side * get_visual_scale(giant);
+                foot_offset_forward = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Sneak_Forward_Sneak * get_visual_scale(giant);
+                max_distance = Config::AutoAim.fAimAssistP_Range_Kick_Sneak * get_visual_scale(giant);
             }
 
             NiPoint3 footPos_L = GetPresetAimPosition(giant, true, foot_offset_side, foot_offset_forward);
@@ -158,10 +162,10 @@ namespace GTS {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            const float forward_offset = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Forward * get_visual_scale(giant);
-            const float width = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Width * get_visual_scale(giant);
-            const float length = Config::AutoAim.fAimAssist_OffsetDistance_Breasts_Length * get_visual_scale(giant);
-            const float blend_offset = Config::AutoAim.fAimAssist_Value_Breasts_BlendOffset;
+            const float forward_offset = Config::AutoAim.fAimAssistP_OffsetDistance_Breasts_Forward * get_visual_scale(giant);
+            const float width = Config::AutoAim.fAimAssistP_OffsetDistance_Breasts_Width * get_visual_scale(giant);
+            const float length = Config::AutoAim.fAimAssistP_OffsetDistance_Breasts_Length * get_visual_scale(giant);
+            const float blend_offset = Config::AutoAim.fAimAssistP_Value_Breasts_BlendOffset;
 
             NiPoint3 breastPos = GetPresetAimPosition(giant, true, 0.0f, forward_offset);
 
@@ -182,7 +186,7 @@ namespace GTS {
             bool InFrontOfGTS = true; 
 
             if (params.blendX <= 0.01f) { // Add some variety if actor is behind
-                const float range = Config::AutoAim.fAimAssist_NoHitValueRandomRange;
+                const float range = Config::AutoAim.fAimAssistP_NoHitValueRandomRange;
                 params.blendX = RandomFloat(0.0f, range);
                 params.blendY= RandomFloat(0.0f, range);
                 InFrontOfGTS = false; // Disallow Killmove, it's supposed to trigger near breasts, not in butt or legs area.
@@ -205,6 +209,7 @@ namespace GTS {
                 out_result->distance = params.finalDistance;
                 out_result->victim = victim;
                 out_result->victim_color = Breast_Color;
+                out_result->fixBlending = false; // We don't want to fix Y blending here. We have only one hit zone.
             } else {
                 SetStompBlendValues(giant, params.blendX, params.blendY, "Breast Slam");
             }
@@ -214,9 +219,9 @@ namespace GTS {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            const float max_distance = Config::AutoAim.fAimAssist_Range_ButtSlam * get_visual_scale(giant);
-            const float butt_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Butt_Side * get_visual_scale(giant);
-            const float butt_offset_forward = Config::AutoAim.fAimAssist_OffsetDistance_Butt_Forward * get_visual_scale(giant);
+            const float max_distance = Config::AutoAim.fAimAssistP_Range_ButtSlam * get_visual_scale(giant);
+            const float butt_offset_side = Config::AutoAim.fAimAssistP_OffsetDistance_Butt_Side * get_visual_scale(giant);
+            const float butt_offset_forward = Config::AutoAim.fAimAssistP_OffsetDistance_Butt_Forward * get_visual_scale(giant);
 
             NiPoint3 buttPos_L = GetPresetAimPosition(giant, true, butt_offset_side, butt_offset_forward);
             NiPoint3 buttPos_R = GetPresetAimPosition(giant, false, butt_offset_side, butt_offset_forward);
@@ -242,14 +247,14 @@ namespace GTS {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            float max_distance = Config::AutoAim.fAimAssist_Range_Hand_Crawl_Far * get_visual_scale(giant);
-            float hand_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Crawl_Side_Far * get_visual_scale(giant);
-            float hand_offset_forward = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Crawl_Forward_Far * get_visual_scale(giant);
+            float max_distance = Config::AutoAim.fAimAssistP_Range_Hand_Crawl_Far * get_visual_scale(giant);
+            float hand_offset_side = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Crawl_Side_Far * get_visual_scale(giant);
+            float hand_offset_forward = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Crawl_Forward_Far * get_visual_scale(giant);
 
             if (strong_Attack) {
-                max_distance = Config::AutoAim.fAimAssist_Range_Hand_Crawl_Strong * get_visual_scale(giant);
-                hand_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Crawl_Side_Strong* get_visual_scale(giant);
-                hand_offset_forward = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Crawl_Forward_Strong * get_visual_scale(giant);
+                max_distance = Config::AutoAim.fAimAssistP_Range_Hand_Crawl_Strong * get_visual_scale(giant);
+                hand_offset_side = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Crawl_Side_Strong* get_visual_scale(giant);
+                hand_offset_forward = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Crawl_Forward_Strong * get_visual_scale(giant);
             }
 
             NiPoint3 handPos_L = GetPresetAimPosition(giant, true, hand_offset_side, hand_offset_forward);
@@ -275,29 +280,30 @@ namespace GTS {
 
             return FinalizeAim(giant, left_hand, victim, params, out_result, Far_Stomp_Color);
         }
-        bool AutoAim_Hand_TryHandAim(Actor* giant, bool& left_hand, bool strong_Attack, AimAssistResult* out_result) {
+        bool AutoAim_Hand_TryHandAim_Close(Actor* giant, bool& left_hand, bool strong_Attack, AimAssistResult* out_result) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            float max_distance = Config::AutoAim.fAimAssist_Range_Hand_Sneak_Slam * get_visual_scale(giant);
-            float hand_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Sneak_Side * get_visual_scale(giant);
-            float hand_offset_forward = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Sneak_Forward * get_visual_scale(giant);
+            float max_distance = Config::AutoAim.fAimAssistP_Range_Hand_Sneak_Slam * get_visual_scale(giant);
+            float hand_offset_side = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Sneak_Side * get_visual_scale(giant);
+            float hand_offset_forward = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Sneak_Forward * get_visual_scale(giant);
+            const bool isCrawling = AnimationVars::Crawl::IsCrawling(giant);
 
-            if (AnimationVars::Crawl::IsCrawling(giant)) { // Replace with Crawl version
-                max_distance = Config::AutoAim.fAimAssist_Range_Hand_Crawl_Close * get_visual_scale(giant);
-                hand_offset_side = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Crawl_Side * get_visual_scale(giant);
-                hand_offset_forward = Config::AutoAim.fAimAssist_OffsetDistance_Hand_Crawl_Forward * get_visual_scale(giant);
+            if (isCrawling) { // Replace with Crawl version
+                max_distance = Config::AutoAim.fAimAssistP_Range_Hand_Crawl_Close * get_visual_scale(giant);
+                hand_offset_side = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Crawl_Side * get_visual_scale(giant);
+                hand_offset_forward = Config::AutoAim.fAimAssistP_OffsetDistance_Hand_Crawl_Forward * get_visual_scale(giant);
             }
 
             if (strong_Attack) {
-                max_distance = Config::AutoAim.fAimAssist_Range_Hand_Sneak_Slam_Strong * get_visual_scale(giant); // Strong version has further range
+                max_distance = Config::AutoAim.fAimAssistP_Range_Hand_Sneak_Slam_Strong * get_visual_scale(giant); // Strong version has further range
             }
 
             NiPoint3 handPos_L = GetPresetAimPosition(giant, true, hand_offset_side, hand_offset_forward);
             NiPoint3 handPos_R = GetPresetAimPosition(giant, false, hand_offset_side, hand_offset_forward);
 
             NiPoint3 handPos, victimPos;
-            auto victim = FindAndDebugTwoPointTarget(giant, handPos_L, handPos_R, max_distance, left_hand, Far_Stomp_Color, handPos, victimPos);
+            auto victim = FindAndDebugTwoPointTarget(giant, handPos_L, handPos_R, max_distance, left_hand, Close_Stomp_Color, handPos, victimPos);
             if (!victim) {
                 return false;
             }
@@ -307,8 +313,10 @@ namespace GTS {
 
             //---------- Needed for back-stomps, we just want to fill X value here
             CalculateDirectionalBlend2D(giant, handPos, victimPos, params); 
-            // Fill Y value, Far Stomps have only Side Blends
-            CalculateAngleBasedSideBlend(giant, handPos, victimPos, params);
+
+            if (!isCrawling) { // Crawl under-slams need FULL XY blending, not the angle based one
+                CalculateAngleBasedSideBlend(giant, handPos, victimPos, params); // Fill Y value, Far Stomps have only Side Blends
+            }
 
             params.blendX = ApplyMagnitude(params.blendX);
             params.blendY = ApplyMagnitude(params.blendY);
@@ -318,24 +326,24 @@ namespace GTS {
             }
             DebugLogBlend(giant, victim, params.blendX, params.blendY, debugString);
 
-            return FinalizeAim(giant, left_hand, victim, params, out_result, Far_Stomp_Color);
+            return FinalizeAim(giant, left_hand, victim, params, out_result, Close_Stomp_Color);
         }
 
         bool AutoAim_Foot_Directional(Actor* giant, bool& left_foot, bool strong_Attack, AimAssistResult* out_result) {
             if (!giant) return false;
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return false;
 
-            float side_offset = Config::AutoAim.fAimAssist_OffsetDistance_Foot * get_visual_scale(giant); 
+            float side_offset = Config::AutoAim.fAimAssistP_OffsetDistance_Foot * get_visual_scale(giant); 
             float forward_offset_R = 0.0f; float forward_offset_L = 0.0f;
             // ^ Instead of looking for R/L foot, we do position offset from center of Char to right/left, based on left_foot bool
-            float max_distance = Config::AutoAim.fAimAssist_Range_Stomp * get_visual_scale(giant);
+            float max_distance = Config::AutoAim.fAimAssistP_Range_Stomp * get_visual_scale(giant);
             if (giant->IsSneaking()) {
-                forward_offset_R = Config::AutoAim.fAimAssist_OffsetDistance_Stomp_Sneak_Forward_R  * get_visual_scale(giant);
-                forward_offset_L = Config::AutoAim.fAimAssist_OffsetDistance_Stomp_Sneak_Forward_L  * get_visual_scale(giant);
-                side_offset = Config::AutoAim.fAimAssist_OffsetDistance_Stomp_Sneak_Side * get_visual_scale(giant); 
-                max_distance = Config::AutoAim.fAimAssist_Range_Stomp_Sneak * get_visual_scale(giant);
+                forward_offset_R = Config::AutoAim.fAimAssistP_OffsetDistance_Stomp_Sneak_Forward_R  * get_visual_scale(giant);
+                forward_offset_L = Config::AutoAim.fAimAssistP_OffsetDistance_Stomp_Sneak_Forward_L  * get_visual_scale(giant);
+                side_offset = Config::AutoAim.fAimAssistP_OffsetDistance_Stomp_Sneak_Side * get_visual_scale(giant); 
+                max_distance = Config::AutoAim.fAimAssistP_Range_Stomp_Sneak * get_visual_scale(giant);
             } else if (strong_Attack) {
-                max_distance = Config::AutoAim.fAimAssist_Range_Stomp_Strong * get_visual_scale(giant);
+                max_distance = Config::AutoAim.fAimAssistP_Range_Stomp_Strong * get_visual_scale(giant);
             }
 
             NiPoint3 footPos_L = GetPresetAimPosition(giant, true, side_offset, forward_offset_L);
@@ -356,6 +364,8 @@ namespace GTS {
             params.blendY = ApplyMagnitude(params.blendY);
             DebugLogBlend(giant, victim, params.blendX, params.blendY, "Close Stomp");
 
+            ConfigureEnemyTracking(out_result, max_distance, footPos, false, true);
+
             return FinalizeAim(giant, left_foot, victim, params, out_result, Close_Stomp_Color);
         }
 
@@ -363,12 +373,12 @@ namespace GTS {
             if (!giant) return RandomBool();
             if (giant->IsPlayerRef() && IsFreeCameraEnabled()) return RandomBool();
 
-            float max_distance = Config::AutoAim.fAimAssist_Range_FarStomp * get_visual_scale(giant);
-            const float foot_offset = Config::AutoAim.fAimAssist_OffsetDistance_Foot * get_visual_scale(giant); 
-            const float foot_offset_far = Config::AutoAim.fAimAssist_OffsetDistance_Foot_FarStomp * get_visual_scale(giant); 
+            float max_distance = Config::AutoAim.fAimAssistP_Range_FarStomp * get_visual_scale(giant);
+            const float foot_offset = Config::AutoAim.fAimAssistP_OffsetDistance_Foot * get_visual_scale(giant); 
+            const float foot_offset_far = Config::AutoAim.fAimAssistP_OffsetDistance_Foot_FarStomp * get_visual_scale(giant); 
             // ^ Instead of looking for R/L foot, we do position offset from center of Char to right/left, based on left_foot bool
             if (strong_stomp) {
-                max_distance = Config::AutoAim.fAimAssist_Range_FarStomp_Strong * get_visual_scale(giant); // Strong version has further range
+                max_distance = Config::AutoAim.fAimAssistP_Range_FarStomp_Strong * get_visual_scale(giant); // Strong version has further range
             }
 
             NiPoint3 footPos_L = GetPresetAimPosition(giant, true, foot_offset, foot_offset_far);
@@ -388,6 +398,8 @@ namespace GTS {
             params.blendY = ApplyMagnitude(params.blendY);
             DebugLogBlend(giant, victim, params.blendX, params.blendY, "Far Stomp");
 
+            ConfigureEnemyTracking(out_result, max_distance, footPos, true, false);
+            
             return FinalizeAim(giant, left_foot, victim, params, out_result, Far_Stomp_Color);
         }
 
@@ -426,7 +438,7 @@ namespace GTS {
             AnimationVars::Stomp::SetUnderStompBlend_X(giant, x); // We added new behavior variables, needs new Behaviors in order to work
             AnimationVars::Stomp::SetUnderStompBlend_Y(giant, y); // We added new behavior variables, needs new Behaviors in order to work
             if (print) {
-                logger::info("Applying final blend: X: {}, Y: {}", x, y);
+                logger::info("Applying final blend: X: {}, Y: {}, Source: {}", x, y, source);
                 Cprint("Applying final blend: X: {}, Y: {}, Source: {}", x, y, source);
             }
         }

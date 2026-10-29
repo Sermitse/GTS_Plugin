@@ -74,12 +74,12 @@ namespace GTS {
             float score = forward * forward + right * right;
 
             if (dead) {
-                score *= Config::AutoAim.fAimAssist_DeadPenalty;
+                score *= Config::AutoAim.fAimAssistP_DeadPenalty;
             }
 
             // Targets behind giant get penalty
             if (forward < 0.0f) {
-                score += (-forward) * Config::AutoAim.fAimAssist_BackPenalty;
+                score += (-forward) * Config::AutoAim.fAimAssistP_BackPenalty;
             }
 
             if (tier < bestTier || (tier == bestTier && score < bestScore)) {
@@ -118,7 +118,7 @@ namespace GTS {
 
             const bool dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
             const int tier = dead ? 1 : 0;
-            const float deadPenalty = dead ? Config::AutoAim.fAimAssist_DeadPenalty : 1.0f;
+            const float deadPenalty = dead ? Config::AutoAim.fAimAssistP_DeadPenalty : 1.0f;
 
             NiPoint3 targetPos = target->GetPosition();
             targetPos.z = 0.0f;
@@ -146,7 +146,7 @@ namespace GTS {
                 float centerForward = centerDelta.x * forward.x + centerDelta.y * forward.y;
 
                 if (centerForward < 0.0f) {
-                    score += centerForward * centerForward * Config::AutoAim.fAimAssist_BackPenalty;
+                    score += centerForward * centerForward * Config::AutoAim.fAimAssistP_BackPenalty;
                 }
             };
 
@@ -206,7 +206,7 @@ namespace GTS {
 
             const bool dead = target->IsDead() || GetAV(target, ActorValue::kHealth) <= 0.0f;
             const int tier = dead ? 1 : 0;
-            const float DeadPenalty = dead ? Config::AutoAim.fAimAssist_DeadPenalty : 1.0f;
+            const float DeadPenalty = dead ? Config::AutoAim.fAimAssistP_DeadPenalty : 1.0f;
 
             NiPoint3 targetPos = target->GetPosition();
             targetPos.z = 0.0f;
@@ -236,7 +236,7 @@ namespace GTS {
             float score = distSq * DeadPenalty;
 
             if (localForward < 0.0f) {
-                score += localForward * localForward * Config::AutoAim.fAimAssist_BackPenalty;
+                score += localForward * localForward * Config::AutoAim.fAimAssistP_BackPenalty;
             }
 
             if (tier < bestTier || (tier == bestTier && score < bestScore)) {
@@ -362,5 +362,22 @@ namespace GTS {
 
             forwardDist = delta.x * forward.x + delta.y * forward.y;
             rightDist = delta.x * right.x + delta.y * right.y;
+        }
+
+        bool IsInsideTrackShape(Actor* giant, const NiPoint3& startPos, const NiPoint3& targetPos, float range, bool rhomb) {
+            NiPoint3 d = targetPos - startPos;
+            d.z = 0.0f;
+
+            if (!rhomb) {
+                return (d.x * d.x + d.y * d.y) <= range * range;
+            }
+
+            const float yaw = giant->data.angle.z;
+            const NiPoint3 forward(std::sin(yaw), std::cos(yaw), 0.0f);
+            const NiPoint3 right(forward.y, -forward.x, 0.0f);
+
+            const float f = d.x * forward.x + d.y * forward.y;
+            const float r = d.x * right.x   + d.y * right.y;
+            return (std::abs(f) + std::abs(r)) <= range;
         }
     }

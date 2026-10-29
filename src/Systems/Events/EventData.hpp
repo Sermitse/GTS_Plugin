@@ -303,6 +303,12 @@ namespace GTS {
 		float distance 			= FLT_MAX;
 		Actor* victim 			= nullptr;
 		glm::vec4 victim_color	= {0.0f, 0.6f, 0.0f, 1.0f};
+		bool fixBlending 		= true; // Should be true for anims that have more than one hitzone. 
+		// Goal is to prevent Y blending from going into opposite direction (Left Stomp's -1 going into positives for example (such as 0.003, that breaks blending)
+		bool isSideBlend = false;
+		bool trackEnemy = false;
+		float shapeRange = 0.0f;
+		NiPoint3 startPos = NiPoint3();
 	};
 
 	struct AnimationBlendInfo {
@@ -333,5 +339,11 @@ namespace GTS {
         bool hit = false;
         Actor* victim = nullptr;
 		glm::vec4 victim_color	= {0.0f, 0.6f, 0.0f, 1.0f};
+		bool isSideBlend = false;
+		float shapeRange = 0.0f;
+		bool fixBlending = true;
+		bool trackEnemy = false;
+		bool positiveX = false;
+		NiPoint3 startPos = NiPoint3();
     };
 }

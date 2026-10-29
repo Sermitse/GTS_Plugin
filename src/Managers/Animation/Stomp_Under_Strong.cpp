@@ -97,10 +97,12 @@ namespace {
     void GTS_UnderStomp_Impact_StrongR(AnimationEventData& data) {
 		UnderStomp_DoEverything(&data.giant, data.animSpeed, true, FootEvent::Right, DamageSource::CrushedRight, RNode, "HeavyStompR");
 		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, true);
+		StopTrackEnemyTask(&data.giant);
 	}
 	void GTS_UnderStomp_Impact_StrongL(AnimationEventData& data) {
 		UnderStomp_DoEverything(&data.giant, data.animSpeed, false, FootEvent::Left, DamageSource::CrushedLeft, LNode, "HeavyStompL");
 		PerkHandler::Perks_Cataclysmic_BuffStompSpeed(data, true);
+		StopTrackEnemyTask(&data.giant);
 	}
 }
 namespace GTS {

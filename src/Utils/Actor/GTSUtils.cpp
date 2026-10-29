@@ -862,13 +862,9 @@ namespace GTS {
 				return false;
 			}
 
-			double Finish = Time::WorldTimeElapsed();
-			double timepassed = Finish - Start;
-			if (timepassed < 180.0f) {
-				auto giantref = gianthandle.get().get();
-				if (Utils_ManageTinyProtection(giantref, false, Balance)) {
-					return true; // Disallow to check further
-				}
+			auto giantref = gianthandle.get().get();
+			if (Utils_ManageTinyProtection(giantref, false, Balance)) {
+				return true; // Have enough stamina ? Disallow to check further
 			}
 			if (transient) {
 				if (transient->Protection) Notify("Protection Ended");

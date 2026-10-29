@@ -105,11 +105,13 @@ namespace {
     void GTS_UnderStomp_ImpactR(AnimationEventData& data) {
         UnderStomp_DoEverything(&data.giant, data.animSpeed, true, FootEvent::Right, DamageSource::CrushedRight, RNode, "HeavyStompR");
         UnderStomp_CheckForFootGrind(&data.giant, true, FootActionType::Grind_UnderStomp);
+        StopTrackEnemyTask(&data.giant);
     }
 
     void GTS_UnderStomp_ImpactL(AnimationEventData& data) {
         UnderStomp_DoEverything(&data.giant, data.animSpeed, false, FootEvent::Left, DamageSource::CrushedLeft, LNode, "HeavyStompL");
         UnderStomp_CheckForFootGrind(&data.giant, false, FootActionType::Grind_UnderStomp);
+        StopTrackEnemyTask(&data.giant);
     }
 
 }

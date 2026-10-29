@@ -35,65 +35,64 @@ Reflection based serializer limitations:
 struct SettingsAutoAim_t {
 
     // Main settings
-    bool bEnableAutoAim = true;
     bool bDebugAutoAim = false;
     bool bPreventFarStomps = false;
     bool bUseRhombShape = true;
-
+    bool bTrackEnemies = true;
     //------------------------------------------------------------------------------
     //----------------------- hand slam
-    float fAimAssist_Range_Hand_Sneak_Slam = 64.0f;
-    float fAimAssist_Range_Hand_Sneak_Slam_Strong = 72.0f;
+    float fAimAssistP_Range_Hand_Sneak_Slam = 64.0f;
+    float fAimAssistP_Range_Hand_Sneak_Slam_Strong = 72.0f;
     //----------------------- far stomp
-    float fAimAssist_Range_FarStomp = 46.0f;
-    float fAimAssist_Range_FarStomp_Strong = 60.0f;
+    float fAimAssistP_Range_FarStomp = 46.0f;
+    float fAimAssistP_Range_FarStomp_Strong = 60.0f;
     //----------------------- stomp
-    float fAimAssist_Range_Stomp = 32.0f;
-    float fAimAssist_Range_Stomp_Strong = 38.0f;
-    float fAimAssist_Range_Stomp_Sneak = 46.0f;
-    float fAimAssist_OffsetDistance_Stomp_Sneak_Forward_R = -12.5f;
-    float fAimAssist_OffsetDistance_Stomp_Sneak_Forward_L = -8.0f;
-    float fAimAssist_OffsetDistance_Stomp_Sneak_Side = 8.0f;
-    float fAimAssist_OffsetDistance_Foot = 10.0f;
-    float fAimAssist_OffsetDistance_Foot_FarStomp = 0.0f;
+    float fAimAssistP_Range_Stomp = 32.0f;
+    float fAimAssistP_Range_Stomp_Strong = 38.0f;
+    float fAimAssistP_Range_Stomp_Sneak = 44.0f;
+    float fAimAssistP_OffsetDistance_Stomp_Sneak_Forward_R = 0.0f;
+    float fAimAssistP_OffsetDistance_Stomp_Sneak_Forward_L = 0.0f;
+    float fAimAssistP_OffsetDistance_Stomp_Sneak_Side = 10.0f;
+    float fAimAssistP_OffsetDistance_Foot = 10.0f;
+    float fAimAssistP_OffsetDistance_Foot_FarStomp = 0.0f;
     //----------------------- hand sneak kick
-    float fAimAssist_Range_Kick_Sneak = 48.0f;
-    float fAimAssist_OffsetDistance_Hand_Sneak_Side = 10.0f;
-    float fAimAssist_OffsetDistance_Hand_Sneak_Forward = 0.0f;
-    float fAimAssist_OffsetDistance_Hand_Sneak_Forward_Sneak = 50.0f;
+    float fAimAssistP_Range_Kick_Sneak = 48.0f;
+    float fAimAssistP_OffsetDistance_Hand_Sneak_Side = 10.0f;
+    float fAimAssistP_OffsetDistance_Hand_Sneak_Forward = 0.0f;
+    float fAimAssistP_OffsetDistance_Hand_Sneak_Forward_Sneak = 50.0f;
 
     //----------------------- Hand Crawl
-    float fAimAssist_Range_Hand_Crawl_Close = 60.0f;
-    float fAimAssist_Range_Hand_Crawl_Far = 82.0f;
-    float fAimAssist_Range_Hand_Crawl_Strong = 82.0f;
-    float fAimAssist_OffsetDistance_Hand_Crawl_Side_Strong = 10.0f;
-    float fAimAssist_OffsetDistance_Hand_Crawl_Side_Far = 10.0f;
-    float fAimAssist_OffsetDistance_Hand_Crawl_Side = 10.0f;
-    float fAimAssist_OffsetDistance_Hand_Crawl_Forward = 0.0f;
-    float fAimAssist_OffsetDistance_Hand_Crawl_Forward_Far = 0.0f;
-    float fAimAssist_OffsetDistance_Hand_Crawl_Forward_Strong = 0.0f;
+    float fAimAssistP_Range_Hand_Crawl_Close = 60.0f;
+    float fAimAssistP_Range_Hand_Crawl_Far = 82.0f;
+    float fAimAssistP_Range_Hand_Crawl_Strong = 82.0f;
+    float fAimAssistP_OffsetDistance_Hand_Crawl_Side_Strong = 10.0f;
+    float fAimAssistP_OffsetDistance_Hand_Crawl_Side_Far = 10.0f;
+    float fAimAssistP_OffsetDistance_Hand_Crawl_Side = 10.0f;
+    float fAimAssistP_OffsetDistance_Hand_Crawl_Forward = 0.0f;
+    float fAimAssistP_OffsetDistance_Hand_Crawl_Forward_Far = 0.0f;
+    float fAimAssistP_OffsetDistance_Hand_Crawl_Forward_Strong = 0.0f;
 
     //----------------------- kick
-    float fAimAssist_Range_Kick = 48.0f;
-    float fAimAssist_OffsetDistance_Kick_Forward = 40.0f;
+    float fAimAssistP_Range_Kick = 48.0f;
+    float fAimAssistP_OffsetDistance_Kick_Forward = 40.0f;
     //----------------------- butt
-    float fAimAssist_Range_ButtSlam = 42.0f;
-    float fAimAssist_OffsetDistance_Butt_Forward = 0.0f;
-    float fAimAssist_OffsetDistance_Butt_Side = 15.0f;
+    float fAimAssistP_Range_ButtSlam = 42.0f;
+    float fAimAssistP_OffsetDistance_Butt_Forward = 0.0f;
+    float fAimAssistP_OffsetDistance_Butt_Side = 15.0f;
 
     //----------------------- breast
-    float fAimAssist_Range_BreastSlam = 30.0f;
-    float fAimAssist_OffsetDistance_Breasts_Forward = 5.0f;
-    float fAimAssist_OffsetDistance_Breasts_Side = 4.0f;
-    float fAimAssist_OffsetDistance_Breasts_Width = 52.0f;
-    float fAimAssist_OffsetDistance_Breasts_Length = 100.0f;
-    float fAimAssist_Value_Breasts_BlendOffset = -0.25f;
+    float fAimAssistP_Range_BreastSlam = 30.0f;
+    float fAimAssistP_OffsetDistance_Breasts_Forward = 5.0f;
+    float fAimAssistP_OffsetDistance_Breasts_Side = 4.0f;
+    float fAimAssistP_OffsetDistance_Breasts_Width = 52.0f;
+    float fAimAssistP_OffsetDistance_Breasts_Length = 100.0f;
+    float fAimAssistP_Value_Breasts_BlendOffset = -0.25f;
 
     //----------------------- Auto-Aim settings
-    float fAimAssist_BackPenalty = 30.0f;
-    float fAimAssist_DeadPenalty = 50.0f;
-    float fAimAssist_AimMagnitudeMultiplier = 1.0f;
-    float fAimAssist_NoHitValueRandomRange = 0.25f;
+    float fAimAssistP_BackPenalty = 30.0f;
+    float fAimAssistP_DeadPenalty = 50.0f;
+    float fAimAssistP_AimMagnitudeMultiplier = 1.0f;
+    float fAimAssistP_NoHitValueRandomRange = 0.25f;
 
 };
 TOML_SERIALIZABLE(SettingsAutoAim_t);

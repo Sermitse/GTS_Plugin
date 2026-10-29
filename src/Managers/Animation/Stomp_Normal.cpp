@@ -190,12 +190,15 @@ namespace {
 	void GTSstompimpactL(AnimationEventData& data) {
 		Stomp_Footsteps_DoEverything(&data.giant, false, data.animSpeed, FootEvent::Left, DamageSource::CrushedLeft, LNode, "StompL");
 		StopLoopRumble(&data.giant);
+
+		StopTrackEnemyTask(&data.giant);
 	}
 
 	void GTSstomplandR(AnimationEventData& data) {
-		//Rumbling::Stop("StompLandL", &data.giant);
 		Stomp_Land_DoEverything(&data.giant, data.animSpeed, true, FootEvent::Right, DamageSource::CrushedRight, RNode, "StompLand");
 		StopLoopRumble(&data.giant);
+
+		StopTrackEnemyTask(&data.giant);
 	}
 
 	void GTSstomplandL(AnimationEventData& data) {

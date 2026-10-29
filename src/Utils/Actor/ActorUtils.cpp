@@ -854,4 +854,9 @@ namespace GTS {
 			}
 		}
 	}
+
+	void StopTrackEnemyTask(Actor* giant) {
+		std::string taskname = std::format("TrackingTiny_{}", giant->formID);
+        TaskManager::Cancel(taskname);
+	}
 }

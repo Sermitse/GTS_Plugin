@@ -48,4 +48,6 @@ namespace GTS {
 	void DecreaseShoutCooldown(Actor* a_target);
 	void Disintegrate(Actor* a_target);
 
+	void StopTrackEnemyTask(Actor* giant);
+
 }

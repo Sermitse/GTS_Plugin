@@ -15,4 +15,6 @@ namespace GTS {
 
 	void CalculateRectangleBlend(Actor* giant, const NiPoint3& origin, const NiPoint3& target, AnimationBlendInfo& info);
 	void GetRectangleCoordinates(Actor* giant,const NiPoint3& origin, const NiPoint3& target, float length, float& forwardDist, float& rightDist);
+
+	bool IsInsideTrackShape(Actor* giant, const NiPoint3& startPos, const NiPoint3& targetPos, float range, bool rhomb);
 }
