@@ -60,7 +60,7 @@ namespace {
 		AddSMTDuration(giant, stare_threshold * 0.75f, false);
 
 		float shrink_bonus = std::clamp(tiny_size, 0.20f, 1.0f);
-		ShrinkByOverTime(otherActor, stare_threshold * 0.1f, tiny_size * (0.45f / shrink_bonus));
+		ShrinkByOverTime(otherActor, stare_threshold * 0.1f, tiny_size * (0.45f / shrink_bonus) * GetCalamityPowerLevelScaled(giant, 0.15f));
 
 		if (get_scale_difference(giant, otherActor, SizeType::VisualScale, false, false) >= 0.92f) {
 			otherActor->StaggerDirectional(giant, difference);
@@ -147,7 +147,7 @@ namespace {
 
 											if (data->ShrinkTicksCalamity >= stare_threshold_s) {
 												Laugh_Chance(giant, 1.25f, "CalamityShrink");
-												if (!ShrinkToNothing(giant, otherActor, true, 1.50f, 1.20f, true)) {
+												if (ShrinkToNothing(giant, otherActor, true, 1.50f, 1.20f, true) == ShrinkToNothingState::TooBig) {
 													ShrinkTheTargetOr(giant, otherActor, stare_threshold_s, tiny_size, difference, data);
 													AdjustMassLimit(tiny_size * 0.00025f, giant);
 												} else {

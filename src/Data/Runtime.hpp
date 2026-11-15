@@ -21,6 +21,7 @@ namespace GTS {
 		static inline RuntimeData::Keywords KYWD;
 		static inline RuntimeData::Containers CONT;
 		static inline RuntimeData::LeveledItems LVLI;
+		static inline RuntimeData::WordsOfPower WOOP;
 
 		//Getters
 		static BSISoundDescriptor* GetSound(const std::string_view& a_tag);
@@ -49,6 +50,8 @@ namespace GTS {
 		static TESLevItem* GetLeveledItem(const RuntimeData::RuntimeEntry<TESLevItem>& a_entry);
 		static TESObjectCONT* GetContainer(const std::string_view& a_tag);
 		static TESObjectCONT* GetContainer(const RuntimeData::RuntimeEntry<TESObjectCONT>& a_entry);
+		static TESWordOfPower* GetWordOfPower(const std::string_view& a_tag);
+		static TESWordOfPower* GetWordOfPower(const RuntimeData::RuntimeEntry<TESWordOfPower>& a_entry);
 
 		//Helpers - Sound
 		static void PlaySound(const std::string_view& a_tag, Actor* a_actor, const float& a_volume, const float& a_frequency = 1.0f);
@@ -63,6 +66,8 @@ namespace GTS {
 		static void PlaySoundAtNode_FallOff(const std::string_view& a_tag, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency = 1.0f);
 		static void PlaySoundAtNode_FallOff(const RuntimeData::RuntimeEntry<BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency = 1.0f);
 		static void PlaySoundAtNode_FallOff(const RuntimeData::RuntimeEntry<BGSSoundDescriptorForm>& a_entry, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency = 1.0f);
+		static void PlaySoundAtNode_Detached(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_frequency);
+	    static void PlaySoundAtNode_FallOff_Detached(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency);
 
 		//Helpers - Magic Effects
 		static bool HasMagicEffect(Actor* a_actor, const std::string_view& a_tag);
@@ -144,6 +149,15 @@ namespace GTS {
 		static TESObjectREFR* PlaceContainerAtPos(TESObjectREFR* a_object, NiPoint3 a_pos, const std::string_view& a_tag);
 		static TESObjectREFR* PlaceContainerAtPos(TESObjectREFR* a_object, NiPoint3 a_pos, const RuntimeData::RuntimeEntry<RE::TESObjectCONT>& a_entry);
 
+		//Helpers - Words Of Power (player only, vanilla Papyrus Game.TeachWord / Game.UnlockWord)
+		static void TeachWord(const std::string_view& a_tag);                                  // Word becomes known
+		static void TeachWord(const RuntimeData::RuntimeEntry<RE::TESWordOfPower>& a_entry);
+		static void UnlockWord(const std::string_view& a_tag);                                 // Word becomes usable without a dragon soul
+		static void UnlockWord(const RuntimeData::RuntimeEntry<RE::TESWordOfPower>& a_entry);
+		static void LearnWord(const std::string_view& a_tag);                                  // Teach + Unlock
+		static void LearnWord(const RuntimeData::RuntimeEntry<RE::TESWordOfPower>& a_entry);   // Teach + Unlock
+		static bool IsWordKnown(const RuntimeData::RuntimeEntry<RE::TESWordOfPower>& a_entry);
+
 		//Dependency Checks
 		[[nodiscard]] static bool IsSexlabInstalled();
 		[[nodiscard]] static bool IsSurvivalModeInstalled();
@@ -153,6 +167,7 @@ namespace GTS {
 		//Implementations
 		static void PlaySoundAtNodeFallOffImpl(RE::BSISoundDescriptor* a_soundDescriptor, const float& a_volume,RE::NiAVObject* a_node, float a_falloff, float a_frequency);
 		static void PlaySoundAtNodeImpl(RE::BSISoundDescriptor* a_soundDescriptor, const float& a_volume, RE::NiAVObject* a_node, float a_frequency);
+		static void PlaySoundAtPosImpl(RE::BSISoundDescriptor* a_soundDescriptor, const RE::NiPoint3& a_pos, const float& a_volume, float a_frequency);
 
 	private:
 		virtual std::string DebugName() override;

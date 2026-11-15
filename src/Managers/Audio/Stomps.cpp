@@ -27,7 +27,7 @@ namespace GTS {
 		if (giant) {
 			modifier *= Volume_Multiply_Function(giant, foot_kind);
 			if (TinyCalamityActive(giant)) {
-				scale *= 2.5f;
+				scale *= 2.5f * GetCalamityPowerLevel(giant, 3.0f);
 			}
 			FootStepManager::GetSingleton().DoStompSounds(giant, modifier, find_node(giant, find_foot), foot_kind, scale, Strong);
 		}

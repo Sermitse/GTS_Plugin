@@ -27,6 +27,7 @@
 #include "Data/Runtime/LKeywords.hpp"
 #include "Data/Runtime/LContainers.hpp"
 #include "Data/Runtime/LLeveledItems.hpp"
+#include "Data/Runtime/LWordsofpower.hpp"
 
 #undef GTSP 
 #undef SXLB

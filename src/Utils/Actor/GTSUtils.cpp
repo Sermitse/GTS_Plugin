@@ -1,6 +1,9 @@
 #include "Utils/Actor/FindActor.hpp"
-
+#include "Managers/CrushManager.hpp"
 #include "Utils/DifficultyUtils.hpp"
+#include "Utils/DeathReport.hpp"
+#include "Managers/Audio/GoreAudio.hpp"
+#include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 
 #include "Magic/Effects/Common.hpp"
 
@@ -172,6 +175,11 @@ namespace GTS {
 				if (AnimationVars::General::IsGTSBusy(giant) && Adv.bGTSAnimsFullSpeed) {
 					return 1.0f;
 				}
+				if (GetCalamityPowerLevel(giant) > 1.5f) {
+					float calamity = GetCalamityPowerLevel(giant);
+					return 1.0f - std::max(0.0f, calamity * 0.075f);
+				}
+
 				if (giant->IsPlayerRef()) {
 					return Adv.fAnimSpeedAdjMultPlayer * speedmultcalc;
 				}
@@ -752,7 +760,8 @@ namespace GTS {
 		if (!node) {
 			return;
 		}
-		float giantScale = get_visual_scale(giant);
+		float Calamity = GetCalamityPowerLevel(giant);
+		float giantScale = get_visual_scale(giant) * Calamity;
 		NiPoint3 NodePosition = node->world.translate;
 		const float maxDistance = radius;
 		float totaldistance = maxDistance * giantScale;
@@ -780,11 +789,27 @@ namespace GTS {
 						});
 					}
 					if (nodeCollisions > 0) {
-						float sizedifference = giantScale/get_visual_scale(otherActor);
+						float sizedifference = giantScale/ get_visual_scale(otherActor);
 						if (sizedifference <= 1.6f) {
 							StaggerActor(giant, otherActor, 0.75f);
 						} else {
-							PushActorAway(giant, otherActor, 1.0f * GetLaunchPowerFor(giant, sizedifference, LaunchType::Actor_Towards));
+							PushOutwards(giant, otherActor, 1.0f * GetCalamityPowerLevelScaled(giant, 0.5f) * GetLaunchPowerFor(giant, sizedifference, LaunchType::Actor_Towards));
+						}
+
+						if (Calamity > 1.5f) {
+							float damage = 0.75f * Calamity * giantScale/get_visual_scale(otherActor);
+							InflictSizeDamage(giant, otherActor, damage);
+
+							float health = GetAV(otherActor, ActorValue::kHealth);
+							if (damage >= health || health <= 0.0f || otherActor->IsDead()) {
+								auto node = find_node(giant, GetDeathNodeName(DamageSource::CrushedRight));
+								if (!IsMechanical(otherActor)) {
+									PlayCrushSoundOnTiny(giant, otherActor, StrongGore(DamageSource::CrushedRight), get_corrected_scale(otherActor)); // Run Crush Sound task that will determine which exact type of crushing audio to play
+								} 
+
+								ReportDeath(giant, otherActor, DamageSource::Overkill);
+								CrushManager::Crush(giant, otherActor);
+							}
 						}
 					}
 				}
@@ -797,7 +822,7 @@ namespace GTS {
 			if (!perk_check || Runtime::HasPerk(actor, Runtime::PERK.GTSPerkTinyCalamityRefresh)) {
 				auto transient = Transient::GetActorData(actor);
 				if (transient) {
-					transient->SMTBonusDuration += duration;
+					transient->SMTBonusDuration += duration / GetCalamityPowerLevelScaled(actor, 0.5f);
 					//log::info("Adding perk duration");
 				}
 			}
@@ -907,7 +932,7 @@ namespace GTS {
 
 		if (get_target_scale(tiny) <= MinScale) {
 			set_target_scale(tiny, MinScale);
-			if (DarkArts_Legendary && ShrinkToNothing(giant, tiny, true, 0.01f, 0.75f, false, true)) {
+			if (DarkArts_Legendary && ShrinkToNothing(giant, tiny, true, 0.01f, 0.75f, false, true) >= ShrinkToNothingState::TickProtection) {
 				return;
 			}
 		}
@@ -1018,5 +1043,29 @@ namespace GTS {
 			}
 			return fabs(growData->amount.value - growData->amount.target) > 1e-4;
 		});
+	}
+
+	float GetCalamityPowerLevel(Actor* giant, float mult) {
+		if (!TinyCalamityActive(giant)) return 1.0f;
+		if (auto TranData = Transient::GetActorData(giant)) { // Should save fps a bit compared to checking MGEF
+			return TranData->TinyCalamity_PowerLevel * mult;
+		}
+		return 1.0f;
+	}
+
+	float GetCalamityPowerLevelScaled(Actor* giant, float mult) {
+		if (!TinyCalamityActive(giant)) return 1.0f;
+
+		if (auto TranData = Transient::GetActorData(giant)) {
+			return 1.0f + (TranData->TinyCalamity_PowerLevel - 1.0f) * mult;
+		}
+
+		return 1.0f;
+	}
+
+	void SetCalamityPowerLevel(Actor* giant, float power) {
+		if (auto TranData = Transient::GetActorData(giant)) { // Should save fps a bit compared to checking MGEF
+			TranData->TinyCalamity_PowerLevel = std::clamp(power, 1.0f, 3.0f);
+		}
 	}
 }

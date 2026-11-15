@@ -35,6 +35,7 @@ struct SettingsAdvanced_t {
     // Toggles for advanced features
     bool bShowOverlay = false;
     bool bDamageAV = true;
+    bool bEndlessCalamity = false;
     bool bCooldowns = true;
     bool bEnforceUIClamps = true;
     bool bPlayerAI = false;

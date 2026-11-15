@@ -148,7 +148,7 @@ namespace GTS {
 			auto actor = impact.actor;
 			
 			if (TinyCalamityActive(actor)) {
-				scale *= 2.5f; // Affect Sound threshold itself
+				scale *= 2.5f * GetCalamityPowerLevel(actor, 1.5f); // Affect Sound threshold itself
 			}
 
 			//const bool LegacySounds = Config::Audio.bUseOldSounds;  // Determine if we should play old pre 2.00 update sounds

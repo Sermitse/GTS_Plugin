@@ -94,7 +94,8 @@ namespace GTS {
         ImUtil_Unique 
 		{
             PSString T0 = "Enables or disables size-related Kill-Moves entirely\n"
-                            "Only the Player can trigger Kill-Moves";
+                            "- Only the Player can trigger Kill-Moves\n"
+                            "- Killmoves work only in third person";
 
             PSString T1 = "Slows down the game to 0.025x speed during Breast Kill-Moves\n"
                         "This gives you enough time to manually adjust parameters for the best visual results\n"
@@ -116,7 +117,7 @@ namespace GTS {
             if (ImGui::CollapsingHeader("Size Kill-Moves", ImUtil::HeaderFlagsDefaultOpen)) {
                 ImGuiEx::HelpText("What is Size Kill-Move", THelp);
                 ImGuiEx::HelpText("What is configuration Mode", THelp1);
-                ImGuiEx::CheckBox("Enable Size-Based Kill-Moves", &Config::KillMove.bEnableKillMoves, T0);
+                ImGuiEx::CheckBox("Enable Size-Based Kill-Moves [3rd person only]", &Config::KillMove.bEnableKillMoves, T0);
                 ImGui::BeginDisabled(Config::KillMove.bThirdPersonBreastKillMove);
                 ImGuiEx::CheckBox("Configuration Mode", &Config::KillMove.bConfigureMode, T1);
                 ImGui::EndDisabled();

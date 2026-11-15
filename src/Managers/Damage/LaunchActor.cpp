@@ -37,7 +37,7 @@ namespace {
 				
 				if (!IsMechanical(tiny)) {
 					float scale = get_corrected_scale(tiny);
-					Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundCrushDefault, 0.66f, tiny->Get3D(), CalculateGorePitch(scale));
+					PlayCrushSoundOnTiny(giant, tiny, false, scale);
 				}
 
 				ReportDeath(giant, tiny, DamageSource::Shockwave, false);
@@ -124,8 +124,11 @@ namespace GTS {
 		bool OwnsPerk = false;
 
 		if (TinyCalamityActive(giant)) {
+			if (GetCalamityPowerLevel(giant) > 1.5f) {
+				BaseDamage *= GetCalamityPowerLevel(giant, 4.5f);
+			}
 			launch_power *= 0.5f;
-			threshold = 0.92f;
+			threshold = 0.92f / GetCalamityPowerLevelScaled(giant, 1.5f);
 			force += 0.02f;
 		}
 		float Adjustment = GetSizeFromBoundingBox(tiny);
@@ -157,7 +160,11 @@ namespace GTS {
 							}
 						}
 
-						if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRuinousStride)) {
+						if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkRuinousStride) || GetCalamityPowerLevel(giant) > 1.5f) {
+							if ((tiny->IsDead() || GetAV(tiny,ActorValue::kHealth) <= 0.0f) && GetCalamityPowerLevel(giant) > 1.5f) {
+								damage *= GetCalamityPowerLevel(giant, 5.0f);
+								sizeRatio *= GetCalamityPowerLevel(giant, 9.0f);
+							}
 							if (ObliterateCheck(giant, tiny, sizeRatio, damage * 1.5f)) {
 								return;
 							}
@@ -165,6 +172,10 @@ namespace GTS {
 						}
 						
 						InflictSizeDamage(giant, tiny, damage);
+					}
+
+					if (GetAV(tiny, ActorValue::kHealth) > 0.0f && (IsRagdolled(tiny) || IsinRagdollState(tiny))) { // Don't launch again
+						return;
 					}
 
 					NiPoint3 Push = NiPoint3(0, 0, GetLaunchPowerFor(giant, sizeRatio, LaunchType::Actor_Launch, startpower * force * power));
@@ -240,10 +251,13 @@ namespace GTS {
 			float STAGGER_THRESHOLD = Action_Stagger_MinSizeDiff;
 			
 			power *= CharState_GetLaunchPowerModifier(giant);
-			
+			float CalamityPower = GetCalamityPowerLevelScaled(giant, 5.0f);
+			float CalamityPower_Radius = GetCalamityPowerLevelScaled(giant, 1.8f);
+
 			if (TinyCalamityActive(giant)) {
-				STAGGER_THRESHOLD = 0.8f;
-				radius *= 1.5f;
+				STAGGER_THRESHOLD = 0.8f / CalamityPower;
+				LAUNCH_UP_THRESHOLD /= CalamityPower;
+				radius *= 1.5f * CalamityPower_Radius;
 			}
 
 			NiPoint3 point = node->world.translate;
@@ -275,7 +289,7 @@ namespace GTS {
 
 						if (distance <= maxDistance) {
 							if (AllowStagger(otherActor)) {
-								if (!Calamity && canRagdoll) { // Never ragdoll in Calamity
+								if (!(Calamity || CalamityPower > 1.5f) && canRagdoll) { // Never ragdoll in weak Calamity
 									LaunchWithDistance(giant, otherActor, min_radius, distance, maxDistance, power);
 									// min_radius prevents Launch from happening if Actor is inside specific radius of collider
 								} else if (canStagger || Calamity) {
@@ -301,10 +315,13 @@ namespace GTS {
 		float STAGGER_THRESHOLD = Action_Stagger_MinSizeDiff;
 		
 		power *= CharState_GetLaunchPowerModifier(giant);
-		
+		float CalamityPower = GetCalamityPowerLevelScaled(giant, 5.0f);
+		float CalamityPower_Radius = GetCalamityPowerLevelScaled(giant, 1.8f);
+
 		if (TinyCalamityActive(giant)) {
-			STAGGER_THRESHOLD = 0.8f;
-			radius *= 1.5f;
+			STAGGER_THRESHOLD = 0.8f / CalamityPower;
+			LAUNCH_UP_THRESHOLD /= CalamityPower;
+			radius *= 1.5f * CalamityPower_Radius;
 		}
 
 		radius *= GetHighHeelsBonusDamage(giant, true);
@@ -338,7 +355,7 @@ namespace GTS {
 							
 							if (distance <= maxFootDistance && distance > min_distance) {
 								if (AllowStagger(otherActor)) {
-									if (!Calamity && canRagdoll) { // Never ragdoll in Calamity
+									if ((!Calamity || CalamityPower > 1.5f) && canRagdoll) { // Never ragdoll in weak Calamity
 										float force = GetForceFromDistance(distance, maxFootDistance);
 										ApplyLaunchTo(giant, otherActor, force, power);
 									} else if (canStagger || Calamity) {

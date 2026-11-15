@@ -509,7 +509,7 @@ namespace GTS {
 
 			case DamageSource::Shockwave:
 			{
-				RecordKill(giant, tiny, DeathType::kOtherSources);
+				RecordKill(giant, tiny, DeathType::kOtherSources, "Ruptured");
 				ShockwaveMessage(GiantName, TinyName, random);
 				break;
 			}
@@ -535,7 +535,7 @@ namespace GTS {
 
 			case DamageSource::Collision:
 			{
-				RecordKill(giant, tiny, DeathType::kOtherSources);
+				RecordKill(giant, tiny, DeathType::kOtherSources, "Exploded");
 				CollisionMessage(GiantName, TinyName, random);
 				break;
 			}
@@ -584,7 +584,7 @@ namespace GTS {
 
 			case DamageSource::Overkill:
 			{
-				RecordKill(giant, tiny, DeathType::kOtherSources);
+				RecordKill(giant, tiny, DeathType::kOtherSources, "Overkilled");
 				OverkillMessage(GiantName, TinyName, random);
 				break;
 			}

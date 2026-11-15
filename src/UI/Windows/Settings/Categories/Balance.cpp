@@ -61,8 +61,8 @@ namespace GTS {
 
             PSString T0 = "Controls how much character size affects movement speed.\n"
             "\n"
-            "- Lower values reduce movement speed, but may cause foot sliding (ice skating).\n"
-            "- Higher values better match model movement, but make large characters move faster.\n"
+            "- Lower values increase movement speed, but may cause foot sliding (ice skating).\n"
+            "- Higher values better match model movement, but make large characters move slower.\n"
             "\n"
             "Default: 1.0 (Recommended)";
 

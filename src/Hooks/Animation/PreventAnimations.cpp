@@ -190,8 +190,8 @@ namespace {
 					if (get_visual_scale(performer) >= Config::General.fNPCMaxSpeedMultClampStartAt) {
 						return true;
 					}
-				} else if (PreventPlayerSprint()) {
-					if (get_visual_scale(performer) >= Config::General.fPlayerMaxSpeedMultClampStartAt) {
+				} else if (PreventPlayerSprint() || GetCalamityPowerLevel(performer) > 1.5f) {
+					if (get_visual_scale(performer) >= Config::General.fPlayerMaxSpeedMultClampStartAt || GetCalamityPowerLevel(performer) > 1.5f) {
 						return true;
 					}
 				}

@@ -119,6 +119,18 @@ namespace {
 }
 
 namespace GTS {
+
+        float FixXBlend(const bool Up, float blendX) {
+            return Up ? std::max(0.005f, blendX) : std::min(-0.005f, blendX); 
+        }
+        // Fixes an issue with broken Y blends in edge cases. 
+        // If left stomp Y blend goes into positives, it breaks blending. Same if right stomp goes into negative direction. This is a fix: just disallow it to happen
+        float FixYBlend(const bool left, float blendY, const bool NeedsFix) {
+            if (NeedsFix) {
+                return left ? std::min(-0.005f, blendY) : std::max(0.005f, blendY); 
+            }
+            return blendY;
+        }
         bool AutoAim_Kick_DeterminePreferredKick(Actor* giant, bool& left, bool strong) {
             if (!giant) return RandomBool();
 
@@ -183,13 +195,10 @@ namespace GTS {
             params.blendX = std::clamp(params.blendX * 1.1f, 0.0f, 1.0f); // Slightly stronger blend
 
             if (!params.isInsideRectangle) return false;
-            bool InFrontOfGTS = true; 
-
             if (params.blendX <= 0.01f) { // Add some variety if actor is behind
                 const float range = Config::AutoAim.fAimAssistP_NoHitValueRandomRange;
                 params.blendX = RandomFloat(0.0f, range);
                 params.blendY= RandomFloat(0.0f, range);
-                InFrontOfGTS = false; // Disallow Killmove, it's supposed to trigger near breasts, not in butt or legs area.
             }
 
             if (Config::AutoAim.bDebugAutoAim) {
@@ -197,19 +206,18 @@ namespace GTS {
                 logger::info("FinalDist: {}", params.finalDistance);
                 Cprint("Blend2D X:{} | Victim:{}", params.blendX, victim->GetDisplayFullName());
             }
-            const bool AllowKillMove = InFrontOfGTS && params.inPercent_Side >= 0.3f;
-            // Actor must be at least 30% 'deep' inside rectangle (so breasts don't strike air) and in front part of it
 
             if (out_result) {
                 out_result->hit = true;
-                out_result->alive = IsVictimAlive(victim);
-                out_result->canKillMove = AllowKillMove;  
+                out_result->alive = IsVictimAlive(victim); 
                 out_result->blend_x = params.blendX;
                 out_result->blend_y = params.blendY;
                 out_result->distance = params.finalDistance;
                 out_result->victim = victim;
                 out_result->victim_color = Breast_Color;
                 out_result->fixBlending = false; // We don't want to fix Y blending here. We have only one hit zone.
+                out_result->inPercent_Forward = params.inPercent_Forward;
+                out_result->inPercent_Side = params.inPercent_Side;
             } else {
                 SetStompBlendValues(giant, params.blendX, params.blendY, "Breast Slam");
             }
@@ -276,7 +284,10 @@ namespace GTS {
 
             params.blendX = ApplyMagnitude(params.blendX);
             params.blendY = ApplyMagnitude(params.blendY);
+
             DebugLogBlend(giant, victim, params.blendX, params.blendY, "Hand Aim Far");
+
+            ConfigureEnemyTracking(out_result, max_distance, handPos, false, false);
 
             return FinalizeAim(giant, left_hand, victim, params, out_result, Far_Stomp_Color);
         }
@@ -325,6 +336,8 @@ namespace GTS {
                 debugString +=" Far Strong";
             }
             DebugLogBlend(giant, victim, params.blendX, params.blendY, debugString);
+
+            ConfigureEnemyTracking(out_result, max_distance, handPos, !isCrawling, false);
 
             return FinalizeAim(giant, left_hand, victim, params, out_result, Close_Stomp_Color);
         }
@@ -441,5 +454,60 @@ namespace GTS {
                 logger::info("Applying final blend: X: {}, Y: {}, Source: {}", x, y, source);
                 Cprint("Applying final blend: X: {}, Y: {}, Source: {}", x, y, source);
             }
+        }
+
+        void AutoAimTask_TrackTinyTask(Actor* giant, Actor* tiny, const AimOutcome outcome) {
+            if (!outcome.trackEnemy || !Config::AutoAim.bTrackEnemies) {
+                return;
+            }
+            auto giantHandle = giant->CreateRefHandle();
+            auto tinyHandle = tiny->CreateRefHandle();
+            std::string taskname = std::format("TrackingTiny_{}", giant->formID);
+            double Start = Time::WorldTimeElapsed();
+
+            const bool Up = outcome.positiveX;
+            logger::info("Starting Track Tiny task");
+            TaskManager::RunFor(taskname, 2.0f / GetAnimationSlowdown(giant), [=](auto& progressData){
+                if (!giantHandle) {
+                    logger::info("No Giant");
+                    return false;
+                }
+                if (!tinyHandle) {
+                    logger::info("No Tiny");
+                    return false;
+                }
+                auto giantRef = giantHandle.get().get();
+                auto tinyRef = tinyHandle.get().get();
+
+                if (!giantRef->Is3DLoaded() || !tinyRef->Is3DLoaded()) {
+                    logger::info("Not 3d loaded");
+                    return false;
+                }
+                // Time::GGTM() = World Speed multiplier
+                double Finish = Time::WorldTimeElapsed();
+                const bool isDead = tinyRef->IsDead();
+                
+                double timepassed = Finish - Start;
+                if (timepassed > 0.125) { // Start tracking only here
+                    if (isDead || GetAV(tinyRef, ActorValue::kHealth) <= 0.0f) {
+                        return false; // End early
+                    }
+                    AnimationBlendInfo params;
+                    params.maxDistance = outcome.shapeRange;
+                    if (!IsInsideTrackShape(giantRef, outcome.startPos, tinyRef->GetPosition(), outcome.shapeRange, Config::AutoAim.bUseRhombShape)) {
+                        return true;
+                    }
+                    CalculateDirectionalBlend2D(giant, outcome.startPos, tinyRef->GetPosition(), params);
+                    if (outcome.isSideBlend) {
+                        CalculateAngleBasedSideBlend(giant, outcome.startPos, tinyRef->GetPosition(), params);
+                    }
+                    SetStompBlendValues(giant, FixXBlend(Up, params.blendX), FixYBlend(outcome.left, params.blendY, outcome.fixBlending), 
+                        "Tracking Enemy", false
+                    );
+                    HighlightVictim(giant, outcome.victim, outcome);
+                    return true;
+                }
+                return true;
+            });
         }
     }

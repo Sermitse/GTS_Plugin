@@ -90,7 +90,7 @@ namespace GTS {
 				SetMovementSlowdown(caster, target);
 			}
 			logger::info("Apply Shrink Rune To {}", target->GetDisplayFullName());
-			Task_TrackSizeTask(caster, target, "Spell", true, this->time_mult);
+			Task_TrackSizeTask(caster, target, ShrinkToNothingSource::Default, true, this->time_mult);
 			ShrinkByOverTime(target, 0.25, this->power);
 			ModSizeExperience(caster, 0.02);
 		}

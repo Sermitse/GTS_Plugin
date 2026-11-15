@@ -61,6 +61,8 @@ namespace GTS {
 		float BreastsTransitionTime = 0.0f;
 		float BellyTransitionTime = 0.0f;
 
+		float ShrinkWeakness = 0.0f;
+
 
 		int Stacks_Perk_CataclysmicStomp = 0;
 		int Stacks_Perk_LifeForce = 0;
@@ -113,6 +115,7 @@ namespace GTS {
 
 		float TinyCalamity_StartingDuration = 0.0f;
 		float TinyCalamity_SecondsPassed = 0.0f;
+		float TinyCalamity_PowerLevel = 1.0f;
 		float EscapingActionProgress = 0.0f;
 		bool EscapingInteraction = false;
 
@@ -155,6 +158,7 @@ namespace GTS {
 		float LastAppliedBellyScale = 0.0f;
 
 		std::vector<hkVector4> cachedConvexVerticesShape;
+		AimOutcome lastAimOutcome;
 
 		explicit TransientActorData(Actor* a_Actor) {
 			const auto _BoundValues = get_bound_values(a_Actor);

@@ -10,76 +10,23 @@
 #include "Managers/Rumble.hpp"
 #include "Config/Config.hpp"
 
+#include "Managers/Animation/KillMoveStarters.hpp"
+
 using namespace GTS;
 
 
 namespace {
-    float FixXBlend(const bool Up, float blendX) {
-        return Up ? std::max(0.005f, blendX) : std::min(-0.005f, blendX); 
-    }
-    // Fixes an issue with broken Y blends in edge cases. 
-    // If left stomp Y blend goes into positives, it breaks blending. Same if right stomp goes into negative direction. This is a fix: just disallow it to happen
-    float FixYBlend(const bool left, float blendY, const bool NeedsFix) {
-        if (NeedsFix) {
-            return left ? std::min(-0.005f, blendY) : std::max(0.005f, blendY); 
+    void ClearKillMoveData(Actor* giant) {
+        if (auto tranData = Transient::GetActorData(giant)) {
+            tranData->lastAimOutcome = AimOutcome();
         }
-        return blendY;
     }
-
-    void Task_TrackTinyTask(Actor* giant, Actor* tiny, const AimOutcome outcome) {
-        if (!outcome.trackEnemy || !Config::AutoAim.bTrackEnemies) {
-            return;
+    void RecordKillMoveData(Actor* giant, AimOutcome outcome) {
+        if (auto tranData = Transient::GetActorData(giant)) {
+            tranData->lastAimOutcome = outcome;
         }
-        auto giantHandle = giant->CreateRefHandle();
-        auto tinyHandle = tiny->CreateRefHandle();
-        std::string taskname = std::format("TrackingTiny_{}", giant->formID);
-        double Start = Time::WorldTimeElapsed();
-
-        const bool Up = outcome.positiveX;
-        logger::info("Starting Track Tiny task");
-        TaskManager::RunFor(taskname, 1.25f / GetAnimationSlowdown(giant), [=](auto& progressData){
-            if (!giantHandle) {
-                logger::info("No Giant");
-                return false;
-            }
-            if (!tinyHandle) {
-                logger::info("No Tiny");
-                return false;
-            }
-            auto giantRef = giantHandle.get().get();
-            auto tinyRef = tinyHandle.get().get();
-
-            if (!giantRef->Is3DLoaded() || !tinyRef->Is3DLoaded()) {
-                logger::info("Not 3d loaded");
-                return false;
-            }
-            // Time::GGTM() = World Speed multiplier
-            double Finish = Time::WorldTimeElapsed();
-            const bool isDead = tinyRef->IsDead();
-            
-            double timepassed = Finish - Start;
-            if (timepassed > 0.125) { // Start tracking only here
-                if (isDead || GetAV(tinyRef, ActorValue::kHealth) <= 0.0f) {
-                    return false; // End early
-                }
-                AnimationBlendInfo params;
-                params.maxDistance = outcome.shapeRange;
-                if (!IsInsideTrackShape(giantRef, outcome.startPos, tinyRef->GetPosition(), outcome.shapeRange, Config::AutoAim.bUseRhombShape)) {
-                    return true;
-                }
-                CalculateDirectionalBlend2D(giant, outcome.startPos, tinyRef->GetPosition(), params);
-                if (outcome.isSideBlend) {
-                    CalculateAngleBasedSideBlend(giant, outcome.startPos, tinyRef->GetPosition(), params);
-                }
-                SetStompBlendValues(giant, FixXBlend(Up, params.blendX), FixYBlend(outcome.left, params.blendY, outcome.fixBlending), 
-                    "Tracking Enemy", false
-                );
-                HighlightVictim(giant, outcome.victim, outcome);
-                return true;
-            }
-            return true;
-        });
     }
+    
 }
 
 namespace Scan {
@@ -102,7 +49,6 @@ namespace Scan {
     AimOutcome ApplyBestAim(Actor* giant, const AimAttempt& close, const AimAttempt& farZone) {
         AimOutcome outcome;
         outcome.zone = PickZone(close, farZone);
-        float YBlend = 0.0f;
 
         switch (outcome.zone) {
             case AimZone::Far:
@@ -120,6 +66,8 @@ namespace Scan {
                 outcome.startPos = farZone.result.startPos;
                 outcome.trackEnemy = farZone.result.trackEnemy;
                 outcome.positiveX = farZone.result.blend_x > 0.0f;
+                outcome.inPercent_Forward = farZone.result.inPercent_Forward;
+                outcome.inPercent_Side = farZone.result.inPercent_Side;
                 break;
             case AimZone::Close:
                 SetStompBlendValues(giant, close.result.blend_x, FixYBlend(close.left, close.result.blend_y, close.result.fixBlending), 
@@ -136,6 +84,8 @@ namespace Scan {
                 outcome.startPos = close.result.startPos;
                 outcome.trackEnemy = close.result.trackEnemy;
                 outcome.positiveX = close.result.blend_x > 0.0f;
+                outcome.inPercent_Forward = close.result.inPercent_Forward;
+                outcome.inPercent_Side = close.result.inPercent_Side;
                 break;
             case AimZone::None:
                 break;
@@ -158,10 +108,7 @@ namespace Scan {
         });
 
         AimOutcome outcome = ApplyBestAim(giant, close, farZone);
-        if (outcome.hit) {
-            auto params = GetStandingKillMoveParams(outcome, strong_Attack, trample);
-            TryKillMove(giant, outcome, params);
-        }
+        AnimationKillMoveStarters::HandleStandingKillMove(giant, outcome, strong_Attack, trample); // Launches Kill-Move if conditions are met
         return outcome;
     }
 
@@ -181,12 +128,9 @@ namespace Scan {
             return AutoAim_Hand_TryHandAim_Close(giant, l, strong, &r); // fallback: land a hand attack
         });
 
-        AimOutcome outcome = ApplyBestAim(giant, close, farZone);
 
-        const bool canKillMove = outcome.zone == AimZone::Close;
-        if (canKillMove) {
-            TryKillMove(giant, outcome, GetSneakKillMoveParams(outcome, strong));
-        } 
+        // Only some attacks can trigger sneak kill moves. See 'Managers/Animation/KillMoveStarters.hpp'
+        AimOutcome outcome = ApplyBestAim(giant, close, farZone);
         return outcome;
     }
 
@@ -197,26 +141,18 @@ namespace Scan {
         if (!crawling) {
             return {};
         }
-        bool isKillMoveAllowed = false; // Used only in Breast Crush bool calculation, idea is to allow KillMove only when enemy is in front 
         auto close = strong
             ? TryAim([&](bool& l, AimAssistResult& r) { 
-                auto result = AutoAim_Crawl_TryBreastSlam(giant, &r); 
-                isKillMoveAllowed = r.canKillMove;
-                return result;
+                return AutoAim_Crawl_TryBreastSlam(giant, &r); 
             }) // breast slam first
             : TryAim([&](bool& l, AimAssistResult& r) { return AutoAim_Hand_TryHandAim_Close(giant, l, false, &r); });
-        auto farZone = TryAim([&](bool& l, AimAssistResult& r) {return AutoAim_Hand_TryHandAim_Far(giant, l, strong, &r); }); // far slam
 
+        auto farZone = TryAim([&](bool& l, AimAssistResult& r) {
+            return AutoAim_Hand_TryHandAim_Far(giant, l, strong, &r);}
+        ); // far slam
+
+        // Only some attacks can trigger crawl kill moves. See 'Managers/Animation/KillMoveStarters.hpp'
         AimOutcome outcome = ApplyBestAim(giant, close, farZone);
-
-        if (strong) {
-            const bool canKillMove = outcome.zone == AimZone::Close && isKillMoveAllowed;
-
-            logger::info("CanKillMove: {}, KillMoveAllowed: {}", canKillMove, isKillMoveAllowed);
-            if (canKillMove) {
-                TryKillMove(giant, outcome, GetCrawlKillMoveParams(outcome));
-            } 
-        }
 
         return outcome;
     }
@@ -241,13 +177,16 @@ namespace GTS {
         const bool onCooldown = IsActionOnCooldown(giant, CooldownSource::Misc_AutoAim_Cooldown); // Another layer of fixing this bs
         // Some key-binds fight other key-binds, so Tap E overrides Hold E as soon as you release E, overriding Blend we got, messing aim result
         if (!AnimationVars::General::IsBusy(giant) && !onCooldown) {
+            
+            ClearKillMoveData(giant);
             ApplyActionCooldown(giant, CooldownSource::Misc_AutoAim_Cooldown);
             AimOutcome outcome = Scan::StandingBranchCheck(giant, strong_Attack, trample);
             if (!outcome.hit) outcome = Scan::SneakBranchCheck(giant, strong_Attack);
             if (!outcome.hit) outcome = Scan::CrawlBranchCheck(giant, strong_Attack);
             if (outcome.hit && outcome.victim) {    
-                Task_TrackTinyTask(giant, outcome.victim, outcome);
+                AutoAimTask_TrackTinyTask(giant, outcome.victim, outcome);
                 HighlightVictim(giant, outcome.victim, outcome);
+                RecordKillMoveData(giant, outcome);
             }
             if (!outcome.hit) {
                 left = !left;

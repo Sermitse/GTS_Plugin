@@ -2,6 +2,7 @@
 #include "Managers/Rumble.hpp"
 #include "Managers/Perks/ShrinkingGaze.hpp"
 #include "Managers/HighHeel.hpp"
+#include "Config/Config.hpp"
 
 using namespace GTS;
 
@@ -48,22 +49,11 @@ namespace {
 		}
 	}
 
-	void SpawnFootParticles(Actor* caster) {
-		const float scale = get_visual_scale(caster);
-		for (auto foot: {"NPC R Foot [Rft ]","NPC L Foot [Lft ]"}) {
-			if (auto node = find_node(caster, foot)) {
-				auto pos = node->world.translate;
-				pos.z -= HighHeelManager::GetInitialHeelHeight(caster) * 100.0f * scale;
-				SpawnCustomParticle(caster, ParticleType::Red, pos, foot, scale * 0.5f);
-			}
-		}
-	}
-
 	void CapCasterSize(Actor* caster, float CasterScale, bool ShouldRun) {
 		if (CasterScale < 1.0f) {
 			set_target_scale(caster, 1.0f);
 		} else if (CasterScale > 1.5f) {
-			update_target_scale(caster, -0.0300f, SizeEffectType::kNeutral);
+			update_target_scale(caster, -0.0300f * GetCalamityPowerLevelScaled(caster, 2.0f), SizeEffectType::kNeutral);
 			if (ShouldRun && caster->IsPlayerRef()) {
 				Notify("Im getting too big, it becomes hard to handle such power.");
 			}
@@ -80,6 +70,21 @@ namespace GTS {
 	void TinyCalamity::OnStart() {
 		auto caster = GetCaster();
 		if (caster) {
+			SetCalamityPowerLevel(caster, GetActiveEffect()->magnitude);
+
+			float CalamityLevel = 1.0f;
+
+			if (auto TranData = Transient::GetActorData(caster)) { 
+				//Must use TranData directly because Calamity Check inside original function returns false
+				//Because we check it too early for it to be True (magicEffect didn't start yet)
+				CalamityLevel = TranData->TinyCalamity_PowerLevel;
+			}
+			float dur_Penalty = std::lerp(1.0f, 0.33f, (CalamityLevel - 1.0f) / 2.0f);
+
+			if (CalamityLevel > 1.01f) {
+				GetActiveEffect()->duration *= (dur_Penalty) + (Config::Advanced.bEndlessCalamity ? 999999.0f : 0.0f);
+			}
+			Cprint("Calamity Level: {}", CalamityLevel);
 			RecordTinyCalamity(caster, GetActiveEffect()->elapsedSeconds, GetActiveEffect()->duration, true);
 			if (caster->IsPlayerRef() && !Persistent::MSGSeenTinyCamity.value) {
 				PrintMessageBox(TinyCalamityMessage);
@@ -93,14 +98,18 @@ namespace GTS {
 
 			if (node) {
 				NiPoint3 position = node->world.translate;
-				float scale = get_visual_scale(caster);
+				float scale = get_visual_scale(caster) * GetCalamityPowerLevelScaled(caster, 0.75f);
 				TinyCalamityExplosion(caster, 84);
 
 				SpawnParticle(caster, 6.00f, "GTS/Effects/TinyCalamity.nif", NiMatrix3(), position, scale * 3.0f, 7, nullptr); // Spawn
 				Rumbling::For("TinyCalamityRumble", caster, 4.0f, 0.14f, "NPC COM [COM ]", 0.10f, 0.0f);
 			}
-		}
 
+			if (CalamityLevel > 1.1f) {
+				Notify(CalamityLevel < 2.1f ? TinyCalamity_Word2 : TinyCalamity_Word3);
+			}
+		}
+		
 	}
 
 	void TinyCalamity::OnUpdate() {
@@ -128,6 +137,7 @@ namespace GTS {
 		auto caster = GetCaster();
 		if (caster) {
 			RecordTinyCalamity(caster, 0.0f, 0.0f, false);
+			SetCalamityPowerLevel(caster, 1.0f);
 			float CasterScale = get_target_scale(caster);
 			float naturalscale = get_natural_scale(caster, true);
 			if (CasterScale < naturalscale) {

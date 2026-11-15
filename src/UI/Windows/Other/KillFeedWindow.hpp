@@ -10,7 +10,7 @@ namespace GTS {
     class KillFeedWindow final : public ImConfigurableWindow<KillFeedWindow>, public EventListener {
 
     	public:
-        static void AddKillEntry(Actor* a_attacker, Actor* a_victim, DeathType a_type);
+        static void AddKillEntry(Actor* a_attacker, Actor* a_victim, DeathType a_type, std::string custom_death = "");
         std::string DebugName() override;
         void DeathEvent(Actor* a_killer, Actor* a_victim) override;
         void GameDeathEvent(Actor* a_killer, Actor* a_victim, bool a_dead) override;

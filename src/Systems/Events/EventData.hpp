@@ -132,7 +132,15 @@ namespace GTS {
 		Movement_LeftHand,
 		Movement_None,
 	};
-
+	enum class ShrinkToNothingSource {
+		Default,
+		ShoutAbsorb,
+	};
+	enum class ShrinkToNothingState {
+		TooBig = 0,
+		TickProtection = 1,
+		WasKilled = 2,
+	};
 	enum class DamageSource {
 		HandCrawlRight,
 		HandCrawlLeft,
@@ -297,10 +305,11 @@ namespace GTS {
 	struct AimAssistResult {
 		bool hit 				= false;     
 		bool alive 				= false;  
-		bool canKillMove 		= false; 		// Used only in Breast Crush atm
 		float blend_x 			= 0.0f;
 		float blend_y 			= 0.0f;
 		float distance 			= FLT_MAX;
+		float inPercent_Forward   	= 0.0f;
+		float inPercent_Side    = 0.0f;
 		Actor* victim 			= nullptr;
 		glm::vec4 victim_color	= {0.0f, 0.6f, 0.0f, 1.0f};
 		bool fixBlending 		= true; // Should be true for anims that have more than one hitzone. 
@@ -323,7 +332,7 @@ namespace GTS {
 		float length				= 0.0f;
 		float width					= 0.0f;
 		float blendOffset			= 0.0f;
-		float inPercent_Directional	= 0.0f;
+		float inPercent_Forward			= 0.0f;
 		float inPercent_Side		= 0.0f;
 
 	};
@@ -341,6 +350,8 @@ namespace GTS {
 		glm::vec4 victim_color	= {0.0f, 0.6f, 0.0f, 1.0f};
 		bool isSideBlend = false;
 		float shapeRange = 0.0f;
+		float inPercent_Forward			= 0.0f;
+		float inPercent_Side		= 0.0f;
 		bool fixBlending = true;
 		bool trackEnemy = false;
 		bool positiveX = false;

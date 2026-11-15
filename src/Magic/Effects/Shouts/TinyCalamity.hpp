@@ -17,6 +17,9 @@ namespace GTS {
 			"While Tiny Calamity is active, any size-related damage done will shrink your foes, but your max scale is limited."
 			"You can perform most size-related actions (Vore, Grab, Hug Crush, etc.) "
 			"while being same size with as your foe but performing them wastes some of Tiny Calamity's duration.";
-
+		inline PSString TinyCalamity_Word2 = 
+			"You feel insane power within yourself, you can't sprint";
+		inline PSString TinyCalamity_Word3 = 
+			"You're overwhelmed by raw power, you can't sprint.";
 	};
 }

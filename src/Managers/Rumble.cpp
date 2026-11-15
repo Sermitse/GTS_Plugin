@@ -34,14 +34,14 @@ namespace {
 			sizeDifference = sourceSize;
 
 			if (TinyCalamityActive(caster)) {
-				sourceSize += 0.8f;
+				sourceSize += 0.8f * GetCalamityPowerLevelScaled(caster, 0.9f);
 			}
 		} 
 	}
 	void ApplyNPCSourceOverrides(Actor* caster, float& sourceSize) {
 		if (!caster->IsPlayerRef()) {
 			if (TinyCalamityActive(caster)) {
-				sourceSize += 0.8f;
+				sourceSize += 0.8f * GetCalamityPowerLevelScaled(caster, 0.9f);
 			}
 		}
 	}

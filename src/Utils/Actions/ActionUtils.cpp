@@ -91,7 +91,7 @@ namespace GTS {
 		if (Runtime::HasPerkTeam(giant, Runtime::PERK.GTSPerkMassActions)) {
 			capacity = 3.0f * get_visual_scale(giant);
 			if (TinyCalamityActive(giant)) {
-				capacity *= 3.0f;
+				capacity *= 3.0f + GetCalamityPowerLevelScaled(giant, 1.0f);
 			}
 		}
 		for (auto target : actors) {

@@ -84,7 +84,7 @@ struct SettingsCamera_t {
     float fCameraShakeDistanceMultPlayer = 1.0f;
     float fCameraShakeDistanceMultNPC = 0.75f;
     float fCameraShakePlayer = 1.0f;
-    float fCameraShakePlayerFP = 0.2f;
+    float fCameraShakePlayerFP = 0.02f;
     float fCameraShakeOther = 1.0f;
     float fFPCrawlHeightMult = 0.40f;
     float fTPCrawlHeightMult = 0.40f;

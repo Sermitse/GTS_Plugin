@@ -141,7 +141,7 @@ namespace GTS {
 
 	}
 
-	void KillFeedWindow::AddKillEntry(Actor* a_attacker, Actor* a_victim, DeathType a_type) {
+	void KillFeedWindow::AddKillEntry(Actor* a_attacker, Actor* a_victim, DeathType a_type, std::string custom_death) {
 
 		std::lock_guard lock(_Lock);
 		if (!a_victim) return;
@@ -279,6 +279,10 @@ namespace GTS {
 					break;
 				}
 			}
+		}
+
+		if (!custom_death.empty()) {
+			DeathTypeStr = custom_death;
 		}
 
 		// Higher priority always takes the new type. Same priority still prefers a specific

@@ -41,6 +41,6 @@ namespace GTS {
     	
 	};
 
-    void RecordKill(Actor* a_giant, Actor* a_victim, DeathType a_type);
+    void RecordKill(Actor* a_giant, Actor* a_victim, DeathType a_type, std::string custom_death = "");
     uint32_t GetKillCount(Actor* giant, DeathType Type);
 }

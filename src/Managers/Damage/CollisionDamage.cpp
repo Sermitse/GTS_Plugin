@@ -51,6 +51,7 @@ namespace GTS {
 
 		// Scale ratio cull
 		float tinyScale = get_visual_scale(otherActor) * GetSizeFromBoundingBox(otherActor);
+
 		if (giantScale / tinyScale <= SCALE_RATIO) return false;
 		if (auto shapeData = GetControllerShapeData(otherActor, toHavok)) {
 			BSReadLockGuard lock(world->worldLock);
@@ -87,9 +88,9 @@ namespace GTS {
 
 		bool SMT = TinyCalamityActive(actor);
 		if (SMT) {
-			if (SupportCalamity) Calamity = 6.0f;
+			if (SupportCalamity) Calamity = 6.0f * GetCalamityPowerLevelScaled(actor, 1.0f);
 			giantScale += 0.20f;
-			SCALE_RATIO = 0.7f;
+			SCALE_RATIO = 0.7f / GetCalamityPowerLevelScaled(actor, 3.0f);
 		}
 
 		float maxFootDistance = radius * giantScale;
@@ -174,9 +175,9 @@ namespace GTS {
 			return;
 		}
 		float size_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, true);
-		float damage_result = CalculateSizeDamage(giant, tiny, Cause, damage);
+		float damage_result = CalculateSizeDamage(giant, tiny, Cause, damage); // <--- GetCalamityPowerLevel is applied here
 		
-		TinyCalamity_ShrinkActor(giant, tiny, damage_result * 0.35f);
+		TinyCalamity_ShrinkActor(giant, tiny, damage_result);
 
 		if (!tiny->IsDead()) {
 			float experience = std::clamp(damage_result/500, 0.0f, 0.05f);

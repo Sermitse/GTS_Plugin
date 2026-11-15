@@ -65,7 +65,7 @@ namespace {
 		float BASE_CHECK_DISTANCE = 90.0f;
 		float SCALE_RATIO = 3.0f;
 		if (TinyCalamityActive(giant)) {
-			SCALE_RATIO = 0.8f;
+			SCALE_RATIO = 0.925f - GetCalamityPowerLevel(giant, 0.125f);
 		}
 		float giantScale = get_visual_scale(giant);
 		NiPoint3 giantLocation = giant->GetPosition();

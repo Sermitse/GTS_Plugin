@@ -9,6 +9,8 @@ namespace GTS {
     //-----------------------------------------------------
 	// FOOT OR HAND AUTO AIM
 	//-----------------------------------------------------
+	float FixXBlend(const bool Up, float blendX);
+	float FixYBlend(const bool left, float blendY, const bool NeedsFix);
 	bool AutoAim_Kick_DeterminePreferredKick(Actor* giant, bool& left, bool strong);
 	bool AutoAim_Crawl_TryBreastSlam(Actor* giant, AimAssistResult* out_result = nullptr);
 	bool AutoAim_Sneak_TryButtSlam(Actor* giant, bool& left_butt, AimAssistResult* out_result = nullptr);
@@ -20,4 +22,6 @@ namespace GTS {
 	bool AutoAim_Miss_GetNextStompSide(Actor* giant, StompAimType type);
 
 	void SetStompBlendValues(Actor* giant, float x, float y, std::string_view source = "Default", bool print = true);
+
+	void AutoAimTask_TrackTinyTask(Actor* giant, Actor* tiny, const AimOutcome outcome);
 }

@@ -36,7 +36,7 @@ struct SettingsAutoAim_t {
 
     // Main settings
     bool bDebugAutoAim = false;
-    bool bPreventFarStomps = false;
+    bool bPreventFarStomps = true;
     bool bUseRhombShape = true;
     bool bTrackEnemies = true;
     //------------------------------------------------------------------------------

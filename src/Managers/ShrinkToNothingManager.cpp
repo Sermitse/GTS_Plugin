@@ -13,7 +13,7 @@ namespace {
 	float GetXPModifier(Actor* tiny) {
 		float mult = 1.0f;
 		if (tiny->IsDead()) {
-			mult = 0.25f;
+			mult = 0.2f;
 		}
 		
 		return mult;

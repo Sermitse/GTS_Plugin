@@ -68,27 +68,6 @@ namespace Hooks {
 
 	};
 
-	//Unused
-	/*struct GetPermanentActorValue {
-
-		static constexpr std::size_t funcIndex = 0x02;
-
-		template<int ID>
-		static float thunk(ActorValueOwner* a_owner, ActorValue a_akValue) {
-
-			float value = func<ID>(a_owner, a_akValue);
-
-			{
-				GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorValueOwner::GetPermanentActorValue", ID);
-			}
-			
-			return value;
-		}
-
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
-	};*/
-
 	struct GetBaseActorValue {
 
 		static constexpr std::size_t funcIndex = 0x03;
@@ -170,9 +149,6 @@ namespace Hooks {
 
 		stl::write_vfunc_unique<GetActorValue, 1>(VTABLE_Character[5]);
 		stl::write_vfunc_unique<GetActorValue, 2>(VTABLE_PlayerCharacter[5]);
-
-		/*stl::write_vfunc_unique<GetPermanentActorValue, 1>(VTABLE_Character[5]);
-		stl::write_vfunc_unique<GetPermanentActorValue, 2>(VTABLE_Actor[5]);*/
 
 		stl::write_vfunc_unique<GetBaseActorValue, 1>(VTABLE_Character[5]);
 		stl::write_vfunc_unique<GetBaseActorValue, 2>(VTABLE_PlayerCharacter[5]);

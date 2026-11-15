@@ -141,7 +141,7 @@ namespace GTS {
 		}
 
 		if (TinyCalamityActive(tiny)) {
-			TinyScale += 1.50f;
+			TinyScale += 1.50f * GetCalamityPowerLevel(tiny);
 		}
 
 		float Difference = GiantScale / TinyScale;

@@ -85,4 +85,11 @@ namespace GTS {
 	void ShrinkUntil(Actor* giant, Actor* tiny, float expected, float halflife, bool animation);
 	void SpringGrow(Actor* a_actor, float a_amt, float a_halfLife, std::string_view a_taskName, bool a_drain);
 	void SpringShrink(Actor* a_actor, float a_amt, float a_halfLife, std::string_view a_taskName);
+
+	//-----------------------------------------------------
+	// CALAMITY
+	//-----------------------------------------------------
+	float GetCalamityPowerLevel(Actor* giant, float mult = 1.0f);
+	float GetCalamityPowerLevelScaled(Actor* giant, float mult = 1.0f);
+	void SetCalamityPowerLevel(Actor* giant, float power);
 }

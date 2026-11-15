@@ -75,6 +75,7 @@ namespace GTS {
 		if (TinyCalamityActive(actor)) {
 			minimal_size = 1.0f;
 			scale += 0.33f;
+			scale *= GetCalamityPowerLevel(actor);
 		}
 
 		if (scale > minimal_size && !actor->AsActorState()->IsSwimming()) {

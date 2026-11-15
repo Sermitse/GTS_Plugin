@@ -160,6 +160,21 @@ namespace {
 		}
 		return nullptr;
 	}
+
+	constexpr std::uint32_t kFormKnownFlag = 1 << 6;
+
+	bool IsFormKnown(const RE::TESForm* a_form) {
+		return a_form && (a_form->formFlags & kFormKnownFlag) != 0;
+	}
+
+	void CallGameWordFunction(std::string_view a_function, RE::TESWordOfPower* a_word) {
+		if (!a_word) {
+			logger::warn("{}: word of power is nullptr", a_function);
+			return;
+		}
+		logger::info("{}: {}", a_function, a_word->GetName());
+		GTS::CallVMFunction("Game", a_function, a_word);
+	}
 }
 
 namespace GTS {
@@ -223,6 +238,7 @@ namespace GTS {
 		KYWD.Resolve();
 		CONT.Resolve();
 		LVLI.Resolve();
+		WOOP.Resolve();
 
 	}
 
@@ -389,6 +405,18 @@ namespace GTS {
 		return nullptr;
 	}
 
+	// ---- Word Of Power
+	TESWordOfPower* Runtime::GetWordOfPower(const std::string_view& a_tag) {
+		return GetFormByTagName<TESWordOfPower>(WOOP, a_tag);
+	}
+
+	TESWordOfPower* Runtime::GetWordOfPower(const RuntimeData::RuntimeEntry<RE::TESWordOfPower>& a_entry) {
+		if (a_entry.Value) {
+			return a_entry.Value;
+		}
+		return nullptr;
+	}
+
 	//--------------------
 	// Sound Helpers
 	//--------------------
@@ -439,6 +467,30 @@ namespace GTS {
 
 	void Runtime::PlaySoundAtNode_FallOff(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, const float& a_volume, NiAVObject* a_node, float a_falloff, float a_frequency) {
 		PlaySoundAtNodeFallOffImpl(GetSound(a_entry), a_volume, a_node, a_falloff, a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode_Detached(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_frequency) {
+		if (!a_actor) {
+			return;
+		}
+		// Read the position now, while the actor and its 3D still exist
+		NiAVObject* node = find_node(a_actor, a_node);
+		NiPoint3 pos = node ? node->world.translate : a_actor->GetPosition();
+		PlaySoundAtPosImpl(GetSound(a_entry), pos, a_volume, a_frequency);
+	}
+
+	void Runtime::PlaySoundAtNode_FallOff_Detached(const RuntimeData::RuntimeEntry<RE::BGSSoundDescriptorForm>& a_entry, Actor* a_actor, const float& a_volume, const std::string_view& a_node, float a_falloff, float a_frequency) {
+		if (!a_actor) {
+			return;
+		}
+		NiAVObject* node = find_node(a_actor, a_node);
+		if (!node) {
+			logger::warn("Tried to play a detached sound on a null node");
+			return;
+		}
+		// Falloff and position are both taken now, before the actor can be deleted
+		float falloff = GTS::Sound_GetFallOff(node, a_falloff);
+		PlaySoundAtPosImpl(GetSound(a_entry), node->world.translate, a_volume * falloff, a_frequency);
 	}
 
 	//-----------------------
@@ -912,6 +964,40 @@ namespace GTS {
 	}
 
 	//-----------------------
+	// Word Of Power Helpers
+	//-----------------------
+
+	void Runtime::TeachWord(const std::string_view& a_tag) {
+		CallGameWordFunction("TeachWord", GetWordOfPower(a_tag));
+	}
+
+	void Runtime::TeachWord(const RuntimeData::RuntimeEntry<RE::TESWordOfPower>& a_entry) {
+		CallGameWordFunction("TeachWord", GetWordOfPower(a_entry));
+	}
+
+	void Runtime::UnlockWord(const std::string_view& a_tag) {
+		CallGameWordFunction("UnlockWord", GetWordOfPower(a_tag));
+	}
+
+	void Runtime::UnlockWord(const RuntimeData::RuntimeEntry<RE::TESWordOfPower>& a_entry) {
+		CallGameWordFunction("UnlockWord", GetWordOfPower(a_entry));
+	}
+
+	void Runtime::LearnWord(const std::string_view& a_tag) {
+		TeachWord(a_tag);
+		UnlockWord(a_tag);
+	}
+
+	void Runtime::LearnWord(const RuntimeData::RuntimeEntry<RE::TESWordOfPower>& a_entry) {
+		TeachWord(a_entry);
+		UnlockWord(a_entry);
+	}
+
+	bool Runtime::IsWordKnown(const RuntimeData::RuntimeEntry<RE::TESWordOfPower>& a_entry) {
+		return IsFormKnown(GetWordOfPower(a_entry));
+	}
+
+	//-----------------------
 	// Dependency Checks
 	//-----------------------
 
@@ -1002,5 +1088,28 @@ namespace GTS {
 		logger::error("Could not build sound");
 	}
 
+	void Runtime::PlaySoundAtPosImpl(RE::BSISoundDescriptor* a_soundDescriptor, const RE::NiPoint3& a_pos, const float& a_volume, float a_frequency) {
+
+		if (!a_soundDescriptor) {
+			logger::error("Ivallid Sound Descriptor");
+			return;
+		}
+
+		auto audioManager = RE::BSAudioManager::GetSingleton();
+		if (!audioManager) {
+			logger::error("Audio Manager invalid");
+			return;
+		}
+
+		RE::BSSoundHandle soundHandle;
+		if (audioManager->BuildSoundDataFromDescriptor(soundHandle, a_soundDescriptor)) {
+			soundHandle.SetPosition(a_pos);   // fixed position, no SetObjectToFollow
+			soundHandle.SetVolume(a_volume);
+			audioManager->SetSoundHandleFrequency(soundHandle.soundID, a_frequency);
+			soundHandle.Play();
+			return;
+		}
+		logger::error("Could not build sound");
+	}
 
 }

@@ -22,7 +22,7 @@ namespace {
 			pos.z += 4.0f * size;
 
 			if (TinyCalamityActive(actor)) {
-				size += 2.8f;
+				size += 2.8f * GetCalamityPowerLevelScaled(actor, 0.15f);
 			}
 
 			float calc_radius = ((54.0f / 3.0f) * size) - 54.0f;
@@ -62,7 +62,7 @@ namespace Hooks {
 				auto actor = GetCharContActor(a_this);
 
 				if (actor) {
-					const float scale = std::clamp(get_giantess_scale(actor), 1.0f, 99999.0f);
+					const float scale = std::clamp(get_giantess_scale(actor) * GetCalamityPowerLevel(actor), 1.0f, 99999.0f);
 					const float fall_damage_exponent = 0.5f + Jump_GetFallDamageReductionMult(actor);
 					if (scale > 1e-4) {
 						result /= std::pow(scale, fall_damage_exponent);
@@ -133,7 +133,7 @@ namespace Hooks {
 				//log::info("Original jump height: {}", result);
 				if (a_actor) {
 					if (a_actor->IsPlayerRef()) {
-						float size = get_giantess_scale(a_actor);
+						float size = get_giantess_scale(a_actor) * (GetCalamityPowerLevel(a_actor, 0.5f) + 0.5f);
 
 						const float might = 1.0f + Potion_GetMightBonus(a_actor);
 						const float modifier = size * might; // Compensate it, since SetScale() already boosts jump height by default

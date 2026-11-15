@@ -67,15 +67,15 @@ struct SettingsGeneral_t {
     float fAdditionalJumpEffectDelay = 0.15f;
     float fAdditionalJumpEffectDelay_Gravity = 0.0f;
 
-	  float fNPCMaxSpeedMultClampStartAt = 2.0f; //Scale at which clamping begins
+	  float fNPCMaxSpeedMultClampStartAt = 1.35f; //Scale at which size the clamping begins
 	  float fNPCMaxSpeedMultClampMaxAt = 8.0f;   //Scale at which speed is fully clamped to target
-    float fNPCMaxSpeedMultLerpTargetPercent = 80.0f;
+    float fNPCMaxSpeedMultLerpTargetPercent = 90.0f;
 
     bool bAlterPlayerMaxSpeed = true;
     bool bPreventPlayerSprint = false; // PREVENTS player sprint when PlayerMaxSpeedMultClampStartAt starts
-    float fPlayerMaxSpeedMultClampStartAt = 1.5f; //Scale at which clamping begins
-	  float fPlayerMaxSpeedMultClampMaxAt = 10.0f;   //Scale at which speed is fully clamped to target
-    float fPlayerMaxSpeedMultLerpTargetPercent = 75.0f;
+    float fPlayerMaxSpeedMultClampStartAt = 1.35f; //Scale at which clamping begins
+	  float fPlayerMaxSpeedMultClampMaxAt = 8.0f;   //Scale at which speed is fully clamped to target
+    float fPlayerMaxSpeedMultLerpTargetPercent = 90.0f;
 };
 TOML_SERIALIZABLE(SettingsGeneral_t);
 TOML_REGISTER_NAME(SettingsGeneral_t, "General");

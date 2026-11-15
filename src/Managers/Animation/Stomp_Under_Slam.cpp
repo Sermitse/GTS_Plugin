@@ -27,9 +27,11 @@ namespace {
 
     void GTS_UnderStomp_Crawl_CamOffR(AnimationEventData& data) {
 		ManageCamera(&data.giant, false, CameraTracking::ForearmTwist_2_Right);
+        DrainStamina(&data.giant,"StaminaDrain_HandSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 1.5f);
 	}
     void GTS_UnderStomp_Crawl_CamOffL(AnimationEventData& data) {
 		ManageCamera(&data.giant, false, CameraTracking::ForearmTwist_2_Left);
+        DrainStamina(&data.giant,"StaminaDrain_HandSlam", Runtime::PERK.GTSPerkDestructionBasics, false, 1.5f);
 	}
 }
 namespace GTS {

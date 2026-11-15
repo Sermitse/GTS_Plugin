@@ -223,9 +223,9 @@ namespace GTS {
                 shrink *= 1.25f;
 			}
             
-            shrink *= Config::Balance.fSizeDamageMult * 0.0045f;
+            shrink *= Config::Balance.fSizeDamageMult * 0.0001675f;
             float target_scale = get_target_scale(tiny);
-            
+            logger::info("Shrinking {} for: {}", tiny->GetDisplayFullName(), shrink);
             if (target_scale < limit) {
                 set_target_scale(tiny, limit);
             } else {

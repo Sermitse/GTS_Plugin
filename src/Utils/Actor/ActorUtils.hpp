@@ -36,6 +36,7 @@ namespace GTS {
 	void PushActorAway(Actor* a_source, Actor* a_receiver, float a_force);
 	void PushBackwards(Actor* a_source, Actor* a_target, float a_power);
 	void PushForward(Actor* a_source, Actor* a_target, float a_power);
+	void PushOutwards(Actor* a_source, Actor* a_target, float a_power, float a_lift = 0.0f);
 	void PushTowards(Actor* a_source, Actor* a_target, std::string_view a_boneName, float a_power, bool a_doSizeCheck);
 	void PushTowards_Task(const ActorHandle& a_sourceHandle, const ActorHandle& a_targetHandle, const NiPoint3& a_startCoords, const NiPoint3& a_endCoords, std::string_view a_taskName, float a_power, bool a_doSizeCheck);
 	void PushTowards(Actor* a_source, Actor* a_target, NiAVObject* a_bone, float a_power, bool a_doSizeCheck);

@@ -59,11 +59,13 @@ namespace GTS {
             PSString T0 = "Enable/Disable DamageAV for the player's stamina and magicka.";
             PSString T1 = "GTS actions will have cooldowns if this is enabled.";
             PSString T2 = "Enforce Min/Max Values In UI.";
+            PSString T3 = "Adds 9999999 sec duration to Tiny Calamity";
 
             if (ImGui::CollapsingHeader("Cheats", ImUtil::HeaderFlagsDefaultOpen)) {
                 ImGuiEx::CheckBox("Enable ActorValue Damage", &Config::Advanced.bDamageAV, T0);
                 ImGuiEx::CheckBox("Enable Size-Action Cooldowns", &Config::Advanced.bCooldowns, T1);
                 ImGuiEx::CheckBox("Enforce Slider Range", &Config::Advanced.bEnforceUIClamps, T2);
+                ImGuiEx::CheckBox("Endless Calamity Duration", &Config::Advanced.bEndlessCalamity, T3);
 
 				{   // GTS Skill Level Setter
                     std::string Name = "None";

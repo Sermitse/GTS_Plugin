@@ -21,7 +21,14 @@ namespace {
 		float speedCompensation = std::lerp(1.0f, scale, Config);
 
 		float power = speedCompensation * 1.0f * (smt * MovementSpeed);
-		return power * MovementDebuff;
+		
+		float calamity_speed = 1.0f;
+		if (GetCalamityPowerLevel(actor) > 1.5f) {
+			float calamity = GetCalamityPowerLevel(actor);
+			calamity_speed = 1.0f - std::max(0.0f, calamity * 0.075f);
+		}
+
+		return power * MovementDebuff * calamity_speed;
 	}
 
 	float GetMovementSlowdown(Actor* tiny) {
@@ -151,7 +158,7 @@ namespace GTS {
 
 				if (actor->IsPlayerRef() || IsTeammate(actor)) {
 					if (TinyCalamityActive(actor)) {
-						scale += 1.0f;
+						scale += 1.0f * (GetCalamityPowerLevelScaled(actor, 1.25f) * GetCalamityPowerLevelScaled(actor, 1.25f));
 					}
 					if (actor->AsActorState()->IsSprinting() && Runtime::HasPerk(actor, Runtime::PERK.GTSPerkSprintDamageMult1)) {
 						scale *= 1.30f;
@@ -171,7 +178,7 @@ namespace GTS {
 				float might = 1.0f + Potion_GetMightBonus(actor);
 
 				if (TinyCalamityActive(actor)) {
-					scale += 3.0f;
+					scale += 2.0f + GetCalamityPowerLevel(actor);
 				}
 				if (scale > 1.0f) {
 					return (power*scale*might) + 1.0f - power;
@@ -195,7 +202,7 @@ namespace GTS {
 
 			case ActorValue::kAttackDamageMult: {
 				if (TinyCalamityActive(actor)) {
-					scale += 2.0f;
+					scale += 1.0f * GetCalamityPowerLevelScaled(actor, 1.25f);
 				}
 				const float BonusDamageMult = Config::Balance.fStatBonusDamageMult;
 				const float DamageStorage = 1.0f + ((BonusDamageMult) * (scale - 1.0f));

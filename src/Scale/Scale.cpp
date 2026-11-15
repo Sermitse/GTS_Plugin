@@ -3,6 +3,7 @@
 namespace {
 	//constexpr float EPS = std::numeric_limits<float>::epsilon();
 	constexpr float EPS = 1e-5;
+	constexpr float min_absolute_scale = 0.0075f;
 }
 
 namespace GTS {
@@ -10,18 +11,12 @@ namespace GTS {
 	void set_target_scale(Actor& actor, float scale) {
 		auto actor_data = Persistent::GetActorData(&actor);
 		if (actor_data) {
-			float natural_scale = get_natural_scale(&actor, true);
-			float target_scale = actor_data->fTargetScale * natural_scale;
-			float max_scale = actor_data->fMaxScale;
+			const float natural_scale = std::max(get_natural_scale(&actor, true), min_absolute_scale);
 
-			scale /= natural_scale;
+			const float min_scale = min_absolute_scale / natural_scale;
+			const float max_scale = std::max(actor_data->fMaxScale / natural_scale, min_scale); 
 
-			if (scale < (max_scale + EPS)) { // If new value is below max: allow it
-				actor_data->fTargetScale = scale;
-			} 
-			else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are below max currently and we are trying to scale over max: make it max
-				actor_data->fTargetScale = max_scale / natural_scale;
-			} 
+			actor_data->fTargetScale = std::clamp(scale / natural_scale, min_scale, max_scale);
 		}
 	}
 
@@ -49,26 +44,22 @@ namespace GTS {
 	}
 
 	void mod_target_scale(Actor& actor, float amt) {
-       GTS_PROFILE_SCOPE("Scale: ModTargetScale");
-        auto actor_data = Persistent::GetActorData(&actor);
-        if (actor_data) {
-            float natural_scale = get_natural_scale(&actor, true);
-            float target_scale = actor_data->fTargetScale * natural_scale;
-			float max_scale = actor_data->fMaxScale;
+		GTS_PROFILE_SCOPE("Scale: ModTargetScale");
+		auto actor_data = Persistent::GetActorData(&actor);
+		if (actor_data) {
+			const float natural_scale = std::max(get_natural_scale(&actor, true), min_absolute_scale);
 
-            amt /= natural_scale;
+			const float current_scale = actor_data->fTargetScale * natural_scale;
+			float new_scale = current_scale + amt;
 
-            if (amt < -EPS) { // If negative change always: allow
-                actor_data->fTargetScale += amt;
-            } 
-        	else if (target_scale + amt < (max_scale + EPS)) { // If change results is below max: allow it
-                actor_data->fTargetScale += amt;
-            } 
-        	else if (target_scale < (max_scale - EPS) || target_scale > (max_scale + EPS)) { // If we are currently below max and we are scaling above max: make it max
-                set_target_scale(actor, max_scale);
-            } 
-        }
-    }
+			if (amt > 0.0f) {
+				new_scale = std::min(new_scale, actor_data->fMaxScale); // growth is capped by max
+			}
+			new_scale = std::max(new_scale, min_absolute_scale);         // never below the minimum
+
+			actor_data->fTargetScale = new_scale / natural_scale;
+		}
+	}
 
 	void mod_target_scale(Actor* actor, float amt) {
 		if (actor) {

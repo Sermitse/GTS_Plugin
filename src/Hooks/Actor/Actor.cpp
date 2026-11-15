@@ -7,6 +7,7 @@
 #include "Managers/FurnitureManager.hpp"
 #include "Managers/Damage/SizeHitEffects.hpp"
 
+using namespace GTS;
 
 namespace {
 	bool AllowMovementEdits(RE::Actor* a_actor) {
@@ -25,7 +26,7 @@ namespace {
 			return;
 		}
 
-		const float scale = GTS::get_visual_scale(a_actor);
+		const float scale = GTS::get_visual_scale(a_actor) * GetCalamityPowerLevel(a_actor);
 		const bool IsPlayer = a_actor->IsPlayerRef() && GTS::Config::General.bAlterPlayerMaxSpeed;
 
 		const float& START_CLAMP_SCALE = IsPlayer ? GTS::Config::General.fPlayerMaxSpeedMultClampStartAt : GTS::Config::General.fNPCMaxSpeedMultClampStartAt; // start lerp here
@@ -33,9 +34,14 @@ namespace {
 
 		// Interp factor: 0..1
 		float t = 0.0f;
+		const float calamityPower = GetCalamityPowerLevel(a_actor, 1.0);
 		if (scale >= START_CLAMP_SCALE) {
 			if (FULL_CLAMP_SCALE > START_CLAMP_SCALE) {
 				t = (scale - START_CLAMP_SCALE) / (FULL_CLAMP_SCALE - START_CLAMP_SCALE);
+
+				if (calamityPower > 1.1f) { // Enforce Slow Calamity walk when in strong calamity mode
+					t = 0.325f * calamityPower;
+				}
 			}
 			else {
 				t = 1.0f;

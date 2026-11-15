@@ -107,6 +107,9 @@ namespace RuntimeData {
 
 		Entry(GTSUtilTalkToActor,           GTSP, 0x5F7265); //TalkToActorWhenSneaking (Internal);
 
+		Entry(GTSPerkCalamity_UnlockWOP1,   GTSP, 0x9120D3); // Fearsome Calamity (90, Legendary Rank 1)
+		Entry(GTSPerkCalamity_UnlockWOP2,   GTSP, 0x9120D4); // Lethal Calamity (90, Legendary Rank 2)
+
 		//NPC Only Perks
 		Entry(GTSNPCPerkSkilled10,          GTSP, 0x907EBD); //GTSNPCSKilled10
 		Entry(GTSNPCPerkSkilled30,          GTSP, 0x907EBE); //GTSNPCSKilled30

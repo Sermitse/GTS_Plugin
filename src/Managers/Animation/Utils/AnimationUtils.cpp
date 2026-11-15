@@ -537,7 +537,7 @@ namespace GTS {
 			WasteMult -= 0.35f;
 		}
 		WasteMult *= Perk_GetCostReduction(giant);
-
+		double Start = Time::WorldTimeElapsed();
 		std::string name = std::format("StaminaDrain_{}_{}", TaskName, giant->formID);
 		if (enable) {
 			ActorHandle GiantHandle = giant->CreateRefHandle();
@@ -547,6 +547,10 @@ namespace GTS {
 				}
 				auto GiantRef = GiantHandle.get().get();
 				float stamina = GetAV(giant, ActorValue::kStamina);
+				double Finish = Time::WorldTimeElapsed();
+				if (Finish - Start >= 0.75f && !AnimationVars::General::IsGTSBusy(GiantRef)) { // Failsafe
+					return false;
+				}
 				if (stamina <= 1.0f) {
 					return false; // Abort if we don't have stamina so it won't drain it forever. Just to make sure.
 				}
@@ -1394,15 +1398,14 @@ namespace GTS {
 		}
 	}
 
-	void Task_TrackSizeTask(Actor* giant, Actor* tiny, std::string_view naming, bool check_ticks, float time_mult) { 
+	void Task_TrackSizeTask(Actor* giant, Actor* tiny, ShrinkToNothingSource source, bool check_ticks, float time_mult) { 
 		// A fail-safe task. The goal of it is to kill actor
 		// if half-life puts actor below shrink to nothing threshold, so we won't have < x0.01 actors
 		ActorHandle giantHandle = giant->CreateRefHandle();
 		ActorHandle tinyHandle = tiny->CreateRefHandle();
 		
 		float task_duration = 3.0f;
-		std::string name = std::format("{}_STN_Check_{}_{}", naming, giant->formID, tiny->formID);
-
+		std::string name = std::format("STN_Check_{}_{}",  giant->formID, tiny->formID);
 		TaskManager::RunFor(name, task_duration, [=](auto& progressData) {
 			if (!giantHandle) {
 				return false;
@@ -1413,10 +1416,7 @@ namespace GTS {
 			auto giantref = giantHandle.get().get();
 			auto tinyref = tinyHandle.get().get();
 
-			if (ShrinkToNothing(giantref, tinyref, check_ticks, time_mult)) {
-				if (naming == "Absorb") {
-					AbsorbShout_BuffCaster(giantref, tinyref);
-				}
+			if (ShrinkToNothing(giantref, tinyref, check_ticks, time_mult, 1.0f, false, false, source) >= ShrinkToNothingState::WasKilled) {
 				return false;
 			}
 

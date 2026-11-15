@@ -346,7 +346,7 @@ namespace GTS {
             info.isInsideRectangle = std::abs(info.outDistanceX) <= halfLength && std::abs(info.outDistanceY) <= halfWidth;
 
             if (info.isInsideRectangle) {
-                info.inPercent_Directional = 1.0f - std::abs(info.outDistanceX) / halfLength;
+                info.inPercent_Forward = 1.0f - std::abs(info.outDistanceX) / halfLength;
                 info.inPercent_Side        = 1.0f - std::abs(info.outDistanceY) / halfWidth;
             } 
         }

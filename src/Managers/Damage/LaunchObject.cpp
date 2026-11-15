@@ -90,7 +90,7 @@ namespace GTS {
 
 		if (TinyCalamityActive(giant)) {
 			smt = true;
-			power *= 1.25f;
+			power *= 1.25f * GetCalamityPowerLevelScaled(giant, 0.25f);
 		}
 
 		if (giantScale < 2.5f) {  // slowly gain power of pushing

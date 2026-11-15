@@ -1,3 +1,4 @@
+#include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Magic/Effects/Common.hpp"
 
 #include "Config/Config.hpp"
@@ -214,7 +215,7 @@ namespace GTS {
 		float xp = 0.20f + (size * 0.02f);
 		if (tiny->IsDead() && check) {
 			//Cprint("Crush Tiny is ded");
-			xp *= 0.20f;
+			xp *= 0.2f;
 		}
 		ModSizeExperience(giant, xp); // Adjust Size Matter skill
 	}
@@ -262,6 +263,11 @@ namespace GTS {
 		efficiency /= Gigantism_Target; // resistance from Aspect Of Giantess (on Tiny)
 		efficiency /= Scale_Resistance;
 		efficiency *= Shrink_GetPower(caster, target);// take bounding box of actor into account
+
+		if (auto transient = Transient::GetActorData(target)) {
+			float weakness = 1.0f + transient->ShrinkWeakness;
+			efficiency *= weakness;
+		}
 
 		//log::info("efficiency between {} and {} is {}", caster->GetDisplayFullName(), target->GetDisplayFullName(), efficiency);
 
@@ -347,24 +353,29 @@ namespace GTS {
 		float shrink_amount = (amount*0.22f);
 		float growth_amount = (amount_shrink*0.33f*effeciency) * SizeSteal_GetPower(to, from);
 
-		ModSizeExperience(to, 0.14f * scale_factor * visual_scale * SizeSteal_GetPower(to, from));
+		float SpellXpMult = 1.0f;
+		float SkillXpMult = 1.0f;
+
+		if (from->IsDead()) {
+			SkillXpMult = 0.20f;
+			SpellXpMult = 0.025f;
+		}
+
+		if (TinyCalamityActive(from)) {
+			SkillXpMult = 0.0f;
+		}
+
+		ModSizeExperience(to, 0.14f * scale_factor * visual_scale * SizeSteal_GetPower(to, from) * SkillXpMult);
 
 		update_target_scale(from, -shrink_amount, SizeEffectType::kShrink);
 		update_target_scale(to, growth_amount, SizeEffectType::kShrink); //kShrink to buff size steal with On The Edge perk
 
-		float XpMult = 1.0f;
-
-		if (from->IsDead()) {
-			XpMult = 0.25f;
-		}
-
 		if (source == ShrinkSource::Hugs) { // For hugs: quest: shrink by 2 and 5 meters worth of size in total (stage 1 / 2) 
 			AdvanceQuestProgression(to, nullptr, QuestStage::HugSteal, shrink_amount, false); // Stage 1: steal 2 meters worth of size (hugs)
 			AdvanceQuestProgression(to, nullptr, QuestStage::HugSpellSteal, shrink_amount, false); // Stage 2: steal 5 meters worth of size (spells/hugs)
-		} 
-		else { // For spell shrink part of the quest
+		}  else { // For spell shrink part of the quest
 			if (source != ShrinkSource::Enchantment) {
-				AdvanceSkill(to, ActorValue::kAlteration, shrink_amount, XpMult); // Gain vanilla Alteration xp
+				AdvanceSkill(to, ActorValue::kAlteration, shrink_amount, SpellXpMult); // Gain vanilla Alteration xp
 			}
 			AdvanceQuestProgression(to, nullptr, QuestStage::HugSpellSteal, shrink_amount, false);
 		}
@@ -438,13 +449,13 @@ namespace GTS {
 		return true;
 	}
 
-	bool ShrinkToNothing(Actor* caster, Actor* target, bool check_ticks, float time_mult, float mass_mult,
-		bool Calamity_PlayLaugh, bool ShrinkOutburst_Absorb) {
+	ShrinkToNothingState ShrinkToNothing(Actor* caster, Actor* target, bool check_ticks, float time_mult, float mass_mult,
+		bool Calamity_PlayLaugh, bool ShrinkOutburst_Absorb, ShrinkToNothingSource source) {
 		if (!caster) {
-			return false;
+			return ShrinkToNothingState::TooBig;
 		}
 		if (!target) {
-			return false;
+			return ShrinkToNothingState::TooBig;
 		}
 
 		float bbscale = GetSizeFromBoundingBox(target);
@@ -455,11 +466,11 @@ namespace GTS {
 			set_target_scale(target, SHRINK_TO_NOTHING_SCALE / bbscale);
 
 			if (!ShrinkToNothingManager::CanShrink(caster, target)) {
-				return false;
+				return ShrinkToNothingState::TooBig;
 			}
 
 			if (check_ticks && BlockShrinkToNothing(caster, target, time_mult)) {
-				return true;
+				return ShrinkToNothingState::TickProtection; // We want to prevent further shrinking in functions that do if (stn) else (stealsize)
 			}
 
 			if (!target->IsDead()) {
@@ -473,6 +484,7 @@ namespace GTS {
 				AdvanceQuestProgression(caster, target, QuestStage::ShrinkToNothing, 0.25f, false);
 			}
 
+			ShrinkToNothingEvent(caster, target, source); // May be a good idea to move it to global events later
 			AdjustMassLimit(0.0060f * mass_mult, caster);
 
 			AdjustSizeReserve(caster, target_scale * bbscale/25);
@@ -481,9 +493,9 @@ namespace GTS {
 
 			ApplyKillEmotions(caster, Calamity_PlayLaugh, ShrinkOutburst_Absorb);
 
-			return true;
+			return ShrinkToNothingState::WasKilled;
 		}
-		return false;
+		return ShrinkToNothingState::TooBig;
 	}
 
 	void CrushBonuses(Actor* caster, Actor* target) {
@@ -500,6 +512,21 @@ namespace GTS {
 		}
 		if (Runtime::HasPerk(caster, Runtime::PERK.GTSPerkEnlargeExpert)) {
 			power *= 1.15f;
+		}
+	}
+
+	void ShrinkToNothingEvent(Actor* caster, Actor* target, ShrinkToNothingSource source) {
+		switch (source) {
+			case ShrinkToNothingSource::Default: {
+				break;
+			}
+			case ShrinkToNothingSource::ShoutAbsorb: {
+				if (auto transient = Transient::GetActorData(target)) {
+					transient->ShrinkWeakness = 0.0f;
+				}
+				AbsorbShout_BuffCaster(caster, target);
+				break;
+			}
 		}
 	}
 }

@@ -35,6 +35,21 @@ namespace Calamity {
         EnterStage(_cam, _state, TinyPOVState::LookAtGiantNode);
     }
 
+    void FinishKillmove() {
+        _cam.cameraPos = _cam.startPos;
+        _cam.cameraRot = _cam.startRot;
+
+        _cam.impactActive = false;
+        _cam.impactTimer = 0.0f;
+        Time::SGTM(1.0f);
+
+        _victim = nullptr;
+        _giant = nullptr;
+        _giantNode = nullptr;
+        _cam.active = false;
+        _state = TinyPOVState::None;
+    }
+
     // ---------------------------------------------------------------------
     // stage updates
     // ---------------------------------------------------------------------
@@ -117,15 +132,7 @@ namespace Calamity {
         Time::SGTM(_settings.SlowMoTarget + (1.0f - _settings.SlowMoTarget) * t);
 
         if (t >= 1.0f) {
-            _cam.cameraPos = _cam.startPos;
-            _cam.cameraRot = _cam.startRot;
-            Time::SGTM(1.0f);
-
-            _victim = nullptr;
-            _giant = nullptr;
-            _giantNode = nullptr;
-            _cam.active = false;
-            _state = TinyPOVState::None;
+            FinishKillmove();
         }
     }
 }
@@ -176,6 +183,8 @@ namespace GTS {
 
         float dt = Time::WorldTimeDelta() * GetAnimationSlowdown(PlayerCharacter::GetSingleton());
 
+        ApplyImpactSlowMo(_cam, dt, _settings.SlowMoTarget, _settings.ImpactSlowMoExtra, _settings.ImpactSlowMoInTime, _settings.ImpactSlowMoTime);
+
         switch (_state) {
             case TinyPOVState::DiveToEye:       UpdateDiveToEye(dt);       break;
             case TinyPOVState::LookUpAtGiant:   UpdateLookUpAtGiant(dt);   break;
@@ -184,8 +193,6 @@ namespace GTS {
             case TinyPOVState::ReturnCamera:    UpdateReturnCamera(dt);    break;
             default: break;
         }
-
-        ApplyImpactSlowMo(_cam, dt, _settings.SlowMoTarget, _settings.ImpactSlowMoExtra, _settings.ImpactSlowMoInTime, _settings.ImpactSlowMoTime);
     }
 
     bool UpdateCalamityKillMove() {
@@ -194,11 +201,14 @@ namespace GTS {
         }
         UpdateFakeCalamityKillmove();
 
+        if (_state == TinyPOVState::None) {
+            return false;
+        }
+
         RE::NiPoint3 rayStart = GiantNodeOrHeadPos(_giantNode, _giant, _cam.cameraPos);
         if (!DriveCameraWithCollision(_cam, rayStart)) {
             return false;
         }
-        
         return true;
     }
 

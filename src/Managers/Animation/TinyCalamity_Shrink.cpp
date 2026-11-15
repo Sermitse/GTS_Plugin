@@ -1,7 +1,11 @@
 #include "Managers/Animation/Utils/CooldownManager.hpp"
 #include "Managers/Animation/TinyCalamity_Shrink.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
+#include "Managers/Audio/GoreAudio.hpp"
+#include "Managers/CrushManager.hpp"
+#include "Utils/DeathReport.hpp"
 #include "Managers/Rumble.hpp"
+
 
 using namespace GTS;
 
@@ -86,7 +90,9 @@ namespace {
 		TaskManager::Cancel(name);
 
 		Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_RuneReady, giant, 1.0f, "NPC R Hand [RHnd]");
-
+		if (GetCalamityPowerLevel(giant) > 1.5f) {
+			SpawnParticle(&data.giant, 4.60f, "GTS/Effects/Footstep.nif", NiMatrix3(), giant->GetPosition(), 7.0f * GetCalamityPowerLevel(giant), 7, nullptr);
+		}
 		auto node = find_node(&data.giant, "ShrinkRune-Obj", false);
         if (node) {
             node->local.scale = 0.60f;
@@ -114,9 +120,23 @@ namespace {
 
 				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_SpawnRune, victim, 1.0f, "NPC Root [Root]");
 				Runtime::PlaySoundAtNode(Runtime::SNDR.GTSSoundTinyCalamity_Absorb, victim, 1.0f, "NPC Root [Root]");
+
+				float SizeDiff = std::clamp(get_scale_difference(&data.giant, victim, SizeType::VisualScale, false, false), 0.5f, 2.0f);
+				float Calamity = GetCalamityPowerLevel(&data.giant);
+				bool CanOverpower = (GetAV(&data.giant, ActorValue::kHealth) * 1.75f * SizeDiff > GetAV(victim, ActorValue::kHealth)) 
+									|| RandomFloat(0.15f, 1.0f) >= GetHealthPercentage(victim);
+				bool CalamityCanTrigger = RandomFloat(0.0f, 1.0f) <= Calamity - 1.75f;
+
+				if (Calamity > 1.5f && CalamityCanTrigger && CanOverpower) {
+					PlayCrushSoundOnTiny(&data.giant, victim, false, get_corrected_scale(victim));
+					SpawnParticle(&data.giant, 4.60f, "GTS/Effects/Footstep.nif", NiMatrix3(), victim->GetPosition(), 12.0f * Calamity, 7, nullptr);
+					ReportDeath(&data.giant, victim, DamageSource::Overkill);
+					CrushManager::Crush(&data.giant, victim);
+				}
 			}
 		}
 	}
+	
     
     void GTS_TC_RuneEnd(AnimationEventData& data) {
 		auto victims = Animation_TinyCalamity::GetShrinkActors(&data.giant);

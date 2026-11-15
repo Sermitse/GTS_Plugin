@@ -75,7 +75,7 @@ namespace GTS {
 				gain_value *= 0.20f;
 			}
 	
-			if (ShrinkToNothing(caster, target, true, 1.0f)) { // STN when size difference is met and when time ticks allow to
+			if (ShrinkToNothing(caster, target, true, 1.0f) >= ShrinkToNothingState::TickProtection) { // STN when size difference is met and when time ticks allow to
 				
 			} else {
 				if (get_target_scale(target) >= SHRINK_TO_NOTHING_SCALE / GetSizeFromBoundingBox(target)) {

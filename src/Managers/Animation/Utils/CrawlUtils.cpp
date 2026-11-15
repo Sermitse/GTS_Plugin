@@ -43,7 +43,7 @@ namespace GTS {
 			GTS_PROFILE_SCOPE("CrawlUtils: DoCrawlingSounds");
 			auto player = PlayerCharacter::GetSingleton();
 			if (TinyCalamityActive(actor)) {
-				scale *= 1.85f;
+				scale *= 1.85f * GetCalamityPowerLevelScaled(actor, 2.25f);
 			}
 			const bool LegacySounds = Config::Audio.bUseOldSounds; // Determine if we should play old pre 2.00 update sounds
 			if (scale > 1.2f && !actor->AsActorState()->IsSwimming()) {

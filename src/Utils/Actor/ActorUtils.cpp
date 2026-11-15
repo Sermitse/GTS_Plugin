@@ -370,7 +370,7 @@ namespace GTS {
 
 	void ApplyManualHavokImpulse(Actor* a_target, float a_forceX, float a_forceY, float a_forceZ, float a_multiplier) {
 		// For this function to work, actor must be pushed away first. 
-		// It may be a good idea to wait about 0.05 sec before callind it after actor has been pushed, else it may not work
+		// It may be a good idea to wait about 0.05 sec before calling it after actor has been pushed, else it may not work
 		hkVector4 impulse = hkVector4(a_forceX * a_multiplier, a_forceY * a_multiplier, a_forceZ * a_multiplier, 1.0f);
 
 		if (bhkCollisionObject* collision = a_target->Get3D(false)->GetCollisionObject()) {
@@ -677,6 +677,48 @@ namespace GTS {
 
 			if ((endTime - startTime) > 0.08) {
 				ApplyManualHavokImpulse(tiny, direction.x, direction.y, direction.z, a_power);
+				return false;
+			}
+			return true;
+		});
+	}
+
+	void PushOutwards(Actor* a_source, Actor* a_target, float a_power, float a_lift) {
+		if (!a_source || !a_target) {
+			return;
+		}
+
+		RE::NiPoint3 direction = a_target->GetPosition() - a_source->GetPosition();
+		direction.z = 0.0f; 
+
+		float length = direction.Length();
+		if (length < 1e-3f) {
+			if (auto root = a_source->GetCurrent3D()) {
+				direction = root->world.rotate * RE::NiPoint3{ 0.f, 1.f, 0.f };
+				direction.z = 0.0f;
+				length = direction.Length();
+			}
+			if (length < 1e-3f) {
+				direction = { 0.f, 1.f, 0.f };
+				length = 1.0f;
+			}
+		}
+		direction /= length; 
+		direction.z = a_lift * get_visual_scale(a_target); 
+
+		double startTime = Time::WorldTimeElapsed();
+		ActorHandle tinyHandle = a_target->CreateRefHandle();
+		std::string taskname = std::format("PushAway_{}", a_target->formID);
+
+		PushActorAway(a_source, a_target, 1.0f);
+
+		TaskManager::Run(taskname, [=](auto& update) {
+			Actor* tiny = tinyHandle.get().get();
+			if (!tiny) {
+				return false;
+			}
+			if ((Time::WorldTimeElapsed() - startTime) > 0.08) {
+				ApplyManualHavokImpulse(tiny, direction.x, direction.y, direction.z, a_power * 75.5f);
 				return false;
 			}
 			return true;

@@ -167,6 +167,11 @@ namespace GTS {
 
 	void CrushCheck(Actor* giant, Actor* tiny, float size_difference, float crush_threshold, DamageSource Cause) {
 		bool CanBeCrushed = (GetAV(tiny, ActorValue::kHealth) <= 1.0f || tiny->IsDead());
+
+		if (GetCalamityPowerLevel(giant) > 2.0f) {
+			crush_threshold /= GetCalamityPowerLevelScaled(giant, 2.325f);
+		}
+
 		if (CanBeCrushed) {
 			if (size_difference > Action_Crush * crush_threshold && CrushManager::CanCrush(giant, tiny)) {
 				ModSizeExperience_Crush(giant, tiny, true);
@@ -187,7 +192,8 @@ namespace GTS {
 				if (!Config::General.bLessGore) {
 					auto node = find_node(giant, GetDeathNodeName(Cause));
 					if (!IsMechanical(tiny)) {
-						PlayCrushSound(giant, node, StrongGore(Cause), get_corrected_scale(tiny)); // Run Crush Sound task that will determine which exact type of crushing audio to play
+						PlayCrushSoundOnTiny(giant, tiny, StrongGore(Cause), get_corrected_scale(tiny)); 
+						 // Run Crush Sound task that will determine which exact type of crushing audio to play
 					} 
 				}
 
@@ -200,10 +206,10 @@ namespace GTS {
 	}
 
 	float CalculateSizeDamage(Actor* giant, Actor* tiny, DamageSource Cause, float damage) {
-		float size_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, false, false);
+		float size_difference = get_scale_difference(giant, tiny, SizeType::VisualScale, true, false);
 		auto& sizemanager = SizeManager::GetSingleton();
 		bool SMT = TinyCalamityActive(giant);
-		float size_threshold = SMT ? 0.9f : 1.25f;
+		float size_threshold = SMT ? 0.9f / GetCalamityPowerLevelScaled(giant, 0.5f) : 1.25f;
 
 		if (size_difference > size_threshold) {
 			if (Allow_Damage(giant, tiny, Cause, size_difference)) {
@@ -235,7 +241,7 @@ namespace GTS {
 				if (giant->IsSneaking()) {
 					damage_result *= 0.85f;
 				}
-				damage_result *= Might;
+				damage_result *= Might * GetCalamityPowerLevel(giant);
 				//logger::info("Total Damage: {}", damage_result);
 				return damage_result;
 			}

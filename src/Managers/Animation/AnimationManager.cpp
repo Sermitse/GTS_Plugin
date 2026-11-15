@@ -10,6 +10,7 @@
 #include "Managers/Animation/Stomp_Under_Butt.hpp"
 #include "Managers/Animation/AnimationManager.hpp"
 #include "Managers/Animation/FurnitureAnimations.hpp"
+#include "Managers/Animation/KillMoveStarters.hpp"
 
 #include "Config/Config.hpp"
 
@@ -173,6 +174,8 @@ namespace GTS {
 		Grab::RegisterTriggers();
 
 		FurnitureAnimations::RegisterEvents();
+
+		AnimationKillMoveStarters::RegisterEvents();
 	}
 
 	void AnimationManager::Update() {

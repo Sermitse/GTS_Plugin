@@ -29,6 +29,7 @@
 #include "Hooks/Papyrus/VM.hpp"
 #include "Hooks/Projectile/Projectiles.hpp"
 #include "Hooks/Sound/BGSImpactManager.hpp"
+#include "Hooks/World/WorldMapActor.hpp"
 #include "Hooks/UI/Console.hpp"
 
 namespace Hooks {
@@ -82,6 +83,8 @@ namespace Hooks {
 		//Sound
 		Hook_BGSImpactManager::Install();
 
+		//Display huge actors on world map
+		Hook_WorldSpace::Install();
 		//UI
 		Hook_Console::Install();
 

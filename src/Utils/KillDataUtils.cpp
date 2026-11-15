@@ -5,7 +5,7 @@
 namespace GTS {
 
 
-    void RecordKill(Actor* a_giant, Actor* a_victim, DeathType a_type) {
+    void RecordKill(Actor* a_giant, Actor* a_victim, DeathType a_type, std::string custom_death) {
 
 		if (!a_giant) {
 			return;
@@ -20,7 +20,7 @@ namespace GTS {
 
 			if (KillData) {
 
-				KillFeedWindow::AddKillEntry(a_giant, a_victim, a_type);
+				KillFeedWindow::AddKillEntry(a_giant, a_victim, a_type, custom_death);
 
 				KillData->iTotalKills += 1; // Always increment total kills
 				switch (a_type) {

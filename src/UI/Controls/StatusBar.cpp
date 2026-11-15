@@ -32,7 +32,7 @@ namespace {
 
 	PSString TAspectOfGTS = "This is the strength of Aspect of the Giantess enchantment\n"
 		"Aspect Of Giantess affects:\n"
-		"- Maximum Size, genral shrink power and the strength of size steal spells\n"
+		"- Maximum Size, general shrink power and the strength of size steal spells\n"
 		"- Size-Related damage, mimimum shrink threshold from quest/balance mode\n"
 		"- Growth rate and growth chance from random growth\n"
 		"- The stregth of the shrink outburst power and the amount of growth gained on hit\n"

@@ -155,7 +155,7 @@ namespace GTS {
 
 		ChanceToScare(caster, target, 5.0f, 1200, true);
 
-		if (ShrinkToNothing(caster, target, true, this->time_mult)) { // STN when size difference is met and when time ticks allow to
+		if (ShrinkToNothing(caster, target, true, this->time_mult) >= ShrinkToNothingState::TickProtection) { // STN when size difference is met and when time ticks allow to
 
 		} 
 		else {
@@ -178,7 +178,7 @@ namespace GTS {
 		}
 
 		if (!IsEssential(caster, target)) {
-			Task_TrackSizeTask(caster, target, "Spell", true, this->time_mult);
+			Task_TrackSizeTask(caster, target, ShrinkToNothingSource::Default, true, this->time_mult);
 			ResetMovementSlowdown(target);
 		}
 	}

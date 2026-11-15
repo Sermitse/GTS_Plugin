@@ -57,8 +57,11 @@ namespace GTS {
         const bool isEnemyAlive = !enemy->IsDead();
 
         const bool canStartKillMove = isEnabled && isEnemyAlive && isRandomTrue && isEnemyLowHealth;
+        const bool isFirstPerson = IsFirstPerson() || HasFirstPersonBody(); 
+        // ^ Looks weird in first person because it captures FP head pos as a start point
+        // So we disallow that
         
-        return canStartKillMove;
+        return !isFirstPerson && canStartKillMove;
     }
 
     float ApplyHeelOffset(bool foot) {

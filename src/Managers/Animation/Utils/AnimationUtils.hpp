@@ -63,7 +63,7 @@ namespace GTS {
 	NiPoint3 GetHeartPosition(Actor* giant, Actor* tiny, bool hugs);
 
 	void AbsorbShout_BuffCaster(Actor* giantref, Actor* tinyref);
-	void Task_TrackSizeTask(Actor* giant, Actor* tiny, std::string_view naming, bool check_ticks, float time_mult);
+	void Task_TrackSizeTask(Actor* giant, Actor* tiny, ShrinkToNothingSource source, bool check_ticks, float time_mult);
 	void Task_FacialEmotionTask_OpenMouth(Actor* giant, float duration, std::string_view naming, float duration_add = 0.0f, float speed_mult = 1.0f);
 	void Task_FacialEmotionTask_Moan(Actor* giant, float duration, std::string_view naming, float duration_add = 0.0f);
 	void Task_FacialEmotionTask_SlightSmile(Actor* giant, float duration, std::string_view naming, float duration_add);

@@ -92,6 +92,20 @@ namespace {
             if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkTinyCalamity)) {
                 AddCalamityPerk();
             }
+
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkCalamity_UnlockWOP1)) {
+                for (auto word: {Runtime::WOOP.GTSWordAb2, Runtime::WOOP.GTSWordCatastrophe2}) {
+                    Runtime::TeachWord(word);
+                    Runtime::UnlockWord(word);
+                }
+            }
+
+            if (evt.perk == Runtime::GetPerk(Runtime::PERK.GTSPerkCalamity_UnlockWOP2)) {
+                for (auto word: {Runtime::WOOP.GTSWordAb3, Runtime::WOOP.GTSWordCatastrophe3}) {
+                    Runtime::TeachWord(word);
+                    Runtime::UnlockWord(word);
+                }
+            }
         }
     }
 
