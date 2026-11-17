@@ -295,7 +295,6 @@ namespace Hooks {
 		
 		stl::write_call<ApplyMovementDelta>(RelocationIDEx(36359, 37350, 37350, NULL), OffsetEx(0xF0, 0xFB, 0xFB, NULL));
 
-		
 		//Based on PO3's killfeed mod.
 		//The game's own deathevent dispatcher was unreliable.
 		stl::write_call<SendHitEvent_AE>(RelocationIDEx(NULL, 38586, 38586, NULL), OffsetEx(NULL, 0xFA, 0xFA, NULL));
@@ -303,7 +302,7 @@ namespace Hooks {
 		//First version specific hook
 		//Func is either inlined in SE or hitevents are fired differently.
 		//In any case the SE version uses the papyrus death event instead.
-		stl::write_call<SendHitEvent_SE>(RelocationIDEx(37633, NULL, NULL, NULL), OffsetEx(0x16A, NULL, NULL, NULL));
+		stl::write_call<SendHitEvent_SE>(RelocationIDEx(37633), OffsetEx(0x16A), When(Epoch::k1_5));
 
 	}
 

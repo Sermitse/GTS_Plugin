@@ -33,9 +33,7 @@ namespace Hooks {
 			return a_actor->Get3D(false);
 		}
 
-		//Other plugins hook the same call and add their own nodes (BingusUtils adds the player too). A node
-		//accumulated twice in one frame links its render passes into a ring, and BSBatchRenderer then never
-		//finishes the frame. So a node that the list already reaches, itself or through a parent, is skipped.
+		//Sanity check incase another hook does the same thing and ends up causing a deadlock.
 		bool IsCovered(const SceneList& a_list, const RE::NiAVObject* a_node) {
 			for (const RE::NiAVObject* node = a_node; node; node = node->parent) {
 				for (const RE::NiPointer<RE::NiAVObject>& entry : a_list) {
