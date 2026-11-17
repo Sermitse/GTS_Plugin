@@ -10,12 +10,14 @@
 using namespace GTS;
 
 namespace {
+
 	bool AllowMovementEdits(RE::Actor* a_actor) {
 		if (a_actor) {
 			return !a_actor->IsPlayerRef() || GTS::Config::General.bAlterPlayerMaxSpeed;
 		}
 		return false; 
 	}
+
 	void AdjustData(RE::Actor* a_actor, RE::Movement::TypeData* a_DataToEdit) {
 		if (!a_actor || !a_DataToEdit) {
 			return;
@@ -70,11 +72,11 @@ namespace {
 
 namespace Hooks {
 
+	template<int ID>
 	struct HandleHealthDamage {
 
-		static inline const std::size_t funcIndex = REL::Relocate(0x104, 0x104, 0x106);
+		static inline const std::size_t funcIndex = 0x104;
 
-		template<int ID>
 		static void thunk(RE::Actor* a_this, RE::Actor* a_attacker, float a_damage) {
 
 			{
@@ -93,18 +95,18 @@ namespace Hooks {
 				}
 			}
 
-			func<ID>(a_this, a_attacker, a_damage);  // Just reports the value, can't override it.
+			func(a_this, a_attacker, a_damage);  // Just reports the value, can't override it.
 		}
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		
+		FUNCTYPE_VFUNC func;
 	};
 
+	template<int ID>
 	struct Move {
 
-		static inline const std::size_t funcIndex = REL::Relocate(0x0C8, 0x0C8, 0x0CA);
+		static inline const std::size_t funcIndex = 0x0C8;
 
 		// Override Movement Speed
-		template<int ID>
 		static bhkCharacterController* thunk(RE::Actor* a_this, float a_arg2, const RE::NiPoint3& a_position) {
 
 			float bonus = 1.0f;
@@ -118,20 +120,21 @@ namespace Hooks {
 				}
 			}
 
-			return func<ID>(a_this, a_arg2, a_position * bonus);
+			return func(a_this, a_arg2, a_position * bonus);
 
 		}
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		
+		FUNCTYPE_VFUNC func;
 	};
 
+	template<int ID>
 	struct Update {
 
 		static constexpr std::size_t funcIndex = 0xAD;
-		template<int ID>
+
 		static void thunk(RE::Actor* a_this, float a_deltaTime) {
 
-			func<ID>(a_this, a_deltaTime);
+			func(a_this, a_deltaTime);
 
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Update", ID);
@@ -139,18 +142,18 @@ namespace Hooks {
 			}
 
 		}
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+
+		FUNCTYPE_VFUNC func;
 	};
 
+	template<int ID>
 	struct Load3D {
 
 		static constexpr std::size_t funcIndex = 0x6A;
 
-		template<int ID>
 		static NiAVObject* thunk(Actor* actor, bool a_backgroundLoading) {
 
-			NiAVObject* Res = func<ID>(actor, a_backgroundLoading);
+			NiAVObject* Res = func(actor, a_backgroundLoading);
 
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Actor::Load3D", ID);
@@ -170,8 +173,7 @@ namespace Hooks {
 			return Res;
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 	};
 
 	
@@ -286,22 +288,22 @@ namespace Hooks {
 		logger::info("Installing AIProcess MovementSpeed Clamp Detours...");
 
 		//Movementspeed Clamp hooks
-		stl::write_detour<MovementTypeData_Copy_1>(REL::RelocationID(38543, 39554, NULL));
-		stl::write_detour<MovementTypeData_Copy_2>(REL::RelocationID(38576, 39601, NULL));
+		stl::write_detour<MovementTypeData_Copy_1>(RelocationIDEx(38543, 39554, 39554, NULL));
+		stl::write_detour<MovementTypeData_Copy_2>(RelocationIDEx(38576, 39601, 39601, NULL));
 
 		logger::info("Installing MovementDelta Furniture Pause Hook...");
 		
-		stl::write_call<ApplyMovementDelta>(REL::RelocationID(36359, 37350, NULL), REL::VariantOffset(0xF0, 0xFB, NULL));
+		stl::write_call<ApplyMovementDelta>(RelocationIDEx(36359, 37350, 37350, NULL), OffsetEx(0xF0, 0xFB, 0xFB, NULL));
 
 		
 		//Based on PO3's killfeed mod.
 		//The game's own deathevent dispatcher was unreliable.
-		stl::write_call<SendHitEvent_AE>(REL::RelocationID(NULL, 38586, NULL), REL::VariantOffset(NULL, 0xFA, NULL));
+		stl::write_call<SendHitEvent_AE>(RelocationIDEx(NULL, 38586, 38586, NULL), OffsetEx(NULL, 0xFA, 0xFA, NULL));
 
 		//First version specific hook
 		//Func is either inlined in SE or hitevents are fired differently.
 		//In any case the SE version uses the papyrus death event instead.
-		stl::write_call<SendHitEvent_SE>(REL::RelocationID(37633, NULL, NULL), REL::VariantOffset(0x16A, NULL, NULL));
+		stl::write_call<SendHitEvent_SE>(RelocationIDEx(37633, NULL, NULL, NULL), OffsetEx(0x16A, NULL, NULL, NULL));
 
 	}
 

@@ -3,14 +3,14 @@
 
 namespace Hooks {
 
+	template<int ID>
 	struct AddPerk {
 
-		static inline const std::size_t funcIndex = REL::Relocate(0x0FB, 0x0FB, 0x0FD);
-
-		template<int ID>
+		static inline const std::size_t funcIndex = 0x0FB;
+		
 		static void thunk(RE::Actor* a_this, RE::BGSPerk* a_perk, std::uint32_t a_rank) {
 
-			func<ID>(a_this, a_perk, a_rank);
+			func(a_this, a_perk, a_rank);
 
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorPerk::AddPerk", ID);
@@ -25,17 +25,14 @@ namespace Hooks {
 			}
 
 		}
-
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
-
+		FUNCTYPE_VFUNC func;
 	};
 
+	template<int ID>
 	struct RemovePerk {
 
-		static inline const std::size_t funcIndex = REL::Relocate(0x0FC, 0x0FC, 0x0FE);
+		static inline const std::size_t funcIndex = 0x0FC;
 
-		template<int ID>
 		static void thunk(RE::Actor* a_this, RE::BGSPerk* a_perk) {
 
 			{
@@ -49,11 +46,10 @@ namespace Hooks {
 				EventDispatcher::DoRemovePerk(Event);
 			}
 
-			func<ID>(a_this, a_perk);
+			func(a_this, a_perk);
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 	};
 
 

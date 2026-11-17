@@ -50,8 +50,7 @@ namespace Hooks {
 
 			static void thunk(void* a_jobList) {
 				func(a_jobList);
-
-				static REL::Relocation<SceneList**> jobLists{ REL::RelocationID(528072, 415017) };
+				static REL::Relocation<SceneList**> jobLists{ RelocationIDEx(528072, 415017, 415017, NULL).address() };
 				if (SceneList* first = *jobLists) {
 					AddActors(*first);
 				}
@@ -62,6 +61,6 @@ namespace Hooks {
 	}
 
 	void Hook_WorldSpace::Install() {
-		Hooks::stl::write_call<SceneListsBuilt>(REL::RelocationID(35560, 36559), REL::VariantOffset(0x17E, 0x17E, 0));
+		Hooks::stl::write_call<SceneListsBuilt>(RelocationIDEx(35560, 36559, 36559, NULL), OffsetEx(0x17E, 0x17E, 0x17E, NULL));
 	}
 }

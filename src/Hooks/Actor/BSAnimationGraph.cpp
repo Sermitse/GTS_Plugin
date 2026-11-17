@@ -4,11 +4,11 @@
 
 namespace Hooks {
 
+	template<int ID>
 	struct BSAnimationGraphEventHandle {
 
 		static constexpr std::size_t funcIndex = 0x01;
 
-		template<int ID>
 		static void thunk(RE::BSTEventSink<BSAnimationGraphEvent>* a_this, RE::BSAnimationGraphEvent& a_event, RE::BSTEventSource<BSAnimationGraphEvent>* a_src) {
 
 			{
@@ -23,12 +23,11 @@ namespace Hooks {
 
 			}
 
-			return func<ID>(a_this, a_event, a_src);
+			return func(a_this, a_event, a_src);
 
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 
 	};
 

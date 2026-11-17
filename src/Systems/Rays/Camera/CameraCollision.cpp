@@ -65,7 +65,7 @@ namespace GTS::CameraCol {
 			//cameraCaster truncates end in place to the actual impact point on hit, that truncated
 			//value is what we read back below as the hit position, not the original ray endpoint.
 			typedef bool(__fastcall* RayCastFunType)(decltype(RE::PlayerCamera::unk120), RE::bhkWorld*, glm::vec4&, glm::vec4&, hkpRootCdPoint*, RE::Character**, float);
-			static auto cameraCaster = REL::Relocation<RayCastFunType>(REL::RelocationID(32270, 33007, NULL));
+			static auto cameraCaster = REL::Relocation<RayCastFunType>(Hooks::RelocationIDEx(32270, 33007, 33007, NULL).address());
 			res.hit = cameraCaster(cam->unk120, physicsWorld, start, end, &res.cdPoint, &res.hitCharacter, traceHullSize);
 		}
 

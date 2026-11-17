@@ -4,7 +4,8 @@
 namespace {
 
 	using namespace GTS;
-        
+    
+
 	int ptrOffset = REL::Module::get().version().compare(SKSE::RUNTIME_SSE_1_6_629) == std::strong_ordering::less ? -0xB8 : -0xC0;
 
 	void Headtracking_ManageSpineToggle(Actor* actor) {
@@ -125,9 +126,9 @@ namespace Hooks {
 
 		logger::info("Installing HeadTrackingGraph Hooks...");
 
-		stl::write_detour<SetGraphVariableBool>(REL::RelocationID(32141, 32885, NULL));
-		stl::write_call<AddMovementFlagsSneak>(REL::RelocationID(36926, 37951, NULL), REL::VariantOffset(0xE4, 0xA0, NULL));
-		stl::write_call<RemoveMovementFlagsSneak>(REL::RelocationID(36926, 37951, NULL), REL::VariantOffset(0xEB, 0xB2, NULL));
+		stl::write_detour<SetGraphVariableBool>(RelocationIDEx(32141, 32885, 32885, NULL));
+		stl::write_call<AddMovementFlagsSneak>(RelocationIDEx(36926, 37951, 37951, NULL), OffsetEx(0xE4, 0xA0, 0xA0, NULL));
+		stl::write_call<RemoveMovementFlagsSneak>(RelocationIDEx(36926, 37951, 37951, NULL), OffsetEx(0xEB, 0xB2, 0xB2, NULL));
 	}
 
 }

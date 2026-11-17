@@ -30,7 +30,7 @@ namespace Hooks {
 
 		logger::info("Installing D3DPresent Hook...");
 
-		stl::write_call<D3DPresent>(REL::RelocationID(75461, 77246, NULL), REL::VariantOffset(0x9, 0x9, NULL));
+		stl::write_call<D3DPresent>(RelocationIDEx(75461, 77246, 77246, NULL), OffsetEx(0x9, 0x9, 0x9, NULL));
 
 	}
 

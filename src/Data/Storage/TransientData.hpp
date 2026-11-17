@@ -1,7 +1,4 @@
 #pragma once
-#include <set>
-#include <unordered_map>
-#include "Hooks/Experiments/Experiments_FootColliders.hpp"
 
 namespace GTS {
 

@@ -94,11 +94,11 @@ namespace {
 
 			uintptr_t cloneMap = reinterpret_cast<uintptr_t>(&cloningProcess.cloneMap);
 			void** value1 = reinterpret_cast<void**>(cloneMap + 0x18);
-			*value1 = reinterpret_cast<void*>(REL::RelocationID(501133, 359452, NULL).address());;
+			*value1 = reinterpret_cast<void*>(Hooks::RelocationIDEx(501133, 359452, 359452, NULL).address());
 
 			uintptr_t processMap = reinterpret_cast<uintptr_t>(&cloningProcess.processMap);
 			void** value2 = reinterpret_cast<void**>(processMap + 0x18);
-			*value2 = reinterpret_cast<void*>(REL::RelocationID(501132, 359451, NULL).address());
+			*value2 = reinterpret_cast<void*>(Hooks::RelocationIDEx(501132, 359451, 359451, NULL).address());
 
 			cloningProcess.copyType = 1;
 			cloningProcess.appendChar = '$';

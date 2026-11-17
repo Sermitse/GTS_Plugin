@@ -5,7 +5,7 @@ namespace Hooks {
 
 	struct VirtualMachineSendEvent {
 
-		static inline const std::size_t funcIndex = REL::Relocate(0x24, 0x24, 0x26);
+		static inline const std::size_t funcIndex = 0x24;
 
 		static void thunk(BSScript::Internal::VirtualMachine* a_this, VMHandle a_handle, const BSFixedString& a_eventName, BSScript::IFunctionArguments* a_args) {
 

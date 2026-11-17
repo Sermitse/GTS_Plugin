@@ -70,7 +70,7 @@ namespace Hooks {
 
 		logger::info("Installing BGSImpactManager Hooks...");
 
-		stl::write_detour<PlayImpactDataSounds>(REL::RelocationID(35317, 36212, NULL));
+		stl::write_detour<PlayImpactDataSounds>(RelocationIDEx(35317, 36212, 36212, NULL));
 		stl::write_vfunc<BGSImpactManagerProcessEvent>(VTABLE_BGSImpactManager[0]);
 
 	}

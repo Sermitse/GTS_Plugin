@@ -42,7 +42,7 @@ namespace GTS::CameraCol {
 
 	RE::NiAVObject* GetHkpAVObject(const RE::hkpCdBody* body) {
 		typedef RE::NiAVObject* (*_GetUserData)(const RE::hkpCdBody*);
-		static auto getAVObject = REL::Relocation<_GetUserData>(REL::RelocationID(76160, 77988, NULL));
+		static auto getAVObject = REL::Relocation<_GetUserData>(Hooks::RelocationIDEx(76160, 77988, 77988, NULL).address());
 		return body ? getAVObject(body) : nullptr;
 	}
 

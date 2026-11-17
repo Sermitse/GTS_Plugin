@@ -1,10 +1,10 @@
 
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
-    REPO BingusEx/CommonLibSSE-NG-GTS
-    REF 9d252878efe8e8e9f14f6a378f7f87a8dc7af0ce
-    SHA512 0d62b5458ec6be8ab104bc02736a1dbce0bb3e26b3f5e3ecd8272c297e9a8979eefacfcee606c107eb9f67a9f1734ce8d934f137d39d1e163f91c1afd72cf6cf
-    HEAD_REF master-3.6
+    REPO Arial6502/CommonLibSSE-NG-GTS
+    REF 36a248e1568644f3b0540e4528437a8eaeac3b6e
+    SHA512 e7f912d38485ec553de15fbb3ddb11849e071294f68b1582e488ad1b3db1d75d745e8d73b6980698a738de2779b59d6d9b54bdec1a00b912efc9d2d74006fe02
+    HEAD_REF master
 )
 
 vcpkg_configure_cmake(

@@ -7,10 +7,12 @@
 using namespace GTS;
 
 namespace {
+
 	bool IsHealingEffect(RE::ActorValue a_akValue) {
 		bool health = a_akValue == ActorValue::kHealth;
 		return health;
 	}
+
 	float ReduceHealingEfficiency(Actor* a_actor, ActorValue a_akValue, float original) {
 		if (original > 0.0f) { // >0 means gaining positive health/regeneration, also protection against negative regen (being damaged)
 			const bool isEnabled_NPC 	= 	!a_actor->IsPlayerRef()	&& Config::Balance.bReducedHealthRegeneration_NPC;
@@ -35,14 +37,14 @@ namespace {
 
 namespace Hooks {
 
+	template<int ID>
 	struct GetActorValue {
 
 		static constexpr std::size_t funcIndex = 0x01;
 
-		template<int ID>
 		static float thunk(ActorValueOwner* a_owner, ActorValue a_akValue) {
 
-			float value = func<ID>(a_owner, a_akValue);
+			float value = func(a_owner, a_akValue);
 
 			{
 				//Unimportant to track gets barely called plus it
@@ -63,19 +65,18 @@ namespace Hooks {
 			return value;
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 
 	};
 
+	template<int ID>
 	struct GetBaseActorValue {
 
 		static constexpr std::size_t funcIndex = 0x03;
 
-		template<int ID>
 		static float thunk(ActorValueOwner* a_owner, ActorValue a_akValue) {
 
-			float value = func<ID>(a_owner, a_akValue);
+			float value = func(a_owner, a_akValue);
 
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("ActorValueOwner::GetBaseActorValue", ID);
@@ -90,16 +91,16 @@ namespace Hooks {
 			return value;
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 
 	};
 
+	template<int ID>
 	struct SetBaseActorValue {
 
 		static constexpr std::size_t funcIndex = 0x04;
 
-		template<int ID>
+		
 		static void thunk(ActorValueOwner* a_owner, ActorValue a_akValue, float a_value) {
 
 			{
@@ -111,20 +112,19 @@ namespace Hooks {
 				}
 			}
 
-			func<ID>(a_owner, a_akValue, a_value);
+			func(a_owner, a_akValue, a_value);
 
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 
 	};
 
+	template<int ID>
 	struct RestoreActorValue {
 
 		static constexpr std::size_t funcIndex = 0x06;
 
-		template<int ID>
 		static void thunk(ActorValueOwner* a_owner, ACTOR_VALUE_MODIFIER a_modifier, ActorValue a_akValue, float a_value) {
 
 			{
@@ -136,11 +136,11 @@ namespace Hooks {
 				}
 			}
 
-			func<ID>(a_owner, a_modifier, a_akValue, a_value);
+			func(a_owner, a_modifier, a_akValue, a_value);
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+
+		FUNCTYPE_VFUNC func;
 	};
 
 	void Hook_ActorValueOwner::Install() {

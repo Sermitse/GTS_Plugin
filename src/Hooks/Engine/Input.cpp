@@ -34,7 +34,7 @@ namespace Hooks {
 
 		logger::info("Installing Input Hooks...");
 
-		stl::write_call<InputDispatchEvent>(REL::RelocationID(67315, 68617, NULL), REL::VariantOffset(0x7B, 0x7B, NULL));
+		stl::write_call<InputDispatchEvent>(RelocationIDEx(67315, 68617, 68617, NULL), OffsetEx(0x7B, 0x7B, 0x7B, NULL));
 
 	}
 

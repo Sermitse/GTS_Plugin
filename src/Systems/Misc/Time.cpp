@@ -1,8 +1,8 @@
 #include "Systems/Misc/Time.hpp"
 
 namespace {
-	inline float* g_delta_time = reinterpret_cast<float*>(REL::RelocationID(523660, 410199, NULL).address());
-	inline float* g_SGTM = reinterpret_cast<float*>(REL::RelocationID(511883, 388443, NULL).address());
+	inline float* g_delta_time = reinterpret_cast<float*>(Hooks::RelocationIDEx(523660, 410199, 410199, NULL).address());
+	inline float* g_SGTM = reinterpret_cast<float*>(Hooks::RelocationIDEx(511883, 388443, 388443, NULL).address());
 }
 
 namespace GTS {
@@ -26,7 +26,7 @@ namespace GTS {
 	void Time::SGTM(float modifier) {
 		*g_SGTM = modifier;
 		using func_t = decltype(SGTM);
-		REL::Relocation<func_t> func{ REL::RelocationID(66989, 68246, NULL) };
+		REL::Relocation<func_t> func{ Hooks::RelocationIDEx(66989, 68246, 68246, NULL).address() };
 		func(modifier);
 	}
 

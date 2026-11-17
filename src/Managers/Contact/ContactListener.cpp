@@ -15,25 +15,25 @@ namespace {
 
 	hkpWorldExtension* findWorldExtension(hkpWorld* a_world, WorldExtensionIds a_id) {
 		using func_t = decltype(&findWorldExtension);
-		REL::Relocation<func_t> func{ REL::RelocationID(60549, 61397, NULL) };
+		REL::Relocation<func_t> func{ Hooks::RelocationIDEx(60549, 61397, 61397, NULL).address() };
 		return func(a_world, a_id);
 	}
 
 	bool requireCollisionCallbackUtil(hkpWorld* a_world) {
 		using func_t = decltype(&requireCollisionCallbackUtil);
-		REL::Relocation<func_t> func{ REL::RelocationID(60588, 61437, NULL) };
+		REL::Relocation<func_t> func{ Hooks::RelocationIDEx(60588, 61437, 61437, NULL).address() };
 		return func(a_world);
 	}
 
 	bool releaseCollisionCallbackUtil(hkpWorld* a_world) {
 		using func_t = decltype(&releaseCollisionCallbackUtil);
-		REL::Relocation<func_t> func{ REL::RelocationID(61800, 62715, NULL) };
+		REL::Relocation<func_t> func{ Hooks::RelocationIDEx(61800, 62715, 62715, NULL).address() };
 		return func(a_world);
 	}
 
 	void addContactListener(RE::hkpWorld* a_world, RE::hkpContactListener* a_worldListener) {
 		using func_t = decltype(&addContactListener);
-		REL::Relocation<func_t> func{ REL::RelocationID(60543, 61383, NULL) };
+		REL::Relocation<func_t> func{ Hooks::RelocationIDEx(60543, 61383, 61383, NULL).address() };
 		return func(a_world, a_worldListener);
 	}
 
@@ -51,19 +51,19 @@ namespace {
 
 	void addWorldPostSimulationListener(RE::hkpWorld* a_world, RE::hkpWorldPostSimulationListener* a_worldListener) {
 		using func_t = decltype(&addWorldPostSimulationListener);
-		REL::Relocation<func_t> func{ REL::RelocationID(60538, 61366, NULL) };
+		REL::Relocation<func_t> func{ Hooks::RelocationIDEx(60538, 61366, 61366, NULL).address() };
 		return func(a_world, a_worldListener);
 	}
 
 	void removeWorldPostSimulationListener(RE::hkpWorld* a_world, RE::hkpWorldPostSimulationListener* a_worldListener) {
 		using func_t = decltype(&removeWorldPostSimulationListener);
-		REL::Relocation<func_t> func{ REL::RelocationID(60539, 61367, NULL) };
+		REL::Relocation<func_t> func{ Hooks::RelocationIDEx(60539, 61367, 61367, NULL).address() };
 		return func(a_world, a_worldListener);
 	}
 
 	NiAVObject* getNodeFromCollidable(const RE::hkpCollidable* a_collidable) {
 		using func_t = decltype(&getNodeFromCollidable);
-		REL::Relocation<func_t> func{ REL::RelocationID(76160, 77988, NULL) };
+		REL::Relocation<func_t> func{ Hooks::RelocationIDEx(76160, 77988, 77988, NULL).address() };
 		return func(a_collidable);
 	}
 

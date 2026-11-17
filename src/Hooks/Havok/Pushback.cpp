@@ -82,8 +82,8 @@ namespace Hooks {
 
 		logger::info("Installing Havok Push Hooks...");
 
-		stl::write_detour<HavokPush>(REL::RelocationID(76442, 78282, NULL));
-		//stl::write_detour<PushActorAway>(REL::RelocationID(38858, 39895, NULL));
+		stl::write_detour<HavokPush>(RelocationIDEx(76442, 78282, 78282, NULL));
+		//stl::write_detour<PushActorAway>(RelocationIDEx(38858, 39895, 39895, NULL));
 
     }
 }

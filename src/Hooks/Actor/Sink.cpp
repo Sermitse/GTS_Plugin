@@ -63,10 +63,10 @@ namespace Hooks {
 	void Hook_Sink::Install() {
 
 		logger::info("Installing Sink Detour Hooks...");
-		stl::write_detour<GetScaledBoundSize>(REL::RelocationID(36448, 37444, NULL));
+		stl::write_detour<GetScaledBoundSize>(RelocationIDEx(36448, 37444, 37444, NULL));
 
 		// Enable this hook to prevent swimming after a certain scale
-		//stl::write_detour<GetSubmergeLevel>(REL::RelocationID(36452, 37448, NULL));
+		//stl::write_detour<GetSubmergeLevel>(RelocationIDEx(36452, 37448, 37448, NULL));
 
 	}
 }

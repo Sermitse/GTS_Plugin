@@ -27,7 +27,7 @@ namespace Hooks {
 
 	void Hook_Console::Install() {
 		logger::info("Installing Console Script Compiler Hook...");
-		stl::write_call<ConsoleScriptCompiler>(REL::VariantID(52065, 52952, NULL), REL::VariantOffset(0xE2, 0x52, NULL));
+		stl::write_call<ConsoleScriptCompiler>(RelocationIDEx(52065, 52952, 52952, NULL), OffsetEx(0xE2, 0x52, 0x52, NULL));
 	}
 
 }
