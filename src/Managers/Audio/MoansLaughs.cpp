@@ -21,7 +21,7 @@ namespace {
         }
 
         const auto skyrimVM = RE::SkyrimVM::GetSingleton();
-        auto vm = skyrimVM ? skyrimVM->impl : nullptr;
+        auto vm = skyrimVM ? skyrimVM->GetRuntimeData().impl : nullptr;
         if (!vm) return;
 
         auto sslObject = GetVMObjectPtr(a_sslQuest, "SexLabFramework", false);

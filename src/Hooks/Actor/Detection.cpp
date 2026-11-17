@@ -250,11 +250,11 @@ namespace Hooks {
 
 		logger::info("Installing Detection Hooks...");
 
-        stl::write_call<CalculateFootStepDetection>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x2D4, 0x2D2, NULL));
-        //stl::write_call<CalculateHeading1>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x217, 0x217, NULL));
-        //stl::write_call<CalculateHeading2>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x92D, 0xA7F, NULL));
-		stl::write_call<DoDetectionJob_CalculateDetection>(REL::RelocationID(41659, 42742, NULL), REL::VariantOffset(0x526, 0x67B, NULL));
-        stl::write_call<Character_CalculateDetectionStrength>(REL::RelocationID(36758, 37774, NULL), REL::VariantOffset(0x5c7, 0x5b9, NULL));
+        stl::write_call<CalculateFootStepDetection>(RelocationIDEx(36758, 37774, 37774, NULL), OffsetEx(0x2D4, 0x2D2, 0x2DB, NULL));
+        //stl::write_call<CalculateHeading1>(RelocationIDEx(36758, 37774, 37774, NULL), OffsetEx(0x217, 0x217, 0x220, NULL));
+        //stl::write_call<CalculateHeading2>(RelocationIDEx(36758, 37774, 37774, NULL), OffsetEx(0x92D, 0xA7F, 0xA9F, NULL));
+		stl::write_call<DoDetectionJob_CalculateDetection>(RelocationIDEx(41659, 42742, 42742, NULL), OffsetEx(0x526, 0x67B, 0x67B, NULL));
+        stl::write_call<Character_CalculateDetectionStrength>(RelocationIDEx(36758, 37774, 37774, NULL), OffsetEx(0x5C7, 0x5B9, 0x5C2, NULL));
 
 	}
 }

@@ -156,9 +156,9 @@ namespace Hooks {
 
 	void Hook_Jump::Install() {
 		logger::info("Installing Jump Hooks...");
-		stl::write_detour<GetFallDistance>(REL::RelocationID(76430, 78269, NULL));
-		stl::write_detour<SetGraphVarialbleFloat>(REL::RelocationID(32143, 32887, NULL));
-		stl::write_call<JumpHeight>(REL::RelocationID(36271, 37257, NULL), REL::VariantOffset(0x190, 0x17F, NULL));
+		stl::write_detour<GetFallDistance>(RelocationIDEx(76430, 78269, 78269, NULL));
+		stl::write_detour<SetGraphVarialbleFloat>(RelocationIDEx(32143, 32887, 32887, NULL));
+		stl::write_call<JumpHeight>(RelocationIDEx(36271, 37257, 37257, NULL), OffsetEx(0x190, 0x17F, 0x17F, NULL));
 	}
 
 }

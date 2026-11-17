@@ -20,6 +20,11 @@ namespace {
 			return nullptr;
 		}
 
+		//Owning a window from another thread makes MessageBox wait on that thread, which may be blocked on a lock we hold.
+		if (GetWindowThreadProcessId(desc.OutputWindow, nullptr) != GetCurrentThreadId()) {
+			return nullptr;
+		}
+
 		return desc.OutputWindow;
 	}
 

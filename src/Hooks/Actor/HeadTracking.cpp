@@ -191,7 +191,7 @@ namespace Hooks {
 
 	void Hook_HeadTracking::Install() {
 		logger::info("Installing Headtracking Hooks...");
-		stl::write_call<AlterHeadTrackScale>(REL::RelocationID(37129, 37364, NULL), REL::VariantOffset(0x24, 0x5E, NULL));
-		stl::write_detour<AlterHeadTrackTarget>(REL::RelocationID(38850, 39887, NULL));
+		stl::write_call<AlterHeadTrackScale>(RelocationIDEx(37129, 37364, 37364, NULL), OffsetEx(0x24, 0x5E, 0x5E, NULL));
+		stl::write_detour<AlterHeadTrackTarget>(RelocationIDEx(38850, 39887, 39887, NULL));
 	}
 }

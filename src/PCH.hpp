@@ -107,6 +107,8 @@
 #include <RE/Skyrim.h>
 #include <REL/Relocation.h>
 #include <SKSE/SKSE.h>
+#include <xbyak/xbyak.h>
+#include <detours/detours.h>
 
 #include <Psapi.h>
 #include <ShlObj_core.h>
@@ -128,6 +130,8 @@
 #include <detours/detours.h>			  //https://github.com/microsoft/Detours
 #include <glaze/json/read.hpp>            //https://github.com/stephenberry/glaze
 #include <re2/re2.h>                      //https://github.com/google/re2
+#include <hde64.h>
+
 
 //Imgui
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
@@ -156,6 +160,9 @@
 using namespace std::literals;
 using namespace REL::literals;
 namespace logger = SKSE::log;
+
+//Address library ids/offsets per epoch, used across the project
+#include "Hooks/Util/Target.hpp"
 
 namespace GTS {
 	using namespace RE;

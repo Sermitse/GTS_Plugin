@@ -271,12 +271,12 @@ namespace Hooks {
 
 		logger::info("Installing Havok Hooks...");
 
-		stl::write_call<ProcessHavokHitJobs>(REL::RelocationID(38112, 39068, NULL),REL::VariantOffset(0x104, 0xFC, NULL));
+		stl::write_call<ProcessHavokHitJobs>(RelocationIDEx(38112, 39068, 39068, NULL), OffsetEx(0x104, 0xFC, 0xFC, NULL));
 		stl::write_vfunc<IsCollisionEnabled>(VTABLE_bhkCollisionFilter[1]);
 
-		stl::write_call<bhkCharacterControllerDtor>         (REL::RelocationID(77273, 79161, NULL), REL::VariantOffset(0x19, 0x19, NULL));
-		stl::write_call<bhkCharacterControllerDtorRigidBody>(REL::RelocationID(77331, 79212, NULL), REL::VariantOffset(0x19, 0x10E, NULL));
-		stl::write_call<ActorInitHavok>                     (REL::RelocationID(36192, 37171, NULL), REL::VariantOffset(0x34E, 0x3B7, NULL));
+		stl::write_call<bhkCharacterControllerDtor>         (RelocationIDEx(77273, 79161, 79161, NULL), OffsetEx(0x19, 0x19, 0x19, NULL));
+		stl::write_call<bhkCharacterControllerDtorRigidBody>(RelocationIDEx(77331, 79212, 79212, NULL), OffsetEx(0x19, 0x10E, 0x10E, NULL));
+		stl::write_call<ActorInitHavok>                     (RelocationIDEx(36192, 37171, 37171, NULL), OffsetEx(0x34E, 0x3B7, 0x3B7, NULL));
 
 	}
 }

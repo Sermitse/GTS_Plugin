@@ -33,6 +33,18 @@ namespace Hooks {
 			return a_actor->Get3D(false);
 		}
 
+		//Sanity check incase another hook does the same thing and ends up causing a deadlock.
+		bool IsCovered(const SceneList& a_list, const RE::NiAVObject* a_node) {
+			for (const RE::NiAVObject* node = a_node; node; node = node->parent) {
+				for (const RE::NiPointer<RE::NiAVObject>& entry : a_list) {
+					if (entry.get() == node) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
 		void AddActors(SceneList& a_list) {
 			const RE::TESWorldSpace* mapWorld = MapWorldSpace();
 			if (!mapWorld) {
@@ -41,7 +53,9 @@ namespace Hooks {
 
 			//Add more actors here. The engine releases the refs when it clears the lists at the end of Main::Draw.
 			if (RE::NiAVObject* root = MapRoot(RE::PlayerCharacter::GetSingleton(), mapWorld)) {
-				a_list.push_back(RE::NiPointer<RE::NiAVObject>(root));
+				if (!IsCovered(a_list, root)) {
+					a_list.push_back(RE::NiPointer<RE::NiAVObject>(root));
+				}
 			}
 		}
 
@@ -50,8 +64,7 @@ namespace Hooks {
 
 			static void thunk(void* a_jobList) {
 				func(a_jobList);
-
-				static REL::Relocation<SceneList**> jobLists{ REL::RelocationID(528072, 415017) };
+				static REL::Relocation<SceneList**> jobLists{ RelocationIDEx(528072, 415017, 415017, NULL).address() };
 				if (SceneList* first = *jobLists) {
 					AddActors(*first);
 				}
@@ -62,6 +75,6 @@ namespace Hooks {
 	}
 
 	void Hook_WorldSpace::Install() {
-		Hooks::stl::write_call<SceneListsBuilt>(REL::RelocationID(35560, 36559), REL::VariantOffset(0x17E, 0x17E, 0));
+		Hooks::stl::write_call<SceneListsBuilt>(RelocationIDEx(35560, 36559, 36559, NULL), OffsetEx(0x17E, 0x17E, 0x17E, NULL));
 	}
 }

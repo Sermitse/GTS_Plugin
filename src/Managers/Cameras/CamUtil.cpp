@@ -306,7 +306,7 @@ namespace GTS {
 	void UpdateWorld2ScreetMat(NiCamera* niCamera) {
 		auto camNi = niCamera ? niCamera : GetNiCamera();
 		typedef void (*UpdateWorldToScreenMtx)(RE::NiCamera*);
-		static auto toScreenFunc = REL::Relocation<UpdateWorldToScreenMtx>(REL::RelocationID(69271, 70641).address());
+		static auto toScreenFunc = REL::Relocation<UpdateWorldToScreenMtx>(Hooks::RelocationIDEx(69271, 70641, 70641, NULL).address());
 		toScreenFunc(camNi);
 	}
 

@@ -102,15 +102,15 @@ namespace {
 
 namespace Hooks {
 
+	template<int ID>
 	struct InitializeExplosion {
 
 		static constexpr size_t funcIndex = 0x90;
 
 		// Attempts to scale explosions that come from dragons. Doesn't work s expected.
-		template<int ID>
 		static void thunk(RE::Explosion* a_this, TESObjectCELL& a_cell) {
 
-			func<ID>(a_this, a_cell);
+			func(a_this, a_cell);
 
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::InitializeExplosion", ID);
@@ -119,40 +119,40 @@ namespace Hooks {
 
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 
 	};
 
+	template<int ID>
 	struct GetLinearVelocity {
 
 		static constexpr size_t funcIndex = 0x86;
 
 		// Unused
-		template<int ID>
 		static void thunk(RE::Projectile* a_this, RE::NiPoint3& a_outVelocity) {
 
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::GetLinearVelocity", ID);
 			}
 
-			func<ID>(a_this, a_outVelocity);
+			func(a_this, a_outVelocity);
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+
+		FUNCTYPE_VFUNC func;
 
 	};
 
+	template<int ID>
 	struct Handle3DLoaded {
 
 		static constexpr size_t funcIndex = 0xC0;
 
 		// Scales projectiles once (when it first spawns). Affects only visuals.
-		template<int ID>
+
 		static void thunk(RE::Projectile* a_this) {
 
-			func<ID>(a_this);
+			func(a_this);
 
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::Handle3DLoaded", ID);
@@ -161,19 +161,19 @@ namespace Hooks {
 
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 	};
 
+	template<int ID>
 	struct AddImpact {
 
 		static constexpr size_t funcIndex = 0xBD;
 
 		// Better not call it, spawning Footstep.nif causes ctd
-		template<int ID>
+
 		static void thunk(RE::Projectile* a_this, TESObjectREFR* a_ref, const NiPoint3& a_targetLoc, const NiPoint3& a_velocity, hkpCollidable* a_collidable, std::int32_t a_arg6, std::uint32_t a_arg7) {
 
-			func<ID>(a_this, a_ref, a_targetLoc, a_velocity, a_collidable, a_arg6, a_arg7);
+			func(a_this, a_ref, a_targetLoc, a_velocity, a_collidable, a_arg6, a_arg7);
 
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Projectile::AddImpact", ID);
@@ -182,8 +182,7 @@ namespace Hooks {
 
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 	};
 
 	void Hook_Projectiles::Install() {

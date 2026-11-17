@@ -305,6 +305,6 @@ namespace Hooks {
 
 	void Hook_PreventAnimations::Install() {
 		logger::info("Installing");
-		stl::write_detour<IdleForm>(REL::RelocationID(24067, 24570, NULL));
+		stl::write_detour<IdleForm>(RelocationIDEx(24067, 24570, 24570, NULL));
 	}
 }

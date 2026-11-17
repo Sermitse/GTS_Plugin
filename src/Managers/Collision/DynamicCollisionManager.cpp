@@ -80,27 +80,48 @@ namespace GTS {
 			}
 			
 
-			{
+			//The game recycles controller allocations, so an entry may still be present for a destroyed controller at this address.
+			//Built before taking MapLock: the constructor takes the world lock, and a controller destructor may hold
+			//that one while it waits for MapLock.
+			if (RE::bhkCharacterController* controller = a_actor->GetCharController()) {
+				auto instance = std::make_shared<DynamicCollisionController>(a_actor->GetHandle(), controller, hasPreExistingCollisionShape);
 				WriteLock lock(MapLock);
-				ControllerMap.try_emplace(a_actor->GetCharController(), std::make_shared<DynamicCollisionController>(a_actor->GetHandle(), hasPreExistingCollisionShape));
+				auto [it, inserted] = ControllerMap.try_emplace(controller, instance);
+				if (!inserted) {
+					//An update snapshot may still hold the old instance, and the identity check passes on a recycled address.
+					it->second->MarkDestroyed();
+					it->second = std::move(instance);
+				}
 			}
 		}
 	}
 
 	void DynamicCollisionManager::DestroyInstance(RE::bhkCharacterController* a_controller) {
 		WriteLock lock(MapLock);
-		ControllerMap.erase(a_controller);
+		if (auto it = ControllerMap.find(a_controller); it != ControllerMap.end()) {
+			it->second->MarkDestroyed();
+			ControllerMap.erase(it);
+		}
 	}
 
 	void DynamicCollisionManager::Update() {
 
 		if (!State::InGame()) return;
 
+		//Updates run on a snapshot so MapLock is never held while a controller takes the world lock.
+		//A controller destructor may run under the world lock and then wait for MapLock, and the
+		//update may also release the last reference to a controller itself.
+		absl::InlinedVector<std::shared_ptr<DynamicCollisionController>, 32> controllers;
 		{
 			ReadLock lock(MapLock);
+			controllers.reserve(ControllerMap.size());
 			for (const std::shared_ptr<DynamicCollisionController>& DynController : ControllerMap | std::views::values) {
-				DynController->Update();
+				controllers.push_back(DynController);
 			}
+		}
+
+		for (const std::shared_ptr<DynamicCollisionController>& DynController : controllers) {
+			DynController->Update();
 		}
 	}
 

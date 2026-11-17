@@ -82,7 +82,7 @@ namespace Hooks {
 	void Hook_MainUpdate::Install() {
 		logger::info("Installing Main Update Hooks...");
 		//Update happens at the end of the Main::Update loop right before a BSLightingShader subroutine.
-		stl::write_call<MainUpdatePost>(REL::RelocationID(35565, 36564, NULL), REL::VariantOffset(0x748, 0xC26, NULL));
+		stl::write_call<MainUpdatePost>(RelocationIDEx(35565, 36564, 36564, NULL), OffsetEx(0x748, 0xC2B, 0xC3D, NULL));
 	}
 
 	bool SMPBridgeActive() { return s_smpBridgeActive; }
@@ -94,8 +94,8 @@ namespace Hooks {
 			return;
 		}
 
-		const REL::RelocationID site{ 35565, 36564 };
-		const REL::VariantOffset offset{ 0x56D, 0x9DC, 0x0 };
+		const RelocationIDEx site{ 35565, 36564, 36564, NULL };
+		const OffsetEx offset{ 0x56D, 0x9DC, 0x9EE, NULL };
 		const std::uintptr_t address = site.address() + offset.offset();
 
 		if (!address) {

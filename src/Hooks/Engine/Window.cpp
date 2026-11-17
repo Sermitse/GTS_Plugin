@@ -50,7 +50,7 @@ namespace Hooks {
 
 	void Hook_Window::Install() {
 		logger::info("Installing Window Hooks...");
-		stl::write_call<RegisterClassA, 6>(REL::RelocationID(75591, 77226, NULL), REL::VariantOffset(0x8E, 0x15C, NULL));
+		stl::write_call<RegisterClassA, 6>(RelocationIDEx(75591, 77226, 77226, NULL), OffsetEx(0x8E, 0x15C, 0x15C, NULL));
 	}
 
 }

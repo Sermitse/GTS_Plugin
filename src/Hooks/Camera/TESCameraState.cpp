@@ -3,14 +3,14 @@
 
 namespace Hooks {
 
+	template<int ID>
 	struct TESCameraStateUpdate {
 		
 		static constexpr std::size_t funcIndex = 0x03;
 
-		template<int ID>
 		static void thunk(TESCameraState* a_this, BSTSmartPointer<TESCameraState>& a_nextState) {
 
-			func<ID>(a_this, a_nextState);
+			func(a_this, a_nextState);
 
 			{
 				GTS_PROFILE_ENTRYPOINT_UNIQUE("Camera::TESCameraStateUpdate", ID);
@@ -19,8 +19,7 @@ namespace Hooks {
 
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 
 	};
 

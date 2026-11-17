@@ -343,6 +343,6 @@ namespace Hooks {
 
 	void Hook_Damage::Install() {
 		logger::info("Installing Character::DoDamage Detour Hook...");
-		stl::write_detour<DoDamage>(REL::RelocationID(36345, 37335, NULL));
+		stl::write_detour<DoDamage>(RelocationIDEx(36345, 37335, 37335, NULL));
 	}
 }

@@ -26,6 +26,6 @@ namespace Hooks {
 
 	void Hook_ActorEquipManager::Install() {
 		logger::info("Installing ActorEquipManager Hooks...");
-		stl::write_call<EquipObject>(REL::RelocationID(37938, 38894, NULL), REL::VariantOffset(0xE5, 0x170, NULL));
+		stl::write_call<EquipObject>(RelocationIDEx(37938, 38894, 38894, NULL), OffsetEx(0xE5, 0x170, 0x170, NULL));
 	}
 }

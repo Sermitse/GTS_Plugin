@@ -2,7 +2,6 @@
 #include "Managers/Animation/Utils/AnimationUtils.hpp"
 #include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 
-#include "Hooks/Experiments/Experiments_FootColliders.hpp"
 #include "Config/Config.hpp"
 
 #include "Managers/Damage/SizeHitEffects.hpp"

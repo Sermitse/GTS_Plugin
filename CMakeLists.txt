@@ -88,6 +88,8 @@ FetchContent_Declare(
     GIT_TAG ab2bad2e5600e0890380f0226412d91ffaed3c39
 )
 FetchContent_MakeAvailable(boost_ext_reflect)
+# Skip the self tests reflect runs on every inclusion.
+target_compile_definitions(${PROJECT_NAME} PRIVATE NTEST)
 
 FetchContent_Declare(
   glaze
@@ -96,6 +98,25 @@ FetchContent_Declare(
   GIT_SHALLOW ON
 )
 FetchContent_MakeAvailable(glaze)
+
+# hde64, MinHook's instruction length decoder.
+enable_language(C)
+FetchContent_Declare(
+    hde64
+    GIT_REPOSITORY https://github.com/TsudaKageyu/minhook.git
+    GIT_TAG v1.3.4
+    GIT_SHALLOW TRUE
+    SOURCE_SUBDIR src/hde
+)
+FetchContent_MakeAvailable(hde64)
+target_sources(${PROJECT_NAME} PRIVATE "${hde64_SOURCE_DIR}/src/hde/hde64.c")
+set_source_files_properties(
+    "${hde64_SOURCE_DIR}/src/hde/hde64.c" PROPERTIES
+    LANGUAGE C
+    SKIP_PRECOMPILE_HEADERS ON
+    COMPILE_OPTIONS "/wd4701"
+)
+
 
 # #######################################################################################################################
 # # Find dependencies - VCPKG
@@ -110,6 +131,7 @@ find_package(tbb CONFIG REQUIRED)
 find_package(absl CONFIG REQUIRED)
 find_package(re2 CONFIG REQUIRED)
 
+
 # #######################################################################################################################
 # # Non-CLib Includes
 # #######################################################################################################################
@@ -122,6 +144,7 @@ target_include_directories(
 	${CLIBUTIL_INCLUDE_DIRS}
 	${boost_ext_reflect_SOURCE_DIR}
     ${DETOURS_INCLUDE_DIRS}
+    ${hde64_SOURCE_DIR}/src/hde
 )
 
 target_link_libraries(

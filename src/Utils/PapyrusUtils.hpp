@@ -28,7 +28,7 @@ namespace GTS {
 	template <class ... Args>
 	void CallVMFunctionOn(TESForm* a_form, std::string_view formKind, std::string_view function, Args... a_args) {
 		const auto skyrimVM = RE::SkyrimVM::GetSingleton();
-		auto vm = skyrimVM ? skyrimVM->impl : nullptr;
+		auto vm = skyrimVM ? skyrimVM->GetRuntimeData().impl : nullptr;
 		if (vm) {
 			RE::BSTSmartPointer<RE::BSScript::IStackCallbackFunctor> callback;
 			auto args = RE::MakeFunctionArguments(std::forward<Args>(a_args)...);
@@ -43,7 +43,7 @@ namespace GTS {
 	template <class ... Args>
 	void CallVMFunction(std::string_view functionClass, std::string_view function, Args... a_args) {
 		const auto skyrimVM = RE::SkyrimVM::GetSingleton();
-		auto vm = skyrimVM ? skyrimVM->impl : nullptr;
+		auto vm = skyrimVM ? skyrimVM->GetRuntimeData().impl : nullptr;
 		if (vm) {
 			RE::BSTSmartPointer<RE::BSScript::IStackCallbackFunctor> callback;
 			auto args = RE::MakeFunctionArguments(std::forward<Args>(a_args)...);
@@ -70,7 +70,7 @@ namespace GTS {
 	template <class ReturnT, class... Args>
 	void CallVMFunctionOnReturn(TESForm* a_form, std::string_view formKind, std::string_view function, std::function<void(ReturnT)> a_callback, Args... a_args) {
 		const auto skyrimVM = RE::SkyrimVM::GetSingleton();
-		auto vm = skyrimVM ? skyrimVM->impl : nullptr;
+		auto vm = skyrimVM ? skyrimVM->GetRuntimeData().impl : nullptr;
 		if (vm) {
 			auto args = RE::MakeFunctionArguments(std::forward<Args>(a_args)...);
 			auto objectPtr = GetVMObjectPtr(a_form, std::string(formKind).c_str(), false);

@@ -30,7 +30,7 @@ namespace Hooks {
     void Hook_Race::Install() {
 
         logger::info("Installing Race Hooks...");
-        stl::write_detour<SwitchRace>(REL::RelocationID(36901, 37925, NULL));
+        stl::write_detour<SwitchRace>(RelocationIDEx(36901, 37925, 37925, NULL));
 
     }
 }

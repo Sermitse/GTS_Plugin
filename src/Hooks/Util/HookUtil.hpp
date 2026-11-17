@@ -1,246 +1,247 @@
 #pragma once
 
+#include "Hooks/Util/Asm.hpp"
+#include "Hooks/Util/CodeCave.hpp"
+#include "Hooks/Util/Patch.hpp"
+#include "Hooks/Util/Target.hpp"
+
 //Boilerplate
 #define FUNCTYPE_DETOUR static inline constinit decltype(thunk)*
 #define FUNCTYPE_CALL static inline constinit REL::Relocation<decltype(thunk)>
-#define FUNCTYPE_CALL_UNIQUE static inline constinit REL::Relocation<decltype(thunk<ID>)>
 #define FUNCTYPE_VFUNC static inline constinit REL::Relocation<decltype(&thunk)>
-#define FUNCTYPE_VFUNC_UNIQUE static inline constinit REL::Relocation<decltype(&thunk<ID>)>
 
-namespace Hooks::Internal {
+//Every hook takes its target in one of these forms:
+//	(std::uintptr_t)                               absolute address
+//	(Id, Offset = {}, When = {})                   Id is any AddressSource (RelocationIDEx, VariantIDEx, REL::ID,
+//	                                               RelocationIDEx, REL::VariantID, ...), Offset any OffsetSource
+//	                                               (OffsetEx, REL::Offset, OffsetEx, an integer)
+//	(Id, When)                                     same, no offset
+//When converts from an Epoch or a REL::Version:
+//	stl::write_call<Hook>(RelocationIDEx(1, 2, 3, 4), OffsetEx(1, 2, 3, 4));
+//	stl::write_call<Hook>(RelocationIDEx(3), OffsetEx(3), Epoch::k1_7);
+//	stl::write_call<Hook>(RelocationIDEx(3), OffsetEx(3), SKSE::RUNTIME_SSE_1_7_104);
+//	stl::write_call<Hook>(RelocationIDEx(35565, 36564), OffsetEx(0x748, 0xC26, 0));
+//A hook that does not apply to the running game is skipped and logged.
+//
+//Unique hooks: template the hook struct on an int so each instantiation owns its thunk and func.
+//	template <int ID> struct Hook { static void thunk(...) { func(...); } FUNCTYPE_CALL func; };
+//	stl::write_call_unique<Hook, 0>(...);   //same as stl::write_call<Hook<0>>(...)
+
+namespace Hooks::detail {
 
 	template <typename T>
-	constexpr std::string_view get_type_name() {
-		#if defined(__clang__) or defined(__GNUC__)
-			std::string_view p = __PRETTY_FUNCTION__;
-			return p.substr(p.find('=') + 2, p.rfind(']') - p.find('=') - 2);
-		#elif defined(_MSC_VER)
-			std::string_view p = __FUNCSIG__;
-			const auto start = p.find("get_type_name<") + 14;
-			const auto end = p.find(">(void)");
-			return p.substr(start, end - start);
-		#endif
+	constexpr std::string_view TypeName() {
+		std::string_view p = __FUNCSIG__;
+		const auto start = p.find("TypeName<") + 9;
+		const auto end = p.find(">(void)");
+		return p.substr(start, end - start);
+	}
+
+	template <class T>
+	bool Begin(std::string_view a_kind, const Site& a_site) {
+		if (!a_site) {
+			logger::info("{}<{}> skipped: {}", a_kind, TypeName<T>(), a_site.where);
+			return false;
+		}
+		logger::debug("Installing {}<{}> at {}", a_kind, TypeName<T>(), a_site.where);
+		return true;
+	}
+
+	template <class T>
+	bool ExpectBytes(std::string_view a_kind, const Site& a_site, std::span<const std::uint8_t> a_bytes) {
+		if (Asm::MatchBytes(a_site.address, a_bytes)) {
+			return true;
+		}
+		logger::error("{}<{}> skipped: {} holds [{}], expected [{}]. Wrong offset for this runtime?",
+			a_kind, TypeName<T>(), a_site.where, Asm::HexBytes(a_site.address, a_bytes.size()), Asm::HexBytes(reinterpret_cast<std::uintptr_t>(a_bytes.data()), a_bytes.size())
+		);
+		return false;
+	}
+
+	template <class T, std::size_t Size>
+	void WriteCall(const Site& a_site) {
+		static_assert(Size == 5 || Size == 6, "call hooks are 5 (E8 rel32) or 6 (FF 15 [rip+disp32]) bytes");
+		static constexpr std::array<std::uint8_t, 1> call5{ 0xE8 };
+		static constexpr std::array<std::uint8_t, 2> call6{ 0xFF, 0x15 };
+
+		if (!Begin<T>("write_call", a_site)) return;
+		if (!ExpectBytes<T>("write_call", a_site, Size == 5 ? std::span<const std::uint8_t>(call5) : std::span<const std::uint8_t>(call6))) return;
+
+		RequireTrampoline(Size == 5 ? 14 : 8, TypeName<T>());
+		auto& trampoline = SKSE::GetTrampoline();
+		if constexpr (Size == 6) {
+			T::func = *reinterpret_cast<std::uintptr_t*>(trampoline.write_call<6>(a_site.address, T::thunk));
+		}
+		else {
+			T::func = trampoline.write_call<5>(a_site.address, T::thunk);
+		}
+		logger::debug("write_call<{}> installed, original function at 0x{:X}", TypeName<T>(), static_cast<std::uintptr_t>(T::func.address()));
+	}
+
+	template <class T, std::size_t Size>
+	void WriteJmp(const Site& a_site) {
+		static_assert(Size == 5 || Size == 6, "jmp hooks are 5 (E9 rel32) or 6 (FF 25 [rip+disp32]) bytes");
+		static constexpr std::array<std::uint8_t, 1> jmp5{ 0xE9 };
+		static constexpr std::array<std::uint8_t, 2> jmp6{ 0xFF, 0x25 };
+
+		if (!Begin<T>("write_jmp", a_site)) return;
+		if (!ExpectBytes<T>("write_jmp", a_site, Size == 5 ? std::span<const std::uint8_t>(jmp5) : std::span<const std::uint8_t>(jmp6))) return;
+
+		RequireTrampoline(Size == 5 ? 14 : 8, TypeName<T>());
+		auto& trampoline = SKSE::GetTrampoline();
+		if constexpr (Size == 6) {
+			T::func = *reinterpret_cast<std::uintptr_t*>(trampoline.write_branch<6>(a_site.address, T::thunk));
+		}
+		else {
+			T::func = trampoline.write_branch<5>(a_site.address, T::thunk);
+		}
+		logger::debug("write_jmp<{}> installed, original target at 0x{:X}", TypeName<T>(), static_cast<std::uintptr_t>(T::func.address()));
+	}
+
+	//a_site is the vtable itself, T::funcIndex selects the slot.
+	template <class T>
+	void WriteVfunc(const Site& a_site) {
+		if (!Begin<T>("write_vfunc", a_site)) return;
+
+		const auto slot = a_site.address + T::funcIndex * sizeof(void*);
+		if (!InImage(a_site.address) || !*reinterpret_cast<const std::uintptr_t*>(slot)) {
+			logger::error("write_vfunc<{}> skipped: {} is not a vtable with a slot {}", TypeName<T>(), a_site.where, T::funcIndex);
+			return;
+		}
+
+		REL::Relocation<std::uintptr_t> vtbl{ a_site.address };
+		T::func = vtbl.write_vfunc(T::funcIndex, T::thunk);
+		logger::debug("write_vfunc<{}> installed at index {}, original function at 0x{:X}", TypeName<T>(), T::funcIndex, static_cast<std::uintptr_t>(T::func.address()));
+	}
+
+	template <class T>
+	void WriteDetour(const Site& a_site) {
+		static_assert(std::is_pointer_v<decltype(T::func)>, "detour hooks declare func with FUNCTYPE_DETOUR");
+
+		if (!Begin<T>("write_detour", a_site)) return;
+
+		if (!InText(a_site.address)) {
+			logger::error("write_detour<{}> skipped: {} is outside the game's code", TypeName<T>(), a_site.where);
+			return;
+		}
+
+		if (const auto target = ForeignHook(a_site.address)) {
+			logger::info("write_detour<{}>: {} is already hooked by another module (branches to 0x{:X}), chaining onto it",
+				TypeName<T>(), a_site.where, *target
+			);
+		}
+
+		auto original = reinterpret_cast<decltype(T::func)>(a_site.address);
+		if (const auto error = AttachDetour(reinterpret_cast<void**>(&original), reinterpret_cast<void*>(T::thunk)); error != NO_ERROR) {
+			SKSE::stl::report_and_fail(std::format("Detour of {} at {} failed with error {}.", TypeName<T>(), a_site.where, error));
+		}
+
+		T::func = original;
+		logger::debug("write_detour<{}> installed, original function via trampoline 0x{:X}", TypeName<T>(), reinterpret_cast<std::uintptr_t>(T::func));
+	}
+
+	template <class T>
+	void WriteCave(const Site& a_site) {
+		static_assert(std::derived_from<T, CodeCave>, "xbyak thunks derive from Hooks::CodeCave");
+		static_assert(T::bytesToPatch >= 5, "the cave is entered through a 5 byte jmp");
+
+		if (!Begin<T>("write_xbyak_thunk", a_site)) return;
+
+		const auto decoded = Asm::Decode(a_site.address, T::bytesToPatch);
+		if (!decoded || decoded->length != T::bytesToPatch) {
+			logger::error("write_xbyak_thunk<{}> skipped: bytesToPatch {} at {} does not end on an instruction boundary ({}). Bytes: [{}]",
+				TypeName<T>(), T::bytesToPatch, a_site.where, decoded ? std::format("whole instructions cover {}", decoded->length) : "undecodable", Asm::HexBytes(a_site.address, T::bytesToPatch + 8)
+			);
+			return;
+		}
+
+		if constexpr (requires { T::expectedBytes; }) {
+			static_assert(T::expectedBytes.size() == T::bytesToPatch, "expectedBytes must cover exactly bytesToPatch");
+			if (!ExpectBytes<T>("write_xbyak_thunk", a_site, T::expectedBytes)) return;
+		}
+
+		const CaveContext context{
+			.site = a_site.address,
+			.returnAddress = a_site.address + T::bytesToPatch,
+			.stolen = { reinterpret_cast<const std::uint8_t*>(a_site.address), T::bytesToPatch },
+			.stolenRelocatable = !decoded->positionDependent,
+		};
+
+		try {
+			T cave(context);
+			cave.ready();
+
+			RequireTrampoline(cave.getSize() + 14, TypeName<T>());
+			auto& trampoline = SKSE::GetTrampoline();
+			const auto code = reinterpret_cast<std::uintptr_t>(trampoline.allocate(cave));
+
+			trampoline.write_branch<5>(a_site.address, code);
+
+			//int3 rather than nop
+			REL::safe_fill(a_site.address + 5, 0xCC, T::bytesToPatch - 5);
+
+			logger::debug("write_xbyak_thunk<{}> installed, cave at 0x{:X} ({} bytes), resumes at 0x{:X}", TypeName<T>(), code, cave.getSize(), context.returnAddress);
+		}
+		catch (const std::exception& e) {
+			logger::error("write_xbyak_thunk<{}> skipped: generating the cave for {} failed: {}", TypeName<T>(), a_site.where, e.what());
+		}
 	}
 }
 
 namespace Hooks::stl {
 
-	// ----- Write_Call
+	using detail::Resolve;
+
+	//----- write_call: redirect an existing call (E8 rel32, or FF 15 [rip+disp32] with Size 6). T::func is the old callee.
 
 	template <class T, std::size_t Size = 5>
-	void write_call(std::uintptr_t a_src) {
-		if (!a_src) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
-				Internal::get_type_name<T>()
-			);
-			return;
-		}
-		logger::debug("Installing write_call<{}> at address: 0x{:X}",
-			Internal::get_type_name<T>(), a_src
-		);
-
-		auto& trampoline = SKSE::GetTrampoline();
-		if constexpr (Size == 6) {
-			T::func = *reinterpret_cast<uintptr_t*>(trampoline.write_call<6>(a_src, T::thunk));
-		}
-		else {
-			T::func = trampoline.write_call<Size>(a_src, T::thunk);
-		}
-
-		logger::debug("write_call installed, original function at: 0x{:X}",
-			a_src, static_cast<std::uintptr_t>(T::func.address())
-		);
+	void write_call(std::uintptr_t a_address) {
+		detail::WriteCall<T, Size>(Resolve(a_address));
 	}
+
+	template <class T, std::size_t Size = 5, AddressSource Id, OffsetSource Off = OffsetEx>
+	void write_call(const Id& a_id, const Off& a_offset = {}, const When& a_when = {}) {
+		detail::WriteCall<T, Size>(Resolve(a_id, a_offset, a_when));
+	}
+
+	template <class T, std::size_t Size = 5, AddressSource Id>
+	void write_call(const Id& a_id, const When& a_when) {
+		detail::WriteCall<T, Size>(Resolve(a_id, 0, a_when));
+	}
+
+	template <template <int> class T, int ID, std::size_t Size = 5, class... Args>
+	void write_call_unique(Args&&... a_args) {
+		write_call<T<ID>, Size>(std::forward<Args>(a_args)...);
+	}
+
+	//----- write_jmp: redirect an existing jmp (E9 rel32, or FF 25 [rip+disp32] with Size 6). T::func is the old target.
+	//To take over a function from its first byte use write_detour.
 
 	template <class T, std::size_t Size = 5>
-	void write_call(REL::VariantID a_varId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
-		const uintptr_t address = a_varId.address() + a_Offs.offset();
-		if (!address) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
-				Internal::get_type_name<T>()
-			);
-			return;
-		}
-		logger::debug("Installing write_call<{}> at VariantID [0x{:X} + 0x{:X}] resolved to 0x{:X}",
-			Internal::get_type_name<T>(), a_varId.address(), a_Offs.offset(), address
-		);
-
-		auto& trampoline = SKSE::GetTrampoline();
-		if constexpr (Size == 6) {
-			T::func = *reinterpret_cast<uintptr_t*>(trampoline.write_call<6>(address, T::thunk));
-		}
-		else {
-			T::func = trampoline.write_call<Size>(address, T::thunk);
-		}
-
-		logger::debug("write_call installed, original function at: 0x{:X}",
-			address, static_cast<std::uintptr_t>(T::func.address())
-		);
+	void write_jmp(std::uintptr_t a_address) {
+		detail::WriteJmp<T, Size>(Resolve(a_address));
 	}
 
-
-	template <class T, int ID, std::size_t Size = 5>
-	void write_call_unique(REL::VariantID a_varId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
-		const uintptr_t address = a_varId.address() + a_Offs.offset();
-
-		if (!address) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}] ID {}",
-				Internal::get_type_name<T>(), ID
-			);
-			return;
-		}
-		logger::debug("Installing write_call_unique<{}> at VariantID [0x{:X} + 0x{:X}] resolved to 0x{:X} ID {}",
-			Internal::get_type_name<T>(), a_varId.address(), a_Offs.offset(), address, ID
-		);
-		auto& trampoline = SKSE::GetTrampoline();
-		if constexpr (Size == 6) {
-			T::template func<ID> = *reinterpret_cast<uintptr_t*>(trampoline.write_call<6>(address, T::template thunk<ID>));
-		}
-		else {
-			T::template func<ID> = trampoline.write_call<Size>(address, T::template thunk<ID>);
-		}
-
-		logger::debug("write_call_unique installed, original function at: 0x{:X}",
-			address, static_cast<std::uintptr_t>(T::template func<ID>.address())
-		);
+	template <class T, std::size_t Size = 5, AddressSource Id, OffsetSource Off = OffsetEx>
+	void write_jmp(const Id& a_id, const Off& a_offset = {}, const When& a_when = {}) {
+		detail::WriteJmp<T, Size>(Resolve(a_id, a_offset, a_when));
 	}
 
-	template <class T, int ID, std::size_t Size = 5>
-	void write_call_unique(REL::RelocationID a_RelId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
-		const uintptr_t address = a_RelId.address() + a_Offs.offset();
-
-		if (!address) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}] ID {}",
-				Internal::get_type_name<T>(), ID
-			);
-			return;
-		}
-		logger::debug("Installing write_call_unique<{}> at RelocationID({}) [0x{:X} + 0x{:X}] resolved to 0x{:X} ID {}",
-			Internal::get_type_name<T>(), a_RelId.id(), a_RelId.address(), a_Offs.offset(), address, ID
-		);
-
-		auto& trampoline = SKSE::GetTrampoline();
-		if constexpr (Size == 6) {
-			T::template func<ID> = *reinterpret_cast<uintptr_t*>(trampoline.write_call<6>(address, T::template thunk<ID>));
-		}
-		else {
-			T::template func<ID> = trampoline.write_call<Size>(address, T::template thunk<ID>);
-		}
-
-		logger::debug("write_call_unique installed, original function at: 0x{:X}",
-			address, static_cast<std::uintptr_t>(T::template func<ID>.address())
-		);
+	template <class T, std::size_t Size = 5, AddressSource Id>
+	void write_jmp(const Id& a_id, const When& a_when) {
+		detail::WriteJmp<T, Size>(Resolve(a_id, 0, a_when));
 	}
 
-	template <class T, std::size_t Size = 5>
-	void write_call(REL::RelocationID a_RelId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
-		const uintptr_t address = a_RelId.address() + a_Offs.offset();
-
-		if (!address) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}] ID {} + 0x{:X}",
-				Internal::get_type_name<T>(), a_RelId.id(), a_Offs.offset()
-			);
-			return;
-		}
-		logger::debug("Installing write_call<{}> at RelocationID({}) [0x{} + 0x{:X}] resolved to 0x{:X}",
-			Internal::get_type_name<T>(), a_RelId.id(), a_RelId.address(), a_Offs.offset(), address
-		);
-
-		auto& trampoline = SKSE::GetTrampoline();
-		if (Size == 6) {
-			T::func = *reinterpret_cast<uintptr_t*>(trampoline.write_call<6>(address, T::thunk));
-		}
-		else {
-			T::func = trampoline.write_call<Size>(address, T::thunk);
-		}
-
-		logger::debug("write_call installed, original function at: 0x{:X}",
-			address, static_cast<std::uintptr_t>(T::func.address())
-		);
+	template <template <int> class T, int ID, std::size_t Size = 5, class... Args>
+	void write_jmp_unique(Args&&... a_args) {
+		write_jmp<T<ID>, Size>(std::forward<Args>(a_args)...);
 	}
 
+	//----- write_vfunc: replace slot T::funcIndex. The target is the vtable, e.g. RE::VTABLE_Actor[0].
 
-	//----- Write_Jmp (Write_Branch)
-
-	template <class T, std::size_t Size = 5>
-	void write_jmp(std::uintptr_t a_src) {
-
-		if (!a_src) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
-				Internal::get_type_name<T>()
-			);
-			return;
-		}
-		logger::debug("Installing write_jmp<{}> at address: 0x{:X}",
-			Internal::get_type_name<T>(), a_src
-		);
-
-		auto& trampoline = SKSE::GetTrampoline();
-		T::func = trampoline.write_branch<Size>(a_src, T::thunk);
-
-		logger::debug("write_jmp installed, original at: 0x{:X}",
-			a_src, static_cast<std::uintptr_t>(T::func.address())
-		);
-	}
-
-	template <class T, std::size_t Size = 5>
-	void write_jmp(REL::RelocationID a_RelId, REL::VariantOffset a_Offs = REL::VariantOffset(0x0, 0x0, 0x0)) {
-		const auto address = a_RelId.address() + a_Offs.offset();
-
-		if (!address) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
-				Internal::get_type_name<T>()
-			);
-			return;
-		}
-		logger::debug("Installing write_jmp<{}> at RelocationID([]) [0x{:X} + 0x{:X}] resolved to 0x{:X}",
-			Internal::get_type_name<T>(), a_RelId.id(), a_RelId.address(), a_RelId.offset(), address
-		);
-
-		auto& trampoline = SKSE::GetTrampoline();
-		T::func = trampoline.write_branch<Size>(address, T::thunk);
-
-		logger::debug("write_jmp installed, original at: 0x{:X}",
-			address, static_cast<std::uintptr_t>(T::func.address())
-		);
-	}
-
-	//----- Write_vfunc
-
-	template <class F, size_t vtblIndex, class T>
+	template <class F, std::size_t VtblIndex, class T>
 	void write_vfunc() {
-
-		logger::debug("Installing vfunc hook [{}] to {}::[{}]",
-			Internal::get_type_name<T>(), Internal::get_type_name<F>(), vtblIndex
-		);
-
-		REL::Relocation<std::uintptr_t> vtbl{ F::VTABLE[vtblIndex] };
-		T::func = vtbl.write_vfunc(T::funcIndex, T::thunk);
-
-		logger::debug("vfunc hook written, original function: 0x{:X}", 
-			static_cast<std::uintptr_t>(T::func.address())
-		);
-	}
-
-	template <class T>
-	void write_vfunc(REL::VariantID a_varID) {
-
-		if (!a_varID.address()) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
-				Internal::get_type_name<T>()
-			);
-			return;
-		}
-		logger::debug("Installing vfunc hook [{}] at VariantID [0x{:X} + 0x{:X}] Index: {}",
-			Internal::get_type_name<T>(), a_varID.address(), T::funcIndex * sizeof(void*), T::funcIndex
-		);
-
-		REL::Relocation<std::uintptr_t> vtbl{ a_varID };
-		T::func = vtbl.write_vfunc(T::funcIndex, T::thunk);
-
-		logger::debug("vfunc hook written, original function at: 0x{:X}",
-			static_cast<std::uintptr_t>(T::func.address())
-		);
+		detail::WriteVfunc<T>(Resolve(F::VTABLE[VtblIndex].address()));
 	}
 
 	template <class F, class T>
@@ -248,143 +249,89 @@ namespace Hooks::stl {
 		write_vfunc<F, 0, T>();
 	}
 
-	//----- write_vfunc_unique
-
-	template <class T, int ID>
-	void write_vfunc_unique(REL::VariantID a_varID) {
-
-		if (!a_varID.address()) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}] ID {}",
-				Internal::get_type_name<T>(), ID
-			);
-			return;
-		}
-		logger::debug("Installing vfunc hook [{}] at VariantID [0x{:X} + 0x{:X}] Index {} ID {}",
-			Internal::get_type_name<T>(), a_varID.address(), T::funcIndex * sizeof(void*), T::funcIndex, ID
-		);
-
-		REL::Relocation<std::uintptr_t> vtbl{ a_varID };
-		T::template func<ID> = vtbl.write_vfunc(T::funcIndex, T::template thunk<ID>);
-
-		logger::debug("vfunc hook written, original function at: 0x{:X}",
-			static_cast<std::uintptr_t>(T::template func<ID>.address())
-		);
+	template <class T>
+	void write_vfunc(std::uintptr_t a_vtable) {
+		detail::WriteVfunc<T>(Resolve(a_vtable));
 	}
 
-	template <class F, size_t vtblIndex, class T, int ID>
+	template <class T, AddressSource Id>
+	void write_vfunc(const Id& a_vtableId, const When& a_when = {}) {
+		detail::WriteVfunc<T>(Resolve(a_vtableId, 0, a_when));
+	}
+
+	template <template <int> class T, int ID, class... Args>
+	void write_vfunc_unique(Args&&... a_args) {
+		write_vfunc<T<ID>>(std::forward<Args>(a_args)...);
+	}
+
+	template <class F, std::size_t VtblIndex, template <int> class T, int ID>
 	void write_vfunc_unique() {
-
-		logger::debug("Installing vfunc hook [{}] to {}::[{}] ID {}",
-			Internal::get_type_name<T>(), Internal::get_type_name<F>(), vtblIndex, ID
-		);
-
-		REL::Relocation<std::uintptr_t> vtbl{ F::VTABLE[vtblIndex] };
-		T::template func<ID> = vtbl.write_vfunc(T::funcIndex, T::template thunk<ID>);
-
-		logger::debug("vfunc hook written, original function: 0x{:X}",
-			static_cast<std::uintptr_t>(T::template func<ID>.address())
-		);
+		write_vfunc<F, VtblIndex, T<ID>>();
 	}
 
-	template <class F, class T, int ID>
+	template <class F, template <int> class T, int ID>
 	void write_vfunc_unique() {
-		write_vfunc_unique<F, 0, T, ID>();
+		write_vfunc<F, 0, T<ID>>();
 	}
 
-	//----- Write_detour
+	//----- write_detour: take over a function from its first instruction. T::func calls the original.
 
 	template <class T>
-	void write_detour(REL::RelocationID a_relId) {
-		uintptr_t addr = REL::RelocationID{ a_relId }.address();
-		if (!addr) {
-			logger::warn("No relocation/hook address for this hook was given, skipping hook. [{}]",
-				Internal::get_type_name<T>()
-			);
-			return;
-		}
-		logger::debug("Installing detour hook at RelocationID({}) [0x{:X}]",
-			a_relId.id(), a_relId.address()
-		);
-		// Check if this function has already been detoured by another DLL
-		// Examine the first few bytes for common detour signatures
-		const uint8_t* funcBytes = reinterpret_cast<const uint8_t*>(addr);
-		bool alreadyDetoured = false;
-		std::string detourType;
-
-		// Check for common detour signatures used by other hooking libraries
-		if (funcBytes[0] == 0xE9) {
-			// Relative JMP (5 bytes: 0xE9 + 4-byte offset) - most common
-			alreadyDetoured = true;
-			detourType = "Relative JMP (0xE9) - likely Microsoft Detours or similar";
-		}
-		else if (funcBytes[0] == 0xFF && funcBytes[1] == 0x25) {
-			// Indirect JMP (6 bytes: 0xFF 0x25 + 4-byte address)
-			alreadyDetoured = true;
-			detourType = "Indirect JMP (0xFF 0x25) - common in many hooking libraries";
-		}
-		else if (funcBytes[0] == 0x48 && funcBytes[1] == 0xB8) {
-			// MOV RAX, imm64 followed by JMP RAX (common 64-bit detour pattern)
-			if (funcBytes[10] == 0xFF && funcBytes[11] == 0xE0) {
-				alreadyDetoured = true;
-				detourType = "MOV+JMP RAX pattern - 64-bit detour";
-			}
-		}
-		else if (funcBytes[0] == 0x50 && funcBytes[1] == 0x48 && funcBytes[2] == 0xB8) {
-			// PUSH RAX; MOV RAX, imm64; ... (some hooking libraries use this)
-			alreadyDetoured = true;
-			detourType = "PUSH+MOV pattern - possibly MinHook or custom";
-		}
-		else if (funcBytes[0] == 0x68) {
-			// PUSH imm32 (sometimes used for trampolines)
-			alreadyDetoured = true;
-			detourType = "PUSH immediate - possible trampoline";
-		}
-
-		if (alreadyDetoured) {
-			logger::error("Function at RelocationID({}) [0x{:X}] is already detoured by another DLL",
-				a_relId.id(), addr
-			);
-			logger::error("Detected detour type: {}", detourType);
-			logger::error("First 16 bytes: {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X}",
-				funcBytes[0],  funcBytes[1],  funcBytes[2],  funcBytes[3],
-				funcBytes[4],  funcBytes[5],  funcBytes[6],  funcBytes[7],
-				funcBytes[8],  funcBytes[9],  funcBytes[10], funcBytes[11],
-				funcBytes[12], funcBytes[13], funcBytes[14], funcBytes[15]
-			);
-
-			// You can choose to either abort or continue with a warning
-			SKSE::stl::report_and_fail(fmt::format("Cannot detour function at RelocationID({}) [0x{:X}] - already detoured by another DLL. This would likely cause crashes or unexpected behavior.",
-				a_relId.id(), addr)
-			);
-		}
-
-		using FnPtr = decltype(T::func);
-		FnPtr orig = reinterpret_cast<FnPtr>(addr);
-
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-
-		auto attachResult = DetourAttach(reinterpret_cast<PVOID*>(&orig), T::thunk);
-		if (attachResult != NO_ERROR) {
-			DetourTransactionAbort();
-
-			SKSE::stl::report_and_fail(fmt::format("Detour attach failed. RelocationID: {} Address: 0x{:X} - Error: {}",
-				a_relId.id(), a_relId.address(), attachResult
-			));
-		}
-
-		auto commitResult = DetourTransactionCommit();
-		if (commitResult != NO_ERROR) {
-			SKSE::stl::report_and_fail(fmt::format("Detour commit failed. RelocationID: {} Address: 0x{:X} - Error: {}",
-				a_relId.id(), a_relId.address(), commitResult
-			));
-		}
-
-		// Overwrite real func with the trampoline
-		T::func = orig;
-		logger::debug("Detour installed successfully. Original function: 0x{:X}, Trampoline: 0x{:X}",
-			addr, reinterpret_cast<std::uintptr_t>(T::func)
-		);
+	void write_detour(std::uintptr_t a_address) {
+		detail::WriteDetour<T>(Resolve(a_address));
 	}
 
+	template <class T, AddressSource Id, OffsetSource Off = OffsetEx>
+	void write_detour(const Id& a_id, const Off& a_offset = {}, const When& a_when = {}) {
+		detail::WriteDetour<T>(Resolve(a_id, a_offset, a_when));
+	}
+
+	template <class T, AddressSource Id>
+	void write_detour(const Id& a_id, const When& a_when) {
+		detail::WriteDetour<T>(Resolve(a_id, 0, a_when));
+	}
+
+	template <template <int> class T, int ID, class... Args>
+	void write_detour_unique(Args&&... a_args) {
+		write_detour<T<ID>>(std::forward<Args>(a_args)...);
+	}
+
+	//----- write_xbyak_thunk: divert T::bytesToPatch bytes into a Hooks::CodeCave. Caves are generated per site,
+	//so one cave type can be installed at several sites without a unique variant.
+
+	template <class T>
+	void write_xbyak_thunk(std::uintptr_t a_address) {
+		detail::WriteCave<T>(Resolve(a_address));
+	}
+
+	template <class T, AddressSource Id, OffsetSource Off = OffsetEx>
+	void write_xbyak_thunk(const Id& a_id, const Off& a_offset = {}, const When& a_when = {}) {
+		detail::WriteCave<T>(Resolve(a_id, a_offset, a_when));
+	}
+
+	template <class T, AddressSource Id>
+	void write_xbyak_thunk(const Id& a_id, const When& a_when) {
+		detail::WriteCave<T>(Resolve(a_id, 0, a_when));
+	}
+
+	//----- safe_write: write a trivially copyable value (a std::array of bytes, a float, ...). With a_expected the
+	//site must hold those bytes first or nothing is written. Returns whether the write happened.
+
+	template <class T>
+	concept Payload = std::is_trivially_copyable_v<T> && !std::is_convertible_v<T, When>;
+
+	template <Payload T>
+	bool safe_write(std::uintptr_t a_address, const T& a_data, std::span<const std::uint8_t> a_expected = {}) {
+		return detail::SafeWrite(Resolve(a_address), std::addressof(a_data), sizeof(T), a_expected);
+	}
+
+	template <AddressSource Id, OffsetSource Off, Payload T>
+	bool safe_write(const Id& a_id, const Off& a_offset, const T& a_data, std::span<const std::uint8_t> a_expected = {}) {
+		return detail::SafeWrite(Resolve(a_id, a_offset, {}), std::addressof(a_data), sizeof(T), a_expected);
+	}
+
+	template <AddressSource Id, OffsetSource Off, Payload T>
+	bool safe_write(const Id& a_id, const Off& a_offset, const When& a_when, const T& a_data, std::span<const std::uint8_t> a_expected = {}) {
+		return detail::SafeWrite(Resolve(a_id, a_offset, a_when), std::addressof(a_data), sizeof(T), a_expected);
+	}
 }

@@ -3,7 +3,6 @@
 #include "Managers/Damage/Utils/SizeDamageUtils.hpp"
 #include "Managers/Damage/CollisionDamage.hpp"
 
-#include "Hooks/Experiments/Experiments_FootColliders.hpp"
 
 #include "Config/Config.hpp"
 

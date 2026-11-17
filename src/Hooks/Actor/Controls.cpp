@@ -71,11 +71,11 @@ namespace {
 
 namespace Hooks {
 
+	template<int ID>
 	struct CanProcess {
 
 		static constexpr size_t funcIndex = 0x01;
 
-		template<int ID>
 		//void* is the class instance, can't use PlayerInputHandler as its abstract.
 		static bool thunk(void* a_this, RE::InputEvent* a_event) {
 
@@ -95,28 +95,27 @@ namespace Hooks {
 				}
 			}
 
-			return func<ID>(a_this, a_event);
+			return func(a_this, a_event);
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+		FUNCTYPE_VFUNC func;
 	};
 
+	template<int ID>
 	struct ProcessMouseMove {
 		static constexpr size_t funcIndex = 0x01;
 
-		template<int ID>
 		static bool thunk(void* a_this, RE::InputEvent* a_event) {
 			if (a_event->GetEventType() == INPUT_EVENT_TYPE::kMouseMove || a_event->GetEventType() == INPUT_EVENT_TYPE::kThumbstick) {
 				if (IsInAnyGTSKillMove()) {
 					return false;
 				}
 			}
-			return func<ID>(a_this, a_event);
+			return func(a_this, a_event);
 		}
 
-		template<int ID>
-		FUNCTYPE_VFUNC_UNIQUE func;
+
+		FUNCTYPE_VFUNC func;
 	};
 
 

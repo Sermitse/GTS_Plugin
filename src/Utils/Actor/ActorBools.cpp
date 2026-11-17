@@ -254,7 +254,7 @@ namespace GTS {
 	bool IsInGodMode(Actor* giant) {
 		if (giant) {
 			if (giant->IsPlayerRef()) {
-				static const REL::Relocation<bool*> singleton{ REL::RelocationID(517711, 404238, NULL) };
+				static const REL::Relocation<bool*> singleton{ Hooks::RelocationIDEx(517711, 404238, 404238, NULL).address() };
 				return *singleton;
 			}
 		}

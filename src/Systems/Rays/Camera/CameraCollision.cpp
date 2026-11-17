@@ -1,6 +1,7 @@
 #include "Systems/Rays/Camera/CameraCollision.hpp"
 #include "CameraRayCollector.hpp"
 #include "Managers/Cameras/CamUtil.hpp"
+#include "Managers/Collision/DynamicCollisionUtils.hpp"
 #include "config/Config.hpp"
 
 namespace {
@@ -65,7 +66,7 @@ namespace GTS::CameraCol {
 			//cameraCaster truncates end in place to the actual impact point on hit, that truncated
 			//value is what we read back below as the hit position, not the original ray endpoint.
 			typedef bool(__fastcall* RayCastFunType)(decltype(RE::PlayerCamera::unk120), RE::bhkWorld*, glm::vec4&, glm::vec4&, hkpRootCdPoint*, RE::Character**, float);
-			static auto cameraCaster = REL::Relocation<RayCastFunType>(REL::RelocationID(32270, 33007, NULL));
+			static auto cameraCaster = REL::Relocation<RayCastFunType>(Hooks::RelocationIDEx(32270, 33007, 33007, NULL).address());
 			res.hit = cameraCaster(cam->unk120, physicsWorld, start, end, &res.cdPoint, &res.hitCharacter, traceHullSize);
 		}
 
@@ -99,6 +100,11 @@ namespace GTS::CameraCol {
 		const float actorZPos = cameraActor->GetPositionZ();
 
 		const auto toVec4 = [](const NiPoint3& p) { return glm::vec4(p.x, p.y, p.z, 0.0f); };
+		const auto toNiPoint = [](const glm::vec4& v) { return NiPoint3(v.x, v.y, v.z); };
+		const auto drawLine = [](const NiPoint3& a_from, const NiPoint3& a_to, const glm::vec4& a_color, float a_thickness) {
+			DebugDraw::DrawLineForMS({ a_from.x, a_from.y, a_from.z }, { a_to.x, a_to.y, a_to.z }, 16, a_color, a_thickness);
+		};
+
 		const auto hkpHitPos = [](const glm::vec4& from, const glm::vec4& to, float fraction) {
 			return NiPoint3 {
 				(to.x - from.x) * fraction + from.x,
@@ -108,7 +114,7 @@ namespace GTS::CameraCol {
 		};
 
 		// -------------------------------------------------------------------------
-		std::vector<RE::hkpCdBody*> ignoreList;
+		absl::InlinedVector<RE::hkpCdBody*, 32> ignoreList;
 		{
 			const glm::vec4 origin4 = toVec4(currentStart);
 
@@ -129,7 +135,7 @@ namespace GTS::CameraCol {
 
 				//Rays
 				if (Config::Advanced.bShowOverlay) {
-					DebugDraw::DrawLineForMS({ currentStart.x, currentStart.y, currentStart.z }, { probeEnd.x, probeEnd.y, probeEnd.z }, 16, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.1f); //White
+					drawLine(currentStart, toNiPoint(probeEnd), { 1.0f, 1.0f, 1.0f, 1.0f }, 0.1f); //White
 				}
 
 				const uint64_t cameraCollidesWithBitfield = filter->layerBitfields[static_cast<uint8_t>(COL_LAYER::kCamera)];
@@ -146,7 +152,7 @@ namespace GTS::CameraCol {
 						if (cameraCollidesWithBitfield & layerBit) {
 							if (hitPos.z > actorZPos) {
 								if (Config::Advanced.bShowOverlay) {
-									DebugDraw::DrawLineForMS({ currentStart.x, currentStart.y, currentStart.z }, { hitPos.x, hitPos.y, hitPos.z }, 16, { 0.0f, 0.0f, 1.0f, 1.0f }, 0.5f);
+									drawLine(currentStart, hitPos, { 0.0f, 0.0f, 1.0f, 1.0f }, 0.5f);
 								}
 								ignoreList.push_back(const_cast<hkpCdBody*>(hit.body));
 							}
@@ -160,8 +166,7 @@ namespace GTS::CameraCol {
 		ignoreList.erase(std::ranges::unique(ignoreList).begin(), ignoreList.end());
 
 		//Disable collision for all valid hit objects for the duration of this function
-		std::vector<COL_LAYER> disabledLayers;
-		disabledLayers.reserve(8);
+		absl::InlinedVector<COL_LAYER, 32> disabledLayers;
 
 		{
 			for (RE::hkpCdBody* av : ignoreList) {
@@ -186,12 +191,48 @@ namespace GTS::CameraCol {
 			}
 		}
 
+		//Verified start
+		//Use the havok char controller to build a "safe" point.
+		//To then raycast from this point onto the actual wanted postion.
+		//And move along the hit ray's normal if the desired position can not be reached.
+		float safeZ = actorZPos + Hullx2;
 		{
-			//Underground prevention
-			//Force raystart to be atleast at the same z pos as hullx2 + char controller position. 
-			//prevents tracking bones that are underground,
-			if (currentStart.z < actorZPos + Hullx2) {
-				currentStart.z = actorZPos + Hullx2;
+			NiPoint3 anchor = {};
+			float halfHeight = 0.0f;
+
+			if (GetControllerExtent(cameraActor, anchor, halfHeight)) {
+
+				//A shrunk actor's own half height can be smaller than the camera hull, so the anchor
+				//never sits closer to the ground than the hull the sweep will use.
+				anchor.z += std::max(halfHeight, Hullx2);
+				safeZ = anchor.z;
+
+				if (Config::Advanced.bShowOverlay) {
+					drawLine(anchor, currentStart, { 1.0f, 0.0f, 1.0f, 1.0f }, 1.0f); //Magenta
+				}
+
+				constexpr int maxChecks = 3;
+				for (int check = 0; check < maxChecks; ++check) {
+
+					const CamRayResult verify = RaycastAsCamera(cameraActor, toVec4(anchor), toVec4(currentStart), Hull);
+
+					if (!verify.hit) {
+						break;
+					}
+
+					const NiPoint3 hitPos = { verify.hitPos.x, verify.hitPos.y, verify.hitPos.z };
+					const NiPoint3 hitNorm = { verify.cdPoint.normal.x, verify.cdPoint.normal.y, verify.cdPoint.normal.z };
+
+					currentStart = hitPos + (hitNorm * Hull);
+
+					if (Config::Advanced.bShowOverlay) {
+						drawLine(hitPos, currentStart, { 1.0f, 0.50f, 0.0f, 1.0f }, 1.5f); //Orange
+					}
+				}
+			}
+			else if (currentStart.z < safeZ) {
+				//No readable controller shape. Fall back to the old z only clamp.
+				currentStart.z = safeZ;
 			}
 		}
 
@@ -205,10 +246,9 @@ namespace GTS::CameraCol {
 			if (floorResult.hit && floorResult.rayLength < Hull) {
 				currentStart.z += Hull - floorResult.rayLength;
 			}
-				
 
 			if (Config::Advanced.bShowOverlay) {
-				DebugDraw::DrawLineForMS({ floorStart4.x, floorStart4.y, floorStart4.z }, { currentStart.x, currentStart.y, currentStart.z }, 16, { 0.0f, 1.0f, 1.0f, 1.0f }, 1.5f); //Blue
+				drawLine(toNiPoint(floorStart4), currentStart, { 0.0f, 1.0f, 1.0f, 1.0f }, 1.5f); //Blue
 			}
 		}
 
@@ -218,12 +258,14 @@ namespace GTS::CameraCol {
 			const glm::vec4 ceilEnd4 = { currentStart.x, currentStart.y, currentStart.z + Hull, 0.0f };
 			const CamRayResult ceilResult = RaycastAsCamera(cameraActor, ceilStart4, ceilEnd4, 1.0f); //Hull should be thin here.
 
+			//Clamped against the verified start: from inside geometry every upward hit reads as a
+			//ceiling, and the correction would drive the camera further down.
 			if (ceilResult.hit && ceilResult.rayLength < Hull) {
-				currentStart.z -= Hull - ceilResult.rayLength;
+				currentStart.z = std::max(currentStart.z - (Hull - ceilResult.rayLength), safeZ);
 			}
 
 			if (Config::Advanced.bShowOverlay) {
-				DebugDraw::DrawLineForMS({ ceilStart4.x, ceilStart4.y, ceilStart4.z }, { currentStart.x, currentStart.y, currentStart.z }, 16, { 0.0f, 1.0f, 1.0f, 1.0f }, 1.5f); //Blue
+				drawLine(toNiPoint(ceilStart4), currentStart, { 0.0f, 1.0f, 1.0f, 1.0f }, 1.5f); //Blue
 			}
 
 		}
@@ -276,7 +318,7 @@ namespace GTS::CameraCol {
 			}
 
 			if (Config::Advanced.bShowOverlay) {
-				DebugDraw::DrawLineForMS({ floorStart4.x, floorStart4.y, floorStart4.z }, { finalCameraPosition.x, finalCameraPosition.y, finalCameraPosition.z }, 16, { 0.0f, 1.0f, 0.0f, 1.0f }, 1.5f); //Green
+				drawLine(toNiPoint(floorStart4), finalCameraPosition, { 0.0f, 1.0f, 0.0f, 1.0f }, 1.5f); //Green
 			}
 		}
 
