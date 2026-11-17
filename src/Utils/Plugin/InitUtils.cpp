@@ -5,8 +5,25 @@
 namespace GTS {
 
 	void VersionCheck(const SKSE::LoadInterface* a_skse) {
-		if (a_skse->RuntimeVersion() < SKSE::RUNTIME_SSE_1_5_97 || REL::Module::IsVR()) {
+
+		auto ver = a_skse->RuntimeVersion();
+
+		logger::critical("Game version: {}", ver.string());
+
+		if (ver < SKSE::RUNTIME_SSE_1_5_97 || REL::Module::IsVR()) {
+			logger::critical("Invalid Game Version: {}", ver.string());
 			ReportAndExit("This mod does not support Skyrim VR or versions of Skyrim older than 1.5.97.");
+		}
+
+		auto isValidGameVer =
+			ver == SKSE::RUNTIME_SSE_1_5_97   || //SE
+			ver == SKSE::RUNTIME_SSE_1_6_1170 || //Last 1.6 AE
+			ver == SKSE::RUNTIME_SSE_1_6_1179 || //Current (17/11/26) GOG
+			ver == SKSE::RUNTIME_SSE_1_7_104;    //Current (17/11/26) Steam
+
+		if (!isValidGameVer) {
+			logger::critical("Unsupported Game version: {}", ver.string());
+			logger::critical("THE PLUGIN MAY CRASH OR BEHAVE UNEXPECTANDLY. YOU HAVE BEEN WARNED.");
 		}
 	}
 

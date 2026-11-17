@@ -1,6 +1,7 @@
 #include "UI/Windows/Other/SplashWindow.hpp"
 #include "UI/Core/ImFontManager.hpp"
 #include "Config/Util/KeybindHandler.hpp"
+#include "UI/Core/ImUtil.hpp"
 
 #include "Version.hpp"
 
@@ -43,6 +44,25 @@ namespace GTS {
 				GetSettingsKeybind().c_str()
 			);
 
+			auto ver = REL::Module::get().version();
+
+			auto isValidGameVer =
+				ver == SKSE::RUNTIME_SSE_1_5_97   || //SE
+				ver == SKSE::RUNTIME_SSE_1_6_1170 || //Last 1.6 AE
+				ver == SKSE::RUNTIME_SSE_1_6_1179 || //Current (17/11/26) GOG
+				ver == SKSE::RUNTIME_SSE_1_7_104;    //Current (17/11/26) Steam
+
+
+			if (!isValidGameVer) {
+
+				std::string msg = fmt::format(
+					"Unsupported Game version: {}!\n"
+					"THE MOD MAY CRASH OR BEHAVE UNEXPECTANDLY. YOU HAVE BEEN WARNED.",
+					ver.string()
+				);
+
+				ImGui::TextColored(ImUtil::Colors::Error, msg.c_str());
+			}
 
 			ImFontManager::Pop();
 		}
