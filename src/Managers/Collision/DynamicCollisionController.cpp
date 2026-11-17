@@ -105,16 +105,20 @@ namespace {
 			cloningProcess.scale = a_scale;
 		}
 
-		auto clone = reinterpret_cast<T*>(a_object->Clone(cloningProcess));
+		// Clone() hands back an NiObject*, and nothing guarantees the clone really is
+		// a T. netimmerse_cast walks the NiRTTI chain and yields nullptr on mismatch
+		// instead of a mistyped pointer.
+		auto clone = netimmerse_cast<T*>(a_object->Clone(cloningProcess));
 		return clone;
 	}
 }
 
 namespace GTS {
 
-	DynamicCollisionController::DynamicCollisionController(const RE::ActorHandle& a_handle, bool a_hasInSkeletonCollision) {
+	DynamicCollisionController::DynamicCollisionController(const RE::ActorHandle& a_handle, const bhkCharacterController* a_controller, bool a_hasInSkeletonCollision) {
 
 		m_actor = a_handle;
+		m_controller = a_controller;
 
 		if (NiPointer<Actor> niActor = m_actor.get()) {
 			if (Actor* actor = niActor.get()) {
@@ -138,7 +142,18 @@ namespace GTS {
 								}
 							}
 
-							m_originalData.maxSlope = GetControllerMaxSlope(controller);
+							m_originalData.controllerKind = GetControllerKind(controller);
+							m_originalData.maxSlopeDegrees = GetControllerMaxSlope(controller);
+							m_originalData.maxSlopeRaw = controller->maxSlope;
+							m_originalData.stepHeight = GetControllerStepHeight(controller);
+							m_originalData.stepReach = GetControllerStepReach(controller);
+
+							if (const hkpCharacterRigidBody* rigidBody = GetControllerRigidBody(controller, m_originalData.controllerKind)) {
+								m_originalData.rigidBodyMaxSlopeCosine = rigidBody->m_maxSlopeCosine;
+							}
+							else if (const hkpCharacterProxy* proxy = GetControllerProxy(controller, m_originalData.controllerKind)) {
+								m_originalData.proxyMaxSolverSpeed = proxy->maxCharacterSpeedForSolver;
+							}
 
 							hkpConvexVerticesShape* convexShape = nullptr;
 							std::vector<hkpCapsuleShape*> capsuleShapes = {};
@@ -164,45 +179,34 @@ namespace GTS {
 									m_originalData.hasVertecesShape = true;
 								}
 
-								if (!capsuleShapes.empty()) {
-									for (hkpCapsuleShape* shape : capsuleShapes) {
-										if (shape) {
-											bool isBumper = false;
-											if (bhkShape* userDat = shape->userData) {
-												if (userDat->materialID == MATERIAL_ID::kCharacterBumper) {
-													isBumper = true;
-												}
+								//Fixes edge cases for creatures whom don't have an i- skeleton collision shape.
+								//As the game DOES correctly scale them on character init.
+								//Because of this, this normaly ends up double scaling the collider so it needs to be accounted for.
+								//We only care for actors which don't have an in skeleton shape and don't use a hkpConvexVerticesShape as well.
+								//Creatures who have a ConvexShape appear to not get scaled
+								//We effectively normalize scale here by premtively shrinking the nodes based on the inverse of visual_scale.
+								float capsuleBaseScale = 1.0f;
+								if (!a_hasInSkeletonCollision && !convexShape && Runtime::HasKeyword(actor, Runtime::KYWD.CreatureKeyword)) {
+									const float InitialScale = get_3d_scale(actor); //get_visual_scale is not yet ready at this point due to ModScale's caching system, so get the values directly.
+									capsuleBaseScale = (InitialScale > 1e-4f) ? (1.0f / InitialScale) : 1.0f;
+								}
+								const __m128 capsuleBaseScaleV = _mm_set_ps(0.0f, capsuleBaseScale, capsuleBaseScale, capsuleBaseScale); // leave W=0
+
+								for (hkpCapsuleShape* shape : capsuleShapes) {
+									if (shape) {
+										bool isBumper = false;
+										if (bhkShape* userDat = shape->userData) {
+											if (userDat->materialID == MATERIAL_ID::kCharacterBumper) {
+												isBumper = true;
 											}
-
-											//Fixes edge cases for creatures whom don't have an i- skeleton collision shape.
-											//As the game DOES correctly scale them on character init.
-											//Because of this, this normaly ends up double scaling the collider so it needs to be accounted for.
-											//We only care for actors which don't have an in skeleton shape and don't use a hkpConvexVerticesShape as well.
-											//Creatures who have a ConvexShape appear to not get scaled
-											//We effectively normalize scale here by premtively shrinking the nodes based on the inverse of visual_scale.
-											if (!a_hasInSkeletonCollision && !convexShape && Runtime::HasKeyword(actor, Runtime::KYWD.CreatureKeyword)) {
-												float InitialScale = get_3d_scale(actor); //get_visual_scale is not yet ready at this point due to ModScale's caching system, so get the values directly.
-												const float invScale = (InitialScale > 1e-4f) ? (1.0f / InitialScale) : 1.0f;
-												const __m128 invScaleV = _mm_set_ps(0.0f, invScale, invScale, invScale); // leave W=0
-
-												m_originalData.capsules.push_back({
-													shape->radius * invScale,
-													hkVector4{ _mm_mul_ps(shape->vertexA.quad, invScaleV) },
-													hkVector4{ _mm_mul_ps(shape->vertexB.quad, invScaleV) },
-													isBumper,
-												});
-											}
-											else {
-												m_originalData.capsules.push_back({
-													shape->radius,
-													shape->vertexA,
-													shape->vertexB,
-													isBumper,
-												});
-											}
-
-
 										}
+
+										m_originalData.capsules.push_back({
+											shape->radius * capsuleBaseScale,
+											hkVector4{ _mm_mul_ps(shape->vertexA.quad, capsuleBaseScaleV) },
+											hkVector4{ _mm_mul_ps(shape->vertexB.quad, capsuleBaseScaleV) },
+											isBumper,
+										});
 									}
 								}
 
@@ -231,8 +235,10 @@ namespace GTS {
 												if (wrapper) {
 													// Havok shape the wrapper points at
 													if (hkpShape* originalShape = static_cast<hkpShape*>(wrapper->referencedObject.get())) {
-														// Deep clone (capsule leaf, list deep copy)
-														if (hkpShape* clonedShape = DeepCloneShape(originalShape)) {
+														// Deep clone (capsule leaf, list deep copy). Any other root, like a bare hull, is the
+														// controller's own already (the game builds the hull per controller), and wrapping it again
+														// would leave two wrappers fighting over its userData.
+														if (hkpShape* clonedShape = IsDeepCloneable(originalShape) ? DeepCloneShape(originalShape) : nullptr) {
 															// Clone the wrapper and bind it to the cloned Havok shape
 															m_uniqueShape = NiPointer(Clone<bhkShape>(wrapper.get()));
 															if (!m_uniqueShape) {
@@ -244,10 +250,12 @@ namespace GTS {
 
 															// Install the cloned shape into the Havok character
 															character->SetShape(clonedShape);
-
-															// Replace controller wrapper entry
-															RigidBodyController->shapes[shapeIdx]->DecRefCount();
+															//No manual DecRefCount: the NiPointer assignment below already releases the old wrapper.
+															//RigidBodyController->shapes[shapeIdx]->DecRefCount();
 															RigidBodyController->shapes[shapeIdx] = m_uniqueShape;
+
+															//The wrapper and the body or phantom each took their own reference, so ours is released.
+															clonedShape->RemoveReference();
 
 														}
 													}
@@ -275,14 +283,16 @@ namespace GTS {
 									}
 
 									if (const hkpShape* rootCollidableShape = phantom->collidable.shape) {
-										// userData is an integer/pointer field; validate before constructing any NiPointer
+										// userData is an integer/pointer field. Validate before constructing any NiPointer
 										if (bhkShape* wrapperRaw = rootCollidableShape->userData) {
 											NiPointer wrapper(wrapperRaw);
 											if (wrapper) {
 												// Havok shape the wrapper points at
 												if (hkpShape* originalShape = static_cast<hkpShape*>(wrapper->referencedObject.get())) {
-													// Deep clone (capsule leaf, list deep copy)
-													if (hkpShape* clonedShape = DeepCloneShape(originalShape)) {
+													// Deep clone (capsule leaf, list deep copy). Any other root, like a bare hull, is the
+													// controller's own already (the game builds the hull per controller), and wrapping it again
+													// would leave two wrappers fighting over its userData.
+													if (hkpShape* clonedShape = IsDeepCloneable(originalShape) ? DeepCloneShape(originalShape) : nullptr) {
 														// Clone the wrapper and bind it to the cloned Havok shape
 														m_uniqueShape = NiPointer(Clone<bhkShape>(wrapper.get()));
 														if (!m_uniqueShape) {
@@ -295,9 +305,12 @@ namespace GTS {
 														// Install the cloned shape into the Havok character
 														phantom->SetShape(clonedShape);
 
-														// Replace controller wrapper entry
-														ProxyController->shapes[shapeIdx]->DecRefCount();
+														//No manual DecRefCount: the NiPointer assignment below already releases the old wrapper.
+														//ProxyController->shapes[shapeIdx]->DecRefCount();
 														ProxyController->shapes[shapeIdx] = m_uniqueShape;
+
+														//The wrapper and the body or phantom each took their own reference, so ours is released.
+														clonedShape->RemoveReference();
 
 													}
 												}
@@ -305,6 +318,7 @@ namespace GTS {
 										}
 									}
 								}
+
 							}
 							logger::trace("DCC .ctor on 0x{:X} | {} | HasSkeletonShapes: {} | IsCreature: {} | GameScale: {} | VisualScale: {} | HasConvexShape: {}", actor->formID, actor->GetDisplayFullName(), a_hasInSkeletonCollision, Runtime::HasKeyword(actor, Runtime::KYWD.CreatureKeyword), actor->GetBaseHeight(), get_3d_scale(actor), convexShape != nullptr);
 						}
@@ -318,16 +332,50 @@ namespace GTS {
 
 	}
 
+	void DynamicCollisionController::MarkDestroyed() {
+		m_destroyed.store(true);
+	}
+
 	void DynamicCollisionController::Update() {
-		
+
+		if (m_destroyed.load()) {
+			return;
+		}
+
 		if (NiPointer<Actor> niTarget = m_actor.get()) {
 			if (Actor* Target = niTarget.get()) {
 				if (Target->Is3DLoaded()) {
 
+					//Holding a reference keeps the controller alive for this update, wherever its last owner lets go.
+					//The identity check keeps this instance off a controller that replaced the one it was built for.
+					NiPointer<bhkCharacterController> controllerRef{ Target->GetCharController() };
+					bhkCharacterController* controller = controllerRef.get();
+
 					//Player and Bone driven ActorTypeNPC followers
-					if (bhkCharacterController* controller = Target->GetCharController()) {
+					if (controller && controller == m_controller) {
 
 						m_currentVisualScale = get_visual_scale(Target);
+
+						//Havok's step reads these fields on its own threads, so they are written under the world lock,
+						//and only when they differ.
+						const auto updateControllerFields = [&](bool a_updateScale) {
+							const ControllerFields wanted = GetWantedFields(a_updateScale && Target->IsPlayerRef());
+
+							if (!FieldsMatch(controller, wanted)) {
+								TESObjectCELL* cell = Target->GetParentCell();
+								bhkWorld* world = cell ? cell->GetbhkWorld() : nullptr;
+								if (!world) {
+									return;
+								}
+
+								BSWriteLockGuard lock(world->worldLock);
+								WriteFields(controller, wanted);
+							}
+
+							if (wanted.writeTraversal) {
+								m_traversalApplied = Config::Collision.bScaleTraversal;
+							}
+						};
 
 						if (m_originalData.hasVertecesShape && m_originalData.convexVerteces.size() == 18) { // Bone driven updates only for humanoids with 18-vertex shapes
 
@@ -335,9 +383,7 @@ namespace GTS {
 								if ((Target->IsPlayerRef() && Target->GetActorBase()->GetSex() != SEX::kMale) || (Config::Collision.bEnableBoneDrivenCollisionUpdatesFollowers && IsTeammate(Target))) {
 
 									AdjustBoneDrivenHuman(); // Clamped inside function
-									if (Target->IsPlayerRef()) {
-										UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
-									}
+									updateControllerFields(true);
 									m_lastVisualScale = 0.0f; // Set it to 0 to force an update if followers are switched to simple scaling
 
 									if (Config::Collision.bDrawDebugShapes) {
@@ -357,10 +403,10 @@ namespace GTS {
 
 							if (ShouldUpdate) {
 								AdjustScale(); // It's clamped by Config::Collision.fMSimpleDrivenColliderMaxScale anyway
-								if (Target->IsPlayerRef()) {
-									UpdateControllerScaleAndSlope(controller, m_originalData, m_currentVisualScale);
-								}
 							}
+
+							updateControllerFields(ShouldUpdate);
+
 							if (Config::Collision.bDrawDebugShapes) {
 								DrawCollisionShapes(Target, false);
 							}
@@ -461,7 +507,7 @@ namespace GTS {
 							// Set new shape
 							{
 								BSWriteLockGuard lock(world->worldLock);
-								SetNewVerticesShape(controller, modifiedVerts);
+								m_ownedHull = SetNewVerticesShape(controller, modifiedVerts, GetScaledConvexRadius(m_currentVisualScale), m_ownedHull);
 								if (auto tranData = Transient::GetActorData(actor)) {
 									tranData->cachedConvexVerticesShape = modifiedVerts;
 								}
@@ -474,17 +520,16 @@ namespace GTS {
 								if (!m_uniqueShape.get()) return;
 								std::vector<hkpCapsuleShape*> CurrentCapsules{};
 
-								{
-									BSReadLockGuard lock(world->worldLock);
-									if (!GetCapsulesFromShape(m_uniqueShape.get(), CurrentCapsules)) return; //Should always be 1.
-									if (CurrentCapsules.size() != m_originalData.capsules.size())  return;
-								}
 
 								{
 									BSWriteLockGuard lock(world->worldLock);
+									if (!GetCapsulesFromShape(m_uniqueShape.get(), CurrentCapsules)) return; //Should always be 1.
+									if (CurrentCapsules.size() != m_originalData.capsules.size())  return;
+
 									for (size_t i = 0; i < CurrentCapsules.size(); ++i) {
 										ScaleCapsule(m_originalData.capsules[i], CurrentCapsules[i], clampedScale);
 									}
+									RebuildMopps(controller, clampedScale);
 								}
 							}
 						}
@@ -573,7 +618,7 @@ namespace GTS {
 								// Set new shape
 								{
 									BSWriteLockGuard lock(world->worldLock);
-									SetNewVerticesShape(controller, modifiedVerts);
+									m_ownedHull = SetNewVerticesShape(controller, modifiedVerts, GetScaledConvexRadius(m_currentVisualScale), m_ownedHull);
 									if (auto tranData = Transient::GetActorData(actor)) {
 										tranData->cachedConvexVerticesShape = modifiedVerts;
 									}
@@ -589,16 +634,14 @@ namespace GTS {
 								CurrentCapsules.reserve(6); //Some actors have up to 6 capsules
 
 								{
-									BSReadLockGuard lock(world->worldLock);
+									BSWriteLockGuard lock(world->worldLock);
 									if (!GetCapsulesFromShape(m_uniqueShape.get(), CurrentCapsules)) return; //Should always be 1.
 									if (CurrentCapsules.size() != m_originalData.capsules.size())  return;
-								}
 
-								{
-									BSWriteLockGuard lock(world->worldLock);
 									for (size_t i = 0; i < CurrentCapsules.size(); ++i) {
 										ScaleCapsule(m_originalData.capsules[i], CurrentCapsules[i], fClampedScale);
 									}
+									RebuildMopps(controller, fClampedScale);
 								}
 							}
 						}
@@ -682,14 +725,143 @@ namespace GTS {
 		a_outCapsule->vertexB.quad = b1;
 	}
 
-	void DynamicCollisionController::UpdateControllerScaleAndSlope(bhkCharacterController* a_controller, const ShapeData& a_origData, float a_currentScale) {
-		constexpr float maxSlopeAtScale = 5.0f;
-		const float normalizedScale = std::clamp((a_currentScale - 1.0f) / maxSlopeAtScale, 0.0f, 1.0f);
-		const float newSlope = std::lerp(a_origData.maxSlope, 89.0f, normalizedScale);
 
-		a_controller->actorHeight = a_origData.controllerActorHeight * a_currentScale;
-		a_controller->scale = a_currentScale;
-		SetControllerMaxSlope(a_controller, newSlope);
+	// TODO: Check the performance implications of mopp recompiles.
+	// The capsules are a function of the scale alone, so the trees only need compiling when it changed.
+	//
+	// UpdateShape is havok's notice that a shape changed in place. Checked on 
+	// 1.7.104 that it skips a null modifier, recomputes the body's radius and invalidates its bounding volume.
+	// It leaves agents alone, so a bv-tree agent keeps the child list it cached for the other body until that
+	// body leaves its cached AABB.
+	// TODO: A child that grew into an overlap is picked up late by up to that margin; SetShape(root) would reset the agents, at the cost of the contacts on every growing frame.
+	// Phantoms have no UpdateShape (the slot only returns). The proxy's integrate rebuilds their AABB.
+	void DynamicCollisionController::RebuildMopps(bhkCharacterController* a_controller, float a_scale) const {
+
+		if (!m_uniqueShape) {
+			return;
+		}
+
+		//Collected again whenever the wrapper's shape changes, so the pointers never outlive the shape they
+		//point into. Holding the root keeps them valid until then.
+		if (m_uniqueShape->referencedObject.get() != m_moppRoot.get()) {
+			m_moppRoot = m_uniqueShape->referencedObject;
+			m_moppShapes.clear();
+			GetMoppShapes(static_cast<hkpShape*>(m_moppRoot.get()), m_moppShapes);
+			m_moppBuiltScale = std::numeric_limits<float>::quiet_NaN();
+		}
+
+		if (m_moppShapes.empty() || a_scale == m_moppBuiltScale) {
+			return;
+		}
+
+		for (hkpMoppBvTreeShape* mopp : m_moppShapes) {
+			RebuildMoppCode(mopp);
+		}
+		m_moppBuiltScale = a_scale;
+
+		if (hkpCharacterRigidBody* rigidBody = GetControllerRigidBody(a_controller, m_originalData.controllerKind)) {
+			if (hkpRigidBody* character = rigidBody->m_character) {
+				character->UpdateShape(nullptr);
+			}
+		}
+	}
+
+	DynamicCollisionController::ControllerFields DynamicCollisionController::GetWantedFields(bool a_writeScale) const {
+
+		ControllerFields fields{};
+
+		if (a_writeScale) {
+			fields.writeScale = true;
+			fields.actorHeight = m_originalData.controllerActorHeight * m_currentVisualScale;
+			fields.scale = m_currentVisualScale;
+		}
+
+		if (Config::Collision.bScaleTraversal) {
+
+			const float scale = std::clamp(m_currentVisualScale, 1.0f, std::max(1.0f, Config::Collision.fTraversalMaxScale));
+			const float ramp = std::max(1e-4f, Config::Collision.fTraversalSlopeRampScale);
+			const float normalizedScale = std::clamp((scale - 1.0f) / ramp, 0.0f, 1.0f);
+			const float targetDegrees = std::clamp(Config::Collision.fTraversalMaxSlopeDegrees, 1.0f, 89.0f);
+			const float degrees = std::lerp(m_originalData.maxSlopeDegrees, targetDegrees, normalizedScale);
+			const float radians = degrees * (std::numbers::pi_v<float> / 180.0f);
+			const float stepHeight = m_originalData.stepHeight * std::lerp(1.0f, scale, std::clamp(Config::Collision.fTraversalStepScaling, 0.0f, 1.0f));
+
+			fields.writeTraversal = true;
+			fields.maxSlopeRaw = EncodeControllerMaxSlope(degrees);
+			fields.stepHeight = stepHeight;
+
+			// The game derives reach from the slope once in the controller ctor, so a changed
+			// slope leaves it stale unless we rewrite it too.
+			fields.stepReach = stepHeight / std::tan(radians);
+
+			// bhkCharacterController::maxSlope only reaches the proxy path. On the rigid body the
+			// limit Bethesda left at havok's default 60 degrees is this one.
+			fields.rigidBodyMaxSlopeCosine = std::cos(radians);
+
+			// Above this the simplex solver stops solving planes together and lets the character
+			// penetrate instead. A giant's normal walking speed clears the stock 10 on its own.
+			// keepDistance is left alone on purpose. It is the gap the proxy holds from every
+			// surface, so scaling it lifts the character off the ground by that much.
+			fields.proxyMaxSolverSpeed = m_originalData.proxyMaxSolverSpeed * scale;
+		}
+		else if (m_traversalApplied) {
+			fields.writeTraversal = true;
+			fields.maxSlopeRaw = m_originalData.maxSlopeRaw;
+			fields.stepHeight = m_originalData.stepHeight;
+			fields.stepReach = m_originalData.stepReach;
+			fields.rigidBodyMaxSlopeCosine = m_originalData.rigidBodyMaxSlopeCosine;
+			fields.proxyMaxSolverSpeed = m_originalData.proxyMaxSolverSpeed;
+		}
+
+		return fields;
+	}
+
+	bool DynamicCollisionController::FieldsMatch(bhkCharacterController* a_controller, const ControllerFields& a_fields) const {
+
+		if (a_fields.writeScale && (a_controller->actorHeight != a_fields.actorHeight || a_controller->scale != a_fields.scale)) {
+			return false;
+		}
+
+		if (!a_fields.writeTraversal) {
+			return true;
+		}
+
+		if (a_controller->maxSlope != a_fields.maxSlopeRaw ||
+			GetControllerStepHeight(a_controller) != a_fields.stepHeight ||
+			GetControllerStepReach(a_controller) != a_fields.stepReach) {
+			return false;
+		}
+
+		if (const hkpCharacterRigidBody* rigidBody = GetControllerRigidBody(a_controller, m_originalData.controllerKind)) {
+			return rigidBody->m_maxSlopeCosine == a_fields.rigidBodyMaxSlopeCosine;
+		}
+		if (const hkpCharacterProxy* proxy = GetControllerProxy(a_controller, m_originalData.controllerKind)) {
+			return proxy->maxCharacterSpeedForSolver == a_fields.proxyMaxSolverSpeed;
+		}
+		return true;
+	}
+
+	void DynamicCollisionController::WriteFields(bhkCharacterController* a_controller, const ControllerFields& a_fields) const {
+
+		if (a_fields.writeScale) {
+			a_controller->actorHeight = a_fields.actorHeight;
+			a_controller->scale = a_fields.scale;
+		}
+
+		if (!a_fields.writeTraversal) {
+			return;
+		}
+
+		a_controller->maxSlope = a_fields.maxSlopeRaw;
+		SetControllerStepHeight(a_controller, a_fields.stepHeight);
+		SetControllerStepReach(a_controller, a_fields.stepReach);
+
+		if (hkpCharacterRigidBody* rigidBody = GetControllerRigidBody(a_controller, m_originalData.controllerKind)) {
+			rigidBody->m_maxSlopeCosine = a_fields.rigidBodyMaxSlopeCosine;
+		}
+		else if (hkpCharacterProxy* proxy = GetControllerProxy(a_controller, m_originalData.controllerKind)) {
+			proxy->maxCharacterSpeedForSolver = a_fields.proxyMaxSolverSpeed;
+		}
 	}
 
 }

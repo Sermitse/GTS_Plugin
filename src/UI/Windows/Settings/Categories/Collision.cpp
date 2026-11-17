@@ -109,5 +109,46 @@ namespace GTS {
 			}
 
 		}
+
+		ImUtil_Unique
+		{
+
+			PSString THelp = "The game gives every actor the same step height and the same maximum walkable slope regardless of size.\n"
+							 "A large character is therefore stopped by the same 31 unit rock that stops a normal one, which is what makes\n"
+							 "giants catch on small terrain. These settings scale both with the character.";
+
+			PSString T0 = "Scale step height and walkable slope with character size. Applies to the player and NPCs alike.";
+
+			PSString TStep = "How much step height follows the character's scale.\n"
+							 "0.00x keeps the vanilla step height, 1.00x makes it fully proportional (a 10x character steps over 310 units instead of 31).";
+
+			PSString TSlope = "Steepest surface a fully scaled character will treat as walkable.\n\n"
+							  "Note: Values near 90 degrees stop the game from blocking near vertical surfaces at all, which lets the\n"
+							  "physics solver fling the character. Around 70 is the highest generally safe value.";
+
+			PSString TRamp = "Scale at which the maximum slope is reached. Below this the angle is interpolated from the vanilla value.";
+
+			PSString TMax = "Scale at which step height and slope stop increasing.";
+
+			PSString TRadius = "How much the collision shape's edge rounding follows the character's scale.\n\n"
+							   "The game rounds every character's collider by a fixed amount regardless of size, so a large character\n"
+							   "ends up with a proportionally sharp bottom rim that snags on terrain a small one rides over.\n"
+							   "0.00x is the vanilla fixed rounding, 1.00x keeps it proportional. The shape is shrunk to compensate,\n"
+							   "so raising this does not make the collider wider.";
+
+			if (ImGui::CollapsingHeader("Terrain Traversal", ImUtil::HeaderFlagsDefaultOpen)) {
+
+				ImGuiEx::HelpText("What is this", THelp);
+
+				ImGuiEx::CheckBox("Scale Terrain Traversal", &Config::Collision.bScaleTraversal, T0);
+				ImGuiEx::SliderF("Step Height Scaling", &Config::Collision.fTraversalStepScaling, 0.0f, 1.0f, TStep, "%.2fx");
+				ImGuiEx::SliderF("Max Slope", &Config::Collision.fTraversalMaxSlopeDegrees, 45.0f, 85.0f, TSlope, "%.0f°");
+				ImGuiEx::SliderF("Slope Ramp Scale", &Config::Collision.fTraversalSlopeRampScale, 1.0f, 20.0f, TRamp, "%.2fx");
+				ImGuiEx::SliderF("Max Scale", &Config::Collision.fTraversalMaxScale, 1.0f, 100.0f, TMax, "%.2fx");
+				ImGuiEx::SliderF("Collider Edge Rounding", &Config::Collision.fConvexRadiusScaling, 0.0f, 1.0f, TRadius, "%.2fx");
+
+				ImGui::Spacing();
+			}
+		}
 	}
 }

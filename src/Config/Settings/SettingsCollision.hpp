@@ -50,6 +50,13 @@ struct SettingsCollision_t {
 	float fSimpleDrivenHeightMultCrawling = 0.4f;
 
 	float fDynamicColliderMaxUpdateScale = 20.0f;
+	float fConvexRadiusScaling = 1.0f;
+
+	bool bScaleTraversal = true;
+	float fTraversalStepScaling = 1.0f;
+	float fTraversalMaxSlopeDegrees = 70.0f;
+	float fTraversalSlopeRampScale = 5.0f;
+	float fTraversalMaxScale = 20.0f;
 
 };
 TOML_SERIALIZABLE(SettingsCollision_t);
