@@ -57,7 +57,7 @@ namespace GTS {
 
 				std::string msg = fmt::format(
 					"Unsupported Game version: {}!\n"
-					"THE MOD MAY CRASH OR BEHAVE UNEXPECTANDLY. YOU HAVE BEEN WARNED.",
+					"THE MOD MAY CRASH OR BEHAVE UNEXPECTENDLY. YOU HAVE BEEN WARNED.",
 					ver.string()
 				);
 

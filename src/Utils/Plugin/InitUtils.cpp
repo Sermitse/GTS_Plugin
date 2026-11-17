@@ -23,7 +23,7 @@ namespace GTS {
 
 		if (!isValidGameVer) {
 			logger::critical("Unsupported Game version: {}", ver.string());
-			logger::critical("THE PLUGIN MAY CRASH OR BEHAVE UNEXPECTANDLY. YOU HAVE BEEN WARNED.");
+			logger::critical("THE PLUGIN MAY CRASH OR BEHAVE UNEXPECTENDLY. YOU HAVE BEEN WARNED.");
 		}
 	}
 
